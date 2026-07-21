@@ -1765,7 +1765,12 @@ class StateManager {
     }
 }
 
-const state = new StateManager();
+let state = null;
+try {
+    state = new StateManager();
+} catch (e) {
+    console.error("StateManager initialization error, using fallback:", e);
+}
 
 // ==========================================
 // 3. MATCHING LOGIC
