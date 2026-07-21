@@ -1,4 +1,5 @@
-﻿
+﻿var state = null;
+
 window.slideComboGallery = function(itemId, direction) {
     const s = document.getElementById('combo-slider-' + itemId);
     if (!s) return;
@@ -1765,25 +1766,7 @@ class StateManager {
     }
 }
 
-/* StateManager instantiated at bottom */
-
-if (!state) {
-    state = {
-        currentUser: null,
-        musicians: [],
-        events: [],
-        matches: [],
-        messages: [],
-        unlockedContacts: [],
-        getUnreadCount() { return 0; },
-        notify() {},
-        subscribe() {},
-        saveState() {},
-        loadState() {}
-    };
-    if (typeof initialMusicians !== 'undefined') state.musicians = initialMusicians;
-    if (typeof initialEvents !== 'undefined') state.events = initialEvents;
-}
+/* StateManager clean */
 
 // ==========================================
 // 3. MATCHING LOGIC
@@ -6239,7 +6222,7 @@ try {
 }
 
 // Safe State Initialization at the bottom
-let state = null;
+
 try {
     state = new StateManager();
 } catch (e) {
