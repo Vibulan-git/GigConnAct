@@ -2566,3 +2566,88 @@ body {
         transform: translateX(-50%);
     }
 }
+
+/* -------------------------------------------------------------
+ * Responsive Carousel Slider Styles (v3600)
+ * ------------------------------------------------------------- */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    margin: 2rem 0;
+    padding: 0 10px;
+}
+
+.carousel-viewport {
+    overflow: hidden;
+    width: 100%;
+    border-radius: 18px;
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    gap: 2rem;
+    padding: 0.5rem 0;
+}
+
+.carousel-track .market-tile-card {
+    flex-shrink: 0;
+    width: calc((100% - 4rem) / 3) !important;
+}
+
+@media (max-width: 900px) {
+    .carousel-track .market-tile-card {
+        width: calc((100% - 2rem) / 2) !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .carousel-track {
+        gap: 0px !important;
+    }
+    .carousel-track .market-tile-card {
+        width: 100% !important;
+    }
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid var(--border-glass);
+    color: #ffffff;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: var(--transition-fast);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.carousel-btn:hover {
+    background: var(--color-purple);
+    transform: translateY(-50%) scale(1.08);
+}
+
+.carousel-btn.prev-btn {
+    left: -22px;
+}
+
+.carousel-btn.next-btn {
+    right: -22px;
+}
+
+@media (max-width: 768px) {
+    .carousel-btn.prev-btn {
+        left: 5px;
+    }
+    .carousel-btn.next-btn {
+        right: 5px;
+    }
+}

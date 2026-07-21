@@ -2157,15 +2157,18 @@ function renderLandingPage(container, onNavigate) {
                     </h2>
                 </div>
 
-                <div class="marquee-wrapper">
-                    <div class="marquee-track-musicians">
-                        <div class="marquee-content-musicians">
-                            ${renderMarketGridHTML(state.musicians.slice(0, 3), false)}
-                        </div>
-                        <div class="marquee-content-musicians" aria-hidden="true">
-                            ${renderMarketGridHTML(state.musicians.slice(0, 3), false)}
+                <div class="carousel-container">
+                    <div class="carousel-viewport">
+                        <div class="carousel-track" id="carousel-track-musicians">
+                            ${renderMarketGridHTML(state.musicians.slice(0, 9), false)}
                         </div>
                     </div>
+                    <button class="carousel-btn prev-btn" onclick="slideCarousel('musicians', -1)">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-btn next-btn" onclick="slideCarousel('musicians', 1)">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
                 </div>
             </div>
 
@@ -2177,15 +2180,18 @@ function renderLandingPage(container, onNavigate) {
                     </h2>
                 </div>
 
-                <div class="marquee-wrapper">
-                    <div class="marquee-track-events">
-                        <div class="marquee-content-events">
-                            ${renderMarketGridHTML(state.events.slice(0, 3), true)}
-                        </div>
-                        <div class="marquee-content-events" aria-hidden="true">
-                            ${renderMarketGridHTML(state.events.slice(0, 3), true)}
+                <div class="carousel-container">
+                    <div class="carousel-viewport">
+                        <div class="carousel-track" id="carousel-track-events">
+                            ${renderMarketGridHTML(state.events.slice(0, 9), true)}
                         </div>
                     </div>
+                    <button class="carousel-btn prev-btn" onclick="slideCarousel('events', -1)">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-btn next-btn" onclick="slideCarousel('events', 1)">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
                 </div>
             </div>
 
@@ -2231,6 +2237,13 @@ function renderLandingPage(container, onNavigate) {
     document.getElementById('btn-hero-organizer')?.addEventListener('click', () => {
         onNavigate('musicians');
     });
+
+    // Initialize carousels and reset position
+    window.carouselPositions = { musicians: 0, events: 0 };
+    if (typeof initCarouselTouch === 'function') {
+        initCarouselTouch('musicians');
+        initCarouselTouch('events');
+    }
 }
 
 function getSelectOptions(list, selectedValues = []) {
@@ -6257,3 +6270,70 @@ try {
 } catch (err) {
     console.error("Direct sync execution error:", err);
 }
+
+// ==========================================
+// CAROUSEL SLIDER LOGIC (v3600)
+// ==========================================
+window.carouselPositions = { musicians: 0, events: 0 };
+
+window.slideCarousel = function(type, direction) {
+    const track = document.getElementById(`carousel-track-${type}`);
+    if (!track) return;
+    
+    const cards = track.querySelectorAll('.market-tile-card');
+    const totalCards = cards.length;
+    if (totalCards === 0) return;
+    
+    // Determine how many cards are visible
+    let visibleCards = 3;
+    if (window.innerWidth <= 600) {
+        visibleCards = 1;
+    } else if (window.innerWidth <= 900) {
+        visibleCards = 2;
+    }
+    
+    const maxIndex = totalCards - visibleCards;
+    let newIndex = (window.carouselPositions[type] || 0) + direction;
+    
+    // Circular loop boundaries
+    if (newIndex < 0) {
+        newIndex = maxIndex;
+    } else if (newIndex > maxIndex) {
+        newIndex = 0;
+    }
+    
+    window.carouselPositions[type] = newIndex;
+    
+    const cardWidth = cards[0].getBoundingClientRect().width;
+    const gap = visibleCards === 1 ? 0 : 32; // 2rem gap = 32px
+    const translateAmount = newIndex * (cardWidth + gap);
+    
+    track.style.transform = `translateX(-${translateAmount}px)`;
+};
+
+window.initCarouselTouch = function(type) {
+    const track = document.getElementById(`carousel-track-${type}`);
+    if (!track) return;
+    let startX = 0;
+    let isSwiping = false;
+    
+    track.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        isSwiping = true;
+    }, { passive: true });
+    
+    track.addEventListener('touchend', (e) => {
+        if (!isSwiping) return;
+        const endX = e.changedTouches[0].clientX;
+        const diffX = startX - endX;
+        
+        if (Math.abs(diffX) > 40) {
+            if (diffX > 0) {
+                window.slideCarousel(type, 1);
+            } else {
+                window.slideCarousel(type, -1);
+            }
+        }
+        isSwiping = false;
+    }, { passive: true });
+};
