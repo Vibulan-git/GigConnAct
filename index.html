@@ -14,9 +14,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- App Root Container -->
     <div id="app" class="app-container">
-        <!-- Navigation Bar -->
         <header class="app-header">
             <div class="header-container">
                 <a href="#" class="logo-area" id="logo-link">
@@ -29,39 +27,17 @@
                         </div>
                     </div>
                 </a>
-                
-                <!-- Main Navigation -->
-                <nav class="main-nav" id="main-nav">
-                    <!-- Dynamic navigation links will be generated here -->
-                </nav>
-
-                <!-- Auth Buttons / User Area -->
-                <div class="auth-area" id="auth-area">
-                    <!-- Dynamic login/register/logout buttons will be here -->
-                </div>
+                <nav class="main-nav" id="main-nav"></nav>
+                <div class="auth-area" id="auth-area"></div>
             </div>
         </header>
-
-        <!-- Main Workspace Area -->
-        <main class="app-main" id="app-main">
-            <!-- Dynamic pages will be injected here: Landing Page, Markets, Dashboard, Postbox, Profile -->
-        </main>
-
-        <!-- Notification Toast Container -->
+        <main class="app-main" id="app-main"></main>
         <div id="toast-container" class="toast-container"></div>
-
-        <!-- Modals Container -->
-        <div id="modal-container" class="modal-overlay hidden">
-            <!-- Dynamic modals will be injected here (Login, Registrations, SEPA, Mail confirmation) -->
-        </div>
-
-        <!-- Footer -->
+        <div id="modal-container" class="modal-overlay hidden"></div>
         <footer class="app-footer">
             <p>&copy; 2026 GigConnAct. Alle Rechte vorbehalten. | <span class="premium-badge">Musiker-Abo: 5 â‚¬ / Monat (oder 50 â‚¬ / Jahr)</span> | <a href="#" id="btn-reset-demo" style="color:var(--color-red); margin-left: 10px; text-decoration: underline;">Demo-Daten zurÃ¼cksetzen</a></p>
         </footer>
     </div>
-
-    <!-- Main JavaScript Entry Point -->
     <script src="app.js"></script>
 </body>
 </html>

@@ -810,7 +810,7 @@ class StateManager {
                 for (let i = 0; i < 10; i++) {
                     const event = availableEvents[i];
                     if (event) {
-                        const status = i < 3  - booked" : i < 5  - declined" : "contacted";
+                        const status = i < 3 ? "booked" : i < 5 ? "declined" : "contacted";
                         m.applications.push({
                             eventId: event.id,
                             status: status
@@ -3499,7 +3499,7 @@ function renderMatchesPage(container) {
                                 navigate('postbox');
                             } else {
                                 showToast({
-                                    title: res.active  - Interesse bekundet!" : "Interesse zurückgezogen",
+                                    title: res.active ? "Interesse bekundet!" : "Interesse zurückgezogen",
                                     message: res.active  - Dein Interesse wurde erfolgreich übermittelt." : "Dein Interesse wurde zurückgezogen."
                                 });
                                 updateMatches();
@@ -3516,8 +3516,8 @@ function renderMatchesPage(container) {
                         const res = state.toggleNoInterest(u.role, musicianId, eventId);
                         if (res.success) {
                             showToast({
-                                title: res.active  - Kein Interesse markiert" : "Markierung aufgehoben",
-                                message: res.active  - Dieses Angebot wurde als nicht interessant markiert." : "Die Markierung wurde aufgehoben."
+                                title: res.active ? "Kein Interesse markiert" : "Markierung aufgehoben",
+                                message: res.active ? "Dieses Angebot wurde als nicht interessant markiert." : "Die Markierung wurde aufgehoben."
                             });
                             updateMatches();
                         }
@@ -3803,12 +3803,12 @@ function renderMyEvents(container) {
             const event = state.events.find(e => e.id === id);
             if (event) {
                 const isAct = isEventActive(event);
-                const actionText = isAct  - deaktivieren" : "unwiderruflich löschen";
+                const actionText = isAct ? "deaktivieren" : "unwiderruflich löschen";
                 if (confirm(`Möchtest du das Event "${event.name}" wirklich ${actionText}?`)) {
                     state.deleteEvent(id);
                     showToast({
-                        title: isAct  - Event deaktiviert" : "Event gelöscht",
-                        message: isAct  - Das Event wurde erfolgreich deaktiviert." : "Das Event wurde erfolgreich aus der Suche entfernt."
+                        title: isAct ? "Event deaktiviert" : "Event gelöscht",
+                        message: isAct ? "Das Event wurde erfolgreich deaktiviert." : "Das Event wurde erfolgreich aus der Suche entfernt."
                     });
                     renderMyEvents(container);
                 }
@@ -4066,7 +4066,7 @@ function renderMyMusicians(container) {
                 if (result.success) {
                     showToast({
                         title: newStatus === 'booked'  - Event gebucht! 🎉" : "Status aktualisiert",
-                        message: newStatus === 'booked'  - Du hast den Auftritt als 'Gebucht' markiert." : "Der Status wurde wieder auf 'Kontaktiert' gesetzt."
+                        message: newStatus === 'booked' ? "Du hast den Auftritt als 'Gebucht' markiert." : "Der Status wurde wieder auf 'Kontaktiert' gesetzt."
                     });
                     
                     const updatedMusician = state.musicians.find(mus => mus.id === musId);
@@ -4086,7 +4086,7 @@ function renderMyMusicians(container) {
                 if (result.success) {
                     showToast({
                         title: newStatus === 'declined'  - Absage markiert 🔴" : "Status aktualisiert",
-                        message: newStatus === 'declined'  - Du hast die Bewerbung als 'Abgesagt' markiert." : "Der Status wurde wieder auf 'Kontaktiert' gesetzt."
+                        message: newStatus === 'declined' ? "Du hast die Bewerbung als 'Abgesagt' markiert." : "Der Status wurde wieder auf 'Kontaktiert' gesetzt."
                     });
                     
                     const updatedMusician = state.musicians.find(mus => mus.id === musId);
