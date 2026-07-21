@@ -2002,10 +2002,10 @@ function renderLandingPage(container, onNavigate) {
                     <!-- Extra Large CTA Buttons: Musiker = LILA, Veranstalter = BLAU -->
                     <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem;">
                         <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.25rem 2.8rem; font-weight: 800; font-size: 1.25rem; border-radius: 14px; box-shadow: 0 12px 35px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
-                            <i class="fa-solid fa-guitar"></i> Ich bin Musiker und suche Gigs
+                            <i class="fa-solid fa-guitar"></i> Ich bin Musiker<br>und suche Gigs
                         </button>
                         <button class="btn" id="btn-hero-organizer" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.25rem 2.8rem; font-weight: 800; font-size: 1.25rem; border-radius: 14px; box-shadow: 0 12px 35px rgba(37, 99, 235, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
-                            <i class="fa-solid fa-calendar-plus"></i> Ich bin Veranstalter und suche Acts
+                            <i class="fa-solid fa-calendar-plus"></i> Ich bin Veranstalter<br>und suche Acts
                         </button>
                     </div>
                 </div>
@@ -2406,7 +2406,7 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page" style="max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem 5rem;">
             
-            <!-- Page Header (Ohne Untertitel!) -->
+            <!-- Page Header -->
             <div style="margin-bottom: 1.8rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                 <div>
                     <h1 style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 900; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 0.8rem;">
@@ -2428,19 +2428,19 @@ function renderMarket(container, type, onNavigate) {
             <!-- Main Layout: Left Sticky Sidebar Filters + Center Content -->
             <div class="market-layout-container" style="display: grid; grid-template-columns: 280px 1fr; gap: 2rem; align-items: start;">
                 
-                <!-- Left Sidebar Filters (FARBLICH ABGEGRENZTE LILA KACHELN) -->
+                <!-- Left Sidebar Filters (LILA SCHRIFTEN & SUCHBEGRIFFE FELD) -->
                 <div class="market-filter-card" style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); position: sticky; top: 90px; max-height: calc(100vh - 110px); overflow-y: auto;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 2px solid rgba(124, 58, 237, 0.3); padding-bottom: 0.8rem;">
-                        <span style="color: #ffffff; font-weight: 900; font-size: 1.15rem; display: flex; align-items: center; gap: 0.6rem;">
+                        <span style="color: #a855f7; font-weight: 900; font-size: 1.15rem; display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-sliders" style="color: #a855f7;"></i> Filter
                         </span>
                     </div>
                     
                     ${isEvents ? `
-                        <!-- 10 Event-Markt Filter mit lilafarbene Kacheln -->
+                        <!-- 10 Event-Markt Filter + Suchbegriffe -->
                         <div style="display: flex; flex-direction: column; gap: 0.8rem;">
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Event-Art</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Event-Art</label>
                                 <select id="filter-event-type" class="form-input" multiple style="width: 100%; height: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                                     <option value="Hochzeit">Hochzeit</option>
                                     <option value="Geburtstag">Geburtstag</option>
@@ -2452,17 +2452,17 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Datum</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Datum</label>
                                 <input type="date" id="filter-date" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Ort / PLZ</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Ort / PLZ</label>
                                 <input type="text" id="filter-location" placeholder="z.B. KÃ¶ln, Berlin..." class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Umkreis</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Umkreis</label>
                                 <select id="filter-distance" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                                     <option value="">Beliebiger Umkreis</option>
                                     <option value="25">bis 25 km</option>
@@ -2473,7 +2473,7 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Genres</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Genres</label>
                                 <select id="filter-genre" class="form-input" multiple style="width: 100%; height: 100px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                                     <option value="Pop">Pop</option>
                                     <option value="Rock">Rock</option>
@@ -2485,7 +2485,7 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Instrumente</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Instrumente</label>
                                 <select id="filter-instrument" class="form-input" multiple style="width: 100%; height: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                                     <option value="Gesang">Gesang / Solo</option>
                                     <option value="Gitarre">Acoustic Gitarre</option>
@@ -2497,7 +2497,7 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Spieldauer</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Spieldauer</label>
                                 <select id="filter-duration" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                                     <option value="">Beliebige Spieldauer</option>
                                     <option value="1">bis 1 Stunde</option>
@@ -2508,7 +2508,7 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Budgetspanne</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Budgetspanne</label>
                                 <select id="filter-budget" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                                     <option value="">Jedes Budget</option>
                                     <option value="500">bis 500 â‚¬</option>
@@ -2519,7 +2519,7 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Besucheranzahl</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Besucheranzahl</label>
                                 <select id="filter-attendees" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                                     <option value="">Beliebige GÃ¤stezahl</option>
                                     <option value="50">bis 50 GÃ¤ste</option>
@@ -2529,12 +2529,18 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Technik</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Technik</label>
                                 <select id="filter-equipment" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                                     <option value="">Beliebig</option>
                                     <option value="Vorhanden">Vorhanden</option>
                                     <option value="Mitbringen">Musiker bringt mit</option>
                                 </select>
+                            </div>
+
+                            <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK -->
+                            <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid #a855f7; border-radius: 10px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Suchbegriffe</label>
+                                <input type="text" id="filter-keyword" placeholder="z.B. Hochzeit, Sax, Rock..." class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                             </div>
 
                             <div style="padding-top: 0.3rem;">
@@ -2544,11 +2550,11 @@ function renderMarket(container, type, onNavigate) {
                             </div>
                         </div>
                     ` : `
-                        <!-- 10 Musiker-Markt Filter mit lilafarbene Kacheln -->
+                        <!-- 10 Musiker-Markt Filter + Suchbegriffe mit lila Schriften -->
                         <div style="display: flex; flex-direction: column; gap: 0.8rem;">
                             
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Musiker-Typ</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Musiker-Typ</label>
                                 <select id="filter-musician-type" class="form-input" multiple style="width: 100%; height: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                                     <option value="Solo">Solo-KÃ¼nstler</option>
                                     <option value="Duo">Duo / Trio</option>
@@ -2559,17 +2565,17 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Datum / VerfÃ¼gbarkeit</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Datum / VerfÃ¼gbarkeit</label>
                                 <input type="date" id="filter-date-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Ort</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Ort</label>
                                 <input type="text" id="filter-location-m" placeholder="z.B. MÃ¼nchen, KÃ¶ln..." class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Umkreis</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Umkreis</label>
                                 <select id="filter-distance-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                                     <option value="">Beliebiger Umkreis</option>
                                     <option value="25">bis 25 km</option>
@@ -2579,7 +2585,7 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Genres</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Genres</label>
                                 <select id="filter-genre-m" class="form-input" multiple style="width: 100%; height: 100px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                                     <option value="Pop">Pop</option>
                                     <option value="Rock">Rock</option>
@@ -2591,7 +2597,7 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Instrumente</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Instrumente</label>
                                 <select id="filter-instrument-m" class="form-input" multiple style="width: 100%; height: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                                     <option value="Gesang">Gesang</option>
                                     <option value="Gitarre">Gitarre</option>
@@ -2602,7 +2608,7 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Spieldauer</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Spieldauer</label>
                                 <select id="filter-duration-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                                     <option value="">Beliebige Spieldauer</option>
                                     <option value="1">bis 1 Stunde</option>
@@ -2613,7 +2619,7 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Preisspanne</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Preisspanne</label>
                                 <select id="filter-price-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                                     <option value="">Jede Preisspanne</option>
                                     <option value="500">bis 500 â‚¬</option>
@@ -2623,7 +2629,7 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Besucheranzahl</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Besucheranzahl</label>
                                 <select id="filter-attendees-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                                     <option value="">Beliebige GÃ¤stezahl</option>
                                     <option value="50">bis 50 GÃ¤ste</option>
@@ -2632,12 +2638,18 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Technik</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Technik</label>
                                 <select id="filter-equipment-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                                     <option value="">Beliebig</option>
                                     <option value="Eigene">Eigene PA vorhanden</option>
                                     <option value="BenÃ¶tigt">Technik wird benÃ¶tigt</option>
                                 </select>
+                            </div>
+
+                            <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK -->
+                            <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid #a855f7; border-radius: 10px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Suchbegriffe</label>
+                                <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
                             </div>
 
                             <div style="padding-top: 0.3rem;">
@@ -2679,7 +2691,7 @@ function renderMarket(container, type, onNavigate) {
         </div>
     `;
 
-    // ALL FILTERS & SORTING WORKING 100%
+    // Filter logic supporting KEYWORD SEARCH, LOCATION, MULTI-SELECTS & SORTING
     const sortSelect = container.querySelector('#sort-select');
     const resetBtn = container.querySelector('#btn-reset-filters');
 
@@ -2703,7 +2715,18 @@ function renderMarket(container, type, onNavigate) {
             list = list.filter(item => (item.location || '').toLowerCase().includes(locInput));
         }
 
-        // 2. Genres Filter
+        // 2. Suchbegriffe Filter (Freitext-Suche direkt unter Technik)
+        const kw = isEvents
+            ? (container.querySelector('#filter-keyword')?.value || '').trim().toLowerCase()
+            : (container.querySelector('#filter-keyword-m')?.value || '').trim().toLowerCase();
+        if (kw) {
+            list = list.filter(item => {
+                const fullText = [item.name, item.title, item.bio, item.description, item.location, item.category, item.eventType, ...(item.genres||[]), ...(item.instruments||[])].join(' ').toLowerCase();
+                return fullText.includes(kw);
+            });
+        }
+
+        // 3. Genres Filter
         const selGenres = isEvents ? getSelectedValues('filter-genre') : getSelectedValues('filter-genre-m');
         if (selGenres.length > 0) {
             list = list.filter(item => {
@@ -2712,7 +2735,7 @@ function renderMarket(container, type, onNavigate) {
             });
         }
 
-        // 3. Instrumente Filter (FUZZY MATCH FOR INSTRUMENTS FIXED)
+        // 4. Instrumente Filter
         const selInst = isEvents ? getSelectedValues('filter-instrument') : getSelectedValues('filter-instrument-m');
         if (selInst.length > 0) {
             list = list.filter(item => {
@@ -2721,7 +2744,7 @@ function renderMarket(container, type, onNavigate) {
             });
         }
 
-        // 4. Musiker-Typ / Event-Art
+        // 5. Musiker-Typ / Event-Art
         const selType = isEvents ? getSelectedValues('filter-event-type') : getSelectedValues('filter-musician-type');
         if (selType.length > 0) {
             list = list.filter(item => {
@@ -2730,7 +2753,7 @@ function renderMarket(container, type, onNavigate) {
             });
         }
 
-        // 5. Spieldauer Filter (FIXED)
+        // 6. Spieldauer Filter
         const durationVal = isEvents
             ? (container.querySelector('#filter-duration')?.value || '')
             : (container.querySelector('#filter-duration-m')?.value || '');
@@ -2745,7 +2768,7 @@ function renderMarket(container, type, onNavigate) {
             });
         }
 
-        // 6. Sortierungs-Funktion (SORTING WORKING 100%)
+        // 7. Sortierungs-Funktion
         const sortVal = sortSelect?.value || 'match';
         if (sortVal === 'match') {
             list.sort((a, b) => (b.matchScore || 95) - (a.matchScore || 95));
@@ -6016,7 +6039,6 @@ function renderMarketGridHTML(items, isEvents) {
         const genresList = (item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic'])).join(', ');
         const instrumentsList = (item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre'])).join(', ');
         
-        // Remove "ca." from duration
         let duration = item.duration || item.spieldauer || '2 - 4 Stunden';
         duration = duration.replace(/ca\.\s*/gi, '');
 
@@ -6033,7 +6055,7 @@ function renderMarketGridHTML(items, isEvents) {
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
                     <div id="combo-slider-${item.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
                         
-                        <!-- Slides 1-3: Fotos (3 Fotos reichen vÃ¶llig aus) -->
+                        <!-- Slides 1-3: Fotos -->
                         ${photos.map((img) => `
                             <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative;">
                                 <img src="${img}" style="width: 100%; height: 100%; object-fit: cover;">
@@ -6124,7 +6146,7 @@ function renderMarketGridHTML(items, isEvents) {
                         </div>
                     </div>
 
-                    <!-- 3. Beschreibung (STRAFFER VERTIKALER ABSTAND) -->
+                    <!-- 3. Beschreibung -->
                     <div style="margin-bottom: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed rgba(255,255,255,0.08);">
                         <p style="font-size: 0.86rem; color: var(--text-muted); line-height: 1.45; margin: 0;">
                             ${description}
@@ -6132,7 +6154,7 @@ function renderMarketGridHTML(items, isEvents) {
                     </div>
                 </div>
 
-                <!-- 4. Aktions-Button: "Kontaktdaten freischalten" (ENGERER VERTISCHER ABSTAND) -->
+                <!-- 4. Aktions-Button: "Kontaktdaten freischalten" (Ã–FFNET IMMER DIE ANMELDE-SEITE / AUTH MODAL!) -->
                 <div style="padding: 0 1.3rem 1.1rem;">
                     ${isUnlocked ? `
                         <!-- Freigeschaltete Kontaktdaten -->
@@ -6141,12 +6163,12 @@ function renderMarketGridHTML(items, isEvents) {
                             <div>Tel: ${item.phone || '+49 170 1234567'}</div>
                             <div>Mail: ${item.email || 'kontakt@gigconnact.de'}</div>
                         </div>
-                        <button class="btn btn-primary" onclick="if(!state.currentUser){showModal('auth');}else{showToast({title:'Nachricht senden', message:'Postfach Chat gestartet.'});}" style="width: 100%; background: ${themeColor}; border-color: ${themeColor}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                        <button class="btn btn-primary" onclick="showModal('auth')" style="width: 100%; background: ${themeColor}; border-color: ${themeColor}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
                             <i class="fa-solid fa-paper-plane"></i> Nachricht senden
                         </button>
                     ` : `
-                        <!-- Kontaktdaten freischalten Button -->
-                        <button class="btn btn-primary btn-unlock-contact" data-id="${item.id}" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-color: #7c3aed; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);">
+                        <!-- Kontaktdaten freischalten Button (Ã–FFNET DIE ANMELDE-SEITE) -->
+                        <button class="btn btn-primary" onclick="showModal('auth')" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-color: #7c3aed; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);">
                             <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
                         </button>
                     `}
