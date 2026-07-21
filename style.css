@@ -2723,18 +2723,36 @@ body {
 }
 
 .carousel-btn.prev-btn {
-    left: -48px;
+    left: -80px;
 }
 
 .carousel-btn.next-btn {
-    right: -48px;
+    right: -80px;
 }
 
-@media (max-width: 1480px) {
+@media (max-width: 1540px) {
     .carousel-btn.prev-btn {
-        left: 10px;
+        left: -35px;
     }
     .carousel-btn.next-btn {
-        right: 10px;
+        right: -35px;
+    }
+}
+
+@media (max-width: 1400px) {
+    .carousel-btn.prev-btn {
+        left: -20px;
+    }
+    .carousel-btn.next-btn {
+        right: -20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .carousel-btn.prev-btn {
+        left: -20px;
+    }
+    .carousel-btn.next-btn {
+        right: -20px;
     }
 }
