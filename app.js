@@ -6233,3 +6233,12 @@ function renderMarketGridHTML(items, isEvents) {
         `;
     }).join('');
 }
+
+// Immediate Synchronous Execution
+try {
+    if (typeof updateNavbar === 'function') updateNavbar();
+    if (typeof handleRouting === 'function') handleRouting();
+    if (typeof initAllLocationAutocompletes === 'function') initAllLocationAutocompletes();
+} catch (err) {
+    console.error("Direct sync execution error:", err);
+}
