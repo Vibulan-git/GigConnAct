@@ -2713,426 +2713,10 @@ function renderMarket(container, type, onNavigate) {
 }
 
 // Unified Tile Card Renderer - NO EXTRA PAGE & NO POPUP BUTTON!
-function renderMarketGridHTML(items, isEvents) {
-    if (!items || items.length === 0) {
-        return `
-            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass);">
-                <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
-                <h3 style="margin-bottom: 0.5rem; color: var(--text-main);">Keine Ergebnisse gefunden</h3>
-                <p style="color: var(--text-muted);">Versuche deine Filterkriterien anzupassen.</p>
-            </div>
-        `;
-    }
 
-    const themeColor = isEvents ? '#2563eb' : '#7c3aed';
-
-    return items.map(item => {
-        const isNew = item.isNew || item.createdRecently;
-        const isUnlocked = state.unlockedContacts && state.unlockedContacts.includes(item.id);
-        
-        // Max 5 Fotos Galerie (Grid Mosaic Layout: 1 big + 4 small thumbnails)
-        const photos = item.photos || [
-            item.image || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80',
-            'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80',
-            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80',
-            'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80',
-            'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=600&q=80'
-        ];
-
-        // Max 3 Audios
-        const audios = item.audios || [
-            'HÃ¶rprobe 1: Pop & Chart Medley',
-            'HÃ¶rprobe 2: Acoustic Ballad Live',
-            'HÃ¶rprobe 3: Party & Dance Mix'
-        ];
-
-        // Max 3 Videos
-        const videos = item.videos || [
-            'Live Performance Highlights 2024',
-            'Auftritt Trailer & Showreel',
-            'Unplugged Session Video'
-        ];
-
-        const genres = item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic']);
-        const instruments = item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre']);
-        const duration = item.duration || item.spieldauer || 'ca. 2 - 4 Stunden';
-        const description = item.description || item.bio || (isEvents 
-            ? 'Wir suchen eine professionelle musikalische Begleitung fÃ¼r unser anstehendes Event mit fantastischer Stimmung.' 
-            : 'Professionelle Live-Musik fÃ¼r unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.');
-
-        return `
-            <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
-                
-                <!-- 1. Max. 5 Fotos Galerie (Grid Mosaic Layout ganz oben in der Kachel - NICHT GESCHÃœTZT) -->
-                <div class="tile-photo-gallery-grid" style="position: relative; width: 100%; padding: 8px; background: rgba(0,0,0,0.25);">
-                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 4px; height: 160px;">
-                        <div style="grid-row: span 2; border-radius: 8px; overflow: hidden; position: relative;">
-                            <img src="${photos[0]}" style="width: 100%; height: 100%; object-fit: cover;">
-                            <span style="position: absolute; bottom: 6px; left: 6px; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.68rem; font-weight: 800; padding: 0.15rem 0.4rem; border-radius: 4px; backdrop-filter: blur(2px);">
-                                ðŸ“· 1 / 5
-                            </span>
-                        </div>
-                        <div style="border-radius: 6px; overflow: hidden;"><img src="${photos[1]}" style="width: 100%; height: 100%; object-fit: cover;"></div>
-                        <div style="border-radius: 6px; overflow: hidden;"><img src="${photos[2]}" style="width: 100%; height: 100%; object-fit: cover;"></div>
-                        <div style="border-radius: 6px; overflow: hidden;"><img src="${photos[3]}" style="width: 100%; height: 100%; object-fit: cover;"></div>
-                        <div style="border-radius: 6px; overflow: hidden;"><img src="${photos[4]}" style="width: 100%; height: 100%; object-fit: cover;"></div>
-                    </div>
-
-                    <!-- Top Left Badge -->
-                    <div style="position: absolute; top: 14px; left: 14px; z-index: 5;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.75rem; border-radius: 20px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); color: #ffffff; font-size: 0.75rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.2);">
-                            <i class="fa-solid ${isEvents ? 'fa-calendar-day' : 'fa-guitar'}" style="color: ${themeColor};"></i> ${isEvents ? (item.eventType || 'Event') : (item.category || 'Musiker')}
-                        </span>
-                    </div>
-
-                    <!-- Match-Faktor Badge -->
-                    <div style="position: absolute; top: 14px; right: 14px; z-index: 5; background: ${themeColor}; color: #fff; padding: 0.25rem 0.65rem; border-radius: 12px; font-size: 0.75rem; font-weight: 900;">
-                        ${item.matchScore || '96'}% Match
-                    </div>
-                </div>
-
-                <!-- Tile Body Content -->
-                <div style="padding: 1.3rem; flex: 1; display: flex; flex-direction: column;">
-                    
-                    <!-- 2. Bandname / Event-Titel -->
-                    <h3 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; color: var(--text-main); margin-bottom: 0.6rem; line-height: 1.3;">
-                        ${isEvents ? item.title : item.name}
-                    </h3>
-
-                    <!-- 3. Beschreibung -->
-                    <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.1rem;">
-                        ${description}
-                    </p>
-
-                    <!-- 4. Informationen: Standort, Musiker-Typ / Event-Art, VerfÃ¼gbarkeit / Datum, Spieldauer, Gage, Technik -->
-                    <div style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.86rem; color: var(--text-muted); margin-bottom: 1.1rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 0.9rem; border-radius: 10px;">
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px;"></i>
-                            <span>Standort: <strong>${item.location || 'Deutschlandweit'}</strong></span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid ${isEvents ? 'fa-calendar-alt' : 'fa-guitar'}" style="color: ${themeColor}; width: 16px;"></i>
-                            <span>${isEvents ? 'Event-Art:' : 'Musiker-Typ:'} <strong>${isEvents ? (item.eventType || 'Event') : (item.category || 'Solo / Band')}</strong></span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px;"></i>
-                            <span>${isEvents ? 'Datum:' : 'VerfÃ¼gbarkeit:'} <strong>${isEvents ? (item.date || 'Termin nach Absprache') : (item.availability || 'Auf Anfrage verfÃ¼gbar')}</strong></span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px;"></i>
-                            <span>Spieldauer: <strong>${duration}</strong></span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 16px;"></i>
-                            <span>${isEvents ? (`Gage: <strong>${item.budget || 'VB'}</strong>`) : (`Honorar / Gage: <strong>${item.price || 'VB'}</strong>`)}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-plug" style="color: ${themeColor}; width: 16px;"></i>
-                            <span>Technik: <strong>${item.equipment || 'Vorhanden / Auf Anfrage'}</strong></span>
-                        </div>
-                    </div>
-
-                    <!-- 5. Genre und Instrumente direkt darunter (NICHT GESCHÃœTZT) -->
-                    <div style="margin-bottom: 1.2rem;">
-                        <div style="font-size: 0.78rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase;">
-                            Genres & Instrumente
-                        </div>
-                        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
-                            ${genres.map(g => `<span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.76rem; color: var(--text-main); font-weight: 600;">ðŸ·ï¸ ${g}</span>`).join('')}
-                            ${instruments.map(inst => `<span style="background: rgba(124, 58, 237, 0.12); border: 1px solid rgba(124, 58, 237, 0.25); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.76rem; color: ${themeColor}; font-weight: 700;">ðŸŽ¸ ${inst}</span>`).join('')}
-                        </div>
-                    </div>
-
-                    ${!isEvents ? `
-                        <!-- 6. Darunter Videos als Galerie (Max. 3 Videos - Musiker-Markt NICHT GESCHÃœTZT) -->
-                        <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 0.85rem; margin-bottom: 1.1rem;">
-                            <div style="font-size: 0.8rem; font-weight: 800; color: #ef4444; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
-                                <i class="fa-solid fa-film"></i> Videos Galerie (Max. 3 Videos)
-                            </div>
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;">
-                                ${videos.map((vid, idx) => `
-                                    <div onclick="alert('Abspielen von Video #${idx+1}')" style="position: relative; height: 65px; border-radius: 6px; overflow: hidden; background: url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=300&q=80') center/cover; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.15);">
-                                        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.4);"></div>
-                                        <div style="position: relative; z-index: 2; width: 24px; height: 24px; border-radius: 50%; background: #ef4444; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.65rem;">
-                                            <i class="fa-solid fa-play" style="margin-left: 1px;"></i>
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-
-                        <!-- 7. Darunter Audios (Max. 3 Audios - Musiker-Markt NICHT GESCHÃœTZT) -->
-                        <div style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px; padding: 0.85rem; margin-bottom: 1.1rem;">
-                            <div style="font-size: 0.8rem; font-weight: 800; color: #a855f7; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
-                                <i class="fa-solid fa-music"></i> Audio-HÃ¶rproben (Max. 3 Audios)
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 0.4rem;">
-                                ${audios.map((aud, idx) => `
-                                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.35); padding: 0.4rem 0.7rem; border-radius: 6px; font-size: 0.76rem; color: #fff;">
-                                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">ðŸŽµ ${aud}</span>
-                                        <button onclick="const icon=this.querySelector('i'); if(icon.classList.contains('fa-play')){icon.classList.remove('fa-play');icon.classList.add('fa-pause');}else{icon.classList.remove('fa-pause');icon.classList.add('fa-play');}" style="background: #7c3aed; border: none; color: #fff; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.7rem; font-weight: 700; cursor: pointer; flex-shrink: 0;">
-                                            <i class="fa-solid fa-play"></i>
-                                        </button>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
-                </div>
-
-                <!-- Tile Footer: PersÃ¶nliche Infos & Social Media Links & Nachrichten-Button (GESCHÃœTZT) -->
-                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding: 1.1rem; background: rgba(0,0,0,0.25);">
-                    ${isUnlocked ? `
-                        <!-- Freigeschaltete PersÃ¶nliche Infos & Social Links -->
-                        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 0.85rem; font-size: 0.85rem; color: #4ade80; margin-bottom: 0.8rem;">
-                            <div style="font-weight: 800; margin-bottom: 0.3rem;"><i class="fa-solid fa-unlock"></i> PersÃ¶nliche Kontaktdaten</div>
-                            <div>Tel: ${item.phone || '+49 170 1234567'}</div>
-                            <div>Mail: ${item.email || 'kontakt@gigconnact.de'}</div>
-                            ${!isEvents ? `
-                                <div style="margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 0.8rem; font-size: 1.1rem; color: #fff;">
-                                    <a href="#" style="color: #1db954;" title="Spotify"><i class="fa-brands fa-spotify"></i></a>
-                                    <a href="#" style="color: #ff0000;" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
-                                    <a href="#" style="color: #e1306c;" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                                    <a href="#" style="color: #60a5fa;" title="Website"><i class="fa-solid fa-globe"></i></a>
-                                </div>
-                            ` : ''}
-                        </div>
-                        <button class="btn btn-primary" onclick="if(!state.currentUser){showModal('auth');}else{showToast({title:'Nachricht senden', message:'Postfach Chat gestartet.'});}" style="width: 100%; background: ${themeColor}; border-color: ${themeColor}; font-weight: 800; padding: 0.85rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-paper-plane"></i> Nachricht senden
-                        </button>
-                    ` : `
-                        <!-- GeschÃ¼tzte PersÃ¶nliche Infos & Social Links -->
-                        <div style="position: relative; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.85rem; margin-bottom: 0.8rem;">
-                            <div style="filter: blur(4px); user-select: none; opacity: 0.6;">
-                                <div style="font-weight: 700;">Max Mustermann</div>
-                                <div>Tel: +49 170 1234567</div>
-                                <div>Mail: kontakt@gigconnact.de</div>
-                                ${!isEvents ? `
-                                    <div style="display: flex; gap: 0.6rem; margin-top: 0.3rem;">
-                                        <i class="fa-brands fa-spotify"></i> <i class="fa-brands fa-youtube"></i> <i class="fa-brands fa-instagram"></i>
-                                    </div>
-                                ` : ''}
-                            </div>
-                            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(15,23,42,0.65); border-radius: 10px; backdrop-filter: blur(2px);">
-                                <span style="font-size: 0.78rem; font-weight: 800; color: #ffffff;">
-                                    <i class="fa-solid fa-lock" style="color: ${themeColor};"></i> PersÃ¶nliche Infos & Social Links geschÃ¼tzt
-                                </span>
-                            </div>
-                        </div>
-
-                        <button class="btn btn-primary btn-unlock-contact" data-id="${item.id}" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-color: #7c3aed; font-weight: 800; padding: 0.85rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten & Nachricht senden
-                        </button>
-                    `}
-                </div>
-            </div>
-        `;
-    }).join('');
-}
 
 // Unified Tile Card Renderer - NO EXTRA PAGE / NO MODAL NEEDED!
-function renderMarketGridHTML(items, isEvents) {
-    if (!items || items.length === 0) {
-        return `
-            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass);">
-                <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
-                <h3 style="margin-bottom: 0.5rem; color: var(--text-main);">Keine Ergebnisse gefunden</h3>
-                <p style="color: var(--text-muted);">Versuche deine Filterkriterien anzupassen.</p>
-            </div>
-        `;
-    }
 
-    const themeColor = isEvents ? '#2563eb' : '#7c3aed';
-
-    return items.map(item => {
-        const isNew = item.isNew || item.createdRecently;
-        const isUnlocked = state.unlockedContacts && state.unlockedContacts.includes(item.id);
-        
-        // 5 Photos array
-        const photos = item.photos || [
-            item.image || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80',
-            'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80',
-            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80',
-            'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80',
-            'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=600&q=80'
-        ];
-
-        // 3 Audios array
-        const audios = item.audios || [
-            'HÃ¶rprobe 1: Pop & Chart Medley',
-            'HÃ¶rprobe 2: Acoustic Ballad Live',
-            'HÃ¶rprobe 3: Party & Dance Mix'
-        ];
-
-        // 3 Videos array
-        const videos = item.videos || [
-            'Live Performance Highlights 2024',
-            'Hochzeits-Auftritt Trailer',
-            'Unplugged Acoustic Session'
-        ];
-
-        const genres = item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic']);
-        const instruments = item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre']);
-        const duration = item.duration || item.spieldauer || 'ca. 2 - 4 Stunden';
-        const description = item.description || item.bio || (isEvents 
-            ? 'Wir suchen eine professionelle musikalische Begleitung fÃ¼r unser anstehendes Event mit fantastischer Stimmung.' 
-            : 'Professionelle Live-Musik fÃ¼r unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.');
-
-        return `
-            <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); transition: transform 0.2s;">
-                
-                <!-- 1. Max. 5 Fotos Galerie (NIGHT GESCHÃœTZT) -->
-                <div class="tile-photo-gallery" style="position: relative; height: 200px; width: 100%; background: #0f172a; overflow: hidden;">
-                    <div id="slider-${item.id}" style="display: flex; width: 100%; height: 100%; transition: transform 0.3s ease-in-out;">
-                        ${photos.slice(0, 5).map(img => `<img src="${img}" style="width: 100%; height: 100%; object-fit: cover; flex-shrink: 0;">`).join('')}
-                    </div>
-
-                    <!-- Slide Navigation Arrows -->
-                    <button onclick="const s=document.getElementById('slider-${item.id}'); let cur=parseInt(s.getAttribute('data-idx')||'0'); cur=cur>0?cur-1:4; s.style.transform=\`translateX(-\${cur*100}%)\`; s.setAttribute('data-idx', cur);" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5;">
-                        <i class="fa-solid fa-chevron-left" style="font-size: 0.75rem;"></i>
-                    </button>
-                    <button onclick="const s=document.getElementById('slider-${item.id}'); let cur=parseInt(s.getAttribute('data-idx')||'0'); cur=(cur+1)%5; s.style.transform=\`translateX(-\${cur*100}%)\`; s.setAttribute('data-idx', cur);" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5;">
-                        <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i>
-                    </button>
-
-                    <!-- Top Left Badge -->
-                    <div style="position: absolute; top: 10px; left: 10px; z-index: 5;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.75rem; border-radius: 20px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); color: #ffffff; font-size: 0.75rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.2);">
-                            <i class="fa-solid ${isEvents ? 'fa-calendar-day' : 'fa-guitar'}" style="color: ${themeColor};"></i> ${isEvents ? (item.eventType || 'Event') : (item.category || 'Musiker')}
-                        </span>
-                    </div>
-
-                    <!-- Match-Faktor Badge -->
-                    <div style="position: absolute; top: 10px; right: 10px; z-index: 5; background: ${themeColor}; color: #fff; padding: 0.25rem 0.65rem; border-radius: 12px; font-size: 0.75rem; font-weight: 900;">
-                        ${item.matchScore || '96'}% Match
-                    </div>
-                </div>
-
-                <!-- Tile Body Content -->
-                <div style="padding: 1.3rem; flex: 1; display: flex; flex-direction: column;">
-                    
-                    <!-- Title & Basic Info -->
-                    <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 900; color: var(--text-main); margin-bottom: 0.5rem; line-height: 1.3;">
-                        ${isEvents ? item.title : item.name}
-                    </h3>
-
-                    <!-- Inhaltliche Informationen (NICHT GESCHÃœTZT) -->
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.45; margin-bottom: 1rem;">
-                        ${description}
-                    </p>
-
-                    ${!isEvents ? `
-                        <!-- 2. Max 3 Videos (Musiker-Markt NICHT GESCHÃœTZT) -->
-                        <div style="background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 10px; padding: 0.7rem; margin-bottom: 0.9rem;">
-                            <div style="font-size: 0.78rem; font-weight: 800; color: #ef4444; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
-                                <i class="fa-solid fa-circle-play"></i> Max. 3 Videos (Ã–ffentlich)
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 0.35rem;">
-                                ${videos.map((vid, idx) => `
-                                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 0.35rem 0.6rem; border-radius: 6px; font-size: 0.75rem; color: #fff;">
-                                        <span>ðŸŽ¬ ${vid}</span>
-                                        <button onclick="alert('Abspielen von Video #${idx+1}')" style="background: #ef4444; border: none; color: #fff; border-radius: 4px; padding: 0.15rem 0.4rem; font-size: 0.68rem; font-weight: 700; cursor: pointer;">
-                                            <i class="fa-solid fa-play"></i> Video ${idx+1}
-                                        </button>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-
-                        <!-- 3. Max 3 Audios (Musiker-Markt NICHT GESCHÃœTZT) -->
-                        <div style="background: rgba(124, 58, 237, 0.06); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 10px; padding: 0.7rem; margin-bottom: 0.9rem;">
-                            <div style="font-size: 0.78rem; font-weight: 800; color: #a855f7; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
-                                <i class="fa-solid fa-music"></i> Max. 3 HÃ¶rproben / Audios (Ã–ffentlich)
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 0.35rem;">
-                                ${audios.map((aud, idx) => `
-                                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 0.35rem 0.6rem; border-radius: 6px; font-size: 0.75rem; color: #fff;">
-                                        <span>ðŸŽµ ${aud}</span>
-                                        <button onclick="const icon=this.querySelector('i'); if(icon.classList.contains('fa-play')){icon.classList.remove('fa-play');icon.classList.add('fa-pause');}else{icon.classList.remove('fa-pause');icon.classList.add('fa-play');}" style="background: #7c3aed; border: none; color: #fff; border-radius: 4px; padding: 0.15rem 0.4rem; font-size: 0.68rem; font-weight: 700; cursor: pointer;">
-                                            <i class="fa-solid fa-play"></i> Audio ${idx+1}
-                                        </button>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
-
-                    <!-- Genres & Instrumente Tags (NICHT GESCHÃœTZT) -->
-                    <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem;">
-                        ${genres.map(g => `<span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.73rem; color: var(--text-main); font-weight: 600;">ðŸ·ï¸ ${g}</span>`).join('')}
-                        ${instruments.map(inst => `<span style="background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.73rem; color: ${themeColor}; font-weight: 700;">ðŸŽ¸ ${inst}</span>`).join('')}
-                    </div>
-
-                    <!-- Details: Ort, Spieldauer, Gage, Technik (NICHT GESCHÃœTZT) -->
-                    <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.82rem; color: var(--text-muted); margin-top: auto; padding-top: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.1);">
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px;"></i>
-                            <span>${item.location || 'Deutschlandweit'}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px;"></i>
-                            <span>Spieldauer: <strong>${duration}</strong></span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 16px;"></i>
-                            <span>${isEvents ? (`Gage: <strong>${item.budget || 'VB'}</strong>`) : (`Honorar: <strong>${item.price || 'VB'}</strong>`)}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-plug" style="color: ${themeColor}; width: 16px;"></i>
-                            <span>Technik: ${item.equipment || 'Vorhanden / Auf Anfrage'}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card Footer: Persoenliche Infos & Social Media & Nachrichten-Button (GESCHÃœTZT) -->
-                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding: 1rem; background: rgba(0,0,0,0.25);">
-                    ${isUnlocked ? `
-                        <!-- Freigeschaltete Persoenliche Infos & Social Media Links -->
-                        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 0.85rem; font-size: 0.85rem; color: #4ade80; margin-bottom: 0.8rem;">
-                            <div style="font-weight: 800; margin-bottom: 0.3rem;"><i class="fa-solid fa-unlock"></i> PersÃ¶nliche Kontaktdaten</div>
-                            <div>Tel: ${item.phone || '+49 170 1234567'}</div>
-                            <div>Mail: ${item.email || 'kontakt@gigconnact.de'}</div>
-                            ${!isEvents ? `
-                                <div style="margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 0.8rem; font-size: 1.1rem; color: #fff;">
-                                    <a href="#" style="color: #1db954;" title="Spotify"><i class="fa-brands fa-spotify"></i></a>
-                                    <a href="#" style="color: #ff0000;" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
-                                    <a href="#" style="color: #e1306c;" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                                    <a href="#" style="color: #60a5fa;" title="Website"><i class="fa-solid fa-globe"></i></a>
-                                </div>
-                            ` : ''}
-                        </div>
-                        <button class="btn btn-primary" onclick="if(!state.currentUser){showModal('auth');}else{showToast({title:'Nachricht senden', message:'Postfach Chat gestartet.'});}" style="width: 100%; background: ${themeColor}; border-color: ${themeColor}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-paper-plane"></i> Nachricht senden
-                        </button>
-                    ` : `
-                        <!-- Geschuetzte Persoenliche Infos & Social Media Links -->
-                        <div style="position: relative; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.85rem; margin-bottom: 0.8rem;">
-                            <div style="filter: blur(4px); user-select: none; opacity: 0.6;">
-                                <div style="font-weight: 700;">Max Mustermann</div>
-                                <div>Tel: +49 170 1234567</div>
-                                <div>Mail: kontakt@gigconnact.de</div>
-                                ${!isEvents ? `
-                                    <div style="display: flex; gap: 0.6rem; margin-top: 0.3rem;">
-                                        <i class="fa-brands fa-spotify"></i> <i class="fa-brands fa-youtube"></i> <i class="fa-brands fa-instagram"></i>
-                                    </div>
-                                ` : ''}
-                            </div>
-                            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(15,23,42,0.65); border-radius: 10px; backdrop-filter: blur(2px);">
-                                <span style="font-size: 0.78rem; font-weight: 800; color: #ffffff;">
-                                    <i class="fa-solid fa-lock" style="color: ${themeColor};"></i> PersÃ¶nliche Infos & Social Links geschÃ¼tzt
-                                </span>
-                            </div>
-                        </div>
-
-                        <button class="btn btn-primary btn-unlock-contact" data-id="${item.id}" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-color: #7c3aed; font-weight: 800; padding: 0.85rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten & Nachricht senden
-                        </button>
-                    `}
-                </div>
-            </div>
-        `;
-    }).join('');
-}
 
 
 
@@ -6324,7 +5908,8 @@ function renderPostbox(container) {
 
     renderView();
 }
-function renderMarketGridHTML(items, isEvents, roleThemeColor, roleBadgeBg) {
+
+function renderMarketGridHTML(items, isEvents) {
     if (!items || items.length === 0) {
         return `
             <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass);">
@@ -6335,98 +5920,99 @@ function renderMarketGridHTML(items, isEvents, roleThemeColor, roleBadgeBg) {
         `;
     }
 
-    const themeColor = roleThemeColor || (isEvents ? '#2563eb' : '#7c3aed');
-    const badgeBg = roleBadgeBg || (isEvents ? 'rgba(37, 99, 235, 0.12)' : 'rgba(124, 58, 237, 0.12)');
+    const themeColor = isEvents ? '#2563eb' : '#7c3aed';
 
     return items.map(item => {
         const isNew = item.isNew || item.createdRecently;
         const isUnlocked = state.unlockedContacts && state.unlockedContacts.includes(item.id);
         
-        // Photos
-        const photo = item.image || item.photo || (isEvents 
-            ? 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80' 
-            : 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80');
+        // 1. Max. 5 Fotos Galerie (Mosaic Grid Layout ganz oben in der Kachel - NICHT GESCHÃœTZT)
+        const photos = item.photos || [
+            item.image || (isEvents ? 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80' : 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80'),
+            'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=600&q=80'
+        ];
 
-        // Genres & Instruments & Media Details
+        // Max 3 Audios
+        const audios = item.audios || [
+            'HÃ¶rprobe 1: Pop & Chart Medley',
+            'HÃ¶rprobe 2: Acoustic Ballad Live',
+            'HÃ¶rprobe 3: Party & Dance Mix'
+        ];
+
+        // Max 3 Videos
+        const videos = item.videos || [
+            'Live Performance Highlights 2024',
+            'Auftritt Trailer & Showreel',
+            'Unplugged Session Video'
+        ];
+
         const genres = item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic']);
         const instruments = item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre']);
         const duration = item.duration || item.spieldauer || 'ca. 2 - 4 Stunden';
         const description = item.description || item.bio || (isEvents 
-            ? 'Wir suchen eine professionelle musikalische Begleitung fÃ¼r unser anstehendes Event mit toller Stimmung.' 
-            : 'Professionelle Live-Musik fÃ¼r unvergleichliche Momente bei Hochzeiten, Feiern & Firmenevents.');
-        const hasVideo = item.hasVideo !== false;
-        const audioTrack = item.audioTrack || 'Live Demo Track';
+            ? 'Wir suchen eine professionelle musikalische Begleitung fÃ¼r unser anstehendes Event mit fantastischer Stimmung.' 
+            : 'Professionelle Live-Musik fÃ¼r unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.');
 
         return `
-            <div class="market-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s; position: relative;">
+            <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
                 
-                <!-- 1. Foto Header mit Badges (IMMER VISIBEL IM GESCHÃœTZTEN MODUS) -->
-                <div style="position: relative; height: 180px; width: 100%; overflow: hidden; background: #0f172a; cursor: pointer;" onclick="openItemDetailModal('${item.id}', ${isEvents})">
-                    <img src="${photo}" alt="${isEvents ? item.title : item.name}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                    
-                    <div style="position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: center; z-index: 2;">
+                <!-- 1. Max. 5 Fotos Galerie (Grid Mosaic Layout ganz oben in der Kachel - NICHT GESCHÃœTZT) -->
+                <div class="tile-photo-gallery-grid" style="position: relative; width: 100%; padding: 8px; background: rgba(0,0,0,0.25);">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 4px; height: 165px;">
+                        <div style="grid-row: span 2; border-radius: 8px; overflow: hidden; position: relative;">
+                            <img src="${photos[0]}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <span style="position: absolute; bottom: 6px; left: 6px; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.68rem; font-weight: 800; padding: 0.15rem 0.4rem; border-radius: 4px; backdrop-filter: blur(2px);">
+                                ðŸ“· 1 / 5 Fotos
+                            </span>
+                        </div>
+                        <div style="border-radius: 6px; overflow: hidden;"><img src="${photos[1]}" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                        <div style="border-radius: 6px; overflow: hidden;"><img src="${photos[2]}" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                        <div style="border-radius: 6px; overflow: hidden;"><img src="${photos[3]}" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                        <div style="border-radius: 6px; overflow: hidden;"><img src="${photos[4]}" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                    </div>
+
+                    <!-- Top Left Badge -->
+                    <div style="position: absolute; top: 14px; left: 14px; z-index: 5;">
                         <span style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.75rem; border-radius: 20px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); color: #ffffff; font-size: 0.75rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.2);">
                             <i class="fa-solid ${isEvents ? 'fa-calendar-day' : 'fa-guitar'}" style="color: ${themeColor};"></i> ${isEvents ? (item.eventType || 'Event') : (item.category || 'Musiker')}
                         </span>
-                        ${isNew ? `
-                            <span style="background: ${themeColor}; color: #ffffff; font-size: 0.72rem; font-weight: 900; padding: 0.2rem 0.6rem; border-radius: 12px; text-transform: uppercase;">
-                                Neu
-                            </span>
-                        ` : ''}
                     </div>
 
-                    <!-- 2. Video & Audio Badges (IMMER VISIBEL IM GESCHÃœTZTEN MODUS) -->
-                    <div style="position: absolute; bottom: 10px; right: 10px; display: flex; gap: 0.5rem;">
-                        ${hasVideo ? `
-                            <span style="background: rgba(0,0,0,0.75); color: #fff; padding: 0.25rem 0.6rem; border-radius: 12px; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; gap: 0.3rem; backdrop-filter: blur(4px);">
-                                <i class="fa-solid fa-circle-play" style="color: #ef4444;"></i> Video
-                            </span>
-                        ` : ''}
-                        <span style="background: rgba(0,0,0,0.75); color: #fff; padding: 0.25rem 0.6rem; border-radius: 12px; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; gap: 0.3rem; backdrop-filter: blur(4px);">
-                            <i class="fa-solid fa-music" style="color: ${themeColor};"></i> Audio
-                        </span>
+                    <!-- Match-Faktor Badge -->
+                    <div style="position: absolute; top: 14px; right: 14px; z-index: 5; background: ${themeColor}; color: #fff; padding: 0.25rem 0.65rem; border-radius: 12px; font-size: 0.75rem; font-weight: 900;">
+                        ${item.matchScore || '96'}% Match
                     </div>
                 </div>
 
-                <!-- Card Body (IMMER VISIBEL IM GESCHÃœTZTEN MODUS) -->
-                <div style="padding: 1.25rem; flex: 1; display: flex; flex-direction: column;">
+                <!-- Tile Body Content -->
+                <div style="padding: 1.3rem; flex: 1; display: flex; flex-direction: column;">
                     
-                    <!-- Titel -->
-                    <h3 onclick="openItemDetailModal('${item.id}', ${isEvents})" style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem; line-height: 1.3; cursor: pointer;" onmouseover="this.style.color='${themeColor}'" onmouseout="this.style.color='var(--text-main)'">
+                    <!-- 2. Bandname / Event-Titel -->
+                    <h3 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 900; color: var(--text-main); margin-bottom: 0.6rem; line-height: 1.3;">
                         ${isEvents ? item.title : item.name}
                     </h3>
 
                     <!-- 3. Beschreibung -->
-                    <p style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.45; margin-bottom: 0.9rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                    <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.1rem;">
                         ${description}
                     </p>
 
-                    <!-- 4. Audio-Dateien / HÃ¶rproben Player -->
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.6rem 0.8rem; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.8rem;">
-                        <button onclick="const icon=this.querySelector('i'); if(icon.classList.contains('fa-play')){icon.classList.remove('fa-play');icon.classList.add('fa-pause');}else{icon.classList.remove('fa-pause');icon.classList.add('fa-play');}" style="width: 32px; height: 32px; border-radius: 50%; background: ${themeColor}; border: none; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;">
-                            <i class="fa-solid fa-play" style="font-size: 0.8rem; margin-left: 2px;"></i>
-                        </button>
-                        <div style="flex: 1; overflow: hidden;">
-                            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                ðŸŽµ HÃ¶rprobe: ${audioTrack}
-                            </div>
-                            <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 4px; position: relative;">
-                                <div style="width: 45%; height: 100%; background: ${themeColor}; border-radius: 2px;"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 5 & 6. Genres & Instrumente Tags -->
-                    <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem;">
-                        ${genres.map(g => `<span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.73rem; color: var(--text-main); font-weight: 600;">ðŸ·ï¸ ${g}</span>`).join('')}
-                        ${instruments.map(inst => `<span style="background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.73rem; color: ${themeColor}; font-weight: 700;">ðŸŽ¸ ${inst}</span>`).join('')}
-                    </div>
-
-                    <!-- 7. Spieldauer, Ort, Gage, Technik -->
-                    <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.82rem; color: var(--text-muted); margin-top: auto; padding-top: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.1);">
+                    <!-- 4. Informationen: Standort, Musiker-Typ / Event-Art, VerfÃ¼gbarkeit / Datum, Spieldauer, Gage, Technik -->
+                    <div style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.86rem; color: var(--text-muted); margin-bottom: 1.1rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 0.9rem; border-radius: 10px;">
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px;"></i>
-                            <span>${item.location || 'Deutschlandweit'}</span>
+                            <span>Standort: <strong>${item.location || 'Deutschlandweit'}</strong></span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid ${isEvents ? 'fa-calendar-alt' : 'fa-guitar'}" style="color: ${themeColor}; width: 16px;"></i>
+                            <span>${isEvents ? 'Event-Art:' : 'Musiker-Typ:'} <strong>${isEvents ? (item.eventType || 'Event') : (item.category || 'Solo / Band')}</strong></span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px;"></i>
+                            <span>${isEvents ? 'Datum:' : 'VerfÃ¼gbarkeit:'} <strong>${isEvents ? (item.date || 'Termin nach Absprache') : (item.availability || 'Auf Anfrage verfÃ¼gbar')}</strong></span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px;"></i>
@@ -6434,29 +6020,104 @@ function renderMarketGridHTML(items, isEvents, roleThemeColor, roleBadgeBg) {
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 16px;"></i>
-                            <span>${isEvents ? (`Gage: <strong>${item.budget || 'VB'}</strong>`) : (`Honorar: <strong>${item.price || 'VB'}</strong>`)}</span>
+                            <span>${isEvents ? (`Gage: <strong>${item.budget || 'VB'}</strong>`) : (`Honorar / Gage: <strong>${item.price || 'VB'}</strong>`)}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-plug" style="color: ${themeColor}; width: 16px;"></i>
-                            <span>Technik: ${item.equipment || 'Vorhanden / Auf Anfrage'}</span>
+                            <span>Technik: <strong>${item.equipment || 'Vorhanden / Auf Anfrage'}</strong></span>
                         </div>
                     </div>
+
+                    <!-- 5. Genre und Instrumente direkt darunter (NICHT GESCHÃœTZT) -->
+                    <div style="margin-bottom: 1.2rem;">
+                        <div style="font-size: 0.78rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase;">
+                            Genres & Instrumente
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                            ${genres.map(g => `<span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.76rem; color: var(--text-main); font-weight: 600;">ðŸ·ï¸ ${g}</span>`).join('')}
+                            ${instruments.map(inst => `<span style="background: rgba(124, 58, 237, 0.12); border: 1px solid rgba(124, 58, 237, 0.25); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.76rem; color: ${themeColor}; font-weight: 700;">ðŸŽ¸ ${inst}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    ${!isEvents ? `
+                        <!-- 6. Darunter Videos als Galerie (Max. 3 Videos - Musiker-Markt NICHT GESCHÃœTZT) -->
+                        <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 0.85rem; margin-bottom: 1.1rem;">
+                            <div style="font-size: 0.8rem; font-weight: 800; color: #ef4444; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+                                <i class="fa-solid fa-film"></i> Videos Galerie (Max. 3 Videos)
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;">
+                                ${videos.map((vid, idx) => `
+                                    <div onclick="alert('Abspielen von Video #${idx+1}')" style="position: relative; height: 65px; border-radius: 6px; overflow: hidden; background: url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=300&q=80') center/cover; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.15);">
+                                        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.4);"></div>
+                                        <div style="position: relative; z-index: 2; width: 24px; height: 24px; border-radius: 50%; background: #ef4444; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.65rem;">
+                                            <i class="fa-solid fa-play" style="margin-left: 1px;"></i>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <!-- 7. Darunter Audios (Max. 3 Audios - Musiker-Markt NICHT GESCHÃœTZT) -->
+                        <div style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px; padding: 0.85rem; margin-bottom: 1.1rem;">
+                            <div style="font-size: 0.8rem; font-weight: 800; color: #a855f7; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+                                <i class="fa-solid fa-music"></i> Audio-HÃ¶rproben (Max. 3 Audios)
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                                ${audios.map((aud, idx) => `
+                                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.35); padding: 0.4rem 0.7rem; border-radius: 6px; font-size: 0.76rem; color: #fff;">
+                                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">ðŸŽµ ${aud}</span>
+                                        <button onclick="const icon=this.querySelector('i'); if(icon.classList.contains('fa-play')){icon.classList.remove('fa-play');icon.classList.add('fa-pause');}else{icon.classList.remove('fa-pause');icon.classList.add('fa-play');}" style="background: #7c3aed; border: none; color: #fff; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.7rem; font-weight: 700; cursor: pointer; flex-shrink: 0;">
+                                            <i class="fa-solid fa-play"></i>
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
 
-                <!-- Card Footer (Details Button & Protected Contact Unlock Button) -->
-                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding: 1rem; background: rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 0.6rem;">
-                    <button class="btn btn-secondary" onclick="openItemDetailModal('${item.id}', ${isEvents})" style="width: 100%; font-size: 0.85rem; font-weight: 700; padding: 0.65rem; border-radius: 8px;">
-                        <i class="fa-solid fa-circle-info"></i> Profil, HÃ¶rproben & Medien ansehen
-                    </button>
+                <!-- Tile Footer: PersÃ¶nliche Infos & Social Media Links & Nachrichten-Button (GESCHÃœTZT) -->
+                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding: 1.1rem; background: rgba(0,0,0,0.25);">
                     ${isUnlocked ? `
-                        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 0.8rem; font-size: 0.85rem; color: #4ade80;">
-                            <div style="font-weight: 800; margin-bottom: 0.2rem;"><i class="fa-solid fa-unlock"></i> Kontaktdaten freigeschaltet</div>
+                        <!-- Freigeschaltete PersÃ¶nliche Infos & Social Links -->
+                        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 0.85rem; font-size: 0.85rem; color: #4ade80; margin-bottom: 0.8rem;">
+                            <div style="font-weight: 800; margin-bottom: 0.3rem;"><i class="fa-solid fa-unlock"></i> PersÃ¶nliche Kontaktdaten</div>
                             <div>Tel: ${item.phone || '+49 170 1234567'}</div>
                             <div>Mail: ${item.email || 'kontakt@gigconnact.de'}</div>
+                            ${!isEvents ? `
+                                <div style="margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 0.8rem; font-size: 1.1rem; color: #fff;">
+                                    <a href="#" style="color: #1db954;" title="Spotify"><i class="fa-brands fa-spotify"></i></a>
+                                    <a href="#" style="color: #ff0000;" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                                    <a href="#" style="color: #e1306c;" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                                    <a href="#" style="color: #60a5fa;" title="Website"><i class="fa-solid fa-globe"></i></a>
+                                </div>
+                            ` : ''}
                         </div>
+                        <button class="btn btn-primary" onclick="if(!state.currentUser){showModal('auth');}else{showToast({title:'Nachricht senden', message:'Postfach Chat gestartet.'});}" style="width: 100%; background: ${themeColor}; border-color: ${themeColor}; font-weight: 800; padding: 0.85rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-paper-plane"></i> Nachricht senden
+                        </button>
                     ` : `
-                        <button class="btn btn-primary btn-unlock-contact" data-id="${item.id}" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-color: #7c3aed; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
+                        <!-- GeschÃ¼tzte PersÃ¶nliche Infos & Social Links -->
+                        <div style="position: relative; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.85rem; margin-bottom: 0.8rem;">
+                            <div style="filter: blur(4px); user-select: none; opacity: 0.6;">
+                                <div style="font-weight: 700;">Max Mustermann</div>
+                                <div>Tel: +49 170 1234567</div>
+                                <div>Mail: kontakt@gigconnact.de</div>
+                                ${!isEvents ? `
+                                    <div style="display: flex; gap: 0.6rem; margin-top: 0.3rem;">
+                                        <i class="fa-brands fa-spotify"></i> <i class="fa-brands fa-youtube"></i> <i class="fa-brands fa-instagram"></i>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(15,23,42,0.65); border-radius: 10px; backdrop-filter: blur(2px);">
+                                <span style="font-size: 0.78rem; font-weight: 800; color: #ffffff;">
+                                    <i class="fa-solid fa-lock" style="color: ${themeColor};"></i> PersÃ¶nliche Infos & Social Links geschÃ¼tzt
+                                </span>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary btn-unlock-contact" data-id="${item.id}" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-color: #7c3aed; font-weight: 800; padding: 0.85rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten & Nachricht senden
                         </button>
                     `}
                 </div>
