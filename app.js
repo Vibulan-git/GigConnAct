@@ -2157,8 +2157,15 @@ function renderLandingPage(container, onNavigate) {
                     </h2>
                 </div>
 
-                <div id="landing-musicians-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2rem;">
-                    ${renderMarketGridHTML(state.musicians.slice(0, 3), false)}
+                <div class="marquee-wrapper">
+                    <div class="marquee-track-musicians">
+                        <div class="marquee-content-musicians">
+                            ${renderMarketGridHTML(state.musicians.slice(0, 3), false)}
+                        </div>
+                        <div class="marquee-content-musicians" aria-hidden="true">
+                            ${renderMarketGridHTML(state.musicians.slice(0, 3), false)}
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -2170,8 +2177,15 @@ function renderLandingPage(container, onNavigate) {
                     </h2>
                 </div>
 
-                <div id="landing-events-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2rem;">
-                    ${renderMarketGridHTML(state.events.slice(0, 3), true)}
+                <div class="marquee-wrapper">
+                    <div class="marquee-track-events">
+                        <div class="marquee-content-events">
+                            ${renderMarketGridHTML(state.events.slice(0, 3), true)}
+                        </div>
+                        <div class="marquee-content-events" aria-hidden="true">
+                            ${renderMarketGridHTML(state.events.slice(0, 3), true)}
+                        </div>
+                    </div>
                 </div>
             </div>
 

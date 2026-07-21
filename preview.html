@@ -2520,6 +2520,67 @@ body {
     }
 }
 
+/* -------------------------------------------------------------
+ * Infinite Auto-Scrolling Marquee Animations (v3500)
+ * ------------------------------------------------------------- */
+.marquee-wrapper {
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    padding: 1.5rem 0;
+    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+
+.marquee-track-musicians {
+    display: flex;
+    width: max-content;
+    animation: marquee-scroll-left-musicians 32s linear infinite;
+}
+
+.marquee-track-events {
+    display: flex;
+    width: max-content;
+    animation: marquee-scroll-left-events 32s linear infinite;
+}
+
+.marquee-content-musicians,
+.marquee-content-events {
+    display: flex;
+    gap: 2rem;
+    padding: 0 1rem;
+}
+
+.marquee-content-musicians .market-tile-card,
+.marquee-content-events .market-tile-card {
+    flex-shrink: 0;
+    width: 350px;
+}
+
+/* Pause scroll animation on hover so details can be read/clicked easily */
+.marquee-wrapper:hover .marquee-track-musicians,
+.marquee-wrapper:hover .marquee-track-events {
+    animation-play-state: paused;
+}
+
+@keyframes marquee-scroll-left-musicians {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+@keyframes marquee-scroll-left-events {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
         .landing-hero, .hero-section {
             min-height: 68vh !important;
             min-height: 68dvh !important;
@@ -4747,8 +4808,15 @@ function renderLandingPage(container, onNavigate) {
                     </h2>
                 </div>
 
-                <div id="landing-musicians-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2rem;">
-                    ${renderMarketGridHTML(state.musicians.slice(0, 3), false)}
+                <div class="marquee-wrapper">
+                    <div class="marquee-track-musicians">
+                        <div class="marquee-content-musicians">
+                            ${renderMarketGridHTML(state.musicians.slice(0, 3), false)}
+                        </div>
+                        <div class="marquee-content-musicians" aria-hidden="true">
+                            ${renderMarketGridHTML(state.musicians.slice(0, 3), false)}
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -4760,8 +4828,15 @@ function renderLandingPage(container, onNavigate) {
                     </h2>
                 </div>
 
-                <div id="landing-events-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2rem;">
-                    ${renderMarketGridHTML(state.events.slice(0, 3), true)}
+                <div class="marquee-wrapper">
+                    <div class="marquee-track-events">
+                        <div class="marquee-content-events">
+                            ${renderMarketGridHTML(state.events.slice(0, 3), true)}
+                        </div>
+                        <div class="marquee-content-events" aria-hidden="true">
+                            ${renderMarketGridHTML(state.events.slice(0, 3), true)}
+                        </div>
+                    </div>
                 </div>
             </div>
 
