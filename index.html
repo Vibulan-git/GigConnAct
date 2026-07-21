@@ -239,7 +239,12 @@
         </footer>
     </div>
 
-    <!-- Main JavaScript Entry Point -->
+        <!-- Main JavaScript Entry Point -->
     <script src="app.js"></script>
+    <script>
+        if (typeof handleRouting === 'function') {
+            handleRouting();
+        }
+    </script>
 </body>
 </html>
