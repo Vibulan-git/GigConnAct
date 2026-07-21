@@ -1,4 +1,4 @@
-/* -------------------------------------------------------------
+﻿/* -------------------------------------------------------------
  * GigMatch - Premium CSS Stylesheet
  * Brand: Obsidian dark background, Glassmorphism, Neon highlights
  * ------------------------------------------------------------- */
@@ -15,14 +15,14 @@
     --text-muted: #475569;
     --text-dark: #ffffff;
     
-    --grad-primary: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-    --grad-secondary: linear-gradient(135deg, #df9f15 0%, #facc15 100%);
+    --grad-primary: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+    --grad-secondary: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
     --grad-danger: linear-gradient(135deg, #ef4444 0%, #ff7878 100%);
     --grad-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
     --grad-dark: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     
-    --color-cyan: #7c3aed;
-    --color-purple: #df9f15;
+    --color-cyan: #2563eb;
+    --color-purple: #7c3aed;
     --color-green: #10b981;
     --color-red: #ef4444;
     
@@ -2117,7 +2117,7 @@ body {
 }
 
 .btn-secondary {
-    background: #df9f15 !important;
+    background: #7c3aed !important;
     color: #ffffff !important;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
 }
@@ -2473,3 +2473,17 @@ body {
     100% { transform: translate(-10px, 12px); }
 }
 
+
+/* Left Sidebar Filter Layout */
+.market-layout-container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .market-layout-container {
+        grid-template-columns: 1fr !important;
+    }
+}

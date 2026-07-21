@@ -1,5 +1,5 @@
-/* -------------------------------------------------------------
- * GetYourGig - Single Unified Application Script
+﻿/* -------------------------------------------------------------
+ * GigConnAct - Single Unified Application Script
  * Combines mockData, state management, matching logic, and UI
  * rendering in a single non-module file to bypass CORS restrictions
  * when running directly from the local file system (file:/// protocol).
@@ -74,6 +74,65 @@ window.toggleAudioTrack = function(item, audioUrl) {
     }
 };
 
+window.unlockListing = function(targetId, targetName) {
+    if (!state.currentUser) {
+        showModal('auth');
+        return;
+    }
+    if (state.currentUser.role !== 'musician') return;
+    
+    if (state.currentUser.isPremium) return; // already premium
+    
+    if (state.currentUser.credits > 0) {
+        // Show a custom confirmation dialog
+        const modal = document.createElement('div');
+        modal.className = 'custom-video-modal-overlay';
+        modal.style = "position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px);";
+        
+        modal.innerHTML = `
+            <div style="width:90%; max-width:400px; background:var(--bg-card); border:1px solid var(--border-glass); border-radius:12px; padding:1.5rem; position:relative; box-shadow:var(--shadow-premium); text-align:center;">
+                <i class="fa-solid fa-coins" style="font-size:3rem; color:#FFD700; margin-bottom:1rem;"></i>
+                <h4 style="font-family:var(--font-heading); font-size:1.2rem; margin-bottom:0.5rem; color:var(--text-main);">Kontaktdaten freischalten?</h4>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem;">
+                    Möchtest du die Kontaktdaten für <strong>${targetName}</strong> freischalten? Dies kostet dich 1 Credit.<br><br>
+                    <span style="font-weight:700; color:var(--text-main);">Deine verbleibenden Credits: ${state.currentUser.credits}</span>
+                </p>
+                <div style="display:flex; gap:1rem; justify-content:center;">
+                    <button class="btn btn-sm btn-glass" id="btn-cancel-unlock" style="margin:0;">Abbrechen</button>
+                    <button class="btn btn-sm btn-primary" id="btn-confirm-unlock" style="margin:0; background:var(--color-green); border-color:var(--color-green); color:#000; font-weight:700;">1 Credit ausgeben</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        modal.querySelector('#btn-cancel-unlock').addEventListener('click', () => modal.remove());
+        modal.querySelector('#btn-confirm-unlock').addEventListener('click', () => {
+            const res = state.unlockContact(targetId);
+            modal.remove();
+            if (res.success) {
+                showToast({
+                    title: "Kontaktdaten freigeschaltet! 🪙",
+                    message: `Du hast die Kontaktdaten von ${targetName} erfolgreich freigeschaltet.`
+                });
+                updateNavbar();
+                const currentHash = window.location.hash;
+                if ((currentHash.includes('events') || currentHash.includes('musicians')) && typeof window.marketApplyFilters === 'function') {
+                    window.marketApplyFilters();
+                } else if (currentHash.includes('matches') && typeof window.matchesUpdate === 'function') {
+                    window.matchesUpdate();
+                } else {
+                    window.handleRouting();
+                }
+            }
+        });
+    } else {
+        // Track pending unlock ID and open Premium Modal
+        state.pendingUnlockListingId = targetId;
+        showModal('premium');
+    }
+};
+
 // ==========================================
 // 1. MOCK DATA & CONSTANTS
 // ==========================================
@@ -96,7 +155,8 @@ const initialMusicians = [
         contactName: "Maximilian Schmidt",
         phone: "+49 176 12345678",
         email: "contact@neonbeats.de",
-        isPremium: true,
+        isPremium: false,
+        credits: 50,
         socialLinks: {
             spotify: "https://spotify.com/artist/neonbeats",
             youtube: "https://youtube.com/c/neonbeats",
@@ -243,6 +303,54 @@ const initialMusicians = [
             instagram: "https://instagram.com/leo_sax_soul"
         },
         photos: ["https://picsum.photos/id/357/400/300"],
+        videos: [],
+        audio: []
+    },
+    {
+        id: "mus_zero",
+        name: "Leo Null",
+        bluffName: "Gitarrist & Sänger (0 Credits Demo)",
+        type: "Solo",
+        location: "Berlin",
+        radius: 100,
+        genres: ["Pop", "Rock"],
+        instruments: ["Gitarre", "Gesang"],
+        maxDuration: 3,
+        minBudget: 200,
+        eventTypes: ["Birthday", "Wedding"],
+        availability: ["Saturday", "Sunday"],
+        description: "Demo-Musiker-Account mit 0 Credits zum Testen des Bezahlfensters.",
+        contactName: "Leo Null",
+        phone: "+49 170 00000000",
+        email: "zero@musician.de",
+        isPremium: false,
+        credits: 0,
+        socialLinks: { spotify: "", youtube: "", instagram: "" },
+        photos: ["https://picsum.photos/id/111/400/300"],
+        videos: [],
+        audio: []
+    },
+    {
+        id: "mus_five",
+        name: "Fynn Fünf",
+        bluffName: "Singer-Songwriter (5 Credits Demo)",
+        type: "Solo",
+        location: "Hamburg",
+        radius: 100,
+        genres: ["Folk", "Pop"],
+        instruments: ["Akustikgitarre", "Gesang"],
+        maxDuration: 4,
+        minBudget: 300,
+        eventTypes: ["Corporate", "Birthday"],
+        availability: ["Friday", "Saturday"],
+        description: "Demo-Musiker-Account mit 5 Credits zum Testen der Einzelfreischaltung.",
+        contactName: "Fynn Fünf",
+        phone: "+49 175 55555555",
+        email: "five@musician.de",
+        isPremium: false,
+        credits: 5,
+        socialLinks: { spotify: "", youtube: "", instagram: "" },
+        photos: ["https://picsum.photos/id/280/400/300"],
         videos: [],
         audio: []
     }
@@ -513,17 +621,17 @@ class StateManager {
         try {
             const emailsToRemove = ['vibulan22@gmail.de', 'vibulan22@gmail.com', 'vanessa@hotmailx.com', 'vanessa@hotmail.com'];
             
-            const regKey = 'GetYourGig_registered_users';
+            const regKey = 'GigConnAct_registered_users';
             let users = JSON.parse(localStorage.getItem(regKey) || '[]');
             users = users.filter(u => u.email && !emailsToRemove.includes(u.email.toLowerCase()));
             localStorage.setItem(regKey, JSON.stringify(users));
 
-            const musKey = 'GetYourGig_musicians';
+            const musKey = 'GigConnAct_musicians';
             let musicians = JSON.parse(localStorage.getItem(musKey) || '[]');
             musicians = musicians.filter(m => m.email && !emailsToRemove.includes(m.email.toLowerCase()));
             localStorage.setItem(musKey, JSON.stringify(musicians));
 
-            const pendingKey = 'GetYourGig_pending_user';
+            const pendingKey = 'GigConnAct_pending_user';
             let pending = localStorage.getItem(pendingKey);
             if (pending) {
                 const pUser = JSON.parse(pending);
@@ -532,7 +640,7 @@ class StateManager {
                 }
             }
 
-            const userKey = 'GetYourGig_current_user';
+            const userKey = 'GigConnAct_current_user';
             let currentUser = localStorage.getItem(userKey);
             if (currentUser) {
                 const u = JSON.parse(currentUser);
@@ -549,32 +657,46 @@ class StateManager {
 
     loadState() {
         try {
-            const storedUser = localStorage.getItem('GetYourGig_current_user');
+            const storedUser = localStorage.getItem('GigConnAct_current_user');
             this.currentUser = storedUser ? JSON.parse(storedUser) : null;
+            if (this.currentUser && this.currentUser.role === 'musician') {
+                if (this.currentUser.credits === undefined) this.currentUser.credits = 5;
+                if (this.currentUser.unlockedContacts === undefined) this.currentUser.unlockedContacts = [];
+            }
         } catch (e) {
             this.currentUser = null;
         }
 
         try {
-            const storedMusicians = localStorage.getItem('GetYourGig_musicians');
+            const storedMusicians = localStorage.getItem('GigConnAct_musicians');
             const parsed = storedMusicians ? JSON.parse(storedMusicians) : [];
-            const base = (Array.isArray(parsed) && parsed.length > 0) ? parsed : initialMusicians;
+            let base = (Array.isArray(parsed) && parsed.length > 0) ? parsed : [...initialMusicians];
+            initialMusicians.forEach(init => {
+                if (!base.some(m => m.id === init.id)) {
+                    base.push(init);
+                }
+            });
             this.musicians = generateRemainingMusicians(base);
         } catch (e) {
             this.musicians = generateRemainingMusicians(initialMusicians);
         }
 
         try {
-            const storedEvents = localStorage.getItem('GetYourGig_events');
+            const storedEvents = localStorage.getItem('GigConnAct_events');
             const parsed = storedEvents ? JSON.parse(storedEvents) : [];
-            const base = (Array.isArray(parsed) && parsed.length > 0) ? parsed : initialEvents;
+            let base = (Array.isArray(parsed) && parsed.length > 0) ? parsed : [...initialEvents];
+            initialEvents.forEach(init => {
+                if (!base.some(e => e.id === init.id)) {
+                    base.push(init);
+                }
+            });
             this.events = generateRemainingEvents(base);
         } catch (e) {
             this.events = generateRemainingEvents(initialEvents);
         }
 
         try {
-            const storedChats = localStorage.getItem('GetYourGig_chats');
+            const storedChats = localStorage.getItem('GigConnAct_chats');
             const parsed = storedChats ? JSON.parse(storedChats) : [];
             this.chats = (Array.isArray(parsed) && parsed.length > 0) ? parsed : this.getInitialChats();
         } catch (e) {
@@ -582,14 +704,14 @@ class StateManager {
         }
 
         try {
-            const storedRead = localStorage.getItem('GetYourGig_read_chats');
+            const storedRead = localStorage.getItem('GigConnAct_read_chats');
             this.readChats = storedRead ? JSON.parse(storedRead) : [];
         } catch (e) {
             this.readChats = [];
         }
 
         try {
-            const storedInterests = localStorage.getItem('GetYourGig_interests');
+            const storedInterests = localStorage.getItem('GigConnAct_interests');
             this.interests = storedInterests ? JSON.parse(storedInterests) : [];
         } catch (e) {
             this.interests = [];
@@ -598,7 +720,7 @@ class StateManager {
         // Ensure all entities have a createdAt timestamp for sorting and correct creatorId mapping
         let registeredUsers = [];
         try {
-            registeredUsers = JSON.parse(localStorage.getItem('GetYourGig_registered_users') || '[]');
+            registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
         } catch (e) {}
 
         this.musicians.forEach((m, idx) => {
@@ -717,15 +839,15 @@ class StateManager {
 
     saveState() {
         if (this.currentUser) {
-            localStorage.setItem('GetYourGig_current_user', JSON.stringify(this.currentUser));
+            localStorage.setItem('GigConnAct_current_user', JSON.stringify(this.currentUser));
         } else {
-            localStorage.removeItem('GetYourGig_current_user');
+            localStorage.removeItem('GigConnAct_current_user');
         }
-        localStorage.setItem('GetYourGig_musicians', JSON.stringify(this.musicians));
-        localStorage.setItem('GetYourGig_events', JSON.stringify(this.events));
-        localStorage.setItem('GetYourGig_chats', JSON.stringify(this.chats));
-        localStorage.setItem('GetYourGig_read_chats', JSON.stringify(this.readChats));
-        localStorage.setItem('GetYourGig_interests', JSON.stringify(this.interests || []));
+        localStorage.setItem('GigConnAct_musicians', JSON.stringify(this.musicians));
+        localStorage.setItem('GigConnAct_events', JSON.stringify(this.events));
+        localStorage.setItem('GigConnAct_chats', JSON.stringify(this.chats));
+        localStorage.setItem('GigConnAct_read_chats', JSON.stringify(this.readChats));
+        localStorage.setItem('GigConnAct_interests', JSON.stringify(this.interests || []));
     }
 
     hasExpressedInterest(fromRole, musicianId, eventId) {
@@ -895,6 +1017,8 @@ class StateManager {
                 phone: musician.phone,
                 email: musician.email,
                 isPremium: musician.isPremium,
+                credits: musician.credits !== undefined ? musician.credits : 5,
+                unlockedContacts: musician.unlockedContacts || [],
                 profileId: musician.id,
                 successfulGigs: 3,
                 contactRequests: 5
@@ -922,7 +1046,7 @@ class StateManager {
             return { success: true, user: this.currentUser };
         }
 
-        const registeredUsers = JSON.parse(localStorage.getItem('GetYourGig_registered_users') || '[]');
+        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
         const registered = registeredUsers.find(u => u.email && u.email.toLowerCase() === email.toLowerCase() && u.password === password);
         if (registered) {
             this.currentUser = {
@@ -934,6 +1058,8 @@ class StateManager {
                 phone: registered.phone,
                 email: registered.email,
                 isPremium: registered.role === "musician" ? registered.isPremium : true,
+                credits: registered.role === "musician" ? (registered.credits !== undefined ? registered.credits : 5) : 0,
+                unlockedContacts: registered.unlockedContacts || [],
                 profileId: registered.profileId,
                 successfulGigs: registered.successfulGigs || 0,
                 contactRequests: registered.contactRequests || 0
@@ -950,8 +1076,72 @@ class StateManager {
         this.notify();
     }
 
+    hasContactAccess(activeId, targetId) {
+        if (!this.currentUser) return false;
+        if (this.currentUser.role === 'organizer') return true;
+        if (this.currentUser.isPremium) return true;
+        if (this.currentUser.id === targetId || this.currentUser.profileId === targetId) return true;
+        
+        const unlocked = this.currentUser.unlockedContacts || [];
+        return unlocked.includes(targetId);
+    }
+
+    unlockContact(targetId) {
+        if (!this.currentUser) return { success: false, message: "Bitte melde dich an." };
+        if (this.currentUser.credits <= 0 && !this.currentUser.isPremium) return { success: false, message: "Nicht genügend Credits." };
+        
+        if (!this.currentUser.isPremium) {
+            this.currentUser.credits -= 1;
+        }
+        
+        if (!this.currentUser.unlockedContacts) this.currentUser.unlockedContacts = [];
+        if (!this.currentUser.unlockedContacts.includes(targetId)) {
+            this.currentUser.unlockedContacts.push(targetId);
+        }
+        
+        // Update registered users
+        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+        const index = registeredUsers.findIndex(u => u.id === this.currentUser.id);
+        if (index !== -1) {
+            registeredUsers[index].credits = this.currentUser.credits;
+            registeredUsers[index].unlockedContacts = this.currentUser.unlockedContacts;
+            localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+        }
+
+        // Also update musician profile if applicable
+        const musician = this.musicians.find(m => m.id === this.currentUser.profileId);
+        if (musician) {
+            musician.credits = this.currentUser.credits;
+            musician.unlockedContacts = this.currentUser.unlockedContacts;
+        }
+        
+        this.saveState();
+        this.notify();
+        return { success: true };
+    }
+
+    addCredits(amount) {
+        if (!this.currentUser) return;
+        this.currentUser.credits = (this.currentUser.credits || 0) + amount;
+        
+        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+        const index = registeredUsers.findIndex(u => u.id === this.currentUser.id);
+        if (index !== -1) {
+            registeredUsers[index].credits = this.currentUser.credits;
+            localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+        }
+
+        const musician = this.musicians.find(m => m.id === this.currentUser.profileId);
+        if (musician) {
+            musician.credits = this.currentUser.credits;
+        }
+
+        this.saveState();
+        this.notify();
+    }
+
     register(payload) {
-        const registeredUsers = JSON.parse(localStorage.getItem('GetYourGig_registered_users') || '[]');
+        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
         const emailExists = this.musicians.some(m => m.email && m.email.toLowerCase() === payload.email.toLowerCase()) || 
                             this.events.some(e => e.email && e.email.toLowerCase() === payload.email.toLowerCase()) ||
                             registeredUsers.some(u => u.email && u.email.toLowerCase() === payload.email.toLowerCase());
@@ -980,18 +1170,18 @@ class StateManager {
             rawData: payload
         };
 
-        localStorage.setItem('GetYourGig_pending_user', JSON.stringify(newUser));
+        localStorage.setItem('GigConnAct_pending_user', JSON.stringify(newUser));
         return { success: true, user: newUser };
     }
 
     confirmEmail() {
-        const pending = localStorage.getItem('GetYourGig_pending_user');
+        const pending = localStorage.getItem('GigConnAct_pending_user');
         if (!pending) return { success: false, message: "Keine ausstehende Registrierung gefunden." };
 
         const user = JSON.parse(pending);
         user.isVerified = true;
 
-        const registeredUsers = JSON.parse(localStorage.getItem('GetYourGig_registered_users') || '[]');
+        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
         registeredUsers.push({
             id: user.id,
             role: user.role,
@@ -1003,10 +1193,12 @@ class StateManager {
             phone: user.phone,
             profileId: user.profileId,
             isPremium: user.isPremium,
+            credits: user.role === "musician" ? 5 : 0,
+            unlockedContacts: [],
             successfulGigs: 0,
             contactRequests: 0
         });
-        localStorage.setItem('GetYourGig_registered_users', JSON.stringify(registeredUsers));
+        localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
 
         if (user.role === "musician") {
             const data = user.rawData;
@@ -1030,6 +1222,8 @@ class StateManager {
                 phone: user.phone,
                 email: user.email,
                 isPremium: user.isPremium,
+                credits: 5,
+                unlockedContacts: [],
                 socialLinks: { spotify: "", youtube: "", instagram: "" },
                 photos: [],
                 videos: [],
@@ -1076,7 +1270,7 @@ class StateManager {
             contactRequests: 0
         };
 
-        localStorage.removeItem('GetYourGig_pending_user');
+        localStorage.removeItem('GigConnAct_pending_user');
         this.notify();
         return { success: true, user: this.currentUser };
     }
@@ -1133,7 +1327,7 @@ class StateManager {
     initiateContact(targetId, targetName) {
         if (!this.currentUser) return { success: false, redirectAuth: true };
         
-        const welcomeText = `Hallo! Ich habe dein Profil auf GetYourGig gefunden und interessiere mich für eine Zusammenarbeit. Lass uns hier schreiben!`;
+        const welcomeText = `Hallo! Ich habe dein Profil auf GigConnAct gefunden und interessiere mich für eine Zusammenarbeit. Lass uns hier schreiben!`;
         this.sendMessage(targetId, welcomeText);
         
         this.currentUser.contactRequests = (this.currentUser.contactRequests || 0) + 1;
@@ -1209,11 +1403,11 @@ class StateManager {
         if (!this.currentUser) return;
         this.currentUser.successfulGigs = (this.currentUser.successfulGigs || 0) + 1;
         
-        const registeredUsers = JSON.parse(localStorage.getItem('GetYourGig_registered_users') || '[]');
+        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
         const index = registeredUsers.findIndex(u => u.id === this.currentUser.id);
         if (index !== -1) {
             registeredUsers[index].successfulGigs = this.currentUser.successfulGigs;
-            localStorage.setItem('GetYourGig_registered_users', JSON.stringify(registeredUsers));
+            localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
         }
 
         this.notify();
@@ -1230,7 +1424,7 @@ class StateManager {
         this.currentUser.email = updatedData.email;
         
         // Update user storage
-        const registeredUsers = JSON.parse(localStorage.getItem('GetYourGig_registered_users') || '[]');
+        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
         const index = registeredUsers.findIndex(u => u.id === this.currentUser.id);
         if (index !== -1) {
             registeredUsers[index].firstName = this.currentUser.firstName;
@@ -1241,7 +1435,7 @@ class StateManager {
             if (updatedData.password) {
                 registeredUsers[index].password = updatedData.password;
             }
-            localStorage.setItem('GetYourGig_registered_users', JSON.stringify(registeredUsers));
+            localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
         }
 
         // Also update contact details on their created musicians and events!
@@ -1281,9 +1475,9 @@ class StateManager {
         this.chats = this.chats.filter(c => !c.participants.includes(userId));
         
         // 4. Delete user from registered users database
-        const registeredUsers = JSON.parse(localStorage.getItem('GetYourGig_registered_users') || '[]');
+        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
         const updatedUsers = registeredUsers.filter(u => u.id !== userId);
-        localStorage.setItem('GetYourGig_registered_users', JSON.stringify(updatedUsers));
+        localStorage.setItem('GigConnAct_registered_users', JSON.stringify(updatedUsers));
         
         // 5. Logout current user
         this.currentUser = null;
@@ -1333,11 +1527,11 @@ class StateManager {
         const event = this.events.find(e => e.id === eventId);
         if (event) {
             event.musicianFound = true;
-            const registeredUsers = JSON.parse(localStorage.getItem('GetYourGig_registered_users') || '[]');
+            const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
             const creator = registeredUsers.find(u => u.id === event.creatorId);
             if (creator) {
                 creator.successfulGigs = (creator.successfulGigs || 0) + 1;
-                localStorage.setItem('GetYourGig_registered_users', JSON.stringify(registeredUsers));
+                localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
             }
             if (this.currentUser && this.currentUser.id === event.creatorId) {
                 this.currentUser.successfulGigs = (this.currentUser.successfulGigs || 0) + 1;
@@ -1451,6 +1645,54 @@ class StateManager {
         return { success: false };
     }
 
+        acceptMusicianRequest(musicianId, eventId) {
+        if (!this.interests) this.interests = [];
+        let interest = this.interests.find(i => i.musicianId === musicianId && i.eventId === eventId);
+        if (!interest) {
+            interest = {
+                musicianId: musicianId,
+                eventId: eventId,
+                musicianInterested: true,
+                organizerInterested: true,
+                musicianNoInterest: false,
+                organizerNoInterest: false
+            };
+            this.interests.push(interest);
+        } else {
+            interest.musicianInterested = true;
+            interest.organizerInterested = true;
+            interest.musicianNoInterest = false;
+            interest.organizerNoInterest = false;
+        }
+        this.setApplicationStatus(musicianId, eventId, 'booked');
+        this.saveState();
+        this.notify();
+        return { success: true };
+    }
+
+    declineMusicianRequest(musicianId, eventId) {
+        if (!this.interests) this.interests = [];
+        let interest = this.interests.find(i => i.musicianId === musicianId && i.eventId === eventId);
+        if (!interest) {
+            interest = {
+                musicianId: musicianId,
+                eventId: eventId,
+                musicianInterested: true,
+                organizerInterested: false,
+                musicianNoInterest: false,
+                organizerNoInterest: true
+            };
+            this.interests.push(interest);
+        } else {
+            interest.organizerInterested = false;
+            interest.organizerNoInterest = true;
+        }
+        this.setApplicationStatus(musicianId, eventId, 'declined');
+        this.saveState();
+        this.notify();
+        return { success: true };
+    }
+
     addMedia(musicianId, type, fileUrl) {
         if (!this.currentUser || this.currentUser.role !== "musician") return;
         const musician = this.musicians.find(m => m.id === musicianId);
@@ -1494,11 +1736,11 @@ class StateManager {
             musician.isPremium = this.currentUser.isPremium;
         }
 
-        const registeredUsers = JSON.parse(localStorage.getItem('GetYourGig_registered_users') || '[]');
+        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
         const index = registeredUsers.findIndex(u => u.id === this.currentUser.id);
         if (index !== -1) {
             registeredUsers[index].isPremium = this.currentUser.isPremium;
-            localStorage.setItem('GetYourGig_registered_users', JSON.stringify(registeredUsers));
+            localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
         }
 
         this.notify();
@@ -1722,175 +1964,230 @@ function showToast(options) {
 }
 
 function renderLandingPage(container, onNavigate) {
+    const isUserLoggedIn = !!state.currentUser;
+
     container.innerHTML = `
-        <section class="hero-section" style="padding: 4rem 1rem 6rem; max-width: 950px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center;">
+        <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem;">
             
-            <!-- GetYourGig Logo Centered -->
-            <div class="logo-container-hero" style="margin-bottom: 2rem;">
-                <div class="logo-getyourgig" style="display: flex; flex-direction: column; align-items: center; justify-content: center; animation: pulse 2s infinite alternate;">
-                    <div class="logo-title" style="font-size: 3.2rem; font-family: var(--font-heading); font-weight: 900; letter-spacing: 0.5px; background: linear-gradient(135deg, #df9f15 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.1;">
-                        GetYourGig
-                    </div>
-                    <div class="logo-underline-connector" style="display: flex; align-items: center; width: 220px; margin-top: 0.6rem; gap: 0.6rem;">
-                        <i class="fa-solid fa-guitar logo-sub-icon music-sub" style="color: var(--color-purple); font-size: 1.2rem;"></i>
-                        <span class="connector-line" style="flex: 1; height: 3px; background: linear-gradient(90deg, #df9f15 0%, #7c3aed 100%); border-radius: 3px;"></span>
-                        <i class="fa-solid fa-calendar-check logo-sub-icon event-sub" style="color: var(--color-cyan); font-size: 1.2rem;"></i>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Slogan -->
-            <h2 class="slogan-hero" style="font-size: 1.5rem; font-family: var(--font-heading); font-weight: 700; line-height: 1.2; margin-bottom: 3rem; color: var(--text-main); text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8); letter-spacing: 0.5px;">
-                Die Plattform für Musiker und Veranstalter
-            </h2>
-
-            <!-- Prominent Buttons -->
-            <div class="hero-ctas" style="display: flex; gap: 1.5rem; justify-content: center; margin-bottom: 4rem; width: 100%; flex-wrap: wrap;">
-                <button class="btn btn-secondary btn-lg" id="btn-search-events" style="padding: 1.2rem 2.8rem; font-size: 1.15rem; font-weight: 700; border-radius: var(--radius-md); box-shadow: var(--shadow-neon-purple); display: flex; align-items: center; gap: 0.8rem; min-width: 240px; justify-content: center;">
-                    <i class="fa-solid fa-guitar"></i> Ich bin Musiker
-                </button>
-                <button class="btn btn-primary btn-lg" id="btn-search-musicians" style="padding: 1.2rem 2.8rem; font-size: 1.15rem; font-weight: 700; border-radius: var(--radius-md); box-shadow: var(--shadow-neon-cyan); display: flex; align-items: center; gap: 0.8rem; min-width: 240px; justify-content: center;">
-                    <i class="fa-solid fa-calendar-check"></i> Ich bin Veranstalter
-                </button>
-            </div>
-            
-            <!-- Advantages Row (The 3 Benefits) -->
-            <div class="landing-info-row" style="margin-bottom: 5rem; display: flex; gap: 1.5rem; justify-content: center; width: 100%; flex-wrap: wrap;">
-                <div class="info-card" style="text-align: left; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-glass); position: relative; overflow: hidden; flex: 1; min-width: 250px;">
-                    <div class="info-card-icon" style="color: var(--color-purple); font-size: 2.2rem; margin-bottom: 1.2rem;"><i class="fa-solid fa-shop"></i></div>
-                    <h3 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.8rem; color: var(--text-main);">Digitaler Marktplatz</h3>
-                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">Die zentrale Anlaufstelle für Musiker und Veranstalter. Finde unkompliziert neue Auftritte oder buche die passende Live-Musik für dein Event.</p>
-                </div>
-                <div class="info-card" style="text-align: left; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-glass); position: relative; overflow: hidden; flex: 1; min-width: 250px;">
-                    <div class="info-card-icon" style="color: var(--color-cyan); font-size: 2.2rem; margin-bottom: 1.2rem;"><i class="fa-solid fa-handshake"></i></div>
-                    <h3 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.8rem; color: var(--text-main);">Matches</h3>
-                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">Unser intelligentes Matching bringt Musiker und Veranstalter passgenau zusammen – basierend auf Musikrichtung, Gage, Termin und Standort.</p>
-                </div>
-                <div class="info-card" style="text-align: left; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-glass); position: relative; overflow: hidden; flex: 1; min-width: 250px;">
-                    <div class="info-card-icon" style="color: var(--color-purple); font-size: 2.2rem; margin-bottom: 1.2rem;"><i class="fa-solid fa-percent"></i></div>
-                    <h3 style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.8rem; color: var(--text-main);">0 % Provisionskosten</h3>
-                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">Keine versteckten Gebühren oder Provisionen. Lediglich 5 € im Monat für Musiker, dafür voller Zugriff auf die Kontaktdaten aller Veranstalter.</p>
-                </div>
-            </div>
-            
-            <!-- Cosmos Interactive Illustration (12 floating tiles orbiting a central handshake) -->
-            <div class="cosmos-container">
-                <div class="cosmos-center-glow"></div>
-                <div class="cosmos-main-circle"></div>
+            <!-- Full Screen 100vh Hero Section with 5 Auto-Switching Background Video/Photo Slides -->
+            <div class="landing-hero" style="position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem 1.5rem 4rem; text-align: center; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
                 
-                <!-- Outer Labels -->
-                <div class="cosmos-musician-label">
-                    <i class="fa-solid fa-guitar"></i> Musiker
-                </div>
-                <div class="cosmos-organizer-label">
-                    Veranstalter <i class="fa-solid fa-calendar-check"></i>
+                <!-- 5 Background Slides Container (Hochzeit, Geburtstag, Firmenfeier, Kirmes, Gartenparty) -->
+                <div class="hero-bg-carousel" style="position: absolute; inset: 0; z-index: 1;">
+                    <div class="hero-bg-slide active" style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(30, 58, 138, 0.78) 50%, rgba(124, 58, 237, 0.78) 100%), url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; transition: opacity 1.5s ease-in-out; opacity: 1;"></div>
+                    <div class="hero-bg-slide" style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(30, 58, 138, 0.78) 50%, rgba(124, 58, 237, 0.78) 100%), url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; transition: opacity 1.5s ease-in-out; opacity: 0;"></div>
+                    <div class="hero-bg-slide" style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(30, 58, 138, 0.78) 50%, rgba(124, 58, 237, 0.78) 100%), url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; transition: opacity 1.5s ease-in-out; opacity: 0;"></div>
+                    <div class="hero-bg-slide" style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(30, 58, 138, 0.78) 50%, rgba(124, 58, 237, 0.78) 100%), url('https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; transition: opacity 1.5s ease-in-out; opacity: 0;"></div>
+                    <div class="hero-bg-slide" style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(30, 58, 138, 0.78) 50%, rgba(124, 58, 237, 0.78) 100%), url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; transition: opacity 1.5s ease-in-out; opacity: 0;"></div>
                 </div>
 
-                <!-- 18 Swirling Tiles Distributed Evenly across the entire Circle -->
-                <!-- 1. Hochzeiten -->
-                <div class="cosmos-tile org-theme" style="top: 22%; left: 36%; animation: float1 6s infinite alternate ease-in-out;">
-                    <i class="fa-solid fa-heart" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Hochzeiten</h5>
+                <!-- Hero Content Overlay (Z-index 2) -->
+                <div style="position: relative; z-index: 2; max-width: 1050px; margin: auto auto 0; padding-top: 2rem;">
+                    
+                    <!-- Center GigConnAct Logo -->
+                    <div class="brand-logo-center" style="display: block; width: 100%; max-width: 900px; margin: 0 auto 1rem; font-family: var(--font-heading); font-size: clamp(3rem, 7vw, 5.2rem); font-weight: 900; letter-spacing: 0px; background: linear-gradient(135deg, #60a5fa 0%, #ffffff 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.7)); text-align: center;">
+                        <i class="fa-solid fa-compact-disc" style="color:#60a5fa; -webkit-text-fill-color: initial; margin-right: 0.3rem;"></i>GigConnAct
+                    </div>
+
+                    <!-- Single-Line Headline "Wir vermitteln Live-Musik." -->
+                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.6vw, 3rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1.2rem; color: #ffffff; text-shadow: 0 4px 20px rgba(0,0,0,0.8); white-space: nowrap;">
+                        Wir vermitteln Live-Musik.
+                    </h1>
+
+                    <!-- Updated Subheadline with Line Break -->
+                    <p style="font-size: clamp(1.05rem, 2vw, 1.25rem); color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.6; max-width: 880px; margin: 0 auto 2.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.7);">
+                        Ob Hochzeit, Geburtstag, Firmenfeier oder jedes andere Event â€“<br>GigConnAct bringt Musiker und Veranstalter zusammen.
+                    </p>
+
+                    <!-- Extra Large CTA Buttons: Musiker = LILA, Veranstalter = BLAU -->
+                    <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem;">
+                        <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.25rem 2.8rem; font-weight: 800; font-size: 1.25rem; border-radius: 14px; box-shadow: 0 12px 35px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                            <i class="fa-solid fa-guitar"></i> Ich bin Musiker und suche Gigs
+                        </button>
+                        <button class="btn" id="btn-hero-organizer" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.25rem 2.8rem; font-weight: 800; font-size: 1.25rem; border-radius: 14px; box-shadow: 0 12px 35px rgba(37, 99, 235, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                            <i class="fa-solid fa-calendar-plus"></i> Ich bin Veranstalter und suche Acts
+                        </button>
+                    </div>
                 </div>
-                <!-- 2. Geburtstage -->
-                <div class="cosmos-tile org-theme" style="top: 16%; left: 48%; animation: float2 5s infinite alternate ease-in-out; animation-delay: 0.5s;">
-                    <i class="fa-solid fa-cake-candles" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Geburtstage</h5>
-                </div>
-                <!-- 3. Feiern -->
-                <div class="cosmos-tile org-theme" style="top: 22%; left: 60%; animation: float3 7s infinite alternate ease-in-out; animation-delay: 1s;">
-                    <i class="fa-solid fa-glass-cheers" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Feiern</h5>
-                </div>
-                <!-- 4. Partys -->
-                <div class="cosmos-tile org-theme" style="top: 36%; left: 30%; animation: float4 6s infinite alternate ease-in-out; animation-delay: 1.5s;">
-                    <i class="fa-solid fa-champagne-glasses" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Partys</h5>
-                </div>
-                <!-- 5. Gitarre -->
-                <div class="cosmos-tile mus-theme" style="top: 48%; left: 68%; animation: float5 5.5s infinite alternate ease-in-out; animation-delay: 0.2s;">
-                    <i class="fa-solid fa-guitar" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Gitarre</h5>
-                </div>
-                <!-- 6. Klavier -->
-                <div class="cosmos-tile mus-theme" style="top: 74%; left: 60%; animation: float6 6.5s infinite alternate ease-in-out; animation-delay: 0.8s;">
-                    <i class="fa-solid fa-keyboard" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Klavier</h5>
-                </div>
-                <!-- 7. Bands -->
-                <div class="cosmos-tile mus-theme" style="top: 80%; left: 48%; animation: float1 7.5s infinite alternate ease-in-out; animation-delay: 1.2s;">
-                    <i class="fa-solid fa-drum" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Bands</h5>
-                </div>
-                <!-- 8. DJs -->
-                <div class="cosmos-tile mus-theme" style="top: 74%; left: 36%; animation: float2 5.8s infinite alternate ease-in-out; animation-delay: 0.4s;">
-                    <i class="fa-solid fa-compact-disc" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>DJs</h5>
-                </div>
-                <!-- 9. Pop -->
-                <div class="cosmos-tile mus-theme" style="top: 48%; left: 28%; animation: float3 6.2s infinite alternate ease-in-out; animation-delay: 0.7s;">
-                    <i class="fa-solid fa-radio" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Pop</h5>
-                </div>
-                <!-- 10. Rock -->
-                <div class="cosmos-tile mus-theme" style="top: 48%; left: 34%; animation: float4 5.2s infinite alternate ease-in-out; animation-delay: 1.1s;">
-                    <i class="fa-solid fa-fire" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Rock</h5>
-                </div>
-                <!-- 11. Jazz -->
-                <div class="cosmos-tile mus-theme" style="top: 32%; left: 48%; animation: float5 6.8s infinite alternate ease-in-out; animation-delay: 1.4s;">
-                    <i class="fa-solid fa-music" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Jazz</h5>
-                </div>
-                <!-- 12. Schlager -->
-                <div class="cosmos-tile mus-theme" style="top: 64%; left: 48%; animation: float6 5.9s infinite alternate ease-in-out; animation-delay: 0.3s;">
-                    <i class="fa-solid fa-beer-mug-empty" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Schlager</h5>
-                </div>
-                <!-- 13. Konzerte -->
-                <div class="cosmos-tile org-theme" style="top: 42%; left: 54%; animation: float3 6s infinite alternate ease-in-out; animation-delay: 0.3s;">
-                    <i class="fa-solid fa-microphone-lines" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Konzerte</h5>
-                </div>
-                <!-- 14. Festivals -->
-                <div class="cosmos-tile org-theme" style="top: 48%; left: 62%; animation: float1 7s infinite alternate ease-in-out; animation-delay: 0.9s;">
-                    <i class="fa-solid fa-tent" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Festivals</h5>
-                </div>
-                <!-- 15. Sänger -->
-                <div class="cosmos-tile mus-theme" style="top: 54%; left: 42%; animation: float2 5.5s infinite alternate ease-in-out; animation-delay: 1.2s;">
-                    <i class="fa-solid fa-microphone" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Sänger</h5>
-                </div>
-                <!-- 16. Metal -->
-                <div class="cosmos-tile mus-theme" style="top: 42%; left: 42%; animation: float6 6.2s infinite alternate ease-in-out; animation-delay: 0.6s;">
-                    <i class="fa-solid fa-hand-rock" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Metal</h5>
-                </div>
-                <!-- 17. Club-Gigs -->
-                <div class="cosmos-tile org-theme" style="top: 48%; left: 48%; animation: float4 5.8s infinite alternate ease-in-out; animation-delay: 1.7s;">
-                    <i class="fa-solid fa-music" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Club-Gigs</h5>
-                </div>
-                <!-- 18. Firmenfeiern -->
-                <div class="cosmos-tile org-theme" style="top: 54%; left: 54%; animation: float5 6.4s infinite alternate ease-in-out; animation-delay: 1.1s;">
-                    <i class="fa-solid fa-briefcase" style="font-size: 1.1rem; margin-bottom: 0.15rem;"></i>
-                    <h5>Firmenfeiern</h5>
+
+                <!-- Scroll down indicator -->
+                <div style="position: relative; z-index: 2; margin-top: auto; padding-top: 1.5rem; opacity: 0.8; animation: bounce 2s infinite;">
+                    <i class="fa-solid fa-chevron-down" style="font-size: 1.5rem; color: #ffffff;"></i>
                 </div>
             </div>
 
-            <!-- Mock Impressum Footer -->
-            <footer style="margin-top: auto; padding: 2rem 0; width: 100%; border-top: 1px solid var(--border-glass); text-align: center; font-size: 0.75rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.4rem;">
-                <div style="font-weight: 700; color: var(--text-main); margin-bottom: 0.2rem;">GetYourGig Impressum</div>
-                <div>Angaben gemäß § 5 TMG: GetYourGig GmbH, Musterstraße 123, 80331 München</div>
-                <div>Vertreten durch: Max Muster | Kontakt: Telefon: +49 (0) 89 1234567, E-Mail: info@getyourgig.de</div>
-                <div>Registereintrag: Amtsgericht München, Registernummer: HRB 123456 | USt-ID: DE 123456789</div>
-            </footer>
-        </section>
+            <!-- Benefits / Vorteile Section (Subtle Purple & Dark Blue Glass Tiles with Door Icon) -->
+            <div class="benefits-section" style="max-width: 1150px; margin: 4.5rem auto 0; padding: 0 1.5rem;">
+                <div style="text-align: center; margin-bottom: 3.5rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.5vw, 2.4rem); font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">
+                        Deine Vorteile mit GigConnAct
+                    </h2>
+                    <p style="color: var(--text-muted); font-size: 1.05rem;">Transparent, sicher und ohne versteckte Kosten.</p>
+                </div>
+
+                <!-- 2 Main Columns for Musiker vs. Veranstalter -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2.5rem;">
+                    
+                    <!-- Left Column: Musiker Vorteile (STRICT LILA Theme) -->
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.5rem;">
+                            <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(124, 58, 237, 0.12); display: flex; align-items: center; justify-content: center; color: #7c3aed; font-size: 1.4rem;">
+                                <i class="fa-solid fa-guitar"></i>
+                            </div>
+                            <h3 style="margin: 0; font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: #7c3aed;">Vorteile fÃ¼r Musiker</h3>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div class="benefit-tile" style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.22); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); min-height: 100px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                    <i class="fa-solid fa-door-open" style="color: #7c3aed; font-size: 1.1rem;"></i>
+                                    <strong style="font-size: 0.98rem; color: var(--text-main); font-weight: 800;">Kostenloser Zugang zu Events</strong>
+                                </div>
+                                <p style="margin: 0; font-size: 0.84rem; color: var(--text-muted); line-height: 1.4; padding-left: 1.7rem;">Hochzeiten, Geburtstage, Firmenfeiern, Kirmes, Gartenpartys etc.</p>
+                            </div>
+
+                            <div class="benefit-tile" style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.22); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); min-height: 100px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                    <i class="fa-solid fa-sliders" style="color: #7c3aed; font-size: 1.1rem;"></i>
+                                    <strong style="font-size: 0.98rem; color: var(--text-main); font-weight: 800;">Passende Events</strong>
+                                </div>
+                                <p style="margin: 0; font-size: 0.84rem; color: var(--text-muted); line-height: 1.4; padding-left: 1.7rem;">Event-Art, Entfernung, Gage, VerfÃ¼gbarkeit etc.</p>
+                            </div>
+
+                            <div class="benefit-tile" style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.22); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); min-height: 100px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                    <i class="fa-solid fa-address-book" style="color: #7c3aed; font-size: 1.1rem;"></i>
+                                    <strong style="font-size: 0.98rem; color: var(--text-main); font-weight: 800;">Direkter Kontakt zu Veranstaltern</strong>
+                                </div>
+                                <p style="margin: 0; font-size: 0.84rem; color: var(--text-muted); line-height: 1.4; padding-left: 1.7rem;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
+                            </div>
+
+                            <div class="benefit-tile" style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.22); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); min-height: 100px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                    <i class="fa-solid fa-paper-plane" style="color: #7c3aed; font-size: 1.1rem;"></i>
+                                    <strong style="font-size: 0.98rem; color: var(--text-main); font-weight: 800;">Interessante Anfragen</strong>
+                                </div>
+                                <p style="margin: 0; font-size: 0.84rem; color: var(--text-muted); line-height: 1.4; padding-left: 1.7rem;">Nicht nur Anfragen an Veranstalter senden â€“ sondern auch erhalten</p>
+                            </div>
+
+                            <div class="benefit-tile" style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.22); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); min-height: 100px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                    <i class="fa-solid fa-wand-magic-sparkles" style="color: #7c3aed; font-size: 1.1rem;"></i>
+                                    <strong style="font-size: 0.98rem; color: var(--text-main); font-weight: 800;">Top-VorschlÃ¤ge</strong>
+                                </div>
+                                <p style="margin: 0; font-size: 0.84rem; color: var(--text-muted); line-height: 1.4; padding-left: 1.7rem;">Automatische Empfehlungen von GigConnAct zu Events</p>
+                            </div>
+
+                            <div class="benefit-tile" style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.22); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); min-height: 100px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                    <i class="fa-solid fa-key" style="color: #7c3aed; font-size: 1.1rem;"></i>
+                                    <strong style="font-size: 0.98rem; color: var(--text-main); font-weight: 800;">Schnelle Anmeldung</strong>
+                                </div>
+                                <p style="margin: 0; font-size: 0.84rem; color: var(--text-muted); line-height: 1.4; padding-left: 1.7rem;">Anlegen des Musiker-Profils ohne Passwort</p>
+                            </div>
+
+                            <div class="benefit-tile" style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.22); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); min-height: 100px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                    <i class="fa-solid fa-shield-halved" style="color: #7c3aed; font-size: 1.1rem;"></i>
+                                    <strong style="font-size: 0.98rem; color: var(--text-main); font-weight: 800;">Keine Provisionskosten</strong>
+                                </div>
+                                <p style="margin: 0; font-size: 0.84rem; color: var(--text-muted); line-height: 1.4; padding-left: 1.7rem;">Preiswertes Abo-Modell (jederzeit kÃ¼ndbar)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Veranstalter Vorteile (STRICT BLAU Theme) -->
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.5rem;">
+                            <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(37, 99, 235, 0.12); display: flex; align-items: center; justify-content: center; color: #2563eb; font-size: 1.4rem;">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                            <h3 style="margin: 0; font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: #2563eb;">Vorteile fÃ¼r Veranstalter</h3>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div class="benefit-tile" style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.22); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); min-height: 100px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                    <i class="fa-solid fa-door-open" style="color: #2563eb; font-size: 1.1rem;"></i>
+                                    <strong style="font-size: 0.98rem; color: var(--text-main); font-weight: 800;">Kostenloser Zugang zu Musikern</strong>
+                                </div>
+                                <p style="margin: 0; font-size: 0.84rem; color: var(--text-muted); line-height: 1.4; padding-left: 1.7rem;">Coverbands, Bands, DJs, Duos, Trios, Gitarristen, SÃ¤nger etc.</p>
+                            </div>
+
+                            <div class="benefit-tile" style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.22); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); min-height: 100px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                    <i class="fa-solid fa-sliders" style="color: #2563eb; font-size: 1.1rem;"></i>
+                                    <strong style="font-size: 0.98rem; color: var(--text-main); font-weight: 800;">Passende Musiker</strong>
+                                </div>
+                                <p style="margin: 0; font-size: 0.84rem; color: var(--text-muted); line-height: 1.4; padding-left: 1.7rem;">Musiker-Typ, Budget, Genre, Spieldauer etc.</p>
+                            </div>
+
+                            <div class="benefit-tile" style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.22); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); min-height: 100px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                    <i class="fa-solid fa-address-book" style="color: #2563eb; font-size: 1.1rem;"></i>
+                                    <strong style="font-size: 0.98rem; color: var(--text-main); font-weight: 800;">Direkter Kontakt zu Musikern</strong>
+                                </div>
+                                <p style="margin: 0; font-size: 0.84rem; color: var(--text-muted); line-height: 1.4; padding-left: 1.7rem;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
+                            </div>
+
+                            <div class="benefit-tile" style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.22); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); min-height: 100px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                    <i class="fa-solid fa-paper-plane" style="color: #2563eb; font-size: 1.1rem;"></i>
+                                    <strong style="font-size: 0.98rem; color: var(--text-main); font-weight: 800;">Interessante Anfragen</strong>
+                                </div>
+                                <p style="margin: 0; font-size: 0.84rem; color: var(--text-muted); line-height: 1.4; padding-left: 1.7rem;">Nicht nur Anfragen an Musiker senden â€“ sondern auch erhalten</p>
+                            </div>
+
+                            <div class="benefit-tile" style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.22); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); min-height: 100px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                    <i class="fa-solid fa-wand-magic-sparkles" style="color: #2563eb; font-size: 1.1rem;"></i>
+                                    <strong style="font-size: 0.98rem; color: var(--text-main); font-weight: 800;">Top-VorschlÃ¤ge</strong>
+                                </div>
+                                <p style="margin: 0; font-size: 0.84rem; color: var(--text-muted); line-height: 1.4; padding-left: 1.7rem;">Automatische Empfehlungen von GigConnAct zu Musikern</p>
+                            </div>
+
+                            <div class="benefit-tile" style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.22); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); min-height: 100px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                    <i class="fa-solid fa-key" style="color: #2563eb; font-size: 1.1rem;"></i>
+                                    <strong style="font-size: 0.98rem; color: var(--text-main); font-weight: 800;">Schnelle Anmeldung</strong>
+                                </div>
+                                <p style="margin: 0; font-size: 0.84rem; color: var(--text-muted); line-height: 1.4; padding-left: 1.7rem;">Anlegen des Veranstalter-Profils ohne Passwort</p>
+                            </div>
+
+                            <div class="benefit-tile" style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.22); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); min-height: 100px; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                    <i class="fa-solid fa-shield-halved" style="color: #2563eb; font-size: 1.1rem;"></i>
+                                    <strong style="font-size: 0.98rem; color: var(--text-main); font-weight: 800;">Keine Provisionskosten</strong>
+                                </div>
+                                <p style="margin: 0; font-size: 0.84rem; color: var(--text-muted); line-height: 1.4; padding-left: 1.7rem;">Oder andere versteckte Kosten</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     `;
 
-    document.getElementById('btn-search-events').addEventListener('click', () => onNavigate('events'));
-    document.getElementById('btn-search-musicians').addEventListener('click', () => onNavigate('musicians'));
+    // Initialize Auto-Switching Carousel for 5 Background Slides (5 Seconds per slide)
+    if (window.heroCarouselInterval) clearInterval(window.heroCarouselInterval);
+    const slides = container.querySelectorAll('.hero-bg-slide');
+    if (slides.length > 1) {
+        let currentSlide = 0;
+        window.heroCarouselInterval = setInterval(() => {
+            slides[currentSlide].style.opacity = '0';
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].style.opacity = '1';
+        }, 5000);
+    }
+
+    // Direct navigation without requiring login!
+    document.getElementById('btn-hero-musician')?.addEventListener('click', () => {
+        onNavigate('events');
+    });
+
+    document.getElementById('btn-hero-organizer')?.addEventListener('click', () => {
+        onNavigate('musicians');
+    });
 }
 
 function getSelectOptions(list, selectedValues = []) {
@@ -2101,897 +2398,889 @@ function initAllLocationAutocompletes() {
 }
 
 function renderMarket(container, type, onNavigate) {
-    const isEventMarket = type === 'events';
-    const title = isEventMarket ? 'Event-Markt für Musiker' : 'Musiker-Markt für Veranstalter';
-    const isUserLoggedIn = !!state.currentUser;
-    const isMusician = state.currentUser?.role === 'musician';
-    
-    const hasContactAccess = isUserLoggedIn && (
-        (isMusician && state.currentUser.isPremium) || 
-        (!isMusician && state.currentUser.role === 'organizer')
-    );
+    const isEvents = type === 'events';
+    const title = isEvents ? 'Event-Markt' : 'Musiker-Markt';
+    const subtitle = isEvents 
+        ? 'Entdecke bezahlte Gigs, Auftritte & Events von Veranstaltern in deiner NÃ¤he.' 
+        : 'Finde passende Musiker, Bands, DJs & Solo-KÃ¼nstler fÃ¼r dein Event.';
 
-    const items = isEventMarket 
-        ? state.events.filter(e => isEventActive(e)) 
-        : state.musicians.filter(m => m.isActive !== false);
-
-    // Read profile preferences for pre-filtering
-    let defaultLocation = "";
-    let defaultRadius = "";
-    let defaultTypes = [];
-    let defaultGenres = [];
-    let defaultInstruments = [];
-
-    if (isUserLoggedIn) {
-        if (isMusician) {
-            const myProfile = state.musicians.find(m => m.id === state.currentUser.profileId);
-            if (myProfile) {
-                defaultLocation = myProfile.location || "";
-                defaultRadius = myProfile.radius || "";
-                defaultTypes = myProfile.eventTypes || [];
-                defaultGenres = myProfile.genres || [];
-                defaultInstruments = myProfile.instruments || [];
-            }
-        } else {
-            const myEvent = state.events.find(e => e.creatorId === state.currentUser.id);
-            if (myEvent) {
-                defaultLocation = myEvent.location || "";
-                defaultRadius = "";
-                defaultTypes = myEvent.musicianTypes || [];
-                defaultGenres = myEvent.genres || [];
-                defaultInstruments = myEvent.instruments || [];
-            }
-        }
-    }
-
-    let activeProfileSelectorHtml = '';
-    if (isUserLoggedIn) {
-        if (isMusician) {
-            const myMusicians = state.musicians.filter(m => m.creatorId === state.currentUser.id);
-            if (myMusicians.length > 0) {
-                activeProfileSelectorHtml = `
-                    <div style="display:flex; gap:0.5rem; align-items:center;">
-                        <label style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap;"><i class="fa-solid fa-guitar"></i> Aktiviertes Profil:</label>
-                        <select id="select-active-musician-market" class="input-field" style="width: 160px; padding: 0.2rem 0.4rem; font-size: 0.75rem; border-radius: var(--radius-sm); margin:0; height:28px;">
-                            ${myMusicians.map(m => `<option value="${m.id}" ${state.activeMusicianId === m.id ? 'selected' : ''}>${m.name}</option>`).join('')}
-                        </select>
-                    </div>
-                `;
-            }
-        } else {
-            const myEvents = state.events.filter(e => e.creatorId === state.currentUser.id);
-            if (myEvents.length > 0) {
-                activeProfileSelectorHtml = `
-                    <div style="display:flex; gap:0.5rem; align-items:center;">
-                        <label style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap;"><i class="fa-solid fa-calendar-alt"></i> Aktiviertes Event:</label>
-                        <select id="select-active-event-market" class="input-field" style="width: 160px; padding: 0.2rem 0.4rem; font-size: 0.75rem; border-radius: var(--radius-sm); margin:0; height:28px;">
-                            ${myEvents.map(e => `<option value="${e.id}" ${state.activeEventId === e.id ? 'selected' : ''}>${e.name}</option>`).join('')}
-                        </select>
-                    </div>
-                `;
-            }
-        }
-    }
+    const items = isEvents ? state.events : state.musicians;
 
     container.innerHTML = `
-        <div class="market-layout">
-            <aside class="filter-sidebar">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.8rem;">
-                    <h3 style="margin:0; font-size:1.15rem; display:flex; align-items:center; gap:0.5rem; color: ${isEventMarket ? 'var(--color-cyan)' : 'var(--color-purple)'};"><i class="fa-solid fa-filter"></i> Filter</h3>
-                    <button type="button" id="btn-reset-filters" class="btn btn-glass btn-sm" style="margin:0; padding:0.2rem 0.5rem; font-size:0.7rem;">
-                        <i class="fa-solid fa-arrow-rotate-left"></i> Zurücksetzen
-                    </button>
+        <div class="market-page" style="max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem 5rem;">
+            
+            <!-- Page Header -->
+            <div style="margin-bottom: 1.8rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1 style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 900; color: var(--text-main); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.8rem;">
+                        <span style="display: inline-flex; width: 44px; height: 44px; border-radius: 12px; background: ${isEvents ? 'rgba(37, 99, 235, 0.12)' : 'rgba(124, 58, 237, 0.12)'}; align-items: center; justify-content: center; color: ${isEvents ? '#2563eb' : '#7c3aed'}; font-size: 1.3rem;">
+                            <i class="fa-solid ${isEvents ? 'fa-calendar-check' : 'fa-guitar'}"></i>
+                        </span>
+                        ${title}
+                    </h1>
+                    <p style="color: var(--text-muted); font-size: 1.05rem; margin: 0;">${subtitle}</p>
                 </div>
-                <form id="filter-form">
-                    <div class="filter-group">
-                        <label>Ort (Stadt)</label>
-                        <input type="text" name="location" class="input-field" placeholder="z.B. München" value="${defaultLocation}" autocomplete="off">
-                    </div>
-                    <div class="filter-group">
-                        <label>Max. Umkreis (km)</label>
-                        <input type="number" name="radius" class="input-field" placeholder="z.B. 100" value="${defaultRadius}">
-                    </div>
-                    <div class="filter-group">
-                        <label>Schlagwort / Tag-Suche</label>
-                        <input type="text" name="tagSearch" class="input-field" placeholder="z.B. Rock, Piano, Hochzeit...">
-                    </div>
-                    <div class="filter-group">
-                        <label>${isEventMarket ? 'Event-Art (Mehrfachauswahl)' : 'Musiker-Typ (Mehrfachauswahl)'}</label>
-                        <div class="checkbox-filter-list">
-                            ${(isEventMarket ? eventTypesList : musicianTypesList).map(t => `
-                                <label class="form-checkbox-inline">
-                                    <input type="checkbox" name="type" value="${t}" ${defaultTypes.includes(t) ? 'checked' : ''}>
-                                    <span>${t}</span>
-                                </label>
-                            `).join('')}
-                        </div>
-                    </div>
-                    <div class="filter-group">
-                        <label>Genres (Mehrfachauswahl)</label>
-                        <div class="checkbox-filter-list">
-                            ${genresList.map(g => `
-                                <label class="form-checkbox-inline">
-                                    <input type="checkbox" name="genre" value="${g}" ${defaultGenres.includes(g) ? 'checked' : ''}>
-                                    <span>${g}</span>
-                                </label>
-                            `).join('')}
-                        </div>
-                    </div>
-                    <div class="filter-group">
-                        <label>Benötigtes Instrument (Mehrfachauswahl)</label>
-                        <div class="checkbox-filter-list">
-                            ${instrumentsList.map(ins => `
-                                <label class="form-checkbox-inline">
-                                    <input type="checkbox" name="instrument" value="${ins}" ${defaultInstruments.includes(ins) ? 'checked' : ''}>
-                                    <span>${ins}</span>
-                                </label>
-                            `).join('')}
-                        </div>
-                    </div>
-                    <div class="filter-group">
-                        <label>Datum</label>
-                        <input type="date" name="date" class="input-field">
-                    </div>
-                    <div class="filter-group">
-                        <label>Mindest-Dauer (Std.)</label>
-                        <input type="number" name="duration" class="input-field" placeholder="z.B. 2">
-                    </div>
-                    <div class="filter-group">
-                        <label>${isEventMarket ? 'Mindest-Budget (€)' : 'Max. Preisspanne (€)'}</label>
-                        <input type="number" name="budget" class="input-field" placeholder="z.B. 500">
-                    </div>
-                    <div class="filter-group">
-                        <label>Technik (Mehrfachauswahl)</label>
-                        <div class="checkbox-filter-list">
-                            <label class="form-checkbox-inline">
-                                <input type="checkbox" name="technik" value="vorhanden">
-                                <span>Vorhanden</span>
-                            </label>
-                            <label class="form-checkbox-inline">
-                                <input type="checkbox" name="technik" value="nicht vorhanden">
-                                <span>Nicht vorhanden</span>
-                            </label>
-                            <label class="form-checkbox-inline">
-                                <input type="checkbox" name="technik" value="Weiß ich noch nicht">
-                                <span>Weiß ich noch nicht</span>
-                            </label>
-                        </div>
-                    </div>
-                    ${isUserLoggedIn ? `
-                    <div class="filter-group">
-                        <label>Interesse-Status</label>
-                        <div style="display:flex; flex-direction:column; gap:0.4rem; margin-top:0.4rem;">
-                            <label class="form-checkbox-inline" style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-                                <input type="checkbox" name="interestStatus" value="interested" checked style="cursor:pointer; width:16px; height:16px; margin:0;">
-                                <span>Interessiert</span>
-                            </label>
-                            <label class="form-checkbox-inline" style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-                                <input type="checkbox" name="interestStatus" value="neutral" checked style="cursor:pointer; width:16px; height:16px; margin:0;">
-                                <span>Neutral</span>
-                            </label>
-                            <label class="form-checkbox-inline" style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-                                <input type="checkbox" name="interestStatus" value="not-interested" style="cursor:pointer; width:16px; height:16px; margin:0;">
-                                <span>Nicht interessiert</span>
-                            </label>
-                        </div>
-                    </div>
+                <div>
+                    ${!state.currentUser ? `
+                        <button class="btn btn-primary" onclick="showModal('auth')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); font-weight: 700; padding: 0.8rem 1.6rem; border-radius: 10px;">
+                            <i class="fa-solid fa-key"></i> Anmelden ohne Passwort
+                        </button>
                     ` : ''}
-                </form>
-            </aside>
+                </div>
+            </div>
 
-            <section class="listings-area">
-                <div class="market-header">
-                    <div>
-                        <h2>${title}</h2>
-                        <div style="display:flex; gap:1.2rem; align-items:center; margin-top:0.4rem; flex-wrap: wrap;">
-                            <div class="results-count" id="results-count" style="margin:0;">Lade Angebote...</div>
-                            ${activeProfileSelectorHtml}
-                            <div style="display:flex; gap:0.5rem; align-items:center;">
-                                <label style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap;"><i class="fa-solid fa-sort"></i> Sortierung:</label>
-                                <select id="select-sort" class="input-field" style="width: 180px; padding: 0.2rem 0.4rem; font-size: 0.75rem; border-radius: var(--radius-sm); margin:0; height:28px;">
-                                    ${isUserLoggedIn ? `<option value="match" selected>Match-Faktor absteigend</option>` : ''}
-                                    <option value="newest" ${!isUserLoggedIn ? 'selected' : ''}>Neueste zuerst</option>
-                                    <option value="price-asc">${isEventMarket ? 'Budget: Günstig zuerst' : 'Gage: Günstig zuerst'}</option>
-                                    <option value="price-desc">${isEventMarket ? 'Budget: Teuer zuerst' : 'Gage: Teuer zuerst'}</option>
-                                    <option value="distance" ${!isUserLoggedIn ? 'disabled' : ''}>Entfernung (Nächste zuerst)</option>
-                                    <option value="name">Name (A-Z)</option>
+            <!-- Main Layout: Left Sticky Sidebar Filters + Center Content -->
+            <div class="market-layout-container" style="display: grid; grid-template-columns: 280px 1fr; gap: 2rem; align-items: start;">
+                
+                <!-- Left Sidebar Filters (Sticky Position) -->
+                <div class="market-filter-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 1.4rem; box-shadow: var(--shadow-sm); position: sticky; top: 90px; max-height: calc(100vh - 110px); overflow-y: auto;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.8rem;">
+                        <span style="color: var(--text-main); font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-sliders" style="color: ${isEvents ? '#2563eb' : '#7c3aed'};"></i> Filter
+                        </span>
+                    </div>
+                    
+                    ${isEvents ? `
+                        <!-- 10 Event-Markt Filter -->
+                        <div style="display: flex; flex-direction: column; gap: 0.95rem;">
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Event-Art</label>
+                                <select id="filter-event-type" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="">Alle Event-Arten</option>
+                                    <option value="Hochzeit">Hochzeit</option>
+                                    <option value="Geburtstag">Geburtstag</option>
+                                    <option value="Firmenfeier">Firmenfeier</option>
+                                    <option value="Festival">Festival / Kirmes</option>
+                                    <option value="Gartenparty">Gartenparty</option>
+                                    <option value="Club">Club / Bar Gig</option>
                                 </select>
                             </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Datum</label>
+                                <input type="date" id="filter-date" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Ort / PLZ</label>
+                                <input type="text" id="filter-location" placeholder="z.B. KÃ¶ln, Berlin..." class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Umkreis</label>
+                                <select id="filter-distance" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="">Beliebiger Umkreis</option>
+                                    <option value="25">bis 25 km</option>
+                                    <option value="50">bis 50 km</option>
+                                    <option value="100">bis 100 km</option>
+                                    <option value="250">bis 250 km</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Genres</label>
+                                <select id="filter-genre" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="">Alle Genres</option>
+                                    <option value="Pop">Pop</option>
+                                    <option value="Rock">Rock</option>
+                                    <option value="Acoustic">Acoustic / Singer-Songwriter</option>
+                                    <option value="Jazz">Jazz & Soul</option>
+                                    <option value="Cover">Cover & Party Hits</option>
+                                    <option value="DJ">DJ & Electronic</option>
+                                    <option value="Schlager">Schlager / Volksmusik</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Instrumente</label>
+                                <select id="filter-instrument" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="">Alle Besetzungen</option>
+                                    <option value="Gesang">Gesang / Solo</option>
+                                    <option value="Gitarre">Acoustic Gitarre</option>
+                                    <option value="Piano">Piano / Keyboard</option>
+                                    <option value="Duo">Duo / Trio</option>
+                                    <option value="Band">Band (Vollbesetzung)</option>
+                                    <option value="DJ">DJ Setup</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Spieldauer</label>
+                                <select id="filter-duration" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="">Beliebige Spieldauer</option>
+                                    <option value="1">bis 1 Stunde</option>
+                                    <option value="2-3">2 - 3 Stunden</option>
+                                    <option value="4">ca. 4 - 5 Stunden</option>
+                                    <option value="open">Open End / Ganztags</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Budgetspanne</label>
+                                <select id="filter-budget" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="">Jedes Budget</option>
+                                    <option value="500">bis 500 â‚¬</option>
+                                    <option value="1000">500 â‚¬ - 1.000 â‚¬</option>
+                                    <option value="2500">1.000 â‚¬ - 2.500 â‚¬</option>
+                                    <option value="5000">Ã¼ber 2.500 â‚¬</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Besucheranzahl</label>
+                                <select id="filter-attendees" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="">Beliebige GÃ¤stezahl</option>
+                                    <option value="50">bis 50 GÃ¤ste</option>
+                                    <option value="150">50 - 150 GÃ¤ste</option>
+                                    <option value="500">150 - 500 GÃ¤ste</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Technik</label>
+                                <select id="filter-equipment" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="">Beliebig</option>
+                                    <option value="Vorhanden">Vorhanden</option>
+                                    <option value="Mitbringen">Musiker bringt mit</option>
+                                </select>
+                            </div>
+                            <div style="padding-top: 0.3rem;">
+                                <button id="btn-reset-filters" class="btn btn-secondary" style="width: 100%; padding: 0.65rem; border-radius: 8px; font-weight: 700;">
+                                    <i class="fa-solid fa-rotate-left"></i> ZurÃ¼cksetzen
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    ${!isUserLoggedIn ? `
-                        <span class="premium-badge"><i class="fa-solid fa-lock"></i> Kontaktdaten geschützt</span>
-                    ` : (hasContactAccess ? `
-                        <span class="premium-badge text-green" style="background: rgba(56, 239, 125, 0.1); border: 1px solid var(--color-green);">
-                            <i class="fa-solid fa-unlock"></i> Premium-Kontaktdaten sichtbar
-                        </span>
                     ` : `
-                        <button class="btn btn-secondary btn-sm" id="btn-activate-premium-market">
-                            <i class="fa-solid fa-lock"></i> Abo aktivieren für Kontaktdaten
-                        </button>
-                    `)}
+                        <!-- 10 Musiker-Markt Filter -->
+                        <div style="display: flex; flex-direction: column; gap: 0.95rem;">
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Musiker-Typ</label>
+                                <select id="filter-musician-type" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="">Alle Musiker-Typen</option>
+                                    <option value="Solo">Solo-KÃ¼nstler</option>
+                                    <option value="Duo">Duo / Trio</option>
+                                    <option value="Coverband">Coverband</option>
+                                    <option value="Band">Band (Vollbesetzung)</option>
+                                    <option value="DJ">DJ</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Datum / VerfÃ¼gbarkeit</label>
+                                <input type="date" id="filter-date-m" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Ort</label>
+                                <input type="text" id="filter-location-m" placeholder="z.B. MÃ¼nchen, KÃ¶ln..." class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Umkreis</label>
+                                <select id="filter-distance-m" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="">Beliebiger Umkreis</option>
+                                    <option value="25">bis 25 km</option>
+                                    <option value="50">bis 50 km</option>
+                                    <option value="100">bis 100 km</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Genres</label>
+                                <select id="filter-genre-m" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="">Alle Genres</option>
+                                    <option value="Pop">Pop</option>
+                                    <option value="Rock">Rock</option>
+                                    <option value="Acoustic">Acoustic / Singer-Songwriter</option>
+                                    <option value="Jazz">Jazz & Soul</option>
+                                    <option value="Cover">Cover & Party Hits</option>
+                                    <option value="DJ">DJ & Electronic</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Instrumente</label>
+                                <select id="filter-instrument-m" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="">Alle Instrumente</option>
+                                    <option value="Gesang">Gesang</option>
+                                    <option value="Gitarre">Gitarre</option>
+                                    <option value="Piano">Klavier / Keyboard</option>
+                                    <option value="Saxophon">Saxophon</option>
+                                    <option value="DJ">DJ Setup</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Spieldauer</label>
+                                <select id="filter-duration-m" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="">Beliebige Spieldauer</option>
+                                    <option value="1">bis 1 Stunde</option>
+                                    <option value="2-3">2 - 3 Stunden</option>
+                                    <option value="4">ca. 4 - 5 Stunden</option>
+                                    <option value="open">Open End / Ganztags</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Preisspanne</label>
+                                <select id="filter-price-m" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="">Jede Preisspanne</option>
+                                    <option value="500">bis 500 â‚¬</option>
+                                    <option value="1000">500 â‚¬ - 1.000 â‚¬</option>
+                                    <option value="2500">1.000 â‚¬ - 2.500 â‚¬</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Besucheranzahl</label>
+                                <select id="filter-attendees-m" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="">Beliebige GÃ¤stezahl</option>
+                                    <option value="50">bis 50 GÃ¤ste</option>
+                                    <option value="150">50 - 150 GÃ¤ste</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.3rem;">Technik</label>
+                                <select id="filter-equipment-m" class="form-input" style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="">Beliebig</option>
+                                    <option value="Eigene">Eigene PA vorhanden</option>
+                                    <option value="BenÃ¶tigt">Technik wird benÃ¶tigt</option>
+                                </select>
+                            </div>
+                            <div style="padding-top: 0.3rem;">
+                                <button id="btn-reset-filters" class="btn btn-secondary" style="width: 100%; padding: 0.65rem; border-radius: 8px; font-weight: 700;">
+                                    <i class="fa-solid fa-rotate-left"></i> ZurÃ¼cksetzen
+                                </button>
+                            </div>
+                        </div>
+                    `}
                 </div>
 
-                <div class="listings-container" id="listings-grid"></div>
-            </section>
+                <!-- Center Main Section -->
+                <div>
+                    
+                    <!-- Center Top Control Bar: Sortierungsfunktion (Profile Switcher Removed!) -->
+                    <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 1rem 1.4rem; margin-bottom: 1.8rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; box-shadow: var(--shadow-sm);">
+                        
+                        <div style="font-size: 1rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-list-ul" style="color: ${isEvents ? '#2563eb' : '#7c3aed'};"></i>
+                            <span>Alle ${isEvents ? 'Events' : 'Musiker'} Ãœbersicht</span>
+                        </div>
+
+                        <!-- Sortierungsfunktion (Match-Faktor absteigend, Neueste zuerst, GÃ¼nstig zuerst, NÃ¤chste zuerst, Name A-Z) -->
+                        <div style="display: flex; align-items: center; gap: 0.8rem;">
+                            <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-muted); white-space: nowrap;">
+                                <i class="fa-solid fa-arrow-down-wide-short" style="color: ${isEvents ? '#2563eb' : '#7c3aed'};"></i> Sortierung:
+                            </span>
+                            <select id="sort-select" style="padding: 0.55rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-weight: 800; font-size: 0.88rem;">
+                                <option value="match">Match-Faktor absteigend</option>
+                                <option value="newest">Neueste zuerst</option>
+                                <option value="price">GÃ¼nstig zuerst</option>
+                                <option value="distance">NÃ¤chste zuerst</option>
+                                <option value="name">Name (A-Z)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Center Main Grid for Musiker- or Event-Kacheln -->
+                    <div id="market-items-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2rem;">
+                        ${renderMarketGridHTML(items, isEvents)}
+                    </div>
+                </div>
+            </div>
         </div>
     `;
 
-    const premiumMarketBtn = document.getElementById('btn-activate-premium-market');
-    if (premiumMarketBtn) {
-        premiumMarketBtn.addEventListener('click', () => {
-            showModal('premium', () => {
-                onNavigate(type);
-            });
-        });
+    // Sorting and filter listeners
+    const sortSelect = container.querySelector('#sort-select');
+    const resetBtn = container.querySelector('#btn-reset-filters');
+
+    function applyAllFiltersAndSort() {
+        let list = [...items];
+
+        // Sorting logic
+        const sortVal = sortSelect?.value || 'match';
+        if (sortVal === 'match') {
+            list.sort((a, b) => (b.matchScore || 95) - (a.matchScore || 95));
+        } else if (sortVal === 'newest') {
+            list.sort((a, b) => (b.id || 0) > (a.id || 0) ? 1 : -1);
+        } else if (sortVal === 'price') {
+            list.sort((a, b) => (parseInt(a.budget || a.price || 0) - parseInt(b.budget || b.price || 0)));
+        } else if (sortVal === 'distance') {
+            list.sort((a, b) => (parseInt(a.distance || 20) - parseInt(b.distance || 20)));
+        } else if (sortVal === 'name') {
+            list.sort((a, b) => (isEvents ? a.title : a.name).localeCompare(isEvents ? b.title : b.name));
+        }
+
+        const grid = container.querySelector('#market-items-grid');
+        if (grid) grid.innerHTML = renderMarketGridHTML(list, isEvents);
     }
 
-    const filterForm = document.getElementById('filter-form');
-    filterForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        applyFilters();
+    sortSelect?.addEventListener('change', applyAllFiltersAndSort);
+    container.querySelectorAll('.form-input').forEach(el => {
+        el.addEventListener('input', applyAllFiltersAndSort);
+        el.addEventListener('change', applyAllFiltersAndSort);
     });
 
-    filterForm.querySelectorAll('input, select').forEach(input => {
-        const ev = (input.type === 'text' || input.type === 'number') ? 'input' : 'change';
-        input.addEventListener(ev, () => {
-            applyFilters();
-        });
+    resetBtn?.addEventListener('click', () => {
+        container.querySelectorAll('.form-input').forEach(el => el.value = '');
+        if (sortSelect) sortSelect.value = 'match';
+        applyAllFiltersAndSort();
     });
- 
-    const resetFiltersBtn = document.getElementById('btn-reset-filters');
-    if (resetFiltersBtn) {
-        resetFiltersBtn.addEventListener('click', () => {
-            console.log("Resetting all filters!");
-            filterForm.querySelectorAll('input[type="text"], input[type="number"], input[type="date"]').forEach(input => {
-                input.value = '';
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-                input.dispatchEvent(new Event('change', { bubbles: true }));
-            });
-            filterForm.querySelectorAll('input').forEach(input => {
-                if (input.type === 'checkbox') {
-                    if (input.name === 'interestStatus') {
-                        input.checked = (input.value === 'interested' || input.value === 'neutral');
-                    } else {
-                        input.checked = false;
-                    }
-                    input.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-            });
-            filterForm.querySelectorAll('select').forEach(select => {
-                select.value = '';
-                select.dispatchEvent(new Event('change', { bubbles: true }));
-            });
-            showToast({
-                title: "Filter zurückgesetzt",
-                message: "Alle Filterkriterien wurden zurückgesetzt."
-            });
-            applyFilters();
-        });
+}
+
+// Unified Tile Card Renderer - NO EXTRA PAGE & NO POPUP BUTTON!
+function renderMarketGridHTML(items, isEvents) {
+    if (!items || items.length === 0) {
+        return `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass);">
+                <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                <h3 style="margin-bottom: 0.5rem; color: var(--text-main);">Keine Ergebnisse gefunden</h3>
+                <p style="color: var(--text-muted);">Versuche deine Filterkriterien anzupassen.</p>
+            </div>
+        `;
     }
 
-    function applyFilters() {
-        const formData = new FormData(filterForm);
-        const filters = {
-            location: formData.get('location'),
-            radius: formData.get('radius') ? parseInt(formData.get('radius')) : null,
-            tagSearch: formData.get('tagSearch'),
-            types: Array.from(filterForm.querySelectorAll('input[name="type"]:checked')).map(el => el.value),
-            genres: Array.from(filterForm.querySelectorAll('input[name="genre"]:checked')).map(el => el.value),
-            instruments: Array.from(filterForm.querySelectorAll('input[name="instrument"]:checked')).map(el => el.value),
-            date: formData.get('date'),
-            duration: formData.get('duration') ? parseFloat(formData.get('duration')) : null,
-            budget: formData.get('budget') ? parseFloat(formData.get('budget')) : null,
-            technik: Array.from(filterForm.querySelectorAll('input[name="technik"]:checked')).map(el => el.value),
-            interestStatuses: filterForm.querySelectorAll('input[name="interestStatus"]').length > 0
-                ? Array.from(filterForm.querySelectorAll('input[name="interestStatus"]:checked')).map(el => el.value)
-                : ['interested', 'neutral', 'not-interested']
-        };
+    const themeColor = isEvents ? '#2563eb' : '#7c3aed';
 
-        let debugSteps = [];
-        let filtered = isEventMarket ? state.events.filter(e => isEventActive(e)) : [...state.musicians];
-        debugSteps.push(`Start: ${filtered.length}`);
-
-        if (filters.tagSearch) {
-            const query = filters.tagSearch.toLowerCase();
-            filtered = filtered.filter(item => {
-                const nameMatch = item.name.toLowerCase().includes(query);
-                const bluffMatch = item.bluffName ? item.bluffName.toLowerCase().includes(query) : false;
-                const descMatch = item.description ? item.description.toLowerCase().includes(query) : false;
-                const genreMatch = item.genres ? item.genres.some(g => g.toLowerCase().includes(query)) : false;
-                const instMatch = item.instruments ? item.instruments.some(ins => ins.toLowerCase().includes(query)) : false;
-                
-                return nameMatch || bluffMatch || descMatch || genreMatch || instMatch;
-            });
-            debugSteps.push(`Tag: ${filtered.length}`);
-        }
-
-        if (filters.location) {
-            filtered = filtered.filter(item => item.location.toLowerCase().includes(filters.location.toLowerCase()));
-            debugSteps.push(`Loc: ${filtered.length}`);
-        }
-        if (filters.types.length > 0) {
-            filtered = filtered.filter(item => filters.types.includes(item.type));
-            debugSteps.push(`Type: ${filtered.length}`);
-        }
-        if (filters.genres.length > 0) {
-            filtered = filtered.filter(item => item.genres.some(g => filters.genres.includes(g)));
-            debugSteps.push(`Genre: ${filtered.length}`);
-        }
-        if (filters.instruments.length > 0) {
-            filtered = filtered.filter(item => item.instruments.some(ins => filters.instruments.includes(ins)));
-            debugSteps.push(`Inst: ${filtered.length}`);
-        }
-        if (filters.date) {
-            if (isEventMarket) {
-                filtered = filtered.filter(item => item.date === filters.date);
-            } else {
-                filtered = filtered.filter(item => {
-                    if (Array.isArray(item.availability)) {
-                        if (item.availability.includes(filters.date)) {
-                            return true;
-                        }
-                        const dateObj = new Date(filters.date);
-                        const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-                        const dayName = weekdays[dateObj.getDay()];
-                        return item.availability.includes(dayName);
-                    } else if (item.availability && typeof item.availability === 'object') {
-                        const isModified = item.availability.modifiedDates && item.availability.modifiedDates.includes(filters.date);
-                        if (item.availability.defaultState === 'all-selected') {
-                            return !isModified;
-                        } else {
-                            return isModified;
-                        }
-                    }
-                    return false;
-                });
-            }
-            debugSteps.push(`Date: ${filtered.length}`);
-        }
-        if (filters.duration) {
-            if (isEventMarket) {
-                filtered = filtered.filter(item => item.duration >= filters.duration);
-            } else {
-                filtered = filtered.filter(item => item.maxDuration >= filters.duration);
-            }
-            debugSteps.push(`Dur: ${filtered.length}`);
-        }
-        if (filters.budget) {
-            if (isEventMarket) {
-                filtered = filtered.filter(item => item.budget >= filters.budget);
-            } else {
-                filtered = filtered.filter(item => item.minBudget <= filters.budget);
-            }
-        }
-        if (filters.technik && filters.technik.length > 0) {
-            filtered = filtered.filter(item => {
-                const itemTech = (item.technik || "Weiß ich noch nicht").toLowerCase();
-                return filters.technik.map(t => t.toLowerCase()).includes(itemTech);
-            });
-            debugSteps.push(`Tech: ${filtered.length}`);
-        }
-
-        if (isUserLoggedIn) {
-            let userRole = state.currentUser.role;
-            let activeProfileId = null;
-            if (isEventMarket && userRole === 'musician') {
-                activeProfileId = state.activeMusicianId || state.currentUser.profileId;
-            } else if (!isEventMarket && userRole === 'organizer') {
-                activeProfileId = state.activeEventId || state.events.find(ev => ev.creatorId === state.currentUser.id)?.id;
-            }
-
-            filtered = filtered.filter(item => {
-                let mId = isEventMarket ? activeProfileId : item.id;
-                let eId = isEventMarket ? item.id : activeProfileId;
-                
-                let status = 'neutral';
-                if (mId && eId) {
-                    if (state.hasExpressedInterest(userRole, mId, eId)) {
-                        status = 'interested';
-                    } else if (state.hasExpressedNoInterest(userRole, mId, eId)) {
-                        status = 'not-interested';
-                    }
-                }
-                return filters.interestStatuses.includes(status);
-            });
-            debugSteps.push(`Interest: ${filtered.length}`);
-        }
-
-        const sortVal = document.getElementById('select-sort')?.value || 'newest';
-        filtered.sort((a, b) => {
-            if (sortVal === 'match' && isUserLoggedIn) {
-                let matchA = 0, matchB = 0;
-                if (isEventMarket && isMusician) {
-                    const myMusProfile = state.musicians.find(m => m.id === state.currentUser.profileId);
-                    if (myMusProfile) {
-                        matchA = calculateMatch(myMusProfile, a).score;
-                        matchB = calculateMatch(myMusProfile, b).score;
-                    }
-                } else if (!isEventMarket && !isMusician) {
-                    const myEvtProfile = state.events.find(e => e.creatorId === state.currentUser.id);
-                    if (myEvtProfile) {
-                        matchA = calculateMatch(a, myEvtProfile).score;
-                        matchB = calculateMatch(b, myEvtProfile).score;
-                    }
-                }
-                return matchB - matchA; // descending
-            }
-            if (sortVal === 'newest') {
-                const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
-                const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
-                return dateB - dateA; // descending
-            }
-            if (sortVal === 'price-asc') {
-                const valA = isEventMarket ? a.budget : a.minBudget;
-                const valB = isEventMarket ? b.budget : b.minBudget;
-                return valA - valB; // ascending
-            }
-            if (sortVal === 'price-desc') {
-                const valA = isEventMarket ? a.budget : a.minBudget;
-                const valB = isEventMarket ? b.budget : b.minBudget;
-                return valB - valA; // descending
-            }
-            if (sortVal === 'distance' && isUserLoggedIn) {
-                const myLoc = isMusician 
-                    ? state.musicians.find(m => m.id === state.currentUser.profileId)?.location 
-                    : state.events.find(e => e.creatorId === state.currentUser.id)?.location;
-                if (myLoc) {
-                    const distA = getEstimatedDistance(myLoc, a.location);
-                    const distB = getEstimatedDistance(myLoc, b.location);
-                    return distA - distB; // ascending
-                }
-            }
-            if (sortVal === 'name') {
-                const nameA = hasContactAccess ? a.name : (isEventMarket ? a.name : a.bluffName);
-                const nameB = hasContactAccess ? b.name : (isEventMarket ? b.name : b.bluffName);
-                return nameA.localeCompare(nameB);
-            }
-            return 0;
-        });
-
-        renderCards(filtered);
-    }
-
-    function renderCards(dataList) {
-        const grid = document.getElementById('listings-grid');
-        const countDisplay = document.getElementById('results-count');
+    return items.map(item => {
+        const isNew = item.isNew || item.createdRecently;
+        const isUnlocked = state.unlockedContacts && state.unlockedContacts.includes(item.id);
         
-        countDisplay.textContent = `${dataList.length} ${isEventMarket ? 'Events gefunden' : 'Musiker gefunden'}`;
+        // Max 5 Fotos Galerie (Grid Mosaic Layout: 1 big + 4 small thumbnails)
+        const photos = item.photos || [
+            item.image || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=600&q=80'
+        ];
 
-        if (dataList.length === 0) {
-            grid.innerHTML = `
-                <div class="empty-state">
-                    <i class="fa-solid fa-circle-question"></i>
-                    <h4>Keine passenden Inserate</h4>
-                    <p>Passe deine Filterkriterien an, um andere Ergebnisse zu sehen.</p>
-                </div>
-            `;
-            return;
-        }
+        // Max 3 Audios
+        const audios = item.audios || [
+            'HÃ¶rprobe 1: Pop & Chart Medley',
+            'HÃ¶rprobe 2: Acoustic Ballad Live',
+            'HÃ¶rprobe 3: Party & Dance Mix'
+        ];
 
-        const formatLocationWithPlz = (city) => {
-            if (!city) return "";
-            const plzMap = {
-                "münchen": "80331",
-                "stuttgart": "70173",
-                "nürnberg": "90402",
-                "berlin": "10115",
-                "hamburg": "20095",
-                "köln": "50667",
-                "frankfurt": "60311",
-                "düsseldorf": "40210"
-            };
-            const clean = city.trim().toLowerCase();
-            const plz = plzMap[clean] || "80331";
-            return `${plz} ${city}`;
-        };
+        // Max 3 Videos
+        const videos = item.videos || [
+            'Live Performance Highlights 2024',
+            'Auftritt Trailer & Showreel',
+            'Unplugged Session Video'
+        ];
 
-        const formatEventDateWithWeekday = (dateStr) => {
-            if (!dateStr) return "";
-            const dateObj = new Date(dateStr);
-            const formattedDate = dateObj.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            const weekdays = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
-            const weekday = weekdays[dateObj.getDay()];
-            return `${formattedDate} (${weekday})`;
-        };
+        const genres = item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic']);
+        const instruments = item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre']);
+        const duration = item.duration || item.spieldauer || 'ca. 2 - 4 Stunden';
+        const description = item.description || item.bio || (isEvents 
+            ? 'Wir suchen eine professionelle musikalische Begleitung fÃ¼r unser anstehendes Event mit fantastischer Stimmung.' 
+            : 'Professionelle Live-Musik fÃ¼r unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.');
 
-        grid.innerHTML = dataList.map(item => {
-            let matchHtml = '';
-            let matchScore = 0;
-            let interestBtnHtml = '';
-            let noInterestBtnHtml = '';
-            if (isUserLoggedIn) {
-                let matchData;
-                if (isEventMarket && isMusician) {
-                    const myMusProfile = state.musicians.find(m => m.id === (state.activeMusicianId || state.currentUser.profileId));
-                    if (myMusProfile) matchData = calculateMatch(myMusProfile, item);
-                } else if (!isEventMarket && !isMusician) {
-                    const myEvtProfile = state.events.find(e => e.id === (state.activeEventId || state.events.find(ev => ev.creatorId === state.currentUser.id)?.id));
-                    if (myEvtProfile) matchData = calculateMatch(item, myEvtProfile);
-                }
-                if (matchData) {
-                    matchScore = matchData.score;
-                    matchHtml = renderMatchDial(matchScore);
-                }
-
-                // Interest & No Interest Buttons calculation
-                let musicianId = null;
-                let eventId = null;
-                let canShowInterest = false;
-                if (isEventMarket && isMusician) {
-                    eventId = item.id;
-                    musicianId = state.activeMusicianId || state.currentUser.profileId;
-                    canShowInterest = !!musicianId;
-                } else if (!isEventMarket && !isMusician) {
-                    musicianId = item.id;
-                    eventId = state.activeEventId || state.events.find(ev => ev.creatorId === state.currentUser.id)?.id;
-                    canShowInterest = !!eventId;
-                }
-
-                if (canShowInterest) {
-                    const interest = state.interests?.find(i => i.musicianId === musicianId && i.eventId === eventId);
-                    const isPerfect = interest && interest.musicianInterested && interest.organizerInterested;
-                    const hasUserExpressed = state.hasExpressedInterest(state.currentUser.role, musicianId, eventId);
-                    const hasUserNoInterest = state.hasExpressedNoInterest(state.currentUser.role, musicianId, eventId);
-                    
-                    if (isPerfect) {
-                        interestBtnHtml = `
-                            <button class="btn btn-sm perfect-match-btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem; cursor: default;" onclick="event.stopPropagation();" title="Ein Perfect Match! Ihr habt beide Interesse bekundet.">
-                                <i class="fa-solid fa-heart-circle-check"></i> Perfect Match! 🎉
-                            </button>
-                        `;
-                        noInterestBtnHtml = `
-                            <button class="btn btn-sm" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: rgba(255,255,255,0.02); color: var(--text-muted); border: 1px solid var(--border-glass); opacity: 0.5; cursor: not-allowed;" onclick="event.stopPropagation();" disabled>
-                                <i class="fa-solid fa-ban"></i> Kein Interesse
-                            </button>
-                        `;
-                    } else {
-                        if (hasUserExpressed) {
-                            interestBtnHtml = `
-                                <button class="btn btn-sm btn-interest active-interest" data-musician-id="${musicianId}" data-event-id="${eventId}" style="background: var(--color-green); border: 1px solid var(--color-green); color: #000000; font-weight: 700; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem;" onclick="event.stopPropagation();" title="Du hast bereits Interesse bekundet. Klicken zum Abwählen.">
-                                    <i class="fa-solid fa-heart text-red"></i> Interessiert ✔
-                                </button>
-                            `;
-                        } else {
-                            interestBtnHtml = `
-                                <button class="btn btn-sm btn-interest" data-musician-id="${musicianId}" data-event-id="${eventId}" style="background: rgba(56, 239, 125, 0.08); border: 1px solid rgba(56, 239, 125, 0.25); color: var(--color-green); width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem;" onclick="event.stopPropagation();">
-                                    <i class="fa-regular fa-heart"></i> Interesse bekunden
-                                </button>
-                            `;
-                        }
-
-                        if (hasUserNoInterest) {
-                            noInterestBtnHtml = `
-                                <button class="btn btn-sm btn-no-interest active-no-interest" data-musician-id="${musicianId}" data-event-id="${eventId}" style="background: var(--color-red); border: 1px solid var(--color-red); color: #ffffff; font-weight: 700; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem;" onclick="event.stopPropagation();" title="Du hast kein Interesse markiert. Klicken zum Abwählen.">
-                                    <i class="fa-solid fa-ban text-red"></i> Nicht interessiert ✔
-                                </button>
-                            `;
-                        } else {
-                            noInterestBtnHtml = `
-                                <button class="btn btn-sm btn-no-interest" data-musician-id="${musicianId}" data-event-id="${eventId}" style="background: rgba(255, 75, 75, 0.08); border: 1px solid rgba(255, 75, 75, 0.25); color: var(--color-red); width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem;" onclick="event.stopPropagation();">
-                                    <i class="fa-solid fa-ban"></i> Kein Interesse
-                                </button>
-                            `;
-                        }
-                    }
-                }
-            }
-
-            const displayName = hasContactAccess ? item.name : (isEventMarket ? item.name : item.bluffName);
-
-            let profilePicUrl = '';
-            if (isEventMarket) {
-                profilePicUrl = item.profilePic || (
-                    item.type.toLowerCase().includes('hochzeit') || item.type.toLowerCase().includes('wedding') ? 'https://picsum.photos/id/111/300/300' :
-                    item.type.toLowerCase().includes('club') || item.type.toLowerCase().includes('party') ? 'https://picsum.photos/id/653/300/300' :
-                    item.type.toLowerCase().includes('festival') || item.type.toLowerCase().includes('open') ? 'https://picsum.photos/id/280/300/300' :
-                    item.type.toLowerCase().includes('firma') || item.type.toLowerCase().includes('corporate') ? 'https://picsum.photos/id/30/300/300' :
-                    'https://picsum.photos/id/1025/300/300'
-                );
-            } else {
-                profilePicUrl = item.profilePic || (
-                    item.type === 'DJ' ? 'https://picsum.photos/id/653/300/300' :
-                    item.type === 'Solo' ? 'https://picsum.photos/id/325/300/300' :
-                    'https://picsum.photos/id/453/300/300'
-                );
-            }
-
-            const photos = item.photos && item.photos.length > 0 ? item.photos : [
-                profilePicUrl,
-                isEventMarket ? 'https://picsum.photos/id/1025/400/300' : 'https://picsum.photos/id/1082/400/300',
-                'https://picsum.photos/id/453/400/300'
-            ];
-
-            const videos = item.videos && item.videos.length > 0 ? item.videos : ['vid_1', 'vid_2'];
-            const audio = item.audio && item.audio.length > 0 ? item.audio : [
-                'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-                'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
-            ];
-
-            const socialLinks = item.socialLinks && (item.socialLinks.spotify || item.socialLinks.youtube || item.socialLinks.instagram) ? item.socialLinks : {
-                spotify: "https://spotify.com",
-                youtube: "https://youtube.com",
-                instagram: "https://instagram.com"
-            };
-
-            // Contact Panel & Social Media html
-            let contactPanelHtml = '';
-            let socialMediaHtml = '';
-            if (isUserLoggedIn) {
-                if (hasContactAccess) {
-                    contactPanelHtml = `
-                        <div class="contact-details-box" style="margin-top: 0.5rem; padding: 0.6rem; border: 1px solid rgba(56, 239, 125, 0.2); background: rgba(56, 239, 125, 0.03); border-radius: var(--radius-sm); font-size: 0.75rem; text-align: left; display: flex; flex-direction: column; gap: 0.3rem;">
-                            ${item.company ? `<div class="contact-line" style="word-break: break-all;"><i class="fa-solid fa-building" style="color:var(--color-cyan);"></i> ${item.company}</div>` : ''}
-                            <div class="contact-line" style="word-break: break-all;"><i class="fa-solid fa-user" style="color:var(--color-cyan);"></i> ${item.contactName}</div>
-                            <div class="contact-line" style="word-break: break-all;"><i class="fa-solid fa-phone" style="color:var(--color-cyan);"></i> ${item.phone}</div>
-                            <div class="contact-line" style="word-break: break-all;"><i class="fa-solid fa-envelope" style="color:var(--color-cyan);"></i> ${item.email}</div>
-                        </div>
-                    `;
-                    socialMediaHtml = `
-                        <div class="card-social-icons-row" style="margin-top: 0.5rem; display: flex; gap: 0.8rem; justify-content: center; align-items: center; padding: 0.4rem 0;">
-                            ${socialLinks.spotify ? `<a href="${socialLinks.spotify}" target="_blank" style="color: #1DB954; font-size: 1.25rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Spotify" onclick="event.stopPropagation();"><i class="fa-brands fa-spotify"></i></a>` : ''}
-                            ${socialLinks.youtube ? `<a href="${socialLinks.youtube}" target="_blank" style="color: #FF0000; font-size: 1.25rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="YouTube" onclick="event.stopPropagation();"><i class="fa-brands fa-youtube"></i></a>` : ''}
-                            ${socialLinks.instagram ? `<a href="${socialLinks.instagram}" target="_blank" style="color: #E1306C; font-size: 1.25rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Instagram" onclick="event.stopPropagation();"><i class="fa-brands fa-instagram"></i></a>` : ''}
-                        </div>
-                    `;
-                } else {
-                    contactPanelHtml = `
-                        <div class="contact-details-box" style="position: relative; margin-top: 0.5rem; border-radius: var(--radius-sm); font-size: 0.75rem; text-align: left; overflow: hidden; padding: 0.4rem; border: 1px dashed var(--border-glass);">
-                            <div style="filter: blur(4px); user-select: none; pointer-events: none; display: flex; flex-direction: column; gap: 0.3rem; opacity: 0.7;">
-                                <div class="contact-line"><i class="fa-solid fa-building"></i> Musterfirma GmbH</div>
-                                <div class="contact-line"><i class="fa-solid fa-user"></i> Max Mustermann</div>
-                                <div class="contact-line"><i class="fa-solid fa-phone"></i> +49 176 1234567</div>
-                                <div class="contact-line"><i class="fa-solid fa-envelope"></i> mail@muster.de</div>
-                            </div>
-                            <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: rgba(255,255,255,0.255);">
-                                <button class="btn btn-secondary btn-sm" id="btn-activate-premium-inside-${item.id}" style="font-size: 0.65rem; padding: 0.2rem 0.4rem; margin: 0;" onclick="event.stopPropagation(); showModal('premium');">
-                                    <i class="fa-solid fa-lock"></i> Freischalten
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                    socialMediaHtml = `
-                        <div class="card-social-icons-row" style="margin-top: 0.5rem; display: flex; gap: 0.8rem; justify-content: center; align-items: center; padding: 0.4rem 0;">
-                            <div style="filter: blur(4px); display: flex; gap: 0.8rem; pointer-events: none; opacity: 0.6;">
-                                <span style="font-size: 1.2rem; color: var(--text-muted);"><i class="fa-brands fa-spotify"></i></span>
-                                <span style="font-size: 1.2rem; color: var(--text-muted);"><i class="fa-brands fa-youtube"></i></span>
-                                <span style="font-size: 1.2rem; color: var(--text-muted);"><i class="fa-brands fa-instagram"></i></span>
-                            </div>
-                        </div>
-                    `;
-                }
-            } else {
-                // Blurred for guests
-                contactPanelHtml = `
-                    <div class="contact-details-box guest-unlock-trigger" style="position: relative; margin-top: 0.5rem; border-radius: var(--radius-sm); font-size: 0.75rem; text-align: left; overflow: hidden; padding: 0.4rem; border: 1px dashed var(--border-glass); cursor: pointer;" onclick="event.stopPropagation(); showModal('auth');">
-                        <div style="filter: blur(5px); user-select: none; pointer-events: none; display: flex; flex-direction: column; gap: 0.3rem; opacity: 0.5;">
-                            <div class="contact-line"><i class="fa-solid fa-building"></i> Musterfirma GmbH</div>
-                            <div class="contact-line"><i class="fa-solid fa-user"></i> Max Mustermann</div>
-                            <div class="contact-line"><i class="fa-solid fa-phone"></i> +49 176 1234567</div>
-                            <div class="contact-line"><i class="fa-solid fa-envelope"></i> mail@muster.de</div>
-                        </div>
-                        <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: rgba(124, 58, 237, 0.08); transition: background 0.2s;" onmouseover="this.style.background='rgba(124, 58, 237, 0.15)'" onmouseout="this.style.background='rgba(124, 58, 237, 0.08)'">
-                            <span style="font-size: 0.75rem; font-weight: 700; color: #ffffff; background: var(--color-purple); padding: 0.35rem 0.6rem; border-radius: var(--radius-sm); box-shadow: 0 4px 8px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 4px;">
-                                <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
+        return `
+            <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
+                
+                <!-- 1. Max. 5 Fotos Galerie (Grid Mosaic Layout ganz oben in der Kachel - NICHT GESCHÃœTZT) -->
+                <div class="tile-photo-gallery-grid" style="position: relative; width: 100%; padding: 8px; background: rgba(0,0,0,0.25);">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 4px; height: 160px;">
+                        <div style="grid-row: span 2; border-radius: 8px; overflow: hidden; position: relative;">
+                            <img src="${photos[0]}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <span style="position: absolute; bottom: 6px; left: 6px; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.68rem; font-weight: 800; padding: 0.15rem 0.4rem; border-radius: 4px; backdrop-filter: blur(2px);">
+                                ðŸ“· 1 / 5
                             </span>
                         </div>
+                        <div style="border-radius: 6px; overflow: hidden;"><img src="${photos[1]}" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                        <div style="border-radius: 6px; overflow: hidden;"><img src="${photos[2]}" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                        <div style="border-radius: 6px; overflow: hidden;"><img src="${photos[3]}" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                        <div style="border-radius: 6px; overflow: hidden;"><img src="${photos[4]}" style="width: 100%; height: 100%; object-fit: cover;"></div>
                     </div>
-                `;
-                socialMediaHtml = `
-                    <div class="card-social-icons-row guest-unlock-trigger" style="margin-top: 0.5rem; display: flex; gap: 0.8rem; justify-content: center; align-items: center; padding: 0.4rem 0; cursor: pointer;" onclick="event.stopPropagation(); showModal('auth');">
-                        <div style="filter: blur(4px); display: flex; gap: 0.8rem; pointer-events: none; opacity: 0.5;">
-                            <span style="font-size: 1.25rem; color: var(--text-muted);"><i class="fa-brands fa-spotify"></i></span>
-                            <span style="font-size: 1.25rem; color: var(--text-muted);"><i class="fa-brands fa-youtube"></i></span>
-                            <span style="font-size: 1.25rem; color: var(--text-muted);"><i class="fa-brands fa-instagram"></i></span>
+
+                    <!-- Top Left Badge -->
+                    <div style="position: absolute; top: 14px; left: 14px; z-index: 5;">
+                        <span style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.75rem; border-radius: 20px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); color: #ffffff; font-size: 0.75rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.2);">
+                            <i class="fa-solid ${isEvents ? 'fa-calendar-day' : 'fa-guitar'}" style="color: ${themeColor};"></i> ${isEvents ? (item.eventType || 'Event') : (item.category || 'Musiker')}
+                        </span>
+                    </div>
+
+                    <!-- Match-Faktor Badge -->
+                    <div style="position: absolute; top: 14px; right: 14px; z-index: 5; background: ${themeColor}; color: #fff; padding: 0.25rem 0.65rem; border-radius: 12px; font-size: 0.75rem; font-weight: 900;">
+                        ${item.matchScore || '96'}% Match
+                    </div>
+                </div>
+
+                <!-- Tile Body Content -->
+                <div style="padding: 1.3rem; flex: 1; display: flex; flex-direction: column;">
+                    
+                    <!-- 2. Bandname / Event-Titel -->
+                    <h3 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; color: var(--text-main); margin-bottom: 0.6rem; line-height: 1.3;">
+                        ${isEvents ? item.title : item.name}
+                    </h3>
+
+                    <!-- 3. Beschreibung -->
+                    <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.1rem;">
+                        ${description}
+                    </p>
+
+                    <!-- 4. Informationen: Standort, Musiker-Typ / Event-Art, VerfÃ¼gbarkeit / Datum, Spieldauer, Gage, Technik -->
+                    <div style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.86rem; color: var(--text-muted); margin-bottom: 1.1rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 0.9rem; border-radius: 10px;">
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px;"></i>
+                            <span>Standort: <strong>${item.location || 'Deutschlandweit'}</strong></span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid ${isEvents ? 'fa-calendar-alt' : 'fa-guitar'}" style="color: ${themeColor}; width: 16px;"></i>
+                            <span>${isEvents ? 'Event-Art:' : 'Musiker-Typ:'} <strong>${isEvents ? (item.eventType || 'Event') : (item.category || 'Solo / Band')}</strong></span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px;"></i>
+                            <span>${isEvents ? 'Datum:' : 'VerfÃ¼gbarkeit:'} <strong>${isEvents ? (item.date || 'Termin nach Absprache') : (item.availability || 'Auf Anfrage verfÃ¼gbar')}</strong></span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px;"></i>
+                            <span>Spieldauer: <strong>${duration}</strong></span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 16px;"></i>
+                            <span>${isEvents ? (`Gage: <strong>${item.budget || 'VB'}</strong>`) : (`Honorar / Gage: <strong>${item.price || 'VB'}</strong>`)}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-plug" style="color: ${themeColor}; width: 16px;"></i>
+                            <span>Technik: <strong>${item.equipment || 'Vorhanden / Auf Anfrage'}</strong></span>
                         </div>
                     </div>
-                `;
-            }
 
-            return `
-                <div class="listing-card" data-id="${item.id}">
-                    <div class="left-media-column" style="display:flex; flex-direction:column; gap:0.6rem; width:200px; flex-shrink:0;">
-                        <div class="listing-thumbnail-wrapper" style="position: relative; width: 200px; height: 200px; overflow: hidden; border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); flex-shrink: 0;">
-                            ${isNewListing(item) ? `
-                                <span class="badge-new-listing" style="position: absolute; top: 8px; left: 8px; background: var(--color-purple); color: #000000; font-weight: 800; font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: var(--radius-sm); box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 12; display: flex; align-items: center; gap: 3px; letter-spacing: 0.5px;">
-                                    <i class="fa-solid fa-star"></i> NEU
-                                </span>
-                            ` : ''}
-                            <!-- Slides Container -->
-                            <div class="listing-gallery-slides" style="width: 100%; height: 100%; display: flex; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(0);">
-                                ${photos.map(p => `
-                                    <img src="${p}" style="width: 100%; height: 100%; flex-shrink: 0; object-fit: cover;" alt="Vorschau">
-                                `).join('')}
+                    <!-- 5. Genre und Instrumente direkt darunter (NICHT GESCHÃœTZT) -->
+                    <div style="margin-bottom: 1.2rem;">
+                        <div style="font-size: 0.78rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase;">
+                            Genres & Instrumente
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                            ${genres.map(g => `<span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.76rem; color: var(--text-main); font-weight: 600;">ðŸ·ï¸ ${g}</span>`).join('')}
+                            ${instruments.map(inst => `<span style="background: rgba(124, 58, 237, 0.12); border: 1px solid rgba(124, 58, 237, 0.25); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.76rem; color: ${themeColor}; font-weight: 700;">ðŸŽ¸ ${inst}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    ${!isEvents ? `
+                        <!-- 6. Darunter Videos als Galerie (Max. 3 Videos - Musiker-Markt NICHT GESCHÃœTZT) -->
+                        <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 0.85rem; margin-bottom: 1.1rem;">
+                            <div style="font-size: 0.8rem; font-weight: 800; color: #ef4444; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+                                <i class="fa-solid fa-film"></i> Videos Galerie (Max. 3 Videos)
                             </div>
-                            <!-- Prev/Next Controls -->
-                            ${photos.length > 1 ? `
-                                <button class="gallery-arrow prev-arrow" onclick="event.stopPropagation(); window.navigateGallery(this, -1);" style="position: absolute; left: 6px; top: 50%; transform: translateY(-50%); background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.1); color: #ffffff; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; z-index: 10; transition: background 0.2s, transform 0.2s;" onmouseover="this.style.background='rgba(15, 23, 42, 0.85)'" onmouseout="this.style.background='rgba(15, 23, 42, 0.65)'"><i class="fa-solid fa-chevron-left"></i></button>
-                                <button class="gallery-arrow next-arrow" onclick="event.stopPropagation(); window.navigateGallery(this, 1);" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.1); color: #ffffff; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; z-index: 10; transition: background 0.2s, transform 0.2s;" onmouseover="this.style.background='rgba(15, 23, 42, 0.85)'" onmouseout="this.style.background='rgba(15, 23, 42, 0.65)'"><i class="fa-solid fa-chevron-right"></i></button>
-                                <!-- Dots indicator -->
-                                <div class="gallery-dots" style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; z-index: 10;">
-                                    ${photos.map((_, idx) => `
-                                        <span class="gallery-dot" style="width: 6px; height: 6px; border-radius: 50%; background: ${idx === 0 ? '#ffffff' : 'rgba(255,255,255,0.4)'}; transition: background 0.2s, transform 0.2s; transform: ${idx === 0 ? 'scale(1.2)' : 'scale(1)'};"></span>
-                                    `).join('')}
-                                </div>
-                            ` : ''}
-                        </div>
-
-                        <!-- Videos under gallery -->
-                        ${videos && videos.length > 0 ? `
-                            <div class="listing-videos-gallery" style="display:flex; gap:0.4rem; overflow-x:auto; padding:2px 0;">
-                                ${videos.map((v, idx) => `
-                                    <div class="video-gallery-item" onclick="event.stopPropagation(); window.playVideoModal('${v}');" style="width:64px; height:48px; border-radius:4px; overflow:hidden; position:relative; cursor:pointer; border:1px solid rgba(255,255,255,0.1); flex-shrink:0;" title="Video abspielen">
-                                        <img src="https://picsum.photos/id/653/100/100" style="width:100%; height:100%; object-fit:cover;">
-                                        <div style="position:absolute; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center;">
-                                            <i class="fa-solid fa-play text-red" style="font-size:0.8rem;"></i>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;">
+                                ${videos.map((vid, idx) => `
+                                    <div onclick="alert('Abspielen von Video #${idx+1}')" style="position: relative; height: 65px; border-radius: 6px; overflow: hidden; background: url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=300&q=80') center/cover; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.15);">
+                                        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.4);"></div>
+                                        <div style="position: relative; z-index: 2; width: 24px; height: 24px; border-radius: 50%; background: #ef4444; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.65rem;">
+                                            <i class="fa-solid fa-play" style="margin-left: 1px;"></i>
                                         </div>
                                     </div>
                                 `).join('')}
                             </div>
-                        ` : ''}
+                        </div>
 
-                        <!-- Audio Tracks under gallery -->
-                        ${audio && audio.length > 0 ? `
-                            <div class="listing-audios-gallery" style="display:flex; flex-direction:column; gap:0.25rem;">
-                                ${audio.map((a, idx) => `
-                                    <div class="audio-gallery-item" onclick="event.stopPropagation(); window.toggleAudioTrack(this, '${a}');" style="display:flex; align-items:center; gap:0.4rem; background:rgba(255,255,255,0.03); border:1px solid var(--border-glass); border-radius:4px; padding:0.25rem 0.4rem; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'" title="Audio abspielen">
-                                        <i class="fa-solid fa-play play-icon text-purple" style="font-size:0.65rem;"></i>
-                                        <span style="font-size:0.65rem; color:var(--text-main); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Demo ${idx+1}</span>
-                                        <audio class="hidden-audio-player" src="${a}" style="display:none;"></audio>
+                        <!-- 7. Darunter Audios (Max. 3 Audios - Musiker-Markt NICHT GESCHÃœTZT) -->
+                        <div style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px; padding: 0.85rem; margin-bottom: 1.1rem;">
+                            <div style="font-size: 0.8rem; font-weight: 800; color: #a855f7; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+                                <i class="fa-solid fa-music"></i> Audio-HÃ¶rproben (Max. 3 Audios)
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                                ${audios.map((aud, idx) => `
+                                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.35); padding: 0.4rem 0.7rem; border-radius: 6px; font-size: 0.76rem; color: #fff;">
+                                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">ðŸŽµ ${aud}</span>
+                                        <button onclick="const icon=this.querySelector('i'); if(icon.classList.contains('fa-play')){icon.classList.remove('fa-play');icon.classList.add('fa-pause');}else{icon.classList.remove('fa-pause');icon.classList.add('fa-play');}" style="background: #7c3aed; border: none; color: #fff; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.7rem; font-weight: 700; cursor: pointer; flex-shrink: 0;">
+                                            <i class="fa-solid fa-play"></i>
+                                        </button>
                                     </div>
                                 `).join('')}
                             </div>
-                        ` : ''}
-                    </div>
-                    <div class="listing-main-info">
-                        <div class="listing-top-row" style="display: block; text-align: left;">
-                            <div class="listing-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; font-weight: 700; font-size: 1.15rem; color: var(--text-main); line-height: 1.2;" title="${displayName}">
-                                ${displayName}
-                            </div>
-                            <div style="margin-top: 0.2rem; margin-bottom: 0.6rem;">
-                                <span class="listing-badge ${isEventMarket ? 'badge-organizer' : 'badge-musician'}" style="display: inline-block;">
-                                    ${item.type}
-                                </span>
-                            </div>
                         </div>
- 
-                        <div class="listing-details-grid">
-                            <div class="detail-item"><i class="fa-solid fa-map-marker-alt"></i> ${formatLocationWithPlz(item.location)}</div>
-                            <div class="detail-item">
-                                ${isEventMarket 
-                                    ? `<i class="fa-solid fa-calendar-days"></i> ${formatEventDateWithWeekday(item.date)}` 
-                                    : `<i class="fa-solid fa-calendar-check"></i> Event-Arten: ${item.eventTypes ? item.eventTypes.join(', ') : ''}`}
-                            </div>
-                            <div class="detail-item">
-                                <i class="fa-solid fa-euro-sign"></i> 
-                                ${isEventMarket ? `Budget: ${item.budget} €` : `Min. Gage: ${item.minBudget} €`}
-                            </div>
-                            <div class="detail-item">
-                                <i class="fa-solid fa-clock"></i> 
-                                ${isEventMarket ? `${item.duration} Std. Spieldauer` : `Max. ${item.maxDuration} Std. Spieldauer`}
-                            </div>
-                            <div class="detail-item">
-                                <i class="fa-solid fa-sliders"></i> 
-                                Technik: ${item.technik === 'vorhanden' ? 'Ja' : (item.technik === 'nicht vorhanden' ? 'Nein' : 'Weiß ich noch nicht')}
-                            </div>
-                            ${isEventMarket ? `
-                                <div class="detail-item">
-                                    <i class="fa-solid fa-users"></i> 
-                                    Gesucht: ${item.musicianTypes ? item.musicianTypes.join(', ') : ''}
+                    ` : ''}
+                </div>
+
+                <!-- Tile Footer: PersÃ¶nliche Infos & Social Media Links & Nachrichten-Button (GESCHÃœTZT) -->
+                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding: 1.1rem; background: rgba(0,0,0,0.25);">
+                    ${isUnlocked ? `
+                        <!-- Freigeschaltete PersÃ¶nliche Infos & Social Links -->
+                        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 0.85rem; font-size: 0.85rem; color: #4ade80; margin-bottom: 0.8rem;">
+                            <div style="font-weight: 800; margin-bottom: 0.3rem;"><i class="fa-solid fa-unlock"></i> PersÃ¶nliche Kontaktdaten</div>
+                            <div>Tel: ${item.phone || '+49 170 1234567'}</div>
+                            <div>Mail: ${item.email || 'kontakt@gigconnact.de'}</div>
+                            ${!isEvents ? `
+                                <div style="margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 0.8rem; font-size: 1.1rem; color: #fff;">
+                                    <a href="#" style="color: #1db954;" title="Spotify"><i class="fa-brands fa-spotify"></i></a>
+                                    <a href="#" style="color: #ff0000;" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                                    <a href="#" style="color: #e1306c;" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                                    <a href="#" style="color: #60a5fa;" title="Website"><i class="fa-solid fa-globe"></i></a>
                                 </div>
                             ` : ''}
                         </div>
-
-                        <!-- Genres & Instrumente tags (without titles) -->
-                        <div class="listing-details-block" style="margin-top: 0.8rem; font-size: 0.85rem; display: flex; flex-wrap: wrap; gap: 0.4rem; text-align: left;">
-                            ${item.genres.map(g => `<span class="tag">🎵 ${g}</span>`).join('')}
-                            ${item.instruments.map(ins => `<span class="tag">🎸 ${ins}</span>`).join('')}
+                        <button class="btn btn-primary" onclick="if(!state.currentUser){showModal('auth');}else{showToast({title:'Nachricht senden', message:'Postfach Chat gestartet.'});}" style="width: 100%; background: ${themeColor}; border-color: ${themeColor}; font-weight: 800; padding: 0.85rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-paper-plane"></i> Nachricht senden
+                        </button>
+                    ` : `
+                        <!-- GeschÃ¼tzte PersÃ¶nliche Infos & Social Links -->
+                        <div style="position: relative; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.85rem; margin-bottom: 0.8rem;">
+                            <div style="filter: blur(4px); user-select: none; opacity: 0.6;">
+                                <div style="font-weight: 700;">Max Mustermann</div>
+                                <div>Tel: +49 170 1234567</div>
+                                <div>Mail: kontakt@gigconnact.de</div>
+                                ${!isEvents ? `
+                                    <div style="display: flex; gap: 0.6rem; margin-top: 0.3rem;">
+                                        <i class="fa-brands fa-spotify"></i> <i class="fa-brands fa-youtube"></i> <i class="fa-brands fa-instagram"></i>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(15,23,42,0.65); border-radius: 10px; backdrop-filter: blur(2px);">
+                                <span style="font-size: 0.78rem; font-weight: 800; color: #ffffff;">
+                                    <i class="fa-solid fa-lock" style="color: ${themeColor};"></i> PersÃ¶nliche Infos & Social Links geschÃ¼tzt
+                                </span>
+                            </div>
                         </div>
 
-                        <!-- Description directly visible under tags -->
-                        <div class="listing-description" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.8rem; margin-top: 0.8rem; font-size: 0.85rem; line-height: 1.4; color: var(--text-muted); text-align: left;">
-                            ${item.description}
-                        </div>
+                        <button class="btn btn-primary btn-unlock-contact" data-id="${item.id}" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-color: #7c3aed; font-weight: 800; padding: 0.85rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten & Nachricht senden
+                        </button>
+                    `}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Unified Tile Card Renderer - NO EXTRA PAGE / NO MODAL NEEDED!
+function renderMarketGridHTML(items, isEvents) {
+    if (!items || items.length === 0) {
+        return `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass);">
+                <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                <h3 style="margin-bottom: 0.5rem; color: var(--text-main);">Keine Ergebnisse gefunden</h3>
+                <p style="color: var(--text-muted);">Versuche deine Filterkriterien anzupassen.</p>
+            </div>
+        `;
+    }
+
+    const themeColor = isEvents ? '#2563eb' : '#7c3aed';
+
+    return items.map(item => {
+        const isNew = item.isNew || item.createdRecently;
+        const isUnlocked = state.unlockedContacts && state.unlockedContacts.includes(item.id);
+        
+        // 5 Photos array
+        const photos = item.photos || [
+            item.image || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80',
+            'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=600&q=80'
+        ];
+
+        // 3 Audios array
+        const audios = item.audios || [
+            'HÃ¶rprobe 1: Pop & Chart Medley',
+            'HÃ¶rprobe 2: Acoustic Ballad Live',
+            'HÃ¶rprobe 3: Party & Dance Mix'
+        ];
+
+        // 3 Videos array
+        const videos = item.videos || [
+            'Live Performance Highlights 2024',
+            'Hochzeits-Auftritt Trailer',
+            'Unplugged Acoustic Session'
+        ];
+
+        const genres = item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic']);
+        const instruments = item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre']);
+        const duration = item.duration || item.spieldauer || 'ca. 2 - 4 Stunden';
+        const description = item.description || item.bio || (isEvents 
+            ? 'Wir suchen eine professionelle musikalische Begleitung fÃ¼r unser anstehendes Event mit fantastischer Stimmung.' 
+            : 'Professionelle Live-Musik fÃ¼r unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.');
+
+        return `
+            <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); transition: transform 0.2s;">
+                
+                <!-- 1. Max. 5 Fotos Galerie (NIGHT GESCHÃœTZT) -->
+                <div class="tile-photo-gallery" style="position: relative; height: 200px; width: 100%; background: #0f172a; overflow: hidden;">
+                    <div id="slider-${item.id}" style="display: flex; width: 100%; height: 100%; transition: transform 0.3s ease-in-out;">
+                        ${photos.slice(0, 5).map(img => `<img src="${img}" style="width: 100%; height: 100%; object-fit: cover; flex-shrink: 0;">`).join('')}
                     </div>
 
-                    <div class="listing-actions-panel" style="display:flex; flex-direction:column; gap:0.4rem; align-items:stretch; width:180px;">
-                        ${matchHtml}
-                        <div style="display:flex; flex-direction:column; gap:0.4rem; width:100%; margin-top:0.4rem;">
-                            ${interestBtnHtml}
-                            ${noInterestBtnHtml}
-                            <button class="btn btn-sm ${isEventMarket ? 'btn-primary' : 'btn-secondary'} btn-contact-listing" 
-                                    data-id="${isEventMarket ? item.creatorId : item.id}" 
-                                    data-name="${displayName}"
-                                    data-event-id="${isEventMarket ? item.id : ''}"
-                                    style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin: 0;">
-                                <i class="fa-solid fa-comment"></i> Nachricht schreiben
-                            </button>
-                            ${contactPanelHtml}
-                            ${socialMediaHtml}
+                    <!-- Slide Navigation Arrows -->
+                    <button onclick="const s=document.getElementById('slider-${item.id}'); let cur=parseInt(s.getAttribute('data-idx')||'0'); cur=cur>0?cur-1:4; s.style.transform=\`translateX(-\${cur*100}%)\`; s.setAttribute('data-idx', cur);" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5;">
+                        <i class="fa-solid fa-chevron-left" style="font-size: 0.75rem;"></i>
+                    </button>
+                    <button onclick="const s=document.getElementById('slider-${item.id}'); let cur=parseInt(s.getAttribute('data-idx')||'0'); cur=(cur+1)%5; s.style.transform=\`translateX(-\${cur*100}%)\`; s.setAttribute('data-idx', cur);" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5;">
+                        <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i>
+                    </button>
+
+                    <!-- Top Left Badge -->
+                    <div style="position: absolute; top: 10px; left: 10px; z-index: 5;">
+                        <span style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.75rem; border-radius: 20px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); color: #ffffff; font-size: 0.75rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.2);">
+                            <i class="fa-solid ${isEvents ? 'fa-calendar-day' : 'fa-guitar'}" style="color: ${themeColor};"></i> ${isEvents ? (item.eventType || 'Event') : (item.category || 'Musiker')}
+                        </span>
+                    </div>
+
+                    <!-- Match-Faktor Badge -->
+                    <div style="position: absolute; top: 10px; right: 10px; z-index: 5; background: ${themeColor}; color: #fff; padding: 0.25rem 0.65rem; border-radius: 12px; font-size: 0.75rem; font-weight: 900;">
+                        ${item.matchScore || '96'}% Match
+                    </div>
+                </div>
+
+                <!-- Tile Body Content -->
+                <div style="padding: 1.3rem; flex: 1; display: flex; flex-direction: column;">
+                    
+                    <!-- Title & Basic Info -->
+                    <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 900; color: var(--text-main); margin-bottom: 0.5rem; line-height: 1.3;">
+                        ${isEvents ? item.title : item.name}
+                    </h3>
+
+                    <!-- Inhaltliche Informationen (NICHT GESCHÃœTZT) -->
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.45; margin-bottom: 1rem;">
+                        ${description}
+                    </p>
+
+                    ${!isEvents ? `
+                        <!-- 2. Max 3 Videos (Musiker-Markt NICHT GESCHÃœTZT) -->
+                        <div style="background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 10px; padding: 0.7rem; margin-bottom: 0.9rem;">
+                            <div style="font-size: 0.78rem; font-weight: 800; color: #ef4444; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+                                <i class="fa-solid fa-circle-play"></i> Max. 3 Videos (Ã–ffentlich)
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                                ${videos.map((vid, idx) => `
+                                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 0.35rem 0.6rem; border-radius: 6px; font-size: 0.75rem; color: #fff;">
+                                        <span>ðŸŽ¬ ${vid}</span>
+                                        <button onclick="alert('Abspielen von Video #${idx+1}')" style="background: #ef4444; border: none; color: #fff; border-radius: 4px; padding: 0.15rem 0.4rem; font-size: 0.68rem; font-weight: 700; cursor: pointer;">
+                                            <i class="fa-solid fa-play"></i> Video ${idx+1}
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <!-- 3. Max 3 Audios (Musiker-Markt NICHT GESCHÃœTZT) -->
+                        <div style="background: rgba(124, 58, 237, 0.06); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 10px; padding: 0.7rem; margin-bottom: 0.9rem;">
+                            <div style="font-size: 0.78rem; font-weight: 800; color: #a855f7; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+                                <i class="fa-solid fa-music"></i> Max. 3 HÃ¶rproben / Audios (Ã–ffentlich)
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                                ${audios.map((aud, idx) => `
+                                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 0.35rem 0.6rem; border-radius: 6px; font-size: 0.75rem; color: #fff;">
+                                        <span>ðŸŽµ ${aud}</span>
+                                        <button onclick="const icon=this.querySelector('i'); if(icon.classList.contains('fa-play')){icon.classList.remove('fa-play');icon.classList.add('fa-pause');}else{icon.classList.remove('fa-pause');icon.classList.add('fa-play');}" style="background: #7c3aed; border: none; color: #fff; border-radius: 4px; padding: 0.15rem 0.4rem; font-size: 0.68rem; font-weight: 700; cursor: pointer;">
+                                            <i class="fa-solid fa-play"></i> Audio ${idx+1}
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Genres & Instrumente Tags (NICHT GESCHÃœTZT) -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem;">
+                        ${genres.map(g => `<span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.73rem; color: var(--text-main); font-weight: 600;">ðŸ·ï¸ ${g}</span>`).join('')}
+                        ${instruments.map(inst => `<span style="background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.73rem; color: ${themeColor}; font-weight: 700;">ðŸŽ¸ ${inst}</span>`).join('')}
+                    </div>
+
+                    <!-- Details: Ort, Spieldauer, Gage, Technik (NICHT GESCHÃœTZT) -->
+                    <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.82rem; color: var(--text-muted); margin-top: auto; padding-top: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.1);">
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px;"></i>
+                            <span>${item.location || 'Deutschlandweit'}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px;"></i>
+                            <span>Spieldauer: <strong>${duration}</strong></span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 16px;"></i>
+                            <span>${isEvents ? (`Gage: <strong>${item.budget || 'VB'}</strong>`) : (`Honorar: <strong>${item.price || 'VB'}</strong>`)}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-plug" style="color: ${themeColor}; width: 16px;"></i>
+                            <span>Technik: ${item.equipment || 'Vorhanden / Auf Anfrage'}</span>
                         </div>
                     </div>
                 </div>
-            `;
-        }).join('');
 
-        grid.querySelectorAll('.btn-contact-listing').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const targetId = btn.getAttribute('data-id');
-                const targetName = btn.getAttribute('data-name');
-                const eventId = btn.getAttribute('data-event-id');
-                const result = state.initiateContact(targetId, targetName);
-                if (result.redirectAuth) {
-                    showModal('auth', () => {
-                        onNavigate(type);
-                    });
-                } else if (result.success) {
-                    if (eventId && state.currentUser && state.currentUser.role === 'musician') {
-                        state.addMusicianApplication(state.currentUser.profileId, eventId);
-                    }
-                    showToast({
-                        title: "Verbindung initiiert!",
-                        message: `Chat mit ${targetName} geöffnet.`,
-                        actionTab: "postbox"
-                    });
-                    onNavigate('postbox');
-                }
-            });
-        });
+                <!-- Card Footer: Persoenliche Infos & Social Media & Nachrichten-Button (GESCHÃœTZT) -->
+                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding: 1rem; background: rgba(0,0,0,0.25);">
+                    ${isUnlocked ? `
+                        <!-- Freigeschaltete Persoenliche Infos & Social Media Links -->
+                        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 0.85rem; font-size: 0.85rem; color: #4ade80; margin-bottom: 0.8rem;">
+                            <div style="font-weight: 800; margin-bottom: 0.3rem;"><i class="fa-solid fa-unlock"></i> PersÃ¶nliche Kontaktdaten</div>
+                            <div>Tel: ${item.phone || '+49 170 1234567'}</div>
+                            <div>Mail: ${item.email || 'kontakt@gigconnact.de'}</div>
+                            ${!isEvents ? `
+                                <div style="margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 0.8rem; font-size: 1.1rem; color: #fff;">
+                                    <a href="#" style="color: #1db954;" title="Spotify"><i class="fa-brands fa-spotify"></i></a>
+                                    <a href="#" style="color: #ff0000;" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                                    <a href="#" style="color: #e1306c;" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                                    <a href="#" style="color: #60a5fa;" title="Website"><i class="fa-solid fa-globe"></i></a>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <button class="btn btn-primary" onclick="if(!state.currentUser){showModal('auth');}else{showToast({title:'Nachricht senden', message:'Postfach Chat gestartet.'});}" style="width: 100%; background: ${themeColor}; border-color: ${themeColor}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-paper-plane"></i> Nachricht senden
+                        </button>
+                    ` : `
+                        <!-- Geschuetzte Persoenliche Infos & Social Media Links -->
+                        <div style="position: relative; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.85rem; margin-bottom: 0.8rem;">
+                            <div style="filter: blur(4px); user-select: none; opacity: 0.6;">
+                                <div style="font-weight: 700;">Max Mustermann</div>
+                                <div>Tel: +49 170 1234567</div>
+                                <div>Mail: kontakt@gigconnact.de</div>
+                                ${!isEvents ? `
+                                    <div style="display: flex; gap: 0.6rem; margin-top: 0.3rem;">
+                                        <i class="fa-brands fa-spotify"></i> <i class="fa-brands fa-youtube"></i> <i class="fa-brands fa-instagram"></i>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(15,23,42,0.65); border-radius: 10px; backdrop-filter: blur(2px);">
+                                <span style="font-size: 0.78rem; font-weight: 800; color: #ffffff;">
+                                    <i class="fa-solid fa-lock" style="color: ${themeColor};"></i> PersÃ¶nliche Infos & Social Links geschÃ¼tzt
+                                </span>
+                            </div>
+                        </div>
 
-        grid.querySelectorAll('.btn-interest').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const musicianId = btn.getAttribute('data-musician-id');
-                const eventId = btn.getAttribute('data-event-id');
-                const res = state.toggleInterest(state.currentUser.role, musicianId, eventId);
-                if (res.success) {
-                    if (res.isPerfectMatch) {
-                        showToast({
-                            title: "Perfect Match! 💖🎉",
-                            message: "Ihr habt beide gegenseitig Interesse bekundet! Ihr könnt nun direkt chatten.",
-                            actionTab: "postbox"
-                        });
-                        let targetId = '';
-                        if (state.currentUser.role === 'musician') {
-                            const event = state.events.find(ev => ev.id === eventId);
-                            targetId = event ? event.creatorId : '';
-                        } else {
-                            targetId = musicianId;
-                        }
-                        if (targetId) {
-                            state.initiateContact(targetId, "Perfect Match Partner");
-                        }
-                        onNavigate('postbox');
-                    } else {
-                        showToast({
-                            title: res.active ? "Interesse bekundet!" : "Interesse zurückgezogen",
-                            message: res.active ? "Dein Interesse wurde erfolgreich übermittelt." : "Dein Interesse wurde zurückgezogen."
-                        });
-                        onNavigate(type);
-                    }
-                }
-            });
-        });
-
-        grid.querySelectorAll('.btn-no-interest').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const musicianId = btn.getAttribute('data-musician-id');
-                const eventId = btn.getAttribute('data-event-id');
-                const res = state.toggleNoInterest(state.currentUser.role, musicianId, eventId);
-                if (res.success) {
-                    showToast({
-                        title: res.active ? "Kein Interesse markiert" : "Markierung aufgehoben",
-                        message: res.active ? "Dieses Inserat wurde als nicht interessant markiert." : "Die Markierung wurde aufgehoben."
-                    });
-                    onNavigate(type);
-                }
-            });
-        });
-    }
-
-    applyFilters();
+                        <button class="btn btn-primary btn-unlock-contact" data-id="${item.id}" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-color: #7c3aed; font-weight: 800; padding: 0.85rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten & Nachricht senden
+                        </button>
+                    `}
+                </div>
+            </div>
+        `;
+    }).join('');
 }
+
+
+
+// Global openItemDetailModal function that works for everyone in protected mode!
+window.openItemDetailModal = function(id, isEvents) {
+    const item = (isEvents ? state.events : state.musicians).find(x => x.id === id) || (isEvents ? state.events[0] : state.musicians[0]);
+    if (!item) return;
+
+    const isUnlocked = state.unlockedContacts && state.unlockedContacts.includes(item.id);
+    const roleColor = isEvents ? '#2563eb' : '#7c3aed';
+    const photo = item.image || item.photo || (isEvents 
+        ? 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1000&q=80' 
+        : 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1000&q=80');
+
+    const genres = item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic']);
+    const instruments = item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre']);
+    const duration = item.duration || item.spieldauer || 'ca. 2 - 4 Stunden';
+    const description = item.description || item.bio || (isEvents 
+        ? 'Wir suchen eine professionelle musikalische Begleitung fÃ¼r unser anstehendes Event mit toller Stimmung. Bitte Ton- und Lichttechnik mitbringen oder absprechen.' 
+        : 'Professionelle Live-Musik fÃ¼r unvergleichliche Momente bei Hochzeiten, Geburtstagen & Firmenevents. GroÃŸes Repertoire von Klassikern bis zu modernen Charts.');
+
+    const modalHTML = `
+        <div class="modal-overlay active" id="modal-item-detail" style="position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
+            <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 20px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); position: relative;">
+                
+                <!-- Close Button -->
+                <button onclick="document.getElementById('modal-item-detail').remove();" style="position: absolute; top: 15px; right: 15px; z-index: 10; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+                <!-- Full Hero Banner & Photo Gallery -->
+                <div style="position: relative; height: 260px; width: 100%; background: #0f172a;">
+                    <img src="${photo}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,0.9) 0%, transparent 60%);"></div>
+                    <div style="position: absolute; bottom: 20px; left: 25px; right: 25px;">
+                        <span style="display: inline-block; padding: 0.3rem 0.8rem; border-radius: 20px; background: ${roleColor}; color: #fff; font-size: 0.8rem; font-weight: 800; margin-bottom: 0.5rem;">
+                            ${isEvents ? (item.eventType || 'Event') : (item.category || 'Musiker')}
+                        </span>
+                        <h2 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: #ffffff; margin: 0;">
+                            ${isEvents ? item.title : item.name}
+                        </h2>
+                    </div>
+                </div>
+
+                <div style="padding: 2rem;">
+                    
+                    <!-- Media Showcase: Video & Audio Section (ALWAYS VISIBLE IN PROTECTED MODE) -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; margin-bottom: 2rem;">
+                        
+                        <!-- Video Showcase Box -->
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 1.2rem;">
+                            <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-circle-play" style="color: #ef4444;"></i> Video-PrÃ¤sentation
+                            </div>
+                            <div style="position: relative; height: 140px; border-radius: 10px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; background: url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=500&q=80') center/cover;">
+                                <button onclick="alert('Video-Wiedergabe startet...');" style="width: 50px; height: 50px; border-radius: 50%; background: rgba(239, 68, 68, 0.9); border: none; color: #fff; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+                                    <i class="fa-solid fa-play" style="margin-left: 3px;"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Audio Player Box -->
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 1.2rem;">
+                            <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-music" style="color: ${roleColor};"></i> HÃ¶rproben & Audio
+                            </div>
+                            <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 0.8rem; display: flex; align-items: center; gap: 0.8rem;">
+                                <button onclick="const icon=this.querySelector('i'); if(icon.classList.contains('fa-play')){icon.classList.remove('fa-play');icon.classList.add('fa-pause');}else{icon.classList.remove('fa-pause');icon.classList.add('fa-play');}" style="width: 40px; height: 40px; border-radius: 50%; background: ${roleColor}; border: none; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;">
+                                    <i class="fa-solid fa-play" style="font-size: 1rem; margin-left: 2px;"></i>
+                                </button>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 0.85rem; font-weight: 700; color: #fff;">${item.audioTrack || 'Live Medley Demo'}</div>
+                                    <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.15); border-radius: 3px; margin-top: 6px; position: relative;">
+                                        <div style="width: 55%; height: 100%; background: ${roleColor}; border-radius: 3px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description Section (ALWAYS VISIBLE IN PROTECTED MODE) -->
+                    <div style="margin-bottom: 1.8rem;">
+                        <h4 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">
+                            Beschreibung & Details
+                        </h4>
+                        <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6;">
+                            ${description}
+                        </p>
+                    </div>
+
+                    <!-- Key Data Grid: Genres, Instrumente, Spieldauer, Technik, Budget -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 1.2rem; border-radius: 12px;">
+                        <div>
+                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Genres</span>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.3rem;">
+                                ${genres.map(g => `<span style="background: rgba(255,255,255,0.08); padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.78rem; color: #fff;">${g}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        <div>
+                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Instrumente / Besetzung</span>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.3rem;">
+                                ${instruments.map(inst => `<span style="background: rgba(124, 58, 237, 0.15); padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.78rem; color: ${roleColor}; font-weight: 700;">${inst}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        <div>
+                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">Spieldauer</span>
+                            <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-clock" style="color: ${roleColor};"></i> ${duration}</strong>
+                        </div>
+
+                        <div>
+                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">Technik & Equipment</span>
+                            <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-plug" style="color: ${roleColor};"></i> ${item.equipment || 'Vorhanden'}</strong>
+                        </div>
+                    </div>
+
+                    <!-- Protected Contact Details Area -->
+                    <div style="background: rgba(15, 23, 42, 0.8); border: 2px solid ${isUnlocked ? 'rgba(34, 197, 94, 0.4)' : roleColor}; border-radius: 16px; padding: 1.5rem; text-align: center;">
+                        ${isUnlocked ? `
+                            <div style="color: #4ade80; font-weight: 800; font-size: 1.1rem; margin-bottom: 0.8rem;">
+                                <i class="fa-solid fa-unlock"></i> Kontaktdaten freigeschaltet
+                            </div>
+                            <div style="font-size: 1rem; color: #fff; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                                <div><i class="fa-solid fa-phone"></i> Tel: <strong>${item.phone || '+49 170 1234567'}</strong></div>
+                                <div><i class="fa-solid fa-envelope"></i> Mail: <strong>${item.email || 'kontakt@gigconnact.de'}</strong></div>
+                            </div>
+                        ` : `
+                            <div style="font-weight: 800; font-size: 1.1rem; color: #ffffff; margin-bottom: 0.4rem;">
+                                <i class="fa-solid fa-lock" style="color: ${roleColor};"></i> GeschÃ¼tzter Kontaktbereich
+                            </div>
+                            <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">
+                                Kontaktdaten (Telefonnummer & E-Mail-Adresse) sind im geschÃ¼tzten Modus verborgen. Schalte die Kontaktdaten frei, um direkt zu kommunizieren.
+                            </p>
+                            <button class="btn btn-primary btn-unlock-contact" data-id="${item.id}" onclick="document.getElementById('modal-item-detail').remove();" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-color: #7c3aed; font-weight: 800; padding: 0.9rem 2rem; font-size: 1rem; border-radius: 12px; display: inline-flex; align-items: center; gap: 0.6rem;">
+                                <i class="fa-solid fa-key"></i> Kontaktdaten freischalten (1 Credit)
+                            </button>
+                        `}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+};
+
+
 
 function renderMatchesPage(container) {
         if (!state.currentUser) return;
@@ -3014,6 +3303,11 @@ function renderMatchesPage(container) {
         
         const selectOptionsHtml = profiles.map(p => `<option value="${p.id}" ${p.id === selectedId ? 'selected' : ''}>${p.name}</option>`).join('');
         
+        const isOrganizer = u.role === 'organizer';
+        const creditsValue = isOrganizer ? 'Gratis' : (u.isPremium ? '∞' : u.credits);
+        const billingMode = isOrganizer ? 'Kostenlos' : (u.isPremium ? 'Flatrate' : 'Prepaid');
+        const unlockedCount = isOrganizer ? 'Unbegrenzt' : (u.unlockedContacts || []).length;
+
         container.innerHTML = `
             <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;">
                 <div class="profile-section-card" style="margin-bottom:0;">
@@ -3046,24 +3340,24 @@ function renderMatchesPage(container) {
                     ${selectedId ? `
                         <div style="display:flex; align-items:center; gap:2rem; flex-wrap:wrap; margin-top:0.8rem;">
                             <div class="matches-donut-chart-container" style="position:relative; width:90px; height:90px; flex-shrink:0;">
-                                <div id="matches-success-donut" style="width:100%; height:100%; border-radius:50%;"></div>
+                                <div id="matches-credits-donut" style="width:100%; height:100%; border-radius:50%;"></div>
                                 <div style="position:absolute; top:9px; left:9px; width:72px; height:72px; border-radius:50%; background:#ffffff; display:flex; align-items:center; justify-content:center; flex-direction:column; border:1px solid var(--border-glass);">
-                                    <span id="matches-success-rate" style="font-size:1.1rem; font-weight:700; color:var(--text-main);">0%</span>
-                                    <span style="font-size:0.45rem; color:var(--text-muted); text-transform:uppercase; font-weight:600; letter-spacing:0.5px; text-align:center;">Erfolg</span>
+                                    <span id="matches-credits-value" style="font-size:1.1rem; font-weight:700; color:var(--text-main);">${creditsValue}</span>
+                                    <span style="font-size:0.45rem; color:var(--text-muted); text-transform:uppercase; font-weight:600; letter-spacing:0.5px; text-align:center;">Guthaben</span>
                                 </div>
                             </div>
                             <div style="flex:1; display:grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap:1rem;">
+                                <div style="background:rgba(255,215,0,0.02); border:1px solid rgba(255,215,0,0.15); padding:0.6rem 0.8rem; border-radius:var(--radius-md);">
+                                    <div style="font-size:0.65rem; color:#FFD700; text-transform:uppercase; font-weight:700; margin-bottom:0.15rem;">Modell</div>
+                                    <div id="stats-billing-mode" style="font-size:1.1rem; font-weight:700; color:#FFD700;">${billingMode}</div>
+                                </div>
                                 <div style="background:rgba(56,239,125,0.02); border:1px solid rgba(56,239,125,0.15); padding:0.6rem 0.8rem; border-radius:var(--radius-md);">
-                                    <div style="font-size:0.65rem; color:var(--color-green); text-transform:uppercase; font-weight:700; margin-bottom:0.15rem;">Perfect Matches</div>
-                                    <div id="stats-perfect-matches" style="font-size:1.3rem; font-weight:700; color:var(--color-green);">0</div>
+                                    <div style="font-size:0.65rem; color:var(--color-green); text-transform:uppercase; font-weight:700; margin-bottom:0.15rem;">Freischaltungen</div>
+                                    <div id="stats-unlocked-contacts" style="font-size:1.3rem; font-weight:700; color:var(--color-green);">${unlockedCount}</div>
                                 </div>
                                 <div style="background:rgba(124,58,237,0.02); border:1px solid rgba(124,58,237,0.15); padding:0.6rem 0.8rem; border-radius:var(--radius-md);">
-                                    <div style="font-size:0.65rem; color:var(--color-purple); text-transform:uppercase; font-weight:700; margin-bottom:0.15rem;">Interesse bekundet</div>
-                                    <div id="stats-my-interests" style="font-size:1.3rem; font-weight:700; color:var(--color-purple);">0</div>
-                                </div>
-                                <div style="background:rgba(255,75,75,0.02); border:1px solid rgba(255,75,75,0.15); padding:0.6rem 0.8rem; border-radius:var(--radius-md);">
-                                    <div style="font-size:0.65rem; color:var(--color-red); text-transform:uppercase; font-weight:700; margin-bottom:0.15rem;">Kein Interesse</div>
-                                    <div id="stats-my-no-interests" style="font-size:1.3rem; font-weight:700; color:var(--color-red);">0</div>
+                                    <div style="font-size:0.65rem; color:var(--color-purple); text-transform:uppercase; font-weight:700; margin-bottom:0.15rem;">Top Matches (>=50%)</div>
+                                    <div id="stats-top-matches-count" style="font-size:1.3rem; font-weight:700; color:var(--color-purple);">0</div>
                                 </div>
                             </div>
                         </div>
@@ -3077,144 +3371,116 @@ function renderMatchesPage(container) {
                         <p style="color:var(--text-muted); max-width:400px; margin:0.5rem auto 1.5rem;">Um Matches und passende Partner zu sehen, musst du mindestens eine Ausschreibung oder ein Musiker-Profil aktiv haben.</p>
                         <button class="btn btn-primary" id="btn-create-profile-matches" style="margin:0;">
                             <i class="fa-solid fa-plus"></i> Profil erstellen
-                        </button>
+                    </button>
+                </div>
+            ` : `
+                <div class="profile-section-card">
+                    <h4 style="margin:0 0 1rem; font-family:var(--font-heading); font-size:1.1rem; border-bottom:1px solid var(--border-glass); padding-bottom:0.6rem; text-align:left;">
+                        <i class="fa-solid fa-star text-cyan"></i> Top Matches (<span id="top-matches-count">0</span>)
+                    </h4>
+                    <div class="listings-grid-layout" id="top-matches-grid">
                     </div>
-                ` : `
-                    <div class="profile-section-card">
-                        <h4 style="margin:0 0 1rem; font-family:var(--font-heading); font-size:1.1rem; border-bottom:1px solid var(--border-glass); padding-bottom:0.6rem; text-align:left;">
-                            <i class="fa-solid fa-heart text-red"></i> Perfect Matches (<span id="perfect-matches-count">0</span>)
-                        </h4>
-                        <div class="listings-grid-layout" id="perfect-matches-grid">
-                        </div>
-                    </div>
+                </div>
+            `}
+        </div>
+    `;
 
-                    <div class="profile-section-card">
-                        <h4 style="margin:0 0 1rem; font-family:var(--font-heading); font-size:1.1rem; border-bottom:1px solid var(--border-glass); padding-bottom:0.6rem; text-align:left;">
-                            <i class="fa-solid fa-star text-cyan"></i> Top Matches (<span id="top-matches-count">0</span>)
-                        </h4>
-                        <div class="listings-grid-layout" id="top-matches-grid">
-                        </div>
-                    </div>
-                `}
-            </div>
-        `;
+    const createProfileBtn = document.getElementById('btn-create-profile-matches');
+    if (createProfileBtn) {
+        createProfileBtn.addEventListener('click', () => {
+            navigate(isMusician ? 'my-musicians' : 'my-events');
+        });
+    }
 
-        const createProfileBtn = document.getElementById('btn-create-profile-matches');
-        if (createProfileBtn) {
-            createProfileBtn.addEventListener('click', () => {
-                navigate(isMusician ? 'my-musicians' : 'my-events');
+    const selectProfile = document.getElementById('select-profile');
+    const selectSort = document.getElementById('select-sort');
+    const topGrid = document.getElementById('top-matches-grid');
+
+    if (!selectedId) return;
+
+    const updateMatches = () => {
+        const activeId = selectProfile.value;
+        if (!activeId) return;
+        
+        if (isMusician) state.activeMusicianId = activeId;
+        else state.activeEventId = activeId;
+
+        const myProfile = isMusician 
+            ? state.musicians.find(m => m.id === activeId)
+            : state.events.find(e => e.id === activeId);
+
+        if (!myProfile) return;
+
+        const candidates = isMusician 
+            ? state.events.filter(e => isEventActive(e))
+            : state.musicians.filter(m => m.isActive !== false);
+
+        const candidatesWithMatches = candidates.map(item => {
+            const match = isMusician ? calculateMatch(myProfile, item) : calculateMatch(item, myProfile);
+            return { item, match };
+        });
+
+        const topMatches = candidatesWithMatches.filter(cand => cand.match.score >= 50);
+
+        const sortVal = selectSort?.value || 'match';
+        const sortCandidateList = (list) => {
+            list.sort((a, b) => {
+                if (sortVal === 'match') {
+                    return b.match.score - a.match.score;
+                }
+                if (sortVal === 'newest') {
+                    const dateA = a.item.createdAt ? new Date(a.item.createdAt) : new Date(0);
+                    const dateB = b.item.createdAt ? new Date(b.item.createdAt) : new Date(0);
+                    return dateB - dateA;
+                }
+                if (sortVal === 'price-asc') {
+                    const valA = isMusician ? a.item.budget : a.item.minBudget;
+                    const valB = isMusician ? b.item.budget : b.item.minBudget;
+                    return valA - valB;
+                }
+                if (sortVal === 'price-desc') {
+                    const valA = isMusician ? a.item.budget : a.item.minBudget;
+                    const valB = isMusician ? b.item.budget : b.item.minBudget;
+                    return valB - valA;
+                }
+                if (sortVal === 'name') {
+                    const nameA = state.hasContactAccess(activeId, a.item.id) ? a.item.name : (isMusician ? a.item.name : a.item.bluffName);
+                    const nameB = state.hasContactAccess(activeId, b.item.id) ? b.item.name : (isMusician ? b.item.name : b.item.bluffName);
+                    return nameA.localeCompare(nameB);
+                }
+                return 0;
             });
+        };
+
+        sortCandidateList(topMatches);
+
+        if (document.getElementById('top-matches-count')) {
+            document.getElementById('top-matches-count').textContent = topMatches.length;
+        }
+        if (document.getElementById('stats-top-matches-count')) {
+            document.getElementById('stats-top-matches-count').textContent = topMatches.length;
         }
 
-        const selectProfile = document.getElementById('select-profile');
-        const selectSort = document.getElementById('select-sort');
-        const perfectGrid = document.getElementById('perfect-matches-grid');
-        const topGrid = document.getElementById('top-matches-grid');
+        const donut = document.getElementById('matches-credits-donut');
+        const rateLabel = document.getElementById('matches-credits-value');
+        if (donut && rateLabel) {
+            const pct = isOrganizer || u.isPremium ? 100 : Math.min(100, Math.max(0, (u.credits / 50) * 100));
+            donut.style.background = `conic-gradient(${isOrganizer || u.isPremium ? 'var(--color-green)' : '#FFD700'} 0% ${pct}%, rgba(255,255,255,0.05) ${pct}% 100%)`;
+        }
 
-        if (!selectedId) return;
-
-        const updateMatches = () => {
-            const activeId = selectProfile.value;
-            if (!activeId) return;
-            
-            if (isMusician) state.activeMusicianId = activeId;
-            else state.activeEventId = activeId;
-
-            const myProfile = isMusician 
-                ? state.musicians.find(m => m.id === activeId)
-                : state.events.find(e => e.id === activeId);
-
-            if (!myProfile) return;
-
-            const candidates = isMusician 
-                ? state.events.filter(e => isEventActive(e))
-                : state.musicians.filter(m => m.isActive !== false);
-
-            const candidatesWithMatches = candidates.map(item => {
-                const match = isMusician ? calculateMatch(myProfile, item) : calculateMatch(item, myProfile);
-                return { item, match };
-            });
-
-            const perfectMatches = candidatesWithMatches.filter(cand => {
-                const mId = isMusician ? activeId : cand.item.id;
-                const eId = isMusician ? cand.item.id : activeId;
-                const interest = state.interests?.find(i => i.musicianId === mId && i.eventId === eId);
-                return interest && interest.musicianInterested && interest.organizerInterested;
-            });
-
-            const topMatches = candidatesWithMatches.filter(cand => {
-                const mId = isMusician ? activeId : cand.item.id;
-                const eId = isMusician ? cand.item.id : activeId;
-                const hasNoInterest = state.hasExpressedNoInterest(u.role, mId, eId);
-                const isPerfect = perfectMatches.some(p => p.item.id === cand.item.id);
-                return cand.match.score >= 50 && !hasNoInterest && !isPerfect;
-            });
-
-            const sortVal = selectSort?.value || 'match';
-            const sortCandidateList = (list) => {
-                list.sort((a, b) => {
-                    if (sortVal === 'match') {
-                        return b.match.score - a.match.score;
-                    }
-                    if (sortVal === 'newest') {
-                        const dateA = a.item.createdAt ? new Date(a.item.createdAt) : new Date(0);
-                        const dateB = b.item.createdAt ? new Date(b.item.createdAt) : new Date(0);
-                        return dateB - dateA;
-                    }
-                    if (sortVal === 'price-asc') {
-                        const valA = isMusician ? a.item.budget : a.item.minBudget;
-                        const valB = isMusician ? b.item.budget : b.item.minBudget;
-                        return valA - valB;
-                    }
-                    if (sortVal === 'price-desc') {
-                        const valA = isMusician ? a.item.budget : a.item.minBudget;
-                        const valB = isMusician ? b.item.budget : b.item.minBudget;
-                        return valB - valA;
-                    }
-                    if (sortVal === 'name') {
-                        const nameA = state.hasContactAccess(activeId, a.item.id) ? a.item.name : (isMusician ? a.item.name : a.item.bluffName);
-                        const nameB = state.hasContactAccess(activeId, b.item.id) ? b.item.name : (isMusician ? b.item.name : b.item.bluffName);
-                        return nameA.localeCompare(nameB);
-                    }
-                    return 0;
-                });
-            };
-
-            sortCandidateList(perfectMatches);
-            sortCandidateList(topMatches);
-
-            document.getElementById('perfect-matches-count').textContent = perfectMatches.length;
-            document.getElementById('top-matches-count').textContent = topMatches.length;
-
-            const myInterestsCount = state.interests?.filter(i => (isMusician ? i.musicianId === activeId && i.musicianInterested : i.eventId === activeId && i.organizerInterested)).length || 0;
-            const myNoInterestsCount = state.interests?.filter(i => (isMusician ? i.musicianId === activeId && i.musicianNoInterest : i.eventId === activeId && i.organizerNoInterest)).length || 0;
-            
-            document.getElementById('stats-perfect-matches').textContent = perfectMatches.length;
-            document.getElementById('stats-my-interests').textContent = myInterestsCount;
-            document.getElementById('stats-my-no-interests').textContent = myNoInterestsCount;
-
-            const totalExpressed = myInterestsCount;
-            const successRate = totalExpressed > 0 ? Math.round((perfectMatches.length / totalExpressed) * 100) : 0;
-            const donut = document.getElementById('matches-success-donut');
-            const rateLabel = document.getElementById('matches-success-rate');
-            if (donut && rateLabel) {
-                rateLabel.textContent = `${successRate}%`;
-                donut.style.background = `conic-gradient(var(--color-green) 0% ${successRate}%, rgba(124,58,237,0.15) ${successRate}% 100%)`;
+        const renderGrid = (gridEl, list) => {
+            if (list.length === 0) {
+                gridEl.innerHTML = `
+                    <div style="padding:2rem 1rem; text-align:center; color:var(--text-muted); width: 100%;">
+                        <p>Keine passenden Matches gefunden (Score >= 50%).</p>
+                    </div>
+                `;
+                return;
             }
 
-            const renderGrid = (gridEl, list, isPerfectSection) => {
-                if (list.length === 0) {
-                    gridEl.innerHTML = `
-                        <div style="padding:2rem 1rem; text-align:center; color:var(--text-muted); width: 100%;">
-                            <p>${isPerfectSection ? 'Noch keine Perfect Matches vorhanden. Klicke bei den Top Matches auf „Interesse bekunden“!' : 'Keine passenden Vorschläge vorhanden.'}</p>
-                        </div>
-                    `;
-                    return;
-                }
+            const isEventMarket = isMusician;
 
-                const isEventMarket = isMusician;
-
-                gridEl.innerHTML = list.map(cand => {
+            gridEl.innerHTML = list.map(cand => {
                     const item = cand.item;
                     const matchScore = cand.match.score;
                     const matchHtml = renderMatchDial(matchScore);
@@ -3271,54 +3537,7 @@ function renderMatchesPage(container) {
                         'https://picsum.photos/id/453/400/300'
                     ];
 
-                    let interestBtnHtml = '';
-                    let noInterestBtnHtml = '';
 
-                    const interest = state.interests?.find(i => i.musicianId === (isMusician ? activeId : item.id) && i.eventId === (isMusician ? item.id : activeId));
-                    const isPerfect = interest && interest.musicianInterested && interest.organizerInterested;
-                    const hasUserExpressed = state.hasExpressedInterest(u.role, isMusician ? activeId : item.id, isMusician ? item.id : activeId);
-                    const hasUserNoInterest = state.hasExpressedNoInterest(u.role, isMusician ? activeId : item.id, isMusician ? item.id : activeId);
-                    
-                    if (isPerfect) {
-                        interestBtnHtml = `
-                            <button class="btn btn-sm perfect-match-btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem; cursor: default;" onclick="event.stopPropagation();" title="Ein Perfect Match! Ihr habt beide Interesse bekundet.">
-                                <i class="fa-solid fa-heart-circle-check"></i> Perfect Match! 🎉
-                            </button>
-                        `;
-                        noInterestBtnHtml = `
-                            <button class="btn btn-sm" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: rgba(255,255,255,0.02); color: var(--text-muted); border: 1px solid var(--border-glass); opacity: 0.5; cursor: not-allowed;" onclick="event.stopPropagation();" disabled>
-                                <i class="fa-solid fa-ban"></i> Kein Interesse
-                            </button>
-                        `;
-                    } else {
-                        if (hasUserExpressed) {
-                            interestBtnHtml = `
-                                <button class="btn btn-sm btn-interest active-interest" data-musician-id="${isMusician ? activeId : item.id}" data-event-id="${isMusician ? item.id : activeId}" style="background: var(--color-green); border: 1px solid var(--color-green); color: #000000; font-weight: 700; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem;" onclick="event.stopPropagation();" title="Du hast bereits Interesse bekundet. Klicken zum Abwählen.">
-                                    <i class="fa-solid fa-heart text-red"></i> Interessiert ✔
-                                </button>
-                            `;
-                        } else {
-                            interestBtnHtml = `
-                                <button class="btn btn-sm btn-interest" data-musician-id="${isMusician ? activeId : item.id}" data-event-id="${isMusician ? item.id : activeId}" style="background: rgba(56, 239, 125, 0.08); border: 1px solid rgba(56, 239, 125, 0.25); color: var(--color-green); width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem;" onclick="event.stopPropagation();">
-                                    <i class="fa-regular fa-heart"></i> Interesse bekunden
-                                </button>
-                            `;
-                        }
-
-                        if (hasUserNoInterest) {
-                            noInterestBtnHtml = `
-                                <button class="btn btn-sm btn-no-interest active-no-interest" data-musician-id="${isMusician ? activeId : item.id}" data-event-id="${isMusician ? item.id : activeId}" style="background: var(--color-red); border: 1px solid var(--color-red); color: #ffffff; font-weight: 700; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem;" onclick="event.stopPropagation();" title="Du hast kein Interesse markiert. Klicken zum Abwählen.">
-                                    <i class="fa-solid fa-ban text-red"></i> Nicht interessiert ✔
-                                </button>
-                            `;
-                        } else {
-                            noInterestBtnHtml = `
-                                <button class="btn btn-sm btn-no-interest" data-musician-id="${isMusician ? activeId : item.id}" data-event-id="${isMusician ? item.id : activeId}" style="background: rgba(255, 75, 75, 0.08); border: 1px solid rgba(255, 75, 75, 0.25); color: var(--color-red); width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem;" onclick="event.stopPropagation();">
-                                    <i class="fa-solid fa-ban"></i> Kein Interesse
-                                </button>
-                            `;
-                        }
-                    }
 
                     const videos = item.videos && item.videos.length > 0 ? item.videos : ['vid_1', 'vid_2'];
                     const audio = item.audio && item.audio.length > 0 ? item.audio : [
@@ -3488,15 +3707,15 @@ function renderMatchesPage(container) {
                             <div class="listing-actions-panel" style="display:flex; flex-direction:column; gap:0.4rem; align-items:stretch; width:180px;">
                                 ${matchHtml}
                                 <div style="display:flex; flex-direction:column; gap:0.4rem; width:100%; margin-top:0.4rem;">
-                                    ${interestBtnHtml}
-                                    ${noInterestBtnHtml}
-                                    <button class="btn btn-sm ${isEventMarket ? 'btn-primary' : 'btn-secondary'} btn-contact-listing" 
-                                            data-id="${isEventMarket ? item.creatorId : item.id}" 
-                                            data-name="${displayName}"
-                                            data-event-id="${isEventMarket ? item.id : ''}"
-                                            style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin: 0;">
-                                        <i class="fa-solid fa-comment"></i> Nachricht schreiben
-                                    </button>
+                                    ${hasContactAccess ? `
+                                        <button class="btn btn-sm ${isEventMarket ? 'btn-primary' : 'btn-secondary'} btn-contact-listing" 
+                                                data-id="${isEventMarket ? item.creatorId : item.id}" 
+                                                data-name="${displayName}"
+                                                data-event-id="${isEventMarket ? item.id : ''}"
+                                                style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin: 0;">
+                                            <i class="fa-solid fa-comment"></i> Nachricht schreiben
+                                        </button>
+                                    ` : ''}
                                     ${contactPanelHtml}
                                     ${socialMediaHtml}
                                 </div>
@@ -3587,6 +3806,7 @@ function renderMatchesPage(container) {
         if (selectSort) {
             selectSort.addEventListener('change', updateMatches);
         }
+        window.matchesUpdate = updateMatches;
         updateMatches();
 
         const marketBtn = document.getElementById('btn-goto-market-from-matches');
@@ -4692,7 +4912,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     wrapper.innerHTML = `
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Mit GetYourGig verbinden</h3>
+                <h3>Mit GigConnAct verbinden</h3>
                 <button class="close-modal-btn" id="btn-close-modal">&times;</button>
             </div>
             
@@ -4945,7 +5165,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     <div id="reg-sepa-consent-container" style="margin-top: 1.5rem;">
                         <div class="sepa-panel">
                             <h5><i class="fa-solid fa-circle-info"></i> SEPA Lastschrift-Mandat</h5>
-                            <p>Ich ermächtige GetYourGig, Zahlungen für das Musiker-Abonnement (5,00 € pro Monat) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GetYourGig auf mein Konto gezogenen Lastschriften einzulösen.</p>
+                            <p>Ich ermächtige GigConnAct, Zahlungen für das Musiker-Abonnement (5,00 € pro Monat) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GigConnAct auf mein Konto gezogenen Lastschriften einzulösen.</p>
                         </div>
                         <label class="form-checkbox" style="margin-bottom: 1.5rem;">
                             <input type="checkbox" name="sepaConsent" required>
@@ -4993,6 +5213,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         if (res.success) {
             closeModal();
             document.dispatchEvent(new CustomEvent('user-state-changed'));
+            window.handleRouting();
             if (onSuccessCallback) onSuccessCallback();
         } else {
             errDiv.textContent = res.message;
@@ -5284,7 +5505,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 }
 
 function renderVerificationModal(wrapper, onSuccessCallback) {
-    const pendingUser = JSON.parse(localStorage.getItem('GetYourGig_pending_user') || '{}');
+    const pendingUser = JSON.parse(localStorage.getItem('GigConnAct_pending_user') || '{}');
     wrapper.innerHTML = `
         <div class="modal-content" style="max-width: 450px; text-align: center;">
             <div class="modal-header" style="border-bottom:none; justify-content:center;">
@@ -5297,7 +5518,7 @@ function renderVerificationModal(wrapper, onSuccessCallback) {
                 </p>
                 <div style="background:rgba(0,242,254,0.03); border: 1px dashed rgba(0,242,254,0.3); border-radius:var(--radius-md); padding:1rem; margin-bottom: 2rem;">
                     <div style="font-size: 0.75rem; text-transform: uppercase; color:var(--color-cyan); font-weight:700; margin-bottom: 0.5rem;">Simulierte E-Mail-Nachricht</div>
-                    <p style="font-size:0.85rem; margin-bottom:1rem;">Hi ${pendingUser.firstName || 'Musiker'}, bitte klicke unten, um dein GetYourGig Konto zu aktivieren.</p>
+                    <p style="font-size:0.85rem; margin-bottom:1rem;">Hi ${pendingUser.firstName || 'Musiker'}, bitte klicke unten, um dein GigConnAct Konto zu aktivieren.</p>
                     <button class="btn btn-primary btn-sm" id="btn-mock-email-confirm">
                         E-Mail bestätigen
                     </button>
@@ -5312,67 +5533,205 @@ function renderVerificationModal(wrapper, onSuccessCallback) {
             closeModal();
             showToast({
                 title: "Registrierung abgeschlossen! 🎉",
-                message: "Dein Profil ist nun aktiv. Willkommen bei GetYourGig!"
+                message: "Dein Profil ist nun aktiv. Willkommen bei GigConnAct!"
             });
             document.dispatchEvent(new CustomEvent('user-state-changed'));
             if (onSuccessCallback) onSuccessCallback();
-            else navigate('matches');
+            else navigate('postbox');
         }
     });
 }
 
 function renderPremiumModal(wrapper, onSuccessCallback) {
     wrapper.innerHTML = `
-        <div class="modal-content" style="max-width: 480px;">
+        <div class="modal-content" style="max-width: 540px;">
             <div class="modal-header">
-                <h3>Musiker-Abo abschließen</h3>
+                <h3>Mitgliedschaft & Credits aufladen</h3>
                 <button class="close-modal-btn" id="btn-close-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <div style="text-align:center; margin-bottom: 1.5rem;">
-                    <i class="fa-solid fa-guitar" style="font-size: 3rem; color:var(--color-purple); margin-bottom:1rem;"></i>
-                    <h4 style="font-family: var(--font-heading); font-size:1.3rem;">Schalte alle Kontaktdaten frei</h4>
-                    <p style="color:var(--text-muted); font-size:0.9rem; margin-top:0.3rem;">Erhalte direkten Zugang zu Mail, Telefon & Social Links</p>
+                <div style="text-align:center; margin-bottom: 1.2rem;">
+                    <i class="fa-solid fa-coins" style="font-size: 2.8rem; color:#FFD700; margin-bottom:0.5rem;"></i>
+                    <h4 style="font-family: var(--font-heading); font-size:1.25rem; color: var(--text-main);">Wähle deine Zahlungsoption</h4>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.2rem;">Schalte Kontaktdaten frei, um direkt zu chatten und Angebote zu verhandeln.</p>
                 </div>
-                <div style="background: rgba(255,255,255,0.02); border:1px solid var(--border-glass); border-radius: var(--radius-md); padding: 1.2rem; margin-bottom: 1.5rem;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem; font-weight:600;">
-                        <span>Monatliches Abonnement</span>
-                        <span class="text-purple">5,00 € / Monat</span>
+                
+                <form id="premium-payment-form">
+                    <!-- Option Selection Cards -->
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                        <!-- Option 1: Credits -->
+                        <label style="flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 0.4rem; background: rgba(255,215,0,0.08); border: 2px solid #FFD700; border-radius: var(--radius-md); padding: 1.2rem 1rem; cursor: pointer; text-align: center; position: relative; transition: all 0.2s; box-shadow: 0 4px 12px rgba(255,215,0,0.05);" class="payment-option-card active" id="card-option-credits">
+                            <input type="radio" name="paymentOption" value="credits" checked style="position: absolute; top: 12px; right: 12px; accent-color: var(--color-purple); scale: 1.25;">
+                            <i class="fa-solid fa-coins" style="font-size: 1.6rem; color: #FFD700; margin-bottom: 0.2rem;"></i>
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">Option 1: Prepaid</span>
+                            <div style="font-size: 1.2rem; font-weight: 800; color: #FFD700; margin: 0.1rem 0; display:flex; align-items:center; justify-content:center; gap:0.25rem;">
+                                <input type="number" id="credits-amount-input" min="1" max="999" value="10" onclick="event.stopPropagation();" style="width: 55px; height: 26px; text-align: center; font-size: 0.9rem; font-weight: 800; border-radius: 4px; border: 1px solid rgba(255, 215, 0, 0.4); background: rgba(0,0,0,0.4); color: #FFD700; padding:0; margin:0;">
+                                <span>Credits für</span>
+                                <span id="credits-total-price">10</span><span> €</span>
+                            </div>
+                            <span style="font-size: 0.7rem; color: var(--text-muted);">1 € pro Credit, ab 1 Credit aufladbar</span>
+                        </label>
+                        
+                        <!-- Option 2: Subscription -->
+                        <label style="flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 0.4rem; background: rgba(255,255,255,0.02); border: 2px solid rgba(255,255,255,0.05); border-radius: var(--radius-md); padding: 1.2rem 1rem; cursor: pointer; text-align: center; position: relative; transition: all 0.2s;" class="payment-option-card" id="card-option-subscription">
+                            <input type="radio" name="paymentOption" value="subscription" style="position: absolute; top: 12px; right: 12px; accent-color: var(--color-purple); scale: 1.25;">
+                            <i class="fa-solid fa-calendar-check" style="font-size: 1.6rem; color: var(--color-purple); margin-bottom: 0.2rem;"></i>
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">Option 2: Flatrate-Abo</span>
+                            <span style="font-size: 1.2rem; font-weight: 800; color: var(--color-purple); margin: 0.1rem 0;">5 € / Monat</span>
+                            <span style="font-size: 0.7rem; color: var(--text-muted);">Unbegrenzt freischalten, kündbar</span>
+                        </label>
                     </div>
-                    <p style="font-size:0.75rem; color:var(--text-muted); line-height: 1.4;">Jederzeit monatlich kündbar über deine Kontoeinstellungen. Keine Vermittlungsgebühren.</p>
-                </div>
-                <div class="sepa-panel">
-                    <h5><i class="fa-solid fa-file-contract"></i> Mandat für SEPA-Lastschrift</h5>
-                    <p style="font-size:0.75rem;">Durch die Bestätigung ermächtigst du GetYourGig, monatlich 5 € von deinem Konto abzubuchen.</p>
-                </div>
-                <form id="sepa-mandate-form">
-                    <div class="form-group">
-                        <label>IBAN (Mock)</label>
-                        <input type="text" class="input-field" placeholder="DE89 5000 0000 1234 5678 90" required>
+                    
+                    <!-- Payment Details (SEPA) -->
+                    <div class="sepa-panel" style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 1.2rem; margin-bottom: 1.2rem; text-align: left;">
+                        <h5 style="margin: 0 0 0.6rem; font-size: 0.85rem; font-family: var(--font-heading); font-weight: 700; display:flex; align-items:center; gap:0.4rem; color:var(--text-main);"><i class="fa-solid fa-file-contract text-cyan"></i> SEPA-Lastschriftmandat</h5>
+                        <div class="form-group" style="margin-bottom: 0.8rem;">
+                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">IBAN (Mock)</label>
+                            <input type="text" class="input-field" placeholder="DE89 5000 0000 1234 5678 90" required style="width:100%; height:38px; font-size:0.85rem; padding: 0.4rem 0.8rem; margin:0;">
+                        </div>
+                        <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; line-height: 1.4;">
+                            <input type="checkbox" required style="margin-top:2px;">
+                            <span>Ich stimme dem Lastschriftverfahren für die gewählte Option ausdrücklich zu.</span>
+                        </label>
                     </div>
-                    <label class="form-checkbox">
-                        <input type="checkbox" required>
-                        <span>Ich stimme dem SEPA-Lastschriftmandat ausdrücklich zu.</span>
-                    </label>
-                    <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top:1rem;">
-                        Kostenpflichtig abonnieren
+                    
+                    <button type="submit" class="btn btn-secondary" style="width: 100%; margin: 0; font-weight: 700;">
+                        Zahlungspflichtig bestellen
                     </button>
                 </form>
             </div>
         </div>
     `;
 
+    const form = document.getElementById('premium-payment-form');
+    const radioCredits = form.querySelector('input[value="credits"]');
+    const radioSub = form.querySelector('input[value="subscription"]');
+    const cardCredits = document.getElementById('card-option-credits');
+    const cardSub = document.getElementById('card-option-subscription');
+    const creditsInput = form.querySelector('#credits-amount-input');
+    const creditsPrice = form.querySelector('#credits-total-price');
+
+    if (creditsInput && creditsPrice) {
+        creditsInput.addEventListener('input', () => {
+            let val = parseInt(creditsInput.value) || 1;
+            if (val < 1) val = 1;
+            creditsPrice.textContent = val;
+        });
+    }
+
+    const updateCardStyles = () => {
+        if (radioCredits.checked) {
+            cardCredits.style.border = "2px solid #FFD700";
+            cardCredits.style.background = "rgba(255,215,0,0.08)";
+            cardSub.style.border = "2px solid rgba(255,255,255,0.05)";
+            cardSub.style.background = "rgba(255,255,255,0.02)";
+        } else {
+            cardCredits.style.border = "2px solid rgba(255,255,255,0.05)";
+            cardCredits.style.background = "rgba(255,255,255,0.02)";
+            cardSub.style.border = "2px solid var(--color-purple)";
+            cardSub.style.background = "rgba(124, 58, 237, 0.08)";
+        }
+    };
+
+    radioCredits.addEventListener('change', updateCardStyles);
+    radioSub.addEventListener('change', updateCardStyles);
+
     document.getElementById('btn-close-modal').addEventListener('click', closeModal);
 
-    document.getElementById('sepa-mandate-form').addEventListener('submit', (e) => {
+    form.addEventListener('submit', (e) => {
         e.preventDefault();
-        state.toggleSubscription();
+        const selectedOption = form.querySelector('input[name="paymentOption"]:checked').value;
+        const targetUnlockId = state.pendingUnlockListingId;
+
+        const handleInplaceRefresh = () => {
+            const currentHash = window.location.hash;
+            if ((currentHash.includes('events') || currentHash.includes('musicians')) && typeof window.marketApplyFilters === 'function') {
+                window.marketApplyFilters();
+            } else if (currentHash.includes('matches') && typeof window.matchesUpdate === 'function') {
+                window.matchesUpdate();
+            } else {
+                window.handleRouting();
+            }
+        };
+
+        if (selectedOption === 'credits') {
+            const buyAmount = parseInt(creditsInput?.value || '10');
+            state.addCredits(buyAmount);
+            
+            if (targetUnlockId) {
+                // Determine target name
+                const isEventMarket = (window.location.hash || '').includes('events');
+                const targetEvent = state.events.find(ev => ev.id === targetUnlockId);
+                const targetMusician = state.musicians.find(m => m.id === targetUnlockId);
+                const targetName = targetEvent ? targetEvent.name : (targetMusician ? targetMusician.name : "Inserat");
+
+                // Render intermediate confirmation page in the modal wrapper
+                wrapper.innerHTML = `
+                    <div class="modal-content" style="max-width: 440px; text-align: center; padding: 2rem;">
+                        <i class="fa-solid fa-circle-check" style="font-size: 3.5rem; color: var(--color-green); margin-bottom: 1rem;"></i>
+                        <h3 style="font-family: var(--font-heading); margin-bottom: 0.5rem; color: var(--text-main);">Credits erfolgreich aufgeladen!</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+                            Dir wurden <strong>${buyAmount} Credits</strong> gutgeschrieben.<br><br>
+                            Möchtest du jetzt <strong>1 Credit</strong> einlösen, um die Kontaktdaten für <strong>${targetName}</strong> freizuschalten?
+                        </p>
+                        
+                        <div style="display: flex; gap: 1rem; justify-content: center;">
+                            <button class="btn btn-sm btn-glass" id="btn-confirm-later" style="margin:0;">Nein, später</button>
+                            <button class="btn btn-sm btn-primary" id="btn-confirm-now" style="margin:0; background:var(--color-green); border-color:var(--color-green); color:#000; font-weight:700;">Ja, jetzt freischalten</button>
+                        </div>
+                    </div>
+                `;
+
+                wrapper.querySelector('#btn-confirm-later').addEventListener('click', () => {
+                    state.pendingUnlockListingId = null;
+                    closeModal();
+                    updateNavbar();
+                    handleInplaceRefresh();
+                    if (onSuccessCallback) onSuccessCallback();
+                });
+
+                wrapper.querySelector('#btn-confirm-now').addEventListener('click', () => {
+                    const unlockRes = state.unlockContact(targetUnlockId);
+                    state.pendingUnlockListingId = null;
+                    closeModal();
+                    updateNavbar();
+                    
+                    if (unlockRes.success) {
+                        showToast({
+                            title: "Kontaktdaten freigeschaltet! 🪙",
+                            message: `Du hast die Kontaktdaten von ${targetName} erfolgreich freigeschaltet.`
+                        });
+                    }
+                    handleInplaceRefresh();
+                    if (onSuccessCallback) onSuccessCallback();
+                });
+
+                return; // Prevent closing the modal yet!
+            } else {
+                showToast({
+                    title: "Credits aufgeladen! 🪙",
+                    message: `${buyAmount} Credits wurden erfolgreich deinem Konto gutgeschrieben.`
+                });
+            }
+        } else {
+            // Subscription flatrate
+            state.toggleSubscription(); // sets isPremium = true
+            
+            if (targetUnlockId) {
+                state.unlockContact(targetUnlockId); // ensure it's in unlockedContacts as well, though subscription covers it
+                state.pendingUnlockListingId = null;
+            }
+            
+            showToast({
+                title: "Flatrate-Abo aktiviert! 🚀",
+                message: "Du hast nun unbegrenzten Zugriff auf alle Kontaktdaten."
+            });
+        }
+        
         closeModal();
-        showToast({
-            title: "Abo erfolgreich aktiviert! 🚀",
-            message: "Du bist jetzt Premium-Mitglied. Alle Kontaktdaten sind freigeschaltet."
-        });
-        document.dispatchEvent(new CustomEvent('user-state-changed'));
+        updateNavbar();
+        handleInplaceRefresh();
+        
         if (onSuccessCallback) onSuccessCallback();
     });
 }
@@ -5391,22 +5750,14 @@ function navigate(page) {
 
     switch (page) {
         case 'events':
-            if (state.currentUser && state.currentUser.role !== 'musician') {
-                navigate('matches');
-            } else {
-                renderMarket(mainContainer, 'events', navigate);
-                setActiveLink('link-events');
-                window.location.hash = '#/events';
-            }
+            renderMarket(mainContainer, 'events', navigate);
+            setActiveLink('link-events');
+            window.location.hash = '#/events';
             break;
         case 'musicians':
-            if (state.currentUser && state.currentUser.role !== 'organizer') {
-                navigate('matches');
-            } else {
-                renderMarket(mainContainer, 'musicians', navigate);
-                setActiveLink('link-musicians');
-                window.location.hash = '#/musicians';
-            }
+            renderMarket(mainContainer, 'musicians', navigate);
+            setActiveLink('link-musicians');
+            window.location.hash = '#/musicians';
             break;
         case 'matches':
         case 'top-matches':
@@ -5423,8 +5774,14 @@ function navigate(page) {
             if (!state.currentUser) {
                 navigate('');
                 showModal('auth');
+            } else if (state.currentUser.role === 'organizer') {
+                renderMyEvents(mainContainer);
+                setActiveLink('link-dashboard');
+                window.location.hash = '#/dashboard';
             } else {
-                navigate('matches');
+                renderMyMusicians(mainContainer);
+                setActiveLink('link-dashboard');
+                window.location.hash = '#/dashboard';
             }
             break;
         case 'postbox':
@@ -5437,49 +5794,19 @@ function navigate(page) {
                 window.location.hash = '#/postbox';
             }
             break;
-        case 'my-events':
-            if (!state.currentUser) {
-                navigate('');
-                showModal('auth');
-            } else if (state.currentUser.role !== 'organizer') {
-                navigate('matches');
-            } else {
-                renderMyEvents(mainContainer);
-                setActiveLink('link-my-events');
-                window.location.hash = '#/my-events';
-            }
-            break;
-        case 'my-musicians':
-            if (!state.currentUser) {
-                navigate('');
-                showModal('auth');
-            } else if (state.currentUser.role !== 'musician') {
-                navigate('matches');
-            } else {
-                renderMyMusicians(mainContainer);
-                setActiveLink('link-my-musicians');
-                window.location.hash = '#/my-musicians';
-            }
-            break;
-        case 'profile':
+        case 'credits':
             if (!state.currentUser) {
                 navigate('');
                 showModal('auth');
             } else {
-                renderProfile(mainContainer);
-                setActiveLink('link-profile');
-                window.location.hash = '#/profile';
+                renderCreditsPage(mainContainer);
+                setActiveLink('link-credits');
+                window.location.hash = '#/credits';
             }
             break;
-        case '':
-        case '/':
         default:
-            if (state.currentUser) {
-                navigate('matches');
-            } else {
-                renderLandingPage(mainContainer, navigate);
-                window.location.hash = '#/';
-            }
+            renderLandingPage(mainContainer, navigate);
+            window.location.hash = '#/';
             break;
     }
 }
@@ -5518,12 +5845,19 @@ function updateNavbar() {
             ${myTabLinkHtml}
         `;
 
-        const displayName = `${u.firstName} ${u.lastName.charAt(0)}.`;
+        let creditsBadgeHtml = '';
+        if (u.role === 'musician') {
+            creditsBadgeHtml = `
+                <div class="credits-badge" id="btn-navbar-credits" style="display:flex; align-items:center; gap:0.4rem; background:rgba(56,239,125,0.08); border:1px solid rgba(56,239,125,0.3); padding:0.3rem 0.7rem; border-radius:50px; font-size:0.8rem; font-weight:700; color:var(--color-green); cursor:pointer; transition: transform 0.2s, background 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.background='rgba(56,239,125,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.background='rgba(56,239,125,0.08)';" title="Credits aufladen">
+                    <i class="fa-solid fa-coins" style="color: var(--color-green);"></i>
+                    <span>${u.credits !== undefined ? u.credits : 0} Credits</span>
+                </div>
+            `;
+        }
+
         authArea.innerHTML = `
-            <div style="display:flex; align-items:center; gap:1rem;">
-                <span style="font-size:0.9rem; font-weight:500;">
-                    Hallo, <span class="${u.role === 'musician' ? 'text-purple' : 'text-cyan'}">${displayName}</span>
-                </span>
+            <div style="display:flex; align-items:center; gap:1.2rem;">
+                ${creditsBadgeHtml}
                 
                 <div class="profile-dropdown-container">
                     <button class="profile-avatar-btn ${u.role === 'musician' ? 'musician-avatar' : ''}" id="btn-profile-dropdown" aria-label="Benutzermenü">
@@ -5581,7 +5915,7 @@ function updateNavbar() {
         nav.innerHTML = '';
         authArea.innerHTML = `
             <button class="btn btn-secondary btn-sm" id="btn-login-trigger">
-                <i class="fa-solid fa-sign-in-alt"></i> Anmelden / Registrieren
+                <i class="fa-solid fa-sign-in-alt"></i> Anmelden ohne Passwort
             </button>
         `;
         document.getElementById('btn-login-trigger').addEventListener('click', () => {
@@ -5601,6 +5935,7 @@ function handleRouting() {
 
 // Global scope initialization
 window.appNavigate = navigate;
+window.handleRouting = handleRouting;
 
 window.navigateGallery = function(btn, direction) {
     const wrapper = btn.closest('.listing-thumbnail-wrapper');
@@ -5678,3 +6013,454 @@ document.addEventListener('DOMContentLoaded', () => {
 
     runMatchingMonitor();
 });
+
+function renderPostbox(container) {
+    if (!state.currentUser) return;
+    const u = state.currentUser;
+    const isMusician = u.role === 'musician';
+    const currentUserId = isMusician ? u.profileId : u.id;
+
+    // Fetch user chats
+    const chats = state.getChatsForUser(currentUserId);
+    let activeTab = window.postboxActiveTab || 'perfect'; // 'perfect' | 'received' | 'sent' | 'system'
+    let activeChatId = window.postboxActiveChatId || (chats.length > 0 ? chats[0].id : null);
+
+    const renderView = () => {
+        window.postboxActiveTab = activeTab;
+        window.postboxActiveChatId = activeChatId;
+
+        // Categorize chats
+        const perfectChats = [];
+        const receivedChats = [];
+        const sentChats = [];
+        const systemChats = [];
+
+        chats.forEach(chat => {
+            const isSys = chat.participants.includes('system');
+            if (isSys) {
+                systemChats.push(chat);
+                return;
+            }
+
+            const counterpartyId = chat.participants.find(id => id !== currentUserId) || chat.participants[0];
+            const eventId = chat.eventId;
+
+            // Check interest status
+            let mId = isMusician ? currentUserId : counterpartyId;
+            let eId = eventId || (isMusician ? null : state.events.find(ev => ev.creatorId === currentUserId)?.id);
+
+            const interest = state.interests?.find(i => i.musicianId === mId && (eId ? i.eventId === eId : true));
+            const isPerfect = interest && interest.musicianInterested && interest.organizerInterested;
+
+            if (isPerfect) {
+                perfectChats.push(chat);
+            } else {
+                // Determine sender of first message
+                const firstMsg = chat.messages[0];
+                const isFirstMsgFromMe = firstMsg && firstMsg.senderId === currentUserId;
+
+                if (isFirstMsgFromMe) {
+                    sentChats.push(chat);
+                } else {
+                    receivedChats.push(chat);
+                }
+            }
+        });
+
+        let currentCategoryChats = [];
+        if (activeTab === 'perfect') currentCategoryChats = perfectChats;
+        else if (activeTab === 'received') currentCategoryChats = receivedChats;
+        else if (activeTab === 'sent') currentCategoryChats = sentChats;
+        else if (activeTab === 'system') currentCategoryChats = systemChats;
+
+        if (!currentCategoryChats.some(c => c.id === activeChatId) && currentCategoryChats.length > 0) {
+            activeChatId = currentCategoryChats[0].id;
+        }
+
+        const activeChat = chats.find(c => c.id === activeChatId);
+
+        container.innerHTML = `
+            <div class="portal-layout" style="display:flex; gap:1.5rem; height: calc(100vh - 160px); min-height: 550px;">
+                
+                <!-- Left Sidebar: Categories & Chat Threads List -->
+                <div class="postbox-sidebar" style="width: 340px; flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm);">
+                    
+                    <!-- Postbox Header & Tabs -->
+                    <div style="padding: 1rem; border-bottom: 1px solid var(--border-glass); background: rgba(255,255,255,0.01);">
+                        <h3 style="margin: 0 0 0.8rem; font-size: 1.15rem; font-family: var(--font-heading); display:flex; align-items:center; gap:0.5rem; color:var(--text-main);">
+                            <i class="fa-solid fa-envelope text-cyan"></i> Postfach
+                        </h3>
+                        
+                        <!-- 4 Category Tabs -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
+                            <button class="btn btn-sm ${activeTab === 'perfect' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="perfect" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0;">
+                                ðŸ’– Perfect (${perfectChats.length})
+                            </button>
+                            <button class="btn btn-sm ${activeTab === 'received' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="received" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0;">
+                                ðŸ“¥ Erhalten (${receivedChats.length})
+                            </button>
+                            <button class="btn btn-sm ${activeTab === 'sent' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="sent" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0;">
+                                ðŸ“¤ Gestellt (${sentChats.length})
+                            </button>
+                            <button class="btn btn-sm ${activeTab === 'system' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="system" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0;">
+                                âš™ï¸ System (${systemChats.length})
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Thread Items List -->
+                    <div class="postbox-threads-list" style="flex: 1; overflow-y: auto; padding: 0.5rem;">
+                        ${currentCategoryChats.length === 0 ? `
+                            <div style="padding: 2rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+                                <i class="fa-solid fa-inbox" style="font-size: 2rem; color: var(--border-glass); margin-bottom: 0.5rem; display: block;"></i>
+                                Keine Nachrichten in dieser Kategorie.
+                            </div>
+                        ` : currentCategoryChats.map(c => {
+                            const isSelected = c.id === activeChatId;
+                            const isSys = c.participants.includes('system');
+                            const counterpartyId = c.participants.find(id => id !== currentUserId) || c.participants[0];
+
+                            let name = "System";
+                            let avatar = "https://picsum.photos/id/1025/100/100";
+
+                            if (!isSys) {
+                                const counterMus = state.musicians.find(m => m.id === counterpartyId);
+                                const counterOrg = state.events.find(e => e.creatorId === counterpartyId);
+                                if (counterMus) {
+                                    name = counterMus.name;
+                                    avatar = counterMus.profilePic || "https://picsum.photos/id/453/100/100";
+                                } else if (counterOrg) {
+                                    name = counterOrg.contactName || counterOrg.name;
+                                    avatar = "https://picsum.photos/id/111/100/100";
+                                }
+                            }
+
+                            const lastMsg = c.messages[c.messages.length - 1];
+                            const isUnread = !state.readChats?.includes(c.id);
+
+                            return `
+                                <div class="thread-item ${isSelected ? 'selected' : ''}" data-chat-id="${c.id}" style="display: flex; align-items: center; gap: 0.8rem; padding: 0.7rem; border-radius: var(--radius-sm); cursor: pointer; margin-bottom: 0.3rem; transition: background 0.2s; background: ${isSelected ? 'rgba(0, 242, 254, 0.08)' : 'transparent'}; border: 1px solid ${isSelected ? 'rgba(0, 242, 254, 0.3)' : 'transparent'};">
+                                    <img src="${avatar}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
+                                    <div style="flex: 1; min-width: 0;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.15rem;">
+                                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</span>
+                                            ${isUnread ? '<span style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-cyan); display: inline-block;"></span>' : ''}
+                                        </div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                            ${lastMsg ? lastMsg.text : 'Keine Nachrichten'}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+
+                <!-- Right Detail View: Chat Messages & Controls -->
+                <div class="postbox-chat-detail" style="flex: 1; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm);">
+                    ${!activeChat ? `
+                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); padding: 2rem; text-align: center;">
+                            <i class="fa-regular fa-comments" style="font-size: 3.5rem; color: var(--border-glass); margin-bottom: 1rem;"></i>
+                            <h4 style="margin: 0 0 0.5rem; color: var(--text-main);">WÃ¤hle einen Unterhaltung aus</h4>
+                            <p style="max-width: 360px; font-size: 0.85rem;">Klicke links auf eine Nachricht, um den Verlauf zu sehen und zu antworten.</p>
+                        </div>
+                    ` : (() => {
+                        const isSys = activeChat.participants.includes('system');
+                        const counterpartyId = activeChat.participants.find(id => id !== currentUserId) || activeChat.participants[0];
+                        let name = "System";
+                        let avatar = "https://picsum.photos/id/1025/100/100";
+
+                        if (!isSys) {
+                            const counterMus = state.musicians.find(m => m.id === counterpartyId);
+                            const counterOrg = state.events.find(e => e.creatorId === counterpartyId);
+                            if (counterMus) {
+                                name = counterMus.name;
+                                avatar = counterMus.profilePic || "https://picsum.photos/id/453/100/100";
+                            } else if (counterOrg) {
+                                name = counterOrg.contactName || counterOrg.name;
+                                avatar = "https://picsum.photos/id/111/100/100";
+                            }
+                        }
+
+                        // Determine if input should be locked for organizers in "Anfrage erhalten"
+                        let isOrganizerIncomingLock = false;
+                        let lockEventId = activeChat.eventId;
+                        let lockMusicianId = counterpartyId;
+
+                        if (!isMusician && !isSys) {
+                            const interest = state.interests?.find(i => i.musicianId === lockMusicianId && (lockEventId ? i.eventId === lockEventId : true));
+                            const isPerfect = interest && interest.musicianInterested && interest.organizerInterested;
+                            const isDeclined = interest && interest.organizerNoInterest;
+                            if (!isPerfect && !isDeclined && activeTab === 'received') {
+                                isOrganizerIncomingLock = true;
+                            }
+                        }
+
+                        // Mark chat as read
+                        state.markChatAsRead(activeChat.id);
+
+                        return `
+                            <!-- Chat Header -->
+                            <div style="padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border-glass); background: rgba(255,255,255,0.01); display: flex; align-items: center; gap: 0.8rem;">
+                                <img src="${avatar}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                <div>
+                                    <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-main);">${name}</h4>
+                                    <span style="font-size: 0.72rem; color: var(--text-muted);">${isSys ? 'Offizielle Mitteilung' : (isMusician ? 'Veranstalter' : 'Musiker')}</span>
+                                </div>
+                            </div>
+
+                            <!-- Chat Messages Body -->
+                            <div class="chat-messages-container" style="flex: 1; padding: 1.2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem;">
+                                ${activeChat.messages.map(m => {
+                                    const isMe = m.senderId === currentUserId;
+                                    return `
+                                        <div style="display: flex; justify-content: ${isMe ? 'flex-end' : 'flex-start'};">
+                                            <div style="max-width: 75%; padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.85rem; line-height: 1.4; ${isMe ? 'background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #fff; border-bottom-right-radius: 2px;' : 'background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border-glass); border-bottom-left-radius: 2px;'}">
+                                                <div>${m.text}</div>
+                                                <div style="font-size: 0.65rem; opacity: 0.7; text-align: right; margin-top: 0.3rem;">
+                                                    ${new Date(m.timestamp).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+
+                            <!-- Lock Questionnaire or Message Input Footer -->
+                            <div style="padding: 1rem; border-top: 1px solid var(--border-glass); background: rgba(255,255,255,0.01);">
+                                ${isOrganizerIncomingLock ? `
+                                    <div class="organizer-questionnaire-box" style="background: rgba(124, 58, 237, 0.08); border: 1px solid var(--color-purple); border-radius: var(--radius-md); padding: 1.2rem; text-align: center;">
+                                        <h4 style="margin: 0 0 0.4rem; font-family: var(--font-heading); font-size: 1rem; color: var(--text-main);">
+                                            Ist die Anfrage interessant fÃ¼r dich?
+                                        </h4>
+                                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                                            Stimme der Anfrage zu, um automatisch ein <strong>Perfect Match</strong> zu erstellen und das Antworten freizuschalten.
+                                        </p>
+                                        <div style="display: flex; gap: 1rem; justify-content: center;">
+                                            <button class="btn btn-sm btn-glass btn-decline-incoming-req" data-musician-id="${lockMusicianId}" data-event-id="${lockEventId || ''}" style="color: var(--color-red); border-color: rgba(255,75,75,0.3); margin:0;">
+                                                <i class="fa-solid fa-xmark"></i> Nein, ablehnen
+                                            </button>
+                                            <button class="btn btn-sm btn-primary btn-accept-incoming-req" data-musician-id="${lockMusicianId}" data-event-id="${lockEventId || ''}" style="background: var(--color-green); border-color: var(--color-green); color: #000; font-weight: 800; margin:0;">
+                                                <i class="fa-solid fa-check"></i> Ja, kontaktieren
+                                            </button>
+                                        </div>
+                                    </div>
+                                ` : `
+                                    <form id="chat-send-form" style="display: flex; gap: 0.8rem;">
+                                        <input type="text" id="chat-message-input" class="input-field" placeholder="${isSys ? 'Antworten auf Systemnachrichten nicht mÃ¶glich' : 'Schreibe eine Nachricht...'}" ${isSys ? 'disabled' : ''} required style="flex: 1; margin: 0; height: 42px;">
+                                        <button type="submit" class="btn btn-primary" ${isSys ? 'disabled' : ''} style="margin: 0; padding: 0 1.2rem; height: 42px; font-weight: 700;">
+                                            <i class="fa-solid fa-paper-plane"></i> Senden
+                                        </button>
+                                    </form>
+                                `}
+                            </div>
+                        `;
+                    })()}
+                </div>
+            </div>
+        `;
+
+        // Add Event Listeners for tabs & buttons
+        container.querySelectorAll('.tab-btn-postbox').forEach(btn => {
+            btn.addEventListener('click', () => {
+                activeTab = btn.getAttribute('data-tab');
+                renderView();
+            });
+        });
+
+        container.querySelectorAll('.thread-item').forEach(item => {
+            item.addEventListener('click', () => {
+                activeChatId = item.getAttribute('data-chat-id');
+                renderView();
+            });
+        });
+
+        // Question accept/decline handlers
+        const acceptBtn = container.querySelector('.btn-accept-incoming-req');
+        if (acceptBtn) {
+            acceptBtn.addEventListener('click', () => {
+                const mId = acceptBtn.getAttribute('data-musician-id');
+                const eId = acceptBtn.getAttribute('data-event-id');
+                state.acceptMusicianRequest(mId, eId);
+                showToast({
+                    title: "Perfect Match entstanden! ðŸŽ‰",
+                    message: "Ihr habt nun gegenseitig Interesse bekundet. Du kannst jetzt direkt antworten."
+                });
+                activeTab = 'perfect';
+                renderView();
+            });
+        }
+
+        const declineBtn = container.querySelector('.btn-decline-incoming-req');
+        if (declineBtn) {
+            declineBtn.addEventListener('click', () => {
+                const mId = declineBtn.getAttribute('data-musician-id');
+                const eId = declineBtn.getAttribute('data-event-id');
+                state.declineMusicianRequest(mId, eId);
+                showToast({
+                    title: "Anfrage abgelehnt",
+                    message: "Die Anfrage wurde als nicht interessant markiert."
+                });
+                renderView();
+            });
+        }
+
+        // Send message form handler
+        const sendForm = container.querySelector('#chat-send-form');
+        if (sendForm) {
+            sendForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = container.querySelector('#chat-message-input');
+                const text = input.value.trim();
+                if (!text || !activeChat) return;
+
+                const counterpartyId = activeChat.participants.find(id => id !== currentUserId) || activeChat.participants[0];
+                state.sendMessage(counterpartyId, text, activeChat.eventId);
+                input.value = '';
+                renderView();
+            });
+        }
+    };
+
+    renderView();
+}
+function renderMarketGridHTML(items, isEvents, roleThemeColor, roleBadgeBg) {
+    if (!items || items.length === 0) {
+        return `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass);">
+                <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                <h3 style="margin-bottom: 0.5rem; color: var(--text-main);">Keine Ergebnisse gefunden</h3>
+                <p style="color: var(--text-muted);">Versuche deine Filterkriterien anzupassen.</p>
+            </div>
+        `;
+    }
+
+    const themeColor = roleThemeColor || (isEvents ? '#2563eb' : '#7c3aed');
+    const badgeBg = roleBadgeBg || (isEvents ? 'rgba(37, 99, 235, 0.12)' : 'rgba(124, 58, 237, 0.12)');
+
+    return items.map(item => {
+        const isNew = item.isNew || item.createdRecently;
+        const isUnlocked = state.unlockedContacts && state.unlockedContacts.includes(item.id);
+        
+        // Photos
+        const photo = item.image || item.photo || (isEvents 
+            ? 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80' 
+            : 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80');
+
+        // Genres & Instruments & Media Details
+        const genres = item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic']);
+        const instruments = item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre']);
+        const duration = item.duration || item.spieldauer || 'ca. 2 - 4 Stunden';
+        const description = item.description || item.bio || (isEvents 
+            ? 'Wir suchen eine professionelle musikalische Begleitung fÃ¼r unser anstehendes Event mit toller Stimmung.' 
+            : 'Professionelle Live-Musik fÃ¼r unvergleichliche Momente bei Hochzeiten, Feiern & Firmenevents.');
+        const hasVideo = item.hasVideo !== false;
+        const audioTrack = item.audioTrack || 'Live Demo Track';
+
+        return `
+            <div class="market-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s; position: relative;">
+                
+                <!-- 1. Foto Header mit Badges (IMMER VISIBEL IM GESCHÃœTZTEN MODUS) -->
+                <div style="position: relative; height: 180px; width: 100%; overflow: hidden; background: #0f172a; cursor: pointer;" onclick="openItemDetailModal('${item.id}', ${isEvents})">
+                    <img src="${photo}" alt="${isEvents ? item.title : item.name}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    
+                    <div style="position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: center; z-index: 2;">
+                        <span style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.75rem; border-radius: 20px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); color: #ffffff; font-size: 0.75rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.2);">
+                            <i class="fa-solid ${isEvents ? 'fa-calendar-day' : 'fa-guitar'}" style="color: ${themeColor};"></i> ${isEvents ? (item.eventType || 'Event') : (item.category || 'Musiker')}
+                        </span>
+                        ${isNew ? `
+                            <span style="background: ${themeColor}; color: #ffffff; font-size: 0.72rem; font-weight: 900; padding: 0.2rem 0.6rem; border-radius: 12px; text-transform: uppercase;">
+                                Neu
+                            </span>
+                        ` : ''}
+                    </div>
+
+                    <!-- 2. Video & Audio Badges (IMMER VISIBEL IM GESCHÃœTZTEN MODUS) -->
+                    <div style="position: absolute; bottom: 10px; right: 10px; display: flex; gap: 0.5rem;">
+                        ${hasVideo ? `
+                            <span style="background: rgba(0,0,0,0.75); color: #fff; padding: 0.25rem 0.6rem; border-radius: 12px; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; gap: 0.3rem; backdrop-filter: blur(4px);">
+                                <i class="fa-solid fa-circle-play" style="color: #ef4444;"></i> Video
+                            </span>
+                        ` : ''}
+                        <span style="background: rgba(0,0,0,0.75); color: #fff; padding: 0.25rem 0.6rem; border-radius: 12px; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; gap: 0.3rem; backdrop-filter: blur(4px);">
+                            <i class="fa-solid fa-music" style="color: ${themeColor};"></i> Audio
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Card Body (IMMER VISIBEL IM GESCHÃœTZTEN MODUS) -->
+                <div style="padding: 1.25rem; flex: 1; display: flex; flex-direction: column;">
+                    
+                    <!-- Titel -->
+                    <h3 onclick="openItemDetailModal('${item.id}', ${isEvents})" style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem; line-height: 1.3; cursor: pointer;" onmouseover="this.style.color='${themeColor}'" onmouseout="this.style.color='var(--text-main)'">
+                        ${isEvents ? item.title : item.name}
+                    </h3>
+
+                    <!-- 3. Beschreibung -->
+                    <p style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.45; margin-bottom: 0.9rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        ${description}
+                    </p>
+
+                    <!-- 4. Audio-Dateien / HÃ¶rproben Player -->
+                    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.6rem 0.8rem; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.8rem;">
+                        <button onclick="const icon=this.querySelector('i'); if(icon.classList.contains('fa-play')){icon.classList.remove('fa-play');icon.classList.add('fa-pause');}else{icon.classList.remove('fa-pause');icon.classList.add('fa-play');}" style="width: 32px; height: 32px; border-radius: 50%; background: ${themeColor}; border: none; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;">
+                            <i class="fa-solid fa-play" style="font-size: 0.8rem; margin-left: 2px;"></i>
+                        </button>
+                        <div style="flex: 1; overflow: hidden;">
+                            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ðŸŽµ HÃ¶rprobe: ${audioTrack}
+                            </div>
+                            <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 4px; position: relative;">
+                                <div style="width: 45%; height: 100%; background: ${themeColor}; border-radius: 2px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5 & 6. Genres & Instrumente Tags -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem;">
+                        ${genres.map(g => `<span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.73rem; color: var(--text-main); font-weight: 600;">ðŸ·ï¸ ${g}</span>`).join('')}
+                        ${instruments.map(inst => `<span style="background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.73rem; color: ${themeColor}; font-weight: 700;">ðŸŽ¸ ${inst}</span>`).join('')}
+                    </div>
+
+                    <!-- 7. Spieldauer, Ort, Gage, Technik -->
+                    <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.82rem; color: var(--text-muted); margin-top: auto; padding-top: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.1);">
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px;"></i>
+                            <span>${item.location || 'Deutschlandweit'}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px;"></i>
+                            <span>Spieldauer: <strong>${duration}</strong></span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 16px;"></i>
+                            <span>${isEvents ? (`Gage: <strong>${item.budget || 'VB'}</strong>`) : (`Honorar: <strong>${item.price || 'VB'}</strong>`)}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-plug" style="color: ${themeColor}; width: 16px;"></i>
+                            <span>Technik: ${item.equipment || 'Vorhanden / Auf Anfrage'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Footer (Details Button & Protected Contact Unlock Button) -->
+                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding: 1rem; background: rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 0.6rem;">
+                    <button class="btn btn-secondary" onclick="openItemDetailModal('${item.id}', ${isEvents})" style="width: 100%; font-size: 0.85rem; font-weight: 700; padding: 0.65rem; border-radius: 8px;">
+                        <i class="fa-solid fa-circle-info"></i> Profil, HÃ¶rproben & Medien ansehen
+                    </button>
+                    ${isUnlocked ? `
+                        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 0.8rem; font-size: 0.85rem; color: #4ade80;">
+                            <div style="font-weight: 800; margin-bottom: 0.2rem;"><i class="fa-solid fa-unlock"></i> Kontaktdaten freigeschaltet</div>
+                            <div>Tel: ${item.phone || '+49 170 1234567'}</div>
+                            <div>Mail: ${item.email || 'kontakt@gigconnact.de'}</div>
+                        </div>
+                    ` : `
+                        <button class="btn btn-primary btn-unlock-contact" data-id="${item.id}" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-color: #7c3aed; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
+                        </button>
+                    `}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
