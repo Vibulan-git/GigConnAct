@@ -1765,12 +1765,7 @@ class StateManager {
     }
 }
 
-let state = null;
-try {
-    state = new StateManager();
-} catch (e) {
-    console.error("StateManager initialization error, using fallback:", e);
-}
+/* StateManager instantiated at bottom */
 
 if (!state) {
     state = {
@@ -6259,4 +6254,28 @@ try {
     if (typeof initAllLocationAutocompletes === 'function') initAllLocationAutocompletes();
 } catch (err) {
     console.error("Direct sync execution error:", err);
+}
+
+// Safe State Initialization at the bottom
+let state = null;
+try {
+    state = new StateManager();
+} catch (e) {
+    console.error("StateManager failsafe init error, using fallback:", e);
+}
+
+if (!state) {
+    state = {
+        currentUser: null,
+        musicians: typeof initialMusicians !== 'undefined' ? initialMusicians : [],
+        events: typeof initialEvents !== 'undefined' ? initialEvents : [],
+        matches: [],
+        messages: [],
+        unlockedContacts: [],
+        getUnreadCount() { return 0; },
+        notify() {},
+        subscribe() {},
+        saveState() {},
+        loadState() {}
+    };
 }
