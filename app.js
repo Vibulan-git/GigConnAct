@@ -1169,7 +1169,7 @@ class StateManager {
         }
 
         const id = "usr_" + Math.random().toString(36).substr(2, 9);
-        const profileId = payload.role === "musician"  - mus_" + id : "evt_" + id;
+        const profileId = payload.role === "musician" ? "mus_" + id : "evt_" + id;
 
         const newUser = {
             id,
