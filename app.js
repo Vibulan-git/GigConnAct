@@ -2469,7 +2469,7 @@ function renderMarket(container, type, onNavigate) {
             </div>
 
             <!-- Mobile Filter Toggle Button (Sichtbar auf Smartphones) -->
-            <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" onclick="window.toggleMobileFilters()"fa-solid fa-xmark\"></i> Filter verbergen';}else{f.style.display='none'; this.innerHTML='<i class=\"fa-solid fa-sliders\"></i> Filter & Suche anzeigen';}">
+            <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" onclick="window.toggleMobileFilters()"></i> Filter verbergen';}else{f.style.display='none'; this.innerHTML='<i class=\"fa-solid fa-sliders\"></i> Filter & Suche anzeigen';}">
                 <i class="fa-solid fa-sliders"></i> Filter & Suche anzeigen
             </button>
 
