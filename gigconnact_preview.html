@@ -6715,9 +6715,7 @@ function renderMyMusicians(container) {
             if (result.success) {
                 showToast({
                     title: result.isActive ? "Profil aktiv!" : "Profil pausiert!",
-                    message: result.isActive 
-                         - Das Profil ist nun wieder im Markt sichtbar." 
-                        : "Das Profil wurde pausiert und aus der Suche entfernt."
+                    message: result.isActive ? "Das Profil ist nun wieder im Markt sichtbar." : "Das Profil wurde pausiert und aus der Suche entfernt."
                 });
                 renderMyMusicians(container);
             }
