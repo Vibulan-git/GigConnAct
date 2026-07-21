@@ -5500,12 +5500,12 @@ function navigate(page) {
         case 'events':
             renderMarket(mainContainer, 'events', navigate);
             setActiveLink('link-events');
-            window.location.hash = '#/events';
+            if (window.location.hash !== '#/events') history.pushState(null, '', '#/events');
             break;
         case 'musicians':
             renderMarket(mainContainer, 'musicians', navigate);
             setActiveLink('link-musicians');
-            window.location.hash = '#/musicians';
+            if (window.location.hash !== '#/musicians') history.pushState(null, '', '#/musicians');
             break;
         case 'matches':
         case 'top-matches':
@@ -5515,7 +5515,7 @@ function navigate(page) {
             } else {
                 renderMatchesPage(mainContainer);
                 setActiveLink('link-matches');
-                window.location.hash = '#/matches';
+                if (window.location.hash !== '#/matches') history.pushState(null, '', '#/matches');
             }
             break;
         case 'dashboard':
@@ -5525,11 +5525,11 @@ function navigate(page) {
             } else if (state.currentUser.role === 'organizer') {
                 renderMyEvents(mainContainer);
                 setActiveLink('link-dashboard');
-                window.location.hash = '#/dashboard';
+                if (window.location.hash !== '#/dashboard') history.pushState(null, '', '#/dashboard');
             } else {
                 renderMyMusicians(mainContainer);
                 setActiveLink('link-dashboard');
-                window.location.hash = '#/dashboard';
+                if (window.location.hash !== '#/dashboard') history.pushState(null, '', '#/dashboard');
             }
             break;
         case 'postbox':
@@ -5539,7 +5539,7 @@ function navigate(page) {
             } else {
                 renderPostbox(mainContainer);
                 setActiveLink('link-postbox');
-                window.location.hash = '#/postbox';
+                if (window.location.hash !== '#/postbox') history.pushState(null, '', '#/postbox');
             }
             break;
         case 'credits':
@@ -5549,12 +5549,15 @@ function navigate(page) {
             } else {
                 renderCreditsPage(mainContainer);
                 setActiveLink('link-credits');
-                window.location.hash = '#/credits';
+                if (window.location.hash !== '#/credits') history.pushState(null, '', '#/credits');
             }
             break;
         default:
             renderLandingPage(mainContainer, navigate);
-            window.location.hash = '#/';
+            setActiveLink('link-home');
+            if (window.location.hash && window.location.hash !== '#/' && window.location.hash !== '#') {
+                history.replaceState(null, '', '#/');
+            }
             break;
     }
 }
