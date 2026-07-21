@@ -12,6 +12,79 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Vanilla CSS Stylesheet -->
     <link rel="stylesheet" href="style.css">
+    <!-- Mobile Responsive Styling Rules -->
+    <style>
+        @media (max-width: 768px) {
+            .market-layout-container {
+                grid-template-columns: 1fr !important;
+                gap: 1.2rem !important;
+            }
+            .market-filter-card {
+                position: static !important;
+                max-height: none !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .market-filter-mobile-toggle {
+                display: flex !important;
+            }
+            #market-items-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+            }
+            .market-tile-card {
+                width: 100% !important;
+                border-radius: 14px !important;
+            }
+            .tile-fullwidth-photo-slider {
+                height: 200px !important;
+            }
+            .hero-section {
+                padding: 2.5rem 1rem 3.5rem !important;
+                min-height: auto !important;
+            }
+            .btn-hero-cta {
+                width: 100% !important;
+                justify-content: flex-start !important;
+                padding: 1rem 1.4rem !important;
+            }
+            .navbar {
+                padding: 0.8rem 1rem !important;
+            }
+            .navbar .container {
+                flex-wrap: wrap !important;
+                gap: 0.6rem !important;
+            }
+            .logo {
+                font-size: 1.3rem !important;
+            }
+            .nav-link {
+                padding: 0.4rem 0.6rem !important;
+                font-size: 0.82rem !important;
+            }
+            h1 {
+                font-size: 1.7rem !important;
+            }
+        }
+
+        .market-filter-mobile-toggle {
+            display: none;
+            width: 100%;
+            padding: 0.85rem;
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+    </style>
 </head>
 <body>
     <!-- App Root Container -->
@@ -62,6 +135,6 @@
     </div>
 
     <!-- Main JavaScript Entry Point -->
-    <script src="app.js?v=24"></script>
+    <script src="app.js?v=25"></script>
 </body>
 </html>

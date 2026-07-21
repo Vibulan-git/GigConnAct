@@ -2448,29 +2448,34 @@ function renderMarket(container, type, onNavigate) {
     const items = isEvents ? state.events : state.musicians;
 
     container.innerHTML = `
-        <div class="market-page" style="max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem 5rem;">
+        <div class="market-page" style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1rem 5rem;">
             
-            <!-- Page Header (OHNE Gitarren-Logo!) -->
-            <div style="margin-bottom: 1.8rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <!-- Page Header -->
+            <div style="margin-bottom: 1.4rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem;">
                 <div>
-                    <h1 style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 900; color: var(--text-main); margin: 0;">
+                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 900; color: var(--text-main); margin: 0;">
                         ${title}
                     </h1>
                 </div>
                 <div>
                     ${!state.currentUser ? `
-                        <button class="btn btn-primary" onclick="showModal('auth')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); font-weight: 800; padding: 0.8rem 1.6rem; border-radius: 10px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4);">
+                        <button class="btn btn-primary" onclick="showModal('auth')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); font-weight: 800; padding: 0.75rem 1.4rem; border-radius: 10px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4); font-size: 0.88rem;">
                             <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
                         </button>
                     ` : ''}
                 </div>
             </div>
 
+            <!-- Mobile Filter Toggle Button (Sichtbar auf Smartphones) -->
+            <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" onclick="const f=document.getElementById('market-filters-wrapper'); if(f.style.display==='none'||!f.style.display){f.style.display='block'; this.innerHTML='<i class=\"fa-solid fa-xmark\"></i> Filter verbergen';}else{f.style.display='none'; this.innerHTML='<i class=\"fa-solid fa-sliders\"></i> Filter & Suche anzeigen';}">
+                <i class="fa-solid fa-sliders"></i> Filter & Suche anzeigen
+            </button>
+
             <!-- Main Layout: Left Sticky Sidebar Filters + Center Content -->
             <div class="market-layout-container" style="display: grid; grid-template-columns: 280px 1fr; gap: 2rem; align-items: start;">
                 
-                <!-- Left Sidebar Filters (WEISSE EINGABEFELDER) -->
-                <div class="market-filter-card" style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); position: sticky; top: 90px; max-height: calc(100vh - 110px); overflow-y: auto;">
+                <!-- Left Sidebar Filters (Responsive Wrapper) -->
+                <div id="market-filters-wrapper" class="market-filter-card" style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); position: sticky; top: 90px; max-height: calc(100vh - 110px); overflow-y: auto;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 2px solid rgba(124, 58, 237, 0.3); padding-bottom: 0.8rem;">
                         <span style="color: #a855f7; font-weight: 900; font-size: 1.15rem; display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-sliders" style="color: #a855f7;"></i> Filter
@@ -2706,14 +2711,14 @@ function renderMarket(container, type, onNavigate) {
                 <div>
                     
                     <!-- Center Top Control Bar: Sortierungsfunktion -->
-                    <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 1rem 1.4rem; margin-bottom: 1.8rem; display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 1rem; box-shadow: var(--shadow-sm);">
+                    <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 0.8rem 1.2rem; margin-bottom: 1.5rem; display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 0.8rem; box-shadow: var(--shadow-sm);">
                         
                         <!-- Sortierungsfunktion -->
-                        <div style="display: flex; align-items: center; gap: 0.8rem;">
-                            <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-muted); white-space: nowrap;">
+                        <div style="display: flex; align-items: center; gap: 0.6rem; width: 100%; justify-content: flex-end;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); white-space: nowrap;">
                                 <i class="fa-solid fa-arrow-down-wide-short" style="color: ${isEvents ? '#2563eb' : '#7c3aed'};"></i> Sortierung:
                             </span>
-                            <select id="sort-select" style="padding: 0.55rem 1rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 800; font-size: 0.88rem;">
+                            <select id="sort-select" style="padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 800; font-size: 0.85rem;">
                                 <option value="match">Match-Faktor absteigend</option>
                                 <option value="newest">Neueste zuerst</option>
                                 <option value="price">GÃ¼nstig zuerst</option>
