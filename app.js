@@ -5517,7 +5517,9 @@ function navigate(page) {
             break;
         default:
             renderLandingPage(mainContainer, navigate);
-            window.location.hash = '#/';
+            if (window.location.hash && window.location.hash !== '#/' && window.location.hash !== '#') {
+                history.replaceState(null, '', '#/');
+            }
             break;
     }
 }
