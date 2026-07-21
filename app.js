@@ -1966,42 +1966,98 @@ function showToast(options) {
 function renderHeroTabContent(isMusician) {
     if (isMusician) {
         return `
-            <div class="hero-benefit-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; text-align: left;">
-                <div style="background: rgba(255,255,255,0.05); padding: 1.1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                    <div style="color: #a855f7; font-size: 1.3rem; margin-bottom: 0.4rem;"><i class="fa-solid fa-bolt"></i></div>
-                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.25rem; font-size: 0.95rem;">Direkte Anfragen</h4>
-                    <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0; line-height: 1.45;">Erhalte qualifizierte Gig-Anfragen direkt in dein Postfach.</p>
+            <div class="hero-benefit-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem; text-align: left; margin-top: 1.4rem;">
+                
+                <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid rgba(168, 85, 247, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);">
+                    <div style="color: #c084fc; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-bolt"></i></div>
+                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">1. Direkte Gig-Anfragen</h4>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Qualifizierte Auftrittsanfragen direkt von Veranstaltern in dein Postfach.</p>
                 </div>
-                <div style="background: rgba(255,255,255,0.05); padding: 1.1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                    <div style="color: #a855f7; font-size: 1.3rem; margin-bottom: 0.4rem;"><i class="fa-solid fa-sack-dollar"></i></div>
-                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.25rem; font-size: 0.95rem;">100% Gagenbehalt</h4>
-                    <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0; line-height: 1.45;">Keine verdeckten Kosten oder Provisionen auf deine Gage.</p>
+
+                <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid rgba(168, 85, 247, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);">
+                    <div style="color: #c084fc; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-sack-dollar"></i></div>
+                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">2. 100% Gagenbehalt</h4>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Keine verdeckten GebÃ¼hren oder Provisionen auf deine Gage.</p>
                 </div>
-                <div style="background: rgba(255,255,255,0.05); padding: 1.1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                    <div style="color: #a855f7; font-size: 1.3rem; margin-bottom: 0.4rem;"><i class="fa-solid fa-photo-film"></i></div>
-                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.25rem; font-size: 0.95rem;">Medien-Galerie</h4>
-                    <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0; line-height: 1.45;">PrÃ¤sentiere deine besten Fotos & Videos in einer Galerie.</p>
+
+                <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid rgba(168, 85, 247, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);">
+                    <div style="color: #c084fc; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-photo-film"></i></div>
+                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">3. Medien-Galerie & Videos</h4>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">PrÃ¤sentiere deine besten Fotos, Audio-Demos & HTML5-Livevideos.</p>
                 </div>
+
+                <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid rgba(168, 85, 247, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);">
+                    <div style="color: #c084fc; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-location-dot"></i></div>
+                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">4. Regionale & Bundesweite Relevanz</h4>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Finde Auftritte in deinem Wunschumkreis oder deutschlandweit.</p>
+                </div>
+
+                <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid rgba(168, 85, 247, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);">
+                    <div style="color: #c084fc; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-user-shield"></i></div>
+                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">5. Kontaktschutz & Kontrolle</h4>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Du entscheidest selbst, wann du deine Kontaktdaten freischaltest.</p>
+                </div>
+
+                <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid rgba(168, 85, 247, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);">
+                    <div style="color: #c084fc; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-bullseye"></i></div>
+                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">6. Exakter Match-Faktor</h4>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Unser Matching-System bringt dich mit den passenden Events zusammen.</p>
+                </div>
+
+                <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid rgba(168, 85, 247, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);">
+                    <div style="color: #c084fc; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-rocket"></i></div>
+                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">7. Kein Akquise-Aufwand</h4>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Veranstalter finden dich direkt Ã¼ber dein aussagekrÃ¤ftiges Profil.</p>
+                </div>
+
             </div>
         `;
     } else {
         return `
-            <div class="hero-benefit-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; text-align: left;">
-                <div style="background: rgba(255,255,255,0.05); padding: 1.1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                    <div style="color: #38bdf8; font-size: 1.3rem; margin-bottom: 0.4rem;"><i class="fa-solid fa-magnifying-glass"></i></div>
-                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.25rem; font-size: 0.95rem;">Schnelle Suche</h4>
-                    <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0; line-height: 1.45;">Finde geprÃ¼fte Musiker & Bands passend fÃ¼r dein Event & Budget.</p>
+            <div class="hero-benefit-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem; text-align: left; margin-top: 1.4rem;">
+                
+                <div style="background: rgba(37, 99, 235, 0.18); border: 1.5px solid rgba(96, 165, 250, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);">
+                    <div style="color: #60a5fa; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-magnifying-glass"></i></div>
+                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">1. Gezielte KÃ¼nstler-Suche</h4>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Finde geprÃ¼fte Solo-Musiker, Duos, Coverbands & DJs passend fÃ¼r dein Event.</p>
                 </div>
-                <div style="background: rgba(255,255,255,0.05); padding: 1.1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                    <div style="color: #38bdf8; font-size: 1.3rem; margin-bottom: 0.4rem;"><i class="fa-solid fa-shield-halved"></i></div>
-                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.25rem; font-size: 0.95rem;">Direkter Kontakt</h4>
-                    <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0; line-height: 1.45;">Kontaktiere KÃ¼nstler ohne ZwischenhÃ¤ndler und verhandele direkt.</p>
+
+                <div style="background: rgba(37, 99, 235, 0.18); border: 1.5px solid rgba(96, 165, 250, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);">
+                    <div style="color: #60a5fa; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-handshake"></i></div>
+                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">2. Direkter Kontakt ohne Vermittler</h4>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Kontaktiere KÃ¼nstler ohne Agenturaufschlag und verhandele direkt.</p>
                 </div>
-                <div style="background: rgba(255,255,255,0.05); padding: 1.1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                    <div style="color: #38bdf8; font-size: 1.3rem; margin-bottom: 0.4rem;"><i class="fa-solid fa-star"></i></div>
-                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.25rem; font-size: 0.95rem;">Top HÃ¶rproben & Videos</h4>
-                    <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0; line-height: 1.45;">Mache dir vor der Buchung ein Bild von der Live-Performance.</p>
+
+                <div style="background: rgba(37, 99, 235, 0.18); border: 1.5px solid rgba(96, 165, 250, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);">
+                    <div style="color: #60a5fa; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-play"></i></div>
+                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">3. Echte HÃ¶rproben & Live-Videos</h4>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Ãœberzeuge dich vor der Buchung von der echten Live-Performance.</p>
                 </div>
+
+                <div style="background: rgba(37, 99, 235, 0.18); border: 1.5px solid rgba(96, 165, 250, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);">
+                    <div style="color: #60a5fa; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-clock"></i></div>
+                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">4. Schnelle RÃ¼ckmeldungen</h4>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Erhalte zÃ¼gige Antworten von verfÃ¼gbaren Musikern fÃ¼r deinen Wunschtermin.</p>
+                </div>
+
+                <div style="background: rgba(37, 99, 235, 0.18); border: 1.5px solid rgba(96, 165, 250, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);">
+                    <div style="color: #60a5fa; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">5. GeprÃ¼fte QualitÃ¤t & ZuverlÃ¤ssigkeit</h4>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Nur verifizierte Profile mit transparenten Angaben.</p>
+                </div>
+
+                <div style="background: rgba(37, 99, 235, 0.18); border: 1.5px solid rgba(96, 165, 250, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);">
+                    <div style="color: #60a5fa; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-chart-line"></i></div>
+                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">6. Volle Kostenkontrolle</h4>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Transparente Honorar-Angaben passend zu deinem Event-Budget.</p>
+                </div>
+
+                <div style="background: rgba(37, 99, 235, 0.18); border: 1.5px solid rgba(96, 165, 250, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);">
+                    <div style="color: #60a5fa; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-file-pen"></i></div>
+                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">7. Einfaches Event-Posting</h4>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">In weniger als 2 Minuten kostenfrei deinen Gig ausschreiben.</p>
+                </div>
+
             </div>
         `;
     }
@@ -2061,7 +2117,7 @@ function renderLandingPage(container, onNavigate) {
                     
                     <!-- Accordion 1: Vorteile fÃ¼r Musiker -->
                     <div style="margin-bottom: 0.9rem;">
-                        <button onclick="const c=document.getElementById('acc-content-musician'); const a=this.querySelector('.acc-arrow'); if(c.style.display==='none'||!c.style.display){c.style.display='block'; a.style.transform='rotate(180deg)';}else{c.style.display='none'; a.style.transform='rotate(0deg)';}" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 1px solid rgba(124, 58, 237, 0.4); background: rgba(124, 58, 237, 0.14); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease;">
+                        <button onclick="const c=document.getElementById('acc-content-musician'); const a=this.querySelector('.acc-arrow'); if(c.style.display==='none'||!c.style.display){c.style.display='block'; a.style.transform='rotate(180deg)';}else{c.style.display='none'; a.style.transform='rotate(0deg)';}" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 2px solid #a855f7; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease;">
                             <span style="display: flex; align-items: center; gap: 0.75rem;">
                                 <i class="fa-solid fa-guitar" style="color: #a855f7; font-size: 1.1rem;"></i> Vorteile fÃ¼r Musiker
                             </span>
@@ -2074,7 +2130,7 @@ function renderLandingPage(container, onNavigate) {
 
                     <!-- Accordion 2: Vorteile fÃ¼r Veranstalter -->
                     <div>
-                        <button onclick="const c=document.getElementById('acc-content-organizer'); const a=this.querySelector('.acc-arrow'); if(c.style.display==='none'||!c.style.display){c.style.display='block'; a.style.transform='rotate(180deg)';}else{c.style.display='none'; a.style.transform='rotate(0deg)';}" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 1px solid rgba(37, 99, 235, 0.4); background: rgba(37, 99, 235, 0.14); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease;">
+                        <button onclick="const c=document.getElementById('acc-content-organizer'); const a=this.querySelector('.acc-arrow'); if(c.style.display==='none'||!c.style.display){c.style.display='block'; a.style.transform='rotate(180deg)';}else{c.style.display='none'; a.style.transform='rotate(0deg)';}" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 2px solid #60a5fa; background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease;">
                             <span style="display: flex; align-items: center; gap: 0.75rem;">
                                 <i class="fa-solid fa-calendar-check" style="color: #38bdf8; font-size: 1.1rem;"></i> Vorteile fÃ¼r Veranstalter
                             </span>
