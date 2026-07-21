@@ -1,4 +1,23 @@
 ﻿
+function startHeroCarousel(container) {
+    if (!container) return;
+    const slides = container.querySelectorAll('.hero-bg-slide');
+    if (!slides || slides.length === 0) return;
+    
+    let currentIdx = 0;
+    if (window._heroCarouselTimer) {
+        clearInterval(window._heroCarouselTimer);
+    }
+    
+    window._heroCarouselTimer = setInterval(() => {
+        slides.forEach((slide, idx) => {
+            slide.style.opacity = (idx === currentIdx) ? '1' : '0';
+        });
+        currentIdx = (currentIdx + 1) % slides.length;
+    }, 5000);
+}
+
+
 // Global Safe UI Toggle Helpers (Avoids inline quote escaping bugs in template literals)
 window.toggleMobileFilters = function() {
     const f = document.getElementById('market-filters-wrapper');
