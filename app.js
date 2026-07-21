@@ -3500,7 +3500,7 @@ function renderMatchesPage(container) {
                             } else {
                                 showToast({
                                     title: res.active ? "Interesse bekundet!" : "Interesse zurückgezogen",
-                                    message: res.active  - Dein Interesse wurde erfolgreich übermittelt." : "Dein Interesse wurde zurückgezogen."
+                                    message: res.active ? "Dein Interesse wurde erfolgreich Ã¼bermittelt." : "Dein Interesse wurde zurÃ¼ckgezogen."
                                 });
                                 updateMatches();
                             }
@@ -4065,7 +4065,7 @@ function renderMyMusicians(container) {
                 const result = state.setApplicationStatus(musId, evtId, newStatus);
                 if (result.success) {
                     showToast({
-                        title: newStatus === 'booked'  - Event gebucht! 🎉" : "Status aktualisiert",
+                        title: newStatus === 'booked' ? "Event gebucht!" : "Status aktualisiert",
                         message: newStatus === 'booked' ? "Du hast den Auftritt als 'Gebucht' markiert." : "Der Status wurde wieder auf 'Kontaktiert' gesetzt."
                     });
                     
@@ -4085,7 +4085,7 @@ function renderMyMusicians(container) {
                 const result = state.setApplicationStatus(musId, evtId, newStatus);
                 if (result.success) {
                     showToast({
-                        title: newStatus === 'declined'  - Absage markiert 🔴" : "Status aktualisiert",
+                        title: newStatus === 'declined' ? "Absage markiert" : "Status aktualisiert",
                         message: newStatus === 'declined' ? "Du hast die Bewerbung als 'Abgesagt' markiert." : "Der Status wurde wieder auf 'Kontaktiert' gesetzt."
                     });
                     
@@ -4142,7 +4142,7 @@ function renderMyMusicians(container) {
             const result = state.toggleMusicianActive(id);
             if (result.success) {
                 showToast({
-                    title: result.isActive  - Profil aktiv! 🟢" : "Profil pausiert! 🟡",
+                    title: result.isActive ? "Profil aktiv!" : "Profil pausiert!",
                     message: result.isActive 
                          - Das Profil ist nun wieder im Markt sichtbar." 
                         : "Das Profil wurde pausiert und aus der Suche entfernt."
