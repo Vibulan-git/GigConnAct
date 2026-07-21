@@ -5680,8 +5680,7 @@ window.navigateGallery = function(btn, direction) {
     });
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Click outside to close profile dropdown
+function initGigConnActApp() {
     document.addEventListener('click', (e) => {
         const menu = document.getElementById('profile-dropdown-menu');
         const trigger = document.getElementById('btn-profile-dropdown');
@@ -5689,6 +5688,26 @@ document.addEventListener('DOMContentLoaded', () => {
             menu.classList.remove('show');
         }
     });
+
+    if (typeof updateNavbar === 'function') updateNavbar();
+    window.addEventListener('hashchange', handleRouting);
+    if (typeof handleRouting === 'function') handleRouting();
+    if (typeof initAllLocationAutocompletes === 'function') initAllLocationAutocompletes();
+
+    const logoLink = document.getElementById('logo-link');
+    if (logoLink) {
+        logoLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigate('');
+        });
+    }
+}
+
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(initGigConnActApp, 1);
+} else {
+    document.addEventListener('DOMContentLoaded', initGigConnActApp);
+}
 
     updateNavbar();
     window.addEventListener('hashchange', handleRouting);
