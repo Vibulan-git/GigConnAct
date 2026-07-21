@@ -6121,10 +6121,10 @@ function renderMarketGridHTML(items, isEvents) {
                     </div>
 
                     <!-- Slide Navigation Arrows -->
-                    <button onclick="const s=document.getElementById('combo-slider-${item.id}'); let cur=parseInt(s.getAttribute('data-idx')||'0'); cur=cur>0?cur-1:5; s.style.transform=\`translateX(-\${cur*100}%)\`; s.setAttribute('data-idx', cur); const lbl=this.nextElementSibling.nextElementSibling; if(cur<3){lbl.innerText=\`ðŸ“· \${cur+1} / 3 Fotos\`;}else{lbl.innerText=\`ðŸŽ¬ Video \${cur-2} / 3\`;}" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                    <button onclick="window.slideComboGallery('${item.id}', -1)" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                         <i class="fa-solid fa-chevron-left" style="font-size: 0.9rem;"></i>
                     </button>
-                    <button onclick="const s=document.getElementById('combo-slider-${item.id}'); let cur=parseInt(s.getAttribute('data-idx')||'0'); cur=(cur+1)%6; s.style.transform=\`translateX(-\${cur*100}%)\`; s.setAttribute('data-idx', cur); const lbl=this.nextElementSibling; if(cur<3){lbl.innerText=\`ðŸ“· \${cur+1} / 3 Fotos\`;}else{lbl.innerText=\`ðŸŽ¬ Video \${cur-2} / 3\`;}" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                    <button onclick="window.slideComboGallery('${item.id}', -1)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                         <i class="fa-solid fa-chevron-right" style="font-size: 0.9rem;"></i>
                     </button>
 
