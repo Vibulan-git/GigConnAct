@@ -6005,14 +6005,14 @@ function renderMarketGridHTML(items, isEvents) {
                         `).join('') : ''}
                     </div>
 
-                    <!-- Bandname oben links auf dem Bild (KEIN ICON ICON HINTERLEGT!) -->
+                    <!-- Bandname oben links auf dem Bild -->
                     <div style="position: absolute; top: 12px; left: 12px; z-index: 5; max-width: 65%;">
                         <span style="display: inline-block; padding: 0.45rem 0.95rem; border-radius: 20px; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); color: #ffffff; font-size: 0.96rem; font-weight: 900; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 12px rgba(0,0,0,0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             ${bandName}
                         </span>
                     </div>
 
-                    <!-- Match-Faktor Badge oben rechts (GRÃ–SSER DARGESTELLT) -->
+                    <!-- Match-Faktor Badge oben rechts -->
                     <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: ${themeColor}; color: #fff; padding: 0.45rem 1rem; border-radius: 14px; font-size: 0.95rem; font-weight: 900; box-shadow: 0 4px 14px rgba(0,0,0,0.4); letter-spacing: 0.5px;">
                         ðŸ”¥ ${item.matchScore || '96'}% Match
                     </div>
@@ -6034,31 +6034,43 @@ function renderMarketGridHTML(items, isEvents) {
                 <!-- Tile Body Content -->
                 <div style="padding: 1.4rem; flex: 1; display: flex; flex-direction: column;">
                     
-                    <!-- 2. Informationen (NUR ICONS + WERTE! BÃœNDIG LINKS, OHNE "Standort:", "Musiker-Typ:" etc.) -->
-                    <div style="display: flex; flex-direction: column; gap: 0.55rem; font-size: 0.9rem; color: var(--text-main); margin-bottom: 1.2rem;">
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 1rem;"></i>
-                            <span>${item.location || 'Deutschlandweit'}</span>
+                    <!-- 2-SPALTIGES INFO-GRID DIREKT UNTER DER GALERIE: Links Icons+Werte | Rechts Genres & Instrumente -->
+                    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.1rem; margin-bottom: 1.2rem; align-items: start;">
+                        
+                        <!-- Linke Spalte: Informationen (Icons + Werte) -->
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main);">
+                            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px; text-align: center; font-size: 0.95rem;"></i>
+                                <span>${item.location || 'Deutschlandweit'}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                <i class="fa-solid ${isEvents ? 'fa-calendar-alt' : 'fa-guitar'}" style="color: ${themeColor}; width: 16px; text-align: center; font-size: 0.95rem;"></i>
+                                <span>${isEvents ? (item.eventType || 'Event') : (item.category || 'Solo / Band')}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center; font-size: 0.95rem;"></i>
+                                <span>${isEvents ? (item.date || 'Termin nach Absprache') : (item.availability || 'Auf Anfrage verfÃ¼gbar')}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center; font-size: 0.95rem;"></i>
+                                <span>${duration}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 16px; text-align: center; font-size: 0.95rem;"></i>
+                                <span>${isEvents ? (item.budget || 'Gage auf Anfrage') : (item.price || 'Honorar auf Anfrage')}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                <i class="fa-solid fa-plug" style="color: ${themeColor}; width: 16px; text-align: center; font-size: 0.95rem;"></i>
+                                <span>${item.equipment || 'Technik vorhanden'}</span>
+                            </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid ${isEvents ? 'fa-calendar-alt' : 'fa-guitar'}" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 1rem;"></i>
-                            <span>${isEvents ? (item.eventType || 'Event') : (item.category || 'Solo / Band')}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 1rem;"></i>
-                            <span>${isEvents ? (item.date || 'Termin nach Absprache') : (item.availability || 'Auf Anfrage verfÃ¼gbar')}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 1rem;"></i>
-                            <span>${duration}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 1rem;"></i>
-                            <span>${isEvents ? (item.budget || 'Gage auf Anfrage') : (item.price || 'Honorar auf Anfrage')}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-plug" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 1rem;"></i>
-                            <span>${item.equipment || 'Technik vorhanden'}</span>
+
+                        <!-- Rechte Spalte: Genres & Instrumente (Direkt rechts neben den Informationen) -->
+                        <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
+                                ${genres.map(g => `<span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.75rem; color: var(--text-main); font-weight: 600;">ðŸ·ï¸ ${g}</span>`).join('')}
+                                ${instruments.map(inst => `<span style="background: rgba(124, 58, 237, 0.12); border: 1px solid rgba(124, 58, 237, 0.25); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.75rem; color: ${themeColor}; font-weight: 700;">ðŸŽ¸ ${inst}</span>`).join('')}
+                            </div>
                         </div>
                     </div>
 
@@ -6068,15 +6080,9 @@ function renderMarketGridHTML(items, isEvents) {
                             ${description}
                         </p>
                     </div>
-
-                    <!-- 4. Genre und Instrumente Tags (ÃœBERSCHRIFT GESCHWUNDEN / ENTFERNT!) -->
-                    <div style="display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 0.5rem;">
-                        ${genres.map(g => `<span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 0.25rem 0.65rem; border-radius: 6px; font-size: 0.76rem; color: var(--text-main); font-weight: 600;">ðŸ·ï¸ ${g}</span>`).join('')}
-                        ${instruments.map(inst => `<span style="background: rgba(124, 58, 237, 0.12); border: 1px solid rgba(124, 58, 237, 0.25); padding: 0.25rem 0.65rem; border-radius: 6px; font-size: 0.76rem; color: ${themeColor}; font-weight: 700;">ðŸŽ¸ ${inst}</span>`).join('')}
-                    </div>
                 </div>
 
-                <!-- 5. Aktions-Button: "Kontaktdaten freischalten" (GRAUE HINTERLEGUNG ENTFERNT!) -->
+                <!-- 4. Aktions-Button: "Kontaktdaten freischalten" -->
                 <div style="padding: 0 1.4rem 1.4rem;">
                     ${isUnlocked ? `
                         <!-- Freigeschaltete Kontaktdaten -->
