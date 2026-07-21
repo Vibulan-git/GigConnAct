@@ -1772,6 +1772,24 @@ try {
     console.error("StateManager initialization error, using fallback:", e);
 }
 
+if (!state) {
+    state = {
+        currentUser: null,
+        musicians: [],
+        events: [],
+        matches: [],
+        messages: [],
+        unlockedContacts: [],
+        getUnreadCount() { return 0; },
+        notify() {},
+        subscribe() {},
+        saveState() {},
+        loadState() {}
+    };
+    if (typeof initialMusicians !== 'undefined') state.musicians = initialMusicians;
+    if (typeof initialEvents !== 'undefined') state.events = initialEvents;
+}
+
 // ==========================================
 // 3. MATCHING LOGIC
 // ==========================================
