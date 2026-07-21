@@ -1,47 +1,4 @@
-﻿
-function startHeroCarousel(container) {
-    if (!container) return;
-    const slides = container.querySelectorAll('.hero-bg-slide');
-    if (!slides || slides.length === 0) return;
-    
-    let currentIdx = 0;
-    if (window._heroCarouselTimer) {
-        clearInterval(window._heroCarouselTimer);
-    }
-    
-    window._heroCarouselTimer = setInterval(() => {
-        slides.forEach((slide, idx) => {
-            slide.style.opacity = (idx === currentIdx) ? '1' : '0';
-        });
-        currentIdx = (currentIdx + 1) % slides.length;
-    }, 5000);
-}
-
-
-// Global Safe UI Toggle Helpers (Avoids inline quote escaping bugs in template literals)
-window.toggleMobileFilters = function() {
-    const f = document.getElementById('market-filters-wrapper');
-    const btn = document.getElementById('btn-toggle-mobile-filters');
-    if (!f || !btn) return;
-    const isHidden = f.style.display === 'none' || !f.style.display;
-    f.style.display = isHidden ? 'block' : 'none';
-    btn.innerHTML = isHidden 
-        ? '<i class="fa-solid fa-xmark"></i> Filter verbergen' 
-        : '<i class="fa-solid fa-sliders"></i> Filter & Suche anzeigen';
-};
-
-window.toggleAccordion = function(contentId, btnEl) {
-    const c = document.getElementById(contentId);
-    if (!c) return;
-    const isHidden = c.style.display === 'none' || !c.style.display;
-    c.style.display = isHidden ? 'block' : 'none';
-    if (btnEl) {
-        const arrow = btnEl.querySelector('.acc-arrow');
-        if (arrow) arrow.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-    }
-};
-
-/* -------------------------------------------------------------
+﻿/* -------------------------------------------------------------
  * GigConnAct - Single Unified Application Script
  * Combines mockData, state management, matching logic, and UI
  * rendering in a single non-module file to bypass CORS restrictions
@@ -2141,17 +2098,8 @@ function renderLandingPage(container, onNavigate) {
         <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem;">
             
             <!-- 1. Compact Hero Photo Section -->
-            <div class="landing-hero" style="position: relative; min-height: 68vh; min-height: 68dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem 1.5rem 2.5rem; text-align: center; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
+            <div class="landing-hero" style="position: relative; min-height: 68vh; min-height: 68dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem 1.5rem 2.5rem; text-align: center; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.4); background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(30, 58, 138, 0.78) 50%, rgba(124, 58, 237, 0.78) 100%), url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;">
                 
-                <!-- 5 Background Slides Container -->
-                <div class="hero-bg-carousel" style="position: absolute; inset: 0; z-index: 1;">
-                    <div class="hero-bg-slide active" style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(30, 58, 138, 0.78) 50%, rgba(124, 58, 237, 0.78) 100%), url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; transition: opacity 1.5s ease-in-out; opacity: 1;"></div>
-                    <div class="hero-bg-slide" style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(30, 58, 138, 0.78) 50%, rgba(124, 58, 237, 0.78) 100%), url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; transition: opacity 1.5s ease-in-out; opacity: 0;"></div>
-                    <div class="hero-bg-slide" style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(30, 58, 138, 0.78) 50%, rgba(124, 58, 237, 0.78) 100%), url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; transition: opacity 1.5s ease-in-out; opacity: 0;"></div>
-                    <div class="hero-bg-slide" style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(30, 58, 138, 0.78) 50%, rgba(124, 58, 237, 0.78) 100%), url('https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; transition: opacity 1.5s ease-in-out; opacity: 0;"></div>
-                    <div class="hero-bg-slide" style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(30, 58, 138, 0.78) 50%, rgba(124, 58, 237, 0.78) 100%), url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; transition: opacity 1.5s ease-in-out; opacity: 0;"></div>
-                </div>
-
                 <!-- Hero Content Overlay -->
                 <div style="position: relative; z-index: 2; max-width: 1050px; margin: 0 auto; width: 100%;">
                     
@@ -2214,7 +2162,7 @@ function renderLandingPage(container, onNavigate) {
                     
                     <!-- Accordion 1: Vorteile fÃ¼r Musiker -->
                     <div style="margin-bottom: 0.9rem;">
-                        <button onclick="window.toggleAccordion('acc-content-musician', this)" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 2px solid #a855f7; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);">
+                        <button onclick="const c=document.getElementById('acc-content-musician'); const a=this.querySelector('.acc-arrow'); if(c){if(c.style.display==='none'||!c.style.display){c.style.display='block'; if(a)a.style.transform='rotate(180deg)';}else{c.style.display='none'; if(a)a.style.transform='rotate(0deg)';}}" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 2px solid #a855f7; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);">
                             <span style="display: flex; align-items: center; gap: 0.75rem;">
                                 <i class="fa-solid fa-guitar" style="color: #ffffff; font-size: 1.1rem;"></i> Vorteile fÃ¼r Musiker
                             </span>
@@ -2227,7 +2175,7 @@ function renderLandingPage(container, onNavigate) {
 
                     <!-- Accordion 2: Vorteile fÃ¼r Veranstalter -->
                     <div>
-                        <button onclick="window.toggleAccordion('acc-content-organizer', this)" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 2px solid #60a5fa; background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);">
+                        <button onclick="const c=document.getElementById('acc-content-organizer'); const a=this.querySelector('.acc-arrow'); if(c){if(c.style.display==='none'||!c.style.display){c.style.display='block'; if(a)a.style.transform='rotate(180deg)';}else{c.style.display='none'; if(a)a.style.transform='rotate(0deg)';}}" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 2px solid #60a5fa; background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);">
                             <span style="display: flex; align-items: center; gap: 0.75rem;">
                                 <i class="fa-solid fa-calendar-check" style="color: #ffffff; font-size: 1.1rem;"></i> Vorteile fÃ¼r Veranstalter
                             </span>
@@ -2242,9 +2190,6 @@ function renderLandingPage(container, onNavigate) {
 
         </div>
     `;
-
-    // Initialize Hero Carousel Interval
-    startHeroCarousel(container);
 
     document.getElementById('btn-hero-musician')?.addEventListener('click', () => {
         onNavigate('events');
@@ -2488,7 +2433,7 @@ function renderMarket(container, type, onNavigate) {
             </div>
 
             <!-- Mobile Filter Toggle Button (Sichtbar auf Smartphones) -->
-            <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" onclick="window.toggleMobileFilters()"></i> Filter verbergen';}else{f.style.display='none'; this.innerHTML='<i class=\"fa-solid fa-sliders\"></i> Filter & Suche anzeigen';}">
+            <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" onclick="const f=document.getElementById('market-filters-wrapper'); if(f.style.display==='none'||!f.style.display){f.style.display='block'; this.innerHTML='<i class=\"fa-solid fa-xmark\"></i> Filter verbergen';}else{f.style.display='none'; this.innerHTML='<i class=\"fa-solid fa-sliders\"></i> Filter & Suche anzeigen';}">
                 <i class="fa-solid fa-sliders"></i> Filter & Suche anzeigen
             </button>
 
@@ -5500,12 +5445,12 @@ function navigate(page) {
         case 'events':
             renderMarket(mainContainer, 'events', navigate);
             setActiveLink('link-events');
-            if (window.location.hash !== '#/events') history.pushState(null, '', '#/events');
+            window.location.hash = '#/events';
             break;
         case 'musicians':
             renderMarket(mainContainer, 'musicians', navigate);
             setActiveLink('link-musicians');
-            if (window.location.hash !== '#/musicians') history.pushState(null, '', '#/musicians');
+            window.location.hash = '#/musicians';
             break;
         case 'matches':
         case 'top-matches':
@@ -5515,7 +5460,7 @@ function navigate(page) {
             } else {
                 renderMatchesPage(mainContainer);
                 setActiveLink('link-matches');
-                if (window.location.hash !== '#/matches') history.pushState(null, '', '#/matches');
+                window.location.hash = '#/matches';
             }
             break;
         case 'dashboard':
@@ -5525,11 +5470,11 @@ function navigate(page) {
             } else if (state.currentUser.role === 'organizer') {
                 renderMyEvents(mainContainer);
                 setActiveLink('link-dashboard');
-                if (window.location.hash !== '#/dashboard') history.pushState(null, '', '#/dashboard');
+                window.location.hash = '#/dashboard';
             } else {
                 renderMyMusicians(mainContainer);
                 setActiveLink('link-dashboard');
-                if (window.location.hash !== '#/dashboard') history.pushState(null, '', '#/dashboard');
+                window.location.hash = '#/dashboard';
             }
             break;
         case 'postbox':
@@ -5539,7 +5484,7 @@ function navigate(page) {
             } else {
                 renderPostbox(mainContainer);
                 setActiveLink('link-postbox');
-                if (window.location.hash !== '#/postbox') history.pushState(null, '', '#/postbox');
+                window.location.hash = '#/postbox';
             }
             break;
         case 'credits':
@@ -5549,15 +5494,12 @@ function navigate(page) {
             } else {
                 renderCreditsPage(mainContainer);
                 setActiveLink('link-credits');
-                if (window.location.hash !== '#/credits') history.pushState(null, '', '#/credits');
+                window.location.hash = '#/credits';
             }
             break;
         default:
             renderLandingPage(mainContainer, navigate);
-            setActiveLink('link-home');
-            if (window.location.hash && window.location.hash !== '#/' && window.location.hash !== '#') {
-                history.replaceState(null, '', '#/');
-            }
+            window.location.hash = '#/';
             break;
     }
 }
@@ -5713,7 +5655,7 @@ window.navigateGallery = function(btn, direction) {
     });
 };
 
-function initApp() {
+document.addEventListener('DOMContentLoaded', () => {
     // Click outside to close profile dropdown
     document.addEventListener('click', (e) => {
         const menu = document.getElementById('profile-dropdown-menu');
@@ -5728,13 +5670,10 @@ function initApp() {
     handleRouting();
     initAllLocationAutocompletes();
 
-    const logoLink = document.getElementById('logo-link');
-    if (logoLink) {
-        logoLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            navigate('');
-        });
-    }
+    document.getElementById('logo-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        navigate('');
+    });
 
     const resetBtn = document.getElementById('btn-reset-demo');
     if (resetBtn) {
@@ -5744,13 +5683,29 @@ function initApp() {
             window.location.reload();
         });
     }
-}
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initApp);
-} else {
-    initApp();
-}
+    document.addEventListener('user-state-changed', () => {
+        updateNavbar();
+        runMatchingMonitor();
+    });
+
+    function runMatchingMonitor() {
+        if (state.currentUser) {
+            checkAndNotifyMatches(state, showToast);
+            if (window.matchIntervalId) clearInterval(window.matchIntervalId);
+            window.matchIntervalId = setInterval(() => {
+                checkAndNotifyMatches(state, showToast);
+            }, 15000);
+        } else {
+            if (window.matchIntervalId) {
+                clearInterval(window.matchIntervalId);
+                window.matchIntervalId = null;
+            }
+        }
+    }
+
+    runMatchingMonitor();
+});
 
 function renderPostbox(container) {
     if (!state.currentUser) return;

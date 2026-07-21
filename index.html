@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Vanilla CSS Stylesheet -->
     <link rel="stylesheet" href="style.css">
-    <!-- Mobile Responsive & Compact Header Rules -->
+    <!-- Mobile Responsive & Compact Fullscreen Hero Background Rules -->
     <style>
         .landing-hero, .hero-section {
             min-height: 68vh !important;
@@ -32,33 +32,6 @@
         }
 
         @media (max-width: 768px) {
-            .app-header {
-                padding: 0.35rem 0.6rem !important;
-                min-height: auto !important;
-            }
-            .header-container {
-                display: flex !important;
-                flex-wrap: nowrap !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-                gap: 0.4rem !important;
-            }
-            .logo-title-nav {
-                font-size: 1.05rem !important;
-            }
-            .logo-underline-connector-nav {
-                display: none !important;
-            }
-            .nav-link {
-                padding: 0.25rem 0.4rem !important;
-                font-size: 0.72rem !important;
-            }
-            .auth-area .btn, .auth-area button, .btn-sm {
-                padding: 0.32rem 0.6rem !important;
-                font-size: 0.72rem !important;
-                border-radius: 6px !important;
-                white-space: nowrap !important;
-            }
             .landing-hero {
                 min-height: 60vh !important;
                 min-height: 60dvh !important;
@@ -183,6 +156,20 @@
                 grid-template-columns: 1fr !important;
                 gap: 1.2rem !important;
             }
+            .navbar {
+                padding: 0.6rem 0.8rem !important;
+            }
+            .navbar .container {
+                flex-wrap: wrap !important;
+                gap: 0.5rem !important;
+            }
+            .logo {
+                font-size: 1.2rem !important;
+            }
+            .nav-link {
+                padding: 0.35rem 0.5rem !important;
+                font-size: 0.78rem !important;
+            }
         }
 
         .market-filter-mobile-toggle {
@@ -253,6 +240,6 @@
     </div>
 
     <!-- Main JavaScript Entry Point -->
-    <script src="app_v61.js"></script>
+    <script src="app.js?v=100"></script>
 </body>
 </html>
