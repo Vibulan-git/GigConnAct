@@ -2014,7 +2014,7 @@ function renderLandingPage(container, onNavigate) {
         <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem;">
             
             <!-- Full Screen 100vh Hero Section with 5 Auto-Switching Background Video/Photo Slides -->
-            <div class="landing-hero" style="position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem 1.5rem 4rem; text-align: center; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
+            <div class="landing-hero" style="position: relative; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem 1.5rem 4rem; text-align: center; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
                 
                 <!-- 5 Background Slides Container (Hochzeit, Geburtstag, Firmenfeier, Kirmes, Gartenparty) -->
                 <div class="hero-bg-carousel" style="position: absolute; inset: 0; z-index: 1;">

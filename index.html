@@ -12,10 +12,31 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Vanilla CSS Stylesheet -->
     <link rel="stylesheet" href="style.css">
-    <!-- Mobile Responsive Styling Rules -->
+    <!-- Mobile Responsive & Fullscreen Hero Background Rules -->
     <style>
+        .landing-hero, .hero-section {
+            min-height: 100vh !important;
+            min-height: 100dvh !important;
+            width: 100% !important;
+            position: relative !important;
+            background-size: cover !important;
+            background-position: center center !important;
+        }
+        .hero-bg-carousel, .hero-bg-slide {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background-size: cover !important;
+            background-position: center center !important;
+        }
+
         @media (max-width: 768px) {
-            /* Benefits Section Scaling */
+            .landing-hero {
+                min-height: 100vh !important;
+                min-height: 100dvh !important;
+                padding: 3rem 0.9rem 3rem !important;
+            }
             .hero-benefits-box {
                 padding: 1.2rem 0.9rem !important;
                 border-radius: 14px !important;
@@ -88,10 +109,6 @@
                 padding: 0.7rem !important;
                 font-size: 0.82rem !important;
                 border-radius: 8px !important;
-            }
-            .landing-hero {
-                padding: 2.2rem 0.8rem 2.5rem !important;
-                min-height: auto !important;
             }
             .landing-hero h1 {
                 white-space: normal !important;
@@ -223,6 +240,6 @@
     </div>
 
     <!-- Main JavaScript Entry Point -->
-    <script src="app.js?v=27"></script>
+    <script src="app.js?v=28"></script>
 </body>
 </html>
