@@ -2013,7 +2013,7 @@ function renderLandingPage(container, onNavigate) {
     container.innerHTML = `
         <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem;">
             
-            <!-- Full Screen 100vh Hero Section with 5 Auto-Switching Background Video/Photo Slides -->
+            <!-- 1. Full Screen 100vh Hero Photo Section -->
             <div class="landing-hero" style="position: relative; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem 1.5rem 4rem; text-align: center; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
                 
                 <!-- 5 Background Slides Container -->
@@ -2025,8 +2025,8 @@ function renderLandingPage(container, onNavigate) {
                     <div class="hero-bg-slide" style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(30, 58, 138, 0.78) 50%, rgba(124, 58, 237, 0.78) 100%), url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; transition: opacity 1.5s ease-in-out; opacity: 0;"></div>
                 </div>
 
-                <!-- Hero Content Overlay (Z-index 2) -->
-                <div style="position: relative; z-index: 2; max-width: 1050px; margin: auto auto 0; padding-top: 2rem; width: 100%;">
+                <!-- Hero Content Overlay -->
+                <div style="position: relative; z-index: 2; max-width: 1050px; margin: auto; padding-top: 2rem; width: 100%;">
                     
                     <!-- Center GigConnAct Logo -->
                     <div class="brand-logo-center" style="display: block; width: 100%; max-width: 900px; margin: 0 auto 1rem; font-family: var(--font-heading); font-size: clamp(3rem, 7vw, 5.2rem); font-weight: 900; letter-spacing: 0px; background: linear-gradient(135deg, #60a5fa 0%, #ffffff 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.7)); text-align: center;">
@@ -2038,13 +2038,13 @@ function renderLandingPage(container, onNavigate) {
                         Wir vermitteln Live-Musik.
                     </h1>
 
-                    <!-- Updated Subheadline -->
+                    <!-- Subheadline -->
                     <p style="font-size: clamp(1.05rem, 2vw, 1.25rem); color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.6; max-width: 880px; margin: 0 auto 2.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.7);">
                         Ob Hochzeit, Geburtstag, Firmenfeier oder jedes andere Event â€“<br>GigConnAct bringt Musiker und Veranstalter zusammen.
                     </p>
 
                     <!-- Extra Large CTA Buttons: Musiker = LILA, Veranstalter = BLAU -->
-                    <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2.5rem;">
+                    <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
                         <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.25rem 2.8rem; font-weight: 800; font-size: 1.25rem; border-radius: 14px; box-shadow: 0 12px 35px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
                             <i class="fa-solid fa-guitar"></i> Ich bin Musiker<br>und suche Gigs
                         </button>
@@ -2052,41 +2052,43 @@ function renderLandingPage(container, onNavigate) {
                             <i class="fa-solid fa-calendar-check"></i> Ich bin Veranstalter<br>und suche Acts
                         </button>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Interactive Collapsible Benefits Accordions (Aufklappbar per Klick!) -->
-                    <div class="hero-benefits-box" style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 1.6rem 2rem; backdrop-filter: blur(16px); max-width: 950px; margin: 0 auto; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);">
-                        
-                        <!-- Accordion 1: Vorteile fÃ¼r Musiker & Bands -->
-                        <div style="margin-bottom: 0.9rem;">
-                            <button id="accordion-btn-musician" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 1px solid rgba(124, 58, 237, 0.4); background: rgba(124, 58, 237, 0.14); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease;">
-                                <span style="display: flex; align-items: center; gap: 0.75rem;">
-                                    <i class="fa-solid fa-guitar" style="color: #a855f7; font-size: 1.1rem;"></i> Vorteile fÃ¼r Musiker & Bands
-                                </span>
-                                <i class="fa-solid fa-chevron-down acc-arrow" style="transition: transform 0.3s ease; color: #a855f7; font-size: 1rem;"></i>
-                            </button>
-                            <div id="accordion-content-musician" style="display: none;">
-                                ${renderHeroTabContent(true)}
-                            </div>
+            <!-- 2. Interactive Benefits Accordion Container (UNTERHALB DES FOTOS) -->
+            <div style="max-width: 1050px; margin: 3rem auto 0; padding: 0 1.5rem;">
+                <div class="hero-benefits-box" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 20px; padding: 1.6rem 2rem; box-shadow: var(--shadow-sm);">
+                    
+                    <!-- Accordion 1: Vorteile fÃ¼r Musiker -->
+                    <div style="margin-bottom: 0.9rem;">
+                        <button onclick="const c=document.getElementById('acc-content-musician'); const a=this.querySelector('.acc-arrow'); if(c.style.display==='none'||!c.style.display){c.style.display='block'; a.style.transform='rotate(180deg)';}else{c.style.display='none'; a.style.transform='rotate(0deg)';}" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 1px solid rgba(124, 58, 237, 0.4); background: rgba(124, 58, 237, 0.14); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease;">
+                            <span style="display: flex; align-items: center; gap: 0.75rem;">
+                                <i class="fa-solid fa-guitar" style="color: #a855f7; font-size: 1.1rem;"></i> Vorteile fÃ¼r Musiker
+                            </span>
+                            <i class="fa-solid fa-chevron-down acc-arrow" style="transition: transform 0.3s ease; color: #a855f7; font-size: 1rem;"></i>
+                        </button>
+                        <div id="acc-content-musician" style="display: none;">
+                            ${renderHeroTabContent(true)}
                         </div>
+                    </div>
 
-                        <!-- Accordion 2: Vorteile fÃ¼r Veranstalter -->
-                        <div>
-                            <button id="accordion-btn-organizer" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 1px solid rgba(37, 99, 235, 0.4); background: rgba(37, 99, 235, 0.14); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease;">
-                                <span style="display: flex; align-items: center; gap: 0.75rem;">
-                                    <i class="fa-solid fa-calendar-check" style="color: #38bdf8; font-size: 1.1rem;"></i> Vorteile fÃ¼r Veranstalter
-                                </span>
-                                <i class="fa-solid fa-chevron-down acc-arrow" style="transition: transform 0.3s ease; color: #38bdf8; font-size: 1rem;"></i>
-                            </button>
-                            <div id="accordion-content-organizer" style="display: none;">
-                                ${renderHeroTabContent(false)}
-                            </div>
+                    <!-- Accordion 2: Vorteile fÃ¼r Veranstalter -->
+                    <div>
+                        <button onclick="const c=document.getElementById('acc-content-organizer'); const a=this.querySelector('.acc-arrow'); if(c.style.display==='none'||!c.style.display){c.style.display='block'; a.style.transform='rotate(180deg)';}else{c.style.display='none'; a.style.transform='rotate(0deg)';}" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 1px solid rgba(37, 99, 235, 0.4); background: rgba(37, 99, 235, 0.14); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease;">
+                            <span style="display: flex; align-items: center; gap: 0.75rem;">
+                                <i class="fa-solid fa-calendar-check" style="color: #38bdf8; font-size: 1.1rem;"></i> Vorteile fÃ¼r Veranstalter
+                            </span>
+                            <i class="fa-solid fa-chevron-down acc-arrow" style="transition: transform 0.3s ease; color: #38bdf8; font-size: 1rem;"></i>
+                        </button>
+                        <div id="acc-content-organizer" style="display: none;">
+                            ${renderHeroTabContent(false)}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Preview Tiles Section -->
-            <div style="max-width: 1400px; margin: 0 auto; padding: 4rem 1.5rem 0;">
+            <!-- 3. Preview Tiles Section -->
+            <div style="max-width: 1400px; margin: 0 auto; padding: 3rem 1.5rem 0;">
                 <div style="text-align: center; margin-bottom: 2.5rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.5vw, 2.4rem); font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">
                         Top Empfehlungen & Live-Anfragen
@@ -2102,31 +2104,6 @@ function renderLandingPage(container, onNavigate) {
 
     // Initialize Hero Carousel Interval
     startHeroCarousel(container);
-
-    // Accordions Toggle Event Listeners
-    const accBtnMusician = container.querySelector('#accordion-btn-musician');
-    const accContentMusician = container.querySelector('#accordion-content-musician');
-
-    const accBtnOrganizer = container.querySelector('#accordion-btn-organizer');
-    const accContentOrganizer = container.querySelector('#accordion-content-organizer');
-
-    if (accBtnMusician && accContentMusician) {
-        accBtnMusician.addEventListener('click', () => {
-            const isHidden = accContentMusician.style.display === 'none' || !accContentMusician.style.display;
-            accContentMusician.style.display = isHidden ? 'block' : 'none';
-            const arrow = accBtnMusician.querySelector('.acc-arrow');
-            if (arrow) arrow.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-        });
-    }
-
-    if (accBtnOrganizer && accContentOrganizer) {
-        accBtnOrganizer.addEventListener('click', () => {
-            const isHidden = accContentOrganizer.style.display === 'none' || !accContentOrganizer.style.display;
-            accContentOrganizer.style.display = isHidden ? 'block' : 'none';
-            const arrow = accBtnOrganizer.querySelector('.acc-arrow');
-            if (arrow) arrow.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-        });
-    }
 
     document.getElementById('btn-hero-musician')?.addEventListener('click', () => {
         onNavigate('events');
