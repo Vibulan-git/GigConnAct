@@ -5926,20 +5926,20 @@ function renderMarketGridHTML(items, isEvents) {
         const isNew = item.isNew || item.createdRecently;
         const isUnlocked = state.unlockedContacts && state.unlockedContacts.includes(item.id);
         
-        // 1. Max. 5 Fotos Galerie (Mosaic Grid Layout ganz oben in der Kachel - NICHT GESCHÃœTZT)
+        // 1. Max. 5 Fotos Galerie (Kachel in voller Breite 100% ausfÃ¼llend)
         const photos = item.photos || [
-            item.image || (isEvents ? 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80' : 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80'),
-            'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80',
-            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80',
-            'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80',
-            'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=600&q=80'
+            item.image || (isEvents ? 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80' : 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80'),
+            'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=800&q=80'
         ];
 
         // Max 3 Audios
         const audios = item.audios || [
-            'HÃ¶rprobe 1: Pop & Chart Medley',
-            'HÃ¶rprobe 2: Acoustic Ballad Live',
-            'HÃ¶rprobe 3: Party & Dance Mix'
+            'HÃ¶rprobe 1: Live Performance Track',
+            'HÃ¶rprobe 2: Unplugged Session',
+            'HÃ¶rprobe 3: Cover Version'
         ];
 
         // Max 3 Videos
@@ -5959,76 +5959,85 @@ function renderMarketGridHTML(items, isEvents) {
         return `
             <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
                 
-                <!-- 1. Max. 5 Fotos Galerie (Grid Mosaic Layout ganz oben in der Kachel - NICHT GESCHÃœTZT) -->
-                <div class="tile-photo-gallery-grid" style="position: relative; width: 100%; padding: 8px; background: rgba(0,0,0,0.25);">
-                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 4px; height: 165px;">
-                        <div style="grid-row: span 2; border-radius: 8px; overflow: hidden; position: relative;">
-                            <img src="${photos[0]}" style="width: 100%; height: 100%; object-fit: cover;">
-                            <span style="position: absolute; bottom: 6px; left: 6px; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.68rem; font-weight: 800; padding: 0.15rem 0.4rem; border-radius: 4px; backdrop-filter: blur(2px);">
-                                ðŸ“· 1 / 5 Fotos
-                            </span>
-                        </div>
-                        <div style="border-radius: 6px; overflow: hidden;"><img src="${photos[1]}" style="width: 100%; height: 100%; object-fit: cover;"></div>
-                        <div style="border-radius: 6px; overflow: hidden;"><img src="${photos[2]}" style="width: 100%; height: 100%; object-fit: cover;"></div>
-                        <div style="border-radius: 6px; overflow: hidden;"><img src="${photos[3]}" style="width: 100%; height: 100%; object-fit: cover;"></div>
-                        <div style="border-radius: 6px; overflow: hidden;"><img src="${photos[4]}" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                <!-- 1. Max. 5 Fotos Galerie (FÃœLLT DIE KACHEL IN DER BREITE 100% AUS - NICHT GESCHÃœTZT) -->
+                <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 230px; background: #0f172a; overflow: hidden;">
+                    <div id="full-slider-${item.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
+                        ${photos.slice(0, 5).map(img => `<img src="${img}" style="width: 100%; height: 100%; object-fit: cover; flex-shrink: 0;">`).join('')}
                     </div>
 
+                    <!-- Slide Navigation Arrows -->
+                    <button onclick="const s=document.getElementById('full-slider-${item.id}'); let cur=parseInt(s.getAttribute('data-idx')||'0'); cur=cur>0?cur-1:4; s.style.transform=\`translateX(-\${cur*100}%)\`; s.setAttribute('data-idx', cur); this.nextElementSibling.nextElementSibling.innerText=\`ðŸ“· \${cur+1} / 5 Fotos\`;" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.65); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                        <i class="fa-solid fa-chevron-left" style="font-size: 0.85rem;"></i>
+                    </button>
+                    <button onclick="const s=document.getElementById('full-slider-${item.id}'); let cur=parseInt(s.getAttribute('data-idx')||'0'); cur=(cur+1)%5; s.style.transform=\`translateX(-\${cur*100}%)\`; s.setAttribute('data-idx', cur); this.nextElementSibling.innerText=\`ðŸ“· \${cur+1} / 5 Fotos\`;" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.65); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                        <i class="fa-solid fa-chevron-right" style="font-size: 0.85rem;"></i>
+                    </button>
+
+                    <!-- Photo Counter Indicator -->
+                    <span style="position: absolute; bottom: 10px; left: 12px; background: rgba(0,0,0,0.75); color: #ffffff; font-size: 0.72rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 6px; backdrop-filter: blur(4px); z-index: 5;">
+                        ðŸ“· 1 / 5 Fotos
+                    </span>
+
                     <!-- Top Left Badge -->
-                    <div style="position: absolute; top: 14px; left: 14px; z-index: 5;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.75rem; border-radius: 20px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); color: #ffffff; font-size: 0.75rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.2);">
+                    <div style="position: absolute; top: 12px; left: 12px; z-index: 5;">
+                        <span style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.8rem; border-radius: 20px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); color: #ffffff; font-size: 0.76rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.2);">
                             <i class="fa-solid ${isEvents ? 'fa-calendar-day' : 'fa-guitar'}" style="color: ${themeColor};"></i> ${isEvents ? (item.eventType || 'Event') : (item.category || 'Musiker')}
                         </span>
                     </div>
 
                     <!-- Match-Faktor Badge -->
-                    <div style="position: absolute; top: 14px; right: 14px; z-index: 5; background: ${themeColor}; color: #fff; padding: 0.25rem 0.65rem; border-radius: 12px; font-size: 0.75rem; font-weight: 900;">
+                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: ${themeColor}; color: #fff; padding: 0.3rem 0.75rem; border-radius: 12px; font-size: 0.78rem; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
                         ${item.matchScore || '96'}% Match
                     </div>
                 </div>
 
                 <!-- Tile Body Content -->
-                <div style="padding: 1.3rem; flex: 1; display: flex; flex-direction: column;">
+                <div style="padding: 1.4rem; flex: 1; display: flex; flex-direction: column;">
                     
                     <!-- 2. Bandname / Event-Titel -->
-                    <h3 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 900; color: var(--text-main); margin-bottom: 0.6rem; line-height: 1.3;">
+                    <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 900; color: var(--text-main); margin-bottom: 0.8rem; line-height: 1.3;">
                         ${isEvents ? item.title : item.name}
                     </h3>
 
-                    <!-- 3. Beschreibung -->
-                    <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.1rem;">
-                        ${description}
-                    </p>
-
-                    <!-- 4. Informationen: Standort, Musiker-Typ / Event-Art, VerfÃ¼gbarkeit / Datum, Spieldauer, Gage, Technik -->
-                    <div style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.86rem; color: var(--text-muted); margin-bottom: 1.1rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 0.9rem; border-radius: 10px;">
+                    <!-- 3. Informationen (Standort, Musiker-Typ, VerfÃ¼gbarkeit, Spieldauer, Gage, Technik - DIREKT UNTER DEM BANDNAMEN) -->
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 1rem; border-radius: 12px;">
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px;"></i>
+                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px;"></i>
                             <span>Standort: <strong>${item.location || 'Deutschlandweit'}</strong></span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid ${isEvents ? 'fa-calendar-alt' : 'fa-guitar'}" style="color: ${themeColor}; width: 16px;"></i>
+                            <i class="fa-solid ${isEvents ? 'fa-calendar-alt' : 'fa-guitar'}" style="color: ${themeColor}; width: 18px;"></i>
                             <span>${isEvents ? 'Event-Art:' : 'Musiker-Typ:'} <strong>${isEvents ? (item.eventType || 'Event') : (item.category || 'Solo / Band')}</strong></span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px;"></i>
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px;"></i>
                             <span>${isEvents ? 'Datum:' : 'VerfÃ¼gbarkeit:'} <strong>${isEvents ? (item.date || 'Termin nach Absprache') : (item.availability || 'Auf Anfrage verfÃ¼gbar')}</strong></span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px;"></i>
+                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 18px;"></i>
                             <span>Spieldauer: <strong>${duration}</strong></span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 16px;"></i>
+                            <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 18px;"></i>
                             <span>${isEvents ? (`Gage: <strong>${item.budget || 'VB'}</strong>`) : (`Honorar / Gage: <strong>${item.price || 'VB'}</strong>`)}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-plug" style="color: ${themeColor}; width: 16px;"></i>
+                            <i class="fa-solid fa-plug" style="color: ${themeColor}; width: 18px;"></i>
                             <span>Technik: <strong>${item.equipment || 'Vorhanden / Auf Anfrage'}</strong></span>
                         </div>
                     </div>
 
-                    <!-- 5. Genre und Instrumente direkt darunter (NICHT GESCHÃœTZT) -->
+                    <!-- 4. Beschreibung (ERST ERST UNTER DEN INFORMATIONEN) -->
+                    <div style="margin-bottom: 1.2rem;">
+                        <div style="font-size: 0.78rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase;">
+                            Ãœber den Musiker / Beschreibung
+                        </div>
+                        <p style="font-size: 0.88rem; color: var(--text-main); line-height: 1.55; margin: 0;">
+                            ${description}
+                        </p>
+                    </div>
+
+                    <!-- 5. Genre und Instrumente (DIREKT DARUNTER - NICHT GESCHÃœTZT) -->
                     <div style="margin-bottom: 1.2rem;">
                         <div style="font-size: 0.78rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase;">
                             Genres & Instrumente
@@ -6040,34 +6049,37 @@ function renderMarketGridHTML(items, isEvents) {
                     </div>
 
                     ${!isEvents ? `
-                        <!-- 6. Darunter Videos als Galerie (Max. 3 Videos - Musiker-Markt NICHT GESCHÃœTZT) -->
-                        <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 0.85rem; margin-bottom: 1.1rem;">
-                            <div style="font-size: 0.8rem; font-weight: 800; color: #ef4444; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <!-- 6. Videos Galerie (Max. 3 Videos - Musiker-Markt NICHT GESCHÃœTZT) -->
+                        <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 0.9rem; margin-bottom: 1.1rem;">
+                            <div style="font-size: 0.8rem; font-weight: 800; color: #ef4444; margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
                                 <i class="fa-solid fa-film"></i> Videos Galerie (Max. 3 Videos)
                             </div>
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;">
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
                                 ${videos.map((vid, idx) => `
-                                    <div onclick="alert('Abspielen von Video #${idx+1}')" style="position: relative; height: 65px; border-radius: 6px; overflow: hidden; background: url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=300&q=80') center/cover; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.15);">
-                                        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.4);"></div>
-                                        <div style="position: relative; z-index: 2; width: 24px; height: 24px; border-radius: 50%; background: #ef4444; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.65rem;">
+                                    <div onclick="alert('Abspielen von: ${vid}')" style="position: relative; height: 75px; border-radius: 8px; overflow: hidden; background: url('${photos[(idx+1)%photos.length]}') center/cover; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                                        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5);"></div>
+                                        <div style="position: relative; z-index: 2; width: 26px; height: 26px; border-radius: 50%; background: #ef4444; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-bottom: 4px;">
                                             <i class="fa-solid fa-play" style="margin-left: 1px;"></i>
                                         </div>
+                                        <span style="position: relative; z-index: 2; font-size: 0.62rem; font-weight: 700; color: #fff; text-align: center; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%;">
+                                            ${vid}
+                                        </span>
                                     </div>
                                 `).join('')}
                             </div>
                         </div>
 
-                        <!-- 7. Darunter Audios (Max. 3 Audios - Musiker-Markt NICHT GESCHÃœTZT) -->
-                        <div style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px; padding: 0.85rem; margin-bottom: 1.1rem;">
-                            <div style="font-size: 0.8rem; font-weight: 800; color: #a855f7; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <!-- 7. Audio-HÃ¶rproben (Max. 3 Audios - Musiker-Markt NICHT GESCHÃœTZT) -->
+                        <div style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px; padding: 0.9rem; margin-bottom: 1.1rem;">
+                            <div style="font-size: 0.8rem; font-weight: 800; color: #a855f7; margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
                                 <i class="fa-solid fa-music"></i> Audio-HÃ¶rproben (Max. 3 Audios)
                             </div>
-                            <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                            <div style="display: flex; flex-direction: column; gap: 0.45rem;">
                                 ${audios.map((aud, idx) => `
-                                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.35); padding: 0.4rem 0.7rem; border-radius: 6px; font-size: 0.76rem; color: #fff;">
-                                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">ðŸŽµ ${aud}</span>
-                                        <button onclick="const icon=this.querySelector('i'); if(icon.classList.contains('fa-play')){icon.classList.remove('fa-play');icon.classList.add('fa-pause');}else{icon.classList.remove('fa-pause');icon.classList.add('fa-play');}" style="background: #7c3aed; border: none; color: #fff; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.7rem; font-weight: 700; cursor: pointer; flex-shrink: 0;">
-                                            <i class="fa-solid fa-play"></i>
+                                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.35); padding: 0.45rem 0.75rem; border-radius: 8px; font-size: 0.78rem; color: #fff; border: 1px solid rgba(255,255,255,0.08);">
+                                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 210px; font-weight: 600;">ðŸŽµ ${aud}</span>
+                                        <button onclick="const icon=this.querySelector('i'); if(icon.classList.contains('fa-play')){icon.classList.remove('fa-play');icon.classList.add('fa-pause');}else{icon.classList.remove('fa-pause');icon.classList.add('fa-play');}" style="background: #7c3aed; border: none; color: #fff; border-radius: 6px; padding: 0.25rem 0.6rem; font-size: 0.72rem; font-weight: 800; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; gap: 0.3rem;">
+                                            <i class="fa-solid fa-play"></i> Abspielen
                                         </button>
                                     </div>
                                 `).join('')}
@@ -6076,42 +6088,46 @@ function renderMarketGridHTML(items, isEvents) {
                     ` : ''}
                 </div>
 
-                <!-- Tile Footer: PersÃ¶nliche Infos & Social Media Links & Nachrichten-Button (GESCHÃœTZT) -->
-                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding: 1.1rem; background: rgba(0,0,0,0.25);">
+                <!-- Tile Footer: Social Media KanÃ¤le (FREIGESCHALTET / Ã–FFENTLICH) + PersÃ¶nliche Kontaktdaten (GESCHÃœTZT) -->
+                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding: 1.2rem; background: rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: 0.9rem;">
+                    
+                    <!-- 1. Social Media KanÃ¤le (Ã–FFENTLICH / FREIGESCHALTET Klickbar) -->
+                    ${!isEvents ? `
+                        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 0.75rem 0.9rem; display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 0.78rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">
+                                Social Media:
+                            </span>
+                            <div style="display: flex; gap: 0.9rem; font-size: 1.2rem;">
+                                <a href="${item.socialLinks?.spotify || '#'}" target="_blank" style="color: #1db954; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Spotify Profil"><i class="fa-brands fa-spotify"></i></a>
+                                <a href="${item.socialLinks?.youtube || '#'}" target="_blank" style="color: #ff0000; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="YouTube Kanal"><i class="fa-brands fa-youtube"></i></a>
+                                <a href="${item.socialLinks?.instagram || '#'}" target="_blank" style="color: #e1306c; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Instagram Profil"><i class="fa-brands fa-instagram"></i></a>
+                                <a href="${item.socialLinks?.website || '#'}" target="_blank" style="color: #60a5fa; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Offizielle Website"><i class="fa-solid fa-globe"></i></a>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- 2. PersÃ¶nliche Kontaktdaten (GESCHÃœTZT) -->
                     ${isUnlocked ? `
-                        <!-- Freigeschaltete PersÃ¶nliche Infos & Social Links -->
-                        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 0.85rem; font-size: 0.85rem; color: #4ade80; margin-bottom: 0.8rem;">
+                        <!-- Freigeschaltete Kontaktdaten -->
+                        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 0.85rem; font-size: 0.85rem; color: #4ade80;">
                             <div style="font-weight: 800; margin-bottom: 0.3rem;"><i class="fa-solid fa-unlock"></i> PersÃ¶nliche Kontaktdaten</div>
                             <div>Tel: ${item.phone || '+49 170 1234567'}</div>
                             <div>Mail: ${item.email || 'kontakt@gigconnact.de'}</div>
-                            ${!isEvents ? `
-                                <div style="margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 0.8rem; font-size: 1.1rem; color: #fff;">
-                                    <a href="#" style="color: #1db954;" title="Spotify"><i class="fa-brands fa-spotify"></i></a>
-                                    <a href="#" style="color: #ff0000;" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
-                                    <a href="#" style="color: #e1306c;" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                                    <a href="#" style="color: #60a5fa;" title="Website"><i class="fa-solid fa-globe"></i></a>
-                                </div>
-                            ` : ''}
                         </div>
                         <button class="btn btn-primary" onclick="if(!state.currentUser){showModal('auth');}else{showToast({title:'Nachricht senden', message:'Postfach Chat gestartet.'});}" style="width: 100%; background: ${themeColor}; border-color: ${themeColor}; font-weight: 800; padding: 0.85rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
                             <i class="fa-solid fa-paper-plane"></i> Nachricht senden
                         </button>
                     ` : `
-                        <!-- GeschÃ¼tzte PersÃ¶nliche Infos & Social Links -->
-                        <div style="position: relative; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.85rem; margin-bottom: 0.8rem;">
+                        <!-- GeschÃ¼tzte Kontaktdaten -->
+                        <div style="position: relative; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.85rem;">
                             <div style="filter: blur(4px); user-select: none; opacity: 0.6;">
                                 <div style="font-weight: 700;">Max Mustermann</div>
                                 <div>Tel: +49 170 1234567</div>
                                 <div>Mail: kontakt@gigconnact.de</div>
-                                ${!isEvents ? `
-                                    <div style="display: flex; gap: 0.6rem; margin-top: 0.3rem;">
-                                        <i class="fa-brands fa-spotify"></i> <i class="fa-brands fa-youtube"></i> <i class="fa-brands fa-instagram"></i>
-                                    </div>
-                                ` : ''}
                             </div>
                             <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(15,23,42,0.65); border-radius: 10px; backdrop-filter: blur(2px);">
                                 <span style="font-size: 0.78rem; font-weight: 800; color: #ffffff;">
-                                    <i class="fa-solid fa-lock" style="color: ${themeColor};"></i> PersÃ¶nliche Infos & Social Links geschÃ¼tzt
+                                    <i class="fa-solid fa-lock" style="color: ${themeColor};"></i> Telefon & E-Mail-Adresse geschÃ¼tzt
                                 </span>
                             </div>
                         </div>
