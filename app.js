@@ -5968,8 +5968,8 @@ function renderMarketGridHTML(items, isEvents) {
             { title: 'Unplugged Live Session', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' }
         ];
 
-        const genres = item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic']);
-        const instruments = item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre']);
+        const genresList = (item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic'])).join(', ');
+        const instrumentsList = (item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre'])).join(', ');
         const duration = item.duration || item.spieldauer || 'ca. 2 - 4 Stunden';
         const description = item.description || item.bio || (isEvents 
             ? 'Wir suchen eine professionelle musikalische Begleitung fÃ¼r unser anstehendes Event mit fantastischer Stimmung.' 
@@ -6034,43 +6034,44 @@ function renderMarketGridHTML(items, isEvents) {
                 <!-- Tile Body Content -->
                 <div style="padding: 1.4rem; flex: 1; display: flex; flex-direction: column;">
                     
-                    <!-- 2-SPALTIGES INFO-GRID DIREKT UNTER DER GALERIE: Links Icons+Werte | Rechts Genres & Instrumente -->
-                    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.1rem; margin-bottom: 1.2rem; align-items: start;">
+                    <!-- 2. Einspaltige Informationen mit Icons (Genres & Instrumente direkt unter Musiker-Typ) -->
+                    <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.9rem; color: var(--text-main); margin-bottom: 1.2rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 1rem;"></i>
+                            <span>${item.location || 'Deutschlandweit'}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid ${isEvents ? 'fa-calendar-alt' : 'fa-guitar'}" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 1rem;"></i>
+                            <span>${isEvents ? (item.eventType || 'Event') : (item.category || 'Solo / Band')}</span>
+                        </div>
                         
-                        <!-- Linke Spalte: Informationen (Icons + Werte) -->
-                        <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main);">
-                            <div style="display: flex; align-items: center; gap: 0.65rem;">
-                                <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px; text-align: center; font-size: 0.95rem;"></i>
-                                <span>${item.location || 'Deutschlandweit'}</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 0.65rem;">
-                                <i class="fa-solid ${isEvents ? 'fa-calendar-alt' : 'fa-guitar'}" style="color: ${themeColor}; width: 16px; text-align: center; font-size: 0.95rem;"></i>
-                                <span>${isEvents ? (item.eventType || 'Event') : (item.category || 'Solo / Band')}</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 0.65rem;">
-                                <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center; font-size: 0.95rem;"></i>
-                                <span>${isEvents ? (item.date || 'Termin nach Absprache') : (item.availability || 'Auf Anfrage verfÃ¼gbar')}</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 0.65rem;">
-                                <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center; font-size: 0.95rem;"></i>
-                                <span>${duration}</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 0.65rem;">
-                                <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 16px; text-align: center; font-size: 0.95rem;"></i>
-                                <span>${isEvents ? (item.budget || 'Gage auf Anfrage') : (item.price || 'Honorar auf Anfrage')}</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 0.65rem;">
-                                <i class="fa-solid fa-plug" style="color: ${themeColor}; width: 16px; text-align: center; font-size: 0.95rem;"></i>
-                                <span>${item.equipment || 'Technik vorhanden'}</span>
-                            </div>
+                        <!-- Genres DIREKT UNTER MUSIKER-TYP -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-music" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 1rem;"></i>
+                            <span>${genresList}</span>
                         </div>
 
-                        <!-- Rechte Spalte: Genres & Instrumente (Direkt rechts neben den Informationen) -->
-                        <div style="display: flex; flex-direction: column; gap: 0.4rem;">
-                            <div style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
-                                ${genres.map(g => `<span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.75rem; color: var(--text-main); font-weight: 600;">ðŸ·ï¸ ${g}</span>`).join('')}
-                                ${instruments.map(inst => `<span style="background: rgba(124, 58, 237, 0.12); border: 1px solid rgba(124, 58, 237, 0.25); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.75rem; color: ${themeColor}; font-weight: 700;">ðŸŽ¸ ${inst}</span>`).join('')}
-                            </div>
+                        <!-- Instrumente DIREKT UNTER GENRES -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 1rem;"></i>
+                            <span>${instrumentsList}</span>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 1rem;"></i>
+                            <span>${isEvents ? (item.date || 'Termin nach Absprache') : (item.availability || 'Auf Anfrage verfÃ¼gbar')}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 1rem;"></i>
+                            <span>${duration}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 1rem;"></i>
+                            <span>${isEvents ? (item.budget || 'Gage auf Anfrage') : (item.price || 'Honorar auf Anfrage')}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-plug" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 1rem;"></i>
+                            <span>${item.equipment || 'Technik vorhanden'}</span>
                         </div>
                     </div>
 
