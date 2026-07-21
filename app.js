@@ -5691,7 +5691,7 @@ window.navigateGallery = function(btn, direction) {
     });
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
     // Click outside to close profile dropdown
     document.addEventListener('click', (e) => {
         const menu = document.getElementById('profile-dropdown-menu');
@@ -5706,10 +5706,13 @@ document.addEventListener('DOMContentLoaded', () => {
     handleRouting();
     initAllLocationAutocompletes();
 
-    document.getElementById('logo-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        navigate('');
-    });
+    const logoLink = document.getElementById('logo-link');
+    if (logoLink) {
+        logoLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigate('');
+        });
+    }
 
     const resetBtn = document.getElementById('btn-reset-demo');
     if (resetBtn) {
@@ -5719,29 +5722,13 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.reload();
         });
     }
+}
 
-    document.addEventListener('user-state-changed', () => {
-        updateNavbar();
-        runMatchingMonitor();
-    });
-
-    function runMatchingMonitor() {
-        if (state.currentUser) {
-            checkAndNotifyMatches(state, showToast);
-            if (window.matchIntervalId) clearInterval(window.matchIntervalId);
-            window.matchIntervalId = setInterval(() => {
-                checkAndNotifyMatches(state, showToast);
-            }, 15000);
-        } else {
-            if (window.matchIntervalId) {
-                clearInterval(window.matchIntervalId);
-                window.matchIntervalId = null;
-            }
-        }
-    }
-
-    runMatchingMonitor();
-});
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}
 
 function renderPostbox(container) {
     if (!state.currentUser) return;
