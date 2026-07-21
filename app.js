@@ -993,8 +993,8 @@ class StateManager {
                 id: "chat_demo_1",
                 participants: ["mus_1", "org_1"],
                 messages: [
-                    { senderId: "org_1", text: "Hallo! Wir finden euren Sound absolut genial. Hättet ihr Zeit, bei unserer Hochzeit zu spielen - , timestamp: "2026-07-12T14:30:00Z" },
-                    { senderId: "mus_1", text: "Hallo Julia! Vielen Dank für die Anfrage. Der 15. August 2026 passt uns super. Welche Art von Songs wünscht ihr euch - , timestamp: "2026-07-12T15:15:00Z" },
+                    { senderId: "org_1", text: "Hallo! Wir finden euren Sound absolut genial. HÃ¤ttet ihr Zeit, bei unserer Hochzeit zu spielen?", timestamp: "2026-07-12T14:30:00Z" },
+                    { senderId: "mus_1", text: "Hallo Julia! Vielen Dank für die Anfrage. Der 15. August 2026 passt uns super. Welche Art von Songs wÃ¼nscht ihr euch?", timestamp: "2026-07-12T15:15:00Z" },
                     { senderId: "org_1", text: "Hauptsächlich Pop-Cover für die Party am Abend und etwas Ruhiges für den Sektempfang. Das Budget liegt bei ca. 800-1000 EUR.", timestamp: "2026-07-12T16:00:00Z" }
                 ],
                 updatedAt: "2026-07-12T16:00:00Z"
