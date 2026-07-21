@@ -1966,41 +1966,41 @@ function showToast(options) {
 function renderHeroTabContent(isMusician) {
     if (isMusician) {
         return `
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; text-align: left;">
-                <div style="background: rgba(255,255,255,0.05); padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
-                    <div style="color: #a855f7; font-size: 1.4rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-bolt"></i></div>
-                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.3rem;">Direkte Anfragen</h4>
-                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Erhalte qualifizierte Gig-Anfragen direkt in dein Postfach.</p>
+            <div class="hero-benefit-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; text-align: left;">
+                <div style="background: rgba(255,255,255,0.05); padding: 1.1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="color: #a855f7; font-size: 1.3rem; margin-bottom: 0.4rem;"><i class="fa-solid fa-bolt"></i></div>
+                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.25rem; font-size: 0.95rem;">Direkte Anfragen</h4>
+                    <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0; line-height: 1.45;">Erhalte qualifizierte Gig-Anfragen direkt in dein Postfach.</p>
                 </div>
-                <div style="background: rgba(255,255,255,0.05); padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
-                    <div style="color: #a855f7; font-size: 1.4rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-sack-dollar"></i></div>
-                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.3rem;">100% Gagenbehalt</h4>
-                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Keine verdeckten Kosten oder Provisionen auf deine vereinbarte Gage.</p>
+                <div style="background: rgba(255,255,255,0.05); padding: 1.1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="color: #a855f7; font-size: 1.3rem; margin-bottom: 0.4rem;"><i class="fa-solid fa-sack-dollar"></i></div>
+                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.25rem; font-size: 0.95rem;">100% Gagenbehalt</h4>
+                    <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0; line-height: 1.45;">Keine verdeckten Kosten oder Provisionen auf deine Gage.</p>
                 </div>
-                <div style="background: rgba(255,255,255,0.05); padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
-                    <div style="color: #a855f7; font-size: 1.4rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-photo-film"></i></div>
-                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.3rem;">Medien-Galerie</h4>
-                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">PrÃ¤sentiere deine besten Fotos & Videos in einer eleganten Galerie.</p>
+                <div style="background: rgba(255,255,255,0.05); padding: 1.1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="color: #a855f7; font-size: 1.3rem; margin-bottom: 0.4rem;"><i class="fa-solid fa-photo-film"></i></div>
+                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.25rem; font-size: 0.95rem;">Medien-Galerie</h4>
+                    <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0; line-height: 1.45;">PrÃ¤sentiere deine besten Fotos & Videos in einer Galerie.</p>
                 </div>
             </div>
         `;
     } else {
         return `
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; text-align: left;">
-                <div style="background: rgba(255,255,255,0.05); padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
-                    <div style="color: #38bdf8; font-size: 1.4rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-magnifying-glass"></i></div>
-                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.3rem;">Schnelle Suche</h4>
-                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Finde geprÃ¼fte Musiker & Bands passend fÃ¼r dein Event & Budget.</p>
+            <div class="hero-benefit-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; text-align: left;">
+                <div style="background: rgba(255,255,255,0.05); padding: 1.1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="color: #38bdf8; font-size: 1.3rem; margin-bottom: 0.4rem;"><i class="fa-solid fa-magnifying-glass"></i></div>
+                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.25rem; font-size: 0.95rem;">Schnelle Suche</h4>
+                    <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0; line-height: 1.45;">Finde geprÃ¼fte Musiker & Bands passend fÃ¼r dein Event & Budget.</p>
                 </div>
-                <div style="background: rgba(255,255,255,0.05); padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
-                    <div style="color: #38bdf8; font-size: 1.4rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-shield-halved"></i></div>
-                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.3rem;">Direkter Kontakt</h4>
-                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Kontaktiere KÃ¼nstler ohne ZwischenhÃ¤ndler und verhandele direkt.</p>
+                <div style="background: rgba(255,255,255,0.05); padding: 1.1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="color: #38bdf8; font-size: 1.3rem; margin-bottom: 0.4rem;"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.25rem; font-size: 0.95rem;">Direkter Kontakt</h4>
+                    <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0; line-height: 1.45;">Kontaktiere KÃ¼nstler ohne ZwischenhÃ¤ndler und verhandele direkt.</p>
                 </div>
-                <div style="background: rgba(255,255,255,0.05); padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
-                    <div style="color: #38bdf8; font-size: 1.4rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-star"></i></div>
-                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.3rem;">Top HÃ¶rproben & Videos</h4>
-                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Mache dir vor der Buchung ein exaktes Bild von der Live-Performance.</p>
+                <div style="background: rgba(255,255,255,0.05); padding: 1.1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="color: #38bdf8; font-size: 1.3rem; margin-bottom: 0.4rem;"><i class="fa-solid fa-star"></i></div>
+                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.25rem; font-size: 0.95rem;">Top HÃ¶rproben & Videos</h4>
+                    <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0; line-height: 1.45;">Mache dir vor der Buchung ein Bild von der Live-Performance.</p>
                 </div>
             </div>
         `;
@@ -6149,10 +6149,10 @@ function renderMarketGridHTML(items, isEvents) {
                 </div>
 
                 <!-- Tile Body Content -->
-                <div style="padding: 1.2rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
+                <div class="tile-body-content" style="padding: 1.2rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
                     
                     <!-- 2. Einspaltige Informationen mit Icons (Genres & Instrumente direkt unter Musiker-Typ) -->
-                    <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.75rem;">
+                    <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.75rem;">
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
                             <span>${item.location || 'Deutschlandweit'}</span>
@@ -6193,7 +6193,7 @@ function renderMarketGridHTML(items, isEvents) {
                     </div>
 
                     <!-- 3. Beschreibung -->
-                    <div style="margin-bottom: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed rgba(255,255,255,0.08);">
+                    <div class="tile-description" style="margin-bottom: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed rgba(255,255,255,0.08);">
                         <p style="font-size: 0.86rem; color: var(--text-muted); line-height: 1.45; margin: 0;">
                             ${description}
                         </p>
@@ -6201,7 +6201,7 @@ function renderMarketGridHTML(items, isEvents) {
                 </div>
 
                 <!-- 4. Aktions-Button: "Kontaktdaten freischalten" -->
-                <div style="padding: 0 1.3rem 1.1rem;">
+                <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
                     ${isUnlocked ? `
                         <!-- Freigeschaltete Kontaktdaten -->
                         <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 0.75rem; font-size: 0.85rem; color: #4ade80; margin-bottom: 0.5rem;">
