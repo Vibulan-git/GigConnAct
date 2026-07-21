@@ -810,7 +810,7 @@ class StateManager {
                 for (let i = 0; i < 10; i++) {
                     const event = availableEvents[i];
                     if (event) {
-                        const status = i < 3 ? "booked" : i < 5 ? "declined" : "contacted";
+                        const status = i < 3  - booked" : i < 5  - declined" : "contacted";
                         m.applications.push({
                             eventId: event.id,
                             status: status
@@ -993,8 +993,8 @@ class StateManager {
                 id: "chat_demo_1",
                 participants: ["mus_1", "org_1"],
                 messages: [
-                    { senderId: "org_1", text: "Hallo! Wir finden euren Sound absolut genial. Hättet ihr Zeit, bei unserer Hochzeit zu spielen?", timestamp: "2026-07-12T14:30:00Z" },
-                    { senderId: "mus_1", text: "Hallo Julia! Vielen Dank für die Anfrage. Der 15. August 2026 passt uns super. Welche Art von Songs wünscht ihr euch?", timestamp: "2026-07-12T15:15:00Z" },
+                    { senderId: "org_1", text: "Hallo! Wir finden euren Sound absolut genial. Hättet ihr Zeit, bei unserer Hochzeit zu spielen - , timestamp: "2026-07-12T14:30:00Z" },
+                    { senderId: "mus_1", text: "Hallo Julia! Vielen Dank für die Anfrage. Der 15. August 2026 passt uns super. Welche Art von Songs wünscht ihr euch - , timestamp: "2026-07-12T15:15:00Z" },
                     { senderId: "org_1", text: "Hauptsächlich Pop-Cover für die Party am Abend und etwas Ruhiges für den Sektempfang. Das Budget liegt bei ca. 800-1000 EUR.", timestamp: "2026-07-12T16:00:00Z" }
                 ],
                 updatedAt: "2026-07-12T16:00:00Z"
@@ -1169,7 +1169,7 @@ class StateManager {
         }
 
         const id = "usr_" + Math.random().toString(36).substr(2, 9);
-        const profileId = payload.role === "musician" ? "mus_" + id : "evt_" + id;
+        const profileId = payload.role === "musician"  - mus_" + id : "evt_" + id;
 
         const newUser = {
             id,
@@ -3481,8 +3481,8 @@ function renderMatchesPage(container) {
                                 navigate('postbox');
                             } else {
                                 showToast({
-                                    title: res.active ? "Interesse bekundet!" : "Interesse zurückgezogen",
-                                    message: res.active ? "Dein Interesse wurde erfolgreich übermittelt." : "Dein Interesse wurde zurückgezogen."
+                                    title: res.active  - Interesse bekundet!" : "Interesse zurückgezogen",
+                                    message: res.active  - Dein Interesse wurde erfolgreich übermittelt." : "Dein Interesse wurde zurückgezogen."
                                 });
                                 updateMatches();
                             }
@@ -3498,8 +3498,8 @@ function renderMatchesPage(container) {
                         const res = state.toggleNoInterest(u.role, musicianId, eventId);
                         if (res.success) {
                             showToast({
-                                title: res.active ? "Kein Interesse markiert" : "Markierung aufgehoben",
-                                message: res.active ? "Dieses Angebot wurde als nicht interessant markiert." : "Die Markierung wurde aufgehoben."
+                                title: res.active  - Kein Interesse markiert" : "Markierung aufgehoben",
+                                message: res.active  - Dieses Angebot wurde als nicht interessant markiert." : "Die Markierung wurde aufgehoben."
                             });
                             updateMatches();
                         }
@@ -3785,12 +3785,12 @@ function renderMyEvents(container) {
             const event = state.events.find(e => e.id === id);
             if (event) {
                 const isAct = isEventActive(event);
-                const actionText = isAct ? "deaktivieren" : "unwiderruflich löschen";
+                const actionText = isAct  - deaktivieren" : "unwiderruflich löschen";
                 if (confirm(`Möchtest du das Event "${event.name}" wirklich ${actionText}?`)) {
                     state.deleteEvent(id);
                     showToast({
-                        title: isAct ? "Event deaktiviert" : "Event gelöscht",
-                        message: isAct ? "Das Event wurde erfolgreich deaktiviert." : "Das Event wurde erfolgreich aus der Suche entfernt."
+                        title: isAct  - Event deaktiviert" : "Event gelöscht",
+                        message: isAct  - Das Event wurde erfolgreich deaktiviert." : "Das Event wurde erfolgreich aus der Suche entfernt."
                     });
                     renderMyEvents(container);
                 }
@@ -4047,8 +4047,8 @@ function renderMyMusicians(container) {
                 const result = state.setApplicationStatus(musId, evtId, newStatus);
                 if (result.success) {
                     showToast({
-                        title: newStatus === 'booked' ? "Event gebucht! 🎉" : "Status aktualisiert",
-                        message: newStatus === 'booked' ? "Du hast den Auftritt als 'Gebucht' markiert." : "Der Status wurde wieder auf 'Kontaktiert' gesetzt."
+                        title: newStatus === 'booked'  - Event gebucht! 🎉" : "Status aktualisiert",
+                        message: newStatus === 'booked'  - Du hast den Auftritt als 'Gebucht' markiert." : "Der Status wurde wieder auf 'Kontaktiert' gesetzt."
                     });
                     
                     const updatedMusician = state.musicians.find(mus => mus.id === musId);
@@ -4067,8 +4067,8 @@ function renderMyMusicians(container) {
                 const result = state.setApplicationStatus(musId, evtId, newStatus);
                 if (result.success) {
                     showToast({
-                        title: newStatus === 'declined' ? "Absage markiert 🔴" : "Status aktualisiert",
-                        message: newStatus === 'declined' ? "Du hast die Bewerbung als 'Abgesagt' markiert." : "Der Status wurde wieder auf 'Kontaktiert' gesetzt."
+                        title: newStatus === 'declined'  - Absage markiert 🔴" : "Status aktualisiert",
+                        message: newStatus === 'declined'  - Du hast die Bewerbung als 'Abgesagt' markiert." : "Der Status wurde wieder auf 'Kontaktiert' gesetzt."
                     });
                     
                     const updatedMusician = state.musicians.find(mus => mus.id === musId);
@@ -4124,9 +4124,9 @@ function renderMyMusicians(container) {
             const result = state.toggleMusicianActive(id);
             if (result.success) {
                 showToast({
-                    title: result.isActive ? "Profil aktiv! 🟢" : "Profil pausiert! 🟡",
+                    title: result.isActive  - Profil aktiv! 🟢" : "Profil pausiert! 🟡",
                     message: result.isActive 
-                        ? "Das Profil ist nun wieder im Markt sichtbar." 
+                         - Das Profil ist nun wieder im Markt sichtbar." 
                         : "Das Profil wurde pausiert und aus der Suche entfernt."
                 });
                 renderMyMusicians(container);
