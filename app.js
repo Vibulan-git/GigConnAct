@@ -2034,7 +2034,7 @@ function renderLandingPage(container, onNavigate) {
                     </div>
 
                     <!-- Single-Line Headline "Wir vermitteln Live-Musik." -->
-                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.6vw, 3rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1.2rem; color: #ffffff; text-shadow: 0 4px 20px rgba(0,0,0,0.8); white-space: nowrap;">
+                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.6vw, 3rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1.2rem; color: #ffffff; text-shadow: 0 4px 20px rgba(0,0,0,0.8); white-space: normal; word-break: break-word;">
                         Wir vermitteln Live-Musik.
                     </h1>
 
@@ -2715,7 +2715,7 @@ function renderMarket(container, type, onNavigate) {
                         
                         <!-- Sortierungsfunktion -->
                         <div style="display: flex; align-items: center; gap: 0.6rem; width: 100%; justify-content: flex-end;">
-                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); white-space: nowrap;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); white-space: normal; word-break: break-word;">
                                 <i class="fa-solid fa-arrow-down-wide-short" style="color: ${isEvents ? '#2563eb' : '#7c3aed'};"></i> Sortierung:
                             </span>
                             <select id="sort-select" style="padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 800; font-size: 0.85rem;">
@@ -3372,7 +3372,7 @@ function renderMatchesPage(container) {
                                         ${audio.map((a, idx) => `
                                             <div class="audio-gallery-item" onclick="event.stopPropagation(); window.toggleAudioTrack(this, '${a}');" style="display:flex; align-items:center; gap:0.4rem; background:rgba(255,255,255,0.03); border:1px solid var(--border-glass); border-radius:4px; padding:0.25rem 0.4rem; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'" title="Audio abspielen">
                                                 <i class="fa-solid fa-play play-icon text-purple" style="font-size:0.65rem;"></i>
-                                                <span style="font-size:0.65rem; color:var(--text-main); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Demo ${idx+1}</span>
+                                                <span style="font-size:0.65rem; color:var(--text-main); font-weight:600; white-space: normal; word-break: break-word; overflow:hidden; text-overflow:ellipsis;">Demo ${idx+1}</span>
                                                 <audio class="hidden-audio-player" src="${a}" style="display:none;"></audio>
                                             </div>
                                         `).join('')}
@@ -3382,7 +3382,7 @@ function renderMatchesPage(container) {
 
                             <div class="listing-main-info">
                                 <div class="listing-top-row" style="display: block; text-align: left;">
-                                    <div class="listing-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; font-weight: 700; font-size: 1.15rem; color: var(--text-main); line-height: 1.2;" title="${displayName}">
+                                    <div class="listing-title" style="white-space: normal; word-break: break-word; overflow: hidden; text-overflow: ellipsis; max-width: 250px; font-weight: 700; font-size: 1.15rem; color: var(--text-main); line-height: 1.2;" title="${displayName}">
                                         ${displayName}
                                     </div>
                                     <div style="margin-top: 0.2rem; margin-bottom: 0.6rem;">
@@ -3945,7 +3945,7 @@ function renderMyMusicianItem(m, isActive) {
                 <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 250px;">
                     <img src="${pic}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; ${!isActive ? 'filter:grayscale(0.8);' : ''}">
                     <div style="min-width: 0;">
-                        <h4 style="margin:0 0 0.2rem; font-size: 1rem; font-weight: 700; color: ${isActive ? 'var(--text-main)' : 'var(--text-muted)'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <h4 style="margin:0 0 0.2rem; font-size: 1rem; font-weight: 700; color: ${isActive ? 'var(--text-main)' : 'var(--text-muted)'}; white-space: normal; word-break: break-word; overflow: hidden; text-overflow: ellipsis;">
                             ${m.name}
                             ${!isActive ? ' <span class="tag" style="background:rgba(255,75,75,0.1); color:var(--color-red); font-size:0.7rem; padding:0.1rem 0.4rem; border-radius:4px;"><i class="fa-solid fa-pause"></i> Pausiert</span>' : ' <span class="tag" style="background:rgba(56,239,125,0.1); color:var(--color-green); font-size:0.7rem; padding:0.1rem 0.4rem; border-radius:4px;"><i class="fa-solid fa-circle-check"></i> Aktiv</span>'}
                         </h4>
@@ -5870,10 +5870,10 @@ function renderPostbox(container) {
                                     <img src="${avatar}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
                                     <div style="flex: 1; min-width: 0;">
                                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.15rem;">
-                                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</span>
+                                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); white-space: normal; word-break: break-word; overflow: hidden; text-overflow: ellipsis;">${name}</span>
                                             ${isUnread ? '<span style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-cyan); display: inline-block;"></span>' : ''}
                                         </div>
-                                        <div style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        <div style="font-size: 0.75rem; color: var(--text-muted); white-space: normal; word-break: break-word; overflow: hidden; text-overflow: ellipsis;">
                                             ${lastMsg ? lastMsg.text : 'Keine Nachrichten'}
                                         </div>
                                     </div>
@@ -6124,7 +6124,7 @@ function renderMarketGridHTML(items, isEvents) {
 
                     <!-- Bandname oben links auf dem Bild -->
                     <div style="position: absolute; top: 12px; left: 12px; z-index: 5; max-width: 65%;">
-                        <span style="display: inline-block; padding: 0.45rem 0.95rem; border-radius: 20px; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); color: #ffffff; font-size: 0.96rem; font-weight: 900; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 12px rgba(0,0,0,0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <span style="display: inline-block; padding: 0.45rem 0.95rem; border-radius: 20px; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); color: #ffffff; font-size: 0.96rem; font-weight: 900; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 12px rgba(0,0,0,0.4); white-space: normal; word-break: break-word; overflow: hidden; text-overflow: ellipsis;">
                             ${bandName}
                         </span>
                     </div>
