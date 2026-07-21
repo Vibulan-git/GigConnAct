@@ -2097,7 +2097,7 @@ function renderLandingPage(container, onNavigate) {
     container.innerHTML = `
         <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem;">
             
-            <!-- 1. Compact Hero Photo Section (HÃ¶he reduziert auf 68vh, Inhalte hÃ¶her positioniert) -->
+            <!-- 1. Compact Hero Photo Section -->
             <div class="landing-hero" style="position: relative; min-height: 68vh; min-height: 68dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem 1.5rem 2.5rem; text-align: center; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
                 
                 <!-- 5 Background Slides Container -->
@@ -2109,7 +2109,7 @@ function renderLandingPage(container, onNavigate) {
                     <div class="hero-bg-slide" style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(30, 58, 138, 0.78) 50%, rgba(124, 58, 237, 0.78) 100%), url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; transition: opacity 1.5s ease-in-out; opacity: 0;"></div>
                 </div>
 
-                <!-- Hero Content Overlay (HÃ¶her zentriert & kompakte AbstÃ¤nde) -->
+                <!-- Hero Content Overlay -->
                 <div style="position: relative; z-index: 2; max-width: 1050px; margin: 0 auto; width: 100%;">
                     
                     <!-- Center GigConnAct Logo -->
@@ -2139,8 +2139,34 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 2. Interactive Benefits Accordion Container (DIREKT UNTERHALB DES FOTOS) -->
-            <div style="max-width: 1050px; margin: 2rem auto 0; padding: 0 1.5rem;">
+            <!-- 2. SECTION 1: Musiker-Profile ("So kÃ¶nnte Dein Musiker-Profil aussehen") -->
+            <div style="max-width: 1400px; margin: 0 auto; padding: 3rem 1.5rem 0;">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin-bottom: 0.4rem;">
+                        <i class="fa-solid fa-guitar" style="color: #a855f7; margin-right: 0.5rem;"></i> So kÃ¶nnte Dein Musiker-Profil aussehen
+                    </h2>
+                </div>
+
+                <div id="landing-musicians-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2rem;">
+                    ${renderMarketGridHTML(state.musicians.slice(0, 3), false)}
+                </div>
+            </div>
+
+            <!-- 3. SECTION 2: Event-Profile ("So kÃ¶nnte Dein Event-Profil aussehen") -->
+            <div style="max-width: 1400px; margin: 0 auto; padding: 3.5rem 1.5rem 0;">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin-bottom: 0.4rem;">
+                        <i class="fa-solid fa-calendar-check" style="color: #38bdf8; margin-right: 0.5rem;"></i> So kÃ¶nnte Dein Event-Profil aussehen
+                    </h2>
+                </div>
+
+                <div id="landing-events-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2rem;">
+                    ${renderMarketGridHTML(state.events.slice(0, 3), true)}
+                </div>
+            </div>
+
+            <!-- 4. SECTION 3: Interactive Benefits Accordion Container (GANZ UNTEN) -->
+            <div style="max-width: 1050px; margin: 4rem auto 0; padding: 0 1.5rem;">
                 <div class="hero-benefits-box" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 20px; padding: 1.4rem 1.8rem; box-shadow: var(--shadow-sm);">
                     
                     <!-- Accordion 1: Vorteile fÃ¼r Musiker -->
@@ -2171,18 +2197,6 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 3. Preview Tiles Section -->
-            <div style="max-width: 1400px; margin: 0 auto; padding: 2.5rem 1.5rem 0;">
-                <div style="text-align: center; margin-bottom: 2rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 800; color: var(--text-main); margin-bottom: 0.4rem;">
-                        Top Empfehlungen & Live-Anfragen
-                    </h2>
-                </div>
-
-                <div id="landing-preview-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2rem;">
-                    ${renderMarketGridHTML(state.musicians.slice(0, 3), false)}
-                </div>
-            </div>
         </div>
     `;
 
