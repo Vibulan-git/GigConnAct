@@ -6212,17 +6212,7 @@ function renderMarketGridHTML(items, isEvents) {
     }).join('');
 }
 
-// Immediate Synchronous Execution
-try {
-    if (typeof updateNavbar === 'function') updateNavbar();
-    if (typeof handleRouting === 'function') handleRouting();
-    if (typeof initAllLocationAutocompletes === 'function') initAllLocationAutocompletes();
-} catch (err) {
-    console.error("Direct sync execution error:", err);
-}
-
-// Safe State Initialization at the bottom
-
+// Safe State Initialization
 try {
     state = new StateManager();
 } catch (e) {
@@ -6243,4 +6233,13 @@ if (!state) {
         saveState() {},
         loadState() {}
     };
+}
+
+// Immediate Synchronous Execution
+try {
+    if (typeof updateNavbar === 'function') updateNavbar();
+    if (typeof handleRouting === 'function') handleRouting();
+    if (typeof initAllLocationAutocompletes === 'function') initAllLocationAutocompletes();
+} catch (err) {
+    console.error("Direct sync execution error:", err);
 }
