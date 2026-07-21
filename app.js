@@ -1963,6 +1963,50 @@ function showToast(options) {
     }, 6000);
 }
 
+function renderHeroTabContent(isMusician) {
+    if (isMusician) {
+        return `
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; text-align: left;">
+                <div style="background: rgba(255,255,255,0.05); padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="color: #a855f7; font-size: 1.4rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-bolt"></i></div>
+                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.3rem;">Direkte Anfragen</h4>
+                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Erhalte qualifizierte Gig-Anfragen direkt in dein Postfach.</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="color: #a855f7; font-size: 1.4rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-sack-dollar"></i></div>
+                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.3rem;">100% Gagenbehalt</h4>
+                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Keine verdeckten Kosten oder Provisionen auf deine vereinbarte Gage.</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="color: #a855f7; font-size: 1.4rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-photo-film"></i></div>
+                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.3rem;">Medien-Galerie</h4>
+                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">PrÃ¤sentiere deine besten Fotos & Videos in einer eleganten Galerie.</p>
+                </div>
+            </div>
+        `;
+    } else {
+        return `
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; text-align: left;">
+                <div style="background: rgba(255,255,255,0.05); padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="color: #38bdf8; font-size: 1.4rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-magnifying-glass"></i></div>
+                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.3rem;">Schnelle Suche</h4>
+                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Finde geprÃ¼fte Musiker & Bands passend fÃ¼r dein Event & Budget.</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="color: #38bdf8; font-size: 1.4rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.3rem;">Direkter Kontakt</h4>
+                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Kontaktiere KÃ¼nstler ohne ZwischenhÃ¤ndler und verhandele direkt.</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 1.4rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="color: #38bdf8; font-size: 1.4rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-star"></i></div>
+                    <h4 style="color: #fff; font-weight: 800; margin-bottom: 0.3rem;">Top HÃ¶rproben & Videos</h4>
+                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Mache dir vor der Buchung ein exaktes Bild von der Live-Performance.</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
 function renderLandingPage(container, onNavigate) {
     const isMusicianTab = state.activeHeroTab === 'musician';
     
@@ -5461,7 +5505,7 @@ function updateNavbar() {
         nav.innerHTML = '';
         authArea.innerHTML = `
             <button class="btn btn-secondary btn-sm" id="btn-login-trigger">
-                <i class="fa-solid fa-sign-in-alt"></i> Anmelden ohne Passwort
+                <i class="fa-solid fa-sign-in-alt"></i> Kontaktdaten freischalten
             </button>
         `;
         document.getElementById('btn-login-trigger').addEventListener('click', () => {
