@@ -1,4 +1,4 @@
-﻿﻿
+﻿
 window.slideComboGallery = function(itemId, direction) {
     const s = document.getElementById('combo-slider-' + itemId);
     if (!s) return;
@@ -810,7 +810,7 @@ class StateManager {
                 for (let i = 0; i < 10; i++) {
                     const event = availableEvents[i];
                     if (event) {
-                        const status = i < 3  - booked" : i < 5  - declined" : "contacted";
+                        const status = i < 3 ? "booked" : i < 5 ? "declined" : "contacted";
                         m.applications.push({
                             eventId: event.id,
                             status: status
@@ -993,8 +993,8 @@ class StateManager {
                 id: "chat_demo_1",
                 participants: ["mus_1", "org_1"],
                 messages: [
-                    { senderId: "org_1", text: "Hallo! Wir finden euren Sound absolut genial. Hättet ihr Zeit, bei unserer Hochzeit zu spielen - , timestamp: "2026-07-12T14:30:00Z" },
-                    { senderId: "mus_1", text: "Hallo Julia! Vielen Dank für die Anfrage. Der 15. August 2026 passt uns super. Welche Art von Songs wünscht ihr euch - , timestamp: "2026-07-12T15:15:00Z" },
+                    { senderId: "org_1", text: "Hallo! Wir finden euren Sound absolut genial. Hättet ihr Zeit, bei unserer Hochzeit zu spielen?", timestamp: "2026-07-12T14:30:00Z" },
+                    { senderId: "mus_1", text: "Hallo Julia! Vielen Dank für die Anfrage. Der 15. August 2026 passt uns super. Welche Art von Songs wünscht ihr euch?", timestamp: "2026-07-12T15:15:00Z" },
                     { senderId: "org_1", text: "Hauptsächlich Pop-Cover für die Party am Abend und etwas Ruhiges für den Sektempfang. Das Budget liegt bei ca. 800-1000 EUR.", timestamp: "2026-07-12T16:00:00Z" }
                 ],
                 updatedAt: "2026-07-12T16:00:00Z"
@@ -1169,7 +1169,7 @@ class StateManager {
         }
 
         const id = "usr_" + Math.random().toString(36).substr(2, 9);
-        const profileId = payload.role === "musician"  - mus_" + id : "evt_" + id;
+        const profileId = payload.role === "musician" ? "mus_" + id : "evt_" + id;
 
         const newUser = {
             id,
@@ -2133,7 +2133,7 @@ function renderLandingPage(container, onNavigate) {
 
                     <!-- Subheadline -->
                     <p style="font-size: clamp(0.95rem, 1.8vw, 1.15rem); color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.5; max-width: 840px; margin: 0 auto 1.4rem; text-shadow: 0 2px 10px rgba(0,0,0,0.7);">
-                        Ob Hochzeit, Geburtstag, Firmenfeier oder jedes andere Event â€“<br>GigConnAct bringt Musiker und Veranstalter zusammen.
+                        Ob Hochzeit, Geburtstag, Firmenfeier oder jedes andere Event -<br>GigConnAct bringt Musiker und Veranstalter zusammen.
                     </p>
 
                     <!-- Extra Large CTA Buttons: Musiker = LILA, Veranstalter = BLAU -->
@@ -3481,8 +3481,8 @@ function renderMatchesPage(container) {
                                 navigate('postbox');
                             } else {
                                 showToast({
-                                    title: res.active  - Interesse bekundet!" : "Interesse zurückgezogen",
-                                    message: res.active  - Dein Interesse wurde erfolgreich übermittelt." : "Dein Interesse wurde zurückgezogen."
+                                    title: res.active ? "Interesse bekundet!" : "Interesse zurückgezogen",
+                                    message: res.active ? "Dein Interesse wurde erfolgreich übermittelt." : "Dein Interesse wurde zurückgezogen."
                                 });
                                 updateMatches();
                             }
@@ -3498,8 +3498,8 @@ function renderMatchesPage(container) {
                         const res = state.toggleNoInterest(u.role, musicianId, eventId);
                         if (res.success) {
                             showToast({
-                                title: res.active  - Kein Interesse markiert" : "Markierung aufgehoben",
-                                message: res.active  - Dieses Angebot wurde als nicht interessant markiert." : "Die Markierung wurde aufgehoben."
+                                title: res.active ? "Kein Interesse markiert" : "Markierung aufgehoben",
+                                message: res.active ? "Dieses Angebot wurde als nicht interessant markiert." : "Die Markierung wurde aufgehoben."
                             });
                             updateMatches();
                         }
@@ -3785,12 +3785,12 @@ function renderMyEvents(container) {
             const event = state.events.find(e => e.id === id);
             if (event) {
                 const isAct = isEventActive(event);
-                const actionText = isAct  - deaktivieren" : "unwiderruflich löschen";
+                const actionText = isAct ? "deaktivieren" : "unwiderruflich löschen";
                 if (confirm(`Möchtest du das Event "${event.name}" wirklich ${actionText}?`)) {
                     state.deleteEvent(id);
                     showToast({
-                        title: isAct  - Event deaktiviert" : "Event gelöscht",
-                        message: isAct  - Das Event wurde erfolgreich deaktiviert." : "Das Event wurde erfolgreich aus der Suche entfernt."
+                        title: isAct ? "Event deaktiviert" : "Event gelöscht",
+                        message: isAct ? "Das Event wurde erfolgreich deaktiviert." : "Das Event wurde erfolgreich aus der Suche entfernt."
                     });
                     renderMyEvents(container);
                 }
@@ -4047,8 +4047,8 @@ function renderMyMusicians(container) {
                 const result = state.setApplicationStatus(musId, evtId, newStatus);
                 if (result.success) {
                     showToast({
-                        title: newStatus === 'booked'  - Event gebucht! 🎉" : "Status aktualisiert",
-                        message: newStatus === 'booked'  - Du hast den Auftritt als 'Gebucht' markiert." : "Der Status wurde wieder auf 'Kontaktiert' gesetzt."
+                        title: newStatus === 'booked' ? "Event gebucht! 🎉" : "Status aktualisiert",
+                        message: newStatus === 'booked' ? "Du hast den Auftritt als 'Gebucht' markiert." : "Der Status wurde wieder auf 'Kontaktiert' gesetzt."
                     });
                     
                     const updatedMusician = state.musicians.find(mus => mus.id === musId);
@@ -4067,8 +4067,8 @@ function renderMyMusicians(container) {
                 const result = state.setApplicationStatus(musId, evtId, newStatus);
                 if (result.success) {
                     showToast({
-                        title: newStatus === 'declined'  - Absage markiert 🔴" : "Status aktualisiert",
-                        message: newStatus === 'declined'  - Du hast die Bewerbung als 'Abgesagt' markiert." : "Der Status wurde wieder auf 'Kontaktiert' gesetzt."
+                        title: newStatus === 'declined' ? "Absage markiert 🔴" : "Status aktualisiert",
+                        message: newStatus === 'declined' ? "Du hast die Bewerbung als 'Abgesagt' markiert." : "Der Status wurde wieder auf 'Kontaktiert' gesetzt."
                     });
                     
                     const updatedMusician = state.musicians.find(mus => mus.id === musId);
@@ -4124,9 +4124,9 @@ function renderMyMusicians(container) {
             const result = state.toggleMusicianActive(id);
             if (result.success) {
                 showToast({
-                    title: result.isActive  - Profil aktiv! 🟢" : "Profil pausiert! 🟡",
+                    title: result.isActive ? "Profil aktiv! 🟢" : "Profil pausiert! 🟡",
                     message: result.isActive 
-                         - Das Profil ist nun wieder im Markt sichtbar." 
+                        ? "Das Profil ist nun wieder im Markt sichtbar." 
                         : "Das Profil wurde pausiert und aus der Suche entfernt."
                 });
                 renderMyMusicians(container);
@@ -6121,10 +6121,10 @@ function renderMarketGridHTML(items, isEvents) {
                     </div>
 
                     <!-- Slide Navigation Arrows -->
-                    <button onclick="window.slideComboGallery('${item.id}', -1)" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                    <button onclick="const s=document.getElementById('combo-slider-${item.id}'); let cur=parseInt(s.getAttribute('data-idx')||'0'); cur=cur>0?cur-1:5; s.style.transform=\`translateX(-\${cur*100}%)\`; s.setAttribute('data-idx', cur); const lbl=this.nextElementSibling.nextElementSibling; if(cur<3){lbl.innerText=\`ðŸ“· \${cur+1} / 3 Fotos\`;}else{lbl.innerText=\`ðŸŽ¬ Video \${cur-2} / 3\`;}" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                         <i class="fa-solid fa-chevron-left" style="font-size: 0.9rem;"></i>
                     </button>
-                    <button onclick="window.slideComboGallery('${item.id}', -1)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                    <button onclick="const s=document.getElementById('combo-slider-${item.id}'); let cur=parseInt(s.getAttribute('data-idx')||'0'); cur=(cur+1)%6; s.style.transform=\`translateX(-\${cur*100}%)\`; s.setAttribute('data-idx', cur); const lbl=this.nextElementSibling; if(cur<3){lbl.innerText=\`ðŸ“· \${cur+1} / 3 Fotos\`;}else{lbl.innerText=\`ðŸŽ¬ Video \${cur-2} / 3\`;}" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                         <i class="fa-solid fa-chevron-right" style="font-size: 0.9rem;"></i>
                     </button>
 
