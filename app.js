@@ -1,4 +1,28 @@
-﻿/* -------------------------------------------------------------
+﻿
+// Global Safe UI Toggle Helpers (Avoids inline quote escaping bugs in template literals)
+window.toggleMobileFilters = function() {
+    const f = document.getElementById('market-filters-wrapper');
+    const btn = document.getElementById('btn-toggle-mobile-filters');
+    if (!f || !btn) return;
+    const isHidden = f.style.display === 'none' || !f.style.display;
+    f.style.display = isHidden ? 'block' : 'none';
+    btn.innerHTML = isHidden 
+        ? '<i class="fa-solid fa-xmark"></i> Filter verbergen' 
+        : '<i class="fa-solid fa-sliders"></i> Filter & Suche anzeigen';
+};
+
+window.toggleAccordion = function(contentId, btnEl) {
+    const c = document.getElementById(contentId);
+    if (!c) return;
+    const isHidden = c.style.display === 'none' || !c.style.display;
+    c.style.display = isHidden ? 'block' : 'none';
+    if (btnEl) {
+        const arrow = btnEl.querySelector('.acc-arrow');
+        if (arrow) arrow.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+};
+
+/* -------------------------------------------------------------
  * GigConnAct - Single Unified Application Script
  * Combines mockData, state management, matching logic, and UI
  * rendering in a single non-module file to bypass CORS restrictions
@@ -2171,7 +2195,7 @@ function renderLandingPage(container, onNavigate) {
                     
                     <!-- Accordion 1: Vorteile fÃ¼r Musiker -->
                     <div style="margin-bottom: 0.9rem;">
-                        <button onclick="const c=document.getElementById('acc-content-musician'); const a=this.querySelector('.acc-arrow'); if(c.style.display==='none'||!c.style.display){c.style.display='block'; a.style.transform='rotate(180deg)';}else{c.style.display='none'; a.style.transform='rotate(0deg)';}" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 2px solid #a855f7; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);">
+                        <button onclick="window.toggleAccordion('acc-content-musician', this)" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 2px solid #a855f7; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);">
                             <span style="display: flex; align-items: center; gap: 0.75rem;">
                                 <i class="fa-solid fa-guitar" style="color: #ffffff; font-size: 1.1rem;"></i> Vorteile fÃ¼r Musiker
                             </span>
@@ -2184,7 +2208,7 @@ function renderLandingPage(container, onNavigate) {
 
                     <!-- Accordion 2: Vorteile fÃ¼r Veranstalter -->
                     <div>
-                        <button onclick="const c=document.getElementById('acc-content-organizer'); const a=this.querySelector('.acc-arrow'); if(c.style.display==='none'||!c.style.display){c.style.display='block'; a.style.transform='rotate(180deg)';}else{c.style.display='none'; a.style.transform='rotate(0deg)';}" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 2px solid #60a5fa; background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);">
+                        <button onclick="window.toggleAccordion('acc-content-organizer', this)" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 2px solid #60a5fa; background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);">
                             <span style="display: flex; align-items: center; gap: 0.75rem;">
                                 <i class="fa-solid fa-calendar-check" style="color: #ffffff; font-size: 1.1rem;"></i> Vorteile fÃ¼r Veranstalter
                             </span>
@@ -2445,7 +2469,7 @@ function renderMarket(container, type, onNavigate) {
             </div>
 
             <!-- Mobile Filter Toggle Button (Sichtbar auf Smartphones) -->
-            <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" onclick="const f=document.getElementById('market-filters-wrapper'); if(f.style.display==='none'||!f.style.display){f.style.display='block'; this.innerHTML='<i class=\"fa-solid fa-xmark\"></i> Filter verbergen';}else{f.style.display='none'; this.innerHTML='<i class=\"fa-solid fa-sliders\"></i> Filter & Suche anzeigen';}">
+            <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" onclick="window.toggleMobileFilters()"fa-solid fa-xmark\"></i> Filter verbergen';}else{f.style.display='none'; this.innerHTML='<i class=\"fa-solid fa-sliders\"></i> Filter & Suche anzeigen';}">
                 <i class="fa-solid fa-sliders"></i> Filter & Suche anzeigen
             </button>
 
