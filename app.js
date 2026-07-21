@@ -1968,46 +1968,60 @@ function renderHeroTabContent(isMusician) {
         return `
             <div class="hero-benefit-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem; text-align: left; margin-top: 1.4rem;">
                 
-                <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid rgba(168, 85, 247, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);">
-                    <div style="color: #c084fc; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-bolt"></i></div>
-                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">1. Direkte Gig-Anfragen</h4>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Qualifizierte Auftrittsanfragen direkt von Veranstaltern in dein Postfach.</p>
+                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zu Events & Gigs</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.85); line-height: 1.45; padding-left: 1.8rem;">Hochzeit, Geburtstag, Firmenfeier, Festival, Gartenparty etc.</p>
                 </div>
 
-                <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid rgba(168, 85, 247, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);">
-                    <div style="color: #c084fc; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-sack-dollar"></i></div>
-                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">2. 100% Gagenbehalt</h4>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Keine verdeckten GebÃ¼hren oder Provisionen auf deine Gage.</p>
+                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Passende Events & Gigs</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.85); line-height: 1.45; padding-left: 1.8rem;">Event-Art, Budget, Datum, Genre, Spieldauer etc.</p>
                 </div>
 
-                <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid rgba(168, 85, 247, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);">
-                    <div style="color: #c084fc; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-photo-film"></i></div>
-                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">3. Medien-Galerie & Videos</h4>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">PrÃ¤sentiere deine besten Fotos, Audio-Demos & HTML5-Livevideos.</p>
+                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Direkter Kontakt zu Veranstaltern</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.85); line-height: 1.45; padding-left: 1.8rem;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
                 </div>
 
-                <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid rgba(168, 85, 247, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);">
-                    <div style="color: #c084fc; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-location-dot"></i></div>
-                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">4. Regionale & Bundesweite Relevanz</h4>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Finde Auftritte in deinem Wunschumkreis oder deutschlandweit.</p>
+                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.85); line-height: 1.45; padding-left: 1.8rem;">Nicht nur fÃ¼r Auftritte bewerben â€“ sondern auch Anfragen von Veranstaltern erhalten</p>
                 </div>
 
-                <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid rgba(168, 85, 247, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);">
-                    <div style="color: #c084fc; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-user-shield"></i></div>
-                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">5. Kontaktschutz & Kontrolle</h4>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Du entscheidest selbst, wann du deine Kontaktdaten freischaltest.</p>
+                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÃ¤ge</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.85); line-height: 1.45; padding-left: 1.8rem;">Automatische Empfehlungen von GigConnAct zu Auftritten</p>
                 </div>
 
-                <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid rgba(168, 85, 247, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);">
-                    <div style="color: #c084fc; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-bullseye"></i></div>
-                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">6. Exakter Match-Faktor</h4>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Unser Matching-System bringt dich mit den passenden Events zusammen.</p>
+                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Schnelle Anmeldung</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.85); line-height: 1.45; padding-left: 1.8rem;">Anlegen des Musiker-Profils ohne Passwort</p>
                 </div>
 
-                <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid rgba(168, 85, 247, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);">
-                    <div style="color: #c084fc; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-rocket"></i></div>
-                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">7. Kein Akquise-Aufwand</h4>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Veranstalter finden dich direkt Ã¼ber dein aussagekrÃ¤ftiges Profil.</p>
+                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.85); line-height: 1.45; padding-left: 1.8rem;">Oder andere versteckte Kosten</p>
                 </div>
 
             </div>
@@ -2016,46 +2030,60 @@ function renderHeroTabContent(isMusician) {
         return `
             <div class="hero-benefit-cards" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem; text-align: left; margin-top: 1.4rem;">
                 
-                <div style="background: rgba(37, 99, 235, 0.18); border: 1.5px solid rgba(96, 165, 250, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);">
-                    <div style="color: #60a5fa; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-magnifying-glass"></i></div>
-                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">1. Gezielte KÃ¼nstler-Suche</h4>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Finde geprÃ¼fte Solo-Musiker, Duos, Coverbands & DJs passend fÃ¼r dein Event.</p>
+                <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
+                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zu Musikern</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.85); line-height: 1.45; padding-left: 1.8rem;">Coverbands, Bands, DJs, Duos, Trios, Gitarristen, SÃ¤nger etc.</p>
                 </div>
 
-                <div style="background: rgba(37, 99, 235, 0.18); border: 1.5px solid rgba(96, 165, 250, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);">
-                    <div style="color: #60a5fa; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-handshake"></i></div>
-                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">2. Direkter Kontakt ohne Vermittler</h4>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Kontaktiere KÃ¼nstler ohne Agenturaufschlag und verhandele direkt.</p>
+                <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
+                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Passende Musiker</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.85); line-height: 1.45; padding-left: 1.8rem;">Musiker-Typ, Budget, Genre, Spieldauer etc.</p>
                 </div>
 
-                <div style="background: rgba(37, 99, 235, 0.18); border: 1.5px solid rgba(96, 165, 250, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);">
-                    <div style="color: #60a5fa; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-play"></i></div>
-                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">3. Echte HÃ¶rproben & Live-Videos</h4>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Ãœberzeuge dich vor der Buchung von der echten Live-Performance.</p>
+                <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
+                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Direkter Kontakt zu Musikern</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.85); line-height: 1.45; padding-left: 1.8rem;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
                 </div>
 
-                <div style="background: rgba(37, 99, 235, 0.18); border: 1.5px solid rgba(96, 165, 250, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);">
-                    <div style="color: #60a5fa; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-clock"></i></div>
-                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">4. Schnelle RÃ¼ckmeldungen</h4>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Erhalte zÃ¼gige Antworten von verfÃ¼gbaren Musikern fÃ¼r deinen Wunschtermin.</p>
+                <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
+                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.85); line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Musiker senden â€“ sondern auch erhalten</p>
                 </div>
 
-                <div style="background: rgba(37, 99, 235, 0.18); border: 1.5px solid rgba(96, 165, 250, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);">
-                    <div style="color: #60a5fa; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-shield-halved"></i></div>
-                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">5. GeprÃ¼fte QualitÃ¤t & ZuverlÃ¤ssigkeit</h4>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Nur verifizierte Profile mit transparenten Angaben.</p>
+                <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
+                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÃ¤ge</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.85); line-height: 1.45; padding-left: 1.8rem;">Automatische Empfehlungen von GigConnAct zu Musikern</p>
                 </div>
 
-                <div style="background: rgba(37, 99, 235, 0.18); border: 1.5px solid rgba(96, 165, 250, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);">
-                    <div style="color: #60a5fa; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-chart-line"></i></div>
-                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">6. Volle Kostenkontrolle</h4>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">Transparente Honorar-Angaben passend zu deinem Event-Budget.</p>
+                <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
+                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Schnelle Anmeldung</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.85); line-height: 1.45; padding-left: 1.8rem;">Anlegen des Veranstalter-Profils ohne Passwort</p>
                 </div>
 
-                <div style="background: rgba(37, 99, 235, 0.18); border: 1.5px solid rgba(96, 165, 250, 0.5); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);">
-                    <div style="color: #60a5fa; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-file-pen"></i></div>
-                    <h4 style="color: #ffffff; font-weight: 900; margin-bottom: 0.35rem; font-size: 1rem;">7. Einfaches Event-Posting</h4>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 0.86rem; margin: 0; line-height: 1.5;">In weniger als 2 Minuten kostenfrei deinen Gig ausschreiben.</p>
+                <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
+                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.85); line-height: 1.45; padding-left: 1.8rem;">Oder andere versteckte Kosten</p>
                 </div>
 
             </div>
