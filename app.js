@@ -5925,7 +5925,7 @@ function renderMarketGridHTML(items, isEvents) {
     return items.map(item => {
         const isUnlocked = state.unlockedContacts && state.unlockedContacts.includes(item.id);
         
-        // 1. Max. 5 Fotos Galerie (Kachel in voller Breite 100% ausfÃ¼llend)
+        // 5 Fotos
         const photos = item.photos || [
             item.image || (isEvents ? 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80' : 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80'),
             'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80',
@@ -5934,9 +5934,9 @@ function renderMarketGridHTML(items, isEvents) {
             'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=800&q=80'
         ];
 
-        // Embedded Videos array with YouTube IDs / embeds
+        // 3 Videos in die Galerie eingebunden (Slides 6, 7, 8)
         const videoEmbeds = [
-            { title: 'Live Performance Highlights', embedUrl: 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ' },
+            { title: 'Live Performance Highlights 2024', embedUrl: 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ' },
             { title: 'Auftritt Showreel & Trailer', embedUrl: 'https://www.youtube-nocookie.com/embed/3JZ_D3ELwOQ' },
             { title: 'Unplugged Session Video', embedUrl: 'https://www.youtube-nocookie.com/embed/L_LUpnjgPso' }
         ];
@@ -5953,13 +5953,32 @@ function renderMarketGridHTML(items, isEvents) {
         return `
             <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
                 
-                <!-- 1. Max. 5 Fotos Galerie mit Bandnamen oben links (FÃœLLT DIE KACHEL IN DER BREITE 100% AUS) -->
+                <!-- 1. Combined Galerie: 5 Fotos + 3 Videos direkt folgend (FÃœLLT DIE KACHEL IN DER BREITE 100% AUS) -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 230px; background: #0f172a; overflow: hidden;">
-                    <div id="full-slider-${item.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
-                        ${photos.slice(0, 5).map(img => `<img src="${img}" style="width: 100%; height: 100%; object-fit: cover; flex-shrink: 0;">`).join('')}
+                    <div id="combo-slider-${item.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
+                        
+                        <!-- Slides 1-5: Fotos -->
+                        ${photos.slice(0, 5).map((img, i) => `
+                            <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative;">
+                                <img src="${img}" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                        `).join('')}
+
+                        <!-- Slides 6-8: Videos direkt im Anschluss an das 5. Foto -->
+                        ${!isEvents ? videoEmbeds.map((vid, vIdx) => `
+                            <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                <div style="position: absolute; inset: 0; background: url('${photos[vIdx % photos.length]}') center/cover; opacity: 0.4;"></div>
+                                <button onclick="this.parentElement.innerHTML='<iframe src=\\\"${vid.embedUrl}?autoplay=1\\\" style=\\\"width:100%;height:100%;border:none;\\\" allow=\\\"autoplay; encrypted-media\\\" allowfullscreen></iframe>';" style="position: relative; z-index: 3; background: #ef4444; border: none; color: #fff; padding: 0.5rem 1.1rem; border-radius: 20px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 14px rgba(0,0,0,0.6);">
+                                    <i class="fa-solid fa-play"></i> Video #${vIdx + 1} abspielen
+                                </button>
+                                <span style="position: absolute; bottom: 8px; left: 12px; z-index: 3; font-size: 0.72rem; font-weight: 700; color: #fff; background: rgba(0,0,0,0.7); padding: 0.2rem 0.5rem; border-radius: 4px;">
+                                    ðŸŽ¬ ${vid.title}
+                                </span>
+                            </div>
+                        `).join('') : ''}
                     </div>
 
-                    <!-- Bandname oben links auf dem Bild ("Musiker" Badge entfernt!) -->
+                    <!-- Bandname oben links auf dem Bild -->
                     <div style="position: absolute; top: 12px; left: 12px; z-index: 5; max-width: 70%;">
                         <span style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.85rem; border-radius: 20px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px); color: #ffffff; font-size: 0.92rem; font-weight: 900; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 12px rgba(0,0,0,0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             <i class="fa-solid ${isEvents ? 'fa-calendar-day' : 'fa-guitar'}" style="color: ${themeColor};"></i> ${bandName}
@@ -5972,15 +5991,15 @@ function renderMarketGridHTML(items, isEvents) {
                     </div>
 
                     <!-- Slide Navigation Arrows -->
-                    <button onclick="const s=document.getElementById('full-slider-${item.id}'); let cur=parseInt(s.getAttribute('data-idx')||'0'); cur=cur>0?cur-1:4; s.style.transform=\`translateX(-\${cur*100}%)\`; s.setAttribute('data-idx', cur); this.nextElementSibling.nextElementSibling.innerText=\`ðŸ“· \${cur+1} / 5 Fotos\`;" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.65); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                    <button onclick="const s=document.getElementById('combo-slider-${item.id}'); let cur=parseInt(s.getAttribute('data-idx')||'0'); cur=cur>0?cur-1:7; s.style.transform=\`translateX(-\${cur*100}%)\`; s.setAttribute('data-idx', cur); const lbl=this.nextElementSibling.nextElementSibling; if(cur<5){lbl.innerText=\`ðŸ“· \${cur+1} / 5 Fotos\`;}else{lbl.innerText=\`ðŸŽ¬ Video \${cur-4} / 3\`;}" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.65); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                         <i class="fa-solid fa-chevron-left" style="font-size: 0.85rem;"></i>
                     </button>
-                    <button onclick="const s=document.getElementById('full-slider-${item.id}'); let cur=parseInt(s.getAttribute('data-idx')||'0'); cur=(cur+1)%5; s.style.transform=\`translateX(-\${cur*100}%)\`; s.setAttribute('data-idx', cur); this.nextElementSibling.innerText=\`ðŸ“· \${cur+1} / 5 Fotos\`;" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.65); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                    <button onclick="const s=document.getElementById('combo-slider-${item.id}'); let cur=parseInt(s.getAttribute('data-idx')||'0'); cur=(cur+1)%8; s.style.transform=\`translateX(-\${cur*100}%)\`; s.setAttribute('data-idx', cur); const lbl=this.nextElementSibling; if(cur<5){lbl.innerText=\`ðŸ“· \${cur+1} / 5 Fotos\`;}else{lbl.innerText=\`ðŸŽ¬ Video \${cur-4} / 3\`;}" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.65); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                         <i class="fa-solid fa-chevron-right" style="font-size: 0.85rem;"></i>
                     </button>
 
-                    <!-- Photo Counter Indicator -->
-                    <span style="position: absolute; bottom: 10px; left: 12px; background: rgba(0,0,0,0.75); color: #ffffff; font-size: 0.72rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 6px; backdrop-filter: blur(4px); z-index: 5;">
+                    <!-- Photo / Video Counter Indicator -->
+                    <span style="position: absolute; bottom: 10px; left: 12px; background: rgba(0,0,0,0.75); color: #ffffff; font-size: 0.72rem; font-weight: 800; padding: 0.2rem 0.65rem; border-radius: 6px; backdrop-filter: blur(4px); z-index: 5;">
                         ðŸ“· 1 / 5 Fotos
                     </span>
                 </div>
@@ -5988,86 +6007,54 @@ function renderMarketGridHTML(items, isEvents) {
                 <!-- Tile Body Content -->
                 <div style="padding: 1.3rem; flex: 1; display: flex; flex-direction: column;">
                     
-                    <!-- 2. Informationen (Standort, Musiker-Typ, VerfÃ¼gbarkeit, Spieldauer, Gage, Technik - DIREKT UNTER DEM BILD) -->
-                    <div style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 1rem; border-radius: 12px;">
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px;"></i>
-                            <span>Standort: <strong>${item.location || 'Deutschlandweit'}</strong></span>
+                    <!-- 2. Informationen (Standort, Musiker-Typ, VerfÃ¼gbarkeit, Spieldauer, Gage, Technik - BÃœNDIG LINKS OHNE GRAUE BOX) -->
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem; padding: 0;">
+                        <div style="display: flex; align-items: center; gap: 0.7rem;">
+                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Standort: <strong style="color: var(--text-main);">${item.location || 'Deutschlandweit'}</strong></span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid ${isEvents ? 'fa-calendar-alt' : 'fa-guitar'}" style="color: ${themeColor}; width: 18px;"></i>
-                            <span>${isEvents ? 'Event-Art:' : 'Musiker-Typ:'} <strong>${isEvents ? (item.eventType || 'Event') : (item.category || 'Solo / Band')}</strong></span>
+                        <div style="display: flex; align-items: center; gap: 0.7rem;">
+                            <i class="fa-solid ${isEvents ? 'fa-calendar-alt' : 'fa-guitar'}" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>${isEvents ? 'Event-Art:' : 'Musiker-Typ:'} <strong style="color: var(--text-main);">${isEvents ? (item.eventType || 'Event') : (item.category || 'Solo / Band')}</strong></span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px;"></i>
-                            <span>${isEvents ? 'Datum:' : 'VerfÃ¼gbarkeit:'} <strong>${isEvents ? (item.date || 'Termin nach Absprache') : (item.availability || 'Auf Anfrage verfÃ¼gbar')}</strong></span>
+                        <div style="display: flex; align-items: center; gap: 0.7rem;">
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>${isEvents ? 'Datum:' : 'VerfÃ¼gbarkeit:'} <strong style="color: var(--text-main);">${isEvents ? (item.date || 'Termin nach Absprache') : (item.availability || 'Auf Anfrage verfÃ¼gbar')}</strong></span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 18px;"></i>
-                            <span>Spieldauer: <strong>${duration}</strong></span>
+                        <div style="display: flex; align-items: center; gap: 0.7rem;">
+                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Spieldauer: <strong style="color: var(--text-main);">${duration}</strong></span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 18px;"></i>
-                            <span>${isEvents ? (`Gage: <strong>${item.budget || 'VB'}</strong>`) : (`Honorar / Gage: <strong>${item.price || 'VB'}</strong>`)}</span>
+                        <div style="display: flex; align-items: center; gap: 0.7rem;">
+                            <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>${isEvents ? (`Gage: <strong style="color: var(--text-main);">${item.budget || 'VB'}</strong>`) : (`Honorar / Gage: <strong style="color: var(--text-main);">${item.price || 'VB'}</strong>`)}</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-plug" style="color: ${themeColor}; width: 18px;"></i>
-                            <span>Technik: <strong>${item.equipment || 'Vorhanden / Auf Anfrage'}</strong></span>
+                        <div style="display: flex; align-items: center; gap: 0.7rem;">
+                            <i class="fa-solid fa-plug" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Technik: <strong style="color: var(--text-main);">${item.equipment || 'Vorhanden / Auf Anfrage'}</strong></span>
                         </div>
                     </div>
 
                     <!-- 3. Beschreibung (DIREKT UNTER DEN INFORMATIONEN) -->
-                    <div style="margin-bottom: 1.2rem;">
-                        <div style="font-size: 0.78rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase;">
-                            Beschreibung
-                        </div>
-                        <p style="font-size: 0.88rem; color: var(--text-main); line-height: 1.55; margin: 0;">
+                    <div style="margin-bottom: 1.2rem; padding-top: 0.8rem; border-top: 1px dashed rgba(255,255,255,0.08);">
+                        <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin: 0;">
                             ${description}
                         </p>
                     </div>
 
-                    <!-- 4. Genre und Instrumente (DIREKT DARUNTER) -->
-                    <div style="margin-bottom: 1.2rem;">
-                        <div style="font-size: 0.78rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase;">
-                            Genres & Instrumente
-                        </div>
-                        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
-                            ${genres.map(g => `<span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.76rem; color: var(--text-main); font-weight: 600;">ðŸ·ï¸ ${g}</span>`).join('')}
-                            ${instruments.map(inst => `<span style="background: rgba(124, 58, 237, 0.12); border: 1px solid rgba(124, 58, 237, 0.25); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.76rem; color: ${themeColor}; font-weight: 700;">ðŸŽ¸ ${inst}</span>`).join('')}
-                        </div>
+                    <!-- 4. Genre und Instrumente Tags (OHNE ÃœBERSCHRIFT!) -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem;">
+                        ${genres.map(g => `<span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.76rem; color: var(--text-main); font-weight: 600;">ðŸ·ï¸ ${g}</span>`).join('')}
+                        ${instruments.map(inst => `<span style="background: rgba(124, 58, 237, 0.12); border: 1px solid rgba(124, 58, 237, 0.25); padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.76rem; color: ${themeColor}; font-weight: 700;">ðŸŽ¸ ${inst}</span>`).join('')}
                     </div>
-
-                    ${!isEvents ? `
-                        <!-- 5. EINGEBETTETE VIDEOS GALERIE (Max. 3 Playable Embedded Videos) -->
-                        <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 0.9rem; margin-bottom: 0.5rem;">
-                            <div style="font-size: 0.8rem; font-weight: 800; color: #ef4444; margin-bottom: 0.65rem; display: flex; align-items: center; gap: 0.4rem;">
-                                <i class="fa-solid fa-film"></i> Eingebettete Videos Galerie (Max. 3 Videos)
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 0.6rem;">
-                                ${(item.videos || ['Video 1', 'Video 2', 'Video 3']).map((vidTitle, idx) => `
-                                    <div style="border-radius: 8px; overflow: hidden; background: #000; border: 1px solid rgba(255,255,255,0.15);">
-                                        <div style="position: relative; width: 100%; height: 110px; background: url('${photos[(idx+1)%photos.length]}') center/cover; display: flex; align-items: center; justify-content: center;">
-                                            <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.45);"></div>
-                                            <button onclick="this.parentElement.innerHTML='<iframe src=\\\"${videoEmbeds[idx%3].embedUrl}?autoplay=1\\\" style=\\\"width:100%;height:110px;border:none;\\\" allow=\\\"autoplay; encrypted-media\\\" allowfullscreen></iframe>';" style="position: relative; z-index: 3; background: #ef4444; border: none; color: #fff; padding: 0.4rem 0.9rem; border-radius: 20px; font-weight: 800; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
-                                                <i class="fa-solid fa-play"></i> Video ${idx+1} abspielen
-                                            </button>
-                                        </div>
-                                        <div style="padding: 0.35rem 0.6rem; font-size: 0.72rem; font-weight: 700; color: #fff; background: rgba(0,0,0,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                            ðŸŽ¬ ${vidTitle}
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
                 </div>
 
-                <!-- Tile Footer: Direkter Kontaktdaten-Freischalten Button (Verschwommener Text-Box-Button ENTFERNT!) -->
-                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding: 1.1rem; background: rgba(0,0,0,0.25);">
+                <!-- 5. Aktions-Button: "Kontaktdaten freischalten" (GRAUE HINTERLEGUNG ENTFERNT!) -->
+                <div style="padding: 0 1.3rem 1.3rem;">
                     ${isUnlocked ? `
                         <!-- Freigeschaltete Kontaktdaten -->
-                        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 0.85rem; font-size: 0.85rem; color: #4ade80; margin-bottom: 0.8rem;">
-                            <div style="font-weight: 800; margin-bottom: 0.3rem;"><i class="fa-solid fa-unlock"></i> PersÃ¶nliche Kontaktdaten</div>
+                        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 0.85rem; font-size: 0.85rem; color: #4ade80; margin-bottom: 0.6rem;">
+                            <div style="font-weight: 800; margin-bottom: 0.3rem;"><i class="fa-solid fa-unlock"></i> Kontaktdaten</div>
                             <div>Tel: ${item.phone || '+49 170 1234567'}</div>
                             <div>Mail: ${item.email || 'kontakt@gigconnact.de'}</div>
                         </div>
@@ -6075,9 +6062,9 @@ function renderMarketGridHTML(items, isEvents) {
                             <i class="fa-solid fa-paper-plane"></i> Nachricht senden
                         </button>
                     ` : `
-                        <!-- Direkter Freischalt-Button -->
-                        <button class="btn btn-primary btn-unlock-contact" data-id="${item.id}" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-color: #7c3aed; font-weight: 800; padding: 0.9rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);">
-                            <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten & Nachricht senden
+                        <!-- Kontaktdaten freischalten Button -->
+                        <button class="btn btn-primary btn-unlock-contact" data-id="${item.id}" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-color: #7c3aed; font-weight: 800; padding: 0.85rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);">
+                            <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
                         </button>
                     `}
                 </div>
