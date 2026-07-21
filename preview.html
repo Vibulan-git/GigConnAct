@@ -8645,7 +8645,7 @@ function renderMarketGridHTML(items, isEvents) {
         const genresList = (item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic'])).join(', ');
         const instrumentsList = (item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre'])).join(', ');
         
-        let duration = item.duration || item.spieldauer || '2 - 4 Stunden';
+        let duration = String(item.duration || item.spieldauer || '2 - 4 Stunden');
         duration = duration.replace(/ca\.\s*/gi, '');
 
         const description = item.description || item.bio || (isEvents 
