@@ -2450,13 +2450,10 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page" style="max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem 5rem;">
             
-            <!-- Page Header -->
+            <!-- Page Header (OHNE Gitarren-Logo!) -->
             <div style="margin-bottom: 1.8rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                 <div>
-                    <h1 style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 900; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 0.8rem;">
-                        <span style="display: inline-flex; width: 44px; height: 44px; border-radius: 12px; background: ${isEvents ? 'rgba(37, 99, 235, 0.12)' : 'rgba(124, 58, 237, 0.15)'}; align-items: center; justify-content: center; color: ${isEvents ? '#2563eb' : '#7c3aed'}; font-size: 1.3rem;">
-                            <i class="fa-solid ${isEvents ? 'fa-calendar-check' : 'fa-guitar'}"></i>
-                        </span>
+                    <h1 style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 900; color: var(--text-main); margin: 0;">
                         ${title}
                     </h1>
                 </div>
@@ -2472,7 +2469,7 @@ function renderMarket(container, type, onNavigate) {
             <!-- Main Layout: Left Sticky Sidebar Filters + Center Content -->
             <div class="market-layout-container" style="display: grid; grid-template-columns: 280px 1fr; gap: 2rem; align-items: start;">
                 
-                <!-- Left Sidebar Filters (LILA SCHRIFTEN & SUCHBEGRIFFE FELD) -->
+                <!-- Left Sidebar Filters (WEISSE EINGABEFELDER) -->
                 <div class="market-filter-card" style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); position: sticky; top: 90px; max-height: calc(100vh - 110px); overflow-y: auto;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 2px solid rgba(124, 58, 237, 0.3); padding-bottom: 0.8rem;">
                         <span style="color: #a855f7; font-weight: 900; font-size: 1.15rem; display: flex; align-items: center; gap: 0.6rem;">
@@ -2481,11 +2478,11 @@ function renderMarket(container, type, onNavigate) {
                     </div>
                     
                     ${isEvents ? `
-                        <!-- 10 Event-Markt Filter + Suchbegriffe -->
+                        <!-- 10 Event-Markt Filter + Suchbegriffe mit weissen Eingabefeldern -->
                         <div style="display: flex; flex-direction: column; gap: 0.8rem;">
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Event-Art</label>
-                                <select id="filter-event-type" class="form-input" multiple style="width: 100%; height: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="filter-event-type" class="form-input" multiple style="width: 100%; height: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                                     <option value="Hochzeit">Hochzeit</option>
                                     <option value="Geburtstag">Geburtstag</option>
                                     <option value="Firmenfeier">Firmenfeier</option>
@@ -2497,17 +2494,17 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Datum</label>
-                                <input type="date" id="filter-date" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <input type="date" id="filter-date" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Ort / PLZ</label>
-                                <input type="text" id="filter-location" placeholder="z.B. KÃ¶ln, Berlin..." class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <input type="text" id="filter-location" placeholder="z.B. KÃ¶ln, Berlin..." class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Umkreis</label>
-                                <select id="filter-distance" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="filter-distance" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                                     <option value="">Beliebiger Umkreis</option>
                                     <option value="25">bis 25 km</option>
                                     <option value="50">bis 50 km</option>
@@ -2518,7 +2515,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Genres</label>
-                                <select id="filter-genre" class="form-input" multiple style="width: 100%; height: 100px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="filter-genre" class="form-input" multiple style="width: 100%; height: 100px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                                     <option value="Pop">Pop</option>
                                     <option value="Rock">Rock</option>
                                     <option value="Acoustic">Acoustic / Singer-Songwriter</option>
@@ -2530,7 +2527,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Instrumente</label>
-                                <select id="filter-instrument" class="form-input" multiple style="width: 100%; height: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="filter-instrument" class="form-input" multiple style="width: 100%; height: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                                     <option value="Gesang">Gesang / Solo</option>
                                     <option value="Gitarre">Acoustic Gitarre</option>
                                     <option value="Piano">Piano / Keyboard</option>
@@ -2542,7 +2539,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Spieldauer</label>
-                                <select id="filter-duration" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="filter-duration" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                                     <option value="">Beliebige Spieldauer</option>
                                     <option value="1">bis 1 Stunde</option>
                                     <option value="2-3">2 - 3 Stunden</option>
@@ -2553,7 +2550,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Budgetspanne</label>
-                                <select id="filter-budget" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="filter-budget" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                                     <option value="">Jedes Budget</option>
                                     <option value="500">bis 500 â‚¬</option>
                                     <option value="1000">500 â‚¬ - 1.000 â‚¬</option>
@@ -2564,7 +2561,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Besucheranzahl</label>
-                                <select id="filter-attendees" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="filter-attendees" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                                     <option value="">Beliebige GÃ¤stezahl</option>
                                     <option value="50">bis 50 GÃ¤ste</option>
                                     <option value="150">50 - 150 GÃ¤ste</option>
@@ -2574,17 +2571,17 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Technik</label>
-                                <select id="filter-equipment" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="filter-equipment" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                                     <option value="">Beliebig</option>
                                     <option value="Vorhanden">Vorhanden</option>
                                     <option value="Mitbringen">Musiker bringt mit</option>
                                 </select>
                             </div>
 
-                            <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK -->
+                            <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK (WEISSES EINGABEFELD) -->
                             <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid #a855f7; border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Suchbegriffe</label>
-                                <input type="text" id="filter-keyword" placeholder="z.B. Hochzeit, Sax, Rock..." class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <input type="text" id="filter-keyword" placeholder="z.B. Hochzeit, Sax, Rock..." class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="padding-top: 0.3rem;">
@@ -2594,12 +2591,12 @@ function renderMarket(container, type, onNavigate) {
                             </div>
                         </div>
                     ` : `
-                        <!-- 10 Musiker-Markt Filter + Suchbegriffe mit lila Schriften -->
+                        <!-- 10 Musiker-Markt Filter + Suchbegriffe mit weissen Eingabefeldern -->
                         <div style="display: flex; flex-direction: column; gap: 0.8rem;">
                             
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Musiker-Typ</label>
-                                <select id="filter-musician-type" class="form-input" multiple style="width: 100%; height: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="filter-musician-type" class="form-input" multiple style="width: 100%; height: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                                     <option value="Solo">Solo-KÃ¼nstler</option>
                                     <option value="Duo">Duo / Trio</option>
                                     <option value="Coverband">Coverband</option>
@@ -2610,17 +2607,17 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Datum / VerfÃ¼gbarkeit</label>
-                                <input type="date" id="filter-date-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <input type="date" id="filter-date-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Ort</label>
-                                <input type="text" id="filter-location-m" placeholder="z.B. MÃ¼nchen, KÃ¶ln..." class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <input type="text" id="filter-location-m" placeholder="z.B. MÃ¼nchen, KÃ¶ln..." class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Umkreis</label>
-                                <select id="filter-distance-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="filter-distance-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                                     <option value="">Beliebiger Umkreis</option>
                                     <option value="25">bis 25 km</option>
                                     <option value="50">bis 50 km</option>
@@ -2630,7 +2627,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Genres</label>
-                                <select id="filter-genre-m" class="form-input" multiple style="width: 100%; height: 100px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="filter-genre-m" class="form-input" multiple style="width: 100%; height: 100px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                                     <option value="Pop">Pop</option>
                                     <option value="Rock">Rock</option>
                                     <option value="Acoustic">Acoustic / Singer-Songwriter</option>
@@ -2642,7 +2639,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Instrumente</label>
-                                <select id="filter-instrument-m" class="form-input" multiple style="width: 100%; height: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="filter-instrument-m" class="form-input" multiple style="width: 100%; height: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                                     <option value="Gesang">Gesang</option>
                                     <option value="Gitarre">Gitarre</option>
                                     <option value="Piano">Klavier / Keyboard</option>
@@ -2653,7 +2650,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Spieldauer</label>
-                                <select id="filter-duration-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="filter-duration-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                                     <option value="">Beliebige Spieldauer</option>
                                     <option value="1">bis 1 Stunde</option>
                                     <option value="2-3">2 - 3 Stunden</option>
@@ -2664,7 +2661,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Preisspanne</label>
-                                <select id="filter-price-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="filter-price-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                                     <option value="">Jede Preisspanne</option>
                                     <option value="500">bis 500 â‚¬</option>
                                     <option value="1000">500 â‚¬ - 1.000 â‚¬</option>
@@ -2674,7 +2671,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Besucheranzahl</label>
-                                <select id="filter-attendees-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="filter-attendees-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                                     <option value="">Beliebige GÃ¤stezahl</option>
                                     <option value="50">bis 50 GÃ¤ste</option>
                                     <option value="150">50 - 150 GÃ¤ste</option>
@@ -2683,17 +2680,17 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Technik</label>
-                                <select id="filter-equipment-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="filter-equipment-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                                     <option value="">Beliebig</option>
                                     <option value="Eigene">Eigene PA vorhanden</option>
                                     <option value="BenÃ¶tigt">Technik wird benÃ¶tigt</option>
                                 </select>
                             </div>
 
-                            <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK -->
+                            <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK (WEISSES EINGABEFELD) -->
                             <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid #a855f7; border-radius: 10px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Suchbegriffe</label>
-                                <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.9); color: var(--text-main); font-size: 0.85rem;">
+                                <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="padding-top: 0.3rem;">
@@ -2716,7 +2713,7 @@ function renderMarket(container, type, onNavigate) {
                             <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-muted); white-space: nowrap;">
                                 <i class="fa-solid fa-arrow-down-wide-short" style="color: ${isEvents ? '#2563eb' : '#7c3aed'};"></i> Sortierung:
                             </span>
-                            <select id="sort-select" style="padding: 0.55rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: var(--bg-surface); color: var(--text-main); font-weight: 800; font-size: 0.88rem;">
+                            <select id="sort-select" style="padding: 0.55rem 1rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 800; font-size: 0.88rem;">
                                 <option value="match">Match-Faktor absteigend</option>
                                 <option value="newest">Neueste zuerst</option>
                                 <option value="price">GÃ¼nstig zuerst</option>
@@ -6127,9 +6124,9 @@ function renderMarketGridHTML(items, isEvents) {
                         </span>
                     </div>
 
-                    <!-- Match-Faktor Badge oben rechts -->
+                    <!-- Match-Faktor Badge oben rechts (OHNE FLAMMEN-EMOJI / VORZEICHEN) -->
                     <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: ${themeColor}; color: #fff; padding: 0.45rem 1rem; border-radius: 14px; font-size: 0.95rem; font-weight: 900; box-shadow: 0 4px 14px rgba(0,0,0,0.4); letter-spacing: 0.5px;">
-                        ðŸ”¥ ${item.matchScore || '96'}% Match
+                        ${item.matchScore || '96'}% Match
                     </div>
 
                     <!-- Slide Navigation Arrows -->
@@ -6198,7 +6195,7 @@ function renderMarketGridHTML(items, isEvents) {
                     </div>
                 </div>
 
-                <!-- 4. Aktions-Button: "Kontaktdaten freischalten" (Ã–FFNET IMMER DIE ANMELDE-SEITE / AUTH MODAL!) -->
+                <!-- 4. Aktions-Button: "Kontaktdaten freischalten" -->
                 <div style="padding: 0 1.3rem 1.1rem;">
                     ${isUnlocked ? `
                         <!-- Freigeschaltete Kontaktdaten -->
@@ -6211,7 +6208,7 @@ function renderMarketGridHTML(items, isEvents) {
                             <i class="fa-solid fa-paper-plane"></i> Nachricht senden
                         </button>
                     ` : `
-                        <!-- Kontaktdaten freischalten Button (Ã–FFNET DIE ANMELDE-SEITE) -->
+                        <!-- Kontaktdaten freischalten Button -->
                         <button class="btn btn-primary" onclick="showModal('auth')" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-color: #7c3aed; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);">
                             <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
                         </button>
