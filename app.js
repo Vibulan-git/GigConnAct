@@ -5712,44 +5712,22 @@ function initGigConnActApp() {
             navigate('');
         });
     }
-}
-
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    setTimeout(initGigConnActApp, 1);
-} else {
-    document.addEventListener('DOMContentLoaded', initGigConnActApp);
-}
-
-    updateNavbar();
-    window.addEventListener('hashchange', handleRouting);
-    handleRouting();
-    initAllLocationAutocompletes();
-
-    document.getElementById('logo-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        navigate('');
-    });
-
-    const resetBtn = document.getElementById('btn-reset-demo');
-    if (resetBtn) {
-        resetBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.reload();
-        });
-    }
 
     document.addEventListener('user-state-changed', () => {
-        updateNavbar();
+        if (typeof updateNavbar === 'function') updateNavbar();
         runMatchingMonitor();
     });
 
     function runMatchingMonitor() {
-        if (state.currentUser) {
-            checkAndNotifyMatches(state, showToast);
+        if (state && state.currentUser) {
+            if (typeof checkAndNotifyMatches === 'function') {
+                checkAndNotifyMatches(state, showToast);
+            }
             if (window.matchIntervalId) clearInterval(window.matchIntervalId);
             window.matchIntervalId = setInterval(() => {
-                checkAndNotifyMatches(state, showToast);
+                if (state && state.currentUser && typeof checkAndNotifyMatches === 'function') {
+                    checkAndNotifyMatches(state, showToast);
+                }
             }, 15000);
         } else {
             if (window.matchIntervalId) {
@@ -5760,7 +5738,13 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     }
 
     runMatchingMonitor();
-});
+}
+
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(initGigConnActApp, 1);
+} else {
+    document.addEventListener('DOMContentLoaded', initGigConnActApp);
+}
 
 function renderPostbox(container) {
     if (!state.currentUser) return;
