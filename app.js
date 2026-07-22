@@ -2119,9 +2119,9 @@ function renderLandingPage(container, onNavigate) {
             <!-- 1. Fullscreen 100vh Hero Background Video Section -->
             <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 0; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
                 
-                <!-- Background Video (16:9, cover filled, auto start, muted, looping, no controls, playsinline) -->
+                <!-- Background Video (SD resolution for instant loading, cover filled, auto start, muted, looping, playsinline) -->
                 <video autoplay muted loop playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
-                    <source src="https://videos.pexels.com/video-files/3191578/3191578-uhd_3840_2160_25fps.mp4" type="video/mp4">
+                    <source src="https://videos.pexels.com/video-files/3191578/3191578-sd_960_540_25fps.mp4" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
 
@@ -2136,18 +2136,13 @@ function renderLandingPage(container, onNavigate) {
                         <i class="fa-solid fa-compact-disc" style="color:#60a5fa; -webkit-text-fill-color: initial; margin-right: 0.3rem;"></i>GigConnAct
                     </div>
 
-                    <!-- Headline "Wir vermitteln Live-Musik." -->
-                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 0.8rem; color: #ffffff; text-shadow: 0 4px 20px rgba(0,0,0,0.8);">
+                    <!-- Headline "Wir vermitteln Live-Musik." - nowrap to keep single line -->
+                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 5.8vw, 3.2rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1.2rem; color: #ffffff; text-shadow: 0 4px 20px rgba(0,0,0,0.8); white-space: nowrap;">
                         Wir vermitteln Live-Musik.
                     </h1>
 
-                    <!-- Subheadline -->
-                    <p style="font-size: clamp(1rem, 2.2vw, 1.3rem); color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.5; max-width: 800px; margin: 0 auto 1.8rem; text-shadow: 0 2px 10px rgba(0,0,0,0.7);">
-                        Ob Hochzeit, Geburtstag, Firmenfeier oder jedes andere Event -<br>GigConnAct bringt Musiker und Veranstalter zusammen.
-                    </p>
-
-                    <!-- Extra Large CTA Buttons: Musiker = LILA, Veranstalter = BLAU -->
-                    <div class="hero-cta-buttons">
+                    <!-- Extra Large CTA Buttons (Placed ABOVE description text as requested) -->
+                    <div class="hero-cta-buttons" style="margin-bottom: 1.4rem;">
                         <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.1rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 14px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
                             <i class="fa-solid fa-guitar"></i> Musiker
                         </button>
@@ -2155,11 +2150,16 @@ function renderLandingPage(container, onNavigate) {
                             <i class="fa-solid fa-calendar-check"></i> Veranstalter
                         </button>
                     </div>
+
+                    <!-- Subheadline Description Text (Placed below buttons) -->
+                    <p style="font-size: clamp(0.95rem, 2.2vw, 1.25rem); color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.5; max-width: 800px; margin: 0 auto; text-shadow: 0 2px 10px rgba(0,0,0,0.7);">
+                        Ob Hochzeit, Geburtstag, Firmenfeier oder jedes andere Event -<br>GigConnAct bringt Musiker und Veranstalter zusammen.
+                    </p>
                 </div>
             </div>
 
-            <!-- 2. SECTION 1: Musiker-Profile -->
-            <div style="max-width: 1400px; margin: 0 auto; padding: 3rem 1.5rem 0;">
+            <!-- 2. SECTION 1: Musiker-Profile (Padding-top tightened to 2rem) -->
+            <div style="max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem 0;">
                 <div style="text-align: center; margin-bottom: 2rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin-bottom: 0.4rem;">
                         Musiker-Profile
@@ -2181,8 +2181,8 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 3. SECTION 2: Event-Profile -->
-            <div style="max-width: 1400px; margin: 0 auto; padding: 3.5rem 1.5rem 0;">
+            <!-- 3. SECTION 2: Event-Profile (Padding-top tightened to 1rem to reduce vertical gap) -->
+            <div style="max-width: 1400px; margin: 0 auto; padding: 1rem 1.5rem 0;">
                 <div style="text-align: center; margin-bottom: 2rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin-bottom: 0.4rem;">
                         Event-Profile
