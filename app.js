@@ -2116,8 +2116,8 @@ function renderLandingPage(container, onNavigate) {
     container.innerHTML = `
         <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem; margin: 0; width: 100%;">
             
-            <!-- 1. Fullscreen 100vh Hero Background Video Section (Pushed to bottom third) -->
-            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 0 1.5rem 6.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+            <!-- 1. Fullscreen 100vh Hero Background Video Section -->
+            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 0 1.5rem 5rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
                 
                 <!-- Background Video (SD resolution for instant loading, cover filled, auto start, muted, looping, playsinline) -->
                 <video autoplay muted loop playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
@@ -2128,26 +2128,19 @@ function renderLandingPage(container, onNavigate) {
                 <!-- Dark overlay gradient for text readability -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.78) 0%, rgba(30, 58, 138, 0.72) 50%, rgba(124, 58, 237, 0.68) 100%); z-index: 2;"></div>
 
-                <!-- Center GigConnAct Logo (Absolutely positioned in the upper third) -->
-                <div class="brand-logo-center" style="position: absolute; top: 18vh; left: 50%; transform: translateX(-50%); z-index: 3; width: 100%; max-width: 900px; font-family: var(--font-heading); font-size: clamp(3rem, 7vw, 5.2rem); font-weight: 900; letter-spacing: -1px; background: linear-gradient(135deg, #60a5fa 0%, #ffffff 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.7)); text-align: center;">
-                    <i class="fa-solid fa-compact-disc" style="color:#60a5fa; -webkit-text-fill-color: initial; margin-right: 0.3rem;"></i>GigConnAct
-                </div>
+                <!-- Spacer at top to push content down into the lower half of the screen -->
+                <div style="flex-grow: 1; min-height: 15vh;"></div>
 
                 <!-- Hero Content Overlay (Text and buttons group positioned at the bottom) -->
-                <div style="position: relative; z-index: 3; max-width: 1000px; width: 100%;">
+                <div style="position: relative; z-index: 3; max-width: 1000px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1.2rem; margin-bottom: 2rem;">
                     
-                    <!-- Headline "Wir vermitteln Live-Musik." - nowrap to keep single line -->
-                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 5.8vw, 3.2rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 0.4rem; color: #ffffff; text-shadow: 0 4px 20px rgba(0,0,0,0.8); white-space: nowrap;">
-                        Wir vermitteln Live-Musik.
-                    </h1>
+                    <!-- A. Large GigConnAct Logo (Upper item in bottom group) -->
+                    <div class="brand-logo-center" style="display: block; width: 100%; max-width: 900px; margin: 0 auto; font-family: var(--font-heading); font-size: clamp(3rem, 7vw, 5.2rem); font-weight: 900; letter-spacing: -1px; background: linear-gradient(135deg, #60a5fa 0%, #ffffff 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.7)); text-align: center;">
+                        <i class="fa-solid fa-compact-disc" style="color:#60a5fa; -webkit-text-fill-color: initial; margin-right: 0.3rem;"></i>GigConnAct
+                    </div>
 
-                    <!-- Subheadline Description Text (Placed below headline) -->
-                    <p style="font-size: clamp(0.95rem, 2.2vw, 1.25rem); color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.5; max-width: 800px; margin: 0 auto 1.6rem; text-shadow: 0 2px 10px rgba(0,0,0,0.7);">
-                        Ob Hochzeit, Geburtstag, Firmenfeier oder jedes andere Event -<br>GigConnAct bringt Musiker und Veranstalter zusammen.
-                    </p>
-
-                    <!-- Extra Large CTA Buttons (Placed at the bottom of the group) -->
-                    <div class="hero-cta-buttons">
+                    <!-- B. Extra Large CTA Buttons (Placed in the middle between Logo and Headline) -->
+                    <div class="hero-cta-buttons" style="margin: 0.2rem auto;">
                         <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.1rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 14px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
                             <i class="fa-solid fa-guitar"></i> Musiker
                         </button>
@@ -2155,6 +2148,16 @@ function renderLandingPage(container, onNavigate) {
                             <i class="fa-solid fa-calendar-check"></i> Veranstalter
                         </button>
                     </div>
+
+                    <!-- C. Headline "Wir vermitteln Live-Musik." - nowrap to keep single line -->
+                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 5.8vw, 3.2rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin: 0; color: #ffffff; text-shadow: 0 4px 20px rgba(0,0,0,0.8); white-space: nowrap;">
+                        Wir vermitteln Live-Musik.
+                    </h1>
+
+                    <!-- D. Subheadline Description Text (Placed at the bottom of the group) -->
+                    <p style="font-size: clamp(0.95rem, 2.2vw, 1.25rem); color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.5; max-width: 800px; margin: 0 auto; text-shadow: 0 2px 10px rgba(0,0,0,0.7);">
+                        Hochzeiten, Geburtstage, Firmenfeiern & Co.<br>GigConnAct verbindet Musiker und Veranstalter.
+                    </p>
                 </div>
             </div>
 
@@ -2204,11 +2207,11 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 4. SECTION 3: Vorteile fÃ¼r Musiker (Tight spacing, slidable carousel) -->
+            <!-- 4. SECTION 3: 7 Vorteile fÃ¼r Musiker (Tight spacing, slidable carousel) -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 0.5rem 1.5rem 0;">
                 <div style="text-align: center; margin-bottom: 1.8rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin: 0;">
-                        Vorteile fÃ¼r Musiker
+                        7 Vorteile fÃ¼r Musiker
                     </h2>
                 </div>
 
@@ -2297,11 +2300,11 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 5. SECTION 4: Vorteile fÃ¼r Veranstalter (Tight spacing, slidable carousel) -->
+            <!-- 5. SECTION 4: 7 Vorteile fÃ¼r Veranstalter (Darker blue titles `#1e40af`) -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 0.5rem 1.5rem 0;">
                 <div style="text-align: center; margin-bottom: 1.8rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin: 0;">
-                        Vorteile fÃ¼r Veranstalter
+                        7 Vorteile fÃ¼r Veranstalter
                     </h2>
                 </div>
 
@@ -2312,8 +2315,8 @@ function renderLandingPage(container, onNavigate) {
                             <div class="market-tile-card" style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zu Musikern</h4>
+                                        <i class="fa-solid fa-circle-check" style="color: #1e40af; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #1e40af; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zu Musikern</h4>
                                     </div>
                                     <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Coverbands, Bands, DJs, Duos, Trios, Gitarristen, SÃ¤nger etc.</p>
                                 </div>
@@ -2322,8 +2325,8 @@ function renderLandingPage(container, onNavigate) {
                             <div class="market-tile-card" style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Passende Musiker</h4>
+                                        <i class="fa-solid fa-circle-check" style="color: #1e40af; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #1e40af; font-weight: 900; margin: 0; font-size: 1rem;">Passende Musiker</h4>
                                     </div>
                                     <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Musiker-Typ, Budget, Genre, Spieldauer etc.</p>
                                 </div>
@@ -2332,8 +2335,8 @@ function renderLandingPage(container, onNavigate) {
                             <div class="market-tile-card" style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Direkter Kontakt zu Musikern</h4>
+                                        <i class="fa-solid fa-circle-check" style="color: #1e40af; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #1e40af; font-weight: 900; margin: 0; font-size: 1rem;">Direkter Kontakt zu Musikern</h4>
                                     </div>
                                     <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
                                 </div>
@@ -2342,8 +2345,8 @@ function renderLandingPage(container, onNavigate) {
                             <div class="market-tile-card" style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
+                                        <i class="fa-solid fa-circle-check" style="color: #1e40af; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #1e40af; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
                                     </div>
                                     <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Musiker senden â€“ sondern auch erhalten</p>
                                 </div>
@@ -2352,8 +2355,8 @@ function renderLandingPage(container, onNavigate) {
                             <div class="market-tile-card" style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÃ¤ge</h4>
+                                        <i class="fa-solid fa-circle-check" style="color: #1e40af; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #1e40af; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÃ¤ge</h4>
                                     </div>
                                     <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Automatische Empfehlungen von GigConnAct zu Musikern</p>
                                 </div>
@@ -2362,8 +2365,8 @@ function renderLandingPage(container, onNavigate) {
                             <div class="market-tile-card" style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Schnelle Anmeldung</h4>
+                                        <i class="fa-solid fa-circle-check" style="color: #1e40af; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #1e40af; font-weight: 900; margin: 0; font-size: 1rem;">Schnelle Anmeldung</h4>
                                     </div>
                                     <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Anlegen des Veranstalter-Profils ohne Passwort</p>
                                 </div>
@@ -2372,8 +2375,8 @@ function renderLandingPage(container, onNavigate) {
                             <div class="market-tile-card" style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
+                                        <i class="fa-solid fa-circle-check" style="color: #1e40af; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #1e40af; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
                                     </div>
                                     <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Oder andere versteckte Kosten</p>
                                 </div>
