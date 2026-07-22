@@ -3020,7 +3020,7 @@ body {
             .landing-hero {
                 min-height: 100vh !important;
                 min-height: 100dvh !important;
-                padding: 1.8rem 0.8rem 2rem !important;
+                padding: 1.8rem 0.8rem 2.5rem !important;
             }
             .app-header {
                 padding: 0.35rem 0.6rem !important;
@@ -5193,8 +5193,8 @@ function renderLandingPage(container, onNavigate) {
     container.innerHTML = `
         <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem; margin: 0; width: 100%;">
             
-            <!-- 1. Fullscreen 100vh Hero Background Video Section -->
-            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 0; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+            <!-- 1. Fullscreen 100vh Hero Background Video Section (Pushed to bottom third) -->
+            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 0 1.5rem 6.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
                 
                 <!-- Background Video (SD resolution for instant loading, cover filled, auto start, muted, looping, playsinline) -->
                 <video autoplay muted loop playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
@@ -5203,23 +5203,28 @@ function renderLandingPage(container, onNavigate) {
                 </video>
 
                 <!-- Dark overlay gradient for text readability -->
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.75) 0%, rgba(30, 58, 138, 0.7) 50%, rgba(124, 58, 237, 0.65) 100%); z-index: 2;"></div>
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.78) 0%, rgba(30, 58, 138, 0.72) 50%, rgba(124, 58, 237, 0.68) 100%); z-index: 2;"></div>
 
-                <!-- Hero Content Overlay -->
-                <div style="position: relative; z-index: 3; max-width: 1000px; padding: 0 1.5rem; width: 100%;">
+                <!-- Center GigConnAct Logo (Absolutely positioned in the upper third) -->
+                <div class="brand-logo-center" style="position: absolute; top: 18vh; left: 50%; transform: translateX(-50%); z-index: 3; width: 100%; max-width: 900px; font-family: var(--font-heading); font-size: clamp(3rem, 7vw, 5.2rem); font-weight: 900; letter-spacing: -1px; background: linear-gradient(135deg, #60a5fa 0%, #ffffff 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.7)); text-align: center;">
+                    <i class="fa-solid fa-compact-disc" style="color:#60a5fa; -webkit-text-fill-color: initial; margin-right: 0.3rem;"></i>GigConnAct
+                </div>
+
+                <!-- Hero Content Overlay (Text and buttons group positioned at the bottom) -->
+                <div style="position: relative; z-index: 3; max-width: 1000px; width: 100%;">
                     
-                    <!-- Center GigConnAct Logo -->
-                    <div class="brand-logo-center" style="display: block; width: 100%; max-width: 900px; margin: 0 auto 0.6rem; font-family: var(--font-heading); font-size: clamp(3rem, 7vw, 5rem); font-weight: 900; letter-spacing: -1px; background: linear-gradient(135deg, #60a5fa 0%, #ffffff 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.7)); text-align: center;">
-                        <i class="fa-solid fa-compact-disc" style="color:#60a5fa; -webkit-text-fill-color: initial; margin-right: 0.3rem;"></i>GigConnAct
-                    </div>
-
                     <!-- Headline "Wir vermitteln Live-Musik." - nowrap to keep single line -->
-                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 5.8vw, 3.2rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 1.2rem; color: #ffffff; text-shadow: 0 4px 20px rgba(0,0,0,0.8); white-space: nowrap;">
+                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 5.8vw, 3.2rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 0.4rem; color: #ffffff; text-shadow: 0 4px 20px rgba(0,0,0,0.8); white-space: nowrap;">
                         Wir vermitteln Live-Musik.
                     </h1>
 
-                    <!-- Extra Large CTA Buttons (Placed ABOVE description text as requested) -->
-                    <div class="hero-cta-buttons" style="margin-bottom: 1.4rem;">
+                    <!-- Subheadline Description Text (Placed below headline) -->
+                    <p style="font-size: clamp(0.95rem, 2.2vw, 1.25rem); color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.5; max-width: 800px; margin: 0 auto 1.6rem; text-shadow: 0 2px 10px rgba(0,0,0,0.7);">
+                        Ob Hochzeit, Geburtstag, Firmenfeier oder jedes andere Event -<br>GigConnAct bringt Musiker und Veranstalter zusammen.
+                    </p>
+
+                    <!-- Extra Large CTA Buttons (Placed at the bottom of the group) -->
+                    <div class="hero-cta-buttons">
                         <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.1rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 14px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
                             <i class="fa-solid fa-guitar"></i> Musiker
                         </button>
@@ -5227,18 +5232,13 @@ function renderLandingPage(container, onNavigate) {
                             <i class="fa-solid fa-calendar-check"></i> Veranstalter
                         </button>
                     </div>
-
-                    <!-- Subheadline Description Text (Placed below buttons) -->
-                    <p style="font-size: clamp(0.95rem, 2.2vw, 1.25rem); color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.5; max-width: 800px; margin: 0 auto; text-shadow: 0 2px 10px rgba(0,0,0,0.7);">
-                        Ob Hochzeit, Geburtstag, Firmenfeier oder jedes andere Event -<br>GigConnAct bringt Musiker und Veranstalter zusammen.
-                    </p>
                 </div>
             </div>
 
-            <!-- 2. SECTION 1: Musiker-Profile (Padding-top tightened to 2rem) -->
+            <!-- 2. SECTION 1: Musiker-Profile (Tight spacing padding-top 2rem) -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem 0;">
-                <div style="text-align: center; margin-bottom: 2rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin-bottom: 0.4rem;">
+                <div style="text-align: center; margin-bottom: 1.8rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin: 0;">
                         Musiker-Profile
                     </h2>
                 </div>
@@ -5258,10 +5258,10 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 3. SECTION 2: Event-Profile (Padding-top tightened to 1rem to reduce vertical gap) -->
-            <div style="max-width: 1400px; margin: 0 auto; padding: 1rem 1.5rem 0;">
-                <div style="text-align: center; margin-bottom: 2rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin-bottom: 0.4rem;">
+            <!-- 3. SECTION 2: Event-Profile (Tight spacing padding-top 0.5rem) -->
+            <div style="max-width: 1400px; margin: 0 auto; padding: 0.5rem 1.5rem 0;">
+                <div style="text-align: center; margin-bottom: 1.8rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin: 0;">
                         Event-Profile
                     </h2>
                 </div>
@@ -5281,38 +5281,189 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 4. SECTION 3: Interactive Benefits Accordion Container (GANZ UNTEN) -->
-            <div style="max-width: 1050px; margin: 4rem auto 0; padding: 0 1.5rem;">
-                <div style="text-align: center; margin-bottom: 1.5rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.5vw, 2.4rem); font-weight: 900; color: var(--text-main); margin: 0;">Vorteile</h2>
+            <!-- 4. SECTION 3: Vorteile fÃ¼r Musiker (Tight spacing, slidable carousel) -->
+            <div style="max-width: 1400px; margin: 0 auto; padding: 0.5rem 1.5rem 0;">
+                <div style="text-align: center; margin-bottom: 1.8rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin: 0;">
+                        Vorteile fÃ¼r Musiker
+                    </h2>
                 </div>
-                <div class="hero-benefits-box" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 20px; padding: 1.4rem 1.8rem; box-shadow: var(--shadow-sm);">
-                    
-                    <!-- Accordion 1: Vorteile fÃ¼r Musiker -->
-                    <div style="margin-bottom: 0.9rem;">
-                        <button onclick="const c=document.getElementById('acc-content-musician'); const a=this.querySelector('.acc-arrow'); if(c){if(c.style.display==='none'||!c.style.display){c.style.display='block'; if(a)a.style.transform='rotate(180deg)';}else{c.style.display='none'; if(a)a.style.transform='rotate(0deg)';}}" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 2px solid #a855f7; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);">
-                            <span style="display: flex; align-items: center; gap: 0.75rem;">
-                                <i class="fa-solid fa-guitar" style="color: #ffffff; font-size: 1.1rem;"></i> Musiker
-                            </span>
-                            <i class="fa-solid fa-chevron-down acc-arrow" style="transition: transform 0.3s ease; color: #ffffff; font-size: 1rem;"></i>
-                        </button>
-                        <div id="acc-content-musician" style="display: none;">
-                            ${renderHeroTabContent(true)}
-                        </div>
-                    </div>
 
-                    <!-- Accordion 2: Vorteile fÃ¼r Veranstalter -->
-                    <div>
-                        <button onclick="const c=document.getElementById('acc-content-organizer'); const a=this.querySelector('.acc-arrow'); if(c){if(c.style.display==='none'||!c.style.display){c.style.display='block'; if(a)a.style.transform='rotate(180deg)';}else{c.style.display='none'; if(a)a.style.transform='rotate(0deg)';}}" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 2px solid #60a5fa; background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);">
-                            <span style="display: flex; align-items: center; gap: 0.75rem;">
-                                <i class="fa-solid fa-calendar-check" style="color: #ffffff; font-size: 1.1rem;"></i> Veranstalter
-                            </span>
-                            <i class="fa-solid fa-chevron-down acc-arrow" style="transition: transform 0.3s ease; color: #ffffff; font-size: 1rem;"></i>
-                        </button>
-                        <div id="acc-content-organizer" style="display: none;">
-                            ${renderHeroTabContent(false)}
+                <div class="carousel-container">
+                    <div class="carousel-viewport">
+                        <div class="carousel-track" id="carousel-track-benefits-musician">
+                            
+                            <div class="market-tile-card" style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zu Events</h4>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Hochzeiten, Geburtstage, Firmenfeiern, Kirmes, Gartenpartys etc.</p>
+                                </div>
+                            </div>
+
+                            <div class="market-tile-card" style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Passende Events</h4>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Event-Art, Entfernung, Gage, VerfÃ¼gbarkeit etc.</p>
+                                </div>
+                            </div>
+
+                            <div class="market-tile-card" style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Direkter Kontakt zu Veranstaltern</h4>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
+                                </div>
+                            </div>
+
+                            <div class="market-tile-card" style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Veranstalter senden â€“ sondern auch erhalten</p>
+                                </div>
+                            </div>
+
+                            <div class="market-tile-card" style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÃ¤ge</h4>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Automatische Empfehlungen von GigConnAct zu Events</p>
+                                </div>
+                            </div>
+
+                            <div class="market-tile-card" style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Schnelle Anmeldung</h4>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Anlegen des Musiker-Profils ohne Passwort</p>
+                                </div>
+                            </div>
+
+                            <div class="market-tile-card" style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Preiswertes Abo-Modell (jederzeit kÃ¼ndbar)</p>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
+                    <button class="carousel-btn prev-btn" onclick="slideCarousel('benefits-musician', -1)">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-btn next-btn" onclick="slideCarousel('benefits-musician', 1)">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 5. SECTION 4: Vorteile fÃ¼r Veranstalter (Tight spacing, slidable carousel) -->
+            <div style="max-width: 1400px; margin: 0 auto; padding: 0.5rem 1.5rem 0;">
+                <div style="text-align: center; margin-bottom: 1.8rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin: 0;">
+                        Vorteile fÃ¼r Veranstalter
+                    </h2>
+                </div>
+
+                <div class="carousel-container">
+                    <div class="carousel-viewport">
+                        <div class="carousel-track" id="carousel-track-benefits-organizer">
+                            
+                            <div class="market-tile-card" style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zu Musikern</h4>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Coverbands, Bands, DJs, Duos, Trios, Gitarristen, SÃ¤nger etc.</p>
+                                </div>
+                            </div>
+
+                            <div class="market-tile-card" style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Passende Musiker</h4>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Musiker-Typ, Budget, Genre, Spieldauer etc.</p>
+                                </div>
+                            </div>
+
+                            <div class="market-tile-card" style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Direkter Kontakt zu Musikern</h4>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
+                                </div>
+                            </div>
+
+                            <div class="market-tile-card" style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Musiker senden â€“ sondern auch erhalten</p>
+                                </div>
+                            </div>
+
+                            <div class="market-tile-card" style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÃ¤ge</h4>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Automatische Empfehlungen von GigConnAct zu Musikern</p>
+                                </div>
+                            </div>
+
+                            <div class="market-tile-card" style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Schnelle Anmeldung</h4>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Anlegen des Veranstalter-Profils ohne Passwort</p>
+                                </div>
+                            </div>
+
+                            <div class="market-tile-card" style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
+                                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Oder andere versteckte Kosten</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <button class="carousel-btn prev-btn" onclick="slideCarousel('benefits-organizer', -1)">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-btn next-btn" onclick="slideCarousel('benefits-organizer', 1)">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
                 </div>
             </div>
 
@@ -5328,10 +5479,12 @@ function renderLandingPage(container, onNavigate) {
     });
 
     // Initialize carousels and reset position
-    window.carouselPositions = { musicians: 0, events: 0 };
+    window.carouselPositions = { musicians: 0, events: 0, 'benefits-musician': 0, 'benefits-organizer': 0 };
     if (typeof initCarouselTouch === 'function') {
         initCarouselTouch('musicians');
         initCarouselTouch('events');
+        initCarouselTouch('benefits-musician');
+        initCarouselTouch('benefits-organizer');
     }
 }
 
