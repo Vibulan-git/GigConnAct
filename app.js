@@ -2116,8 +2116,8 @@ function renderLandingPage(container, onNavigate) {
     container.innerHTML = `
         <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem; margin: 0; width: 100%;">
             
-            <!-- 1. Fullscreen 100vh Hero Background Video Section (Spaced evenly into 3 vertical thirds) -->
-            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 15vh 1.5rem 5rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+            <!-- 1. Fullscreen 100vh Hero Background Video Section (Nudged positions) -->
+            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 22vh 1.5rem 9rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
                 
                 <!-- Background Video (SD resolution for instant loading, cover filled, auto start, muted, looping, playsinline) -->
                 <video autoplay muted loop playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
@@ -2128,7 +2128,7 @@ function renderLandingPage(container, onNavigate) {
                 <!-- Dark overlay gradient for text readability -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.78) 0%, rgba(30, 58, 138, 0.72) 50%, rgba(124, 58, 237, 0.68) 100%); z-index: 2;"></div>
 
-                <!-- 1/3: Large GigConnAct Logo (Upper third) -->
+                <!-- 1/3: Large GigConnAct Logo (Upper third - nudged down) -->
                 <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 900px; font-family: var(--font-heading); font-size: clamp(3rem, 7vw, 5.2rem); font-weight: 900; letter-spacing: -1px; background: linear-gradient(135deg, #60a5fa 0%, #ffffff 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.7)); text-align: center; margin: 0;">
                     <i class="fa-solid fa-compact-disc" style="color:#60a5fa; -webkit-text-fill-color: initial; margin-right: 0.3rem;"></i>GigConnAct
                 </div>
@@ -2143,7 +2143,7 @@ function renderLandingPage(container, onNavigate) {
                     </button>
                 </div>
 
-                <!-- 3/3: Headline + Description text block (Lower third / Bottom) -->
+                <!-- 3/3: Headline + Description text block (Lower third - nudged up) -->
                 <div style="position: relative; z-index: 3; max-width: 1000px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 0.6rem; margin: 0;">
                     <!-- Headline "Wir vermitteln Live-Musik." - nowrap to keep single line -->
                     <h1 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 5.8vw, 3.2rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin: 0; color: #ffffff; text-shadow: 0 4px 20px rgba(0,0,0,0.8); white-space: nowrap;">
