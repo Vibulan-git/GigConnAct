@@ -2133,13 +2133,15 @@ function renderLandingPage(container, onNavigate) {
                     <i class="fa-solid fa-compact-disc" style="color:#60a5fa; -webkit-text-fill-color: initial; margin-right: 0.3rem;"></i>GigConnAct
                 </div>
 
-                <!-- 2/3: Extra Large CTA Buttons (Middle third / Center) -->
+                <!-- 2/3: Extra Large CTA Buttons (Middle third / Center - Taller with stacked icon and text) -->
                 <div class="hero-cta-buttons" style="position: relative; z-index: 3; margin: 0;">
-                    <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.1rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 14px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
-                        <i class="fa-solid fa-guitar"></i> Musiker
+                    <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.4rem; font-weight: 800; border-radius: 18px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; min-width: 180px; min-height: 135px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                        <i class="fa-solid fa-guitar" style="font-size: 2.2rem;"></i>
+                        <span style="font-size: 1.25rem; font-weight: 800; display: block; line-height: 1.2;">Musiker</span>
                     </button>
-                    <button class="btn" id="btn-hero-organizer" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.1rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 14px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
-                        <i class="fa-solid fa-calendar-check"></i> Veranstalter
+                    <button class="btn" id="btn-hero-organizer" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.4rem; font-weight: 800; border-radius: 18px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; min-width: 180px; min-height: 135px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                        <i class="fa-solid fa-calendar-check" style="font-size: 2.2rem;"></i>
+                        <span style="font-size: 1.25rem; font-weight: 800; display: block; line-height: 1.2;">Veranstalter</span>
                     </button>
                 </div>
 

@@ -3009,6 +3009,119 @@ body {
     }
 }
 
+/* -------------------------------------------------------------
+ * Hero CTA Buttons & Benefits Optimization (v4400)
+ * ------------------------------------------------------------- */
+@keyframes pulseGlowMusician {
+    0% {
+        box-shadow: 0 0 10px rgba(168, 85, 247, 0.45), 0 10px 30px rgba(124, 58, 237, 0.45);
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(168, 85, 247, 0.85), 0 10px 30px rgba(124, 58, 237, 0.65);
+        transform: translateY(-4px) scale(1.02);
+    }
+    100% {
+        box-shadow: 0 0 10px rgba(168, 85, 247, 0.45), 0 10px 30px rgba(124, 58, 237, 0.45);
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes pulseGlowOrganizer {
+    0% {
+        box-shadow: 0 0 10px rgba(96, 165, 250, 0.45), 0 10px 30px rgba(37, 99, 235, 0.45);
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(96, 165, 250, 0.85), 0 10px 30px rgba(37, 99, 235, 0.65);
+        transform: translateY(-4px) scale(1.02);
+    }
+    100% {
+        box-shadow: 0 0 10px rgba(96, 165, 250, 0.45), 0 10px 30px rgba(37, 99, 235, 0.45);
+        transform: translateY(0) scale(1);
+    }
+}
+
+.hero-cta-buttons {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: nowrap;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.hero-cta-buttons .btn {
+    flex: 1;
+    white-space: nowrap;
+    text-align: center;
+    transition: all 0.3s ease !important;
+}
+
+#btn-hero-musician {
+    animation: pulseGlowMusician 3s infinite ease-in-out;
+}
+
+#btn-hero-organizer {
+    animation: pulseGlowOrganizer 3s infinite ease-in-out;
+}
+
+/* Zero margins and fullscreen container for landing page */
+.landing-active-main {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.transparent-header {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    z-index: 100 !important;
+    background: transparent !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
+
+@media (max-width: 600px) {
+    .hero-cta-buttons {
+        gap: 0.8rem !important;
+        padding: 0 1rem !important;
+    }
+    
+    .hero-cta-buttons .btn {
+        padding: 1rem 0.8rem !important;
+        border-radius: 14px !important;
+        min-width: 130px !important;
+        min-height: 105px !important;
+        gap: 0.3rem !important;
+    }
+    
+    .hero-cta-buttons .btn i {
+        font-size: 1.75rem !important;
+    }
+    
+    .hero-cta-buttons .btn span {
+        font-size: 0.98rem !important;
+    }
+    
+    .hero-benefits-box {
+        padding: 1rem 0.8rem !important;
+    }
+    
+    .hero-benefit-cards {
+        grid-template-columns: 1fr !important;
+        gap: 0.8rem !important;
+    }
+    
+    .hero-benefit-cards > div {
+        padding: 1rem !important;
+    }
+}
+
         .landing-hero, .hero-section {
             min-height: 100vh !important;
             min-height: 100dvh !important;
@@ -5210,13 +5323,15 @@ function renderLandingPage(container, onNavigate) {
                     <i class="fa-solid fa-compact-disc" style="color:#60a5fa; -webkit-text-fill-color: initial; margin-right: 0.3rem;"></i>GigConnAct
                 </div>
 
-                <!-- 2/3: Extra Large CTA Buttons (Middle third / Center) -->
+                <!-- 2/3: Extra Large CTA Buttons (Middle third / Center - Taller with stacked icon and text) -->
                 <div class="hero-cta-buttons" style="position: relative; z-index: 3; margin: 0;">
-                    <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.1rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 14px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
-                        <i class="fa-solid fa-guitar"></i> Musiker
+                    <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.4rem; font-weight: 800; border-radius: 18px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; min-width: 180px; min-height: 135px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                        <i class="fa-solid fa-guitar" style="font-size: 2.2rem;"></i>
+                        <span style="font-size: 1.25rem; font-weight: 800; display: block; line-height: 1.2;">Musiker</span>
                     </button>
-                    <button class="btn" id="btn-hero-organizer" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.1rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 14px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
-                        <i class="fa-solid fa-calendar-check"></i> Veranstalter
+                    <button class="btn" id="btn-hero-organizer" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.4rem; font-weight: 800; border-radius: 18px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; min-width: 180px; min-height: 135px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                        <i class="fa-solid fa-calendar-check" style="font-size: 2.2rem;"></i>
+                        <span style="font-size: 1.25rem; font-weight: 800; display: block; line-height: 1.2;">Veranstalter</span>
                     </button>
                 </div>
 
