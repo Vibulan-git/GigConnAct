@@ -1,4 +1,4 @@
-﻿var state = null;
+var state = null;
 
 window.slideComboGallery = function(itemId, direction) {
     const s = document.getElementById('combo-slider-' + itemId);
