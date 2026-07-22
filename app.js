@@ -4935,34 +4935,16 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             </div>
             
             <div class="auth-tabs">
-                <button class="auth-tab-btn active" id="tab-login-btn">Einloggen</button>
-                <button class="auth-tab-btn" id="tab-magic-btn">Magic Link</button>
+                <button class="auth-tab-btn active" id="tab-magic-btn">Einloggen</button>
                 <button class="auth-tab-btn" id="tab-register-btn">Registrieren</button>
             </div>
 
             <div class="modal-body">
-                <form id="auth-login-form">
+                <form id="auth-magic-form">
                     <div class="form-group">
                         <label>E-Mail-Adresse</label>
                         <input type="email" name="email" class="input-field" placeholder="deine@mail.de" required>
-                        <p style="font-size:0.7rem; color:var(--text-muted); margin-top: 0.3rem;">Demo accounts: contact@neonbeats.de oder julia.michael.wedding2026@gmail.com</p>
-                    </div>
-                    <div class="form-group">
-                        <label>Passwort</label>
-                        <input type="password" name="password" class="input-field" placeholder="••••••••" required>
-                        <p style="font-size:0.7rem; color:var(--text-muted); margin-top: 0.3rem;">Nutze 'pass123' für Demo-Accounts</p>
-                    </div>
-                    <div id="login-error-msg" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">
-                        Jetzt einloggen
-                    </button>
-                </form>
-
-                <form id="auth-magic-form" class="hidden">
-                    <div class="form-group">
-                        <label>E-Mail-Adresse</label>
-                        <input type="email" name="email" class="input-field" placeholder="deine@mail.de" required>
-                        <p style="font-size:0.7rem; color:var(--text-muted); margin-top: 0.3rem;">Gib deine E-Mail-Adresse ein, um einen Anmeldelink zu erhalten.</p>
+                        <p style="font-size:0.7rem; color:var(--text-muted); margin-top: 0.3rem;">Gib deine E-Mail-Adresse ein, um einen Anmeldelink zu erhalten. Demo-E-Mails: contact@neonbeats.de oder julia.michael.wedding2026@gmail.com</p>
                     </div>
                     <div id="magic-error-msg" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
                     <div id="magic-success-container" style="display:none; margin-bottom: 1.5rem;"></div>
@@ -5216,32 +5198,23 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
     document.getElementById('btn-close-modal').addEventListener('click', closeModal);
 
-    const loginTab = document.getElementById('tab-login-btn');
     const magicTab = document.getElementById('tab-magic-btn');
     const registerTab = document.getElementById('tab-register-btn');
-    const loginForm = document.getElementById('auth-login-form');
     const magicForm = document.getElementById('auth-magic-form');
     const registerForm = document.getElementById('auth-register-form');
 
     function setActiveTab(activeBtn) {
-        [loginTab, magicTab, registerTab].forEach(btn => {
+        [magicTab, registerTab].forEach(btn => {
             if (btn) btn.classList.remove('active');
         });
         if (activeBtn) activeBtn.classList.add('active');
     }
 
     function showForm(activeForm) {
-        [loginForm, magicForm, registerForm].forEach(f => {
+        [magicForm, registerForm].forEach(f => {
             if (f) f.classList.add('hidden');
         });
         if (activeForm) activeForm.classList.remove('hidden');
-    }
-
-    if (loginTab) {
-        loginTab.addEventListener('click', () => {
-            setActiveTab(loginTab);
-            showForm(loginForm);
-        });
     }
 
     if (magicTab) {
@@ -5275,26 +5248,6 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         registerTab.addEventListener('click', () => {
             setActiveTab(registerTab);
             showForm(registerForm);
-        });
-    }
-
-    if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = loginForm.elements.email.value;
-            const password = loginForm.elements.password.value;
-            const errDiv = document.getElementById('login-error-msg');
-
-            const res = state.login(email, password);
-            if (res.success) {
-                closeModal();
-                document.dispatchEvent(new CustomEvent('user-state-changed'));
-                window.handleRouting();
-                if (onSuccessCallback) onSuccessCallback();
-            } else {
-                errDiv.textContent = res.message;
-                errDiv.style.display = 'block';
-            }
         });
     }
 
