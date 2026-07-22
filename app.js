@@ -2300,7 +2300,7 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 5. SECTION 4: 7 Vorteile fÃ¼r Veranstalter (Darker blue titles `#1e40af`) -->
+            <!-- 5. SECTION 4: 7 Vorteile fÃ¼r Veranstalter (Darker blue titles #1e40af) -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 0.5rem 1.5rem 0;">
                 <div style="text-align: center; margin-bottom: 1.8rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin: 0;">
