@@ -5545,11 +5545,11 @@ function renderLandingPage(container, onNavigate) {
     const isUserLoggedIn = !!state.currentUser;
 
     const bottomCtaButtonHtml = isUserLoggedIn 
-        ? `<button class="btn" id="btn-bottom-dashboard-trigger" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: 2px solid rgba(255,255,255,0.15); color: #ffffff; padding: 1.25rem 3.5rem; font-weight: 800; font-size: 1.35rem; border-radius: 18px; box-shadow: 0 12px 35px rgba(124, 58, 237, 0.5); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 0.75rem;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
-               <i class="fa-solid fa-gauge-high" style="font-size: 1.6rem;"></i> Mein Dashboard
+        ? `<button class="btn" id="btn-bottom-dashboard-trigger" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: 1.5px solid rgba(255,255,255,0.15); color: #ffffff; padding: 0.95rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.45); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; white-space: nowrap;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
+               <i class="fa-solid fa-gauge-high"></i> Mein Dashboard
            </button>`
-        : `<button class="btn" id="btn-bottom-login-trigger" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: 2px solid rgba(255,255,255,0.15); color: #ffffff; padding: 1.25rem 3.5rem; font-weight: 800; font-size: 1.35rem; border-radius: 18px; box-shadow: 0 12px 35px rgba(124, 58, 237, 0.5); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 0.75rem;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
-               <i class="fa-solid fa-sign-in-alt" style="font-size: 1.6rem;"></i> Jetzt anmelden ohne Passwort
+        : `<button class="btn" id="btn-bottom-login-trigger" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: 1.5px solid rgba(255,255,255,0.15); color: #ffffff; padding: 0.95rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.45); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; white-space: nowrap;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
+               <i class="fa-solid fa-sign-in-alt"></i> Anmelden ohne Passwort
            </button>`;
 
     container.innerHTML = `
@@ -5644,7 +5644,7 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 4. SECTION 3: 7 Vorteile fÃ¼r Musiker (Icons: TÃ¼r, Filter, Sprechblasen, Pfeil, Zauberstab, Blitz, MÃ¼nzen) -->
+            <!-- 4. SECTION 3: 7 Vorteile fÃ¼r Musiker (Restored fa-sliders for advantage #2) -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 0.5rem 1.5rem 0;">
                 <div style="text-align: center; margin-bottom: 1.8rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin: 0;">
@@ -5669,7 +5669,7 @@ function renderLandingPage(container, onNavigate) {
                             <div class="market-tile-card" style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-filter" style="color: #a855f7; font-size: 1.2rem;"></i>
+                                        <i class="fa-solid fa-sliders" style="color: #a855f7; font-size: 1.2rem;"></i>
                                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Passende Events</h4>
                                     </div>
                                     <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Event-Art, Entfernung, Gage, VerfÃ¼gbarkeit etc.</p>
@@ -5737,7 +5737,7 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 5. SECTION 4: 7 Vorteile fÃ¼r Veranstalter (Icons: TÃ¼r, Filter, Sprechblasen, Pfeil, Zauberstab, Blitz, MÃ¼nzen) -->
+            <!-- 5. SECTION 4: 7 Vorteile fÃ¼r Veranstalter (Restored fa-sliders for advantage #2) -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 0.5rem 1.5rem 0;">
                 <div style="text-align: center; margin-bottom: 1.8rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin: 0;">
@@ -5762,7 +5762,7 @@ function renderLandingPage(container, onNavigate) {
                             <div class="market-tile-card" style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-filter" style="color: #1e40af; font-size: 1.2rem;"></i>
+                                        <i class="fa-solid fa-sliders" style="color: #1e40af; font-size: 1.2rem;"></i>
                                         <h4 style="color: #1e40af; font-weight: 900; margin: 0; font-size: 1rem;">Passende Musiker</h4>
                                     </div>
                                     <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Musiker-Typ, Budget, Genre, Spieldauer etc.</p>
@@ -9864,8 +9864,8 @@ function renderMarketGridHTML(items, isEvents) {
                             <i class="fa-solid fa-paper-plane"></i> Nachricht senden
                         </button>
                     ` : `
-                        <!-- Kontaktdaten freischalten Button -->
-                        <button class="btn btn-primary" onclick="showModal('auth')" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-color: #7c3aed; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);">
+                        <!-- Kontaktdaten freischalten Button (Blue for events, Purple for musicians) -->
+                        <button class="btn btn-primary" onclick="showModal('auth')" style="width: 100%; background: ${isEvents ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'}; border-color: ${isEvents ? '#1e40af' : '#7c3aed'}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${isEvents ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'};">
                             <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
                         </button>
                     `}
