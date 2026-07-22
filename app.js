@@ -1992,7 +1992,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zu Events</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.9); line-height: 1.45; padding-left: 1.8rem;">Hochzeiten, Geburtstage, Firmenfeiern, Kirmes, Gartenpartys etc.</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Hochzeiten, Geburtstage, Firmenfeiern, Kirmes, Gartenpartys etc.</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
@@ -2000,7 +2000,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Passende Events</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.9); line-height: 1.45; padding-left: 1.8rem;">Event-Art, Entfernung, Gage, VerfÃ¼gbarkeit etc.</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Event-Art, Entfernung, Gage, VerfÃ¼gbarkeit etc.</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
@@ -2008,7 +2008,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Direkter Kontakt zu Veranstaltern</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.9); line-height: 1.45; padding-left: 1.8rem;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
@@ -2016,7 +2016,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.9); line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Veranstalter senden â€“ sondern auch erhalten</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Veranstalter senden â€“ sondern auch erhalten</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
@@ -2024,7 +2024,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÃ¤ge</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.9); line-height: 1.45; padding-left: 1.8rem;">Automatische Empfehlungen von GigConnAct zu Events</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Automatische Empfehlungen von GigConnAct zu Events</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
@@ -2032,7 +2032,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Schnelle Anmeldung</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.9); line-height: 1.45; padding-left: 1.8rem;">Anlegen des Musiker-Profils ohne Passwort</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Anlegen des Musiker-Profils ohne Passwort</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
@@ -2040,7 +2040,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.9); line-height: 1.45; padding-left: 1.8rem;">Preiswertes Abo-Modell (jederzeit kÃ¼ndbar)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Preiswertes Abo-Modell (jederzeit kÃ¼ndbar)</p>
                 </div>
 
             </div>
@@ -2054,7 +2054,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
                         <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zu Musikern</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.9); line-height: 1.45; padding-left: 1.8rem;">Coverbands, Bands, DJs, Duos, Trios, Gitarristen, SÃ¤nger etc.</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Coverbands, Bands, DJs, Duos, Trios, Gitarristen, SÃ¤nger etc.</p>
                 </div>
 
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
@@ -2062,7 +2062,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
                         <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Passende Musiker</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.9); line-height: 1.45; padding-left: 1.8rem;">Musiker-Typ, Budget, Genre, Spieldauer etc.</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Musiker-Typ, Budget, Genre, Spieldauer etc.</p>
                 </div>
 
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
@@ -2070,7 +2070,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
                         <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Direkter Kontakt zu Musikern</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.9); line-height: 1.45; padding-left: 1.8rem;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
                 </div>
 
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
@@ -2078,7 +2078,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
                         <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.9); line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Musiker senden â€“ sondern auch erhalten</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Musiker senden â€“ sondern auch erhalten</p>
                 </div>
 
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
@@ -2086,7 +2086,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
                         <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÃ¤ge</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.9); line-height: 1.45; padding-left: 1.8rem;">Automatische Empfehlungen von GigConnAct zu Musikern</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Automatische Empfehlungen von GigConnAct zu Musikern</p>
                 </div>
 
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
@@ -2094,7 +2094,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
                         <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Schnelle Anmeldung</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.9); line-height: 1.45; padding-left: 1.8rem;">Anlegen des Veranstalter-Profils ohne Passwort</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Anlegen des Veranstalter-Profils ohne Passwort</p>
                 </div>
 
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
@@ -2102,7 +2102,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
                         <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.9); line-height: 1.45; padding-left: 1.8rem;">Oder andere versteckte Kosten</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Oder andere versteckte Kosten</p>
                 </div>
 
             </div>
@@ -2140,20 +2140,20 @@ function renderLandingPage(container, onNavigate) {
                     <!-- Extra Large CTA Buttons: Musiker = LILA, Veranstalter = BLAU -->
                     <div class="hero-cta-buttons">
                         <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.1rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 14px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
-                            <i class="fa-solid fa-guitar"></i> Ich bin Musiker
+                            <i class="fa-solid fa-guitar"></i> Musiker
                         </button>
                         <button class="btn" id="btn-hero-organizer" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.1rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 14px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
-                            <i class="fa-solid fa-calendar-check"></i> Ich bin Veranstalter
+                            <i class="fa-solid fa-calendar-check"></i> Veranstalter
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- 2. SECTION 1: Musiker-Profile ("So kÃƒÂ¶nnte Dein Musiker-Profil aussehen") -->
+            <!-- 2. SECTION 1: Musiker-Profile -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 3rem 1.5rem 0;">
                 <div style="text-align: center; margin-bottom: 2rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin-bottom: 0.4rem;">
-                        So kÃƒÂ¶nnte Dein Musiker-Profil aussehen
+                        Musiker-Profile
                     </h2>
                 </div>
 
@@ -2172,11 +2172,11 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 3. SECTION 2: Event-Profile ("So kÃƒÂ¶nnte Dein Event-Profil aussehen") -->
+            <!-- 3. SECTION 2: Event-Profile -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 3.5rem 1.5rem 0;">
                 <div style="text-align: center; margin-bottom: 2rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin-bottom: 0.4rem;">
-                        So kÃƒÂ¶nnte Dein Event-Profil aussehen
+                        Event-Profile
                     </h2>
                 </div>
 
@@ -2202,7 +2202,7 @@ function renderLandingPage(container, onNavigate) {
                 </div>
                 <div class="hero-benefits-box" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 20px; padding: 1.4rem 1.8rem; box-shadow: var(--shadow-sm);">
                     
-                    <!-- Accordion 1: Vorteile fÃƒÂ¼r Musiker -->
+                    <!-- Accordion 1: Vorteile fÃ¼r Musiker -->
                     <div style="margin-bottom: 0.9rem;">
                         <button onclick="const c=document.getElementById('acc-content-musician'); const a=this.querySelector('.acc-arrow'); if(c){if(c.style.display==='none'||!c.style.display){c.style.display='block'; if(a)a.style.transform='rotate(180deg)';}else{c.style.display='none'; if(a)a.style.transform='rotate(0deg)';}}" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 2px solid #a855f7; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);">
                             <span style="display: flex; align-items: center; gap: 0.75rem;">
@@ -2215,7 +2215,7 @@ function renderLandingPage(container, onNavigate) {
                         </div>
                     </div>
 
-                    <!-- Accordion 2: Vorteile fÃƒÂ¼r Veranstalter -->
+                    <!-- Accordion 2: Vorteile fÃ¼r Veranstalter -->
                     <div>
                         <button onclick="const c=document.getElementById('acc-content-organizer'); const a=this.querySelector('.acc-arrow'); if(c){if(c.style.display==='none'||!c.style.display){c.style.display='block'; if(a)a.style.transform='rotate(180deg)';}else{c.style.display='none'; if(a)a.style.transform='rotate(0deg)';}}" class="hero-accordion-btn" style="width: 100%; padding: 0.9rem 1.4rem; border-radius: 12px; font-weight: 800; font-size: 1rem; border: 2px solid #60a5fa; background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); color: #ffffff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: all 0.25s ease; box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);">
                             <span style="display: flex; align-items: center; gap: 0.75rem;">
