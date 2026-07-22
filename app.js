@@ -2114,26 +2114,35 @@ function renderLandingPage(container, onNavigate) {
     const isUserLoggedIn = !!state.currentUser;
 
     container.innerHTML = `
-        <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem;">
+        <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem; margin: 0; width: 100%;">
             
-            <!-- 1. Compact Hero Photo Section -->
-            <div class="landing-hero" style="position: relative; min-height: 68vh; min-height: 68dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem 1.5rem 2.5rem; text-align: center; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.4); background: linear-gradient(135deg, rgba(15, 23, 42, 0.82) 0%, rgba(30, 58, 138, 0.78) 50%, rgba(124, 58, 237, 0.78) 100%), url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;">
+            <!-- 1. Fullscreen 100vh Hero Background Video Section -->
+            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 0; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
                 
+                <!-- Background Video (16:9, cover filled, auto start, muted, looping, no controls, playsinline) -->
+                <video autoplay muted loop playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
+                    <source src="https://videos.pexels.com/video-files/3191578/3191578-uhd_3840_2160_25fps.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+
+                <!-- Dark overlay gradient for text readability -->
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.75) 0%, rgba(30, 58, 138, 0.7) 50%, rgba(124, 58, 237, 0.65) 100%); z-index: 2;"></div>
+
                 <!-- Hero Content Overlay -->
-                <div style="position: relative; z-index: 2; max-width: 1050px; margin: 0 auto; width: 100%;">
+                <div style="position: relative; z-index: 3; max-width: 1000px; padding: 0 1.5rem; width: 100%;">
                     
                     <!-- Center GigConnAct Logo -->
-                    <div class="brand-logo-center" style="display: block; width: 100%; max-width: 900px; margin: 0 auto 0.4rem; font-family: var(--font-heading); font-size: clamp(2.6rem, 6vw, 4.4rem); font-weight: 900; letter-spacing: 0px; background: linear-gradient(135deg, #60a5fa 0%, #ffffff 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.7)); text-align: center;">
+                    <div class="brand-logo-center" style="display: block; width: 100%; max-width: 900px; margin: 0 auto 0.6rem; font-family: var(--font-heading); font-size: clamp(3rem, 7vw, 5rem); font-weight: 900; letter-spacing: -1px; background: linear-gradient(135deg, #60a5fa 0%, #ffffff 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.7)); text-align: center;">
                         <i class="fa-solid fa-compact-disc" style="color:#60a5fa; -webkit-text-fill-color: initial; margin-right: 0.3rem;"></i>GigConnAct
                     </div>
 
                     <!-- Headline "Wir vermitteln Live-Musik." -->
-                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.4rem, 3.2vw, 2.5rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 0.6rem; color: #ffffff; text-shadow: 0 4px 20px rgba(0,0,0,0.8); white-space: normal; word-break: break-word;">
+                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 0.8rem; color: #ffffff; text-shadow: 0 4px 20px rgba(0,0,0,0.8);">
                         Wir vermitteln Live-Musik.
                     </h1>
 
                     <!-- Subheadline -->
-                    <p style="font-size: clamp(0.95rem, 1.8vw, 1.15rem); color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.5; max-width: 840px; margin: 0 auto 1.4rem; text-shadow: 0 2px 10px rgba(0,0,0,0.7);">
+                    <p style="font-size: clamp(1rem, 2.2vw, 1.3rem); color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.5; max-width: 800px; margin: 0 auto 1.8rem; text-shadow: 0 2px 10px rgba(0,0,0,0.7);">
                         Ob Hochzeit, Geburtstag, Firmenfeier oder jedes andere Event -<br>GigConnAct bringt Musiker und Veranstalter zusammen.
                     </p>
 
@@ -5565,6 +5574,24 @@ function updateNavbar() {
 
     const u = state.currentUser;
     const isLanding = !window.location.hash || window.location.hash === '#/' || window.location.hash === '#';
+
+    const header = document.querySelector('.app-header');
+    if (header) {
+        if (isLanding) {
+            header.classList.add('transparent-header');
+        } else {
+            header.classList.remove('transparent-header');
+        }
+    }
+
+    const main = document.getElementById('app-main');
+    if (main) {
+        if (isLanding) {
+            main.classList.add('landing-active-main');
+        } else {
+            main.classList.remove('landing-active-main');
+        }
+    }
 
     if (u) {
         const unreadCount = state.getUnreadCount();
