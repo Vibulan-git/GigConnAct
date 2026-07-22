@@ -113,7 +113,7 @@ window.unlockListing = function(targetId, targetName) {
                 <i class="fa-solid fa-coins" style="font-size:3rem; color:#FFD700; margin-bottom:1rem;"></i>
                 <h4 style="font-family:var(--font-heading); font-size:1.2rem; margin-bottom:0.5rem; color:var(--text-main);">Kontaktdaten freischalten?</h4>
                 <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem;">
-                    Möchtest du die Kontaktdaten fÜr <strong>${targetName}</strong> freischalten? Dies kostet dich 1 Credit.<br><br>
+                    Möchtest du die Kontaktdaten für <strong>${targetName}</strong> freischalten? Dies kostet dich 1 Credit.<br><br>
                     <span style="font-weight:700; color:var(--text-main);">Deine verbleibenden Credits: ${state.currentUser.credits}</span>
                 </p>
                 <div style="display:flex; gap:1rem; justify-content:center;">
@@ -170,7 +170,7 @@ const initialMusicians = [
         minBudget: 800, // EUR
         eventTypes: ["Club", "Festival", "Corporate", "Wedding"],
         availability: ["Friday", "Saturday"],
-        description: "Wir bringen jeden Club zum Kochen! Mit unserem einzigartigen Elektro-Pop Sound und Covers der 80er, 90er und heutigen Charts im neuen Gewand. Perfekt fÜr Partys, Firmenevents und Festivals.",
+        description: "Wir bringen jeden Club zum Kochen! Mit unserem einzigartigen Elektro-Pop Sound und Covers der 80er, 90er und heutigen Charts im neuen Gewand. Perfekt für Partys, Firmenevents und Festivals.",
         contactName: "Maximilian Schmidt",
         phone: "+49 176 12345678",
         email: "contact@neonbeats.de",
@@ -203,7 +203,7 @@ const initialMusicians = [
         minBudget: 300,
         eventTypes: ["Wedding", "Corporate", "Birthday"],
         availability: ["Saturday", "Sunday"],
-        description: "Elegante Hintergrundmusik am Klavier fÜr Ihre Trauung, den Sektempfang oder ein festliches Dinner. Ich spiele sowohl klassische Meisterwerke als auch moderne Pop-Balladen im sanften Klavier-Arrangement.",
+        description: "Elegante Hintergrundmusik am Klavier für Ihre Trauung, den Sektempfang oder ein festliches Dinner. Ich spiele sowohl klassische Meisterwerke als auch moderne Pop-Balladen im sanften Klavier-Arrangement.",
         contactName: "Clara Weber",
         phone: "+49 152 98765432",
         email: "clara.piano@gmx.de",
@@ -257,7 +257,7 @@ const initialMusicians = [
         minBudget: 450,
         eventTypes: ["Wedding", "Corporate", "Birthday", "Festival"],
         availability: ["Saturday", "Sunday", "Thursday"],
-        description: "Zweistimmiger Gesang, feine Akustikgitarren-Klänge und sanfte Rhythmen. Wir bieten den perfekten Soundtrack fÜr chillige Sommerevents, Gartenpartys oder romantische Trauungen.",
+        description: "Zweistimmiger Gesang, feine Akustikgitarren-Klänge und sanfte Rhythmen. Wir bieten den perfekten Soundtrack für chillige Sommerevents, Gartenpartys oder romantische Trauungen.",
         contactName: "Sarah & Ben",
         phone: "+49 160 88877799",
         email: "acoustic.breeze@outlook.de",
@@ -405,7 +405,7 @@ const initialEvents = [
         duration: 4,
         budget: 1200,
         musicianTypes: ["Band", "DJ"],
-        description: "Großes Sommer-Event am Stadtstrand! Wir suchen eine energiegeladene Live-Band oder einen DJ, der fÜr fette Beats und Sommerstimmung sorgt. PA-Anlage und Bühne sind vorhanden. Verpflegung wird gestellt.",
+        description: "Großes Sommer-Event am Stadtstrand! Wir suchen eine energiegeladene Live-Band oder einen DJ, der für fette Beats und Sommerstimmung sorgt. PA-Anlage und Bühne sind vorhanden. Verpflegung wird gestellt.",
         contactName: "Eventagentur SommerSonne",
         phone: "+49 89 9876540",
         email: "info@sommersonne-events.de",
@@ -423,7 +423,7 @@ const initialEvents = [
         duration: 3,
         budget: 950,
         musicianTypes: ["Band", "Duo"],
-        description: "Wir feiern unser 10-jähriges Bestehen und suchen eine Band fÜr den Abend. Zuerst gediegener Jazz zum Dinner, danach Pop/Rock-Klassiker zum Tanzen. Licht/Ton muss mitgebracht werden.",
+        description: "Wir feiern unser 10-jähriges Bestehen und suchen eine Band für den Abend. Zuerst gediegener Jazz zum Dinner, danach Pop/Rock-Klassiker zum Tanzen. Licht/Ton muss mitgebracht werden.",
         contactName: "Sandra Meier (TechCorp HR)",
         phone: "+49 911 445566",
         email: "s.meier@techcorp.de",
@@ -441,7 +441,7 @@ const initialEvents = [
         duration: 4,
         budget: 700,
         musicianTypes: ["DJ"],
-        description: "Wir veranstalten unser alljährliches Open Air am See und suchen einen professionellen Club-DJ fÜr fette EDM, House & Techno-Beats. Sound- & Lichtanlage sind komplett vorhanden.",
+        description: "Wir veranstalten unser alljährliches Open Air am See und suchen einen professionellen Club-DJ für fette EDM, House & Techno-Beats. Sound- & Lichtanlage sind komplett vorhanden.",
         contactName: "Club Seeufer Augsburg",
         phone: "+49 821 555666",
         email: "booking@seeufer-augsburg.de",
@@ -459,7 +459,7 @@ const initialEvents = [
         duration: 5,
         budget: 500,
         musicianTypes: ["Duo", "Solo", "Band"],
-        description: "Zu meinem 50. Geburtstag suche ich ein Akustik-Duo oder einen Solo-Musiker, der alte Rock- und Popklassiker spielt und fÜr gute Laune im Kellergewölbe sorgt. Platz ist begrenzt, Strom vorhanden.",
+        description: "Zu meinem 50. Geburtstag suche ich ein Akustik-Duo oder einen Solo-Musiker, der alte Rock- und Popklassiker spielt und für gute Laune im Kellergewölbe sorgt. Platz ist begrenzt, Strom vorhanden.",
         contactName: "Thomas Wagner",
         phone: "+49 172 77766655",
         email: "thomas.wagner50@web.de",
@@ -544,7 +544,7 @@ function generateRemainingMusicians(existing) {
             minBudget,
             eventTypes: ["Wedding", "Corporate", "Birthday", "Club"].slice(0, Math.floor(Math.random() * 3) + 1),
             availability,
-            description: `Hallo, wir sind ${name}! Mit viel Herzblut und Leidenschaft spielen wir ${genres.join(" & ")} fÜr Ihre Veranstaltung in ${location} und Umgebung. Kontaktieren Sie uns gerne!`,
+            description: `Hallo, wir sind ${name}! Mit viel Herzblut und Leidenschaft spielen wir ${genres.join(" & ")} für Ihre Veranstaltung in ${location} und Umgebung. Kontaktieren Sie uns gerne!`,
             contactName,
             phone: `+49 176 ${Math.floor(10000000 + Math.random() * 90000000)}`,
             email: `${name.toLowerCase().replace(/[^a-z0-9]/g, "")}@example.com`,
@@ -995,8 +995,8 @@ class StateManager {
                 participants: ["mus_1", "org_1"],
                 messages: [
                     { senderId: "org_1", text: "Hallo! Wir finden euren Sound absolut genial. HÄttet ihr Zeit, bei unserer Hochzeit zu spielen?", timestamp: "2026-07-12T14:30:00Z" },
-                    { senderId: "mus_1", text: "Hallo Julia! Vielen Dank fÜr die Anfrage. Der 15. August 2026 passt uns super. Welche Art von Songs wÜnscht ihr euch?", timestamp: "2026-07-12T15:15:00Z" },
-                    { senderId: "org_1", text: "Hauptsächlich Pop-Cover fÜr die Party am Abend und etwas Ruhiges fÜr den Sektempfang. Das Budget liegt bei ca. 800-1000 EUR.", timestamp: "2026-07-12T16:00:00Z" }
+                    { senderId: "mus_1", text: "Hallo Julia! Vielen Dank für die Anfrage. Der 15. August 2026 passt uns super. Welche Art von Songs wÜnscht ihr euch?", timestamp: "2026-07-12T15:15:00Z" },
+                    { senderId: "org_1", text: "Hauptsächlich Pop-Cover für die Party am Abend und etwas Ruhiges für den Sektempfang. Das Budget liegt bei ca. 800-1000 EUR.", timestamp: "2026-07-12T16:00:00Z" }
                 ],
                 updatedAt: "2026-07-12T16:00:00Z"
             },
@@ -1087,7 +1087,104 @@ class StateManager {
             return { success: true, user: this.currentUser };
         }
 
-        return { success: false, message: "Ungültige E-Mail-Adresse oder Passwort. FÜr Demo-Accounts nutze 'pass123' als Passwort." };
+        return { success: false, message: "Ungültige E-Mail-Adresse oder Passwort. Für Demo-Accounts nutze 'pass123' als Passwort." };
+    }
+
+    loginPasswordless(email) {
+        const targetEmail = email.toLowerCase();
+        
+        const musician = this.musicians.find(m => m.email && m.email.toLowerCase() === targetEmail);
+        if (musician) {
+            this.currentUser = {
+                id: musician.id,
+                role: "musician",
+                firstName: musician.contactName.split(" ")[0] || "Musiker",
+                lastName: musician.contactName.split(" ")[1] || "",
+                company: "Privatperson",
+                phone: musician.phone,
+                email: musician.email,
+                isPremium: musician.isPremium,
+                credits: musician.credits !== undefined ? musician.credits : 5,
+                unlockedContacts: musician.unlockedContacts || [],
+                profileId: musician.id,
+                successfulGigs: 3,
+                contactRequests: 5
+            };
+            this.notify();
+            return { success: true, user: this.currentUser };
+        }
+
+        const event = this.events.find(e => e.email && e.email.toLowerCase() === targetEmail);
+        if (event) {
+            this.currentUser = {
+                id: event.creatorId,
+                role: "organizer",
+                firstName: event.contactName.split(" ")[0] || "Veranstalter",
+                lastName: event.contactName.split(" ")[1] || "",
+                company: "Privatperson",
+                phone: event.phone,
+                email: event.email,
+                isPremium: true,
+                profileId: event.creatorId,
+                successfulGigs: 1,
+                contactRequests: 2
+            };
+            this.notify();
+            return { success: true, user: this.currentUser };
+        }
+
+        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+        const registered = registeredUsers.find(u => u.email && u.email.toLowerCase() === targetEmail);
+        if (registered) {
+            this.currentUser = {
+                id: registered.id,
+                role: registered.role,
+                firstName: registered.firstName,
+                lastName: registered.lastName,
+                company: registered.company || "Privatperson",
+                phone: registered.phone,
+                email: registered.email,
+                isPremium: registered.role === "musician" ? registered.isPremium : true,
+                credits: registered.role === "musician" ? (registered.credits !== undefined ? registered.credits : 5) : 0,
+                unlockedContacts: registered.unlockedContacts || [],
+                profileId: registered.profileId,
+                successfulGigs: registered.successfulGigs || 0,
+                contactRequests: registered.contactRequests || 0
+            };
+            this.notify();
+            return { success: true, user: this.currentUser };
+        }
+
+        return { success: false, code: 'NOT_FOUND', message: "E-Mail-Adresse nicht gefunden." };
+    }
+
+    registerOnTheFly(email, role) {
+        const id = role === "musician" ? "mus_" + Date.now() : "org_" + Date.now();
+        const profileId = id;
+        
+        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+        const firstName = role === "musician" ? "Demo-Musiker" : "Demo-Veranstalter";
+        
+        const newUser = {
+            id,
+            role,
+            firstName,
+            lastName: "Gast",
+            company: "Privatperson",
+            phone: "+49 170 1234567",
+            email,
+            password: "pass123",
+            isPremium: role === "musician" ? false : true,
+            credits: role === "musician" ? 5 : 0,
+            unlockedContacts: [],
+            profileId,
+            successfulGigs: 0,
+            contactRequests: 0
+        };
+        registeredUsers.push(newUser);
+        localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+
+        return this.loginPasswordless(email);
     }
 
     logout() {
@@ -1346,7 +1443,7 @@ class StateManager {
     initiateContact(targetId, targetName) {
         if (!this.currentUser) return { success: false, redirectAuth: true };
         
-        const welcomeText = `Hallo! Ich habe dein Profil auf GigConnAct gefunden und interessiere mich fÜr eine Zusammenarbeit. Lass uns hier schreiben!`;
+        const welcomeText = `Hallo! Ich habe dein Profil auf GigConnAct gefunden und interessiere mich für eine Zusammenarbeit. Lass uns hier schreiben!`;
         this.sendMessage(targetId, welcomeText);
         
         this.currentUser.contactRequests = (this.currentUser.contactRequests || 0) + 1;
@@ -2210,11 +2307,11 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 4. SECTION 3: 7 Vorteile fÜr Musiker (Vibrant Purple Neon Cards with white texts) -->
+            <!-- 4. SECTION 3: 7 Vorteile für Musiker (Vibrant Purple Neon Cards with white texts) -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 0.5rem 1.5rem 0;">
                 <div style="text-align: center; margin-bottom: 1.8rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: #7c3aed; margin: 0;">
-                        7 Vorteile fÜr Musiker
+                        7 Vorteile für Musiker
                     </h2>
                 </div>
 
@@ -2303,11 +2400,11 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 5. SECTION 4: 7 Vorteile fÜr Veranstalter (Vibrant Blue Neon Cards with white texts) -->
+            <!-- 5. SECTION 4: 7 Vorteile für Veranstalter (Vibrant Blue Neon Cards with white texts) -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 0.5rem 1.5rem 0;">
                 <div style="text-align: center; margin-bottom: 1.8rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: #2563eb; margin: 0;">
-                        7 Vorteile fÜr Veranstalter
+                        7 Vorteile für Veranstalter
                     </h2>
                 </div>
 
@@ -2639,7 +2736,7 @@ function initAllLocationAutocompletes() {
 
 function renderMarket(container, type, onNavigate) {
     const isEvents = type === 'events';
-    const title = isEvents ? 'Event-Markt fÜr Musiker' : 'Musiker-Markt fÜr Veranstalter';
+    const title = isEvents ? 'Event-Markt für Musiker' : 'Musiker-Markt für Veranstalter';
 
     const items = isEvents ? state.events : state.musicians;
 
@@ -3074,8 +3171,8 @@ window.openItemDetailModal = function(id, isEvents) {
     const instruments = item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre']);
     const duration = item.duration || item.spieldauer || 'ca. 2 - 4 Stunden';
     const description = item.description || item.bio || (isEvents 
-        ? 'Wir suchen eine professionelle musikalische Begleitung fÜr unser anstehendes Event mit toller Stimmung. Bitte Ton- und Lichttechnik mitbringen oder absprechen.' 
-        : 'Professionelle Live-Musik fÜr unvergleichliche Momente bei Hochzeiten, Geburtstagen & Firmenevents. Großes Repertoire von Klassikern bis zu modernen Charts.');
+        ? 'Wir suchen eine professionelle musikalische Begleitung für unser anstehendes Event mit toller Stimmung. Bitte Ton- und Lichttechnik mitbringen oder absprechen.' 
+        : 'Professionelle Live-Musik für unvergleichliche Momente bei Hochzeiten, Geburtstagen & Firmenevents. Großes Repertoire von Klassikern bis zu modernen Charts.');
 
     const modalHTML = `
         <div class="modal-overlay active" id="modal-item-detail" style="position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
@@ -4039,7 +4136,7 @@ function renderMusicianInsightsPanel(m) {
     const eventListHtml = resolvedApps.length === 0 ? `
         <div style="padding:1.5rem; text-align:center; color:var(--text-muted); font-size:0.8rem; background:#ffffff; border: 1px solid var(--border-glass); border-radius:var(--radius-sm);">
             <i class="fa-solid fa-envelope-open" style="font-size:1.8rem; color:var(--border-glass); margin-bottom:0.5rem; display:block;"></i>
-            Keine kontaktierten Events fÜr dieses Profil gefunden. Bewirb dich auf dem Event-Marktplatz!
+            Keine kontaktierten Events für dieses Profil gefunden. Bewirb dich auf dem Event-Marktplatz!
         </div>
     ` : `
         <div style="display:flex; flex-direction:column; gap:0.6rem;">
@@ -4463,14 +4560,14 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Genres (Halte Strg/Cmd fÜr Mehrfachauswahl)</label>
+                        <label>Genres (Halte Strg/Cmd für Mehrfachauswahl)</label>
                         <select name="genres" class="input-field" multiple style="height: 100px;">
                             ${getSelectOptions(genresList, musicianObj?.genres || [])}
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>Instrumente (Halte Strg/Cmd fÜr Mehrfachauswahl)</label>
+                        <label>Instrumente (Halte Strg/Cmd für Mehrfachauswahl)</label>
                         <select name="instruments" class="input-field" multiple style="height: 100px;">
                             ${getSelectOptions(instrumentsList, musicianObj?.instruments || [])}
                         </select>
@@ -4839,6 +4936,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             
             <div class="auth-tabs">
                 <button class="auth-tab-btn active" id="tab-login-btn">Einloggen</button>
+                <button class="auth-tab-btn" id="tab-magic-btn">Magic Link</button>
                 <button class="auth-tab-btn" id="tab-register-btn">Registrieren</button>
             </div>
 
@@ -4852,11 +4950,24 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     <div class="form-group">
                         <label>Passwort</label>
                         <input type="password" name="password" class="input-field" placeholder="••••••••" required>
-                        <p style="font-size:0.7rem; color:var(--text-muted); margin-top: 0.3rem;">Nutze 'pass123' fÜr Demo-Accounts</p>
+                        <p style="font-size:0.7rem; color:var(--text-muted); margin-top: 0.3rem;">Nutze 'pass123' für Demo-Accounts</p>
                     </div>
                     <div id="login-error-msg" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;">
                         Jetzt einloggen
+                    </button>
+                </form>
+
+                <form id="auth-magic-form" class="hidden">
+                    <div class="form-group">
+                        <label>E-Mail-Adresse</label>
+                        <input type="email" name="email" class="input-field" placeholder="deine@mail.de" required>
+                        <p style="font-size:0.7rem; color:var(--text-muted); margin-top: 0.3rem;">Gib deine E-Mail-Adresse ein, um einen Anmeldelink zu erhalten.</p>
+                    </div>
+                    <div id="magic-error-msg" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
+                    <div id="magic-success-container" style="display:none; margin-bottom: 1.5rem;"></div>
+                    <button type="submit" class="btn btn-primary" id="btn-send-magic" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: none;">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Magic Link senden
                     </button>
                 </form>
 
@@ -4947,7 +5058,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <div class="form-group">
                             <label>Kalender-Verfügbarkeit (Freie Tage wÄhlen)</label>
                             <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.5rem; line-height: 1.3;">
-                                Jedes Datum ist standardmäßig als verfügbar vorausgewählt (lila markiert). Klicke auf ein Datum, um es abzuwÄhlen. Nutze die Buttons unten fÜr Massenaktionen.
+                                Jedes Datum ist standardmäßig als verfügbar vorausgewählt (lila markiert). Klicke auf ein Datum, um es abzuwÄhlen. Nutze die Buttons unten für Massenaktionen.
                             </p>
                             
                             <div class="calendar-widget">
@@ -5086,11 +5197,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     <div id="reg-sepa-consent-container" style="margin-top: 1.5rem;">
                         <div class="sepa-panel">
                             <h5><i class="fa-solid fa-circle-info"></i> SEPA Lastschrift-Mandat</h5>
-                            <p>Ich ermächtige GigConnAct, Zahlungen fÜr das Musiker-Abonnement (5,00 € pro Monat) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GigConnAct auf mein Konto gezogenen Lastschriften einzulösen.</p>
+                            <p>Ich ermächtige GigConnAct, Zahlungen für das Musiker-Abonnement (5,00 € pro Monat) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GigConnAct auf mein Konto gezogenen Lastschriften einzulösen.</p>
                         </div>
                         <label class="form-checkbox" style="margin-bottom: 1.5rem;">
                             <input type="checkbox" name="sepaConsent" required>
-                            <span>Ich stimme dem SEPA-Lastschriftmandat fÜr das 5 € Abo zu.</span>
+                            <span>Ich stimme dem SEPA-Lastschriftmandat für das 5 € Abo zu.</span>
                         </label>
                     </div>
 
@@ -5106,41 +5217,204 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     document.getElementById('btn-close-modal').addEventListener('click', closeModal);
 
     const loginTab = document.getElementById('tab-login-btn');
+    const magicTab = document.getElementById('tab-magic-btn');
     const registerTab = document.getElementById('tab-register-btn');
     const loginForm = document.getElementById('auth-login-form');
+    const magicForm = document.getElementById('auth-magic-form');
     const registerForm = document.getElementById('auth-register-form');
 
-    loginTab.addEventListener('click', () => {
-        loginTab.classList.add('active');
-        registerTab.classList.remove('active');
-        loginForm.classList.remove('hidden');
-        registerForm.classList.add('hidden');
-    });
+    function setActiveTab(activeBtn) {
+        [loginTab, magicTab, registerTab].forEach(btn => {
+            if (btn) btn.classList.remove('active');
+        });
+        if (activeBtn) activeBtn.classList.add('active');
+    }
 
-    registerTab.addEventListener('click', () => {
-        registerTab.classList.add('active');
-        loginTab.classList.remove('active');
-        registerForm.classList.remove('hidden');
-        loginForm.classList.add('hidden');
-    });
+    function showForm(activeForm) {
+        [loginForm, magicForm, registerForm].forEach(f => {
+            if (f) f.classList.add('hidden');
+        });
+        if (activeForm) activeForm.classList.remove('hidden');
+    }
 
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = loginForm.elements.email.value;
-        const password = loginForm.elements.password.value;
-        const errDiv = document.getElementById('login-error-msg');
+    if (loginTab) {
+        loginTab.addEventListener('click', () => {
+            setActiveTab(loginTab);
+            showForm(loginForm);
+        });
+    }
 
-        const res = state.login(email, password);
-        if (res.success) {
-            closeModal();
-            document.dispatchEvent(new CustomEvent('user-state-changed'));
-            window.handleRouting();
-            if (onSuccessCallback) onSuccessCallback();
-        } else {
-            errDiv.textContent = res.message;
-            errDiv.style.display = 'block';
-        }
-    });
+    if (magicTab) {
+        magicTab.addEventListener('click', () => {
+            setActiveTab(magicTab);
+            showForm(magicForm);
+            document.getElementById('magic-success-container').style.display = 'none';
+            document.getElementById('magic-success-container').innerHTML = '';
+            document.getElementById('magic-error-msg').style.display = 'none';
+            document.getElementById('btn-send-magic').style.display = 'flex';
+            if (magicForm.elements.email) {
+                magicForm.elements.email.style.display = 'block';
+                magicForm.elements.email.value = '';
+            }
+            const grp = magicForm.querySelector('.form-group');
+            if (grp) {
+                const lbl = grp.querySelector('label');
+                const para = grp.querySelector('p');
+                if (lbl) lbl.style.display = 'block';
+                if (para) para.style.display = 'block';
+            }
+            const btn = document.getElementById('btn-send-magic');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Magic Link senden`;
+            }
+        });
+    }
+
+    if (registerTab) {
+        registerTab.addEventListener('click', () => {
+            setActiveTab(registerTab);
+            showForm(registerForm);
+        });
+    }
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = loginForm.elements.email.value;
+            const password = loginForm.elements.password.value;
+            const errDiv = document.getElementById('login-error-msg');
+
+            const res = state.login(email, password);
+            if (res.success) {
+                closeModal();
+                document.dispatchEvent(new CustomEvent('user-state-changed'));
+                window.handleRouting();
+                if (onSuccessCallback) onSuccessCallback();
+            } else {
+                errDiv.textContent = res.message;
+                errDiv.style.display = 'block';
+            }
+        });
+    }
+
+    if (magicForm) {
+        magicForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = magicForm.elements.email.value.trim();
+            const btn = document.getElementById('btn-send-magic');
+            const errDiv = document.getElementById('magic-error-msg');
+            const successContainer = document.getElementById('magic-success-container');
+
+            if (errDiv) errDiv.style.display = 'none';
+            
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Magic Link wird generiert...`;
+            }
+
+            setTimeout(() => {
+                if (btn) btn.style.display = 'none';
+                if (magicForm.elements.email) magicForm.elements.email.style.display = 'none';
+                const grp = magicForm.querySelector('.form-group');
+                if (grp) {
+                    const lbl = grp.querySelector('label');
+                    const para = grp.querySelector('p');
+                    if (lbl) lbl.style.display = 'none';
+                    if (para) para.style.display = 'none';
+                }
+
+                const res = state.loginPasswordless(email);
+                let mockEmailHtml = '';
+
+                if (res.success) {
+                    const user = res.user;
+                    const roleText = user.role === 'musician' ? 'Musiker' : 'Veranstalter';
+                    mockEmailHtml = `
+                        <div style="background: rgba(124, 58, 237, 0.08); border: 1.5px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 1.25rem; margin-top: 1rem; text-align: left;">
+                            <h4 style="margin: 0 0 0.5rem; font-family: var(--font-heading); color: #a855f7; display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem;">
+                                <i class="fa-solid fa-envelope-open-text"></i> Posteingang (Simulation)
+                            </h4>
+                            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">
+                                <strong>Betreff:</strong> Dein Magic Link für GigConnAct
+                            </p>
+                            <p style="font-size: 0.82rem; margin-bottom: 1rem; line-height: 1.4; color: var(--text-main);">
+                                Hallo <strong>${user.firstName}</strong>,<br><br>
+                                Klicke auf den Button unten, um dich direkt bei deinem <strong>${roleText}-Account</strong> anzumelden:
+                            </p>
+                            <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="login" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); font-weight: 800; border: none; padding: 0.7rem; border-radius: 8px;">
+                                Jetzt als ${roleText} einloggen
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    mockEmailHtml = `
+                        <div style="background: rgba(124, 58, 237, 0.08); border: 1.5px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 1.25rem; margin-top: 1rem; text-align: left;">
+                            <h4 style="margin: 0 0 0.5rem; font-family: var(--font-heading); color: #a855f7; display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem;">
+                                <i class="fa-solid fa-envelope-open-text"></i> Posteingang (Simulation)
+                            </h4>
+                            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">
+                                <strong>Betreff:</strong> Registrierung abschließen bei GigConnAct
+                            </p>
+                            <p style="font-size: 0.82rem; margin-bottom: 1rem; line-height: 1.4; color: var(--text-main);">
+                                Hallo!<br><br>
+                                Diese E-Mail-Adresse ist neu bei uns. Wähle aus, wie du dich registrieren und einloggen möchtest:
+                            </p>
+                            <div style="display: flex; gap: 0.75rem;">
+                                <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="register-mus" style="flex: 1; background: #7c3aed; border: none; font-weight: 700; font-size: 0.78rem; padding: 0.6rem;">
+                                    <i class="fa-solid fa-guitar"></i> Als Musiker
+                                </button>
+                                <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="register-org" style="flex: 1; background: #2563eb; border: none; font-weight: 700; font-size: 0.78rem; padding: 0.6rem;">
+                                    <i class="fa-solid fa-calendar-days"></i> Als Veranstalter
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (successContainer) {
+                    successContainer.innerHTML = `
+                        <div style="text-align: center; color: var(--color-green); font-size: 1.8rem; margin-bottom: 0.5rem;">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <h4 style="text-align: center; margin: 0 0 0.5rem; font-family: var(--font-heading); color: var(--text-main);">Magic Link gesendet!</h4>
+                        <p style="text-align: center; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.4;">
+                            Wir haben einen sicheren Link an <strong>${email}</strong> gesendet.
+                        </p>
+                        ${mockEmailHtml}
+                    `;
+                    successContainer.style.display = 'block';
+
+                    successContainer.querySelectorAll('.btn-magic-action').forEach(actionBtn => {
+                        actionBtn.addEventListener('click', (ev) => {
+                            const action = ev.currentTarget.getAttribute('data-action');
+                            const userEmail = ev.currentTarget.getAttribute('data-email');
+                            let loginRes;
+
+                            if (action === 'login') {
+                                loginRes = state.loginPasswordless(userEmail);
+                            } else if (action === 'register-mus') {
+                                loginRes = state.registerOnTheFly(userEmail, 'musician');
+                            } else if (action === 'register-org') {
+                                loginRes = state.registerOnTheFly(userEmail, 'organizer');
+                            }
+
+                            if (loginRes && loginRes.success) {
+                                closeModal();
+                                document.dispatchEvent(new CustomEvent('user-state-changed'));
+                                window.handleRouting();
+                                if (onSuccessCallback) onSuccessCallback();
+                                showToast({
+                                    title: 'Erfolgreich angemeldet',
+                                    message: 'Willkommen zurück bei GigConnAct!'
+                                });
+                            }
+                        });
+                    });
+                }
+            }, 1200);
+        });
+    }
 
     const pickerMus = document.getElementById('role-picker-mus');
     const pickerOrg = document.getElementById('role-picker-org');
@@ -5487,7 +5761,7 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
                             <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">Option 1: Prepaid</span>
                             <div style="font-size: 1.2rem; font-weight: 800; color: #FFD700; margin: 0.1rem 0; display:flex; align-items:center; justify-content:center; gap:0.25rem;">
                                 <input type="number" id="credits-amount-input" min="1" max="999" value="10" onclick="event.stopPropagation();" style="width: 55px; height: 26px; text-align: center; font-size: 0.9rem; font-weight: 800; border-radius: 4px; border: 1px solid rgba(255, 215, 0, 0.4); background: rgba(0,0,0,0.4); color: #FFD700; padding:0; margin:0;">
-                                <span>Credits fÜr</span>
+                                <span>Credits für</span>
                                 <span id="credits-total-price">10</span><span> €</span>
                             </div>
                             <span style="font-size: 0.7rem; color: var(--text-muted);">1 € pro Credit, ab 1 Credit aufladbar</span>
@@ -5512,7 +5786,7 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
                         </div>
                         <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; line-height: 1.4;">
                             <input type="checkbox" required style="margin-top:2px;">
-                            <span>Ich stimme dem Lastschriftverfahren fÜr die gewählte Option ausdrücklich zu.</span>
+                            <span>Ich stimme dem Lastschriftverfahren für die gewählte Option ausdrücklich zu.</span>
                         </label>
                     </div>
                     
@@ -5593,7 +5867,7 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
                         <h3 style="font-family: var(--font-heading); margin-bottom: 0.5rem; color: var(--text-main);">Credits erfolgreich aufgeladen!</h3>
                         <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
                             Dir wurden <strong>${buyAmount} Credits</strong> gutgeschrieben.<br><br>
-                            Möchtest du jetzt <strong>1 Credit</strong> einlösen, um die Kontaktdaten fÜr <strong>${targetName}</strong> freizuschalten?
+                            Möchtest du jetzt <strong>1 Credit</strong> einlösen, um die Kontaktdaten für <strong>${targetName}</strong> freizuschalten?
                         </p>
                         
                         <div style="display: flex; gap: 1rem; justify-content: center;">
@@ -6175,7 +6449,7 @@ function renderPostbox(container) {
                                 ${isOrganizerIncomingLock ? `
                                     <div class="organizer-questionnaire-box" style="background: rgba(124, 58, 237, 0.08); border: 1px solid var(--color-purple); border-radius: var(--radius-md); padding: 1.2rem; text-align: center;">
                                         <h4 style="margin: 0 0 0.4rem; font-family: var(--font-heading); font-size: 1rem; color: var(--text-main);">
-                                            Ist die Anfrage interessant fÜr dich?
+                                            Ist die Anfrage interessant für dich?
                                         </h4>
                                         <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
                                             Stimme der Anfrage zu, um automatisch ein <strong>Perfect Match</strong> zu erstellen und das Antworten freizuschalten.
@@ -6292,7 +6566,7 @@ function renderMarketGridHTML(items, isEvents) {
             'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80'
         ]).slice(0, 3);
 
-        // 3 Real Playable HTML5 Videos fÜr Slides 4, 5, 6
+        // 3 Real Playable HTML5 Videos für Slides 4, 5, 6
         const videoSources = [
             { title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' },
             { title: 'Auftritt Showreel & Trailer', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },
@@ -6306,8 +6580,8 @@ function renderMarketGridHTML(items, isEvents) {
         duration = duration.replace(/ca\.\s*/gi, '');
 
         const description = item.description || item.bio || (isEvents 
-            ? 'Wir suchen eine professionelle musikalische Begleitung fÜr unser anstehendes Event mit fantastischer Stimmung.' 
-            : 'Professionelle Live-Musik fÜr unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.');
+            ? 'Wir suchen eine professionelle musikalische Begleitung für unser anstehendes Event mit fantastischer Stimmung.' 
+            : 'Professionelle Live-Musik für unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.');
 
         const bandName = isEvents ? item.title : item.name;
 
