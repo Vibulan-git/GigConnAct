@@ -2114,10 +2114,10 @@ function renderLandingPage(container, onNavigate) {
     const isUserLoggedIn = !!state.currentUser;
 
     const bottomCtaButtonHtml = isUserLoggedIn 
-        ? `<button class="btn" id="btn-bottom-dashboard-trigger" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: 1.5px solid rgba(255,255,255,0.15); color: #ffffff; padding: 0.95rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.45); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; white-space: nowrap;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
+        ? `<button class="btn" id="btn-bottom-dashboard-trigger" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: 1.5px solid rgba(255,255,255,0.15); color: #ffffff; padding: 0.95rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 15px; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; white-space: nowrap;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
                <i class="fa-solid fa-gauge-high"></i> Mein Dashboard
            </button>`
-        : `<button class="btn" id="btn-bottom-login-trigger" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: 1.5px solid rgba(255,255,255,0.15); color: #ffffff; padding: 0.95rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.45); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; white-space: nowrap;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
+        : `<button class="btn" id="btn-bottom-login-trigger" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: 1.5px solid rgba(255,255,255,0.15); color: #ffffff; padding: 0.95rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 15px; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; white-space: nowrap;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
                <i class="fa-solid fa-sign-in-alt"></i> Anmelden ohne Passwort
            </button>`;
 
@@ -2167,7 +2167,7 @@ function renderLandingPage(container, onNavigate) {
             <!-- 2. SECTION 1: Musiker-Profile -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem 0;">
                 <div style="text-align: center; margin-bottom: 1.8rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin: 0;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: #7c3aed; margin: 0;">
                         Musiker-Profile
                     </h2>
                 </div>
@@ -2190,7 +2190,7 @@ function renderLandingPage(container, onNavigate) {
             <!-- 3. SECTION 2: Event-Profile -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 0.5rem 1.5rem 0;">
                 <div style="text-align: center; margin-bottom: 1.8rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--text-main); margin: 0;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: #2563eb; margin: 0;">
                         Event-Profile
                     </h2>
                 </div>
@@ -2222,7 +2222,7 @@ function renderLandingPage(container, onNavigate) {
                     <div class="carousel-viewport">
                         <div class="carousel-track" id="carousel-track-benefits-musician">
                             
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.45); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                                         <i class="fa-solid fa-door-open" style="color: #ffffff; font-size: 1.2rem;"></i>
@@ -2232,7 +2232,7 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.45); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                                         <i class="fa-solid fa-sliders" style="color: #ffffff; font-size: 1.2rem;"></i>
@@ -2242,7 +2242,7 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.45); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                                         <i class="fa-solid fa-comments" style="color: #ffffff; font-size: 1.2rem;"></i>
@@ -2252,7 +2252,7 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.45); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                                         <i class="fa-solid fa-location-arrow" style="color: #ffffff; font-size: 1.2rem;"></i>
@@ -2262,7 +2262,7 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.45); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                                         <i class="fa-solid fa-wand-magic-sparkles" style="color: #ffffff; font-size: 1.2rem;"></i>
@@ -2272,7 +2272,7 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.45); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                                         <i class="fa-solid fa-bolt" style="color: #ffffff; font-size: 1.2rem;"></i>
@@ -2282,7 +2282,7 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.45); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                                         <i class="fa-solid fa-coins" style="color: #ffffff; font-size: 1.2rem;"></i>
@@ -2315,7 +2315,7 @@ function renderLandingPage(container, onNavigate) {
                     <div class="carousel-viewport">
                         <div class="carousel-track" id="carousel-track-benefits-organizer">
                             
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                                         <i class="fa-solid fa-door-open" style="color: #ffffff; font-size: 1.2rem;"></i>
@@ -2325,7 +2325,7 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                                         <i class="fa-solid fa-sliders" style="color: #ffffff; font-size: 1.2rem;"></i>
@@ -2335,7 +2335,7 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                                         <i class="fa-solid fa-comments" style="color: #ffffff; font-size: 1.2rem;"></i>
@@ -2345,7 +2345,7 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                                         <i class="fa-solid fa-location-arrow" style="color: #ffffff; font-size: 1.2rem;"></i>
@@ -2355,7 +2355,7 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                                         <i class="fa-solid fa-wand-magic-sparkles" style="color: #ffffff; font-size: 1.2rem;"></i>
@@ -2365,7 +2365,7 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                                         <i class="fa-solid fa-bolt" style="color: #ffffff; font-size: 1.2rem;"></i>
@@ -2375,7 +2375,7 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                                         <i class="fa-solid fa-coins" style="color: #ffffff; font-size: 1.2rem;"></i>
