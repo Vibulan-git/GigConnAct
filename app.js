@@ -3136,6 +3136,7 @@ function renderMarket(container, type, onNavigate) {
                         </div>
                     `}
                 </div>
+                <div id="market-filters-overlay" class="market-filters-overlay"></div>
 
                 <!-- Center Main Section -->
                 <div>
@@ -3161,6 +3162,15 @@ function renderMarket(container, type, onNavigate) {
 
     const closeBtnM = container.querySelector('#btn-close-filters-m');
     closeBtnM?.addEventListener('click', function() {
+        filterWrapper.classList.remove('open');
+        toggleBtn?.classList.remove('active');
+        if (toggleBtn) {
+            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" style="font-size: 1.1rem; margin: 0;"></i>`;
+        }
+    });
+
+    const overlay = container.querySelector('#market-filters-overlay');
+    overlay?.addEventListener('click', function() {
         filterWrapper.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {

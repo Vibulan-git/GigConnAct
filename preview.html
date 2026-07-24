@@ -3985,6 +3985,36 @@ input[type="range"].input-field {
     background: rgba(37, 99, 235, 0.08) !important;
     border: 1.5px solid rgba(37, 99, 235, 0.25) !important;
 }
+
+/* Mobile responsive sticky top offset adjustment for market controls row */
+@media (max-width: 768px) {
+    .market-controls-row {
+        top: 68px !important; /* aligns with mobile header height */
+    }
+}
+
+/* Backdrop blur overlay for mobile filters drawer */
+.market-filters-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(15, 23, 42, 0.4) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    z-index: 950 !important; /* sits behind the filter card (which is 1000) */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    pointer-events: none;
+}
+
+.market-filter-card.open ~ .market-filters-overlay {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
 </style>
 </head>
 <body>
@@ -7151,6 +7181,7 @@ function renderMarket(container, type, onNavigate) {
                         </div>
                     `}
                 </div>
+                <div id="market-filters-overlay" class="market-filters-overlay"></div>
 
                 <!-- Center Main Section -->
                 <div>
@@ -7176,6 +7207,15 @@ function renderMarket(container, type, onNavigate) {
 
     const closeBtnM = container.querySelector('#btn-close-filters-m');
     closeBtnM?.addEventListener('click', function() {
+        filterWrapper.classList.remove('open');
+        toggleBtn?.classList.remove('active');
+        if (toggleBtn) {
+            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" style="font-size: 1.1rem; margin: 0;"></i>`;
+        }
+    });
+
+    const overlay = container.querySelector('#market-filters-overlay');
+    overlay?.addEventListener('click', function() {
         filterWrapper.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {
