@@ -3155,8 +3155,8 @@ function renderMarket(container, type, onNavigate) {
         this.classList.toggle('active');
         const isOpen = filterWrapper.classList.contains('open');
         this.innerHTML = isOpen 
-            ? `<i class="fa-solid fa-xmark"></i> Filter verbergen` 
-            : `<i class="fa-solid fa-sliders"></i> Filter`;
+            ? `<i class="fa-solid fa-xmark" style="font-size: 1.1rem; margin: 0;"></i>` 
+            : `<i class="fa-solid fa-sliders" style="font-size: 1.1rem; margin: 0;"></i>`;
     });
 
     const closeBtnM = container.querySelector('#btn-close-filters-m');
@@ -3164,7 +3164,7 @@ function renderMarket(container, type, onNavigate) {
         filterWrapper.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {
-            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders"></i> Filter`;
+            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" style="font-size: 1.1rem; margin: 0;"></i>`;
         }
     });
 
@@ -7434,7 +7434,7 @@ function renderMarketGridHTML(items, isEvents) {
         const bandName = isEvents ? item.title : item.name;
 
         return `
-            <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); cursor: pointer;" onclick="window.openItemDetailModal('${item.id}', ${isEvents})">
+            <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
                 
                 <!-- 1. Combined Galerie: 3 Fotos + 3 Videos direkt folgend (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">

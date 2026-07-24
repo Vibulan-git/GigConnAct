@@ -3446,10 +3446,20 @@ body {
 }
 
 .market-controls-row {
+    position: sticky !important;
+    top: 72px !important;
+    z-index: 50 !important;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1.5rem !important;
+    padding: 0.8rem 1rem !important;
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
     gap: 1rem;
     width: 100%;
     box-sizing: border-box;
