@@ -1323,12 +1323,15 @@ class StateManager {
                 name: data.bandName,
                 bluffName: `Anonyme/r ${data.musicianType} (${data.genres[0] || 'Musik'})`,
                 type: data.musicianType,
-                location: data.location,
+                location: data.locations ? data.locations.join(', ') : (data.location || 'München'),
+                locations: data.locations || [data.location || 'München'],
                 radius: parseInt(data.radius) || 50,
                 genres: data.genres,
                 instruments: data.instruments,
+                minDuration: parseFloat(data.minDuration) || 1,
                 maxDuration: parseFloat(data.maxDuration) || 3,
-                minBudget: parseFloat(data.minBudget) || 300,
+                minBudget: parseFloat(data.minBudget) || 150,
+                maxBudget: parseFloat(data.maxBudget) || 1000,
                 eventTypes: data.eventTypes,
                 availability: data.availability,
                 description: data.description,
@@ -1338,6 +1341,7 @@ class StateManager {
                 phone: user.phone,
                 email: user.email,
                 isPremium: user.isPremium,
+                subscriptionPlan: data.subscriptionPlan || "flex",
                 credits: 5,
                 unlockedContacts: [],
                 socialLinks: { spotify: "", youtube: "", instagram: "" },
@@ -1352,16 +1356,22 @@ class StateManager {
             const newEvent = {
                 id: user.profileId,
                 name: data.eventName,
-                type: data.eventType,
-                date: data.eventDate,
-                location: data.location,
-                genres: data.genres,
-                instruments: data.instruments,
-                duration: parseFloat(data.duration) || 2,
-                budget: parseFloat(data.budget) || 500,
-                musicianTypes: data.musicianTypes,
-                description: data.description,
-                technik: data.technik || "Weiß ich noch nicht",
+                type: data.orgEventTypes ? data.orgEventTypes[0] : "",
+                eventTypes: data.orgEventTypes || [],
+                date: data.eventDates ? data.eventDates[0] : "",
+                dates: data.eventDates || [],
+                location: data.orgLocations ? data.orgLocations.join(', ') : "",
+                locations: data.orgLocations || [],
+                genres: data.orgGenres || [],
+                instruments: data.orgInstruments || [],
+                minDuration: parseFloat(data.orgMinDuration) || 0.5,
+                maxDuration: parseFloat(data.orgMaxDuration) || 2.0,
+                duration: parseFloat(data.orgMaxDuration) || 2.0,
+                minPublikum: parseInt(data.orgMinPublikum) || 0,
+                maxPublikum: parseInt(data.orgMaxPublikum) || 500,
+                publikum: `${data.orgMinPublikum || 0} - ${data.orgMaxPublikum || 500}`,
+                description: data.orgDescription,
+                technik: data.orgTechnik ? data.orgTechnik.join(', ') : "Weiß ich noch nicht",
                 company: user.company || "Privatperson",
                 contactName: `${user.firstName} ${user.lastName}`,
                 phone: user.phone,
@@ -2335,7 +2345,7 @@ function renderLandingPage(container, onNavigate) {
                                         <i class="fa-solid fa-sliders" style="color: #ffffff; font-size: 1.2rem;"></i>
                                         <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Passende Events</h4>
                                     </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Event-Art, Entfernung, Gage, VerfÜgbarkeit etc.</p>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Event-Art, Entfernung, Gage, Verfügbarkeit etc.</p>
                                 </div>
                             </div>
 
@@ -2363,7 +2373,7 @@ function renderLandingPage(container, onNavigate) {
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                                         <i class="fa-solid fa-wand-magic-sparkles" style="color: #ffffff; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÄge</h4>
+                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Top-Vorschläge</h4>
                                     </div>
                                     <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Automatische Empfehlungen von GigConnAct zu Events</p>
                                 </div>
@@ -2385,7 +2395,7 @@ function renderLandingPage(container, onNavigate) {
                                         <i class="fa-solid fa-coins" style="color: #ffffff; font-size: 1.2rem;"></i>
                                         <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
                                     </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Preiswertes Abo-Modell (jederzeit kÜndbar)</p>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Preiswertes Abo-Modell (jederzeit kündbar)</p>
                                 </div>
                             </div>
 
@@ -2418,7 +2428,7 @@ function renderLandingPage(container, onNavigate) {
                                         <i class="fa-solid fa-door-open" style="color: #ffffff; font-size: 1.2rem;"></i>
                                         <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zu Musikern</h4>
                                     </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Coverbands, Bands, DJs, Duos, Trios, Gitarristen, SÄnger etc.</p>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Coverbands, Bands, DJs, Duos, Trios, Gitarristen, Sänger etc.</p>
                                 </div>
                             </div>
 
@@ -2456,7 +2466,7 @@ function renderLandingPage(container, onNavigate) {
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                                         <i class="fa-solid fa-wand-magic-sparkles" style="color: #ffffff; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÄge</h4>
+                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Top-Vorschläge</h4>
                                     </div>
                                     <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Automatische Empfehlungen von GigConnAct zu Musikern</p>
                                 </div>
@@ -2494,7 +2504,7 @@ function renderLandingPage(container, onNavigate) {
             </div>
 
             <!-- 6. BOTTOM CALL-TO-ACTION SECTION -->
-            <div style="max-width: 1400px; margin: 10.5rem auto 3rem; padding: 0 1.5rem; text-align: center;">
+            <div style="max-width: 1400px; margin: 16rem auto 6rem; padding: 0 1.5rem; text-align: center;">
                 ${bottomCtaButtonHtml}
             </div>
 
@@ -2534,21 +2544,21 @@ function getSelectOptions(list, selectedValues = []) {
 }
 
 function renderMatchDial(score) {
-    let badgeColor = 'rgba(16, 185, 129, 0.1)';
-    let textColor = '#10b981';
+    const isOrganizer = state && state.currentUser && state.currentUser.role === 'organizer';
     
-    if (score < 65) {
-        badgeColor = 'rgba(124, 58, 237, 0.1)';
-        textColor = '#7c3aed';
-    } else if (score < 85) {
-        badgeColor = 'rgba(124, 58, 237, 0.1)';
-        textColor = '#7c3aed';
+    let badgeColor = isOrganizer ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)';
+    let textColor = '#ffffff';
+    
+    if (score >= 85) {
+        badgeColor = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+        textColor = '#ffffff';
     }
 
     return `
         <div class="match-score-container" style="display:flex; flex-direction:column; align-items:center;">
-            <div style="background: ${badgeColor}; color: ${textColor}; padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: 700; font-size: 1rem; border: 1px solid ${textColor}30; text-align:center; min-width:80px;">
-                ${score}% Match
+            <div style="background: ${badgeColor}; color: ${textColor}; padding: 0.35rem 0.45rem; border-radius: 10px; font-weight: 700; border: 1px solid rgba(255,255,255,0.25); text-align:center; min-width: 50px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1;">
+                <span style="font-size: 1.05rem; font-weight: 900;">${score}%</span>
+                <span style="font-size: 0.5rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
             </div>
         </div>
     `;
@@ -2578,12 +2588,21 @@ function levenshteinDistance(a, b) {
             }
         }
     }
-    return matrix[b.length][a.length];
+}
+
+function normalizeStringForSearch(str) {
+    if (!str) return '';
+    return str.toLowerCase()
+        .replace(/ä/g, 'a')
+        .replace(/ö/g, 'o')
+        .replace(/ü/g, 'u')
+        .replace(/ß/g, 'ss')
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
 function getFuzzyScore(query, target) {
-    const q = query.toLowerCase();
-    const t = target.toLowerCase();
+    const q = normalizeStringForSearch(query);
+    const t = normalizeStringForSearch(target);
     
     if (t.startsWith(q)) return 100 + q.length;
     
@@ -2591,39 +2610,75 @@ function getFuzzyScore(query, target) {
     if (idx !== -1) return 80 - idx;
     
     const dist = levenshteinDistance(q, t);
-    if (q.length >= 4 && dist <= 2) {
+    if (q.length >= 3 && dist <= 2) {
         return 50 - dist;
     }
     
     return 0;
 }
 
-function setupLocationAutocomplete(input) {
+function setupLocationAutocomplete(input, onSelect) {
     if (!input) return;
     
-    const parent = input.parentElement;
-    if (parent) {
-        parent.style.position = 'relative';
+    let wrapper = input.parentElement;
+    if (wrapper && (window.getComputedStyle(wrapper).display === 'flex' || wrapper.style.display === 'flex')) {
+        const relativeWrapper = document.createElement('div');
+        relativeWrapper.style.position = 'relative';
+        relativeWrapper.style.flex = '1';
+        relativeWrapper.style.display = 'flex';
+        relativeWrapper.style.flexDirection = 'column';
+        
+        wrapper.insertBefore(relativeWrapper, input);
+        relativeWrapper.appendChild(input);
+        input.style.width = '100%';
+        wrapper = relativeWrapper;
+    } else {
+        if (wrapper) {
+            wrapper.style.position = 'relative';
+        }
     }
 
     let debounceTimer;
     let suggestionsContainer = document.createElement('div');
-    suggestionsContainer.className = 'autocomplete-suggestions hidden';
-    parent.appendChild(suggestionsContainer);
+    let extraClass = '';
+    if (input.id === 'input-mus-location-search') {
+        extraClass = ' musician-suggestions';
+    } else if (input.id === 'input-org-location-search') {
+        extraClass = ' organizer-suggestions';
+    }
+    suggestionsContainer.className = 'autocomplete-suggestions hidden' + extraClass;
+    wrapper.appendChild(suggestionsContainer);
+
+    let activeIndex = -1;
+
+    function selectSuggestion(item) {
+        const val = item.getAttribute('data-val');
+        input.value = '';
+        suggestionsContainer.classList.add('hidden');
+        activeIndex = -1;
+        if (onSelect) {
+            onSelect(val);
+        } else {
+            input.value = val;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
 
     input.addEventListener('input', (e) => {
         clearTimeout(debounceTimer);
         const query = e.target.value.trim();
         
-        if (query.length < 3) {
+        if (query.length < 2) {
             suggestionsContainer.innerHTML = '';
             suggestionsContainer.classList.add('hidden');
+            activeIndex = -1;
             return;
         }
 
         debounceTimer = setTimeout(async () => {
             try {
-                // 1. Get local fuzzy matches
+                // 1. Get local fuzzy matches (error-tolerant, e.g. Koln -> Köln)
                 const localMatches = [];
                 popularGermanCities.forEach(city => {
                     const score = getFuzzyScore(query, city);
@@ -2639,10 +2694,10 @@ function setupLocationAutocomplete(input) {
                 // Sort local matches by score descending
                 localMatches.sort((a, b) => b.score - a.score);
 
-                // 2. Fetch from Nominatim API (restricted to settlements, i.e. cities/villages)
+                // 2. Fetch from Nominatim API (Germany only, settlements)
                 let apiMatches = [];
                 try {
-                    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=de&addressdetails=1&featuretype=settlement&limit=5`, {
+                    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=de&addressdetails=1&featuretype=settlement&limit=10`, {
                         headers: { 'Accept-Language': 'de' }
                     });
                     const data = await response.json();
@@ -2666,7 +2721,7 @@ function setupLocationAutocomplete(input) {
                 const seen = new Set();
 
                 // Prioritize local matches first
-                localMatches.slice(0, 5).forEach(m => {
+                localMatches.forEach(m => {
                     const key = m.name.toLowerCase();
                     if (!seen.has(key)) {
                         seen.add(key);
@@ -2689,12 +2744,13 @@ function setupLocationAutocomplete(input) {
                 if (finalSuggestions.length === 0) {
                     suggestionsContainer.innerHTML = '';
                     suggestionsContainer.classList.add('hidden');
+                    activeIndex = -1;
                     return;
                 }
 
-                suggestionsContainer.innerHTML = finalSuggestions.map(item => {
+                suggestionsContainer.innerHTML = finalSuggestions.map((item, index) => {
                     return `
-                        <div class="autocomplete-suggestion" data-val="${item.name}">
+                        <div class="autocomplete-suggestion" data-val="${item.name}" data-index="${index}">
                             <i class="fa-solid fa-map-marker-alt"></i>
                             <span>${item.label}</span>
                         </div>
@@ -2702,31 +2758,81 @@ function setupLocationAutocomplete(input) {
                 }).join('');
 
                 suggestionsContainer.classList.remove('hidden');
+                activeIndex = -1;
 
                 suggestionsContainer.querySelectorAll('.autocomplete-suggestion').forEach(item => {
                     item.addEventListener('click', () => {
-                        input.value = item.getAttribute('data-val');
-                        suggestionsContainer.classList.add('hidden');
-                        input.dispatchEvent(new Event('input', { bubbles: true }));
-                        input.dispatchEvent(new Event('change', { bubbles: true }));
+                        selectSuggestion(item);
                     });
                 });
 
             } catch (err) {
-                console.error("Autocomplete processing error: ", err);
+                console.error("Autocomplete error: ", err);
             }
         }, 250);
     });
 
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const items = suggestionsContainer.querySelectorAll('.autocomplete-suggestion');
+            if (!suggestionsContainer.classList.contains('hidden') && items.length > 0) {
+                const targetIndex = activeIndex >= 0 ? activeIndex : 0;
+                selectSuggestion(items[targetIndex]);
+            } else {
+                const val = input.value.trim();
+                if (val) {
+                    if (onSelect) {
+                        onSelect(val);
+                        input.value = '';
+                    } else {
+                        input.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
+            }
+        } else {
+            const items = suggestionsContainer.querySelectorAll('.autocomplete-suggestion');
+            if (suggestionsContainer.classList.contains('hidden') || items.length === 0) {
+                return;
+            }
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % items.length;
+                updateActiveSuggestion(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeIndex = (activeIndex - 1 + items.length) % items.length;
+                updateActiveSuggestion(items);
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                suggestionsContainer.classList.add('hidden');
+                activeIndex = -1;
+            }
+        }
+    });
+
+    function updateActiveSuggestion(items) {
+        items.forEach((item, index) => {
+            if (index === activeIndex) {
+                item.classList.add('active');
+                item.scrollIntoView({ block: 'nearest' });
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
+
     document.addEventListener('click', (e) => {
         if (e.target !== input && e.target !== suggestionsContainer && !suggestionsContainer.contains(e.target)) {
             suggestionsContainer.classList.add('hidden');
+            activeIndex = -1;
         }
     });
 }
 
 function initAllLocationAutocompletes() {
-    document.querySelectorAll('input[name="location"], input[name="musLocation"], input[name="orgLocation"]').forEach(input => {
+    document.querySelectorAll('input[name="location"], input[name="musLocation"], input[name="orgLocation"], #input-mus-location-search, #input-org-location-search').forEach(input => {
         if (!input.dataset.autocompleteBound) {
             setupLocationAutocomplete(input);
             input.dataset.autocompleteBound = "true";
@@ -2741,288 +2847,299 @@ function renderMarket(container, type, onNavigate) {
     const items = isEvents ? state.events : state.musicians;
 
     container.innerHTML = `
-        <div class="market-page" style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1rem 5rem;">
+        <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1rem 5rem; box-sizing: border-box;">
             
-            <!-- Page Header -->
-            <div style="margin-bottom: 1.4rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem;">
-                <div>
-                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 900; color: var(--text-main); margin: 0;">
-                        ${title}
-                    </h1>
+            <!-- Controls Row: Filter Toggle Button + Results Count + Sort Dropdown -->
+            <div class="market-controls-row" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%;">
+                    <i class="fa-solid fa-sliders" style="font-size: 1.1rem; margin: 0;"></i>
+                </button>
+                
+                <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: ${isEvents ? '#7c3aed' : '#2563eb'}; text-align: center; flex-grow: 1; letter-spacing: 0.5px;">
+                    ${items.length} Ergebnisse
                 </div>
-                <div>
-                    ${!state.currentUser ? `
-                        <button class="btn btn-primary" onclick="showModal('auth')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); font-weight: 800; padding: 0.75rem 1.4rem; border-radius: 10px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4); font-size: 0.88rem;">
-                            <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
-                        </button>
-                    ` : ''}
+                
+                <div class="market-sort-container-round">
+                    <i class="fa-solid fa-arrow-down-wide-short" style="color: ${isEvents ? '#7c3aed' : '#2563eb'}; font-size: 1.1rem; pointer-events: none;"></i>
+                    <select id="sort-select" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; margin: 0; z-index: 5;">
+                        <option value="match">Match-Faktor absteigend</option>
+                        <option value="newest">Neueste zuerst</option>
+                        <option value="price">Günstig zuerst</option>
+                        <option value="distance">Nächste zuerst</option>
+                        <option value="name">Name (A-Z)</option>
+                    </select>
                 </div>
             </div>
 
-            <!-- Mobile Filter Toggle Button (Sichtbar auf Smartphones) -->
-            <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" onclick="const f=document.getElementById('market-filters-wrapper'); if(f.style.display==='none'||!f.style.display){f.style.display='block'; this.innerHTML='<i class=\"fa-solid fa-xmark\"></i> Filter verbergen';}else{f.style.display='none'; this.innerHTML='<i class=\"fa-solid fa-sliders\"></i> Filter & Suche anzeigen';}">
-                <i class="fa-solid fa-sliders"></i> Filter & Suche anzeigen
-            </button>
-
             <!-- Main Layout: Left Sticky Sidebar Filters + Center Content -->
-            <div class="market-layout-container" style="display: grid; grid-template-columns: 280px 1fr; gap: 2rem; align-items: start;">
+            <div class="market-layout-container">
                 
                 <!-- Left Sidebar Filters (Responsive Wrapper) -->
-                <div id="market-filters-wrapper" class="market-filter-card" style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: var(--radius-md); padding: 1.2rem; box-shadow: var(--shadow-sm); position: sticky; top: 90px; max-height: calc(100vh - 110px); overflow-y: auto;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 2px solid rgba(124, 58, 237, 0.3); padding-bottom: 0.8rem;">
-                        <span style="color: #a855f7; font-weight: 900; font-size: 1.15rem; display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-sliders" style="color: #a855f7;"></i> Filter
+                <div id="market-filters-wrapper" class="market-filter-card">
+                    <div class="filter-header-sticky">
+                        <span class="filter-header-title">
+                            <i class="fa-solid fa-sliders"></i> Filter
                         </span>
+                        
+                        <button id="btn-close-filters-m" class="btn-close-filters-m">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
                     </div>
                     
                     ${isEvents ? `
-                        <!-- 10 Event-Markt Filter + Suchbegriffe mit weissen Eingabefeldern -->
-                        <div style="display: flex; flex-direction: column; gap: 0.8rem;">
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Event-Art</label>
-                                <select id="filter-event-type" class="form-input" multiple style="width: 100%; height: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                                    <option value="Hochzeit">Hochzeit</option>
-                                    <option value="Geburtstag">Geburtstag</option>
-                                    <option value="Firmenfeier">Firmenfeier</option>
-                                    <option value="Festival">Festival / Kirmes</option>
-                                    <option value="Gartenparty">Gartenparty</option>
-                                    <option value="Club">Club / Bar Gig</option>
-                                </select>
-                            </div>
-
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Datum</label>
-                                <input type="date" id="filter-date" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                            </div>
-
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Ort / PLZ</label>
-                                <input type="text" id="filter-location" placeholder="z.B. KÖln, Berlin..." class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                            </div>
-
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Umkreis</label>
-                                <select id="filter-distance" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                                    <option value="">Beliebiger Umkreis</option>
-                                    <option value="25">bis 25 km</option>
-                                    <option value="50">bis 50 km</option>
-                                    <option value="100">bis 100 km</option>
-                                    <option value="250">bis 250 km</option>
-                                </select>
-                            </div>
-
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Genres</label>
-                                <select id="filter-genre" class="form-input" multiple style="width: 100%; height: 100px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                                    <option value="Pop">Pop</option>
-                                    <option value="Rock">Rock</option>
-                                    <option value="Acoustic">Acoustic / Singer-Songwriter</option>
-                                    <option value="Jazz">Jazz & Soul</option>
-                                    <option value="Cover">Cover & Party Hits</option>
-                                    <option value="DJ">DJ & Electronic</option>
-                                </select>
-                            </div>
-
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Instrumente</label>
-                                <select id="filter-instrument" class="form-input" multiple style="width: 100%; height: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                                    <option value="Gesang">Gesang / Solo</option>
-                                    <option value="Gitarre">Acoustic Gitarre</option>
-                                    <option value="Piano">Piano / Keyboard</option>
-                                    <option value="Duo">Duo / Trio</option>
-                                    <option value="Band">Band (Vollbesetzung)</option>
-                                    <option value="DJ">DJ Setup</option>
-                                </select>
-                            </div>
-
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Spieldauer</label>
-                                <select id="filter-duration" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                                    <option value="">Beliebige Spieldauer</option>
-                                    <option value="1">bis 1 Stunde</option>
-                                    <option value="2-3">2 - 3 Stunden</option>
-                                    <option value="4">4 - 5 Stunden</option>
-                                    <option value="open">Open End / Ganztags</option>
-                                </select>
-                            </div>
-
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Budgetspanne</label>
-                                <select id="filter-budget" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                                    <option value="">Jedes Budget</option>
-                                    <option value="500">bis 500 €</option>
-                                    <option value="1000">500 € - 1.000 €</option>
-                                    <option value="2500">1.000 € - 2.500 €</option>
-                                    <option value="5000">Über 2.500 €</option>
-                                </select>
-                            </div>
-
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Besucheranzahl</label>
-                                <select id="filter-attendees" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                                    <option value="">Beliebige GÄstezahl</option>
-                                    <option value="50">bis 50 GÄste</option>
-                                    <option value="150">50 - 150 GÄste</option>
-                                    <option value="500">150 - 500 GÄste</option>
-                                </select>
-                            </div>
-
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Technik</label>
-                                <select id="filter-equipment" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                                    <option value="">Beliebig</option>
-                                    <option value="Vorhanden">Vorhanden</option>
-                                    <option value="Mitbringen">Musiker bringt mit</option>
-                                </select>
-                            </div>
-
-                            <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK (WEISSES EINGABEFELD) -->
-                            <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid #a855f7; border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Suchbegriffe</label>
-                                <input type="text" id="filter-keyword" placeholder="z.B. Hochzeit, Sax, Rock..." class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                            </div>
-
-                            <div style="padding-top: 0.3rem;">
-                                <button id="btn-reset-filters" class="btn btn-secondary" style="width: 100%; padding: 0.65rem; border-radius: 8px; font-weight: 700;">
-                                    <i class="fa-solid fa-rotate-left"></i> ZurÜcksetzen
-                                </button>
-                            </div>
-                        </div>
-                    ` : `
-                        <!-- 10 Musiker-Markt Filter + Suchbegriffe mit weissen Eingabefeldern -->
+                        <!-- 10 Event-Markt Filter + Suchbegriffe mit tag-pill-checkboxes & dual range sliders -->
                         <div style="display: flex; flex-direction: column; gap: 0.8rem;">
                             
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Musiker-Typ</label>
-                                <select id="filter-musician-type" class="form-input" multiple style="width: 100%; height: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                                    <option value="Solo">Solo-KÜnstler</option>
-                                    <option value="Duo">Duo / Trio</option>
-                                    <option value="Coverband">Coverband</option>
-                                    <option value="Band">Band (Vollbesetzung)</option>
-                                    <option value="DJ">DJ</option>
-                                </select>
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Event-Typ</label>
+                                <div class="checkbox-tag-grid" id="filter-event-type-grid">
+                                    ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Taufe/Kommunion/Konfirmation', 'Schützenfest/Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
+                                        <label class="tag-pill-checkbox">
+                                            <input type="checkbox" name="filterEventTypes" value="${t}">
+                                            <span>${t}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
                             </div>
 
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Datum / VerfÜgbarkeit</label>
-                                <input type="date" id="filter-date-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Datum</label>
+                                <input type="date" id="filter-date" class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Ort</label>
-                                <input type="text" id="filter-location-m" placeholder="z.B. MÜnchen, KÖln..." class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Ort / PLZ</label>
+                                <input type="text" id="filter-location" placeholder="z.B. Köln, Berlin..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Umkreis</label>
-                                <select id="filter-distance-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                                    <option value="">Beliebiger Umkreis</option>
-                                    <option value="25">bis 25 km</option>
-                                    <option value="50">bis 50 km</option>
-                                    <option value="100">bis 100 km</option>
-                                </select>
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Genres</label>
+                                <div class="checkbox-tag-grid" id="filter-genres-grid">
+                                    ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
+                                        <label class="tag-pill-checkbox">
+                                            <input type="checkbox" name="filterGenres" value="${g}">
+                                            <span>${g}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
                             </div>
 
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Genres</label>
-                                <select id="filter-genre-m" class="form-input" multiple style="width: 100%; height: 100px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                                    <option value="Pop">Pop</option>
-                                    <option value="Rock">Rock</option>
-                                    <option value="Acoustic">Acoustic / Singer-Songwriter</option>
-                                    <option value="Jazz">Jazz & Soul</option>
-                                    <option value="Cover">Cover & Party Hits</option>
-                                    <option value="DJ">DJ & Electronic</option>
-                                </select>
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Instrumente</label>
+                                <div class="checkbox-tag-grid" id="filter-instruments-grid">
+                                    ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                        <label class="tag-pill-checkbox">
+                                            <input type="checkbox" name="filterInstruments" value="${ins}">
+                                            <span>${ins}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
                             </div>
 
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Instrumente</label>
-                                <select id="filter-instrument-m" class="form-input" multiple style="width: 100%; height: 90px; padding: 0.4rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                                    <option value="Gesang">Gesang</option>
-                                    <option value="Gitarre">Gitarre</option>
-                                    <option value="Piano">Klavier / Keyboard</option>
-                                    <option value="Saxophon">Saxophon</option>
-                                    <option value="DJ">DJ Setup</option>
-                                </select>
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <div class="slider-value-display">
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Spieldauer</label>
+                                    <span id="val-filter-duration" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0,5 - 10,0 Std.</span>
+                                </div>
+                                <div class="dual-range-slider" id="slider-filter-duration-container">
+                                    <div class="dual-range-track"></div>
+                                    <div class="dual-range-active-track" id="track-filter-duration"></div>
+                                    <input type="range" class="form-input" id="input-filter-duration-min" min="0.5" max="10" step="0.5" value="0.5">
+                                    <input type="range" class="form-input" id="input-filter-duration-max" min="0.5" max="10" step="0.5" value="10.0">
+                                </div>
                             </div>
 
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Spieldauer</label>
-                                <select id="filter-duration-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                                    <option value="">Beliebige Spieldauer</option>
-                                    <option value="1">bis 1 Stunde</option>
-                                    <option value="2-3">2 - 3 Stunden</option>
-                                    <option value="4">4 - 5 Stunden</option>
-                                    <option value="open">Open End / Ganztags</option>
-                                </select>
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <div class="slider-value-display">
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Budget / Gage</label>
+                                    <span id="val-filter-budget" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0 - 5.000+ €</span>
+                                </div>
+                                <div class="dual-range-slider" id="slider-filter-budget-container">
+                                    <div class="dual-range-track"></div>
+                                    <div class="dual-range-active-track" id="track-filter-budget"></div>
+                                    <input type="range" class="form-input" id="input-filter-budget-min" min="0" max="5000" step="100" value="0">
+                                    <input type="range" class="form-input" id="input-filter-budget-max" min="0" max="5000" step="100" value="5000">
+                                </div>
                             </div>
 
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Preisspanne</label>
-                                <select id="filter-price-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                                    <option value="">Jede Preisspanne</option>
-                                    <option value="500">bis 500 €</option>
-                                    <option value="1000">500 € - 1.000 €</option>
-                                    <option value="2500">1.000 € - 2.500 €</option>
-                                </select>
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <div class="slider-value-display">
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Besucheranzahl</label>
+                                    <span id="val-filter-publikum" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0 - 500+</span>
+                                </div>
+                                <div class="dual-range-slider" id="slider-filter-publikum-container">
+                                    <div class="dual-range-track"></div>
+                                    <div class="dual-range-active-track" id="track-filter-publikum"></div>
+                                    <input type="range" class="form-input" id="input-filter-publikum-min" min="0" max="500" step="50" value="0">
+                                    <input type="range" class="form-input" id="input-filter-publikum-max" min="0" max="500" step="50" value="500">
+                                </div>
                             </div>
 
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Besucheranzahl</label>
-                                <select id="filter-attendees-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                                    <option value="">Beliebige GÄstezahl</option>
-                                    <option value="50">bis 50 GÄste</option>
-                                    <option value="150">50 - 150 GÄste</option>
-                                </select>
-                            </div>
-
-                            <div style="background: rgba(124, 58, 237, 0.14); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Technik</label>
-                                <select id="filter-equipment-m" class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                                    <option value="">Beliebig</option>
-                                    <option value="Eigene">Eigene PA vorhanden</option>
-                                    <option value="BenÖtigt">Technik wird benÖtigt</option>
-                                </select>
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Technik</label>
+                                <div class="checkbox-tag-grid" id="filter-technik-grid">
+                                    ${['Technik vorhanden', 'Technik muss noch geklärt werden', 'Technik nicht vorhanden'].map(t => `
+                                        <label class="tag-pill-checkbox">
+                                            <input type="checkbox" name="filterTechnik" value="${t}">
+                                            <span>${t}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
                             </div>
 
                             <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK (WEISSES EINGABEFELD) -->
-                            <div style="background: rgba(124, 58, 237, 0.18); border: 1.5px solid #a855f7; border-radius: 10px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #a855f7; margin-bottom: 0.35rem;">Suchbegriffe</label>
-                                <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100%; padding: 0.55rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Suchbegriffe</label>
+                                <input type="text" id="filter-keyword" placeholder="z.B. Hochzeit, Sax, Rock..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
-                            <div style="padding-top: 0.3rem;">
-                                <button id="btn-reset-filters" class="btn btn-secondary" style="width: 100%; padding: 0.65rem; border-radius: 8px; font-weight: 700;">
-                                    <i class="fa-solid fa-rotate-left"></i> ZurÜcksetzen
+                            <div style="padding-top: 0.2rem;">
+                                <button id="btn-reset-filters" class="btn btn-secondary" style="width: 100% !important; padding: 0.65rem; border-radius: 10px; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; transition: all 0.2s;">
+                                    <i class="fa-solid fa-rotate-left"></i> Zurücksetzen
                                 </button>
                             </div>
+
+                        </div>
+                    ` : `
+                        <!-- 10 Musiker-Markt Filter + Suchbegriffe mit tag-pill-checkboxes & dual range sliders -->
+                        <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                            
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Musiker-Typ</label>
+                                <div class="checkbox-tag-grid" id="filter-musician-type-grid">
+                                    ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
+                                        <label class="tag-pill-checkbox">
+                                            <input type="checkbox" name="filterMusicianTypes" value="${t}">
+                                            <span>${t}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Datum</label>
+                                <input type="date" id="filter-date-m" class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                            </div>
+
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Ort</label>
+                                <input type="text" id="filter-location-m" placeholder="z.B. München, Köln..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                            </div>
+
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <div class="slider-value-display">
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Maximaler Umkreis</label>
+                                    <span id="val-filter-radius-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">500 km</span>
+                                </div>
+                                <input type="range" class="form-input" id="input-filter-radius-m" min="0" max="500" step="50" value="500" style="width: 100%; accent-color: #2563eb;">
+                            </div>
+
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Genres</label>
+                                <div class="checkbox-tag-grid" id="filter-genres-grid-m">
+                                    ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
+                                        <label class="tag-pill-checkbox">
+                                            <input type="checkbox" name="filterGenresM" value="${g}">
+                                            <span>${g}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Instrumente</label>
+                                <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
+                                    ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                        <label class="tag-pill-checkbox">
+                                            <input type="checkbox" name="filterInstrumentsM" value="${ins}">
+                                            <span>${ins}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <div class="slider-value-display">
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Spieldauer</label>
+                                    <span id="val-filter-duration-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0,5 - 10,0 Std.</span>
+                                </div>
+                                <div class="dual-range-slider" id="slider-filter-duration-m-container">
+                                    <div class="dual-range-track"></div>
+                                    <div class="dual-range-active-track" id="track-filter-duration-m"></div>
+                                    <input type="range" class="form-input" id="input-filter-duration-m-min" min="0.5" max="10" step="0.5" value="0.5">
+                                    <input type="range" class="form-input" id="input-filter-duration-m-max" min="0.5" max="10" step="0.5" value="10.0">
+                                </div>
+                            </div>
+
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <div class="slider-value-display">
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Gage (Honorar)</label>
+                                    <span id="val-filter-gage-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0 - 5.000+ €</span>
+                                </div>
+                                <div class="dual-range-slider" id="slider-filter-gage-m-container">
+                                    <div class="dual-range-track"></div>
+                                    <div class="dual-range-active-track" id="track-filter-gage-m"></div>
+                                    <input type="range" class="form-input" id="input-filter-gage-m-min" min="0" max="5000" step="100" value="0">
+                                    <input type="range" class="form-input" id="input-filter-gage-m-max" min="0" max="5000" step="100" value="5000">
+                                </div>
+                            </div>
+
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <div class="slider-value-display">
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Bevorzugte Gästezahl</label>
+                                    <span id="val-filter-publikum-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0 - 500+</span>
+                                </div>
+                                <div class="dual-range-slider" id="slider-filter-publikum-m-container">
+                                    <div class="dual-range-track"></div>
+                                    <div class="dual-range-active-track" id="track-filter-publikum-m"></div>
+                                    <input type="range" class="form-input" id="input-filter-publikum-m-min" min="0" max="500" step="50" value="0">
+                                    <input type="range" class="form-input" id="input-filter-publikum-m-max" min="0" max="500" step="50" value="500">
+                                </div>
+                            </div>
+
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Bevorzugte Event-Typen</label>
+                                <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
+                                    ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Taufe/Kommunion/Konfirmation', 'Schützenfest/Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
+                                        <label class="tag-pill-checkbox">
+                                            <input type="checkbox" name="filterEventTypesM" value="${evt}">
+                                            <span>${evt}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Technik</label>
+                                <div class="checkbox-tag-grid" id="filter-technik-grid-m">
+                                    ${['Technik vorhanden', 'Technik muss noch geklärt werden', 'Technik nicht vorhanden'].map(t => `
+                                        <label class="tag-pill-checkbox">
+                                            <input type="checkbox" name="filterTechnikM" value="${t}">
+                                            <span>${t}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK (WEISSES EINGABEFELD) -->
+                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Suchbegriffe</label>
+                                <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                            </div>
+
+                            <div style="padding-top: 0.2rem;">
+                                <button id="btn-reset-filters" class="btn btn-secondary" style="width: 100% !important; padding: 0.65rem; border-radius: 10px; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; transition: all 0.2s;">
+                                    <i class="fa-solid fa-rotate-left"></i> Zurücksetzen
+                                </button>
+                            </div>
+
                         </div>
                     `}
                 </div>
 
                 <!-- Center Main Section -->
                 <div>
-                    
-                    <!-- Center Top Control Bar: Sortierungsfunktion -->
-                    <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 0.8rem 1.2rem; margin-bottom: 1.5rem; display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 0.8rem; box-shadow: var(--shadow-sm);">
-                        
-                        <!-- Sortierungsfunktion -->
-                        <div style="display: flex; align-items: center; gap: 0.6rem; width: 100%; justify-content: flex-end;">
-                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); white-space: normal; word-break: break-word;">
-                                <i class="fa-solid fa-arrow-down-wide-short" style="color: ${isEvents ? '#2563eb' : '#7c3aed'};"></i> Sortierung:
-                            </span>
-                            <select id="sort-select" style="padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid rgba(124, 58, 237, 0.3); background: #ffffff; color: #0f172a; font-weight: 800; font-size: 0.85rem;">
-                                <option value="match">Match-Faktor absteigend</option>
-                                <option value="newest">Neueste zuerst</option>
-                                <option value="price">GÜnstig zuerst</option>
-                                <option value="distance">NÄchste zuerst</option>
-                                <option value="name">Name (A-Z)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Center Main Grid for Musiker- or Event-Kacheln -->
-                    <div id="market-items-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2rem;">
+                    <div id="market-items-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
                         ${renderMarketGridHTML(items, isEvents)}
                     </div>
                 </div>
@@ -3030,23 +3147,96 @@ function renderMarket(container, type, onNavigate) {
         </div>
     `;
 
-    // Filter logic supporting KEYWORD SEARCH, LOCATION, MULTI-SELECTS & SORTING
+    // Mobile filter toggle listener
+    const toggleBtn = container.querySelector('#btn-toggle-mobile-filters');
+    const filterWrapper = container.querySelector('#market-filters-wrapper');
+    toggleBtn?.addEventListener('click', function() {
+        filterWrapper.classList.toggle('open');
+        this.classList.toggle('active');
+        const isOpen = filterWrapper.classList.contains('open');
+        this.innerHTML = isOpen 
+            ? `<i class="fa-solid fa-xmark"></i> Filter verbergen` 
+            : `<i class="fa-solid fa-sliders"></i> Filter`;
+    });
+
+    const closeBtnM = container.querySelector('#btn-close-filters-m');
+    closeBtnM?.addEventListener('click', function() {
+        filterWrapper.classList.remove('open');
+        toggleBtn?.classList.remove('active');
+        if (toggleBtn) {
+            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders"></i> Filter`;
+        }
+    });
+
     const sortSelect = container.querySelector('#sort-select');
     const resetBtn = container.querySelector('#btn-reset-filters');
 
-    function getSelectedValues(id) {
-        const el = container.querySelector('#' + id);
-        if (!el) return [];
-        if (el.multiple) {
-            return Array.from(el.selectedOptions).map(o => o.value).filter(v => v !== '');
+    function getCheckedValues(id) {
+        const grid = container.querySelector('#' + id);
+        if (!grid) return [];
+        return Array.from(grid.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+    }
+
+    function initDualSlider(containerId, minInputId, maxInputId, trackId, displayId, unit, isPrice) {
+        const sliderContainer = container.querySelector('#' + containerId);
+        if (!sliderContainer) return;
+        const minInput = container.querySelector('#' + minInputId);
+        const maxInput = container.querySelector('#' + maxInputId);
+        const track = container.querySelector('#' + trackId);
+        const display = container.querySelector('#' + displayId);
+
+        function updateSlider() {
+            let minVal = parseFloat(minInput.value);
+            let maxVal = parseFloat(maxInput.value);
+
+            if (minVal > maxVal) {
+                const temp = minVal;
+                minVal = maxVal;
+                maxVal = temp;
+            }
+
+            const percentMin = ((minVal - minInput.min) / (minInput.max - minInput.min)) * 100;
+            const percentMax = ((maxVal - maxInput.min) / (maxInput.max - maxInput.min)) * 100;
+
+            if (track) {
+                track.style.left = percentMin + '%';
+                track.style.width = (percentMax - percentMin) + '%';
+            }
+
+            if (display) {
+                if (isPrice) {
+                    if (maxVal >= 5000) {
+                        display.textContent = `${minVal.toLocaleString('de-DE')} - 5.000+ ${unit}`;
+                    } else {
+                        display.textContent = `${minVal.toLocaleString('de-DE')} - ${maxVal.toLocaleString('de-DE')} ${unit}`;
+                    }
+                } else if (unit === 'Std.') {
+                    display.textContent = `${minVal.toFixed(1).replace('.', ',')} - ${maxVal.toFixed(1).replace('.', ',')} ${unit}`;
+                } else if (unit === 'Personen') {
+                    if (maxVal >= 500) {
+                        display.textContent = `${minVal} - 500+`;
+                    } else {
+                        display.textContent = `${minVal} - ${maxVal}`;
+                    }
+                } else {
+                    display.textContent = `${minVal} - ${maxVal} ${unit}`;
+                }
+            }
         }
-        return el.value ? [el.value] : [];
+
+        minInput.addEventListener('input', updateSlider);
+        maxInput.addEventListener('input', updateSlider);
+        minInput.addEventListener('input', applyAllFiltersAndSort);
+        maxInput.addEventListener('input', updateSlider); // Trigger update on release
+        maxInput.addEventListener('input', applyAllFiltersAndSort);
+        updateSlider();
     }
 
     function applyAllFiltersAndSort() {
         let list = [...items];
+        console.log("applyAllFiltersAndSort started. Input items:", list.length, "isEvents:", isEvents);
 
-        // 1. Ort Filter (z.B. KÖln, MÜnchen, Berlin)
+        // 1. Ort Filter
         const locInput = isEvents 
             ? (container.querySelector('#filter-location')?.value || '').trim().toLowerCase()
             : (container.querySelector('#filter-location-m')?.value || '').trim().toLowerCase();
@@ -3054,60 +3244,134 @@ function renderMarket(container, type, onNavigate) {
             list = list.filter(item => (item.location || '').toLowerCase().includes(locInput));
         }
 
-        // 2. Suchbegriffe Filter (Freitext-Suche direkt unter Technik)
+        // 1.5. Datum Filter (Date Filter)
+        const dateVal = container.querySelector(isEvents ? '#filter-date' : '#filter-date-m')?.value;
+        if (dateVal) {
+            list = list.filter(item => {
+                if (isEvents) {
+                    return item.date === dateVal;
+                } else {
+                    if (!item.availability) return true;
+                    if (Array.isArray(item.availability)) {
+                        if (item.availability.includes(dateVal)) return true;
+                        const weekday = getWeekdayFromDate(dateVal);
+                        return item.availability.includes(weekday);
+                    } else if (typeof item.availability === 'object') {
+                        const isModified = item.availability.modifiedDates && item.availability.modifiedDates.includes(dateVal);
+                        if (item.availability.defaultState === 'all-selected') {
+                            return !isModified;
+                        } else {
+                            return isModified;
+                        }
+                    }
+                    return true;
+                }
+            });
+        }
+
+        // 2. Suchbegriffe Filter
         const kw = isEvents
             ? (container.querySelector('#filter-keyword')?.value || '').trim().toLowerCase()
             : (container.querySelector('#filter-keyword-m')?.value || '').trim().toLowerCase();
         if (kw) {
             list = list.filter(item => {
-                const fullText = [item.name, item.title, item.bio, item.description, item.location, item.category, item.eventType, ...(item.genres||[]), ...(item.instruments||[])].join(' ').toLowerCase();
+                const fullText = [item.name, item.title, item.bio, item.description, item.location, item.category, item.eventType, item.type, ...(item.genres||[]), ...(item.instruments||[])].join(' ').toLowerCase();
                 return fullText.includes(kw);
             });
         }
 
         // 3. Genres Filter
-        const selGenres = isEvents ? getSelectedValues('filter-genre') : getSelectedValues('filter-genre-m');
+        const selGenres = isEvents ? getCheckedValues('filter-genres-grid') : getCheckedValues('filter-genres-grid-m');
         if (selGenres.length > 0) {
             list = list.filter(item => {
-                const itemG = item.genres || (item.genre ? [item.genre] : []);
+                const itemG = item.genres || [];
                 return selGenres.some(g => itemG.some(ig => ig.toLowerCase().includes(g.toLowerCase())));
             });
         }
 
         // 4. Instrumente Filter
-        const selInst = isEvents ? getSelectedValues('filter-instrument') : getSelectedValues('filter-instrument-m');
+        const selInst = isEvents ? getCheckedValues('filter-instruments-grid') : getCheckedValues('filter-instruments-grid-m');
         if (selInst.length > 0) {
             list = list.filter(item => {
-                const itemI = item.instruments || (item.category ? [item.category] : []);
+                const itemI = item.instruments || [];
                 return selInst.some(inst => itemI.some(i => i.toLowerCase().includes(inst.toLowerCase())));
             });
         }
 
-        // 5. Musiker-Typ / Event-Art
-        const selType = isEvents ? getSelectedValues('filter-event-type') : getSelectedValues('filter-musician-type');
+        // 5. Musiker-Typ / Event-Typ
+        const selType = isEvents ? getCheckedValues('filter-event-type-grid') : getCheckedValues('filter-musician-type-grid');
         if (selType.length > 0) {
             list = list.filter(item => {
-                const val = isEvents ? (item.eventType || '') : (item.category || '');
-                return selType.some(t => val.toLowerCase().includes(t.toLowerCase()));
+                const val = (item.type || item.eventType || '');
+                return selType.some(t => val.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(val.toLowerCase()));
             });
         }
 
-        // 6. Spieldauer Filter
-        const durationVal = isEvents
-            ? (container.querySelector('#filter-duration')?.value || '')
-            : (container.querySelector('#filter-duration-m')?.value || '');
-        if (durationVal) {
+        // 6. Technik Filter
+        const selTechnik = isEvents ? getCheckedValues('filter-technik-grid') : getCheckedValues('filter-technik-grid-m');
+        if (selTechnik.length > 0) {
             list = list.filter(item => {
-                const dur = (item.duration || item.spieldauer || '').toLowerCase();
-                if (durationVal === '1') return dur.includes('1');
-                if (durationVal === '2-3') return dur.includes('2') || dur.includes('3') || dur.includes('4');
-                if (durationVal === '4') return dur.includes('4') || dur.includes('5');
-                if (durationVal === 'open') return dur.includes('open') || dur.includes('ganztag');
-                return true;
+                const val = (item.equipment || item.technik || '');
+                return selTechnik.some(t => val.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(val.toLowerCase()));
             });
         }
 
-        // 7. Sortierungs-Funktion
+        // 7. Spieldauer Filter (Dual Slider)
+        const minD = parseFloat(container.querySelector(isEvents ? '#input-filter-duration-min' : '#input-filter-duration-m-min')?.value || 0.5);
+        const maxD = parseFloat(container.querySelector(isEvents ? '#input-filter-duration-max' : '#input-filter-duration-m-max')?.value || 10);
+        list = list.filter(item => {
+            if (isEvents) {
+                const dur = parseFloat(item.duration) || 0;
+                return dur >= minD && dur <= maxD;
+            } else {
+                const itemMinD = parseFloat(item.minDuration) || 0.5;
+                const itemMaxD = parseFloat(item.maxDuration) || 24;
+                return itemMaxD >= minD && itemMinD <= maxD;
+            }
+        });
+
+        // 8. Budget / Gage Filter (Dual Slider)
+        const minB = parseFloat(container.querySelector(isEvents ? '#input-filter-budget-min' : '#input-filter-gage-m-min')?.value || 0);
+        const maxB = parseFloat(container.querySelector(isEvents ? '#input-filter-budget-max' : '#input-filter-gage-m-max')?.value || 5000);
+        list = list.filter(item => {
+            if (isEvents) {
+                const bud = parseFloat(item.budget) || 0;
+                return bud >= minB && bud <= maxB;
+            } else {
+                const bud = parseFloat(item.minBudget) || 0;
+                return bud <= maxB;
+            }
+        });
+
+        // 9. Besucheranzahl / Publikum Filter (Dual Slider)
+        const minP = parseInt(container.querySelector(isEvents ? '#input-filter-publikum-min' : '#input-filter-publikum-m-min')?.value || 0);
+        const maxP = parseInt(container.querySelector(isEvents ? '#input-filter-publikum-max' : '#input-filter-publikum-m-max')?.value || 500);
+        list = list.filter(item => {
+            const itemMinP = parseInt(item.minPublikum) || 0;
+            const itemMaxP = parseInt(item.maxPublikum) || 500;
+            return itemMaxP >= minP && itemMinP <= maxP;
+        });
+
+        // 10. Umkreis Filter (for Musiker-Markt only)
+        if (!isEvents) {
+            const radiusVal = parseInt(container.querySelector('#input-filter-radius-m')?.value || 500);
+            if (radiusVal < 500) {
+                list = list.filter(item => (item.radius || 0) <= radiusVal);
+            }
+        }
+
+        // 11. Bevorzugte Event-Typen Filter (for Musiker-Markt only)
+        if (!isEvents) {
+            const selEvtTypes = getCheckedValues('filter-event-types-grid-m');
+            if (selEvtTypes.length > 0) {
+                list = list.filter(item => {
+                    const types = item.eventTypes || [];
+                    return selEvtTypes.some(t => types.some(it => it.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(it.toLowerCase())));
+                });
+            }
+        }
+
+        // Sortierung
         const sortVal = sortSelect?.value || 'match';
         if (sortVal === 'match') {
             list.sort((a, b) => (b.matchScore || 95) - (a.matchScore || 95));
@@ -3115,10 +3379,11 @@ function renderMarket(container, type, onNavigate) {
             list.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
         } else if (sortVal === 'price') {
             const parsePrice = (str) => {
+                if (typeof str === 'number') return str;
                 const match = (str || '').match(/\d+/g);
                 return match ? parseInt(match.join('')) : 999999;
             };
-            list.sort((a, b) => parsePrice(a.price || a.budget) - parsePrice(b.price || b.budget));
+            list.sort((a, b) => parsePrice(a.price || a.budget || a.minBudget) - parsePrice(b.price || b.budget || b.minBudget));
         } else if (sortVal === 'distance') {
             list.sort((a, b) => (parseInt(a.distance || 50) - parseInt(b.distance || 50)));
         } else if (sortVal === 'name') {
@@ -3127,22 +3392,86 @@ function renderMarket(container, type, onNavigate) {
 
         const grid = container.querySelector('#market-items-grid');
         if (grid) grid.innerHTML = renderMarketGridHTML(list, isEvents);
+        
+        const countEl = container.querySelector('#market-results-count');
+        if (countEl) countEl.textContent = `${list.length} Ergebnisse`;
+        
+        console.log("applyAllFiltersAndSort finished. Output items:", list.length);
     }
 
     sortSelect?.addEventListener('change', applyAllFiltersAndSort);
-    container.querySelectorAll('.form-input').forEach(el => {
+    
+    // Bind change/input event to text inputs
+    container.querySelectorAll('.form-input:not([type="checkbox"]):not([type="range"])').forEach(el => {
         el.addEventListener('input', applyAllFiltersAndSort);
+    });
+
+    container.querySelectorAll('input[type="date"]').forEach(el => {
         el.addEventListener('change', applyAllFiltersAndSort);
     });
 
-    resetBtn?.addEventListener('click', () => {
-        container.querySelectorAll('.form-input').forEach(el => {
-            if (el.multiple) {
-                Array.from(el.options).forEach(o => o.selected = false);
-            } else {
-                el.value = '';
+    // Tag pill checkbox click handler for filters
+    container.querySelectorAll('.tag-pill-checkbox input').forEach(input => {
+        if (input.checked) {
+            input.parentElement.classList.add('active');
+        }
+        input.addEventListener('change', (e) => {
+            if (e.target.type === 'checkbox') {
+                e.target.parentElement.classList.toggle('active', e.target.checked);
             }
+            applyAllFiltersAndSort();
         });
+    });
+
+    // Initialize range sliders
+    if (isEvents) {
+        initDualSlider('slider-filter-duration-container', 'input-filter-duration-min', 'input-filter-duration-max', 'track-filter-duration', 'val-filter-duration', 'Std.', false);
+        initDualSlider('slider-filter-budget-container', 'input-filter-budget-min', 'input-filter-budget-max', 'track-filter-budget', 'val-filter-budget', '€', true);
+        initDualSlider('slider-filter-publikum-container', 'input-filter-publikum-min', 'input-filter-publikum-max', 'track-filter-publikum', 'val-filter-publikum', 'Personen', false);
+    } else {
+        const radiusInput = container.querySelector('#input-filter-radius-m');
+        const radiusDisplay = container.querySelector('#val-filter-radius-m');
+        if (radiusInput && radiusDisplay) {
+            radiusInput.addEventListener('input', () => {
+                radiusDisplay.textContent = radiusInput.value + ' km';
+                applyAllFiltersAndSort();
+            });
+        }
+        initDualSlider('slider-filter-duration-m-container', 'input-filter-duration-m-min', 'input-filter-duration-m-max', 'track-filter-duration-m', 'val-filter-duration-m', 'Std.', false);
+        initDualSlider('slider-filter-gage-m-container', 'input-filter-gage-m-min', 'input-filter-gage-m-max', 'track-filter-gage-m', 'val-filter-gage-m', '€', true);
+        initDualSlider('slider-filter-publikum-m-container', 'input-filter-publikum-m-min', 'input-filter-publikum-m-max', 'track-filter-publikum-m', 'val-filter-publikum-m', 'Personen', false);
+    }
+
+    resetBtn?.addEventListener('click', () => {
+        container.querySelectorAll('input[type="text"], input[type="date"]').forEach(el => el.value = '');
+        
+        container.querySelectorAll('.tag-pill-checkbox input').forEach(el => {
+            el.checked = false;
+            el.parentElement.classList.remove('active');
+        });
+        
+        const durationMin = container.querySelector('#input-filter-duration-min') || container.querySelector('#input-filter-duration-m-min');
+        if (durationMin) durationMin.value = durationMin.min;
+        const durationMax = container.querySelector('#input-filter-duration-max') || container.querySelector('#input-filter-duration-m-max');
+        if (durationMax) durationMax.value = durationMax.max;
+        
+        const budgetMin = container.querySelector('#input-filter-budget-min') || container.querySelector('#input-filter-gage-m-min');
+        if (budgetMin) budgetMin.value = budgetMin.min;
+        const budgetMax = container.querySelector('#input-filter-budget-max') || container.querySelector('#input-filter-gage-m-max');
+        if (budgetMax) budgetMax.value = budgetMax.max;
+
+        const publikumMin = container.querySelector('#input-filter-publikum-min') || container.querySelector('#input-filter-publikum-m-min');
+        if (publikumMin) publikumMin.value = publikumMin.min;
+        const publikumMax = container.querySelector('#input-filter-publikum-max') || container.querySelector('#input-filter-publikum-m-max');
+        if (publikumMax) publikumMax.value = publikumMax.max;
+
+        const radiusSlider = container.querySelector('#input-filter-radius-m');
+        if (radiusSlider) radiusSlider.value = radiusSlider.max;
+
+        container.querySelectorAll('.dual-range-slider input[type="range"], #input-filter-radius-m').forEach(el => {
+            el.dispatchEvent(new Event('input'));
+        });
+
         if (sortSelect) sortSelect.value = 'match';
         applyAllFiltersAndSort();
     });
@@ -3161,8 +3490,8 @@ window.openItemDetailModal = function(id, isEvents) {
     const item = (isEvents ? state.events : state.musicians).find(x => x.id === id) || (isEvents ? state.events[0] : state.musicians[0]);
     if (!item) return;
 
-    const isUnlocked = state.unlockedContacts && state.unlockedContacts.includes(item.id);
-    const roleColor = isEvents ? '#2563eb' : '#7c3aed';
+    const isUnlocked = state ? ((typeof state.isUnlocked === 'function') ? state.isUnlocked(item.id) : (state.unlockedContacts && state.unlockedContacts.includes(item.id))) : false;
+    const roleColor = isEvents ? '#7c3aed' : '#2563eb';
     const photo = item.image || item.photo || (isEvents 
         ? 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1000&q=80' 
         : 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1000&q=80');
@@ -3175,7 +3504,7 @@ window.openItemDetailModal = function(id, isEvents) {
         : 'Professionelle Live-Musik für unvergleichliche Momente bei Hochzeiten, Geburtstagen & Firmenevents. Großes Repertoire von Klassikern bis zu modernen Charts.');
 
     const modalHTML = `
-        <div class="modal-overlay active" id="modal-item-detail" style="position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
+        <div class="modal-overlay active ${isEvents ? 'theme-musician' : 'theme-organizer'}" id="modal-item-detail" style="position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
             <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 20px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); position: relative;">
                 
                 <!-- Close Button -->
@@ -3255,7 +3584,7 @@ window.openItemDetailModal = function(id, isEvents) {
                         <div>
                             <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Instrumente / Besetzung</span>
                             <div style="display: flex; flex-wrap: wrap; gap: 0.3rem;">
-                                ${instruments.map(inst => `<span style="background: rgba(124, 58, 237, 0.15); padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.78rem; color: ${roleColor}; font-weight: 700;">${inst}</span>`).join('')}
+                                ${instruments.map(inst => `<span style="background: ${isEvents ? 'rgba(124, 58, 237, 0.15)' : 'rgba(37, 99, 235, 0.15)'}; padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.78rem; color: ${roleColor}; font-weight: 700;">${inst}</span>`).join('')}
                             </div>
                         </div>
 
@@ -3287,7 +3616,7 @@ window.openItemDetailModal = function(id, isEvents) {
                             <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">
                                 Kontaktdaten (Telefonnummer & E-Mail-Adresse) sind im geschÜtzten Modus verborgen. Schalte die Kontaktdaten frei, um direkt zu kommunizieren.
                             </p>
-                            <button class="btn btn-primary btn-unlock-contact" data-id="${item.id}" onclick="document.getElementById('modal-item-detail').remove();" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-color: #7c3aed; font-weight: 800; padding: 0.9rem 2rem; font-size: 1rem; border-radius: 12px; display: inline-flex; align-items: center; gap: 0.6rem;">
+                            <button class="btn btn-primary btn-unlock-contact" data-id="${item.id}" onclick="document.getElementById('modal-item-detail').remove();" style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; border-color: ${isEvents ? '#7c3aed' : '#1e40af'}; font-weight: 800; padding: 0.9rem 2rem; font-size: 1rem; border-radius: 12px; display: inline-flex; align-items: center; gap: 0.6rem; box-shadow: ${isEvents ? '0 4px 14px rgba(124, 58, 237, 0.35)' : '0 4px 14px rgba(37, 99, 235, 0.35)'};">
                                 <i class="fa-solid fa-key"></i> Kontaktdaten freischalten (1 Credit)
                             </button>
                         `}
@@ -4930,7 +5259,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     wrapper.innerHTML = `
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Mit GigConnAct verbinden</h3>
+                <h3>Anmelden ohne Passwort</h3>
                 <button class="close-modal-btn" id="btn-close-modal">&times;</button>
             </div>
             
@@ -4954,236 +5283,373 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 </form>
 
                 <form id="auth-register-form" class="hidden">
-                    <div class="form-group">
-                        <label>Ich registriere mich als...</label>
+                    <div class="role-picker-container" style="margin-bottom: 1.5rem;">
                         <div class="role-picker">
                             <div class="role-card active musician-role" id="role-picker-mus">
                                 <i class="fa-solid fa-guitar"></i>
-                                <h4>Musiker / Band</h4>
-                                <p>Sucht Gigs & Events</p>
+                                <h4>Musiker</h4>
+                                <p>Ich suche Gigs</p>
                             </div>
-                            <div class="role-card" id="role-picker-org">
+                            <div class="role-card organizer-role" id="role-picker-org">
                                 <i class="fa-solid fa-calendar-days"></i>
                                 <h4>Veranstalter</h4>
-                                <p>Sucht Musiker</p>
+                                <p>ich suche Acts</p>
                             </div>
                         </div>
                     </div>
 
                     <div id="reg-fields-musician">
-                        <h4 style="font-family: var(--font-heading); font-size:1rem; margin-bottom:1rem; color:var(--color-purple);">Infos zum Musiker / Band</h4>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Musikername (Band/DJ)</label>
-                                <input type="text" name="bandName" class="input-field" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Musiker-Typ</label>
-                                <select name="musicianType" class="input-field">
-                                    ${getSelectOptions(musicianTypesList)}
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Standort (Ort)</label>
-                                <input type="text" name="musLocation" class="input-field" placeholder="z.B. MÜnchen" required autocomplete="off">
-                            </div>
-                            <div class="form-group">
-                                <label>Maximaler Umkreis (km)</label>
-                                <input type="number" name="radius" class="input-field" value="50" required>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Max. Spieldauer (Stunden)</label>
-                                <input type="number" name="maxDuration" step="0.5" class="input-field" value="3" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Mindest-Budget (€)</label>
-                                <input type="number" name="minBudget" class="input-field" value="300" required>
-                            </div>
-                        </div>
- 
+                        
                         <div class="form-group">
-                            <label>Technik (Sound-System/Equipment)</label>
-                            <select name="musTechnik" class="input-field">
-                                <option value="Weiß ich noch nicht" selected>Weiß ich noch nicht</option>
-                                <option value="vorhanden">Vorhanden (bringe eigene Technik mit)</option>
-                                <option value="nicht vorhanden">Nicht vorhanden (benötige Technik vor Ort)</option>
-                            </select>
+                            <label>Musikername</label>
+                            <input type="text" name="bandName" class="input-field" maxlength="20" required placeholder="Name des Acts">
                         </div>
 
                         <div class="form-group">
-                            <label>Genres (Halte Strg/Cmd gedrückt)</label>
-                            <select name="genres" class="input-field" multiple style="height: 100px;" required>
-                                ${getSelectOptions(genresList)}
-                            </select>
+                            <label>Musiker-Typ</label>
+                            <div class="checkbox-tag-grid" id="grid-musician-types">
+                                ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="musicianTypes" value="${t}">
+                                        <span>${t}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
                         </div>
 
                         <div class="form-group">
-                            <label>Instrumente (Halte Strg/Cmd gedrückt)</label>
-                            <select name="instruments" class="input-field" multiple style="height: 100px;" required>
-                                ${getSelectOptions(instrumentsList)}
-                            </select>
+                            <label>Standort</label>
+                            <input type="text" id="input-mus-location-search" class="input-field" placeholder="Ort eingeben, z.B. München" autocomplete="off" style="width: 100%; margin-bottom: 0.5rem;">
+                            <div class="selected-locations-tags" id="mus-selected-locations-container" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.5rem;"></div>
+                            <input type="hidden" name="musLocation" id="input-mus-locations" value="">
                         </div>
 
                         <div class="form-group">
-                            <label>Interessante Eventarten (Mehrfachauswahl)</label>
-                            <select name="eventTypes" class="input-field" multiple style="height: 100px;" required>
-                                ${getSelectOptions(eventTypesList)}
-                            </select>
+                            <div class="slider-value-display">
+                                <label>Maximaler Umkreis</label>
+                                <span id="val-radius">50 km</span>
+                            </div>
+                            <input type="range" name="radius" min="0" max="500" step="50" value="50" class="input-field" style="padding:0; height:auto; accent-color:#a855f7;">
                         </div>
 
                         <div class="form-group">
-                            <label>Kalender-Verfügbarkeit (Freie Tage wÄhlen)</label>
-                            <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.5rem; line-height: 1.3;">
-                                Jedes Datum ist standardmäßig als verfügbar vorausgewählt (lila markiert). Klicke auf ein Datum, um es abzuwÄhlen. Nutze die Buttons unten für Massenaktionen.
+                            <label>Genres</label>
+                            <div class="checkbox-tag-grid" id="grid-genres">
+                                ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="genres" value="${g}">
+                                        <span>${g}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Instrumente</label>
+                            <div class="checkbox-tag-grid" id="grid-instruments">
+                                ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="instruments" value="${ins}">
+                                        <span>${ins}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="slider-value-display">
+                                <label>Spieldauer</label>
+                                <span id="val-spieldauer">0,5 - 2,0 Std.</span>
+                            </div>
+                            <div class="dual-range-slider" id="slider-spieldauer-container">
+                                <div class="dual-range-track"></div>
+                                <div class="dual-range-active-track" id="track-spieldauer"></div>
+                                <input type="range" id="input-spieldauer-min" name="minDuration" min="0.5" max="10" step="0.5" value="0.5">
+                                <input type="range" id="input-spieldauer-max" name="maxDuration" min="0.5" max="10" step="0.5" value="2.0">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="slider-value-display">
+                                <label>Gage</label>
+                                <span id="val-gage">0 - 5.000+ €</span>
+                            </div>
+                            <div class="dual-range-slider" id="slider-gage-container">
+                                <div class="dual-range-track"></div>
+                                <div class="dual-range-active-track" id="track-gage"></div>
+                                <input type="range" id="input-gage-min" name="minBudget" min="0" max="5000" step="100" value="0">
+                                <input type="range" id="input-gage-max" name="maxBudget" min="0" max="5000" step="100" value="5000">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Bevorzugte Event-Typen</label>
+                            <div class="checkbox-tag-grid" id="grid-event-types">
+                                ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Taufe/Kommunion/Konfirmation', 'Schützenfest/Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="eventTypes" value="${evt}">
+                                        <span>${evt}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Verfügbarkeiten</label>
+                            <p style="font-size:0.7rem; color:var(--text-muted); margin-bottom: 0.5rem; line-height: 1.3;">
+                                Montag - Freitag ist standardmäßig von 18:00 – 23:59 Uhr und Samstag/Sonntag von 00:01 – 23:59 Uhr voreingestellt. Nicht benötigte Tage abwählen.
                             </p>
-                            
-                            <div class="calendar-widget">
-                                <div class="calendar-widget-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                    <button type="button" class="btn btn-secondary btn-sm" id="cal-prev-month" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; height: auto;">&larr;</button>
-                                    <span id="cal-current-month-year" style="font-weight: 600; font-size: 0.85rem; color: var(--text-main);">Juli 2026</span>
-                                    <button type="button" class="btn btn-secondary btn-sm" id="cal-next-month" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; height: auto;">&rarr;</button>
-                                </div>
-                                
-                                <div class="calendar-widget-grid" id="cal-widget-days-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-bottom: 0.8rem;">
-                                    <!-- Populated dynamically via JS -->
-                                </div>
-                                
-                                <div class="calendar-widget-actions" style="display: flex; gap: 8px;">
-                                    <button type="button" class="btn btn-secondary btn-sm" id="cal-deselect-all" style="flex: 1; padding: 0.3rem; font-size: 0.75rem; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; height: auto;">Alle abwÄhlen</button>
-                                    <button type="button" class="btn btn-secondary btn-sm" id="cal-select-all" style="flex: 1; padding: 0.3rem; font-size: 0.75rem; background: #dcfce7; color: #166534; border: 1px solid #86efac; height: auto;">Alle auswÄhlen</button>
-                                </div>
+                            <div class="availability-week-grid">
+                                ${[
+                                    { key: 'weekday', label: 'Montag - Freitag', defActive: true, minTime: '18:00', maxTime: '23:59' },
+                                    { key: 'sa', label: 'Samstag', defActive: true, minTime: '00:01', maxTime: '23:59' },
+                                    { key: 'so', label: 'Sonntag', defActive: true, minTime: '00:01', maxTime: '23:59' }
+                                ].map(day => `
+                                    <div class="availability-day-row" data-day="${day.key}">
+                                        <div class="availability-day-info">
+                                            <input type="checkbox" name="availDays" value="${day.key}" id="chk-avail-${day.key}" checked>
+                                            <label for="chk-avail-${day.key}">${day.label}</label>
+                                        </div>
+                                        <div class="availability-day-times" id="times-container-${day.key}">
+                                            <span>von</span>
+                                            <input type="time" name="availStart_${day.key}" value="${day.minTime}">
+                                            <span>bis</span>
+                                            <input type="time" name="availEnd_${day.key}" value="${day.maxTime}">
+                                        </div>
+                                    </div>
+                                `).join('')}
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>Beschreibung</label>
-                            <textarea name="musDescription" class="input-field" rows="3" required></textarea>
+                            <div class="slider-value-display">
+                                <label>Wunschgröße Publikum</label>
+                                <span id="val-publikum">0 - 500+</span>
+                            </div>
+                            <div class="dual-range-slider" id="slider-publikum-container">
+                                <div class="dual-range-track"></div>
+                                <div class="dual-range-active-track" id="track-publikum"></div>
+                                <input type="range" id="input-publikum-min" min="0" max="500" step="50" value="0">
+                                <input type="range" id="input-publikum-max" min="0" max="500" step="50" value="500">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Technik</label>
+                            <div class="checkbox-tag-grid" id="grid-technik">
+                                ${['Technik vorhanden', 'Technik muss noch geklärt werden', 'Technik nicht vorhanden'].map(t => `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="technik" value="${t}">
+                                        <span>${t}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <label>Beschreibung</label>
+                                <span id="desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 200</span>
+                            </div>
+                            <textarea name="musDescription" id="textarea-mus-desc" class="input-field" rows="3" maxlength="200" placeholder="Erzähle kurz etwas über dich/eure Band..." required></textarea>
                         </div>
                     </div>
 
                     <div id="reg-fields-organizer" class="hidden">
-                        <h4 style="font-family: var(--font-heading); font-size:1rem; margin-bottom:1rem; color:var(--color-cyan);">Infos zum ersten Event</h4>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Eventname</label>
-                                <input type="text" name="eventName" class="input-field">
-                            </div>
-                            <div class="form-group">
-                                <label>Event-Art</label>
-                                <select name="eventType" class="input-field">
-                                    ${getSelectOptions(eventTypesList)}
-                                </select>
-                            </div>
+                        
+                        <div class="form-group">
+                            <label>Eventname</label>
+                            <input type="text" name="eventName" class="input-field" maxlength="25" placeholder="Name des Events">
                         </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Veranstaltungsort (Ort)</label>
-                                <input type="text" name="orgLocation" class="input-field" placeholder="z.B. MÜnchen" autocomplete="off">
-                            </div>
-                            <div class="form-group">
-                                <label>Datum des Events</label>
-                                <input type="date" name="eventDate" class="input-field">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Dauer (Stunden)</label>
-                                <input type="number" name="duration" step="0.5" class="input-field" value="2">
-                            </div>
-                            <div class="form-group">
-                                <label>Budget (€)</label>
-                                <input type="number" name="budget" class="input-field" value="500">
+                        <div class="form-group">
+                            <label>Event-Typ</label>
+                            <div class="checkbox-tag-grid" id="grid-org-event-types">
+                                ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Taufe/Kommunion/Konfirmation', 'Schützenfest/Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="orgEventTypes" value="${t}">
+                                        <span>${t}</span>
+                                    </label>
+                                `).join('')}
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>BenÖtigte Genres (Halte Strg/Cmd)</label>
-                            <select name="orgGenres" class="input-field" multiple style="height: 100px;">
-                                ${getSelectOptions(genresList)}
-                            </select>
+                            <label>Datum</label>
+                            <p style="font-size:0.7rem; color:var(--text-muted); margin-bottom: 0.5rem; line-height: 1.3;">
+                                An welchem Tag bzw. an welchen Tagen findet dein Event statt?
+                            </p>
+                            <div class="organizer-calendar-widget" id="org-calendar-widget">
+                                <div class="org-calendar-header">
+                                    <button type="button" class="btn-cal-nav" id="btn-cal-prev"><i class="fa-solid fa-chevron-left"></i></button>
+                                    <span id="org-calendar-month-year">Juli 2026</span>
+                                    <button type="button" class="btn-cal-nav" id="btn-cal-next"><i class="fa-solid fa-chevron-right"></i></button>
+                                </div>
+                                <div class="org-calendar-weekdays">
+                                    <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
+                                </div>
+                                <div class="org-calendar-days" id="org-calendar-days-grid"></div>
+                            </div>
+                            <input type="hidden" name="eventDates" id="input-event-dates" value="">
+                            <div id="org-selected-dates-preview" style="font-size:0.75rem; color:#3b82f6; margin-top:0.5rem; font-weight:600;">
+                                Keine Termine ausgewählt
+                            </div>
                         </div>
 
                         <div class="form-group">
-                            <label>Erwartete Instrumente (Halte Strg/Cmd)</label>
-                            <select name="orgInstruments" class="input-field" multiple style="height: 100px;">
-                                ${getSelectOptions(instrumentsList)}
-                            </select>
+                            <label>Ort</label>
+                            <input type="text" id="input-org-location-search" class="input-field" placeholder="Ort eingeben, z.B. München" autocomplete="off" style="width: 100%; margin-bottom: 0.5rem;">
+                            <div class="selected-locations-tags" id="org-selected-locations-container" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.5rem;"></div>
+                            <input type="hidden" name="orgLocations" id="input-org-locations" value="">
                         </div>
 
                         <div class="form-group">
-                            <label>Gesuchte Musiker-Typen (Mehrfachauswahl)</label>
-                            <select name="orgMusicianTypes" class="input-field" multiple style="height: 100px;">
-                                ${getSelectOptions(musicianTypesList)}
-                            </select>
-                        </div>
- 
-                        <div class="form-group">
-                            <label>Technik (Sound-System/Equipment vor Ort)</label>
-                            <select name="orgTechnik" class="input-field">
-                                <option value="Weiß ich noch nicht" selected>Weiß ich noch nicht</option>
-                                <option value="vorhanden">Vorhanden (Venue stellt Technik)</option>
-                                <option value="nicht vorhanden">Nicht vorhanden (Musiker muss eigene Technik mitbringen)</option>
-                            </select>
+                            <label>Genres</label>
+                            <div class="checkbox-tag-grid" id="grid-org-genres">
+                                ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="orgGenres" value="${g}">
+                                        <span>${g}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
                         </div>
 
                         <div class="form-group">
-                            <label>Eventbeschreibung</label>
-                            <textarea name="orgDescription" class="input-field" rows="3"></textarea>
+                            <label>Instrumente</label>
+                            <div class="checkbox-tag-grid" id="grid-org-instruments">
+                                ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="orgInstruments" value="${ins}">
+                                        <span>${ins}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="slider-value-display">
+                                <label>Spieldauer</label>
+                                <span id="val-org-spieldauer">0,5 - 2,0 Std.</span>
+                            </div>
+                            <div class="dual-range-slider" id="slider-org-spieldauer-container">
+                                <div class="dual-range-track"></div>
+                                <div class="dual-range-active-track" id="track-org-spieldauer"></div>
+                                <input type="range" id="input-org-spieldauer-min" name="orgMinDuration" min="0.5" max="10" step="0.5" value="0.5">
+                                <input type="range" id="input-org-spieldauer-max" name="orgMaxDuration" min="0.5" max="10" step="0.5" value="2.0">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="slider-value-display">
+                                <label>Besucheranzahl</label>
+                                <span id="val-org-publikum">0 - 500+</span>
+                            </div>
+                            <div class="dual-range-slider" id="slider-org-publikum-container">
+                                <div class="dual-range-track"></div>
+                                <div class="dual-range-active-track" id="track-org-publikum"></div>
+                                <input type="range" id="input-org-publikum-min" name="orgMinPublikum" min="0" max="500" step="50" value="0">
+                                <input type="range" id="input-org-publikum-max" name="orgMaxPublikum" min="0" max="500" step="50" value="500">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Technik</label>
+                            <div class="checkbox-tag-grid" id="grid-org-technik">
+                                ${['Technik vorhanden', 'Technik muss noch geklärt werden', 'Technik nicht vorhanden'].map(t => `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="orgTechnik" value="${t}">
+                                        <span>${t}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <label>Beschreibung</label>
+                                <span id="org-desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 200</span>
+                            </div>
+                            <textarea name="orgDescription" id="textarea-org-desc" class="input-field" rows="3" maxlength="200" placeholder="Beschreibe kurz dein Event..."></textarea>
                         </div>
                     </div>
 
                     <!-- Personal details at the end -->
                     <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
-                    <h4 style="font-family: var(--font-heading); font-size:1rem; margin-bottom:1rem; color:var(--text-main);"><i class="fa-solid fa-user-lock"></i> Persönliche Kontaktdaten & Account erstellen</h4>
+                    <h4 style="font-family: var(--font-heading); font-size:1rem; margin-bottom:1rem; color:var(--text-main);"><i class="fa-solid fa-user-lock"></i> Persönliche Kontaktdaten</h4>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Vorname</label>
-                            <input type="text" name="firstName" class="input-field" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Nachname</label>
-                            <input type="text" name="lastName" class="input-field" required>
-                        </div>
+                    <div class="form-group">
+                        <label>Firma / Privat</label>
+                        <input type="text" name="company" class="input-field" maxlength="30" placeholder="Firma oder Privatperson" required>
                     </div>
 
                     <div class="form-group">
-                        <label>Firma / Unternehmen</label>
-                        <input type="text" name="company" class="input-field" value="Privatperson" required>
+                        <label>Vor- und Nachname</label>
+                        <input type="text" name="fullName" id="input-reg-fullname" class="input-field" maxlength="30" placeholder="z.B. Max Mustermann" required>
                     </div>
 
                     <div class="form-row">
-                        <div class="form-group">
-                            <label>Telefonnummer</label>
-                            <input type="text" name="phone" class="input-field" required>
-                        </div>
                         <div class="form-group">
                             <label>E-Mail-Adresse</label>
-                            <input type="email" name="email" class="input-field" required>
+                            <input type="email" name="email" class="input-field" maxlength="30" placeholder="z.B. max.mustermann@gmail.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Telefonnummer</label>
+                            <input type="text" name="phone" id="input-reg-phone" class="input-field" maxlength="13" placeholder="z.B. 01761234567" required>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Passwort</label>
-                        <input type="password" name="password" class="input-field" placeholder="Sicheres Passwort" required>
+                    <div id="reg-subscription-container" style="margin-top: 1.5rem;">
+                        <h4 style="font-family: var(--font-heading); font-size:1rem; margin-bottom:0.5rem; color:var(--color-purple);"><i class="fa-solid fa-credit-card"></i> Abo-Modell auswählen</h4>
+                        <div class="subscription-cards">
+                            <div class="subscription-card active" data-plan="flex" data-price="5">
+                                <div class="selected-badge">Beliebt</div>
+                                <h5>Flex</h5>
+                                <div class="price">5 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
+                                <ul class="plan-features">
+                                    <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Direkter Kontakt zu Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Top-Vorschläge erhalten</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Keine Provisionskosten</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar</li>
+                                </ul>
+                            </div>
+                            <div class="subscription-card" data-plan="plus" data-price="25">
+                                <div class="selected-badge">Spare 17 %</div>
+                                <h5>Plus</h5>
+                                <div class="price">25 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Halbjahr</span></div>
+                                <ul class="plan-features">
+                                    <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Direkter Kontakt zu Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Top-Vorschläge erhalten</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Keine Provisionskosten</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar</li>
+                                </ul>
+                            </div>
+                            <div class="subscription-card" data-plan="pro" data-price="40">
+                                <div class="selected-badge">Spare 34 %</div>
+                                <h5>Pro</h5>
+                                <div class="price">40 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Jahr</span></div>
+                                <ul class="plan-features">
+                                    <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Direkter Kontakt zu Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Top-Vorschläge erhalten</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Keine Provisionskosten</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <input type="hidden" name="selectedPlan" id="input-selected-plan" value="flex">
                     </div>
 
                     <div id="reg-sepa-consent-container" style="margin-top: 1.5rem;">
                         <div class="sepa-panel">
                             <h5><i class="fa-solid fa-circle-info"></i> SEPA Lastschrift-Mandat</h5>
-                            <p>Ich ermächtige GigConnAct, Zahlungen für das Musiker-Abonnement (5,00 € pro Monat) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GigConnAct auf mein Konto gezogenen Lastschriften einzulösen.</p>
+                            <p id="sepa-mandate-text">Ich ermächtige GigConnAct, Zahlungen für das Musiker-Abonnement (5,00 € pro Monat) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GigConnAct auf mein Konto gezogenen Lastschriften einzulösen.</p>
                         </div>
                         <label class="form-checkbox" style="margin-bottom: 1.5rem;">
-                            <input type="checkbox" name="sepaConsent" required>
-                            <span>Ich stimme dem SEPA-Lastschriftmandat für das 5 € Abo zu.</span>
+                            <input type="checkbox" name="sepaConsent" required checked>
+                            <span id="sepa-checkbox-label">Ich stimme dem SEPA-Lastschriftmandat für das 5 € Abo zu.</span>
                         </label>
                     </div>
 
@@ -5197,6 +5663,14 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     `;
 
     document.getElementById('btn-close-modal').addEventListener('click', closeModal);
+
+    // Full name input filter to allow only letters, spaces, and hyphens
+    const nameInput = document.getElementById('input-reg-fullname');
+    if (nameInput) {
+        nameInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^a-zA-ZäöüÄÖÜß\s\-]/g, '');
+        });
+    }
 
     const magicTab = document.getElementById('tab-magic-btn');
     const registerTab = document.getElementById('tab-register-btn');
@@ -5368,12 +5842,22 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             }, 1200);
         });
     }
-
     const pickerMus = document.getElementById('role-picker-mus');
     const pickerOrg = document.getElementById('role-picker-org');
     const fieldsMus = document.getElementById('reg-fields-musician');
     const fieldsOrg = document.getElementById('reg-fields-organizer');
     let selectedRole = 'musician';
+
+    // State arrays for organizer locations and dates
+    let selectedOrgLocations = [];
+    let selectedMusLocations = [];
+    let selectedEventDates = [];
+
+    // Default class on form
+    if (registerForm) {
+        registerForm.classList.add('role-musician-active');
+        registerForm.classList.remove('role-organizer-active');
+    }
 
     pickerMus.addEventListener('click', () => {
         selectedRole = 'musician';
@@ -5381,6 +5865,14 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         pickerOrg.classList.remove('active');
         fieldsMus.classList.remove('hidden');
         fieldsOrg.classList.add('hidden');
+        
+        if (registerForm) {
+            registerForm.classList.add('role-musician-active');
+            registerForm.classList.remove('role-organizer-active');
+        }
+
+        const subContainer = document.getElementById('reg-subscription-container');
+        if (subContainer) subContainer.classList.remove('hidden');
         
         const sepaContainer = document.getElementById('reg-sepa-consent-container');
         if (sepaContainer) {
@@ -5391,6 +5883,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         
         toggleRequired(fieldsMus, true);
         toggleRequired(fieldsOrg, false);
+        
+        renderMusLocations();
     });
 
     pickerOrg.addEventListener('click', () => {
@@ -5399,6 +5893,14 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         pickerMus.classList.remove('active');
         fieldsOrg.classList.remove('hidden');
         fieldsMus.classList.add('hidden');
+        
+        if (registerForm) {
+            registerForm.classList.add('role-organizer-active');
+            registerForm.classList.remove('role-musician-active');
+        }
+
+        const subContainer = document.getElementById('reg-subscription-container');
+        if (subContainer) subContainer.classList.add('hidden');
         
         const sepaContainer = document.getElementById('reg-sepa-consent-container');
         if (sepaContainer) {
@@ -5409,12 +5911,17 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         
         toggleRequired(fieldsOrg, true);
         toggleRequired(fieldsMus, false);
+
+        // Render widgets on active state
+        renderOrganizerCalendar();
+        renderOrgLocations();
+        renderMusLocations();
     });
 
     function toggleRequired(container, isRequired) {
         container.querySelectorAll('input, select, textarea').forEach(el => {
             if (isRequired) {
-                if (el.type !== 'checkbox') {
+                if (el.type !== 'checkbox' && el.type !== 'hidden' && el.name !== 'musLocation' && el.name !== 'orgLocationSearch' && el.id !== 'input-org-location-search') {
                     el.setAttribute('required', '');
                 } else if (el.name === 'sepaConsent') {
                     el.setAttribute('required', '');
@@ -5424,173 +5931,411 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             }
         });
     }
-
-    // Calendar Widget Logic
-    let calDefaultState = 'all-selected';
-    const calModifiedDates = new Set();
-    let calCurrentMonth = new Date(2026, 6, 1); // July 2026
-
-    let calIsDragging = false;
-    let calDragTargetState = null;
-    let calLastClickedDate = null;
-
-    // Stop dragging on mouseup globally
-    document.addEventListener('mouseup', () => {
-        calIsDragging = false;
+    // Init checkable tag pill checkboxes active toggler
+    document.querySelectorAll('.tag-pill-checkbox input').forEach(input => {
+        if (input.checked) {
+            input.parentElement.classList.add('active');
+        }
+        input.addEventListener('change', (e) => {
+            if (e.target.type === 'checkbox') {
+                e.target.parentElement.classList.toggle('active', e.target.checked);
+            }
+        });
     });
 
-    function toggleDate(dateStr, targetAvailable) {
-        const isModified = calModifiedDates.has(dateStr);
-        const isAvailable = calDefaultState === 'all-selected' ? !isModified : isModified;
-        if (isAvailable === targetAvailable) return;
-        
-        if (isModified) {
-            calModifiedDates.delete(dateStr);
-        } else {
-            calModifiedDates.add(dateStr);
-        }
+    // Distance Radius Slider
+    const radiusInput = registerForm.querySelector('input[name="radius"]');
+    if (radiusInput) {
+        radiusInput.addEventListener('input', (e) => {
+            const display = document.getElementById('val-radius');
+            if (display) display.textContent = `${e.target.value} km`;
+        });
     }
 
-    function renderCalendarWidget() {
-        const grid = document.getElementById('cal-widget-days-grid');
-        const monthYearLabel = document.getElementById('cal-current-month-year');
-        if (!grid || !monthYearLabel) return;
+    // Dual Range Sliders Setup
+    function initDualSlider(containerId, minInputId, maxInputId, trackId, displayId, unit, isPrice) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const minInput = document.getElementById(minInputId);
+        const maxInput = document.getElementById(maxInputId);
+        const track = document.getElementById(trackId);
+        const display = document.getElementById(displayId);
 
-        grid.innerHTML = '';
+        function updateSlider() {
+            let minVal = parseFloat(minInput.value);
+            let maxVal = parseFloat(maxInput.value);
 
-        // Headers
-        const headers = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
-        headers.forEach(h => {
-            const hCell = document.createElement('div');
-            hCell.className = 'calendar-day-header-cell';
-            hCell.textContent = h;
-            grid.appendChild(hCell);
+            if (minVal > maxVal) {
+                const temp = minVal;
+                minVal = maxVal;
+                maxVal = temp;
+            }
+
+            const percentMin = ((minVal - minInput.min) / (minInput.max - minInput.min)) * 100;
+            const percentMax = ((maxVal - maxInput.min) / (maxInput.max - maxInput.min)) * 100;
+
+            track.style.left = percentMin + '%';
+            track.style.width = (percentMax - percentMin) + '%';
+
+            if (isPrice) {
+                if (maxVal >= 5000) {
+                    display.textContent = `${minVal.toLocaleString('de-DE')} - 5.000+ ${unit}`;
+                } else {
+                    display.textContent = `${minVal.toLocaleString('de-DE')} - ${maxVal.toLocaleString('de-DE')} ${unit}`;
+                }
+            } else if (unit === 'Std.') {
+                display.textContent = `${minVal.toFixed(1).replace('.', ',')} - ${maxVal.toFixed(1).replace('.', ',')} ${unit}`;
+            } else if (unit === 'Personen') {
+                if (maxVal >= 500) {
+                    display.textContent = `${minVal} - 500+`;
+                } else {
+                    display.textContent = `${minVal} - ${maxVal}`;
+                }
+            } else {
+                display.textContent = `${minVal} - ${maxVal} ${unit}`;
+            }
+        }
+
+        minInput.addEventListener('input', updateSlider);
+        maxInput.addEventListener('input', updateSlider);
+        updateSlider();
+    }
+
+    initDualSlider('slider-spieldauer-container', 'input-spieldauer-min', 'input-spieldauer-max', 'track-spieldauer', 'val-spieldauer', 'Std.', false);
+    initDualSlider('slider-gage-container', 'input-gage-min', 'input-gage-max', 'track-gage', 'val-gage', '€', true);
+    initDualSlider('slider-publikum-container', 'input-publikum-min', 'input-publikum-max', 'track-publikum', 'val-publikum', 'Personen', false);
+
+    // Initialize Organizer Dual Sliders
+    initDualSlider('slider-org-spieldauer-container', 'input-org-spieldauer-min', 'input-org-spieldauer-max', 'track-org-spieldauer', 'val-org-spieldauer', 'Std.', false);
+    initDualSlider('slider-org-publikum-container', 'input-org-publikum-min', 'input-org-publikum-max', 'track-org-publikum', 'val-org-publikum', 'Personen', false);
+
+    // Organizer description char-counter logic
+    const orgDescTextarea = document.getElementById('textarea-org-desc');
+    const orgDescCounter = document.getElementById('org-desc-char-counter');
+    if (orgDescTextarea && orgDescCounter) {
+        orgDescTextarea.addEventListener('input', (e) => {
+            const len = e.target.value.length;
+            orgDescCounter.textContent = `${len} / 200`;
+            if (len >= 200) {
+                orgDescCounter.style.color = 'var(--color-red)';
+            } else {
+                orgDescCounter.style.color = 'var(--text-muted)';
+            }
         });
+    }
 
-        const year = calCurrentMonth.getFullYear();
-        const month = calCurrentMonth.getMonth();
+    // Organizer Calendar Widget Logic
+    const calendarMonthYear = document.getElementById('org-calendar-month-year');
+    const calendarDaysGrid = document.getElementById('org-calendar-days-grid');
+    const calendarPrevBtn = document.getElementById('btn-cal-prev');
+    const calendarNextBtn = document.getElementById('btn-cal-next');
+    const inputEventDates = document.getElementById('input-event-dates');
+    const selectedDatesPreview = document.getElementById('org-selected-dates-preview');
+
+    let currentCalDate = new Date(2026, 6, 1); // July 2026 as standard start for this application
+
+    function renderOrganizerCalendar() {
+        if (!calendarDaysGrid || !calendarMonthYear) return;
+
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth();
 
         const monthNames = [
             "Januar", "Februar", "März", "April", "Mai", "Juni",
             "Juli", "August", "September", "Oktober", "November", "Dezember"
         ];
-        monthYearLabel.textContent = `${monthNames[month]} ${year}`;
+        calendarMonthYear.textContent = `${monthNames[month]} ${year}`;
 
-        const firstDay = new Date(year, month, 1);
-        let firstDayIndex = firstDay.getDay();
-        firstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
-
+        const firstDayIndex = new Date(year, month, 1).getDay(); // 0 Sunday, 1 Monday...
+        const adjustedFirstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
         const totalDays = new Date(year, month + 1, 0).getDate();
-        const today = new Date(2026, 6, 14); // current date
-        today.setHours(0,0,0,0);
 
-        for (let i = 0; i < firstDayIndex; i++) {
-            const emptyCell = document.createElement('div');
-            emptyCell.className = 'calendar-day-cell empty';
-            grid.appendChild(emptyCell);
+        let daysHtml = '';
+
+        for (let i = 0; i < adjustedFirstDayIndex; i++) {
+            daysHtml += `<div class="org-cal-day empty"></div>`;
         }
 
         for (let day = 1; day <= totalDays; day++) {
-            const dateObj = new Date(year, month, day);
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            
-            const cell = document.createElement('div');
-            cell.className = 'calendar-day-cell';
-            cell.textContent = day;
+            const isSelected = selectedEventDates.includes(dateStr);
+            daysHtml += `
+                <div class="org-cal-day ${isSelected ? 'selected' : ''}" data-date="${dateStr}">
+                    ${day}
+                </div>
+            `;
+        }
 
-            if (dateObj < today) {
-                cell.classList.add('past');
-            } else {
-                const isModified = calModifiedDates.has(dateStr);
-                const isAvailable = calDefaultState === 'all-selected' ? !isModified : isModified;
+        calendarDaysGrid.innerHTML = daysHtml;
 
-                if (isAvailable) {
-                    cell.classList.add('available');
+        calendarDaysGrid.querySelectorAll('.org-cal-day:not(.empty)').forEach(cell => {
+            cell.addEventListener('click', (e) => {
+                const dateVal = e.currentTarget.getAttribute('data-date');
+                const idx = selectedEventDates.indexOf(dateVal);
+                if (idx > -1) {
+                    selectedEventDates.splice(idx, 1);
                 } else {
-                    cell.classList.add('unavailable');
+                    selectedEventDates.push(dateVal);
                 }
+                renderOrganizerCalendar();
+                updateDatesPreview();
+            });
+        });
+    }
 
-                // Add drag selecting and shift range click support
-                cell.addEventListener('mousedown', (e) => {
-                    e.preventDefault();
-                    calIsDragging = true;
-                    const isMod = calModifiedDates.has(dateStr);
-                    const isAvail = calDefaultState === 'all-selected' ? !isMod : isMod;
-                    calDragTargetState = !isAvail;
-                    
-                    if (e.shiftKey && calLastClickedDate) {
-                        const start = new Date(calLastClickedDate);
-                        const end = new Date(dateStr);
-                        const rangeStart = start < end ? start : end;
-                        const rangeEnd = start < end ? end : start;
-                        
-                        const cur = new Date(rangeStart);
-                        while (cur <= rangeEnd) {
-                            const curStr = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
-                            toggleDate(curStr, calDragTargetState);
-                            cur.setDate(cur.getDate() + 1);
-                        }
-                    } else {
-                        toggleDate(dateStr, calDragTargetState);
-                        calLastClickedDate = dateStr;
-                    }
-                    renderCalendarWidget();
+    function updateDatesPreview() {
+        if (inputEventDates) {
+            inputEventDates.value = selectedEventDates.length > 0 ? JSON.stringify(selectedEventDates) : '';
+        }
+        if (selectedDatesPreview) {
+            if (selectedEventDates.length === 0) {
+                selectedDatesPreview.textContent = "Keine Termine ausgewählt";
+                selectedDatesPreview.style.color = '#60a5fa';
+            } else {
+                const sorted = [...selectedEventDates].sort();
+                const formatted = sorted.map(d => {
+                    const parts = d.split('-');
+                    return `${parts[2]}.${parts[1]}.${parts[0]}`;
                 });
-
-                cell.addEventListener('mouseenter', () => {
-                    if (calIsDragging && calDragTargetState !== null) {
-                        toggleDate(dateStr, calDragTargetState);
-                        renderCalendarWidget();
-                    }
-                });
+                selectedDatesPreview.textContent = `Ausgewählt: ${formatted.join(', ')}`;
+                selectedDatesPreview.style.color = '#34d399';
             }
-
-            grid.appendChild(cell);
         }
     }
 
-    const prevMonthBtn = document.getElementById('cal-prev-month');
-    const nextMonthBtn = document.getElementById('cal-next-month');
-    const deselectAllBtn = document.getElementById('cal-deselect-all');
-    const selectAllBtn = document.getElementById('cal-select-all');
-
-    if (prevMonthBtn) {
-        prevMonthBtn.addEventListener('click', (e) => {
+    if (calendarPrevBtn) {
+        calendarPrevBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            calCurrentMonth.setMonth(calCurrentMonth.getMonth() - 1);
-            renderCalendarWidget();
-        });
-    }
-    if (nextMonthBtn) {
-        nextMonthBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            calCurrentMonth.setMonth(calCurrentMonth.getMonth() + 1);
-            renderCalendarWidget();
-        });
-    }
-    if (deselectAllBtn) {
-        deselectAllBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            calDefaultState = 'all-deselected';
-            calModifiedDates.clear();
-            renderCalendarWidget();
-        });
-    }
-    if (selectAllBtn) {
-        selectAllBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            calDefaultState = 'all-selected';
-            calModifiedDates.clear();
-            renderCalendarWidget();
+            currentCalDate.setMonth(currentCalDate.getMonth() - 1);
+            renderOrganizerCalendar();
         });
     }
 
-    renderCalendarWidget();
+    if (calendarNextBtn) {
+        calendarNextBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentCalDate.setMonth(currentCalDate.getMonth() + 1);
+            renderOrganizerCalendar();
+        });
+    }
 
+    // Organizer Location Handling
+    const orgLocationInput = document.getElementById('input-org-location-search');
+    const orgLocationContainer = document.getElementById('org-selected-locations-container');
+    const orgLocationHidden = document.getElementById('input-org-locations');
+    const addLocationBtn = document.getElementById('btn-org-add-location');
+
+    function renderOrgLocations() {
+        if (!orgLocationContainer) return;
+        orgLocationContainer.innerHTML = selectedOrgLocations.map((loc, idx) => `
+            <span class="tag" style="background: rgba(96, 165, 250, 0.15) !important; border: 1.5px solid #60a5fa !important; color: #60a5fa !important; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.75rem;">
+                ${loc}
+                <i class="fa-solid fa-xmark remove-location-btn" data-index="${idx}" style="cursor: pointer; font-size: 0.75rem;"></i>
+            </span>
+        `).join('');
+
+        if (orgLocationHidden) {
+            orgLocationHidden.value = selectedOrgLocations.length > 0 ? JSON.stringify(selectedOrgLocations) : '';
+        }
+
+        orgLocationContainer.querySelectorAll('.remove-location-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(e.currentTarget.getAttribute('data-index'));
+                selectedOrgLocations.splice(idx, 1);
+                renderOrgLocations();
+            });
+        });
+    }
+
+    function addLocation(locText) {
+        const val = locText.trim();
+        if (!val) return;
+        if (!selectedOrgLocations.includes(val)) {
+            selectedOrgLocations.push(val);
+            renderOrgLocations();
+        }
+        if (orgLocationInput) {
+            orgLocationInput.value = '';
+        }
+    }
+
+    if (orgLocationInput) {
+        setupLocationAutocomplete(orgLocationInput, addLocation);
+        orgLocationInput.dataset.autocompleteBound = "true";
+    }
+
+    const detectOrgLocBtn = document.getElementById('btn-org-detect-location');
+    const orgLocSpinner = document.getElementById('org-location-spinner');
+
+    if (detectOrgLocBtn) {
+        detectOrgLocBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!navigator.geolocation) {
+                showToast({ title: 'Fehler', message: 'Geolokalisation wird von deinem Browser nicht unterstützt.' });
+                return;
+            }
+
+            if (orgLocSpinner) orgLocSpinner.style.display = 'block';
+            detectOrgLocBtn.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    try {
+                        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`);
+                        const data = await response.json();
+                        if (data && data.address) {
+                            const addr = data.address;
+                            const city = addr.city || addr.town || addr.village || addr.municipality;
+                            const postcode = addr.postcode || "";
+                            if (city) {
+                                const locString = postcode ? `${postcode} ${city}` : city;
+                                addLocation(locString);
+                                showToast({ title: 'Standort ermittelt', message: `Ort hinzugefügt: ${locString}` });
+                            } else {
+                                showToast({ title: 'Fehler', message: 'Ort konnte nicht bestimmt werden.' });
+                            }
+                        } else {
+                            showToast({ title: 'Fehler', message: 'Adresse konnte nicht bestimmt werden.' });
+                        }
+                    } catch (err) {
+                        showToast({ title: 'Fehler', message: 'Abfrage des Standorts fehlgeschlagen.' });
+                    } finally {
+                        if (orgLocSpinner) orgLocSpinner.style.display = 'none';
+                        detectOrgLocBtn.disabled = false;
+                    }
+                },
+                (error) => {
+                    let errMsg = 'Zugriff auf Standort verweigert.';
+                    if (error.code === error.TIMEOUT) errMsg = 'Zeitüberschreitung bei der Standortbestimmung.';
+                    showToast({ title: 'Fehler', message: errMsg });
+                    if (orgLocSpinner) orgLocSpinner.style.display = 'none';
+                    detectOrgLocBtn.disabled = false;
+                },
+                { timeout: 10000 }
+            );
+        });
+    }
+
+    // Weekday Availability Day Checkbox and Input state synchronizer
+    document.querySelectorAll('input[name="availDays"]').forEach(chk => {
+        chk.addEventListener('change', (e) => {
+            const day = e.target.value;
+            const timesDiv = document.getElementById(`times-container-${day}`);
+            if (timesDiv) {
+                const inputs = timesDiv.querySelectorAll('input[type="time"]');
+                inputs.forEach(inp => {
+                    inp.disabled = !e.target.checked;
+                });
+                timesDiv.style.opacity = e.target.checked ? '1' : '0.3';
+            }
+        });
+    });
+
+    // Musician Location Handling
+    const musLocationInput = document.getElementById('input-mus-location-search');
+    const musLocationContainer = document.getElementById('mus-selected-locations-container');
+    const musLocationHidden = document.getElementById('input-mus-locations');
+    const addMusLocationBtn = document.getElementById('btn-mus-add-location');
+
+    function renderMusLocations() {
+        if (!musLocationContainer) return;
+        musLocationContainer.innerHTML = selectedMusLocations.map((loc, idx) => `
+            <span class="tag" style="background: rgba(168, 85, 247, 0.15) !important; border: 1.5px solid #a855f7 !important; color: #a855f7 !important; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.75rem;">
+                ${loc}
+                <i class="fa-solid fa-xmark remove-mus-location-btn" data-index="${idx}" style="cursor: pointer; font-size: 0.75rem;"></i>
+            </span>
+        `).join('');
+
+        if (musLocationHidden) {
+            musLocationHidden.value = selectedMusLocations.length > 0 ? JSON.stringify(selectedMusLocations) : '';
+        }
+
+        musLocationContainer.querySelectorAll('.remove-mus-location-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(e.currentTarget.getAttribute('data-index'));
+                selectedMusLocations.splice(idx, 1);
+                renderMusLocations();
+            });
+        });
+    }
+
+    function addMusLocation(locText) {
+        const val = locText.trim();
+        if (!val) return;
+        if (!selectedMusLocations.includes(val)) {
+            selectedMusLocations.push(val);
+            renderMusLocations();
+        }
+        if (musLocationInput) {
+            musLocationInput.value = '';
+        }
+    }
+
+    if (musLocationInput) {
+        setupLocationAutocomplete(musLocationInput, addMusLocation);
+        musLocationInput.dataset.autocompleteBound = "true";
+    }
+
+    // Subscription Selector logic
+    const subCards = document.querySelectorAll('.subscription-card');
+    const selectedPlanInput = document.getElementById('input-selected-plan');
+    const sepaMandateText = document.getElementById('sepa-mandate-text');
+    const sepaCheckboxLabel = document.getElementById('sepa-checkbox-label');
+
+    subCards.forEach(card => {
+        card.addEventListener('click', () => {
+            subCards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            const plan = card.getAttribute('data-plan');
+            if (selectedPlanInput) selectedPlanInput.value = plan;
+
+            let periodText = 'pro Monat';
+            let priceText = '5 €';
+            if (plan === 'plus') {
+                periodText = 'pro Halbjahr';
+                priceText = '25 €';
+            } else if (plan === 'pro') {
+                periodText = 'pro Jahr';
+                priceText = '40 €';
+            }
+
+            if (sepaMandateText) {
+                sepaMandateText.innerHTML = `Ich ermächtige GigConnAct, Zahlungen für das Musiker-Abonnement (${priceText} ${periodText}) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GigConnAct auf mein Konto gezogenen Lastschriften einzulösen.`;
+            }
+            if (sepaCheckboxLabel) {
+                sepaCheckboxLabel.textContent = `Ich stimme dem SEPA-Lastschriftmandat für das ${priceText} Abo zu.`;
+            }
+        });
+    });
+
+    // Character Counter for Musician Description
+    const descTextarea = document.getElementById('textarea-mus-desc');
+    const charCounter = document.getElementById('desc-char-counter');
+    if (descTextarea && charCounter) {
+        descTextarea.addEventListener('input', (e) => {
+            const len = e.target.value.length;
+            charCounter.textContent = `${len} / 200`;
+            if (len >= 200) {
+                charCounter.style.color = 'var(--color-red)';
+            } else {
+                charCounter.style.color = 'var(--text-muted)';
+            }
+        });
+    }
+
+    // Phone numbers only sanitizer (max 13 numbers)
+    const phoneInput = document.getElementById('input-reg-phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 13);
+        });
+    }
     registerForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const errDiv = document.getElementById('register-error-msg');
-        const email = registerForm.elements.email.value;
+        const email = registerForm.elements.email.value.trim();
         
         const emailValidation = validateEmailAddress(email);
         if (!emailValidation.isValid) {
@@ -5600,45 +6345,193 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             return;
         }
 
+        const fullName = registerForm.elements.fullName ? registerForm.elements.fullName.value.trim() : '';
+        const nameReg = /^[a-zA-ZäöüÄÖÜß\s\-]+$/;
+        if (!nameReg.test(fullName)) {
+            errDiv.textContent = 'Der Vor- und Nachname darf nur Buchstaben, Leerzeichen oder Bindestriche enthalten.';
+            errDiv.style.display = 'block';
+            errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        const nameParts = fullName.split(/\s+/);
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+
+        const cleanPhone = registerForm.elements.phone.value.replace(/\D/g, '');
+        if (cleanPhone.length < 8 || cleanPhone.length > 13) {
+            errDiv.textContent = 'Die Telefonnummer muss zwischen 8 und 13 Ziffern lang sein.';
+            errDiv.style.display = 'block';
+            errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        if (selectedRole === 'musician') {
+            const checkedTypes = registerForm.querySelectorAll('input[name="musicianType"]:checked');
+            if (checkedTypes.length === 0) {
+                errDiv.textContent = 'Bitte wähle mindestens eine Kategorie (z.B. Band oder Solokünstler) aus.';
+                errDiv.style.display = 'block';
+                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            const checkedGenres = registerForm.querySelectorAll('input[name="genres"]:checked');
+            if (checkedGenres.length === 0) {
+                errDiv.textContent = 'Bitte wähle mindestens ein Genre aus.';
+                errDiv.style.display = 'block';
+                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            const checkedInstruments = registerForm.querySelectorAll('input[name="instruments"]:checked');
+            if (checkedInstruments.length === 0) {
+                errDiv.textContent = 'Bitte wähle mindestens ein Instrument aus.';
+                errDiv.style.display = 'block';
+                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            const checkedEventTypes = registerForm.querySelectorAll('input[name="eventTypes"]:checked');
+            if (checkedEventTypes.length === 0) {
+                errDiv.textContent = 'Bitte wähle mindestens eine Event-Art aus.';
+                errDiv.style.display = 'block';
+                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            if (selectedMusLocations.length === 0) {
+                errDiv.textContent = 'Bitte füge mindestens einen Einsatzort hinzu.';
+                errDiv.style.display = 'block';
+                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+        } else if (selectedRole === 'organizer') {
+            const eventName = registerForm.elements.eventName.value.trim();
+            if (!eventName) {
+                errDiv.textContent = 'Bitte gib einen Eventnamen ein.';
+                errDiv.style.display = 'block';
+                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            if (eventName.length > 25) {
+                errDiv.textContent = 'Der Eventname darf maximal 25 Zeichen lang sein.';
+                errDiv.style.display = 'block';
+                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            const checkedEventTypes = registerForm.querySelectorAll('input[name="orgEventTypes"]:checked');
+            if (checkedEventTypes.length === 0) {
+                errDiv.textContent = 'Bitte wähle mindestens einen Event-Typen aus.';
+                errDiv.style.display = 'block';
+                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            if (selectedEventDates.length === 0) {
+                errDiv.textContent = 'Bitte wähle mindestens ein Veranstaltungsdatum im Kalender aus.';
+                errDiv.style.display = 'block';
+                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            if (selectedOrgLocations.length === 0) {
+                errDiv.textContent = 'Bitte füge mindestens einen Veranstaltungsort hinzu.';
+                errDiv.style.display = 'block';
+                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            const checkedGenres = registerForm.querySelectorAll('input[name="orgGenres"]:checked');
+            if (checkedGenres.length === 0) {
+                errDiv.textContent = 'Bitte wähle mindestens ein Genre aus.';
+                errDiv.style.display = 'block';
+                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            const checkedInstruments = registerForm.querySelectorAll('input[name="orgInstruments"]:checked');
+            if (checkedInstruments.length === 0) {
+                errDiv.textContent = 'Bitte wähle mindestens ein Instrument aus.';
+                errDiv.style.display = 'block';
+                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            const checkedTechnik = registerForm.querySelectorAll('input[name="orgTechnik"]:checked');
+            if (checkedTechnik.length === 0) {
+                errDiv.textContent = 'Bitte wähle mindestens eine Technik-Option aus.';
+                errDiv.style.display = 'block';
+                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+        }
+
         const payload = {
             role: selectedRole,
-            firstName: registerForm.elements.firstName.value,
-            lastName: registerForm.elements.lastName.value,
+            firstName: firstName,
+            lastName: lastName,
             company: registerForm.elements.company.value,
-            phone: registerForm.elements.phone.value,
-            email: registerForm.elements.email.value.trim(),
-            password: registerForm.elements.password.value
+            phone: cleanPhone,
+            email: email,
+            password: ""
         };
 
         if (selectedRole === 'musician') {
             payload.bandName = registerForm.elements.bandName.value;
-            payload.musicianType = registerForm.elements.musicianType.value;
-            payload.location = registerForm.elements.musLocation.value;
+            payload.musicianType = Array.from(registerForm.querySelectorAll('input[name="musicianType"]:checked')).map(el => el.value).join(', ');
+            payload.locations = selectedMusLocations;
             payload.radius = registerForm.elements.radius.value;
+            payload.minDuration = registerForm.elements.minDuration.value;
             payload.maxDuration = registerForm.elements.maxDuration.value;
             payload.minBudget = registerForm.elements.minBudget.value;
+            payload.maxBudget = registerForm.elements.maxBudget.value;
             payload.description = registerForm.elements.musDescription.value;
             payload.sepaConsent = registerForm.elements.sepaConsent.checked;
-            payload.technik = registerForm.elements.musTechnik.value || "Weiß ich noch nicht";
-            payload.genres = Array.from(registerForm.elements.genres.selectedOptions).map(o => o.value);
-            payload.instruments = Array.from(registerForm.elements.instruments.selectedOptions).map(o => o.value);
-            payload.eventTypes = Array.from(registerForm.elements.eventTypes.selectedOptions).map(o => o.value);
-            payload.availability = {
-                defaultState: calDefaultState,
-                modifiedDates: Array.from(calModifiedDates)
+            payload.technik = Array.from(registerForm.querySelectorAll('input[name="musTechnik"]:checked')).map(el => el.value).join(', ') || "Weiß ich noch nicht";
+            payload.genres = Array.from(registerForm.querySelectorAll('input[name="genres"]:checked')).map(el => el.value);
+            payload.instruments = Array.from(registerForm.querySelectorAll('input[name="instruments"]:checked')).map(el => el.value);
+            payload.eventTypes = Array.from(registerForm.querySelectorAll('input[name="eventTypes"]:checked')).map(el => el.value);
+            payload.subscriptionPlan = registerForm.elements.selectedPlan.value || "flex";
+            
+            const availability = {};
+            
+            // Weekday (Montag - Freitag) mapping
+            const weekdayChk = registerForm.querySelector('input[name="availDays"][value="weekday"]');
+            const isWeekdayChecked = weekdayChk ? weekdayChk.checked : false;
+            const weekdayStart = registerForm.querySelector('input[name="availStart_weekday"]')?.value || '18:00';
+            const weekdayEnd = registerForm.querySelector('input[name="availEnd_weekday"]')?.value || '23:59';
+            
+            ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'].forEach(day => {
+                availability[day] = {
+                    available: isWeekdayChecked,
+                    startTime: isWeekdayChecked ? weekdayStart : '',
+                    endTime: isWeekdayChecked ? weekdayEnd : ''
+                };
+            });
+            
+            // Saturday mapping
+            const saChk = registerForm.querySelector('input[name="availDays"][value="sa"]');
+            const isSaChecked = saChk ? saChk.checked : false;
+            availability['saturday'] = {
+                available: isSaChecked,
+                startTime: isSaChecked ? (registerForm.querySelector('input[name="availStart_sa"]')?.value || '00:01') : '',
+                endTime: isSaChecked ? (registerForm.querySelector('input[name="availEnd_sa"]')?.value || '23:59') : ''
             };
+            
+            // Sunday mapping
+            const soChk = registerForm.querySelector('input[name="availDays"][value="so"]');
+            const isSoChecked = soChk ? soChk.checked : false;
+            availability['sunday'] = {
+                available: isSoChecked,
+                startTime: isSoChecked ? (registerForm.querySelector('input[name="availStart_so"]')?.value || '00:01') : '',
+                endTime: isSoChecked ? (registerForm.querySelector('input[name="availEnd_so"]')?.value || '23:59') : ''
+            };
+            
+            payload.availability = availability;
         } else {
-            payload.eventName = registerForm.elements.eventName.value;
-            payload.eventType = registerForm.elements.eventType.value;
-            payload.location = registerForm.elements.orgLocation.value;
-            payload.eventDate = registerForm.elements.eventDate.value;
-            payload.duration = registerForm.elements.duration.value;
-            payload.budget = registerForm.elements.budget.value;
-            payload.description = registerForm.elements.orgDescription.value;
-            payload.technik = registerForm.elements.orgTechnik.value || "Weiß ich noch nicht";
-            payload.genres = Array.from(registerForm.elements.orgGenres.selectedOptions).map(o => o.value);
-            payload.instruments = Array.from(registerForm.elements.orgInstruments.selectedOptions).map(o => o.value);
-            payload.musicianTypes = Array.from(registerForm.elements.orgMusicianTypes.selectedOptions).map(o => o.value);
+            payload.eventName = registerForm.elements.eventName.value.trim();
+            payload.orgEventTypes = Array.from(registerForm.querySelectorAll('input[name="orgEventTypes"]:checked')).map(el => el.value);
+            payload.eventDates = selectedEventDates;
+            payload.orgLocations = selectedOrgLocations;
+            payload.orgGenres = Array.from(registerForm.querySelectorAll('input[name="orgGenres"]:checked')).map(el => el.value);
+            payload.orgInstruments = Array.from(registerForm.querySelectorAll('input[name="orgInstruments"]:checked')).map(el => el.value);
+            payload.orgMinDuration = registerForm.querySelector('input[name="orgMinDuration"]').value;
+            payload.orgMaxDuration = registerForm.querySelector('input[name="orgMaxDuration"]').value;
+            payload.orgMinPublikum = registerForm.querySelector('input[name="orgMinPublikum"]').value;
+            payload.orgMaxPublikum = registerForm.querySelector('input[name="orgMaxPublikum"]').value;
+            payload.orgTechnik = Array.from(registerForm.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value);
+            payload.orgDescription = registerForm.querySelector('textarea[name="orgDescription"]').value.trim();
         }
 
         const res = state.register(payload);
@@ -5893,7 +6786,7 @@ function navigate(page) {
     if (!mainContainer) return;
 
     window.scrollTo(0, 0);
-    updateNavbar();
+    updateNavbar(page === '');
     document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
 
     switch (page) {
@@ -5966,13 +6859,15 @@ function setActiveLink(linkId) {
     if (link) link.classList.add('active');
 }
 
-function updateNavbar() {
+function updateNavbar(forceLanding) {
     const nav = document.getElementById('main-nav');
     const authArea = document.getElementById('auth-area');
     if (!nav || !authArea) return;
 
     const u = state.currentUser;
-    const isLanding = !window.location.hash || window.location.hash === '#/' || window.location.hash === '#';
+    const isLanding = forceLanding !== undefined 
+        ? forceLanding 
+        : (!window.location.hash || window.location.hash === '#/' || window.location.hash === '#');
 
     const header = document.querySelector('.app-header');
     if (header) {
@@ -6076,7 +6971,7 @@ function updateNavbar() {
                     title: "Abgemeldet",
                     message: "Auf Wiedersehen!"
                 });
-                navigate('');
+                window.location.hash = '#/';
             });
         }
     } else {
@@ -6148,7 +7043,7 @@ function initGigConnActApp() {
     if (logoLink) {
         logoLink.addEventListener('click', (e) => {
             e.preventDefault();
-            navigate('');
+            window.location.hash = '#/';
         });
     }
 
@@ -6507,10 +7402,10 @@ function renderMarketGridHTML(items, isEvents) {
         `;
     }
 
-    const themeColor = isEvents ? '#2563eb' : '#7c3aed';
+    const themeColor = isEvents ? '#7c3aed' : '#2563eb';
 
     return items.map(item => {
-        const isUnlocked = state.unlockedContacts && state.unlockedContacts.includes(item.id);
+        const isUnlocked = state ? ((typeof state.isUnlocked === 'function') ? state.isUnlocked(item.id) : (state.unlockedContacts && state.unlockedContacts.includes(item.id))) : false;
         
         // 3 Fotos pro Musiker/Event
         const photos = (item.photos || [
@@ -6539,7 +7434,7 @@ function renderMarketGridHTML(items, isEvents) {
         const bandName = isEvents ? item.title : item.name;
 
         return `
-            <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
+            <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); cursor: pointer;" onclick="window.openItemDetailModal('${item.id}', ${isEvents})">
                 
                 <!-- 1. Combined Galerie: 3 Fotos + 3 Videos direkt folgend (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
@@ -6574,15 +7469,16 @@ function renderMarketGridHTML(items, isEvents) {
                     </div>
 
                     <!-- Match-Faktor Badge oben rechts (OHNE FLAMMEN-EMOJI / VORZEICHEN) -->
-                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: ${themeColor}; color: #fff; padding: 0.45rem 1rem; border-radius: 14px; font-size: 0.95rem; font-weight: 900; box-shadow: 0 4px 14px rgba(0,0,0,0.4); letter-spacing: 0.5px;">
-                        ${item.matchScore || '96'}% Match
+                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 5px 12px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 50px;">
+                        <span style="font-size: 1.05rem; font-weight: 900;">${item.matchScore || '96'}%</span>
+                        <span style="font-size: 0.5rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
                     </div>
 
                     <!-- Slide Navigation Arrows -->
-                    <button onclick="window.slideComboGallery('${item.id}', -1)" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                    <button onclick="event.stopPropagation(); window.slideComboGallery('${item.id}', -1)" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                         <i class="fa-solid fa-chevron-left" style="font-size: 0.9rem;"></i>
                     </button>
-                    <button onclick="window.slideComboGallery('${item.id}', -1)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                    <button onclick="event.stopPropagation(); window.slideComboGallery('${item.id}', 1)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                         <i class="fa-solid fa-chevron-right" style="font-size: 0.9rem;"></i>
                     </button>
 
@@ -6653,12 +7549,12 @@ function renderMarketGridHTML(items, isEvents) {
                             <div>Tel: ${item.phone || '+49 170 1234567'}</div>
                             <div>Mail: ${item.email || 'kontakt@gigconnact.de'}</div>
                         </div>
-                        <button class="btn btn-primary" onclick="showModal('auth')" style="width: 100%; background: ${themeColor}; border-color: ${themeColor}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); showModal('auth')" style="width: 100%; background: ${themeColor}; border-color: ${themeColor}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
                             <i class="fa-solid fa-paper-plane"></i> Nachricht senden
                         </button>
                     ` : `
-                        <!-- Kontaktdaten freischalten Button (Blue for events, Purple for musicians) -->
-                        <button class="btn btn-primary" onclick="showModal('auth')" style="width: 100%; background: ${isEvents ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'}; border-color: ${isEvents ? '#1e40af' : '#7c3aed'}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${isEvents ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'};">
+                        <!-- Kontaktdaten freischalten Button (Purple for events, Blue for musicians) -->
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); showModal('auth')" style="width: 100%; background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; border-color: ${isEvents ? '#7c3aed' : '#1e40af'}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${isEvents ? '0 4px 14px rgba(124, 58, 237, 0.35)' : '0 4px 14px rgba(37, 99, 235, 0.35)'};">
                             <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
                         </button>
                     `}

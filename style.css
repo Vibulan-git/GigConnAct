@@ -83,7 +83,7 @@ body {
 .header-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 1rem 2rem;
+    padding: 0.6rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -164,7 +164,7 @@ body {
     max-width: 1200px;
     width: 100%;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 0.1rem 2rem 2rem;
     display: flex;
     flex-direction: column;
 }
@@ -756,7 +756,7 @@ body {
     padding: 1.5rem 2rem;
     border-bottom: 1px solid var(--border-glass);
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     position: sticky;
     top: 0;
@@ -768,6 +768,8 @@ body {
     font-family: var(--font-heading);
     font-size: 1.4rem;
     font-weight: 700;
+    text-align: center;
+    width: 100%;
 }
 
 .close-modal-btn {
@@ -777,6 +779,8 @@ body {
     font-size: 1.5rem;
     cursor: pointer;
     transition: var(--transition-fast);
+    position: absolute;
+    right: 2rem;
 }
 
 .close-modal-btn:hover {
@@ -865,42 +869,61 @@ body {
 }
 
 .role-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--border-glass);
-    border-radius: var(--radius-md);
-    padding: 1.5rem 1rem;
+    border-radius: 20px !important;
+    padding: 1.5rem 1.25rem !important;
     text-align: center;
     cursor: pointer;
-    transition: var(--transition-smooth);
-}
-
-.role-card:hover {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.15);
-}
-
-.role-card.active {
-    border-color: var(--color-cyan);
-    background: rgba(0, 242, 254, 0.03);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #ffffff !important;
+    opacity: 0.8;
+    transform: scale(0.98);
 }
 
 .role-card i {
     font-size: 2.2rem;
     margin-bottom: 0.8rem;
-    color: var(--text-muted);
+    color: #ffffff !important;
 }
 
-.role-card.active i {
-    color: var(--color-cyan);
+.role-card p {
+    color: rgba(255, 255, 255, 0.85) !important;
 }
 
+.role-card h4 {
+    color: #ffffff !important;
+}
+
+.role-card.musician-role {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+    border: 2px solid #a855f7 !important;
+}
+
+.role-card.organizer-role {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
+    border: 2px solid #60a5fa !important;
+}
+
+.role-card.musician-role:hover {
+    opacity: 0.7;
+    transform: scale(0.98);
+}
+
+.role-card.organizer-role:hover {
+    opacity: 0.7;
+    transform: scale(0.98);
+}
+
+/* Selected state: scale up, full opacity, full shadow glow */
 .role-card.musician-role.active {
-    border-color: var(--color-purple);
-    background: rgba(177, 0, 255, 0.03);
+    opacity: 1 !important;
+    transform: scale(1.04) !important;
+    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55) !important;
 }
 
-.role-card.musician-role.active i {
-    color: var(--color-purple);
+.role-card.organizer-role.active {
+    opacity: 1 !important;
+    transform: scale(1.04) !important;
+    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55) !important;
 }
 
 .role-card h4 {
@@ -1683,9 +1706,10 @@ body {
     text-align: left;
 }
 
+.autocomplete-suggestion.active,
 .autocomplete-suggestion:hover {
-    background: rgba(0, 242, 254, 0.1);
-    color: var(--text-main);
+    background: rgba(0, 242, 254, 0.15) !important;
+    color: var(--text-main) !important;
 }
 
 .autocomplete-suggestion i {
@@ -2073,23 +2097,7 @@ body {
     color: var(--text-main) !important;
 }
 
-.role-card {
-    background: rgba(255, 255, 255, 0.6) !important;
-    border-color: rgba(15, 23, 42, 0.1) !important;
-}
 
-.role-card:hover {
-    background: rgba(255, 255, 255, 0.9) !important;
-    border-color: rgba(15, 23, 42, 0.2) !important;
-}
-
-.role-card.active {
-    background: rgba(2, 132, 199, 0.05) !important;
-}
-
-.role-card.musician-role.active {
-    background: rgba(124, 58, 237, 0.05) !important;
-}
 
 .media-upload-item {
     background: rgba(15, 23, 42, 0.02) !important;
@@ -2503,6 +2511,11 @@ body {
 @media (max-width: 900px) {
     .market-layout-container {
         grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
     }
 }
 
@@ -2885,4 +2898,1064 @@ body {
     .hero-benefit-cards > div {
         padding: 1rem !important;
     }
+}
+
+/* Premium Musician Registration Elements */
+.checkbox-tag-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 0.5rem;
+}
+
+.tag-pill-checkbox {
+    position: relative;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem 0.8rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-main);
+    transition: all 0.2s ease;
+    user-select: none;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.tag-pill-checkbox span {
+    white-space: normal;
+    word-break: break-word;
+    text-align: center;
+}
+
+.tag-pill-checkbox input[type="checkbox"],
+.tag-pill-checkbox input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.tag-pill-checkbox:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.tag-pill-checkbox.active {
+    background: rgba(var(--market-primary-rgb), 0.15) !important;
+    border-color: var(--market-primary) !important;
+    color: var(--market-primary) !important;
+    font-weight: 700 !important;
+    box-shadow: 0 0 10px rgba(var(--market-primary-rgb), 0.15);
+}
+
+/* Dual Range Slider styling */
+.slider-value-display {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 0.35rem;
+}
+
+.slider-value-display span {
+    color: var(--market-primary);
+}
+
+.dual-range-slider {
+    position: relative;
+    width: 100%;
+    height: 24px;
+    margin: 8px 0 12px;
+}
+
+.dual-range-track {
+    position: absolute;
+    height: 6px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.dual-range-active-track {
+    position: absolute;
+    height: 6px;
+    background: var(--market-primary);
+    border-radius: 3px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+}
+
+.dual-range-slider input[type="range"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: none;
+    pointer-events: none;
+    -webkit-appearance: none;
+    margin: 0;
+    z-index: 3;
+}
+
+.dual-range-slider input[type="range"]::-webkit-slider-thumb {
+    pointer-events: auto;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 2px solid var(--market-primary);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(var(--market-primary-rgb), 0.5);
+    transition: transform 0.1s ease;
+}
+
+.dual-range-slider input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.dual-range-slider input[type="range"]::-moz-range-thumb {
+    pointer-events: auto;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 2px solid var(--market-primary);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(var(--market-primary-rgb), 0.5);
+    transition: transform 0.1s ease;
+}
+
+/* Availability Week Scheduler */
+.availability-week-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 0.5rem;
+}
+
+.availability-day-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.availability-day-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 110px;
+}
+
+.availability-day-info label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 0;
+}
+
+.availability-day-info input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #a855f7;
+    cursor: pointer;
+}
+
+.availability-day-times {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.availability-day-times input[type="time"] {
+    background: rgba(15, 23, 42, 0.3);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-family: inherit;
+}
+
+.availability-day-times input[type="time"]:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Subscription Model Cards */
+.subscription-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 0.5rem;
+}
+
+.subscription-card {
+    border: 2px solid rgba(168, 85, 247, 0.4);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    background: transparent !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.subscription-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(168, 85, 247, 0.85);
+    background: rgba(168, 85, 247, 0.05);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.35);
+}
+
+.subscription-card.active {
+    border-color: #a855f7 !important;
+    background: rgba(168, 85, 247, 0.18) !important;
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.65) !important;
+}
+
+.subscription-card h5 {
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    margin: 0 0 0.25rem;
+    color: var(--text-main);
+}
+
+.subscription-card .price {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #a855f7;
+    margin: 0.25rem 0;
+}
+
+.subscription-card .meta {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    line-height: 1.3;
+}
+
+.subscription-card .selected-badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 5px rgba(124, 58, 237, 0.3);
+}
+
+@media (max-width: 600px) {
+    .subscription-cards {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Make all criteria labels inside the registration form purple and bold */
+#auth-register-form .form-group > label,
+#auth-register-form .slider-value-display > label {
+    color: var(--color-purple) !important;
+    font-weight: 800 !important;
+}
+
+/* Enforce bold headings inside modal content */
+.modal-content h3, .modal-content h4, .modal-content h5 {
+    font-weight: 900 !important;
+}
+
+/* Plan features styling inside subscription cards */
+.plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 1.2rem 0 0 0;
+    text-align: left;
+    font-size: 0.72rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.plan-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+    color: var(--text-muted);
+    line-height: 1.35;
+    font-weight: 500;
+}
+
+.plan-features li i {
+    color: #a855f7;
+    font-size: 0.8rem;
+    margin-top: 0.15rem;
+}
+
+.subscription-card.active .plan-features li {
+    color: var(--text-main);
+}
+
+.subscription-card.active .plan-features li i {
+    color: #a855f7;
+}
+
+/* Card layout for criteria form groups inside the registration form */
+#auth-register-form .form-group {
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(168, 85, 247, 0.15); /* Subtle purple border */
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+#auth-register-form .form-group:focus-within {
+    border-color: rgba(168, 85, 247, 0.45);
+    box-shadow: 0 4px 18px rgba(168, 85, 247, 0.2);
+}
+
+/* Organizer Active Theme styling overrides */
+#auth-register-form.role-organizer-active .form-group {
+    border-color: rgba(96, 165, 250, 0.15); /* blue border */
+}
+
+#auth-register-form.role-organizer-active .form-group:focus-within {
+    border-color: rgba(96, 165, 250, 0.45);
+    box-shadow: 0 4px 18px rgba(96, 165, 250, 0.2);
+}
+
+#auth-register-form.role-organizer-active .form-group > label,
+#auth-register-form.role-organizer-active .slider-value-display > label {
+    color: #2563eb !important; /* dunkelblau text instead of light blue */
+}
+
+/* Make slider labels color follow active mode */
+#auth-register-form.role-organizer-active .slider-value-display span {
+    color: #2563eb !important;
+}
+
+/* Checkboxes in organizer grid should match blue color on active */
+#auth-register-form.role-organizer-active .tag-pill-checkbox.active {
+    background: rgba(37, 99, 235, 0.15) !important;
+    border-color: #2563eb !important;
+    color: #2563eb !important; /* dark blue text */
+    font-weight: 700 !important;
+    box-shadow: 0 0 10px rgba(37, 99, 235, 0.35) !important;
+}
+
+#auth-register-form.role-organizer-active .tag-pill-checkbox:hover {
+    border-color: rgba(37, 99, 235, 0.5) !important;
+}
+
+/* Submit button in organizer mode should be dark blue */
+#auth-register-form.role-organizer-active button[type="submit"] {
+    background: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4) !important;
+    transition: all 0.3s ease !important;
+}
+
+#auth-register-form.role-organizer-active button[type="submit"]:hover {
+    background: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Double slider tracks in organizer active mode */
+#auth-register-form.role-organizer-active .dual-slider-track-highlight {
+    background: #60a5fa !important;
+}
+
+#auth-register-form.role-organizer-active input[type="range"]::-webkit-slider-thumb {
+    background: #60a5fa !important;
+    box-shadow: 0 0 10px rgba(96, 165, 250, 0.5) !important;
+}
+
+#auth-register-form.role-organizer-active input[type="range"]::-moz-range-thumb {
+    background: #60a5fa !important;
+    box-shadow: 0 0 10px rgba(96, 165, 250, 0.5) !important;
+}
+
+/* Organizer Input Focus Blue Highlight */
+#auth-register-form.role-organizer-active input[type="text"]:focus,
+#auth-register-form.role-organizer-active input[type="email"]:focus,
+#auth-register-form.role-organizer-active textarea:focus {
+    border-color: #60a5fa !important;
+    box-shadow: 0 0 10px rgba(96, 165, 250, 0.3) !important;
+}
+
+/* Calendar styling */
+.org-calendar-widget {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(96, 165, 250, 0.2);
+    border-radius: 8px;
+    padding: 0.75rem;
+    user-select: none;
+}
+
+.org-calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.org-calendar-header span {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-main);
+}
+
+.org-calendar-header button {
+    background: transparent;
+    border: none;
+    color: #3b82f6;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.org-calendar-header button:hover {
+    background: rgba(37, 99, 235, 0.15);
+}
+
+.org-calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.org-calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.org-cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-main);
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.org-cal-day:not(.empty):hover {
+    background: rgba(37, 99, 235, 0.25);
+    color: white;
+}
+
+.org-cal-day.selected {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+}
+
+.org-cal-day.empty {
+    cursor: default;
+    background: transparent !important;
+}
+
+.org-selected-dates-preview {
+    font-size: 0.72rem;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+/* Custom role-specific autocomplete colors */
+.autocomplete-suggestions.musician-suggestions .autocomplete-suggestion {
+    color: #a855f7 !important;
+}
+.autocomplete-suggestions.musician-suggestions .autocomplete-suggestion i {
+    color: #a855f7 !important;
+}
+.autocomplete-suggestions.musician-suggestions .autocomplete-suggestion.active,
+.autocomplete-suggestions.musician-suggestions .autocomplete-suggestion:hover {
+    background: rgba(124, 58, 237, 0.15) !important;
+    color: #7c3aed !important;
+}
+
+.autocomplete-suggestions.organizer-suggestions .autocomplete-suggestion {
+    color: #2563eb !important;
+}
+.autocomplete-suggestions.organizer-suggestions .autocomplete-suggestion i {
+    color: #2563eb !important;
+}
+.autocomplete-suggestions.organizer-suggestions .autocomplete-suggestion.active,
+.autocomplete-suggestions.organizer-suggestions .autocomplete-suggestion:hover {
+    background: rgba(37, 99, 235, 0.15) !important;
+    color: #1d4ed8 !important;
+}
+
+/* -------------------------------------------------------------
+ * Responsive Market Filter Styles (Collapsible on Mobile)
+ * ------------------------------------------------------------- */
+.theme-musician {
+    --market-primary: #7c3aed;
+    --market-primary-rgb: 124, 58, 237;
+    --market-accent: #a855f7;
+    --market-arrow-svg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%237c3aed' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+.theme-organizer {
+    --market-primary: #2563eb;
+    --market-primary-rgb: 37, 99, 235;
+    --market-accent: #3b82f6;
+    --market-arrow-svg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%232563eb' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+.market-controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    gap: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.market-filter-mobile-toggle {
+    display: none; /* Hidden on desktop */
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: rgba(var(--market-primary-rgb), 0.08);
+    border: 1.5px solid rgba(var(--market-primary-rgb), 0.25);
+    border-radius: 10px;
+    color: var(--market-accent);
+    font-size: 0.88rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(var(--market-primary-rgb), 0.04);
+    white-space: nowrap;
+}
+
+.market-filter-mobile-toggle:hover {
+    background: rgba(var(--market-primary-rgb), 0.15);
+    border-color: rgba(var(--market-primary-rgb), 0.45);
+    color: var(--market-accent);
+    box-shadow: 0 4px 18px rgba(var(--market-primary-rgb), 0.12);
+}
+
+.market-filter-mobile-toggle.active {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+.market-filter-mobile-toggle.active:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.market-sort-container {
+    margin-left: auto; /* Pushes it to the right on desktop */
+    display: flex;
+    align-items: center;
+}
+
+.sort-select {
+    padding: 0.6rem 2.2rem 0.6rem 1rem;
+    border-radius: 10px;
+    border: 1.5px solid rgba(var(--market-primary-rgb), 0.25);
+    background: #ffffff var(--market-arrow-svg) no-repeat right 0.85rem center/10px 10px;
+    color: #0f172a;
+    font-weight: 800;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: none;
+}
+
+.sort-select:hover {
+    border-color: rgba(var(--market-primary-rgb), 0.5);
+    box-shadow: 0 4px 12px rgba(var(--market-primary-rgb), 0.08);
+}
+
+.sort-select:focus {
+    border-color: var(--market-primary);
+    box-shadow: 0 0 0 3px rgba(var(--market-primary-rgb), 0.15);
+}
+
+.market-filter-card {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: var(--radius-md);
+    padding: 0 !important; /* edge-to-edge header */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+    color: #0f172a !important;
+    position: sticky;
+    top: 90px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), 
+                opacity 0.3s ease, 
+                padding 0.35s cubic-bezier(0.4, 0, 0.2, 1), 
+                margin 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.3s ease;
+}
+
+/* Style wrapper container inside the white filter card to pad all categories globally */
+.market-filter-card > div:not(.filter-header-sticky) {
+    padding: 0 1.4rem 1.4rem 1.4rem !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+}
+
+/* Modern clean background for inner filter category blocks globally */
+.market-filter-card div[style*="background"] {
+    background: #f8fafc !important; /* soft white-blue background */
+    border: 1px solid #e2e8f0 !important; /* clean light border */
+    border-radius: 12px !important;
+}
+
+/* Force dark text and theme-based headings inside the white filter card globally */
+.theme-organizer .market-filter-card label {
+    color: #1e3a8a !important; /* Dunkelblau / Dark navy blue */
+    font-weight: 900 !important;
+    display: block;
+    font-size: 0.85rem;
+}
+.theme-musician .market-filter-card label {
+    color: #5b21b6 !important; /* Dunkellila / Dark purple */
+    font-weight: 900 !important;
+    display: block;
+    font-size: 0.85rem;
+}
+
+.market-filter-card p,
+.market-filter-card h1,
+.market-filter-card h2,
+.market-filter-card h3,
+.market-filter-card h4 {
+    color: #0f172a !important;
+}
+
+/* Specific slider value display spans in theme colors */
+.theme-organizer .market-filter-card .slider-value-display span {
+    color: #1e3a8a !important;
+    font-weight: 700 !important;
+}
+.theme-musician .market-filter-card .slider-value-display span {
+    color: #5b21b6 !important;
+    font-weight: 700 !important;
+}
+
+/* Keep tag pills looking great on white background globally (White inactive background) */
+.market-filter-card .tag-pill-checkbox {
+    background: #ffffff !important; /* Reverted from grey to solid white */
+    border: 1px solid #cbd5e1 !important;
+    color: #334155 !important;
+}
+.market-filter-card .tag-pill-checkbox span {
+    color: #334155 !important;
+}
+.market-filter-card .tag-pill-checkbox:hover {
+    background: #f8fafc !important;
+}
+.market-filter-card .tag-pill-checkbox.active {
+    background: rgba(var(--market-primary-rgb), 0.15) !important;
+    border-color: var(--market-primary) !important;
+    color: var(--market-primary) !important;
+}
+.market-filter-card .tag-pill-checkbox.active span {
+    color: var(--market-primary) !important;
+}
+
+/* Style dual range slider tracks globally to stand out on white bg */
+.market-filter-card .dual-range-track {
+    background: #cbd5e1 !important;
+}
+
+@media (max-width: 900px) {
+    .market-filter-mobile-toggle {
+        display: flex; /* Show on mobile */
+    }
+    
+    .market-filter-card {
+        position: fixed !important;
+        top: 150px !important;
+        left: 5% !important;
+        width: 90% !important;
+        max-height: 0 !important;
+        opacity: 0 !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        border-color: transparent !important;
+        pointer-events: none;
+        box-sizing: border-box !important;
+        z-index: 1000 !important;
+        background: #ffffff !important;
+        backdrop-filter: none !important;
+        border-radius: var(--radius-md) !important;
+        transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    }
+    
+    .market-filter-card.open {
+        max-height: calc(82vh - 150px) !important; /* height-restricted, internally scrollable */
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        overflow-y: auto !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* Compress padding of inner filter category cards on mobile */
+    .market-filter-card div[style*="padding: 0.8rem"],
+    .market-filter-card div[style*="padding:0.8rem"] {
+        padding: 0.5rem !important;
+    }
+
+    /* Prevent tag pills from stretching the filter card on mobile */
+    .market-filter-card .tag-pill-checkbox {
+        padding: 0.2rem 0.45rem !important;
+        font-size: 0.72rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        white-space: normal !important;
+        word-break: break-all !important;
+        word-wrap: break-word !important;
+    }
+
+    .market-filter-card .tag-pill-checkbox span {
+        white-space: normal !important;
+        word-break: break-all !important;
+        word-wrap: break-word !important;
+    }
+
+    /* strict box constraints for all input elements inside filters */
+    .market-filter-card input,
+    .market-filter-card select,
+    .market-filter-card button,
+    .market-filter-card div {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Make controls row compact to prevent side-by-side overflow */
+    .market-controls-row {
+        gap: 0.4rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .market-filter-mobile-toggle {
+        padding: 0.45rem 0.6rem !important;
+        font-size: 0.78rem !important;
+        max-width: 48% !important;
+        box-sizing: border-box !important;
+        white-space: nowrap !important;
+    }
+
+    .market-sort-container {
+        max-width: 50% !important;
+        box-sizing: border-box !important;
+    }
+
+    .sort-select {
+        padding: 0.45rem 1.6rem 0.45rem 0.6rem !important;
+        font-size: 0.78rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Force 1 column grid layout for items on mobile to prevent stretching */
+    #market-items-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+}
+
+/* Responsive container adjustments to shift higher and prevent horizontal clipping */
+@media (max-width: 900px) {
+    .app-main {
+        padding: 0.25rem 0.5rem 1.5rem !important;
+    }
+    
+    .market-page {
+        padding: 0.1rem 0.25rem 3rem !important;
+    }
+}
+
+/* Specific theme overrides to bust global !important styles */
+.theme-organizer .btn-primary,
+.theme-organizer .btn-secondary {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
+    border-color: #1e40af !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+}
+
+.theme-organizer .btn-primary:hover,
+.theme-organizer .btn-secondary:hover {
+    background: #1d4ed8 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+}
+
+.theme-musician .btn-primary,
+.theme-musician .btn-secondary {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+    border-color: #7c3aed !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35) !important;
+}
+
+.theme-musician .btn-primary:hover,
+.theme-musician .btn-secondary:hover {
+    background: #6d28d9 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25) !important;
+}
+
+/* Card slider height adjustments to keep first tile content above the fold */
+.tile-fullwidth-photo-slider {
+    height: 180px !important; /* Reduced from 235px */
+}
+
+@media (max-width: 900px) {
+    .tile-fullwidth-photo-slider {
+        height: 155px !important; /* Extremely compact on mobile */
+    }
+}
+
+/* Prevent horizontal scroll globally on iOS and android */
+html {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+/* Card click pointer-events helper to ensure clicking text or icons bubbles to the card container */
+.market-tile-card * {
+    pointer-events: none;
+}
+
+.market-tile-card button,
+.market-tile-card .btn,
+.market-tile-card .tile-action-container,
+.market-tile-card .tile-fullwidth-photo-slider button,
+.market-tile-card .tile-fullwidth-photo-slider i {
+    pointer-events: auto;
+}
+
+/* Enforce strict styling and appearance resets on all input elements inside filters to avoid mobile/Safari layout issues */
+.market-filter-card input[type="date"],
+.market-filter-card input[type="text"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    display: block !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+/* Sticky Filter Header styling (glowing blue capsule globally!) */
+.filter-header-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: calc(100% - 1.2rem) !important;
+    padding: 0.8rem 1.4rem !important; /* shifted inwards! */
+    margin: 0.6rem 0.6rem 1rem 0.6rem !important; /* floated/rounded capsule look */
+    box-sizing: border-box !important;
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
+    border: 2px solid #60a5fa !important;
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.45) !important;
+    border-radius: 12px !important;
+    color: #ffffff !important;
+}
+
+/* Purple theme override for Event-Markt filters */
+.theme-musician .filter-header-sticky {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+    border: 2px solid #a78bfa !important;
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.45) !important;
+}
+
+.filter-header-title, .filter-header-title i {
+    color: #ffffff !important;
+}
+
+.btn-reset-round {
+    padding: 0 !important;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border-radius: 50% !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+    line-height: 1;
+    transition: background 0.2s, transform 0.1s;
+    transform: translateX(-12px) !important; /* Shifted a tick to the left! */
+}
+
+.btn-reset-round:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    transform: translateX(-12px) scale(1.05) !important;
+}
+
+.btn-close-filters-m {
+    display: none !important;
+}
+
+@media (max-width: 900px) {
+    .market-filter-card {
+        position: fixed !important;
+        top: 150px !important;
+        left: 5% !important;
+        width: 90% !important;
+        max-height: 0 !important;
+        opacity: 0 !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        border-color: transparent !important;
+        pointer-events: none;
+        box-sizing: border-box !important;
+        z-index: 1000 !important;
+        background: #ffffff !important;
+        backdrop-filter: none !important;
+        border-radius: var(--radius-md) !important;
+        transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    }
+    
+    .market-filter-card.open {
+        max-height: calc(82vh - 150px) !important; /* height-restricted, internally scrollable */
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        overflow-y: auto !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .btn-close-filters-m {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.15) !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        color: #ffffff !important;
+        font-size: 1.1rem !important;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+    }
+    .btn-close-filters-m:hover {
+        background: rgba(255, 255, 255, 0.25) !important;
+        color: #ffffff !important;
+    }
+}
+
+/* Ensure calendar widget days are clickable on mobile Safari/iOS */
+.org-cal-day {
+    cursor: pointer !important;
+}
+.org-cal-day.empty {
+    cursor: default !important;
+}
+
+/* Fix registration range input background and borders to make thumbs visible */
+input[type="range"].input-field {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Circular Sort container with overlay select */
+.market-sort-container-round {
+    position: relative;
+    width: 42px !important;
+    height: 42px !important;
+    margin: 0;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04) !important;
+    cursor: pointer;
+    transition: all 0.2s ease !important;
+}
+
+.market-sort-container-round:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08) !important;
+}
+
+.theme-musician .market-sort-container-round {
+    background: rgba(124, 58, 237, 0.08) !important;
+    border: 1.5px solid rgba(124, 58, 237, 0.25) !important;
+}
+.theme-organizer .market-sort-container-round {
+    background: rgba(37, 99, 235, 0.08) !important;
+    border: 1.5px solid rgba(37, 99, 235, 0.25) !important;
 }
