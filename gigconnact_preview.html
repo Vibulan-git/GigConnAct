@@ -4245,8 +4245,10 @@ const initialMusicians = [
         radius: 150, // in km
         genres: ["Pop", "Electro", "Rock"],
         instruments: ["Gesang", "Synthesizer", "E-Gitarre", "Schlagzeug"],
+        minDuration: 2,
         maxDuration: 4, // in hours
-        minBudget: 1200, // EUR
+        minBudget: 1200,
+        maxBudget: 2500, // EUR
         eventTypes: ["Club", "Festival", "Corporate", "Wedding"],
         availability: ["Friday", "Saturday"],
         description: "Wir bringen jeden Dancefloor zum Glühen! Mit unserem einzigartigen Elektro-Pop Sound und Covers der 80er, 90er und heutigen Hits im modernen Gewand. Eigene PA- und Lichttechnik ist immer inklusive.",
@@ -4279,8 +4281,10 @@ const initialMusicians = [
         radius: 80,
         genres: ["Klassik", "Pop", "Jazz"],
         instruments: ["Klavier", "Keyboard"],
+        minDuration: 1,
         maxDuration: 3,
         minBudget: 450,
+        maxBudget: 800,
         eventTypes: ["Wedding", "Corporate", "Birthday"],
         availability: ["Saturday", "Sunday"],
         description: "Elegante Hintergrundmusik am Klavier für Ihre Trauung, den Sektempfang oder ein festliches Dinner. Ich spiele sowohl klassische Meisterwerke als auch moderne Pop-Balladen im sanften Klavier-Arrangement. Keyboard bringe ich bei Bedarf mit.",
@@ -4307,8 +4311,10 @@ const initialMusicians = [
         radius: 200,
         genres: ["Electro", "HipHop", "Charts", "Pop"],
         instruments: ["Turntables", "Mischpult"],
+        minDuration: 4,
         maxDuration: 8,
         minBudget: 850,
+        maxBudget: 1500,
         eventTypes: ["Club", "Corporate", "Wedding", "Birthday"],
         availability: ["Friday", "Saturday", "Sunday"],
         description: "Seit 10 Jahren als DJ auf Hochzeiten, Firmenfeiern und in Clubs unterwegs. Professionelle High-End Licht- und Tontechnik für Events bis 300 Personen bringe ich komplett selbst mit.",
@@ -4335,8 +4341,10 @@ const initialMusicians = [
         radius: 120,
         genres: ["Pop", "Jazz", "Folk"],
         instruments: ["Akustikgitarre", "Gesang", "Cajon"],
-        maxDuration: 3,
+        minDuration: 2,
+        maxDuration: 3.5,
         minBudget: 700,
+        maxBudget: 1200,
         eventTypes: ["Wedding", "Corporate", "Birthday", "Festival"],
         availability: ["Saturday", "Sunday", "Thursday"],
         description: "Zweistimmiger Gesang, feine Akustikgitarren-Klänge und sanfte Rhythmen. Wir bieten den perfekten Soundtrack für chillige Sommerevents, Gartenpartys oder romantische Trauungen. Kompakte Akustikanlage ist vorhanden.",
@@ -4363,8 +4371,10 @@ const initialMusicians = [
         radius: 150,
         genres: ["Rock", "Metal", "Blues"],
         instruments: ["Gesang", "E-Gitarre", "Bass", "Schlagzeug"],
+        minDuration: 3,
         maxDuration: 5,
         minBudget: 1800,
+        maxBudget: 3000,
         eventTypes: ["Club", "Festival", "Corporate"],
         availability: ["Friday", "Saturday"],
         description: "Echte Rock-Klassiker und harte Riffs von AC/DC bis Led Zeppelin. Wir spielen 100% live, energetisch und laut. Ton- und Lichtanlage (PA) müssen vom Veranstalter gestellt werden.",
@@ -4391,8 +4401,10 @@ const initialMusicians = [
         radius: 100,
         genres: ["Jazz", "Blues", "Pop"],
         instruments: ["Saxophon", "Gesang"],
+        minDuration: 1.5,
         maxDuration: 3,
         minBudget: 350,
+        maxBudget: 600,
         eventTypes: ["Gartenparty", "Corporate", "Wedding", "Dinner"],
         availability: ["Saturday", "Sunday", "Wednesday"],
         description: "Sinnliche Saxophonklänge und samtige Vocals. Begleitung beim Sektempfang, Dinnermusik oder als Live-Highlight zu Lounge-Beats. Professionelle, platzsparende Beschallungsanlage vorhanden.",
@@ -4419,8 +4431,10 @@ const initialMusicians = [
         radius: 100,
         genres: ["Pop", "Rock"],
         instruments: ["Gitarre", "Gesang"],
+        minDuration: 3,
         maxDuration: 3,
         minBudget: 250,
+        maxBudget: 250,
         eventTypes: ["Birthday", "Wedding"],
         availability: ["Saturday", "Sunday"],
         description: "Demo-Musiker-Account mit 0 Credits zum Testen des Bezahlfensters.",
@@ -4444,8 +4458,10 @@ const initialMusicians = [
         radius: 100,
         genres: ["Folk", "Pop"],
         instruments: ["Akustikgitarre", "Gesang"],
+        minDuration: 2,
         maxDuration: 4,
         minBudget: 500,
+        maxBudget: 800,
         eventTypes: ["Corporate", "Birthday"],
         availability: ["Friday", "Saturday"],
         description: "Demo-Musiker-Account mit 5 Credits zum Testen der Einzelfreischaltung.",
@@ -4472,7 +4488,11 @@ const initialEvents = [
         location: "Köln",
         genres: ["Pop", "Klassik"],
         instruments: ["Klavier", "Gesang"],
+        minDuration: 1.5,
+        maxDuration: 3,
         duration: 2,
+        minBudget: 800,
+        maxBudget: 1200,
         budget: 950,
         musicianTypes: ["Solo", "Duo"],
         description: "Für unsere kirchliche Trauung und den anschließenden Sektempfang direkt am See suchen wir eine gefühlvolle musikalische Untermalung (Klavier & Gesang). Gewünscht sind ca. 3 Lieder während der Zeremonie und 1.5 Stunden Hintergrundmusik beim Empfang.",
@@ -4492,7 +4512,11 @@ const initialEvents = [
         location: "München",
         genres: ["Electro", "Pop"],
         instruments: ["Synthesizer", "Turntables", "Gesang"],
+        minDuration: 4,
+        maxDuration: 6,
         duration: 4,
+        minBudget: 2000,
+        maxBudget: 3000,
         budget: 2500,
         musicianTypes: ["Band", "DJ"],
         description: "Großes Sommer-Event am Stadtstrand! Wir suchen eine energiegeladene Live-Band oder einen DJ, der für fette Beats und Sommerstimmung sorgt. PA-Anlage und Bühne sind vorhanden. Verpflegung wird gestellt.",
@@ -4512,7 +4536,11 @@ const initialEvents = [
         location: "Düsseldorf",
         genres: ["Jazz", "Pop", "Rock"],
         instruments: ["Schlagzeug", "E-Gitarre", "Bass", "Saxophon"],
+        minDuration: 3,
+        maxDuration: 5,
         duration: 3,
+        minBudget: 1200,
+        maxBudget: 1800,
         budget: 1500,
         musicianTypes: ["Band", "Duo"],
         description: "Wir feiern unser 10-jähriges Bestehen und suchen eine Band für den Abend. Zuerst gediegener Jazz zum Dinner, danach Pop/Rock-Klassiker zum Tanzen. Licht/Ton muss mitgebracht werden.",
@@ -4532,7 +4560,11 @@ const initialEvents = [
         location: "Frankfurt",
         genres: ["Electro"],
         instruments: ["Turntables", "Mischpult"],
+        minDuration: 3.5,
+        maxDuration: 5,
         duration: 4,
+        minBudget: 600,
+        maxBudget: 900,
         budget: 800,
         musicianTypes: ["DJ"],
         description: "Wir veranstalten unser alljährliches Open Air am See und suchen einen professionellen Club-DJ für fette EDM, House & Techno-Beats. Sound- & Lichtanlage sind komplett vorhanden.",
@@ -4552,7 +4584,11 @@ const initialEvents = [
         location: "Stuttgart",
         genres: ["Rock", "Pop", "Schlager"],
         instruments: ["E-Gitarre", "Gesang", "Keyboard"],
+        minDuration: 4,
+        maxDuration: 6,
         duration: 5,
+        minBudget: 400,
+        maxBudget: 600,
         budget: 600,
         musicianTypes: ["Duo", "Solo", "Band"],
         description: "Zu meinem 50. Geburtstag suche ich ein Akustik-Duo oder einen Solo-Musiker, der alte Rock- und Popklassiker spielt und für gute Laune im Kellergewölbe sorgt. Platz ist begrenzt, Strom vorhanden.",
@@ -5470,6 +5506,8 @@ class StateManager {
                 minPublikum: parseInt(data.orgMinPublikum) || 0,
                 maxPublikum: parseInt(data.orgMaxPublikum) || 500,
                 publikum: `${data.orgMinPublikum || 0} - ${data.orgMaxPublikum || 500}`,
+                minBudget: parseFloat(data.orgMinBudget) || 0,
+                maxBudget: parseFloat(data.orgMaxBudget) || 5000,
                 description: data.orgDescription,
                 technik: data.orgTechnik ? data.orgTechnik.join(', ') : "Weiß ich noch nicht",
                 company: user.company || "Privatperson",
@@ -6061,11 +6099,19 @@ function calculateMatch(musician, event) {
         breakdown.instruments = true;
     }
  
-    if (event.duration <= musician.maxDuration) {
+    const evMinD = event.minDuration !== undefined ? event.minDuration : (event.duration || 0);
+    const evMaxD = event.maxDuration !== undefined ? event.maxDuration : (event.duration || 24);
+    const musMinD = musician.minDuration !== undefined ? musician.minDuration : 0;
+    const musMaxD = musician.maxDuration || 24;
+    if (evMaxD >= musMinD && evMinD <= musMaxD) {
         breakdown.duration = true;
     }
  
-    if (event.budget >= musician.minBudget) {
+    const evMinB = event.minBudget !== undefined ? event.minBudget : (event.budget || 0);
+    const evMaxB = event.maxBudget !== undefined ? event.maxBudget : (event.budget || 5000);
+    const musMinB = musician.minBudget || 0;
+    const musMaxB = musician.maxBudget !== undefined ? musician.maxBudget : (musician.minBudget || 5000);
+    if (evMaxB >= musMinB && evMinB <= musMaxB) {
         breakdown.budget = true;
     }
  
@@ -7475,13 +7521,9 @@ function renderMarket(container, type, onNavigate) {
         const minB = parseFloat(container.querySelector(isEvents ? '#input-filter-budget-min' : '#input-filter-gage-m-min')?.value || 0);
         const maxB = parseFloat(container.querySelector(isEvents ? '#input-filter-budget-max' : '#input-filter-gage-m-max')?.value || 5000);
         list = list.filter(item => {
-            if (isEvents) {
-                const bud = parseFloat(item.budget) || 0;
-                return bud >= minB && bud <= maxB;
-            } else {
-                const bud = parseFloat(item.minBudget) || 0;
-                return bud <= maxB;
-            }
+            const itemMinB = parseFloat(item.minBudget !== undefined ? item.minBudget : (isEvents ? item.budget : item.price)) || 0;
+            const itemMaxB = parseFloat(item.maxBudget !== undefined ? item.maxBudget : (isEvents ? item.budget : item.price)) || 5000;
+            return itemMaxB >= minB && itemMinB <= maxB;
         });
 
         // 9. Besucheranzahl / Publikum Filter (Dual Slider)
@@ -7728,10 +7770,73 @@ window.openItemDetailModal = function(id, isEvents) {
 
     const genres = item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic']);
     const instruments = item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre']);
-    const duration = item.duration || item.spieldauer || 'ca. 2 - 4 Stunden';
     const description = item.description || item.bio || (isEvents 
         ? 'Wir suchen eine professionelle musikalische Begleitung für unser anstehendes Event mit toller Stimmung. Bitte Ton- und Lichttechnik mitbringen oder absprechen.' 
         : 'Professionelle Live-Musik für unvergleichliche Momente bei Hochzeiten, Geburtstagen & Firmenevents. Großes Repertoire von Klassikern bis zu modernen Charts.');
+
+    // Date formatting (German)
+    let dateDisplay = '';
+    if (isEvents) {
+        const dateArr = item.dates && item.dates.length > 0 ? item.dates : (item.date ? [item.date] : []);
+        if (dateArr.length > 0) {
+            dateDisplay = dateArr.map(d => {
+                const parts = d.split('-');
+                return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : d;
+            }).join(', ');
+        } else {
+            dateDisplay = 'Termin nach Absprache';
+        }
+    } else {
+        if (Array.isArray(item.availability)) {
+            const dayMap = {
+                'monday': 'Montag', 'tuesday': 'Dienstag', 'wednesday': 'Mittwoch', 'thursday': 'Donnerstag',
+                'friday': 'Freitag', 'saturday': 'Samstag', 'sunday': 'Sonntag',
+                'Monday': 'Montag', 'Tuesday': 'Dienstag', 'Wednesday': 'Mittwoch', 'Thursday': 'Donnerstag',
+                'Friday': 'Freitag', 'Saturday': 'Samstag', 'Sunday': 'Sonntag'
+            };
+            dateDisplay = item.availability.map(d => dayMap[d] || d).join(', ');
+        } else {
+            dateDisplay = item.availability || 'Auf Anfrage verfügbar';
+        }
+    }
+
+    // Duration formatting (ends with "Stunden.")
+    let durationDisplay = '';
+    const minDur = item.minDuration;
+    const maxDur = item.maxDuration;
+    if (minDur !== undefined && minDur !== null) {
+        const minStr = String(minDur).replace('.', ',');
+        if (maxDur !== undefined && maxDur !== null && maxDur !== minDur) {
+            const maxStr = String(maxDur).replace('.', ',');
+            durationDisplay = `${minStr} - ${maxStr} Stunden.`;
+        } else {
+            durationDisplay = `${minStr} Stunden.`;
+        }
+    } else {
+        let baseDur = String(item.duration || item.spieldauer || '2 - 4');
+        baseDur = baseDur.replace(/ca\.\s*/gi, '').replace(/\s*Stunden\.?/gi, '').trim();
+        durationDisplay = `${baseDur} Stunden.`;
+    }
+
+    // Budget formatting (ends with "€")
+    let budgetDisplay = '';
+    const minB = item.minBudget !== undefined ? item.minBudget : item.price;
+    const maxB = item.maxBudget;
+    if (minB !== undefined && minB !== null) {
+        const minBStr = typeof minB === 'number' ? minB.toLocaleString('de-DE') : String(minB);
+        if (maxB !== undefined && maxB !== null && maxB !== minB) {
+            const maxBStr = typeof maxB === 'number' ? maxB.toLocaleString('de-DE') : String(maxB);
+            budgetDisplay = `${minBStr} - ${maxBStr} €`;
+        } else {
+            budgetDisplay = `${minBStr} €`;
+        }
+    } else {
+        budgetDisplay = isEvents ? 'Gage auf Anfrage' : 'Honorar auf Anfrage';
+    }
+
+    // Technology formatting
+    const techDisplay = (isEvents ? (item.technik || 'Technik vorhanden') : (item.technik || 'Technik vorhanden'));
+    const techDisplayStr = Array.isArray(techDisplay) ? techDisplay.join(', ') : String(techDisplay);
 
     const modalHTML = `
         <div class="modal-overlay active ${isEvents ? 'theme-musician' : 'theme-organizer'}" id="modal-item-detail" style="position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
@@ -7819,13 +7924,23 @@ window.openItemDetailModal = function(id, isEvents) {
                         </div>
 
                         <div>
+                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">${isEvents ? 'Veranstaltungsdatum' : 'Verfügbarkeiten'}</span>
+                            <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-calendar-days" style="color: ${roleColor};"></i> ${dateDisplay}</strong>
+                        </div>
+
+                        <div>
                             <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">Spieldauer</span>
-                            <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-clock" style="color: ${roleColor};"></i> ${duration}</strong>
+                            <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-clock" style="color: ${roleColor};"></i> ${durationDisplay}</strong>
+                        </div>
+
+                        <div>
+                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">Gage / Budget</span>
+                            <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-sack-dollar" style="color: ${roleColor};"></i> ${budgetDisplay}</strong>
                         </div>
 
                         <div>
                             <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">Technik & Equipment</span>
-                            <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-plug" style="color: ${roleColor};"></i> ${item.equipment || 'Vorhanden'}</strong>
+                            <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-plug" style="color: ${roleColor};"></i> ${techDisplayStr}</strong>
                         </div>
                     </div>
 
@@ -8013,13 +8128,13 @@ function renderMatchesPage(container) {
                     return dateB - dateA;
                 }
                 if (sortVal === 'price-asc') {
-                    const valA = isMusician ? a.item.budget : a.item.minBudget;
-                    const valB = isMusician ? b.item.budget : b.item.minBudget;
+                    const valA = a.item.minBudget !== undefined ? a.item.minBudget : (a.item.budget || 0);
+                    const valB = b.item.minBudget !== undefined ? b.item.minBudget : (b.item.budget || 0);
                     return valA - valB;
                 }
                 if (sortVal === 'price-desc') {
-                    const valA = isMusician ? a.item.budget : a.item.minBudget;
-                    const valB = isMusician ? b.item.budget : b.item.minBudget;
+                    const valA = a.item.minBudget !== undefined ? a.item.minBudget : (a.item.budget || 0);
+                    const valB = b.item.minBudget !== undefined ? b.item.minBudget : (b.item.budget || 0);
                     return valB - valA;
                 }
                 if (sortVal === 'name') {
@@ -8249,20 +8364,45 @@ function renderMatchesPage(container) {
                                     <div class="detail-item"><i class="fa-solid fa-map-marker-alt"></i> ${formatLocationWithPlz(item.location)}</div>
                                     <div class="detail-item">
                                         ${isEventMarket 
-                                            ? `<i class="fa-solid fa-calendar-days"></i> ${formatEventDateWithWeekday(item.date)}` 
+                                            ? `<i class="fa-solid fa-calendar-days"></i> ${(item.dates && item.dates.length > 0 ? item.dates : [item.date]).map(d => formatEventDateWithWeekday(d)).join(', ')}` 
                                             : `<i class="fa-solid fa-calendar-check"></i> Event-Arten: ${item.eventTypes ? item.eventTypes.join(', ') : ''}`}
                                     </div>
                                     <div class="detail-item">
                                         <i class="fa-solid fa-euro-sign"></i> 
-                                        ${isEventMarket ? `Budget: ${item.budget} €` : `Min. Gage: ${item.minBudget} €`}
+                                        ${(() => {
+                                            const minB = item.minBudget !== undefined ? item.minBudget : (isEventMarket ? item.budget : item.price);
+                                            const maxB = item.maxBudget;
+                                            if (minB !== undefined && minB !== null) {
+                                                const minBStr = typeof minB === 'number' ? minB.toLocaleString('de-DE') : String(minB);
+                                                if (maxB !== undefined && maxB !== null && maxB !== minB) {
+                                                    const maxBStr = typeof maxB === 'number' ? maxB.toLocaleString('de-DE') : String(maxB);
+                                                    return `${minBStr} - ${maxBStr} €`;
+                                                } else {
+                                                    return `${minBStr} €`;
+                                                }
+                                            }
+                                            return 'Auf Anfrage';
+                                        })()}
                                     </div>
                                     <div class="detail-item">
                                         <i class="fa-solid fa-clock"></i> 
-                                        ${isEventMarket ? `${item.duration} Std. Spieldauer` : `Max. ${item.maxDuration} Std. Spieldauer`}
+                                        ${(() => {
+                                            if (item.minDuration !== undefined && item.maxDuration !== undefined) {
+                                                const minD = String(item.minDuration).replace('.', ',');
+                                                const maxD = String(item.maxDuration).replace('.', ',');
+                                                return `${minD} - ${maxD} Stunden.`;
+                                            } else {
+                                                const baseD = String(item.duration || item.spieldauer || (isEventMarket ? '2 - 4' : 'Max. 3')).replace(/ca\.\s*/gi, '').replace(/\s*Stunden\.?/gi, '').trim();
+                                                return `${baseD} Stunden.`;
+                                            }
+                                        })()}
                                     </div>
                                     <div class="detail-item">
                                         <i class="fa-solid fa-sliders"></i> 
-                                        Technik: ${item.technik === 'vorhanden' ? 'Ja' : (item.technik === 'nicht vorhanden' ? 'Nein' : 'Weiß ich noch nicht')}
+                                        Technik: ${(() => {
+                                            const tech = item.technik || item.equipment;
+                                            return Array.isArray(tech) ? tech.join(', ') : String(tech);
+                                        })()}
                                     </div>
                                     ${isEventMarket ? `
                                         <div class="detail-item">
@@ -8707,7 +8847,17 @@ function renderMusicianInsightsPanel(m) {
                         <div style="font-size:0.75rem; color:var(--text-muted); display:flex; gap:0.8rem; flex-wrap:wrap;">
                             <span><i class="fa-solid fa-calendar text-purple"></i> ${new Date(event.date).toLocaleDateString('de-DE')}</span>
                             <span><i class="fa-solid fa-map-marker-alt text-purple"></i> ${event.location}</span>
-                            <span><i class="fa-solid fa-euro-sign text-purple"></i> ${event.budget} €</span>
+                            <span><i class="fa-solid fa-euro-sign text-purple"></i> ${(() => {
+                                const minB = event.minBudget !== undefined ? event.minBudget : event.budget;
+                                const maxB = event.maxBudget;
+                                if (minB !== undefined && minB !== null) {
+                                    if (maxB !== undefined && maxB !== null && maxB !== minB) {
+                                        return `${minB.toLocaleString('de-DE')} - ${maxB.toLocaleString('de-DE')} €`;
+                                    }
+                                    return `${minB.toLocaleString('de-DE')} €`;
+                                }
+                                return 'Auf Anfrage';
+                            })()}</span>
                         </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:1.2rem; flex-shrink:0; flex-wrap:wrap;">
@@ -8805,7 +8955,17 @@ function renderMyMusicianItem(m, isActive) {
                         <div style="display: flex; gap: 1rem; font-size: 0.8rem; color: var(--text-muted); flex-wrap: wrap;">
                             <span><i class="fa-solid fa-guitar text-purple"></i> ${m.type}</span>
                             <span><i class="fa-solid fa-map-marker-alt text-purple"></i> ${m.location}</span>
-                            <span><i class="fa-solid fa-euro-sign text-purple"></i> ab ${m.minBudget} €</span>
+                            <span><i class="fa-solid fa-euro-sign text-purple"></i> ${(() => {
+                                const minB = m.minBudget;
+                                const maxB = m.maxBudget;
+                                if (minB !== undefined && minB !== null) {
+                                    if (maxB !== undefined && maxB !== null && maxB !== minB) {
+                                        return `${minB.toLocaleString('de-DE')} - ${maxB.toLocaleString('de-DE')} €`;
+                                    }
+                                    return `${minB.toLocaleString('de-DE')} €`;
+                                }
+                                return 'Auf Anfrage';
+                            })()}</span>
                             <span><i class="fa-solid fa-tag text-purple"></i> ${m.genres.slice(0,2).join(', ')}</span>
                         </div>
                     </div>
@@ -9101,12 +9261,23 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Max. Spieldauer (Stunden)</label>
-                            <input type="number" name="maxDuration" step="0.5" class="input-field" value="${musicianObj?.maxDuration || 3}" required>
+                            <label>Mindest-Spieldauer (Stunden)</label>
+                            <input type="number" name="minDuration" step="0.5" class="input-field" value="${musicianObj?.minDuration || 1}" required>
                         </div>
                         <div class="form-group">
-                            <label>Mindest-Budget (€)</label>
+                            <label>Maximal-Spieldauer (Stunden)</label>
+                            <input type="number" name="maxDuration" step="0.5" class="input-field" value="${musicianObj?.maxDuration || 3}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Mindest-Gage (€)</label>
                             <input type="number" name="minBudget" class="input-field" value="${musicianObj?.minBudget || 300}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Maximal-Gage (€)</label>
+                            <input type="number" name="maxBudget" class="input-field" value="${musicianObj?.maxBudget || 1000}" required>
                         </div>
                     </div>
  
@@ -9319,8 +9490,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             type: formData.get('musicianType'),
             location: formData.get('location'),
             radius: parseInt(formData.get('radius')) || 50,
+            minDuration: parseFloat(formData.get('minDuration')) || 1,
             maxDuration: parseFloat(formData.get('maxDuration')) || 3,
             minBudget: parseFloat(formData.get('minBudget')) || 300,
+            maxBudget: parseFloat(formData.get('maxBudget')) || 1000,
             genres: Array.from(form.elements.genres.selectedOptions).map(o => o.value),
             instruments: Array.from(form.elements.instruments.selectedOptions).map(o => o.value),
             eventTypes: Array.from(form.elements.eventTypes.selectedOptions).map(o => o.value),
@@ -9782,6 +9955,19 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                                 <div class="dual-range-active-track" id="track-org-publikum"></div>
                                 <input type="range" id="input-org-publikum-min" name="orgMinPublikum" min="0" max="500" step="50" value="0">
                                 <input type="range" id="input-org-publikum-max" name="orgMaxPublikum" min="0" max="500" step="50" value="500">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="slider-value-display">
+                                <label>Gage / Budget Spanne</label>
+                                <span id="val-org-gage">0 - 5.000+ €</span>
+                            </div>
+                            <div class="dual-range-slider" id="slider-org-gage-container">
+                                <div class="dual-range-track"></div>
+                                <div class="dual-range-active-track" id="track-org-gage"></div>
+                                <input type="range" id="input-org-gage-min" name="orgMinBudget" min="0" max="5000" step="100" value="0">
+                                <input type="range" id="input-org-gage-max" name="orgMaxBudget" min="0" max="5000" step="100" value="5000">
                             </div>
                         </div>
 
@@ -10273,6 +10459,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     // Initialize Organizer Dual Sliders
     initDualSlider('slider-org-spieldauer-container', 'input-org-spieldauer-min', 'input-org-spieldauer-max', 'track-org-spieldauer', 'val-org-spieldauer', 'Std.', false);
     initDualSlider('slider-org-publikum-container', 'input-org-publikum-min', 'input-org-publikum-max', 'track-org-publikum', 'val-org-publikum', 'Personen', false);
+    initDualSlider('slider-org-gage-container', 'input-org-gage-min', 'input-org-gage-max', 'track-org-gage', 'val-org-gage', '€', true);
 
     // Organizer description char-counter logic
     const orgDescTextarea = document.getElementById('textarea-org-desc');
@@ -10808,6 +10995,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             payload.orgMinPublikum = registerForm.querySelector('input[name="orgMinPublikum"]').value;
             payload.orgMaxPublikum = registerForm.querySelector('input[name="orgMaxPublikum"]').value;
             payload.orgTechnik = Array.from(registerForm.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value);
+            payload.orgMinBudget = registerForm.querySelector('input[name="orgMinBudget"]').value;
+            payload.orgMaxBudget = registerForm.querySelector('input[name="orgMaxBudget"]').value;
             payload.orgDescription = registerForm.querySelector('textarea[name="orgDescription"]').value.trim();
         }
 
@@ -11701,8 +11890,69 @@ function renderMarketGridHTML(items, isEvents) {
         const genresList = (item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic'])).join(', ');
         const instrumentsList = (item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre'])).join(', ');
         
-        let duration = String(item.duration || item.spieldauer || '2 - 4 Stunden');
-        duration = duration.replace(/ca\.\s*/gi, '');
+        // Date formatting (German)
+        let dateDisplay = '';
+        if (isEvents) {
+            const dateArr = item.dates && item.dates.length > 0 ? item.dates : (item.date ? [item.date] : []);
+            if (dateArr.length > 0) {
+                dateDisplay = dateArr.map(d => {
+                    const parts = d.split('-');
+                    return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : d;
+                }).join(', ');
+            } else {
+                dateDisplay = 'Termin nach Absprache';
+            }
+        } else {
+            if (Array.isArray(item.availability)) {
+                const dayMap = {
+                    'monday': 'Montag', 'tuesday': 'Dienstag', 'wednesday': 'Mittwoch', 'thursday': 'Donnerstag',
+                    'friday': 'Freitag', 'saturday': 'Samstag', 'sunday': 'Sonntag',
+                    'Monday': 'Montag', 'Tuesday': 'Dienstag', 'Wednesday': 'Mittwoch', 'Thursday': 'Donnerstag',
+                    'Friday': 'Freitag', 'Saturday': 'Samstag', 'Sunday': 'Sonntag'
+                };
+                dateDisplay = item.availability.map(d => dayMap[d] || d).join(', ');
+            } else {
+                dateDisplay = item.availability || 'Auf Anfrage verfügbar';
+            }
+        }
+
+        // Duration formatting (ends with "Stunden.")
+        let durationDisplay = '';
+        const minDur = item.minDuration;
+        const maxDur = item.maxDuration;
+        if (minDur !== undefined && minDur !== null) {
+            const minStr = String(minDur).replace('.', ',');
+            if (maxDur !== undefined && maxDur !== null && maxDur !== minDur) {
+                const maxStr = String(maxDur).replace('.', ',');
+                durationDisplay = `${minStr} - ${maxStr} Stunden.`;
+            } else {
+                durationDisplay = `${minStr} Stunden.`;
+            }
+        } else {
+            let baseDur = String(item.duration || item.spieldauer || '2 - 4');
+            baseDur = baseDur.replace(/ca\.\s*/gi, '').replace(/\s*Stunden\.?/gi, '').trim();
+            durationDisplay = `${baseDur} Stunden.`;
+        }
+
+        // Budget formatting (ends with "€")
+        let budgetDisplay = '';
+        const minB = item.minBudget !== undefined ? item.minBudget : item.price;
+        const maxB = item.maxBudget;
+        if (minB !== undefined && minB !== null) {
+            const minBStr = typeof minB === 'number' ? minB.toLocaleString('de-DE') : String(minB);
+            if (maxB !== undefined && maxB !== null && maxB !== minB) {
+                const maxBStr = typeof maxB === 'number' ? maxB.toLocaleString('de-DE') : String(maxB);
+                budgetDisplay = `${minBStr} - ${maxBStr} €`;
+            } else {
+                budgetDisplay = `${minBStr} €`;
+            }
+        } else {
+            budgetDisplay = isEvents ? 'Gage auf Anfrage' : 'Honorar auf Anfrage';
+        }
+
+        // Technology formatting
+        const techDisplay = (isEvents ? (item.technik || 'Technik vorhanden') : (item.technik || 'Technik vorhanden'));
+        const techDisplayStr = Array.isArray(techDisplay) ? techDisplay.join(', ') : String(techDisplay);
 
         const description = item.description || item.bio || (isEvents 
             ? 'Wir suchen eine professionelle musikalische Begleitung für unser anstehendes Event mit fantastischer Stimmung.' 
@@ -11799,19 +12049,19 @@ function renderMarketGridHTML(items, isEvents) {
 
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${isEvents ? (item.date || 'Termin nach Absprache') : (item.availability || 'Auf Anfrage verfÜgbar')}</span>
+                            <span>${dateDisplay}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${duration}</span>
+                            <span>${durationDisplay}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${isEvents ? (item.budget || 'Gage auf Anfrage') : (item.price || 'Honorar auf Anfrage')}</span>
+                            <span>${budgetDisplay}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-plug" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${item.equipment || 'Technik vorhanden'}</span>
+                            <span>${techDisplayStr}</span>
                         </div>
                     </div>
 
