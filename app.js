@@ -380,6 +380,7 @@ const initialEvents = [
         id: "evt_1",
         name: "Traumhochzeit am See",
         type: "Wedding",
+        organizerType: "Privater Veranstalter",
         date: "2026-08-15",
         location: "Stuttgart",
         genres: ["Pop", "Klassik"],
@@ -398,6 +399,7 @@ const initialEvents = [
         id: "evt_2",
         name: "Sommerfestival Stadtstrand",
         type: "Festival",
+        organizerType: "Festivalveranstalter",
         date: "2026-09-05",
         location: "MÜnchen",
         genres: ["Electro", "Pop"],
@@ -416,6 +418,7 @@ const initialEvents = [
         id: "evt_3",
         name: "Firmenjubiläum TechCorp",
         type: "Corporate",
+        organizerType: "Firma",
         date: "2026-10-20",
         location: "Nürnberg",
         genres: ["Jazz", "Pop", "Rock"],
@@ -1171,6 +1174,7 @@ class StateManager {
             firstName,
             lastName: "Gast",
             company: "Privatperson",
+            organizerType: role === "organizer" ? "Privater Veranstalter" : "",
             phone: "+49 170 1234567",
             email,
             password: "pass123",
@@ -1275,6 +1279,7 @@ class StateManager {
             firstName: payload.firstName,
             lastName: payload.lastName,
             company: payload.company || "Privatperson",
+            organizerType: payload.organizerType || "",
             phone: payload.phone,
             email: payload.email,
             password: payload.password,
@@ -1306,6 +1311,7 @@ class StateManager {
             firstName: user.firstName,
             lastName: user.lastName,
             company: user.company || "Privatperson",
+            organizerType: user.organizerType || "",
             phone: user.phone,
             profileId: user.profileId,
             isPremium: user.isPremium,
@@ -1373,6 +1379,7 @@ class StateManager {
                 description: data.orgDescription,
                 technik: data.orgTechnik ? data.orgTechnik.join(', ') : "Weiß ich noch nicht",
                 company: user.company || "Privatperson",
+                organizerType: data.organizerType || "",
                 contactName: `${user.firstName} ${user.lastName}`,
                 phone: user.phone,
                 email: user.email,
@@ -1388,6 +1395,7 @@ class StateManager {
             firstName: user.firstName,
             lastName: user.lastName,
             company: user.company || "Privatperson",
+            organizerType: user.organizerType || "",
             phone: user.phone,
             email: user.email,
             isPremium: user.isPremium,
@@ -1546,6 +1554,7 @@ class StateManager {
         this.currentUser.firstName = updatedData.firstName;
         this.currentUser.lastName = updatedData.lastName;
         this.currentUser.company = updatedData.company || "Privatperson";
+        this.currentUser.organizerType = updatedData.organizerType || "";
         this.currentUser.phone = updatedData.phone;
         this.currentUser.email = updatedData.email;
         
@@ -1556,6 +1565,7 @@ class StateManager {
             registeredUsers[index].firstName = this.currentUser.firstName;
             registeredUsers[index].lastName = this.currentUser.lastName;
             registeredUsers[index].company = this.currentUser.company;
+            registeredUsers[index].organizerType = this.currentUser.organizerType;
             registeredUsers[index].phone = this.currentUser.phone;
             registeredUsers[index].email = this.currentUser.email;
             if (updatedData.password) {
@@ -1576,6 +1586,7 @@ class StateManager {
         this.events.forEach(e => {
             if (e.creatorId === this.currentUser.id) {
                 e.company = this.currentUser.company;
+                e.organizerType = this.currentUser.organizerType || "";
                 e.contactName = `${this.currentUser.firstName} ${this.currentUser.lastName}`;
                 e.phone = this.currentUser.phone;
                 e.email = this.currentUser.email;
@@ -4032,6 +4043,7 @@ function renderMatchesPage(container) {
                         contactPanelHtml = `
                             <div class="contact-details-box" style="margin-top: 0.5rem; padding: 0.6rem; border: 1px solid rgba(56, 239, 125, 0.2); background: rgba(56, 239, 125, 0.03); border-radius: var(--radius-sm); font-size: 0.75rem; text-align: left; display: flex; flex-direction: column; gap: 0.3rem;">
                                 ${item.company ? `<div class="contact-line" style="word-break: break-all;"><i class="fa-solid fa-building" style="color:var(--color-cyan);"></i> ${item.company}</div>` : ''}
+                                ${item.organizerType ? `<div class="contact-line" style="word-break: break-all;"><i class="fa-solid fa-user-tie" style="color:var(--color-cyan);"></i> ${item.organizerType}</div>` : ''}
                                 <div class="contact-line" style="word-break: break-all;"><i class="fa-solid fa-user" style="color:var(--color-cyan);"></i> ${item.contactName}</div>
                                 <div class="contact-line" style="word-break: break-all;"><i class="fa-solid fa-phone" style="color:var(--color-cyan);"></i> ${item.phone}</div>
                                 <div class="contact-line" style="word-break: break-all;"><i class="fa-solid fa-envelope" style="color:var(--color-cyan);"></i> ${item.email}</div>
@@ -5709,6 +5721,25 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <input type="text" name="company" class="input-field" maxlength="30" placeholder="Firma oder Privatperson" required>
                     </div>
 
+                    <div class="form-group hidden" id="reg-organizer-type-container">
+                        <label>Veranstalter-Typ</label>
+                        <select name="organizerType" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                            <option value="" disabled selected>Veranstalter-Typ auswählen</option>
+                            <option value="Privater Veranstalter">Privater Veranstalter</option>
+                            <option value="Event-Agentur">Event-Agentur</option>
+                            <option value="Hochzeitsplaner">Hochzeitsplaner</option>
+                            <option value="Eventlocation">Eventlocation</option>
+                            <option value="Firma">Firma</option>
+                            <option value="Hotel">Hotel</option>
+                            <option value="Restaurant">Restaurant</option>
+                            <option value="Bar">Bar</option>
+                            <option value="Stadtmarketing">Stadtmarketing</option>
+                            <option value="Festivalveranstalter">Festivalveranstalter</option>
+                            <option value="Verein">Verein</option>
+                            <option value="Sonstige">Sonstige</option>
+                        </select>
+                    </div>
+
                     <div class="form-group">
                         <label>Vor- und Nachname</label>
                         <input type="text" name="fullName" id="input-reg-fullname" class="input-field" maxlength="30" placeholder="z.B. Max Mustermann" required>
@@ -6006,6 +6037,13 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             const consentChk = sepaContainer.querySelector('input[name="sepaConsent"]');
             if (consentChk) consentChk.setAttribute('required', '');
         }
+
+        const orgTypeContainer = document.getElementById('reg-organizer-type-container');
+        if (orgTypeContainer) {
+            orgTypeContainer.classList.add('hidden');
+            const selectEl = orgTypeContainer.querySelector('select');
+            if (selectEl) selectEl.removeAttribute('required');
+        }
         
         toggleRequired(fieldsMus, true);
         toggleRequired(fieldsOrg, false);
@@ -6033,6 +6071,13 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             sepaContainer.classList.add('hidden');
             const consentChk = sepaContainer.querySelector('input[name="sepaConsent"]');
             if (consentChk) consentChk.removeAttribute('required');
+        }
+
+        const orgTypeContainer = document.getElementById('reg-organizer-type-container');
+        if (orgTypeContainer) {
+            orgTypeContainer.classList.remove('hidden');
+            const selectEl = orgTypeContainer.querySelector('select');
+            if (selectEl) selectEl.setAttribute('required', '');
         }
         
         toggleRequired(fieldsOrg, true);
@@ -6588,6 +6633,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             firstName: firstName,
             lastName: lastName,
             company: registerForm.elements.company.value,
+            organizerType: selectedRole === 'organizer' ? registerForm.elements.organizerType.value : '',
             phone: cleanPhone,
             email: email,
             password: ""
@@ -7634,6 +7680,12 @@ function renderMarketGridHTML(items, isEvents) {
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
                             <span>${item.location || 'Deutschlandweit'}</span>
                         </div>
+                        ${isEvents && item.organizerType ? `
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-user-tie" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
+                            <span>${item.organizerType}</span>
+                        </div>
+                        ` : ''}
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid ${isEvents ? 'fa-calendar-alt' : 'fa-guitar'}" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
                             <span>${isEvents ? (item.eventType || 'Event') : (item.category || 'Solo / Band')}</span>
