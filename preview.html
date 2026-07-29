@@ -68,7 +68,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;
+    overflow-x: clip;
     /* Soft background glowing spots */
     background-image: 
         radial-gradient(circle at 10% 20%, rgba(0, 242, 254, 0.05) 0%, transparent 40%),
@@ -3799,22 +3799,11 @@ body {
 
 /* Prevent horizontal scroll globally on iOS and android */
 html {
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100%;
 }
 
-/* Card click pointer-events helper to ensure clicking text or icons bubbles to the card container */
-.market-tile-card * {
-    pointer-events: none;
-}
 
-.market-tile-card button,
-.market-tile-card .btn,
-.market-tile-card .tile-action-container,
-.market-tile-card .tile-fullwidth-photo-slider button,
-.market-tile-card .tile-fullwidth-photo-slider i {
-    pointer-events: auto;
-}
 
 /* Enforce strict styling and appearance resets on all input elements inside filters to avoid mobile/Safari layout issues */
 .market-filter-card input[type="date"],
@@ -4014,6 +4003,51 @@ input[type="range"].input-field {
     opacity: 1 !important;
     visibility: visible !important;
     pointer-events: auto !important;
+}
+
+/* Custom styling for the filter calendar days */
+.filter-cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #334155;
+    background: transparent;
+    user-select: none;
+}
+
+.filter-cal-day:hover:not(.empty):not(.selected) {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+/* Event-Markt uses theme-musician (purple), Musiker-Markt uses theme-organizer (blue) */
+.theme-musician .filter-cal-day.selected {
+    background: #7c3aed !important;
+    color: #ffffff !important;
+}
+
+.theme-organizer .filter-cal-day.selected {
+    background: #2563eb !important;
+    color: #ffffff !important;
+}
+
+.filter-cal-day.empty {
+    cursor: default;
+    pointer-events: none;
+}
+
+.filter-calendar-widget {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
 }
 </style>
 </head>
@@ -6890,6 +6924,9 @@ function renderMarket(container, type, onNavigate) {
     const title = isEvents ? 'Event-Markt für Musiker' : 'Musiker-Markt für Veranstalter';
 
     const items = isEvents ? state.events : state.musicians;
+    
+    let selectedFilterDates = [];
+    let currentFilterCalDate = new Date(2026, 6, 1); // July 2026
 
     container.innerHTML = `
         <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1rem 5rem; box-sizing: border-box;">
@@ -6948,8 +6985,19 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Datum</label>
-                                <input type="date" id="filter-date" class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Datum / Kalender</label>
+                                <div class="filter-calendar-widget" id="filter-calendar-widget">
+                                    <div class="filter-calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <button type="button" class="btn-cal-prev" id="btn-filter-cal-prev" style="background: none; border: none; cursor: pointer; color: #64748b; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-chevron-left"></i></button>
+                                        <span id="filter-calendar-month-year" style="font-weight: 800; font-size: 0.85rem; color: #0f172a;">Juli 2026</span>
+                                        <button type="button" class="btn-cal-next" id="btn-filter-cal-next" style="background: none; border: none; cursor: pointer; color: #64748b; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-chevron-right"></i></button>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 0.35rem;">
+                                        <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
+                                    </div>
+                                    <div id="filter-calendar-days-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;"></div>
+                                    <div id="filter-selected-dates-preview" style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem;"></div>
+                                </div>
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
@@ -7062,8 +7110,19 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Datum</label>
-                                <input type="date" id="filter-date-m" class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Datum / Kalender</label>
+                                <div class="filter-calendar-widget" id="filter-calendar-widget">
+                                    <div class="filter-calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <button type="button" class="btn-cal-prev" id="btn-filter-cal-prev" style="background: none; border: none; cursor: pointer; color: #64748b; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-chevron-left"></i></button>
+                                        <span id="filter-calendar-month-year" style="font-weight: 800; font-size: 0.85rem; color: #0f172a;">Juli 2026</span>
+                                        <button type="button" class="btn-cal-next" id="btn-filter-cal-next" style="background: none; border: none; cursor: pointer; color: #64748b; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-chevron-right"></i></button>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 0.35rem;">
+                                        <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
+                                    </div>
+                                    <div id="filter-calendar-days-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;"></div>
+                                    <div id="filter-selected-dates-preview" style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem;"></div>
+                                </div>
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
@@ -7299,27 +7358,28 @@ function renderMarket(container, type, onNavigate) {
             list = list.filter(item => (item.location || '').toLowerCase().includes(locInput));
         }
 
-        // 1.5. Datum Filter (Date Filter)
-        const dateVal = container.querySelector(isEvents ? '#filter-date' : '#filter-date-m')?.value;
-        if (dateVal) {
+        // 1.5. Datum Filter (Date Filter) - Multi-Date selection
+        if (selectedFilterDates && selectedFilterDates.length > 0) {
             list = list.filter(item => {
                 if (isEvents) {
-                    return item.date === dateVal;
+                    return selectedFilterDates.includes(item.date);
                 } else {
                     if (!item.availability) return true;
-                    if (Array.isArray(item.availability)) {
-                        if (item.availability.includes(dateVal)) return true;
-                        const weekday = getWeekdayFromDate(dateVal);
-                        return item.availability.includes(weekday);
-                    } else if (typeof item.availability === 'object') {
-                        const isModified = item.availability.modifiedDates && item.availability.modifiedDates.includes(dateVal);
-                        if (item.availability.defaultState === 'all-selected') {
-                            return !isModified;
-                        } else {
-                            return isModified;
+                    return selectedFilterDates.some(dateVal => {
+                        if (Array.isArray(item.availability)) {
+                            if (item.availability.includes(dateVal)) return true;
+                            const weekday = getWeekdayFromDate(dateVal);
+                            return item.availability.includes(weekday);
+                        } else if (typeof item.availability === 'object') {
+                            const isModified = item.availability.modifiedDates && item.availability.modifiedDates.includes(dateVal);
+                            if (item.availability.defaultState === 'all-selected') {
+                                return !isModified;
+                            } else {
+                                return isModified;
+                            }
                         }
-                    }
-                    return true;
+                        return true;
+                    });
                 }
             });
         }
@@ -7461,9 +7521,95 @@ function renderMarket(container, type, onNavigate) {
         el.addEventListener('input', applyAllFiltersAndSort);
     });
 
-    container.querySelectorAll('input[type="date"]').forEach(el => {
-        el.addEventListener('change', applyAllFiltersAndSort);
+    // Filter Calendar Widget Rendering and Logic
+    function renderFilterCalendar() {
+        const calendarDaysGrid = container.querySelector('#filter-calendar-days-grid');
+        const calendarMonthYear = container.querySelector('#filter-calendar-month-year');
+        if (!calendarDaysGrid || !calendarMonthYear) return;
+
+        const year = currentFilterCalDate.getFullYear();
+        const month = currentFilterCalDate.getMonth();
+
+        const monthNames = [
+            "Januar", "Februar", "März", "April", "Mai", "Juni",
+            "Juli", "August", "September", "Oktober", "November", "Dezember"
+        ];
+        calendarMonthYear.textContent = `${monthNames[month]} ${year}`;
+
+        const firstDayIndex = new Date(year, month, 1).getDay(); // 0 Sunday, 1 Monday...
+        const adjustedFirstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+        const totalDays = new Date(year, month + 1, 0).getDate();
+
+        let daysHtml = '';
+
+        for (let i = 0; i < adjustedFirstDayIndex; i++) {
+            daysHtml += `<div class="filter-cal-day empty"></div>`;
+        }
+
+        for (let day = 1; day <= totalDays; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const isSelected = selectedFilterDates.includes(dateStr);
+            daysHtml += `
+                <div class="filter-cal-day ${isSelected ? 'selected' : ''}" data-date="${dateStr}">
+                    ${day}
+                </div>
+            `;
+        }
+
+        calendarDaysGrid.innerHTML = daysHtml;
+
+        calendarDaysGrid.querySelectorAll('.filter-cal-day:not(.empty)').forEach(cell => {
+            cell.addEventListener('click', (e) => {
+                const dateVal = e.currentTarget.getAttribute('data-date');
+                const idx = selectedFilterDates.indexOf(dateVal);
+                if (idx > -1) {
+                    selectedFilterDates.splice(idx, 1);
+                } else {
+                    selectedFilterDates.push(dateVal);
+                }
+                renderFilterCalendar();
+                applyAllFiltersAndSort();
+            });
+        });
+
+        const previewContainer = container.querySelector('#filter-selected-dates-preview');
+        if (previewContainer) {
+            previewContainer.innerHTML = selectedFilterDates.map(d => {
+                const [y, m, dayVal] = d.split('-');
+                const formattedDate = `${dayVal}.${m}.`;
+                return `
+                    <span style="background: ${isEvents ? 'rgba(124, 58, 237, 0.1)' : 'rgba(37, 99, 235, 0.1)'}; color: ${isEvents ? '#7c3aed' : '#2563eb'}; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; user-select: none;">
+                        ${formattedDate}
+                        <i class="fa-solid fa-xmark remove-date-chip" data-date="${d}" style="cursor: pointer; font-size: 0.7rem;"></i>
+                    </span>
+                `;
+            }).join('');
+
+            previewContainer.querySelectorAll('.remove-date-chip').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const dateVal = e.currentTarget.getAttribute('data-date');
+                    const idx = selectedFilterDates.indexOf(dateVal);
+                    if (idx > -1) {
+                        selectedFilterDates.splice(idx, 1);
+                    }
+                    renderFilterCalendar();
+                    applyAllFiltersAndSort();
+                });
+            });
+        }
+    }
+
+    container.querySelector('#btn-filter-cal-prev')?.addEventListener('click', () => {
+        currentFilterCalDate.setMonth(currentFilterCalDate.getMonth() - 1);
+        renderFilterCalendar();
     });
+
+    container.querySelector('#btn-filter-cal-next')?.addEventListener('click', () => {
+        currentFilterCalDate.setMonth(currentFilterCalDate.getMonth() + 1);
+        renderFilterCalendar();
+    });
+
+    renderFilterCalendar();
 
     // Tag pill checkbox click handler for filters
     container.querySelectorAll('.tag-pill-checkbox input').forEach(input => {
@@ -7498,7 +7644,10 @@ function renderMarket(container, type, onNavigate) {
     }
 
     resetBtn?.addEventListener('click', () => {
-        container.querySelectorAll('input[type="text"], input[type="date"]').forEach(el => el.value = '');
+        container.querySelectorAll('input[type="text"]').forEach(el => el.value = '');
+        
+        selectedFilterDates = [];
+        renderFilterCalendar();
         
         container.querySelectorAll('.tag-pill-checkbox input').forEach(el => {
             el.checked = false;
@@ -9452,11 +9601,12 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <div class="form-group">
                             <label>Verfügbarkeiten</label>
                             <p style="font-size:0.7rem; color:var(--text-muted); margin-bottom: 0.5rem; line-height: 1.3;">
-                                Montag - Freitag ist standardmäßig von 18:00 – 23:59 Uhr und Samstag/Sonntag von 00:01 – 23:59 Uhr voreingestellt. Nicht benötigte Tage abwählen.
+                                Montag - Donnerstag ist standardmäßig von 18:00 – 23:59 Uhr, Freitag von 18:00 – 23:59 Uhr und Samstag/Sonntag von 00:01 – 23:59 Uhr voreingestellt. Nicht benötigte Tage abwählen.
                             </p>
                             <div class="availability-week-grid">
                                 ${[
-                                    { key: 'weekday', label: 'Montag - Freitag', defActive: true, minTime: '18:00', maxTime: '23:59' },
+                                    { key: 'mo_do', label: 'Montag - Donnerstag', defActive: true, minTime: '18:00', maxTime: '23:59' },
+                                    { key: 'fr', label: 'Freitag', defActive: true, minTime: '18:00', maxTime: '23:59' },
                                     { key: 'sa', label: 'Samstag', defActive: true, minTime: '00:01', maxTime: '23:59' },
                                     { key: 'so', label: 'Sonntag', defActive: true, minTime: '00:01', maxTime: '23:59' }
                                 ].map(day => `
@@ -10541,19 +10691,30 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             
             const availability = {};
             
-            // Weekday (Montag - Freitag) mapping
-            const weekdayChk = registerForm.querySelector('input[name="availDays"][value="weekday"]');
-            const isWeekdayChecked = weekdayChk ? weekdayChk.checked : false;
-            const weekdayStart = registerForm.querySelector('input[name="availStart_weekday"]')?.value || '18:00';
-            const weekdayEnd = registerForm.querySelector('input[name="availEnd_weekday"]')?.value || '23:59';
+            // Montag - Donnerstag mapping
+            const moDoChk = registerForm.querySelector('input[name="availDays"][value="mo_do"]');
+            const isMoDoChecked = moDoChk ? moDoChk.checked : false;
+            const moDoStart = registerForm.querySelector('input[name="availStart_mo_do"]')?.value || '18:00';
+            const moDoEnd = registerForm.querySelector('input[name="availEnd_mo_do"]')?.value || '23:59';
             
-            ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'].forEach(day => {
+            ['monday', 'tuesday', 'wednesday', 'thursday'].forEach(day => {
                 availability[day] = {
-                    available: isWeekdayChecked,
-                    startTime: isWeekdayChecked ? weekdayStart : '',
-                    endTime: isWeekdayChecked ? weekdayEnd : ''
+                    available: isMoDoChecked,
+                    startTime: isMoDoChecked ? moDoStart : '',
+                    endTime: isMoDoChecked ? moDoEnd : ''
                 };
             });
+
+            // Freitag mapping
+            const frChk = registerForm.querySelector('input[name="availDays"][value="fr"]');
+            const isFrChecked = frChk ? frChk.checked : false;
+            const frStart = registerForm.querySelector('input[name="availStart_fr"]')?.value || '18:00';
+            const frEnd = registerForm.querySelector('input[name="availEnd_fr"]')?.value || '23:59';
+            availability['friday'] = {
+                available: isFrChecked,
+                startTime: isFrChecked ? frStart : '',
+                endTime: isFrChecked ? frEnd : ''
+            };
             
             // Saturday mapping
             const saChk = registerForm.querySelector('input[name="availDays"][value="sa"]');
