@@ -3161,10 +3161,7 @@ function renderLandingPage(container, onNavigate) {
         ? `<button class="btn" id="btn-bottom-dashboard-trigger" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: 1.5px solid rgba(255,255,255,0.15); color: #ffffff; padding: 0.95rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 15px; box-shadow: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; white-space: nowrap;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
                <i class="fa-solid fa-gauge-high"></i> Mein Dashboard
            </button>`
-        : `<button class="btn btn-secondary btn-sm" id="btn-bottom-login-trigger" style="white-space: normal !important; line-height: 0.9 !important; padding: 0.55rem 1.4rem !important; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 12px; cursor: pointer; border: none; outline: none; margin: 0 auto;">
-               <span style="font-weight: 700; display: block; font-size: 1.05rem;">Anmelden/Registrieren</span>
-               <span style="font-weight: 700; display: block; font-size: 1.05rem; margin-top: -2px;">ohne Passwort</span>
-           </button>`;
+        : ``;
 
     container.innerHTML = `
         <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem; margin: 0; width: 100%;">
@@ -3604,9 +3601,11 @@ function renderLandingPage(container, onNavigate) {
             </div>
 
             <!-- 6. BOTTOM CALL-TO-ACTION SECTION -->
+            ${bottomCtaButtonHtml ? `
             <div style="max-width: 1400px; margin: 16rem auto 0; padding: 0 1.5rem; text-align: center;">
                 ${bottomCtaButtonHtml}
             </div>
+            ` : ''}
 
             <!-- 7. FOOTER / IMPRESSUM -->
             <footer style="margin-top: 10rem; border-top: 1px solid var(--border-glass); padding: 4rem 1.5rem; text-align: center;">
@@ -7904,8 +7903,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     };
     wrapper.innerHTML = `
         <div class="modal-content">
-            <div class="modal-header">
-                <h3>Anmelden ohne Passwort</h3>
+            <div class="modal-header" style="flex-direction: column; padding: 1.5rem 2rem 1.2rem;">
+                <h3 style="line-height: 1.2; text-align: center; margin: 0; font-family: var(--font-heading); font-weight: 800; font-size: 1.35rem; width: 100%;">
+                    <span style="display: block;">Anmelden/Registrieren</span>
+                    <span style="display: block; font-size: 1.05rem; font-weight: 700; color: var(--color-purple); margin-top: 0.15rem;">ohne Passwort</span>
+                </h3>
                 <button class="close-modal-btn" id="btn-close-modal">&times;</button>
             </div>
             
@@ -9964,9 +9966,9 @@ function updateNavbar(forceLanding) {
     } else {
         nav.innerHTML = '';
         authArea.innerHTML = `
-            <button class="btn btn-secondary btn-sm" id="btn-login-trigger" style="white-space: normal !important; line-height: 0.9 !important; padding: 0.28rem 0.65rem !important; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 8px;">
-                <span style="font-weight: 700; display: block; font-size: 0.8rem;">Anmelden/Registrieren</span>
-                <span style="font-weight: 700; display: block; font-size: 0.8rem; margin-top: -1px;">ohne Passwort</span>
+            <button class="btn btn-secondary btn-sm" id="btn-login-trigger" style="white-space: nowrap !important; line-height: 1.15 !important; padding: 0.35rem 0.85rem !important; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 8px;">
+                <span style="font-weight: 700; display: block; font-size: 0.75rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Anmelden/Registrieren</span>
+                <span style="font-weight: 900; display: block; font-size: 1.12rem; color: var(--color-purple); text-shadow: 0 0 10px rgba(124,58,237,0.15); margin-top: 1px; letter-spacing: 2.2px;">ohne Passwort</span>
             </button>
         `;
         document.getElementById('btn-login-trigger').addEventListener('click', () => {
