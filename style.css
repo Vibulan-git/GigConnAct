@@ -152,6 +152,22 @@ body {
     background: rgba(255, 255, 255, 0.02);
 }
 
+.main-nav.nav-blue .nav-link.active {
+    border-bottom-color: var(--color-cyan) !important;
+    color: var(--color-cyan) !important;
+}
+.main-nav.nav-blue .nav-link:hover {
+    color: var(--color-cyan) !important;
+}
+
+.main-nav.nav-purple .nav-link.active {
+    border-bottom-color: var(--color-purple) !important;
+    color: var(--color-purple) !important;
+}
+.main-nav.nav-purple .nav-link:hover {
+    color: var(--color-purple) !important;
+}
+
 .auth-area {
     display: flex;
     align-items: center;
@@ -3470,17 +3486,17 @@ body {
  * Responsive Market Filter Styles (Collapsible on Mobile)
  * ------------------------------------------------------------- */
 .theme-musician {
-    --market-primary: #7c3aed;
-    --market-primary-rgb: 124, 58, 237;
-    --market-accent: #a855f7;
-    --market-arrow-svg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%237c3aed' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-}
-
-.theme-organizer {
     --market-primary: #2563eb;
     --market-primary-rgb: 37, 99, 235;
     --market-accent: #3b82f6;
     --market-arrow-svg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%232563eb' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+.theme-organizer {
+    --market-primary: #7c3aed;
+    --market-primary-rgb: 124, 58, 237;
+    --market-accent: #a855f7;
+    --market-arrow-svg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%237c3aed' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 }
 
 .market-controls-row {
@@ -3605,13 +3621,13 @@ body {
 
 /* Force dark text and theme-based headings inside the white filter card globally */
 .theme-organizer .market-filter-card label {
-    color: #1e3a8a !important; /* Dunkelblau / Dark navy blue */
+    color: #5b21b6 !important; /* Dunkellila / Dark purple */
     font-weight: 900 !important;
     display: block;
     font-size: 0.85rem;
 }
 .theme-musician .market-filter-card label {
-    color: #5b21b6 !important; /* Dunkellila / Dark purple */
+    color: #1e3a8a !important; /* Dunkelblau / Dark navy blue */
     font-weight: 900 !important;
     display: block;
     font-size: 0.85rem;
@@ -3627,12 +3643,10 @@ body {
 
 /* Specific slider value display spans in theme colors */
 .theme-organizer .market-filter-card .slider-value-display span {
-    color: #1e3a8a !important;
-    font-weight: 700 !important;
+    color: #5b21b6 !important;
 }
 .theme-musician .market-filter-card .slider-value-display span {
-    color: #5b21b6 !important;
-    font-weight: 700 !important;
+    color: #1e3a8a !important;
 }
 
 /* Keep tag pills looking great on white background globally (White inactive background) */
@@ -3777,31 +3791,31 @@ body {
 }
 
 /* Specific theme overrides to bust global !important styles */
-.theme-organizer .btn-primary,
-.theme-organizer .btn-secondary {
+.theme-musician .btn-primary,
+.theme-musician .btn-secondary {
     background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
     border-color: #1e40af !important;
     color: #ffffff !important;
     box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
 }
 
-.theme-organizer .btn-primary:hover,
-.theme-organizer .btn-secondary:hover {
+.theme-musician .btn-primary:hover,
+.theme-musician .btn-secondary:hover {
     background: #1d4ed8 !important;
     color: #ffffff !important;
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
 }
 
-.theme-musician .btn-primary,
-.theme-musician .btn-secondary {
+.theme-organizer .btn-primary,
+.theme-organizer .btn-secondary {
     background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
     border-color: #7c3aed !important;
     color: #ffffff !important;
     box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35) !important;
 }
 
-.theme-musician .btn-primary:hover,
-.theme-musician .btn-secondary:hover {
+.theme-organizer .btn-primary:hover,
+.theme-organizer .btn-secondary:hover {
     background: #6d28d9 !important;
     color: #ffffff !important;
     box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25) !important;
@@ -3851,15 +3865,17 @@ html {
     padding: 0.8rem 1.4rem !important; /* shifted inwards! */
     margin: 0.6rem 0.6rem 1rem 0.6rem !important; /* floated/rounded capsule look */
     box-sizing: border-box !important;
-    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
-    border: 2px solid #60a5fa !important;
-    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.45) !important;
     border-radius: 12px !important;
     color: #ffffff !important;
 }
 
-/* Purple theme override for Event-Markt filters */
 .theme-musician .filter-header-sticky {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
+    border: 2px solid #60a5fa !important;
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.45) !important;
+}
+
+.theme-organizer .filter-header-sticky {
     background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
     border: 2px solid #a78bfa !important;
     box-shadow: 0 8px 25px rgba(124, 58, 237, 0.45) !important;
@@ -3905,16 +3921,16 @@ html {
         width: 32px;
         height: 32px;
         border-radius: 50%;
-        background: rgba(0, 0, 0, 0.08) !important;
-        border: 1px solid rgba(0, 0, 0, 0.1) !important;
-        color: #334155 !important;
+        background: rgba(255, 255, 255, 0.12) !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        color: #ffffff !important;
         font-size: 1.1rem !important;
         cursor: pointer;
         transition: background 0.2s, color 0.2s;
     }
     .btn-close-filters-m:hover {
-        background: rgba(0, 0, 0, 0.12) !important;
-        color: #0f172a !important;
+        background: rgba(255, 255, 255, 0.24) !important;
+        color: #ffffff !important;
     }
 }
 
@@ -3954,12 +3970,12 @@ input[type="range"].input-field {
 }
 
 .theme-musician .market-sort-container-round {
-    background: rgba(124, 58, 237, 0.08) !important;
-    border: 1.5px solid rgba(124, 58, 237, 0.25) !important;
-}
-.theme-organizer .market-sort-container-round {
     background: rgba(37, 99, 235, 0.08) !important;
     border: 1.5px solid rgba(37, 99, 235, 0.25) !important;
+}
+.theme-organizer .market-sort-container-round {
+    background: rgba(124, 58, 237, 0.08) !important;
+    border: 1.5px solid rgba(124, 58, 237, 0.25) !important;
 }
 
 /* Backdrop blur overlay for mobile filters drawer */
@@ -3979,10 +3995,12 @@ input[type="range"].input-field {
     pointer-events: none;
 }
 
-.market-filter-card.open ~ .market-filters-overlay {
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
+@media (max-width: 900px) {
+    .market-filter-card.open ~ .market-filters-overlay {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
 }
 
 /* Custom styling for the filter calendar days */
@@ -4008,12 +4026,12 @@ input[type="range"].input-field {
 
 /* Event-Markt uses theme-musician (purple), Musiker-Markt uses theme-organizer (blue) */
 .theme-musician .filter-cal-day.selected {
-    background: #7c3aed !important;
+    background: #2563eb !important;
     color: #ffffff !important;
 }
 
 .theme-organizer .filter-cal-day.selected {
-    background: #2563eb !important;
+    background: #7c3aed !important;
     color: #ffffff !important;
 }
 
@@ -4290,19 +4308,19 @@ input[type="range"].input-field {
     color: var(--text-muted);
 }
 
-/* Purple theme (organizer) for Musiker-Markt filters */
-.theme-organizer .market-controls-row {
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.92) 100%) !important;
-    border: 2px solid rgba(167, 139, 250, 0.6) !important;
-    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.45) !important;
-    color: #ffffff !important;
-}
-
 /* Blue theme (musician) for Event-Markt filters */
 .theme-musician .market-controls-row {
     background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.92) 100%) !important;
     border: 2px solid rgba(96, 165, 250, 0.6) !important;
     box-shadow: 0 8px 25px rgba(37, 99, 235, 0.45) !important;
+    color: #ffffff !important;
+}
+
+/* Purple theme (organizer) for Musiker-Markt filters */
+.theme-organizer .market-controls-row {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.92) 100%) !important;
+    border: 2px solid rgba(167, 139, 250, 0.6) !important;
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.45) !important;
     color: #ffffff !important;
 }
 
