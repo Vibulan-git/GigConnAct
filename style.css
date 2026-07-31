@@ -1839,24 +1839,36 @@ body {
     justify-content: center;
     cursor: pointer;
     border: 1px solid var(--border-glass);
-    background: rgba(255,255,255,0.05);
-    color: var(--text-main);
-    font-size: 1.3rem;
     transition: all var(--transition-fast);
+    font-size: 1.3rem;
 }
 
-
-.profile-avatar-btn:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: var(--color-cyan);
-    color: var(--color-cyan);
-    box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+/* Musicians: Profile avatar button is blue */
+.profile-avatar-btn.profile-avatar-blue {
+    background: rgba(37, 99, 235, 0.06) !important;
+    color: #3b82f6 !important;
+    border-color: rgba(37, 99, 235, 0.25) !important;
+}
+.profile-avatar-btn.profile-avatar-blue:hover,
+.profile-avatar-btn.profile-avatar-blue.active {
+    background: rgba(37, 99, 235, 0.12) !important;
+    border-color: #2563eb !important;
+    color: #2563eb !important;
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.3) !important;
 }
 
-.profile-avatar-btn.musician-avatar:hover {
-    border-color: var(--color-purple);
-    color: var(--color-purple);
-    box-shadow: 0 0 10px rgba(177, 0, 255, 0.2);
+/* Organizers: Profile avatar button is purple/lila */
+.profile-avatar-btn.profile-avatar-purple {
+    background: rgba(168, 85, 247, 0.06) !important;
+    color: #a855f7 !important;
+    border-color: rgba(168, 85, 247, 0.25) !important;
+}
+.profile-avatar-btn.profile-avatar-purple:hover,
+.profile-avatar-btn.profile-avatar-purple.active {
+    background: rgba(168, 85, 247, 0.12) !important;
+    border-color: #8b5cf6 !important;
+    color: #8b5cf6 !important;
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.3) !important;
 }
 
 .profile-dropdown-menu {
@@ -1902,11 +1914,16 @@ body {
 
 .profile-dropdown-item:hover {
     background: rgba(255,255,255,0.05);
-    color: var(--color-cyan);
 }
 
-.profile-dropdown-item.musician-item:hover {
-    color: var(--color-purple);
+.profile-dropdown-item.profile-dropdown-blue:hover,
+.profile-dropdown-item.profile-dropdown-blue.active {
+    color: var(--color-cyan) !important;
+}
+
+.profile-dropdown-item.profile-dropdown-purple:hover,
+.profile-dropdown-item.profile-dropdown-purple.active {
+    color: var(--color-purple) !important;
 }
 
 .profile-dropdown-divider {

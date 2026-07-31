@@ -10004,7 +10004,7 @@ function updateNavbar(forceLanding) {
                 </button>
                 
                 <div class="profile-dropdown-container">
-                    <button class="profile-avatar-btn ${u.role === 'musician' ? 'musician-avatar' : ''} ${isProfileActive ? 'active' : ''}" id="btn-profile-dropdown" aria-label="Benutzermenü" style="${isProfileActive ? 'border-color: var(--color-purple); color: var(--color-purple); box-shadow: 0 0 10px rgba(177, 0, 255, 0.2);' : ''}">
+                    <button class="profile-avatar-btn ${u.role === 'musician' ? 'profile-avatar-blue' : 'profile-avatar-purple'} ${isProfileActive ? 'active' : ''}" id="btn-profile-dropdown" aria-label="Benutzermenü">
                         <i class="fa-regular fa-circle-user"></i>
                     </button>
                     <div class="profile-dropdown-menu" id="profile-dropdown-menu">
@@ -10012,7 +10012,7 @@ function updateNavbar(forceLanding) {
                             <div style="font-size:0.8rem; font-weight:700;">${u.firstName} ${u.lastName}</div>
                             <div style="font-size:0.7rem; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; max-width:150px;">${u.email}</div>
                         </div>
-                        <a href="#/profile" class="profile-dropdown-item ${u.role === 'musician' ? 'musician-item' : ''} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile">
+                        <a href="#/profile" class="profile-dropdown-item ${u.role === 'musician' ? 'profile-dropdown-blue' : 'profile-dropdown-purple'} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile">
                             <i class="fa-solid fa-user-gear"></i> Profil bearbeiten
                         </a>
                         <div class="profile-dropdown-divider"></div>
