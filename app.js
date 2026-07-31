@@ -1,18 +1,136 @@
 var state = null;
 
+const mockPhotoUrls = [
+    'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1484755560693-a4074577af3a?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80'
+];
+
+const mockVideoSources = [
+    { title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' },
+    { title: 'Auftritt Showreel & Trailer', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },
+    { title: 'Unplugged Live Session', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' }
+];
+
+window.registrationMedia = {
+    musician: {
+        photos: ['https://picsum.photos/id/453/400/300'],
+        videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
+    },
+    organizer: {
+        photos: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'],
+        videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
+    }
+};
+
+window.updateRegMediaPreview = function(role) {
+    const photosContainer = document.getElementById(`reg-${role}-photos-preview`);
+    const videosContainer = document.getElementById(`reg-${role}-videos-preview`);
+    if (!photosContainer || !videosContainer) return;
+
+    const photos = window.registrationMedia[role].photos;
+    const videos = window.registrationMedia[role].videos;
+
+    photosContainer.innerHTML = photos.length === 0 
+        ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Bilder hinzugefügt</span>`
+        : photos.map((p, idx) => `
+            <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
+                <button type="button" onclick="window.deleteRegMedia('${role}', 'photo', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+            </div>
+        `).join('');
+
+    videosContainer.innerHTML = videos.length === 0
+        ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Videos hinzugefügt</span>`
+        : videos.map((v, idx) => `
+            <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;" title="${v.title}">
+                <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.1rem;"></i>
+                <button type="button" onclick="window.deleteRegMedia('${role}', 'video', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+            </div>
+        `).join('');
+};
+
+window.addRegMedia = function(role, type) {
+    const list = window.registrationMedia[role][type === 'photo' ? 'photos' : 'videos'];
+    const limit = type === 'photo' ? 3 : 1;
+    if (list.length >= limit) {
+        showToast({
+            title: type === 'photo' ? "Bilder-Limit erreicht 📷" : "Video-Limit erreicht 🎬",
+            message: type === 'photo' ? "Es sind maximal 3 Bilder erlaubt." : "Es ist maximal 1 Video erlaubt."
+        });
+        return;
+    }
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    if (type === 'photo') {
+        fileInput.accept = 'image/png, image/jpeg, image/gif, image/webp';
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                validateAndProcessPhoto(fileInput.files[0], (dataUrl) => {
+                    list.push(dataUrl);
+                    window.updateRegMediaPreview(role);
+                });
+            }
+        });
+    } else {
+        fileInput.accept = 'video/mp4, video/quicktime, video/webm, video/ogg, video/x-matroska';
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                validateAndProcessVideo(fileInput.files[0], (videoUrl) => {
+                    list.push(videoUrl);
+                    window.updateRegMediaPreview(role);
+                });
+            }
+        });
+    }
+    fileInput.style.display = 'none';
+    fileInput.click();
+};
+
+window.deleteRegMedia = function(role, type, idx) {
+    const list = window.registrationMedia[role][type === 'photo' ? 'photos' : 'videos'];
+    list.splice(idx, 1);
+    window.updateRegMediaPreview(role);
+};
+
 window.slideComboGallery = function(itemId, direction) {
     const s = document.getElementById('combo-slider-' + itemId);
     if (!s) return;
+    const slidesCount = s.children.length;
+    if (slidesCount <= 0) return;
     let cur = parseInt(s.getAttribute('data-idx') || '0');
-    cur = (cur + direction + 6) % 6;
+    cur = (cur + direction + slidesCount) % slidesCount;
     s.style.transform = 'translateX(-' + (cur * 100) + '%)';
     s.setAttribute('data-idx', cur);
     const counter = s.parentElement.querySelector('.tile-gallery-counter');
     if (counter) {
-        if (cur < 3) {
-            counter.innerText = (cur + 1) + ' / 3 Fotos';
+        const activeSlide = s.children[cur];
+        const isPhoto = activeSlide.querySelector('img');
+        const isVideo = activeSlide.querySelector('video');
+        if (isPhoto) {
+            let photoIdx = 1;
+            for (let i = 0; i < cur; i++) {
+                if (s.children[i].querySelector('img')) photoIdx++;
+            }
+            let totalPhotos = 0;
+            for (let i = 0; i < slidesCount; i++) {
+                if (s.children[i].querySelector('img')) totalPhotos++;
+            }
+            counter.innerText = '📷 ' + photoIdx + ' / ' + totalPhotos + ' Fotos';
+        } else if (isVideo) {
+            let videoIdx = 1;
+            for (let i = 0; i < cur; i++) {
+                if (s.children[i].querySelector('video')) videoIdx++;
+            }
+            let totalVideos = 0;
+            for (let i = 0; i < slidesCount; i++) {
+                if (s.children[i].querySelector('video')) totalVideos++;
+            }
+            counter.innerText = '🎬 Video ' + videoIdx + ' / ' + totalVideos;
         } else {
-            counter.innerText = 'Video ' + (cur - 2) + ' / 3';
+            counter.innerHTML = '📝 Beschreibung';
         }
     }
 };
@@ -170,11 +288,12 @@ const initialMusicians = [
         maxDuration: 4, // in hours
         minBudget: 1200,
         maxBudget: 2500, // EUR
-        eventTypes: ["Club", "Festival", "Corporate", "Wedding"],
+        eventTypes: ["Bar/Kneipe/Club", "Festival", "Firmenfeier", "Hochzeit – Party"],
         availability: ["Friday", "Saturday"],
         description: "Wir bringen jeden Dancefloor zum Glühen! Mit unserem einzigartigen Elektro-Pop Sound und Covers der 80er, 90er und heutigen Hits im modernen Gewand. Eigene PA- und Lichttechnik ist immer inklusive.",
         contactName: "Maximilian Schmidt",
         phone: "+49 176 12345678",
+        hidePhone: true,
         email: "contact@neonbeats.de",
         isPremium: false,
         credits: 50,
@@ -184,9 +303,9 @@ const initialMusicians = [
             instagram: "https://instagram.com/neonbeats"
         },
         photos: ["https://picsum.photos/id/453/400/300", "https://picsum.photos/id/280/400/300"],
-        videos: [],
+        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
         audio: [],
-        technik: "Technik vorhanden",
+        technik: ["Technik vorhanden"],
         applications: [
             { eventId: "evt_1", status: "booked" },
             { eventId: "evt_2", status: "contacted" },
@@ -206,11 +325,12 @@ const initialMusicians = [
         maxDuration: 3,
         minBudget: 450,
         maxBudget: 800,
-        eventTypes: ["Wedding", "Corporate", "Birthday"],
+        eventTypes: ["Hochzeit - Trauung", "Firmenfeier", "Geburtstag"],
         availability: ["Saturday", "Sunday"],
         description: "Elegante Hintergrundmusik am Klavier für Ihre Trauung, den Sektempfang oder ein festliches Dinner. Ich spiele sowohl klassische Meisterwerke als auch moderne Pop-Balladen im sanften Klavier-Arrangement. Keyboard bringe ich bei Bedarf mit.",
         contactName: "Clara Weber",
         phone: "+49 152 98765432",
+        hidePhone: true,
         email: "clara.piano@gmx.de",
         isPremium: false,
         socialLinks: {
@@ -219,9 +339,9 @@ const initialMusicians = [
             instagram: "https://instagram.com/clara_lichtblick"
         },
         photos: ["https://picsum.photos/id/1082/400/300"],
-        videos: [],
+        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
         audio: [],
-        technik: "Technik nicht vorhanden"
+        technik: ["Technik nicht vorhanden"]
     },
     {
         id: "mus_3",
@@ -236,11 +356,12 @@ const initialMusicians = [
         maxDuration: 8,
         minBudget: 850,
         maxBudget: 1500,
-        eventTypes: ["Club", "Corporate", "Wedding", "Birthday"],
+        eventTypes: ["Bar/Kneipe/Club", "Firmenfeier", "Hochzeit – Party", "Geburtstag"],
         availability: ["Friday", "Saturday", "Sunday"],
         description: "Seit 10 Jahren als DJ auf Hochzeiten, Firmenfeiern und in Clubs unterwegs. Professionelle High-End Licht- und Tontechnik für Events bis 300 Personen bringe ich komplett selbst mit.",
         contactName: "Andreas Richter",
         phone: "+49 171 55566677",
+        hidePhone: true,
         email: "dj.soundwave@web.de",
         isPremium: true,
         socialLinks: {
@@ -249,9 +370,9 @@ const initialMusicians = [
             instagram: "https://instagram.com/dj_soundwave"
         },
         photos: ["https://picsum.photos/id/342/400/300"],
-        videos: [],
+        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
         audio: [],
-        technik: "Technik vorhanden"
+        technik: ["Technik vorhanden"]
     },
     {
         id: "mus_4",
@@ -266,11 +387,12 @@ const initialMusicians = [
         maxDuration: 3.5,
         minBudget: 700,
         maxBudget: 1200,
-        eventTypes: ["Wedding", "Corporate", "Birthday", "Festival"],
+        eventTypes: ["Hochzeit - Trauung", "Firmenfeier", "Geburtstag", "Festival"],
         availability: ["Saturday", "Sunday", "Thursday"],
         description: "Zweistimmiger Gesang, feine Akustikgitarren-Klänge und sanfte Rhythmen. Wir bieten den perfekten Soundtrack für chillige Sommerevents, Gartenpartys oder romantische Trauungen. Kompakte Akustikanlage ist vorhanden.",
         contactName: "Sarah & Ben",
         phone: "+49 160 88877799",
+        hidePhone: true,
         email: "acoustic.breeze@outlook.de",
         isPremium: true,
         socialLinks: {
@@ -279,9 +401,9 @@ const initialMusicians = [
             instagram: "https://instagram.com/acoustic_breeze"
         },
         photos: ["https://picsum.photos/id/325/400/300"],
-        videos: [],
+        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
         audio: [],
-        technik: "Technik vorhanden"
+        technik: ["Technik vorhanden"]
     },
     {
         id: "mus_5",
@@ -296,11 +418,12 @@ const initialMusicians = [
         maxDuration: 5,
         minBudget: 1800,
         maxBudget: 3000,
-        eventTypes: ["Club", "Festival", "Corporate"],
+        eventTypes: ["Bar/Kneipe/Club", "Festival", "Firmenfeier"],
         availability: ["Friday", "Saturday"],
         description: "Echte Rock-Klassiker und harte Riffs von AC/DC bis Led Zeppelin. Wir spielen 100% live, energetisch und laut. Ton- und Lichtanlage (PA) müssen vom Veranstalter gestellt werden.",
         contactName: "Thorsten Müller",
         phone: "+49 170 44433322",
+        hidePhone: true,
         email: "info@blackwood-rock.de",
         isPremium: true,
         socialLinks: {
@@ -309,9 +432,9 @@ const initialMusicians = [
             instagram: "https://instagram.com/blackwood_rock"
         },
         photos: ["https://picsum.photos/id/109/400/300"],
-        videos: [],
+        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
         audio: [],
-        technik: "Technik nicht vorhanden"
+        technik: ["Technik nicht vorhanden"]
     },
     {
         id: "mus_6",
@@ -326,7 +449,7 @@ const initialMusicians = [
         maxDuration: 3,
         minBudget: 350,
         maxBudget: 600,
-        eventTypes: ["Gartenparty", "Corporate", "Wedding", "Dinner"],
+        eventTypes: ["Sommerfest", "Firmenfeier", "Hochzeit – Party", "Jubiläum"],
         availability: ["Saturday", "Sunday", "Wednesday"],
         description: "Sinnliche Saxophonklänge und samtige Vocals. Begleitung beim Sektempfang, Dinnermusik oder als Live-Highlight zu Lounge-Beats. Professionelle, platzsparende Beschallungsanlage vorhanden.",
         contactName: "Leo Berg",
@@ -339,9 +462,9 @@ const initialMusicians = [
             instagram: "https://instagram.com/leo_sax_soul"
         },
         photos: ["https://picsum.photos/id/357/400/300"],
-        videos: [],
+        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
         audio: [],
-        technik: "Technik vorhanden"
+        technik: ["Technik vorhanden"]
     },
     {
         id: "mus_zero",
@@ -356,7 +479,7 @@ const initialMusicians = [
         maxDuration: 3,
         minBudget: 250,
         maxBudget: 250,
-        eventTypes: ["Birthday", "Wedding"],
+        eventTypes: ["Geburtstag", "Hochzeit – Party"],
         availability: ["Saturday", "Sunday"],
         description: "Demo-Musiker-Account mit 0 Credits zum Testen des Bezahlfensters.",
         contactName: "Leo Null",
@@ -366,9 +489,9 @@ const initialMusicians = [
         credits: 0,
         socialLinks: { spotify: "", youtube: "", instagram: "" },
         photos: ["https://picsum.photos/id/111/400/300"],
-        videos: [],
+        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
         audio: [],
-        technik: "Technik vorhanden"
+        technik: ["Technik vorhanden"]
     },
     {
         id: "mus_five",
@@ -383,7 +506,7 @@ const initialMusicians = [
         maxDuration: 4,
         minBudget: 500,
         maxBudget: 800,
-        eventTypes: ["Corporate", "Birthday"],
+        eventTypes: ["Firmenfeier", "Geburtstag"],
         availability: ["Friday", "Saturday"],
         description: "Demo-Musiker-Account mit 5 Credits zum Testen der Einzelfreischaltung.",
         contactName: "Fynn Fünf",
@@ -393,9 +516,9 @@ const initialMusicians = [
         credits: 5,
         socialLinks: { spotify: "", youtube: "", instagram: "" },
         photos: ["https://picsum.photos/id/280/400/300"],
-        videos: [],
+        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
         audio: [],
-        technik: "Technik muss noch geklärt werden"
+        technik: ["Technik nicht vorhanden"]
     }
 ];
 
@@ -403,9 +526,12 @@ const initialEvents = [
     {
         id: "evt_1",
         name: "Traumhochzeit am See",
-        type: "Wedding",
+        type: "Hochzeit - Trauung",
         organizerType: "Privater Veranstalter",
+        company: "Privatperson",
         date: "2026-08-15",
+        eventStartTime: "14:00",
+        eventEndTime: "17:00",
         location: "Köln",
         genres: ["Pop", "Klassik"],
         instruments: ["Klavier", "Gesang"],
@@ -419,17 +545,23 @@ const initialEvents = [
         description: "Für unsere kirchliche Trauung und den anschließenden Sektempfang direkt am See suchen wir eine gefühlvolle musikalische Untermalung (Klavier & Gesang). Gewünscht sind ca. 3 Lieder während der Zeremonie und 1.5 Stunden Hintergrundmusik beim Empfang.",
         contactName: "Julia & Michael",
         phone: "+49 173 11122233",
+        hidePhone: true,
         email: "julia.michael.wedding2026@gmail.com",
         isOnline: true,
         creatorId: "org_1",
-        technik: "Technik vorhanden"
+        technik: ["Technik vorhanden"],
+        photos: ["https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80"],
+        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
     },
     {
         id: "evt_2",
         name: "Sommerfestival Stadtstrand",
         type: "Festival",
         organizerType: "Festivalveranstalter",
+        company: "Eventagentur SommerSonne",
         date: "2026-09-05",
+        eventStartTime: "17:00",
+        eventEndTime: "23:00",
         location: "München",
         genres: ["Electro", "Pop"],
         instruments: ["Synthesizer", "Turntables", "Gesang"],
@@ -443,17 +575,23 @@ const initialEvents = [
         description: "Großes Sommer-Event am Stadtstrand! Wir suchen eine energiegeladene Live-Band oder einen DJ, der für fette Beats und Sommerstimmung sorgt. PA-Anlage und Bühne sind vorhanden. Verpflegung wird gestellt.",
         contactName: "Eventagentur SommerSonne",
         phone: "+49 89 9876540",
+        hidePhone: true,
         email: "info@sommersonne-events.de",
         isOnline: true,
         creatorId: "org_2",
-        technik: "Technik vorhanden"
+        technik: ["Technik vorhanden"],
+        photos: ["https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80"],
+        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
     },
     {
         id: "evt_3",
         name: "Firmenjubiläum TechCorp",
-        type: "Corporate",
+        type: "Firmenfeier",
         organizerType: "Firma",
+        company: "TechCorp GmbH",
         date: "2026-10-20",
+        eventStartTime: "19:00",
+        eventEndTime: "22:00",
         location: "Düsseldorf",
         genres: ["Jazz", "Pop", "Rock"],
         instruments: ["Schlagzeug", "E-Gitarre", "Bass", "Saxophon"],
@@ -467,17 +605,23 @@ const initialEvents = [
         description: "Wir feiern unser 10-jähriges Bestehen und suchen eine Band für den Abend. Zuerst gediegener Jazz zum Dinner, danach Pop/Rock-Klassiker zum Tanzen. Licht/Ton muss mitgebracht werden.",
         contactName: "Sandra Meier (TechCorp HR)",
         phone: "+49 911 445566",
+        hidePhone: true,
         email: "s.meier@techcorp.de",
         isOnline: true,
         creatorId: "org_3",
-        technik: "Technik nicht vorhanden"
+        technik: ["Technik nicht vorhanden"],
+        photos: ["https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80"],
+        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
     },
     {
         id: "evt_4",
         name: "Electronic Beach Party",
-        type: "Club",
+        type: "Bar/Kneipe/Club",
         organizerType: "Event-Agentur",
+        company: "Club Seeufer Frankfurt",
         date: "2026-09-12",
+        eventStartTime: "20:00",
+        eventEndTime: "01:00",
         location: "Frankfurt",
         genres: ["Electro"],
         instruments: ["Turntables", "Mischpult"],
@@ -491,17 +635,23 @@ const initialEvents = [
         description: "Wir veranstalten unser alljährliches Open Air am See und suchen einen professionellen Club-DJ für fette EDM, House & Techno-Beats. Sound- & Lichtanlage sind komplett vorhanden.",
         contactName: "Club Seeufer Frankfurt",
         phone: "+49 69 555666",
+        hidePhone: true,
         email: "booking@seeufer-frankfurt.de",
         isOnline: true,
         creatorId: "org_4",
-        technik: "Technik vorhanden"
+        technik: ["Technik vorhanden"],
+        photos: ["https://images.unsplash.com/photo-1484755560693-a4074577af3a?auto=format&fit=crop&w=800&q=80"],
+        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
     },
     {
         id: "evt_5",
         name: "50. Geburtstag im Gewölbekeller",
-        type: "Birthday",
+        type: "Geburtstag",
         organizerType: "Privater Veranstalter",
+        company: "Privatperson",
         date: "2026-09-26",
+        eventStartTime: "18:00",
+        eventEndTime: "23:00",
         location: "Stuttgart",
         genres: ["Rock", "Pop", "Schlager"],
         instruments: ["E-Gitarre", "Gesang", "Keyboard"],
@@ -515,16 +665,19 @@ const initialEvents = [
         description: "Zu meinem 50. Geburtstag suche ich ein Akustik-Duo oder einen Solo-Musiker, der alte Rock- und Popklassiker spielt und für gute Laune im Kellergewölbe sorgt. Platz ist begrenzt, Strom vorhanden.",
         contactName: "Thomas Wagner",
         phone: "+49 172 77766655",
+        hidePhone: true,
         email: "thomas.wagner50@web.de",
         isOnline: true,
         creatorId: "org_5",
-        technik: "Technik muss noch geklärt werden"
+        technik: ["Technik nicht vorhanden"],
+        photos: ["https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80"],
+        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
     }
 ];
 
 const genresList = ["Pop", "Rock", "Electro", "Jazz", "Klassik", "Folk", "HipHop", "Metal", "Schlager", "Country", "Blues"];
 const instrumentsList = ["Gesang", "Klavier", "Keyboard", "Synthesizer", "Turntables", "Akustikgitarre", "E-Gitarre", "Bass", "Schlagzeug", "Cajon", "Saxophon", "Violine", "Flöte"];
-const eventTypesList = ["Wedding", "Corporate", "Concert", "Birthday", "Club", "Festival", "Gartenparty", "Dinner"];
+const eventTypesList = ['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
 const musicianTypesList = ["Band", "Solo", "DJ", "Duo", "Orchestre", "Trio"];
 
 // ==========================================
@@ -542,9 +695,11 @@ function generateRemainingMusicians(existing) {
     const nouns = ["Beats", "Rebels", "Strings", "Keys", "Vibers", "Dials", "Waves", "Project", "Trio", "Collective", "Horizon", "Sound", "Groove", "Melody"];
     const genresPool = ["Pop", "Rock", "Electro", "Jazz", "Klassik", "Schlager", "HipHop", "Blues", "Metal"];
     const instrumentsPool = ["E-Gitarre", "Akustikgitarre", "Klavier", "Keyboard", "Schlagzeug", "Gesang", "Bass", "Saxophon"];
-    const locationsPool = ["MÜnchen", "Augsburg", "Nürnberg", "Stuttgart"];
+    const locationsPool = ["München", "Augsburg", "Nürnberg", "Stuttgart", "Hamburg", "Köln", "Frankfurt", "Düsseldorf", "Berlin"];
     const typesPool = ["Band", "Solo", "DJ", "Duo"];
     const daysPool = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const eventTypesPool = ['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
+    const techPool = ["Technik vorhanden", "Technik ist noch unklar", "Technik nicht vorhanden"];
 
     for (let i = existing.length; i < targetCount; i++) {
         const type = typesPool[Math.floor(Math.random() * typesPool.length)];
@@ -558,7 +713,7 @@ function generateRemainingMusicians(existing) {
             bluffName = `Professionelle ${genresPool[Math.floor(Math.random() * genresPool.length)]}-${type}`;
         } else {
             name = contactName;
-            bluffName = type === "DJ" ? `Erfahrener Event-DJ` : `Akustik-Solo-KÜnstler`;
+            bluffName = type === "DJ" ? `Erfahrener Event-DJ` : `Akustik-Solo-Künstler`;
         }
 
         const genresCount = Math.floor(Math.random() * 2) + 2;
@@ -582,8 +737,19 @@ function generateRemainingMusicians(existing) {
             if (!availability.includes(day)) availability.push(day);
         }
 
-        const minBudget = Math.floor(Math.random() * 10) * 100 + 200;
-        const maxDuration = Math.floor(Math.random() * 3) + 2;
+        const minDuration = Math.floor(Math.random() * 2) + 1;
+        const maxDuration = minDuration + Math.floor(Math.random() * 3) + 1;
+        const minBudget = Math.floor(Math.random() * 8) * 100 + 200;
+        const maxBudget = minBudget + Math.floor(Math.random() * 15) * 100 + 300;
+        const technik = [techPool[Math.floor(Math.random() * techPool.length)]];
+
+        // Select 1 to 3 random event types from pool
+        const numEvents = Math.floor(Math.random() * 3) + 1;
+        const eventTypes = [];
+        while (eventTypes.length < numEvents) {
+            const et = eventTypesPool[Math.floor(Math.random() * eventTypesPool.length)];
+            if (!eventTypes.includes(et)) eventTypes.push(et);
+        }
 
         musicians.push({
             id: `mus_gen_${i}`,
@@ -594,9 +760,11 @@ function generateRemainingMusicians(existing) {
             radius: Math.floor(Math.random() * 3) * 50 + 50,
             genres,
             instruments,
+            minDuration,
             maxDuration,
             minBudget,
-            eventTypes: ["Wedding", "Corporate", "Birthday", "Club"].slice(0, Math.floor(Math.random() * 3) + 1),
+            maxBudget,
+            eventTypes,
             availability,
             description: `Hallo, wir sind ${name}! Mit viel Herzblut und Leidenschaft spielen wir ${genres.join(" & ")} für Ihre Veranstaltung in ${location} und Umgebung. Kontaktieren Sie uns gerne!`,
             contactName,
@@ -604,9 +772,10 @@ function generateRemainingMusicians(existing) {
             email: `${name.toLowerCase().replace(/[^a-z0-9]/g, "")}@example.com`,
             isPremium: Math.random() > 0.5,
             socialLinks: { spotify: "", youtube: "", instagram: "" },
-            photos: [],
-            videos: [],
+            photos: [`https://picsum.photos/id/${(i * 17) % 500 + 100}/400/300`],
+            videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
             audio: [],
+            technik,
             createdAt: new Date(Date.now() - i * 6 * 60 * 60 * 1000).toISOString()
         });
     }
@@ -620,20 +789,23 @@ function generateRemainingEvents(existing) {
     const events = [...existing];
     const firstNames = ["Lukas", "Jonas", "Sarah", "Emma", "Tim", "Ben", "Nina", "Leon", "David", "Felix", "Julia", "Laura", "Anna", "Maximilian", "Paul", "Sophia"];
     const lastNames = ["Müller", "Schmidt", "Weber", "Fischer", "Meyer", "Wagner", "Schulz", "Becker", "Hoffmann", "Schäfer"];
-    const locationsPool = ["MÜnchen", "Augsburg", "Nürnberg", "Stuttgart"];
-    const eventTypesPool = ["Wedding", "Corporate", "Festival", "Club", "Birthday", "Sommerfest"];
+    const locationsPool = ["München", "Augsburg", "Nürnberg", "Stuttgart", "Hamburg", "Köln", "Frankfurt", "Düsseldorf", "Berlin"];
+    const eventTypesPool = ['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
     const eventAdjectives = ["Große", "Gemütliche", "Exklusive", "Traditionelle", "Stimmungsvolle", "Moderne"];
     const genresPool = ["Pop", "Rock", "Electro", "Jazz", "Klassik", "Schlager"];
     const instrumentsPool = ["E-Gitarre", "Akustikgitarre", "Klavier", "Keyboard", "Schlagzeug", "Gesang"];
     const musicianTypesPool = ["Band", "DJ", "Solo", "Duo"];
+    const orgTypesPool = ["Privater Veranstalter", "Firma", "Verein", "Event-Agentur", "Festivalveranstalter"];
+    const techPool = ["Technik vorhanden", "Technik ist noch unklar", "Technik nicht vorhanden"];
 
     for (let i = existing.length; i < targetCount; i++) {
         const location = locationsPool[Math.floor(Math.random() * locationsPool.length)];
         const eventType = eventTypesPool[Math.floor(Math.random() * eventTypesPool.length)];
         const contactName = `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;
+        const organizerType = orgTypesPool[Math.floor(Math.random() * orgTypesPool.length)];
         
         let eventName = "";
-        if (eventType === "Wedding") {
+        if (eventType.includes("Hochzeit")) {
             eventName = `Traumhochzeit von ${firstNames[Math.floor(Math.random() * firstNames.length)]} & ${firstNames[Math.floor(Math.random() * firstNames.length)]}`;
         } else {
             eventName = `${eventAdjectives[Math.floor(Math.random() * eventAdjectives.length)]} ${eventType} in ${location}`;
@@ -653,28 +825,81 @@ function generateRemainingEvents(existing) {
             if (!instruments.includes(ins)) instruments.push(ins);
         }
 
-        const budget = Math.floor(Math.random() * 12) * 100 + 300;
-        const duration = Math.floor(Math.random() * 3) + 2;
+        const minDuration = Math.floor(Math.random() * 2) + 1;
+        const maxDuration = minDuration + Math.floor(Math.random() * 3) + 1;
+        const minBudget = Math.floor(Math.random() * 8) * 100 + 200;
+        const maxBudget = minBudget + Math.floor(Math.random() * 15) * 100 + 300;
+        const technik = [techPool[Math.floor(Math.random() * techPool.length)]];
         
         const futureDays = Math.floor(Math.random() * 180) + 10;
         const date = new Date(Date.now() + futureDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const hoursPool = [
+            { start: "14:00", end: "17:00" },
+            { start: "15:00", end: "18:30" },
+            { start: "16:00", end: "19:00" },
+            { start: "17:00", end: "21:00" },
+            { start: "18:00", end: "22:00" },
+            { start: "19:00", end: "23:00" },
+            { start: "20:00", end: "00:00" }
+        ];
+        const timeChoice = hoursPool[Math.floor(Math.random() * hoursPool.length)];
+        const eventStartTime = timeChoice.start;
+        const eventEndTime = timeChoice.end;
+
+        let generatedCompany = "Privatperson";
+        if (organizerType !== "Privater Veranstalter") {
+            const orgNames = {
+                "Firma": ["TechCorp GmbH", "Müller & Söhne KG", "InnoWave Solutions", "FutureMedia Group", "Hansa Logistik"],
+                "Verein": ["Musikverein e.V.", "Kulturverein Regenbogen", "Sportfreunde 1920", "Stadtjugendring", "Förderverein Kunst"],
+                "Event-Agentur": ["SommerSonne Events", "StarGigs Agency", "GoldenMoment Weddings", "BlueMoon Entertainment", "Epic Events"],
+                "Festivalveranstalter": ["BeachBeat Festival Group", "Rock am See GmbH", "JazzTime e.V.", "CityFestivals UG", "SoundScape Productions"],
+                "Sonstige": ["Kulturamt", "Bürgerhaus e.V.", "Stadtmarketing GmbH"]
+            };
+            const list = orgNames[organizerType] || ["Event Organisation"];
+            generatedCompany = list[Math.floor(Math.random() * list.length)];
+        }
+
+        const minPublikum = [20, 50, 100, 150, 200, 300][Math.floor(Math.random() * 6)];
+        const maxPublikum = minPublikum + [30, 50, 100, 200][Math.floor(Math.random() * 4)];
+        const publikum = `${minPublikum} - ${maxPublikum}`;
+        const duration = parseFloat(((minDuration + maxDuration) / 2).toFixed(1));
 
         events.push({
             id: `evt_gen_${i}`,
             name: eventName,
             type: eventType,
             date,
+            eventStartTime,
+            eventEndTime,
             location,
             genres,
             instruments,
+            minDuration,
+            maxDuration,
             duration,
-            budget,
+            minBudget,
+            maxBudget,
+            budget: minBudget,
+            minPublikum,
+            maxPublikum,
+            publikum,
+            technik,
+            organizerType,
+            company: generatedCompany,
             musicianTypes: [musicianTypesPool[Math.floor(Math.random() * musicianTypesPool.length)]],
-            description: `FÜr unsere Veranstaltung '${eventName}' suchen wir einen passenden Live-Act. Wir freuen uns auf eure Bewerbung!`,
+            description: `Für unsere Veranstaltung '${eventName}' suchen wir einen passenden Live-Act. Wir freuen uns auf eure Bewerbung!`,
             contactName,
             phone: `+49 176 ${Math.floor(10000000 + Math.random() * 90000000)}`,
             email: `event_${i}@example.com`,
             isOnline: true,
+            photos: [`https://images.unsplash.com/photo-${[
+                '1511671782779-c97d3d27a1d4',
+                '1470225620780-dba8ba36b745',
+                '1514525253161-7a46d19cd819',
+                '1484755560693-a4074577af3a',
+                '1465847899084-d164df4dedc6'
+            ][i % 5]}?auto=format&fit=crop&w=800&q=80`],
+            videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
             creatorId: `org_gen_${i}`,
             createdAt: new Date(Date.now() - i * 6 * 60 * 60 * 1000).toISOString()
         });
@@ -689,42 +914,6 @@ function generateRemainingEvents(existing) {
 class StateManager {
     constructor() {
         this.listeners = [];
-        
-        // Temporary cleanup for test emails
-        try {
-            const emailsToRemove = ['vibulan22@gmail.de', 'vibulan22@gmail.com', 'vanessa@hotmailx.com', 'vanessa@hotmail.com'];
-            
-            const regKey = 'GigConnAct_registered_users';
-            let users = JSON.parse(localStorage.getItem(regKey) || '[]');
-            users = users.filter(u => u.email && !emailsToRemove.includes(u.email.toLowerCase()));
-            localStorage.setItem(regKey, JSON.stringify(users));
-
-            const musKey = 'GigConnAct_musicians';
-            let musicians = JSON.parse(localStorage.getItem(musKey) || '[]');
-            musicians = musicians.filter(m => m.email && !emailsToRemove.includes(m.email.toLowerCase()));
-            localStorage.setItem(musKey, JSON.stringify(musicians));
-
-            const pendingKey = 'GigConnAct_pending_user';
-            let pending = localStorage.getItem(pendingKey);
-            if (pending) {
-                const pUser = JSON.parse(pending);
-                if (pUser.email && emailsToRemove.includes(pUser.email.toLowerCase())) {
-                    localStorage.removeItem(pendingKey);
-                }
-            }
-
-            const userKey = 'GigConnAct_current_user';
-            let currentUser = localStorage.getItem(userKey);
-            if (currentUser) {
-                const u = JSON.parse(currentUser);
-                if (u.email && emailsToRemove.includes(u.email.toLowerCase())) {
-                    localStorage.removeItem(userKey);
-                }
-            }
-        } catch(e) {
-            console.error("Cleanup error for test emails", e);
-        }
-
         this.loadState();
     }
 
@@ -743,13 +932,37 @@ class StateManager {
         try {
             const storedMusicians = localStorage.getItem('GigConnAct_musicians');
             const parsed = storedMusicians ? JSON.parse(storedMusicians) : [];
-            let base = (Array.isArray(parsed) && parsed.length > 0) ? parsed : [...initialMusicians];
+            const filtered = Array.isArray(parsed) ? parsed.filter(m => m.id && !m.id.startsWith('mus_gen_')) : [];
+            let base = filtered.length > 0 ? filtered : [...initialMusicians];
             initialMusicians.forEach(init => {
                 if (!base.some(m => m.id === init.id)) {
                     base.push(init);
                 }
             });
-            this.musicians = generateRemainingMusicians(base);
+            this.musicians = generateRemainingMusicians(base).map(m => {
+                if (m.id && m.id.startsWith('mus_gen_') && m.maxBudget === undefined) {
+                    m.minDuration = m.minDuration || 2;
+                    m.maxDuration = m.maxDuration || 4;
+                    m.minBudget = m.minBudget || 300;
+                    m.maxBudget = m.minBudget + 500;
+                }
+                if (m.technik && !Array.isArray(m.technik)) {
+                    m.technik = [m.technik];
+                } else if (!m.technik) {
+                    m.technik = ["Technik ist noch unklar"];
+                }
+                // Force hidePhone for mus_1, mus_3, mus_5, and every 4th generated musician
+                if (["mus_1", "mus_3", "mus_5"].includes(m.id)) {
+                    m.hidePhone = true;
+                } else if (m.id && m.id.startsWith('mus_gen_')) {
+                    const idxNum = parseInt(m.id.replace('mus_gen_', ''));
+                    if (idxNum % 4 === 0) {
+                        m.hidePhone = true;
+                    }
+                }
+                return m;
+            });
+            localStorage.setItem('GigConnAct_musicians', JSON.stringify(this.musicians));
         } catch (e) {
             this.musicians = generateRemainingMusicians(initialMusicians);
         }
@@ -757,15 +970,95 @@ class StateManager {
         try {
             const storedEvents = localStorage.getItem('GigConnAct_events');
             const parsed = storedEvents ? JSON.parse(storedEvents) : [];
-            let base = (Array.isArray(parsed) && parsed.length > 0) ? parsed : [...initialEvents];
+            const filtered = Array.isArray(parsed) ? parsed.filter(e => e.id && !e.id.startsWith('evt_gen_')) : [];
+            let base = filtered.length > 0 ? filtered : [...initialEvents];
             initialEvents.forEach(init => {
                 if (!base.some(e => e.id === init.id)) {
                     base.push(init);
                 }
             });
-            this.events = generateRemainingEvents(base);
-        } catch (e) {
-            this.events = generateRemainingEvents(initialEvents);
+            this.events = generateRemainingEvents(base).map(e => {
+                if (!e.eventStartTime) {
+                    const hoursPool = [
+                        { start: "14:00", end: "17:00" },
+                        { start: "15:00", end: "18:30" },
+                        { start: "16:00", end: "19:00" },
+                        { start: "17:00", end: "21:00" },
+                        { start: "18:00", end: "22:00" },
+                        { start: "19:00", end: "23:00" },
+                        { start: "20:00", end: "00:00" }
+                    ];
+                    const timeChoice = hoursPool[Math.floor(Math.random() * hoursPool.length)];
+                    e.eventStartTime = timeChoice.start;
+                    e.eventEndTime = timeChoice.end;
+                }
+                if (e.id && e.id.startsWith('evt_gen_')) {
+                    if (e.minBudget === undefined) {
+                        e.minBudget = e.budget || 300;
+                        e.maxBudget = e.minBudget + 500;
+                    }
+                    if (e.minDuration === undefined) {
+                        e.minDuration = e.duration || 2;
+                        e.maxDuration = e.minDuration + 2;
+                    }
+                }
+                if (e.technik && !Array.isArray(e.technik)) {
+                    e.technik = [e.technik];
+                } else if (!e.technik) {
+                    e.technik = ["Technik ist noch unklar"];
+                }
+                if (e.duration === undefined || e.duration === null) {
+                    e.duration = e.minDuration !== undefined ? e.minDuration : 2;
+                }
+                if (e.budget === undefined || e.budget === null) {
+                    e.budget = e.minBudget !== undefined ? e.minBudget : 300;
+                }
+                if (e.minPublikum === undefined || e.minPublikum === null) {
+                    e.minPublikum = [20, 50, 100, 150, 200, 300][Math.floor(Math.random() * 6)];
+                    e.maxPublikum = e.minPublikum + [30, 50, 100, 200][Math.floor(Math.random() * 4)];
+                    e.publikum = `${e.minPublikum} - ${e.maxPublikum}`;
+                }
+                // Force hidePhone for evt_1, evt_3, evt_5, and every 4th generated event
+                if (["evt_1", "evt_3", "evt_5"].includes(e.id)) {
+                    e.hidePhone = true;
+                } else if (e.id && e.id.startsWith('evt_gen_')) {
+                    const idxNum = parseInt(e.id.replace('evt_gen_', ''));
+                    if (idxNum % 4 === 0) {
+                        e.hidePhone = true;
+                    }
+                }
+                return e;
+            });
+            localStorage.setItem('GigConnAct_events', JSON.stringify(this.events));
+        } catch (err) {
+            this.events = generateRemainingEvents(initialEvents).map(e => {
+                if (!e.eventStartTime) {
+                    const hoursPool = [
+                        { start: "14:00", end: "17:00" },
+                        { start: "15:00", end: "18:30" },
+                        { start: "16:00", end: "19:00" },
+                        { start: "17:00", end: "21:00" },
+                        { start: "18:00", end: "22:00" },
+                        { start: "19:00", end: "23:00" },
+                        { start: "20:00", end: "00:00" }
+                    ];
+                    const timeChoice = hoursPool[Math.floor(Math.random() * hoursPool.length)];
+                    e.eventStartTime = timeChoice.start;
+                    e.eventEndTime = timeChoice.end;
+                }
+                if (e.duration === undefined || e.duration === null) {
+                    e.duration = e.minDuration !== undefined ? e.minDuration : 2;
+                }
+                if (e.budget === undefined || e.budget === null) {
+                    e.budget = e.minBudget !== undefined ? e.minBudget : 300;
+                }
+                if (e.minPublikum === undefined || e.minPublikum === null) {
+                    e.minPublikum = [20, 50, 100, 150, 200, 300][Math.floor(Math.random() * 6)];
+                    e.maxPublikum = e.minPublikum + [30, 50, 100, 200][Math.floor(Math.random() * 4)];
+                    e.publikum = `${e.minPublikum} - ${e.maxPublikum}`;
+                }
+                return e;
+            });
         }
 
         try {
@@ -790,11 +1083,21 @@ class StateManager {
             this.interests = [];
         }
 
+        try {
+            const storedFavorites = localStorage.getItem('GigConnAct_favorites');
+            this.favorites = storedFavorites ? JSON.parse(storedFavorites) : [];
+        } catch (e) {
+            this.favorites = [];
+        }
+
         // Ensure all entities have a createdAt timestamp for sorting and correct creatorId mapping
         let registeredUsers = [];
         try {
-            registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-        } catch (e) {}
+            const parsedUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+            registeredUsers = Array.isArray(parsedUsers) ? parsedUsers : [];
+        } catch (e) {
+            registeredUsers = [];
+        }
 
         this.musicians.forEach((m, idx) => {
             if (!m.createdAt) m.createdAt = new Date(Date.now() - idx * 2 * 60 * 60 * 1000).toISOString();
@@ -876,7 +1179,7 @@ class StateManager {
         });
         
         // Ensure all musicians and events have a company name (defaulting to "Privatperson" if not present) and a random technik value
-        const techOptions = ["vorhanden", "nicht vorhanden", "Weiß ich noch nicht"];
+        const techOptions = ["Technik vorhanden", "Technik ist noch unklar", "Technik nicht vorhanden"];
         this.musicians.forEach(m => {
             if (!m.company) {
                 const user = registeredUsers.find(u => u.id === m.creatorId || u.profileId === m.id);
@@ -887,12 +1190,40 @@ class StateManager {
             }
         });
         this.events.forEach(e => {
-            if (!e.company) {
+            if (!e.company || (e.company === "Privatperson" && e.organizerType && e.organizerType !== "Privater Veranstalter")) {
                 const user = registeredUsers.find(u => u.id === e.creatorId || u.profileId === e.id);
-                e.company = user ? (user.company || "Privatperson") : "Privatperson";
+                if (user && user.company && user.company !== "Privatperson") {
+                    e.company = user.company;
+                } else {
+                    const orgNames = {
+                        "Firma": ["TechCorp GmbH", "Müller & Söhne KG", "InnoWave Solutions", "FutureMedia Group", "Hansa Logistik"],
+                        "Verein": ["Musikverein e.V.", "Kulturverein Regenbogen", "Sportfreunde 1920", "Stadtjugendring", "Förderverein Kunst"],
+                        "Event-Agentur": ["SommerSonne Events", "StarGigs Agency", "GoldenMoment Weddings", "BlueMoon Entertainment", "Epic Events"],
+                        "Festivalveranstalter": ["BeachBeat Festival Group", "Rock am See GmbH", "JazzTime e.V.", "CityFestivals UG", "SoundScape Productions"],
+                        "Eventlocation": ["Bürgerhaus", "Alte Mälzerei", "Schloss-Schenke"],
+                        "Hotel": ["Grand Hotel", "Hotel Post", "Sonnenblick Resort"],
+                        "Restaurant": ["La Piazza", "Zum Wilden Hirsch", "Hafenblick Restaurant"],
+                        "Bar": ["Blue Note Jazz Bar", "Tiki Lounge", "Skyline Bar"],
+                        "Stadtmarketing": ["Stadtmarketing GmbH", "Tourismusverband"],
+                        "Sonstige": ["Kulturverein", "Bürgerbüro"]
+                    };
+                    const list = orgNames[e.organizerType] || ["Event Organisation"];
+                    e.company = list[Math.floor(Math.random() * list.length)];
+                }
             }
             if (!e.technik) {
                 e.technik = techOptions[Math.floor(Math.random() * techOptions.length)];
+            }
+            if (e.duration === undefined || e.duration === null) {
+                e.duration = e.minDuration !== undefined ? e.minDuration : 2;
+            }
+            if (e.budget === undefined || e.budget === null) {
+                e.budget = e.minBudget !== undefined ? e.minBudget : 300;
+            }
+            if (e.minPublikum === undefined || e.minPublikum === null) {
+                e.minPublikum = [20, 50, 100, 150, 200, 300][Math.floor(Math.random() * 6)];
+                e.maxPublikum = e.minPublikum + [30, 50, 100, 200][Math.floor(Math.random() * 4)];
+                e.publikum = `${e.minPublikum} - ${e.maxPublikum}`;
             }
         });
 
@@ -905,22 +1236,130 @@ class StateManager {
                     ? this.activeEventId
                     : (this.events.find(e => e.creatorId === this.currentUser.id)?.id || null);
             }
+            this.runDailyMatchCheck();
         }
 
         this.saveState();
     }
 
     saveState() {
-        if (this.currentUser) {
-            localStorage.setItem('GigConnAct_current_user', JSON.stringify(this.currentUser));
-        } else {
-            localStorage.removeItem('GigConnAct_current_user');
+        try {
+            if (this.currentUser) {
+                localStorage.setItem('GigConnAct_current_user', JSON.stringify(this.currentUser));
+            } else {
+                localStorage.removeItem('GigConnAct_current_user');
+            }
+            localStorage.setItem('GigConnAct_musicians', JSON.stringify(this.musicians));
+            localStorage.setItem('GigConnAct_events', JSON.stringify(this.events));
+            localStorage.setItem('GigConnAct_chats', JSON.stringify(this.chats));
+            localStorage.setItem('GigConnAct_read_chats', JSON.stringify(this.readChats));
+            localStorage.setItem('GigConnAct_interests', JSON.stringify(this.interests || []));
+            localStorage.setItem('GigConnAct_favorites', JSON.stringify(this.favorites || []));
+        } catch (e) {
+            console.warn("Storage write failed or blocked:", e);
         }
-        localStorage.setItem('GigConnAct_musicians', JSON.stringify(this.musicians));
-        localStorage.setItem('GigConnAct_events', JSON.stringify(this.events));
-        localStorage.setItem('GigConnAct_chats', JSON.stringify(this.chats));
-        localStorage.setItem('GigConnAct_read_chats', JSON.stringify(this.readChats));
-        localStorage.setItem('GigConnAct_interests', JSON.stringify(this.interests || []));
+    }
+
+    runDailyMatchCheck() {
+        if (!this.currentUser) return;
+        const todayStr = new Date().toISOString().split('T')[0];
+        const checkKey = `GigConnAct_last_match_check_${this.currentUser.id}`;
+        const lastCheckDate = localStorage.getItem(checkKey);
+        
+        if (lastCheckDate !== todayStr) {
+            console.log("Running daily match check for", this.currentUser.id);
+            
+            let myProfiles = [];
+            if (this.currentUser.role === 'musician') {
+                myProfiles = this.musicians.filter(m => m.creatorId === this.currentUser.id);
+            } else {
+                myProfiles = this.events.filter(e => e.creatorId === this.currentUser.id);
+            }
+            
+            const candidates = this.currentUser.role === 'musician' 
+                ? this.events.filter(e => e.isCanceled !== true && e.musicianFound !== true)
+                : this.musicians.filter(m => m.isActive !== false);
+                
+            const matchesKey = `GigConnAct_matches_list_${this.currentUser.id}`;
+            const storedMatchesRaw = localStorage.getItem(matchesKey);
+            const storedMatches = storedMatchesRaw ? JSON.parse(storedMatchesRaw) : [];
+            const storedIds = storedMatches.map(m => m.id);
+            
+            let currentDayMatches = [];
+            let newMatchIds = [];
+            
+            myProfiles.forEach(myProfile => {
+                candidates.forEach(cand => {
+                    const match = this.currentUser.role === 'musician'
+                        ? calculateMatch(myProfile, cand, 'musician')
+                        : calculateMatch(cand, myProfile, 'organizer');
+                        
+                    if (match.score >= 70) {
+                        currentDayMatches.push({
+                            id: cand.id,
+                            matchScore: match.score
+                        });
+                        if (!storedIds.includes(cand.id)) {
+                            newMatchIds.push(cand.id);
+                        }
+                    }
+                });
+            });
+            
+            if (newMatchIds.length > 0) {
+                const unreadKey = `GigConnAct_unread_matches_${this.currentUser.id}`;
+                const storedUnreadRaw = localStorage.getItem(unreadKey);
+                const storedUnread = storedUnreadRaw ? JSON.parse(storedUnreadRaw) : [];
+                
+                newMatchIds.forEach(id => {
+                    if (!storedUnread.includes(id)) {
+                        storedUnread.push(id);
+                    }
+                });
+                
+                localStorage.setItem(unreadKey, JSON.stringify(storedUnread));
+            }
+            
+            localStorage.setItem(matchesKey, JSON.stringify(currentDayMatches));
+            localStorage.setItem(checkKey, todayStr);
+        }
+    }
+
+    getUnreadMatchesCount() {
+        if (!this.currentUser) return 0;
+        const unreadKey = `GigConnAct_unread_matches_${this.currentUser.id}`;
+        const storedUnreadRaw = localStorage.getItem(unreadKey);
+        const storedUnread = storedUnreadRaw ? JSON.parse(storedUnreadRaw) : [];
+        return storedUnread.length;
+    }
+
+    clearUnreadMatches() {
+        if (!this.currentUser) return;
+        const unreadKey = `GigConnAct_unread_matches_${this.currentUser.id}`;
+        localStorage.setItem(unreadKey, JSON.stringify([]));
+        this.notify();
+    }
+
+    toggleFavorite(id) {
+        if (!this.currentUser) {
+            showModal('auth');
+            return false;
+        }
+        if (!this.favorites) this.favorites = [];
+        const idx = this.favorites.indexOf(id);
+        if (idx === -1) {
+            this.favorites.push(id);
+        } else {
+            this.favorites.splice(idx, 1);
+        }
+        this.saveState();
+        this.notify();
+        return true;
+    }
+
+    isFavorite(id) {
+        if (!this.favorites) return false;
+        return this.favorites.includes(id);
     }
 
     hasExpressedInterest(fromRole, musicianId, eventId) {
@@ -1073,6 +1512,7 @@ class StateManager {
     }
 
     notify() {
+        this.runDailyMatchCheck();
         this.saveState();
         this.listeners.forEach(callback => callback(this));
         document.dispatchEvent(new CustomEvent('user-state-changed'));
@@ -1084,12 +1524,14 @@ class StateManager {
             this.currentUser = {
                 id: musician.id,
                 role: "musician",
-                firstName: musician.contactName.split(" ")[0] || "Musiker",
-                lastName: musician.contactName.split(" ")[1] || "",
+                firstName: musician.contactName ? (musician.contactName.split(" ")[0] || "Musiker") : "Musiker",
+                lastName: musician.contactName ? (musician.contactName.split(" ")[1] || "") : "",
                 company: "Privatperson",
                 phone: musician.phone,
                 email: musician.email,
-                isPremium: musician.isPremium,
+                isPremium: true,
+                subscriptionPlan: musician.subscriptionPlan || "flex",
+                subscriptionCancelled: musician.subscriptionCancelled || false,
                 credits: musician.credits !== undefined ? musician.credits : 5,
                 unlockedContacts: musician.unlockedContacts || [],
                 profileId: musician.id,
@@ -1105,8 +1547,8 @@ class StateManager {
             this.currentUser = {
                 id: event.creatorId,
                 role: "organizer",
-                firstName: event.contactName.split(" ")[0] || "Veranstalter",
-                lastName: event.contactName.split(" ")[1] || "",
+                firstName: event.contactName ? (event.contactName.split(" ")[0] || "Veranstalter") : "Veranstalter",
+                lastName: event.contactName ? (event.contactName.split(" ")[1] || "") : "",
                 company: "Privatperson",
                 phone: event.phone,
                 email: event.email,
@@ -1122,6 +1564,84 @@ class StateManager {
         const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
         const registered = registeredUsers.find(u => u.email && u.email.toLowerCase() === email.toLowerCase() && u.password === password);
         if (registered) {
+            // Repair missing profiles dynamically on standard login
+            if (registered.role === "musician") {
+                const profileExists = this.musicians.some(m => m.id === registered.profileId || m.creatorId === registered.id || (m.email && m.email.toLowerCase() === email.toLowerCase()));
+                if (!profileExists) {
+                    const newMusician = {
+                        id: registered.profileId || ("mus_" + registered.id),
+                        name: "Demo Musiker",
+                        bluffName: "Akustik-Solo-Künstler",
+                        type: "Solo",
+                        location: "München",
+                        locations: ["München"],
+                        radius: 100,
+                        genres: ["Pop", "Rock"],
+                        instruments: ["Gesang", "Akustikgitarre"],
+                        minDuration: 1,
+                        maxDuration: 3,
+                        minBudget: 150,
+                        maxBudget: 1000,
+                        eventTypes: ["Geburtstag", "Sommerfest"],
+                        availability: ["Friday", "Saturday"],
+                        minPublikum: 0,
+                        maxPublikum: 500,
+                        description: "Professioneller Solo-Künstler für Events aller Art.",
+                        technik: ["Technik vorhanden"],
+                        company: registered.company || "Privatperson",
+                        contactName: `${registered.firstName} ${registered.lastName}`,
+                        phone: registered.phone,
+                        email: registered.email,
+                        isPremium: registered.isPremium,
+                        subscriptionPlan: "flex",
+                        credits: 5,
+                        unlockedContacts: [],
+                        socialLinks: { spotify: "", youtube: "", instagram: "" },
+                        photos: [],
+                        videos: [],
+                        audio: [],
+                        creatorId: registered.id
+                    };
+                    this.musicians.push(newMusician);
+                    localStorage.setItem('GigConnAct_musicians', JSON.stringify(this.musicians));
+                }
+            } else if (registered.role === "organizer") {
+                const profileExists = this.events.some(e => e.creatorId === registered.id || (e.email && e.email.toLowerCase() === email.toLowerCase()));
+                if (!profileExists) {
+                    const newEvent = {
+                        id: registered.profileId || ("evt_" + registered.id),
+                        name: "Demo Veranstaltung",
+                        type: "Geburtstag",
+                        eventTypes: ["Geburtstag"],
+                        date: "2026-08-15",
+                        dates: ["2026-08-15"],
+                        location: "München",
+                        locations: ["München"],
+                        genres: ["Pop", "Rock"],
+                        instruments: ["Gesang", "Akustikgitarre"],
+                        minDuration: 2.0,
+                        maxDuration: 4.0,
+                        duration: 4.0,
+                        minPublikum: 50,
+                        maxPublikum: 150,
+                        publikum: "50 - 150",
+                        minBudget: 300,
+                        maxBudget: 800,
+                        description: "Private Feier in München. Wir suchen einen netten Live-Act.",
+                        technik: ["Technik ist noch unklar"],
+                        company: registered.company || "Privatperson",
+                        organizerType: registered.organizerType || "Privater Veranstalter",
+                        contactName: `${registered.firstName} ${registered.lastName}`,
+                        phone: registered.phone,
+                        email: registered.email,
+                        isOnline: true,
+                        creatorId: registered.id
+                    };
+                    this.events.push(newEvent);
+                    localStorage.setItem('GigConnAct_events', JSON.stringify(this.events));
+                }
+            }
+
             this.currentUser = {
                 id: registered.id,
                 role: registered.role,
@@ -1130,7 +1650,9 @@ class StateManager {
                 company: registered.company || "Privatperson",
                 phone: registered.phone,
                 email: registered.email,
-                isPremium: registered.role === "musician" ? registered.isPremium : true,
+                isPremium: true,
+                subscriptionPlan: registered.role === "musician" ? (registered.subscriptionPlan || "flex") : "",
+                subscriptionCancelled: registered.role === "musician" ? (registered.subscriptionCancelled || false) : false,
                 credits: registered.role === "musician" ? (registered.credits !== undefined ? registered.credits : 5) : 0,
                 unlockedContacts: registered.unlockedContacts || [],
                 profileId: registered.profileId,
@@ -1152,12 +1674,14 @@ class StateManager {
             this.currentUser = {
                 id: musician.id,
                 role: "musician",
-                firstName: musician.contactName.split(" ")[0] || "Musiker",
-                lastName: musician.contactName.split(" ")[1] || "",
+                firstName: musician.contactName ? (musician.contactName.split(" ")[0] || "Musiker") : "Musiker",
+                lastName: musician.contactName ? (musician.contactName.split(" ")[1] || "") : "",
                 company: "Privatperson",
                 phone: musician.phone,
                 email: musician.email,
-                isPremium: musician.isPremium,
+                isPremium: true,
+                subscriptionPlan: musician.subscriptionPlan || "flex",
+                subscriptionCancelled: musician.subscriptionCancelled || false,
                 credits: musician.credits !== undefined ? musician.credits : 5,
                 unlockedContacts: musician.unlockedContacts || [],
                 profileId: musician.id,
@@ -1173,8 +1697,8 @@ class StateManager {
             this.currentUser = {
                 id: event.creatorId,
                 role: "organizer",
-                firstName: event.contactName.split(" ")[0] || "Veranstalter",
-                lastName: event.contactName.split(" ")[1] || "",
+                firstName: event.contactName ? (event.contactName.split(" ")[0] || "Veranstalter") : "Veranstalter",
+                lastName: event.contactName ? (event.contactName.split(" ")[1] || "") : "",
                 company: "Privatperson",
                 phone: event.phone,
                 email: event.email,
@@ -1190,6 +1714,84 @@ class StateManager {
         const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
         const registered = registeredUsers.find(u => u.email && u.email.toLowerCase() === targetEmail);
         if (registered) {
+            // Repair missing profiles dynamically
+            if (registered.role === "musician") {
+                const profileExists = this.musicians.some(m => m.id === registered.profileId || m.creatorId === registered.id || (m.email && m.email.toLowerCase() === targetEmail));
+                if (!profileExists) {
+                    const newMusician = {
+                        id: registered.profileId || ("mus_" + registered.id),
+                        name: "Demo Musiker",
+                        bluffName: "Akustik-Solo-Künstler",
+                        type: "Solo",
+                        location: "München",
+                        locations: ["München"],
+                        radius: 100,
+                        genres: ["Pop", "Rock"],
+                        instruments: ["Gesang", "Akustikgitarre"],
+                        minDuration: 1,
+                        maxDuration: 3,
+                        minBudget: 150,
+                        maxBudget: 1000,
+                        eventTypes: ["Geburtstag", "Sommerfest"],
+                        availability: ["Friday", "Saturday"],
+                        minPublikum: 0,
+                        maxPublikum: 500,
+                        description: "Professioneller Solo-Künstler für Events aller Art.",
+                        technik: ["Technik vorhanden"],
+                        company: registered.company || "Privatperson",
+                        contactName: `${registered.firstName} ${registered.lastName}`,
+                        phone: registered.phone,
+                        email: registered.email,
+                        isPremium: registered.isPremium,
+                        subscriptionPlan: "flex",
+                        credits: 5,
+                        unlockedContacts: [],
+                        socialLinks: { spotify: "", youtube: "", instagram: "" },
+                        photos: [],
+                        videos: [],
+                        audio: [],
+                        creatorId: registered.id
+                    };
+                    this.musicians.push(newMusician);
+                    localStorage.setItem('GigConnAct_musicians', JSON.stringify(this.musicians));
+                }
+            } else if (registered.role === "organizer") {
+                const profileExists = this.events.some(e => e.creatorId === registered.id || (e.email && e.email.toLowerCase() === targetEmail));
+                if (!profileExists) {
+                    const newEvent = {
+                        id: registered.profileId || ("evt_" + registered.id),
+                        name: "Demo Veranstaltung",
+                        type: "Geburtstag",
+                        eventTypes: ["Geburtstag"],
+                        date: "2026-08-15",
+                        dates: ["2026-08-15"],
+                        location: "München",
+                        locations: ["München"],
+                        genres: ["Pop", "Rock"],
+                        instruments: ["Gesang", "Akustikgitarre"],
+                        minDuration: 2.0,
+                        maxDuration: 4.0,
+                        duration: 4.0,
+                        minPublikum: 50,
+                        maxPublikum: 150,
+                        publikum: "50 - 150",
+                        minBudget: 300,
+                        maxBudget: 800,
+                        description: "Private Feier in München. Wir suchen einen netten Live-Act.",
+                        technik: ["Technik ist noch unklar"],
+                        company: registered.company || "Privatperson",
+                        organizerType: registered.organizerType || "Privater Veranstalter",
+                        contactName: `${registered.firstName} ${registered.lastName}`,
+                        phone: registered.phone,
+                        email: registered.email,
+                        isOnline: true,
+                        creatorId: registered.id
+                    };
+                    this.events.push(newEvent);
+                    localStorage.setItem('GigConnAct_events', JSON.stringify(this.events));
+                }
+            }
+
             this.currentUser = {
                 id: registered.id,
                 role: registered.role,
@@ -1198,7 +1800,9 @@ class StateManager {
                 company: registered.company || "Privatperson",
                 phone: registered.phone,
                 email: registered.email,
-                isPremium: registered.role === "musician" ? registered.isPremium : true,
+                isPremium: true,
+                subscriptionPlan: registered.role === "musician" ? (registered.subscriptionPlan || "flex") : "",
+                subscriptionCancelled: registered.role === "musician" ? (registered.subscriptionCancelled || false) : false,
                 credits: registered.role === "musician" ? (registered.credits !== undefined ? registered.credits : 5) : 0,
                 unlockedContacts: registered.unlockedContacts || [],
                 profileId: registered.profileId,
@@ -1229,7 +1833,8 @@ class StateManager {
             phone: "+49 170 1234567",
             email,
             password: "pass123",
-            isPremium: role === "musician" ? false : true,
+            isPremium: true,
+            subscriptionPlan: "flex",
             credits: role === "musician" ? 5 : 0,
             unlockedContacts: [],
             profileId,
@@ -1239,6 +1844,77 @@ class StateManager {
         registeredUsers.push(newUser);
         localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
 
+        if (role === "musician") {
+            const newMusician = {
+                id: profileId,
+                name: "Demo Musiker",
+                bluffName: "Akustik-Solo-Künstler",
+                type: "Solo",
+                location: "München",
+                locations: ["München"],
+                radius: 100,
+                genres: ["Pop", "Rock"],
+                instruments: ["Gesang", "Akustikgitarre"],
+                minDuration: 1,
+                maxDuration: 3,
+                minBudget: 150,
+                maxBudget: 1000,
+                eventTypes: ["Geburtstag", "Sommerfest"],
+                availability: ["Friday", "Saturday"],
+                minPublikum: 0,
+                maxPublikum: 500,
+                description: "Professioneller Solo-Künstler für Events aller Art.",
+                technik: ["Technik vorhanden"],
+                company: "Privatperson",
+                contactName: `${firstName} Gast`,
+                phone: "+49 170 1234567",
+                email: email,
+                isPremium: false,
+                subscriptionPlan: "flex",
+                credits: 5,
+                unlockedContacts: [],
+                socialLinks: { spotify: "", youtube: "", instagram: "" },
+                photos: [],
+                videos: [],
+                audio: [],
+                creatorId: id
+            };
+            this.musicians.push(newMusician);
+            localStorage.setItem('GigConnAct_musicians', JSON.stringify(this.musicians));
+        } else if (role === "organizer") {
+            const newEvent = {
+                id: profileId,
+                name: "Demo Veranstaltung",
+                type: "Geburtstag",
+                eventTypes: ["Geburtstag"],
+                date: "2026-08-15",
+                dates: ["2026-08-15"],
+                location: "München",
+                locations: ["München"],
+                genres: ["Pop", "Rock"],
+                instruments: ["Gesang", "Akustikgitarre"],
+                minDuration: 2.0,
+                maxDuration: 4.0,
+                duration: 4.0,
+                minPublikum: 50,
+                maxPublikum: 150,
+                publikum: "50 - 150",
+                minBudget: 300,
+                maxBudget: 800,
+                description: "Private Feier in München. Wir suchen einen netten Live-Act.",
+                technik: ["Technik ist noch unklar"],
+                company: "Privatperson",
+                organizerType: "Privater Veranstalter",
+                contactName: `${firstName} Gast`,
+                phone: "+49 170 1234567",
+                email: email,
+                isOnline: true,
+                creatorId: id
+            };
+            this.events.push(newEvent);
+            localStorage.setItem('GigConnAct_events', JSON.stringify(this.events));
+        }
+
         return this.loginPasswordless(email);
     }
 
@@ -1247,14 +1923,12 @@ class StateManager {
         this.notify();
     }
 
+    isUnlocked(targetId) {
+        return !!this.currentUser;
+    }
+
     hasContactAccess(activeId, targetId) {
-        if (!this.currentUser) return false;
-        if (this.currentUser.role === 'organizer') return true;
-        if (this.currentUser.isPremium) return true;
-        if (this.currentUser.id === targetId || this.currentUser.profileId === targetId) return true;
-        
-        const unlocked = this.currentUser.unlockedContacts || [];
-        return unlocked.includes(targetId);
+        return !!this.currentUser;
     }
 
     unlockContact(targetId) {
@@ -1332,6 +2006,7 @@ class StateManager {
             company: payload.company || "Privatperson",
             organizerType: payload.organizerType || "",
             phone: payload.phone,
+            hidePhone: payload.hidePhone || false,
             email: payload.email,
             password: payload.password,
             profileId,
@@ -1364,6 +2039,7 @@ class StateManager {
             company: user.company || "Privatperson",
             organizerType: user.organizerType || "",
             phone: user.phone,
+            hidePhone: user.hidePhone || false,
             profileId: user.profileId,
             isPremium: user.isPremium,
             credits: user.role === "musician" ? 5 : 0,
@@ -1391,19 +2067,22 @@ class StateManager {
                 maxBudget: parseFloat(data.maxBudget) || 1000,
                 eventTypes: data.eventTypes,
                 availability: data.availability,
+                minPublikum: parseInt(data.minPublikum) || 0,
+                maxPublikum: parseInt(data.maxPublikum) || 500,
                 description: data.description,
-                technik: data.technik || "Weiß ich noch nicht",
+                technik: data.technik || ["Technik ist noch unklar"],
                 company: user.company || "Privatperson",
                 contactName: `${user.firstName} ${user.lastName}`,
                 phone: user.phone,
+                hidePhone: data.hidePhone || false,
                 email: user.email,
                 isPremium: user.isPremium,
                 subscriptionPlan: data.subscriptionPlan || "flex",
                 credits: 5,
                 unlockedContacts: [],
                 socialLinks: { spotify: "", youtube: "", instagram: "" },
-                photos: [],
-                videos: [],
+                photos: data.photos || (data.photoUrl ? [data.photoUrl] : []),
+                videos: data.videos || (data.videoUrl ? [data.videoUrl] : []),
                 audio: [],
                 creatorId: user.id
             };
@@ -1417,6 +2096,8 @@ class StateManager {
                 eventTypes: data.orgEventTypes || [],
                 date: data.eventDates ? data.eventDates[0] : "",
                 dates: data.eventDates || [],
+                eventStartTime: data.eventStartTime || "18:00",
+                eventEndTime: data.eventEndTime || "22:00",
                 location: data.orgLocations ? data.orgLocations.join(', ') : "",
                 locations: data.orgLocations || [],
                 genres: data.orgGenres || [],
@@ -1430,13 +2111,16 @@ class StateManager {
                 minBudget: parseFloat(data.orgMinBudget) || 0,
                 maxBudget: parseFloat(data.orgMaxBudget) || 5000,
                 description: data.orgDescription,
-                technik: data.orgTechnik ? data.orgTechnik.join(', ') : "Weiß ich noch nicht",
+                technik: data.technik || ["Technik ist noch unklar"],
                 company: user.company || "Privatperson",
                 organizerType: data.organizerType || "",
                 contactName: `${user.firstName} ${user.lastName}`,
                 phone: user.phone,
+                hidePhone: data.hidePhone || false,
                 email: user.email,
                 isOnline: true,
+                photos: data.photos || (data.photoUrl ? [data.photoUrl] : []),
+                videos: data.videos || (data.videoUrl ? [data.videoUrl] : []),
                 creatorId: user.id
             };
             this.events.push(newEvent);
@@ -1449,7 +2133,10 @@ class StateManager {
             lastName: user.lastName,
             company: user.company || "Privatperson",
             organizerType: user.organizerType || "",
+            eventStartTime: user.role === "organizer" ? (user.rawData?.eventStartTime || "18:00") : undefined,
+            eventEndTime: user.role === "organizer" ? (user.rawData?.eventEndTime || "22:00") : undefined,
             phone: user.phone,
+            hidePhone: user.hidePhone || false,
             email: user.email,
             isPremium: user.isPremium,
             profileId: user.profileId,
@@ -1467,19 +2154,16 @@ class StateManager {
     }
 
     getChatsForUser(userId) {
-        const profileId = this.currentUser ? this.currentUser.profileId : "";
-        const uId = this.currentUser ? this.currentUser.id : "";
-        
         return this.chats.filter(c => 
-            c.participants.includes(uId) || 
-            c.participants.includes(profileId) ||
-            (this.currentUser?.role === "musician" && c.participants.includes(profileId))
+            c.participants.includes(userId)
         ).sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     }
 
     sendMessage(recipientId, text) {
         if (!this.currentUser) return { success: false, message: "Bitte melde dich an." };
-        const senderId = this.currentUser.role === 'musician' ? this.currentUser.profileId : this.currentUser.id;
+        const senderId = this.currentUser.role === 'musician' 
+            ? (this.activeMusicianId || this.currentUser.profileId) 
+            : (this.activeEventId || this.currentUser.id);
         
         let chat = this.chats.find(c => 
             (c.participants.includes(senderId) && c.participants.includes(recipientId))
@@ -1506,21 +2190,93 @@ class StateManager {
         
         // Mark as unread for the recipient (remove from read list)
         this.readChats = this.readChats.filter(id => id !== chat.id);
+
+        // Trigger mock email for sent message
+        const recipientName = this.musicians.find(m => m.id === recipientId)?.name || this.events.find(e => e.creatorId === recipientId)?.contactName || "Musiker/Veranstalter";
+        if (typeof window.addMockEmail === 'function') {
+            window.addMockEmail(
+                `Gesendete Anfrage an ${recipientName}`,
+                `GigConnAct <no-reply@gigconnact.de>`,
+                `Hallo ${this.currentUser.firstName},\n\ndeine Anfrage an ${recipientName} mit folgendem Inhalt wurde erfolgreich übermittelt:\n\n"${text}"`
+            );
+        }
+
+        // Schedule mock reply from counterparty after 3s
+        setTimeout(() => {
+            if (this.currentUser && recipientId !== 'system') {
+                const replies = this.currentUser.role === 'musician'
+                    ? [
+                        "Hi! Das klingt super. Euer Profil gefällt uns sehr gut. Seid ihr an dem gewünschten Termin noch flexibel?",
+                        "Hallo! Vielen Dank für die Anfrage. Wir schauen uns die Details an und melden uns in Kürze wieder bei euch.",
+                        "Guten Tag, danke für die Nachricht. Das Angebot klingt sehr interessant. Könnten wir vorab kurz telefonieren?"
+                      ]
+                    : [
+                        "Hallo! Danke für die Nachricht. Das passt zeitlich perfekt bei uns. Wann können wir die Einzelheiten besprechen?",
+                        "Hi! Eure Anfrage freut uns sehr. Wir haben großes Interesse. Welche Liedwünsche habt ihr denn?",
+                        "Vielen Dank für die Anfrage. Wir sind an diesem Tag verfügbar und würden uns freuen, bei eurem Event zu spielen."
+                      ];
+                const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                this.receiveMessage(recipientId, senderId, randomReply);
+                
+                if (typeof showToast === 'function') {
+                    showToast({
+                        title: "Neue Nachricht erhalten! ✉️",
+                        message: `Antwort von ${recipientName} im Postfach.`
+                    });
+                }
+            }
+        }, 3000);
         
         this.notify();
         return { success: true, chat };
     }
 
-    initiateContact(targetId, targetName) {
+    receiveMessage(senderId, recipientId, text) {
+        let chat = this.chats.find(c => 
+            (c.participants.includes(senderId) && c.participants.includes(recipientId))
+        );
+        if (!chat) return;
+
+        const newMessage = {
+            senderId,
+            text,
+            timestamp: new Date().toISOString()
+        };
+        chat.messages.push(newMessage);
+        chat.updatedAt = new Date().toISOString();
+        
+        this.readChats = this.readChats.filter(id => id !== chat.id);
+        
+        const user = this.currentUser;
+        if (user && (user.id === recipientId || user.profileId === recipientId)) {
+            const senderName = this.musicians.find(m => m.id === senderId)?.name || this.events.find(e => e.creatorId === senderId)?.contactName || "Musiker/Veranstalter";
+            if (typeof window.addMockEmail === 'function') {
+                window.addMockEmail(
+                    `Neue Anfrage von ${senderName}`,
+                    `${senderName} via GigConnAct <no-reply@gigconnact.de>`,
+                    `Hallo ${user.firstName},\n\ndu hast eine neue Nachricht von ${senderName} erhalten:\n\n"${text}"\n\nLogge dich bei GigConnAct ein, um direkt im Postfach zu antworten.`
+                );
+            }
+        }
+        
+        this.notify();
+        
+        if (window.location.hash.includes('postbox') && typeof window.handleRouting === 'function') {
+            window.handleRouting();
+        }
+    }
+
+    initiateContact(targetId, targetName, eventId) {
         if (!this.currentUser) return { success: false, redirectAuth: true };
         
+        const recipientId = eventId || targetId;
         const welcomeText = `Hallo! Ich habe dein Profil auf GigConnAct gefunden und interessiere mich für eine Zusammenarbeit. Lass uns hier schreiben!`;
-        this.sendMessage(targetId, welcomeText);
+        this.sendMessage(recipientId, welcomeText);
         
         this.currentUser.contactRequests = (this.currentUser.contactRequests || 0) + 1;
         this.notify();
 
-        return { success: true, chatId: this.chats.find(c => c.participants.includes(targetId))?.id };
+        return { success: true, chatId: this.chats.find(c => c.participants.includes(recipientId))?.id };
     }
 
     addSystemNotification(recipientId, text) {
@@ -1545,6 +2301,18 @@ class StateManager {
         // Mark as unread
         this.readChats = this.readChats.filter(id => id !== chat.id);
 
+        // Add to email preview
+        const user = this.currentUser;
+        if (user) {
+            if (typeof window.addMockEmail === 'function') {
+                window.addMockEmail(
+                    `Systembenachrichtigung: ${text.length > 40 ? text.substring(0, 40) + '...' : text}`,
+                    `GigConnAct System <system@gigconnact.de>`,
+                    `Hallo ${user.firstName},\n\ndu hast eine neue Systembenachrichtigung in deinem GigConnAct-Postfach erhalten:\n\n"${text}"`
+                );
+            }
+        }
+
         this.notify();
     }
 
@@ -1557,14 +2325,26 @@ class StateManager {
 
     getUnreadCount() {
         if (!this.currentUser) return 0;
-        const myId = this.currentUser.role === 'musician' ? this.currentUser.profileId : this.currentUser.id;
-        const userChats = this.getChatsForUser(this.currentUser.id);
+        let myProfileIds = [];
+        if (this.currentUser.role === 'musician') {
+            myProfileIds = this.musicians.filter(m => m.creatorId === this.currentUser.id || m.id === this.currentUser.profileId).map(m => m.id);
+            if (this.currentUser.profileId && !myProfileIds.includes(this.currentUser.profileId)) {
+                myProfileIds.push(this.currentUser.profileId);
+            }
+        } else {
+            myProfileIds = this.events.filter(e => e.creatorId === this.currentUser.id).map(e => e.id);
+            if (this.currentUser.id && !myProfileIds.includes(this.currentUser.id)) {
+                myProfileIds.push(this.currentUser.id);
+            }
+        }
         
-        return userChats.filter(c => {
+        const myChats = this.chats.filter(c => c.participants.some(p => myProfileIds.includes(p)));
+        
+        return myChats.filter(c => {
             if (this.readChats.includes(c.id)) return false;
             if (c.messages.length === 0) return false;
             const lastMsg = c.messages[c.messages.length - 1];
-            return lastMsg.senderId !== myId;
+            return !myProfileIds.includes(lastMsg.senderId);
         }).length;
     }
 
@@ -1609,6 +2389,7 @@ class StateManager {
         this.currentUser.company = updatedData.company || "Privatperson";
         this.currentUser.organizerType = updatedData.organizerType || "";
         this.currentUser.phone = updatedData.phone;
+        this.currentUser.hidePhone = updatedData.hidePhone || false;
         this.currentUser.email = updatedData.email;
         
         // Update user storage
@@ -1620,6 +2401,7 @@ class StateManager {
             registeredUsers[index].company = this.currentUser.company;
             registeredUsers[index].organizerType = this.currentUser.organizerType;
             registeredUsers[index].phone = this.currentUser.phone;
+            registeredUsers[index].hidePhone = this.currentUser.hidePhone;
             registeredUsers[index].email = this.currentUser.email;
             if (updatedData.password) {
                 registeredUsers[index].password = updatedData.password;
@@ -1633,6 +2415,7 @@ class StateManager {
                 m.company = this.currentUser.company;
                 m.contactName = `${this.currentUser.firstName} ${this.currentUser.lastName}`;
                 m.phone = this.currentUser.phone;
+                m.hidePhone = this.currentUser.hidePhone;
                 m.email = this.currentUser.email;
             }
         });
@@ -1642,6 +2425,7 @@ class StateManager {
                 e.organizerType = this.currentUser.organizerType || "";
                 e.contactName = `${this.currentUser.firstName} ${this.currentUser.lastName}`;
                 e.phone = this.currentUser.phone;
+                e.hidePhone = this.currentUser.hidePhone;
                 e.email = this.currentUser.email;
             }
         });
@@ -1804,6 +2588,16 @@ class StateManager {
             this.notify();
             return { success: true, isActive: musician.isActive };
         }
+    }
+
+    toggleEventActive(eventId) {
+        const event = this.events.find(e => e.id === eventId);
+        if (event) {
+            event.isActive = event.isActive === false ? true : false;
+            this.saveState();
+            this.notify();
+            return { success: true, isActive: event.isActive };
+        }
         return { success: false };
     }
 
@@ -1890,7 +2684,7 @@ class StateManager {
 
         if (type === "photo" && musician.photos.length < 3) {
             musician.photos.push(fileUrl);
-        } else if (type === "video" && musician.videos.length < 3) {
+        } else if (type === "video" && musician.videos.length < 1) {
             musician.videos.push(fileUrl);
         } else if (type === "audio" && musician.audio.length < 3) {
             musician.audio.push(fileUrl);
@@ -1966,92 +2760,162 @@ function getWeekdayFromDate(dateStr) {
     return weekdays[date.getDay()];
 }
 
-function calculateMatch(musician, event) {
-    const breakdown = {
-        type: false,
-        date: false,
-        location: false,
-        radius: false,
-        genres: false,
-        instruments: false,
-        duration: false,
-        budget: false,
-        technik: false
-    };
- 
+function calculateMatch(musician, event, searcherRole = 'musician') {
+    // 1. Musiker-Typ (20 %)
+    let typeScore = 0;
     if (event.musicianTypes && event.musicianTypes.some(t => t.toLowerCase() === musician.type.toLowerCase())) {
-        breakdown.type = true;
+        typeScore = 20;
     }
- 
-    if (musician.availability) {
-        if (Array.isArray(musician.availability)) {
-            if (musician.availability.includes(event.date)) {
-                breakdown.date = true;
-            } else {
-                const eventWeekday = getWeekdayFromDate(event.date);
-                if (musician.availability.includes(eventWeekday)) {
-                    breakdown.date = true;
-                }
-            }
-        } else if (typeof musician.availability === 'object') {
-            const isModified = musician.availability.modifiedDates && musician.availability.modifiedDates.includes(event.date);
-            if (musician.availability.defaultState === 'all-selected') {
-                breakdown.date = !isModified;
-            } else {
-                breakdown.date = isModified;
-            }
+
+    // 2. Ort (10 %)
+    let ortScore = 0;
+    const distance = getEstimatedDistance(musician.location, event.location);
+    if (searcherRole === 'musician') {
+        if (distance <= (musician.radius || 100)) {
+            ortScore = 10;
+        }
+    } else { // organizer
+        const eventRadius = event.radius || 100; // Event search radius defaults to 100 km
+        if (distance <= eventRadius) {
+            ortScore = 10;
         }
     }
- 
-    if (event.location.toLowerCase() === musician.location.toLowerCase()) {
-        breakdown.location = true;
+
+    // 3. Genres (20 %)
+    let genresScore = 0;
+    const evGenres = event.genres || [];
+    const musGenres = musician.genres || [];
+    if (evGenres.length > 0) {
+        const commonGenres = evGenres.filter(g => musGenres.some(mg => mg.toLowerCase() === g.toLowerCase()));
+        genresScore = (commonGenres.length / evGenres.length) * 20;
     }
- 
-    const distance = getEstimatedDistance(musician.location, event.location);
-    if (distance <= musician.radius) {
-        breakdown.radius = true;
+
+    // 4. Instrumente (5 %)
+    let instScore = 0;
+    const evInst = event.instruments || [];
+    const musInst = musician.instruments || [];
+    if (evInst.length > 0) {
+        const commonInst = evInst.filter(i => musInst.some(mi => mi.toLowerCase() === i.toLowerCase()));
+        instScore = (commonInst.length / evInst.length) * 5;
     }
- 
-    if (event.genres && musician.genres && event.genres.some(g => musician.genres.includes(g))) {
-        breakdown.genres = true;
-    }
- 
-    if (event.instruments && musician.instruments && event.instruments.some(i => musician.instruments.includes(i))) {
-        breakdown.instruments = true;
-    }
- 
+
+    // 5. Spielzeit (5 %)
+    let durScore = 0;
     const evMinD = event.minDuration !== undefined ? event.minDuration : (event.duration || 0);
     const evMaxD = event.maxDuration !== undefined ? event.maxDuration : (event.duration || 24);
     const musMinD = musician.minDuration !== undefined ? musician.minDuration : 0;
     const musMaxD = musician.maxDuration || 24;
-    if (evMaxD >= musMinD && evMinD <= musMaxD) {
-        breakdown.duration = true;
+    
+    if (searcherRole === 'musician') {
+        if (evMaxD >= musMinD && evMinD <= musMaxD) {
+            durScore = 5;
+        }
+    } else { // organizer
+        if (evMinD >= musMinD && evMaxD <= musMaxD) {
+            durScore = 5;
+        }
     }
- 
+
+    // 6. Gage (5 %)
+    let budgetScore = 0;
     const evMinB = event.minBudget !== undefined ? event.minBudget : (event.budget || 0);
     const evMaxB = event.maxBudget !== undefined ? event.maxBudget : (event.budget || 5000);
     const musMinB = musician.minBudget || 0;
     const musMaxB = musician.maxBudget !== undefined ? musician.maxBudget : (musician.minBudget || 5000);
-    if (evMaxB >= musMinB && evMinB <= musMaxB) {
-        breakdown.budget = true;
+
+    if (searcherRole === 'musician') {
+        if (evMaxB >= musMinB && evMinB <= musMaxB) {
+            budgetScore = 5;
+        }
+    } else { // organizer
+        if (evMinB >= musMinB && evMaxB <= musMaxB) {
+            budgetScore = 5;
+        }
     }
- 
-    let technikMatch = false;
-    const evTech = (event.technik || "Weiß ich noch nicht").toLowerCase();
-    const musTech = (musician.technik || "Weiß ich noch nicht").toLowerCase();
-    if (evTech === "weiß ich noch nicht" || musTech === "weiß ich noch nicht") {
-        technikMatch = true;
-    } else if (evTech === "vorhanden") {
-        technikMatch = true;
-    } else if (evTech === "nicht vorhanden" && musTech === "vorhanden") {
-        technikMatch = true;
+
+    // 7. Event-Typ (20 %)
+    let eventTypeScore = 0;
+    const musEventTypes = musician.eventTypes || [];
+    const evType = event.type || event.eventType || '';
+    const evTypes = event.eventTypes || (evType ? [evType] : []);
+    if (evTypes.some(t => musEventTypes.some(mt => mt.toLowerCase() === t.toLowerCase()))) {
+        eventTypeScore = 20;
     }
-    breakdown.technik = technikMatch;
- 
-    const matchedCount = Object.values(breakdown).filter(v => v === true).length;
-    const score = Math.round((matchedCount / Object.keys(breakdown).length) * 100);
- 
-    return { score, breakdown, matchedCount };
+
+    // 8. Verfügbarkeit / Datum (5 %)
+    let dateScore = 0;
+    let isAvailable = false;
+    if (musician.availability) {
+        if (Array.isArray(musician.availability)) {
+            if (musician.availability.includes(event.date)) {
+                isAvailable = true;
+            } else {
+                const eventWeekday = getWeekdayFromDate(event.date);
+                if (musician.availability.includes(eventWeekday)) {
+                    isAvailable = true;
+                }
+            }
+        } else if (typeof musician.availability === 'object') {
+            const eventWeekday = getWeekdayFromDate(event.date).toLowerCase();
+            if (musician.availability[eventWeekday] !== undefined) {
+                isAvailable = !!musician.availability[eventWeekday].available;
+            } else {
+                const isModified = musician.availability.modifiedDates && musician.availability.modifiedDates.includes(event.date);
+                if (musician.availability.defaultState === 'all-selected') {
+                    isAvailable = !isModified;
+                } else {
+                    isAvailable = isModified;
+                }
+            }
+        }
+    }
+    if (isAvailable) {
+        dateScore = 5;
+    }
+
+    // 9. Publikum (10 %)
+    let publikumScore = 0;
+    const evMinP = event.minPublikum || 0;
+    const evMaxP = event.maxPublikum !== undefined ? event.maxPublikum : (event.minPublikum || 500);
+    const musMinP = musician.minPublikum || 0;
+    const musMaxP = musician.maxPublikum !== undefined ? musician.maxPublikum : (musician.minPublikum || 500);
+    if (evMinP >= musMinP && evMaxP <= musMaxP) {
+        publikumScore = 10;
+    }
+
+    // 10. Weitere Kriterien (5 %)
+    let matchesCount = 0;
+    const musTech = Array.isArray(musician.technik) ? musician.technik : [musician.technik || "Technik ist noch unklar"];
+    const evTech = Array.isArray(event.technik) ? event.technik : [event.technik || "Technik ist noch unklar"];
+    const possibleTech = ["Technik vorhanden", "Technik ist noch unklar", "Technik nicht vorhanden"];
+    possibleTech.forEach(opt => {
+        if (musTech.includes(opt) && evTech.includes(opt)) {
+            matchesCount++;
+        }
+    });
+    
+    let extraScore = (matchesCount / 3) * 5;
+
+    const totalScore = Math.round(typeScore + ortScore + genresScore + instScore + durScore + budgetScore + eventTypeScore + dateScore + publikumScore + extraScore);
+
+    const breakdown = {
+        type: typeScore > 0,
+        ort: ortScore > 0,
+        genres: genresScore > 0,
+        instruments: instScore > 0,
+        duration: durScore > 0,
+        budget: budgetScore > 0,
+        eventType: eventTypeScore > 0,
+        date: dateScore > 0,
+        publikum: publikumScore > 0,
+        extra: extraScore > 0
+    };
+
+    return {
+        score: Math.min(100, Math.max(0, totalScore)),
+        breakdown,
+        matchedCount: typeScore > 0 ? 1 : 0 // dummy for matches logic backwards compatibility
+    };
 }
 
 function checkAndNotifyMatches(stateManager, showToastCallback) {
@@ -2066,7 +2930,7 @@ function checkAndNotifyMatches(stateManager, showToastCallback) {
         if (!musician) return;
 
         stateManager.events.forEach(event => {
-            const match = calculateMatch(musician, event);
+            const match = calculateMatch(musician, event, 'musician');
             if (match.score > 49) {
                 const chats = stateManager.getChatsForUser(userId);
                 const hasSystemChat = chats.some(c => c.participants.includes("system") && c.participants.includes(musician.id));
@@ -2092,34 +2956,34 @@ function checkAndNotifyMatches(stateManager, showToastCallback) {
             }
         });
     } else if (userRole === "organizer") {
-        const event = stateManager.events.find(e => e.creatorId === userId);
-        if (!event) return;
+        const myEvents = stateManager.events.filter(e => e.creatorId === userId);
+        myEvents.forEach(event => {
+            stateManager.musicians.forEach(musician => {
+                const match = calculateMatch(musician, event, 'organizer');
+                if (match.score > 49) {
+                    const chats = stateManager.getChatsForUser(event.id);
+                    const hasSystemChat = chats.some(c => c.participants.includes("system") && c.participants.includes(event.id));
+                    
+                    let alreadyNotified = false;
+                    if (hasSystemChat) {
+                        const systemChat = chats.find(c => c.participants.includes("system") && c.participants.includes(event.id));
+                        alreadyNotified = systemChat.messages.some(m => m.text.includes(musician.name) || m.text.includes(musician.id));
+                    }
 
-        stateManager.musicians.forEach(musician => {
-            const match = calculateMatch(musician, event);
-            if (match.score > 49) {
-                const chats = stateManager.getChatsForUser(userId);
-                const hasSystemChat = chats.some(c => c.participants.includes("system") && c.participants.includes(userId));
-                
-                let alreadyNotified = false;
-                if (hasSystemChat) {
-                    const systemChat = chats.find(c => c.participants.includes("system") && c.participants.includes(userId));
-                    alreadyNotified = systemChat.messages.some(m => m.text.includes(musician.name) || m.text.includes(musician.id));
-                }
+                    if (!alreadyNotified) {
+                        const messageText = `🚨 MUSIKER-MATCH ALERT (${match.score}% Übereinstimmung): Der Musiker/die Band '${musician.name}' passt optimal zu Ihrem Event '${event.name}'. (ID: ${musician.id})`;
+                        stateManager.addSystemNotification(event.id, messageText);
 
-                if (!alreadyNotified) {
-                    const messageText = `🚨 MUSIKER-MATCH ALERT (${match.score}% Übereinstimmung): Der Musiker/die Band '${musician.name}' passt optimal zu Ihrem Event '${event.name}'. (ID: ${musician.id})`;
-                    stateManager.addSystemNotification(userId, messageText);
-
-                    if (showToastCallback) {
-                        showToastCallback({
-                            title: `Passender Musiker gefunden! (${match.score}%)`,
-                            message: `'${musician.name}' passt zu Ihrer Veranstaltung.`,
-                            actionTab: "postbox"
-                        });
+                        if (showToastCallback) {
+                            showToastCallback({
+                                title: `Passender Musiker gefunden! (${match.score}%)`,
+                                message: `'${musician.name}' passt zu Ihrer Veranstaltung.`,
+                                actionTab: "postbox"
+                            });
+                        }
                     }
                 }
-            }
+            });
         });
     }
 }
@@ -2160,6 +3024,7 @@ function showToast(options) {
         setTimeout(() => toast.remove(), 500);
     }, 6000);
 }
+window.showToast = showToast;
 
 function renderHeroTabContent(isMusician) {
     if (isMusician) {
@@ -2296,8 +3161,9 @@ function renderLandingPage(container, onNavigate) {
         ? `<button class="btn" id="btn-bottom-dashboard-trigger" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: 1.5px solid rgba(255,255,255,0.15); color: #ffffff; padding: 0.95rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 15px; box-shadow: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; white-space: nowrap;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
                <i class="fa-solid fa-gauge-high"></i> Mein Dashboard
            </button>`
-        : `<button class="btn" id="btn-bottom-login-trigger" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: 1.5px solid rgba(255,255,255,0.15); color: #ffffff; padding: 0.95rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 15px; box-shadow: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; white-space: nowrap;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
-               <i class="fa-solid fa-sign-in-alt"></i> Anmelden ohne Passwort
+        : `<button class="btn btn-secondary btn-sm" id="btn-bottom-login-trigger" style="white-space: normal !important; line-height: 0.9 !important; padding: 0.55rem 1.4rem !important; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 12px; cursor: pointer; border: none; outline: none; margin: 0 auto;">
+               <span style="font-weight: 700; display: block; font-size: 1.05rem;">Anmelden/Registrieren</span>
+               <span style="font-weight: 700; display: block; font-size: 1.05rem; margin-top: -2px;">ohne Passwort</span>
            </button>`;
 
     container.innerHTML = `
@@ -2306,29 +3172,69 @@ function renderLandingPage(container, onNavigate) {
             <!-- 1. Fullscreen 100vh Hero Background Video Section -->
             <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 22vh 1.5rem 9rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
                 
-                <!-- Background Video -->
-                <video autoplay muted loop playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
-                    <source src="https://videos.pexels.com/video-files/3191578/3191578-sd_960_540_25fps.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
+                <!-- Seamless Dual Background Videos (Scaled to crop out Capcut watermark) -->
+                <video id="hero-bg-video-1" autoplay muted playsinline style="position: absolute; top: -8%; left: -8%; width: 116%; height: 116%; object-fit: cover; z-index: 1;">
+                    <source src="hochzeit.mp4" type="video/mp4">
+                </video>
+                <video id="hero-bg-video-2" muted playsinline style="position: absolute; top: -8%; left: -8%; width: 116%; height: 116%; object-fit: cover; z-index: 0; display: none;">
                 </video>
 
                 <!-- Dark overlay gradient -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.78) 0%, rgba(30, 58, 138, 0.72) 50%, rgba(124, 58, 237, 0.68) 100%); z-index: 2;"></div>
 
                 <!-- 1/3: Large Logo -->
-                <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 900px; font-family: var(--font-heading); font-size: clamp(3rem, 7vw, 5.2rem); font-weight: 900; letter-spacing: -1px; background: linear-gradient(135deg, #60a5fa 0%, #ffffff 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.7)); text-align: center; margin: 0;">
-                    <i class="fa-solid fa-compact-disc" style="color:#60a5fa; -webkit-text-fill-color: initial; margin-right: 0.3rem;"></i>GigConnAct
+                <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0 0.8rem; box-sizing: border-box;">
+                    <!-- Large SVG Disco Ball -->
+                    <svg viewBox="0 0 100 100" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); flex-shrink: 0;">
+                      <defs>
+                        <radialGradient id="sphereGradLarge" cx="35%" cy="35%" r="65%">
+                          <stop offset="0%" stop-color="#ffffff" />
+                          <stop offset="40%" stop-color="#a78bfa" />
+                          <stop offset="75%" stop-color="#6d28d9" />
+                          <stop offset="100%" stop-color="#1e40af" />
+                        </radialGradient>
+                        <filter id="glowLarge" x="-30%" y="-30%" width="160%" height="160%">
+                          <feGaussianBlur stdDeviation="2.5" result="blur" />
+                          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                      </defs>
+                      <circle cx="50" cy="50" r="40" fill="url(#sphereGradLarge)" />
+                      <!-- Grid arcs -->
+                      <path d="M 10 50 A 40 40 0 0 0 90 50 A 40 40 0 0 0 10 50" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
+                      <path d="M 11.5 40 A 40 30 0 0 0 88.5 40" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 15 30 A 40 20 0 0 0 85 30" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 21.8 20 A 40 10 0 0 0 78.2 20" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 11.5 60 A 40 30 0 0 1 88.5 60" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 15 70 A 40 20 0 0 1 85 70" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 21.8 80 A 40 10 0 0 1 78.2 80" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 50 10 A 40 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
+                      <path d="M 50 10 A 30 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 50 10 A 20 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 50 10 A 10 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 50 10 A 30 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 50 10 A 20 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 50 10 A 10 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <!-- Sparkles -->
+                      <g transform="translate(22, 25)" filter="url(#glowLarge)"><polygon points="0,-8 2,-2 8,0 2,2 0,8 -2,2 -8,0 -2,-2" fill="#ffffff" /></g>
+                      <g transform="translate(75, 30)" filter="url(#glowLarge)"><polygon points="0,-6 1.5,-1.5 6,0 1.5,1.5 0,6 -1.5,1.5 -6,0 -1.5,-1.5" fill="#ffffff" /></g>
+                      <g transform="translate(68, 68)" filter="url(#glowLarge)"><polygon points="0,-7 1.8,-1.8 7,0 1.8,1.8 0,7 -1.8,1.8 -7,0 -1.8,-1.8" fill="#ffffff" /></g>
+                    </svg>
+                    <div style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.2rem); font-weight: 900; letter-spacing: -1.5px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        GigConnAct
+                    </div>
                 </div>
 
                 <!-- 2/3: CTA Buttons -->
                 <div class="hero-cta-buttons" style="position: relative; z-index: 3; margin: 0; gap: 2rem;">
-                    <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem; min-width: 210px; min-height: 155px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                    <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
                         <i class="fa-solid fa-guitar" style="font-size: 3.2rem;"></i>
                         <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Musiker</span>
+                        <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Ich suche Gigs</span>
                     </button>
-                    <button class="btn" id="btn-hero-organizer" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem; min-width: 210px; min-height: 155px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                    <button class="btn" id="btn-hero-organizer" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
                         <i class="fa-solid fa-calendar-check" style="font-size: 3.2rem;"></i>
                         <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Veranstalter</span>
+                        <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Ich suche Acts</span>
                     </button>
                 </div>
 
@@ -2337,18 +3243,80 @@ function renderLandingPage(container, onNavigate) {
                     <h1 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 5.8vw, 3.2rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin: 0; color: #ffffff; text-shadow: 0 4px 20px rgba(0,0,0,0.8); white-space: nowrap;">
                         Wir vermitteln Live-Musik.
                     </h1>
-                    <p style="font-size: clamp(0.95rem, 2.2vw, 1.25rem); color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.5; max-width: 800px; margin: 0 auto; text-shadow: 0 2px 10px rgba(0,0,0,0.7);">
+                    <p style="font-size: clamp(0.78rem, 2.2vw, 1.25rem); color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.5; max-width: 800px; margin: 0 auto; text-shadow: 0 2px 10px rgba(0,0,0,0.7);">
                         Hochzeiten, Geburtstage, Firmenfeiern & Co.<br>GigConnAct verbindet Musiker und Veranstalter.
                     </p>
                 </div>
             </div>
 
-            <!-- 2. SECTION 1: Musiker-Profile -->
+            <!-- 2. SECTION 1: Musiker-Profile Marquee -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem 0;">
-                <div style="text-align: center; margin-bottom: 1.8rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: #7c3aed; margin: 0;">
-                        Musiker-Profile
-                    </h2>
+                <div class="logo-marquee-wrapper theme-musicians-marquee" style="margin-bottom: 2.2rem;">
+                    <div class="logo-marquee-track">
+                        <!-- First Copy of 10 Band Logos -->
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-rockers-1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff007f" /><stop offset="100%" stop-color="#7c3aed" /></linearGradient></defs><polygon points="5,5 155,2 150,40 10,43" fill="#111111" stroke="url(#grad-rockers-1)" stroke-width="2"/><path d="M 22,12 L 32,12 L 24,24 L 32,24 L 18,36 L 24,20 L 18,20 Z" fill="#ff007f" /><text x="40" y="29" font-family="'Impact', 'Arial Black', sans-serif" font-size="18" font-weight="bold" fill="#ffffff" letter-spacing="1">THE ROCKERS</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="166" height="41" rx="8" fill="#000000" stroke="#00ffcc" stroke-width="2" /><line x1="15" y1="12" x2="15" y2="33" stroke="#00ffcc" stroke-width="3" /><line x1="21" y1="8" x2="21" y2="37" stroke="#00ffcc" stroke-width="3" /><line x1="27" y1="16" x2="27" y2="29" stroke="#00ffcc" stroke-width="3" /><line x1="33" y1="6" x2="33" y2="39" stroke="#00ffcc" stroke-width="3" /><text x="42" y="28" font-family="'Courier New', monospace" font-size="16" font-weight="900" fill="#ffffff" letter-spacing="0.5">HYPERACTIVE</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 165 45" width="165" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="18" fill="#1e293b" stroke="#e2e8f0" stroke-width="1" /><path d="M18,12 L18,26 A6,6 0 1,1 12,20 L16,20 Z" fill="#fbbf24" /><path d="M26,10 L26,24 A4,4 0 1,1 22,20 L24,20 Z" fill="#3b82f6" /><text x="48" y="27" font-family="'Georgia', serif" font-size="16" font-style="italic" font-weight="bold" fill="#fbbf24">Blue Note Jazz</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M5,22 Q20,5 35,22 T65,22" fill="none" stroke="#f472b6" stroke-width="3" stroke-linecap="round" /><path d="M15,22 Q30,35 45,22 T75,22" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" /><text x="80" y="28" font-family="'Montserrat', sans-serif" font-size="15" font-weight="300" fill="#ffffff" letter-spacing="1.5">VOCAL</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-kings-1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fbbf24" /><stop offset="100%" stop-color="#b45309" /></linearGradient></defs><path d="M10,32 L10,18 L16,24 L22,14 L28,24 L34,18 L34,32 Z" fill="url(#grad-kings-1)" /><rect x="8" y="32" width="28" height="6" fill="#ffffff" /><rect x="13" y="32" width="2" height="4" fill="#000000" /><rect x="18" y="32" width="2" height="4" fill="#000000" /><rect x="23" y="32" width="2" height="4" fill="#000000" /><rect x="28" y="32" width="2" height="4" fill="#000000" /><text x="44" y="27" font-family="'Cinzel', serif, Times" font-size="14" font-weight="bold" fill="url(#grad-kings-1)" letter-spacing="1">KINGS</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="16" fill="#222222" stroke="#a855f7" stroke-width="2"/><circle cx="22" cy="22" r="10" fill="#333333" stroke="#a855f7" stroke-width="1.5"/><circle cx="22" cy="22" r="4" fill="#a855f7"/><text x="46" y="28" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="900" fill="#ffffff" letter-spacing="-0.5">BEAT<tspan fill="#a855f7">MS</tspan></text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,22 L20,22 L24,10 L28,34 L32,18 L36,26 L40,22 L50,22" fill="none" stroke="#ec4899" stroke-width="3" stroke-linejoin="round" /><text x="56" y="27" font-family="sans-serif" font-size="16" font-weight="800" fill="#ec4899">ELECTRO</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M15,10 C18,12 18,18 15,20 C12,22 12,28 15,30" fill="none" stroke="#fb923c" stroke-width="2" /><path d="M25,10 C22,12 22,18 25,20 C28,22 28,28 25,30" fill="none" stroke="#fb923c" stroke-width="2" /><line x1="20" y1="5" x2="20" y2="38" stroke="#fb923c" stroke-width="1.5" /><text x="35" y="26" font-family="Times New Roman, serif" font-size="16" font-weight="bold" fill="#ffffff">String Ensemble</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-melody-1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient></defs><path d="M22,35 C28,35 28,26 23,26 C15,26 18,35 22,35 Z M22,35 L22,8 Q27,8 27,15 Q22,20 22,24" fill="none" stroke="url(#grad-melody-1)" stroke-width="3" /><text x="40" y="27" font-family="'Trebuchet MS', sans-serif" font-size="15" font-weight="bold" fill="url(#grad-melody-1)">MelodyMakers</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,12 C18,8 28,8 36,12 C40,24 30,36 23,40 C16,36 6,24 10,12 Z" fill="#84cc16" opacity="0.8" /><text x="45" y="26" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="#ffffff">acoustic<tspan fill="#84cc16">duo</tspan></text></svg>
+                        </div>
+                        
+                        <!-- Second Copy of 10 Band Logos (for seamless looping) -->
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-rockers-2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff007f" /><stop offset="100%" stop-color="#7c3aed" /></linearGradient></defs><polygon points="5,5 155,2 150,40 10,43" fill="#111111" stroke="url(#grad-rockers-2)" stroke-width="2"/><path d="M 22,12 L 32,12 L 24,24 L 32,24 L 18,36 L 24,20 L 18,20 Z" fill="#ff007f" /><text x="40" y="29" font-family="'Impact', 'Arial Black', sans-serif" font-size="18" font-weight="bold" fill="#ffffff" letter-spacing="1">THE ROCKERS</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="166" height="41" rx="8" fill="#000000" stroke="#00ffcc" stroke-width="2" /><line x1="15" y1="12" x2="15" y2="33" stroke="#00ffcc" stroke-width="3" /><line x1="21" y1="8" x2="21" y2="37" stroke="#00ffcc" stroke-width="3" /><line x1="27" y1="16" x2="27" y2="29" stroke="#00ffcc" stroke-width="3" /><line x1="33" y1="6" x2="33" y2="39" stroke="#00ffcc" stroke-width="3" /><text x="42" y="28" font-family="'Courier New', monospace" font-size="16" font-weight="900" fill="#ffffff" letter-spacing="0.5">HYPERACTIVE</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 165 45" width="165" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="18" fill="#1e293b" stroke="#e2e8f0" stroke-width="1" /><path d="M18,12 L18,26 A6,6 0 1,1 12,20 L16,20 Z" fill="#fbbf24" /><path d="M26,10 L26,24 A4,4 0 1,1 22,20 L24,20 Z" fill="#3b82f6" /><text x="48" y="27" font-family="'Georgia', serif" font-size="16" font-style="italic" font-weight="bold" fill="#fbbf24">Blue Note Jazz</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M5,22 Q20,5 35,22 T65,22" fill="none" stroke="#f472b6" stroke-width="3" stroke-linecap="round" /><path d="M15,22 Q30,35 45,22 T75,22" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" /><text x="80" y="28" font-family="'Montserrat', sans-serif" font-size="15" font-weight="300" fill="#ffffff" letter-spacing="1.5">VOCAL</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-kings-2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fbbf24" /><stop offset="100%" stop-color="#b45309" /></linearGradient></defs><path d="M10,32 L10,18 L16,24 L22,14 L28,24 L34,18 L34,32 Z" fill="url(#grad-kings-2)" /><rect x="8" y="32" width="28" height="6" fill="#ffffff" /><rect x="13" y="32" width="2" height="4" fill="#000000" /><rect x="18" y="32" width="2" height="4" fill="#000000" /><rect x="23" y="32" width="2" height="4" fill="#000000" /><rect x="28" y="32" width="2" height="4" fill="#000000" /><text x="44" y="27" font-family="'Cinzel', serif, Times" font-size="14" font-weight="bold" fill="url(#grad-kings-2)" letter-spacing="1">KINGS</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="16" fill="#222222" stroke="#a855f7" stroke-width="2"/><circle cx="22" cy="22" r="10" fill="#333333" stroke="#a855f7" stroke-width="1.5"/><circle cx="22" cy="22" r="4" fill="#a855f7"/><text x="46" y="28" font-family="Helvetica, Arial, sans-serif" font-size="18" font-weight="900" fill="#ffffff" letter-spacing="-0.5">BEAT<tspan fill="#a855f7">MS</tspan></text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,22 L20,22 L24,10 L28,34 L32,18 L36,26 L40,22 L50,22" fill="none" stroke="#ec4899" stroke-width="3" stroke-linejoin="round" /><text x="56" y="27" font-family="sans-serif" font-size="16" font-weight="800" fill="#ec4899">ELECTRO</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M15,10 C18,12 18,18 15,20 C12,22 12,28 15,30" fill="none" stroke="#fb923c" stroke-width="2" /><path d="M25,10 C22,12 22,18 25,20 C28,22 28,28 25,30" fill="none" stroke="#fb923c" stroke-width="2" /><line x1="20" y1="5" x2="20" y2="38" stroke="#fb923c" stroke-width="1.5" /><text x="35" y="26" font-family="Times New Roman, serif" font-size="16" font-weight="bold" fill="#ffffff">String Ensemble</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-melody-2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient></defs><path d="M22,35 C28,35 28,26 23,26 C15,26 18,35 22,35 Z M22,35 L22,8 Q27,8 27,15 Q22,20 22,24" fill="none" stroke="url(#grad-melody-2)" stroke-width="3" /><text x="40" y="27" font-family="'Trebuchet MS', sans-serif" font-size="15" font-weight="bold" fill="url(#grad-melody-2)">MelodyMakers</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,12 C18,8 28,8 36,12 C40,24 30,36 23,40 C16,36 6,24 10,12 Z" fill="#84cc16" opacity="0.8" /><text x="45" y="26" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="#ffffff">acoustic<tspan fill="#84cc16">duo</tspan></text></svg>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="carousel-container">
@@ -2366,12 +3334,74 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 3. SECTION 2: Event-Profile -->
+            <!-- 3. SECTION 2: Event-Profile Marquee -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 0.5rem 1.5rem 0;">
-                <div style="text-align: center; margin-bottom: 1.8rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: #2563eb; margin: 0;">
-                        Event-Profile
-                    </h2>
+                <div class="logo-marquee-wrapper theme-events-marquee" style="margin-bottom: 2.2rem;">
+                    <div class="logo-marquee-track">
+                        <!-- First Copy of 10 Event/Venue/Club Logos -->
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M8,32 L8,18 L12,18 L12,22 L16,22 L16,18 L20,18 L20,22 L24,22 L24,18 L28,18 L28,32 Z" fill="#94a3b8" /><path d="M14,32 L14,26 L22,26 L22,32 Z" fill="#1e293b" /><polygon points="18,10 24,15 12,15" fill="#f43f5e" /><text x="35" y="27" font-family="'Georgia', serif" font-size="14" font-weight="bold" fill="#ffffff" letter-spacing="0.5">SCHLOSSBERG</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 165 45" width="165" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-royal-1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fbbf24" /><stop offset="100%" stop-color="#f59e0b" /></linearGradient></defs><path d="M10,28 L13,15 L18,20 L23,12 L28,20 L33,15 L36,28 Z" fill="url(#grad-royal-1)" /><circle cx="23" cy="8" r="2" fill="url(#grad-royal-1)" /><text x="45" y="26" font-family="'Times New Roman', serif" font-size="18" font-weight="bold" fill="url(#grad-royal-1)" letter-spacing="1.5">ROYAL</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,10 L32,10 L32,25 C32,35 21,40 21,40 C21,40 10,35 10,25 Z" fill="#1d4ed8" stroke="#ffffff" stroke-width="1.5" /><path d="M15,10 L18,10 L18,31 C16,29 15,27 15,25 Z" fill="#ffffff" /><path d="M24,10 L27,10 L27,31 C25,29 24,27 24,25 Z" fill="#ffffff" /><text x="40" y="26" font-family="'Arial Black', Impact, sans-serif" font-size="15" fill="#ffffff" letter-spacing="-0.5">SV KICKERS</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,35 L28,35 L22,12 L16,12 Z" fill="#f97316" /><line x1="20" y1="12" x2="35" y2="5" stroke="#f97316" stroke-width="2" /><line x1="32" y1="6" x2="32" y2="18" stroke="#64748b" stroke-width="1" /><text x="42" y="27" font-family="'Impact', 'Arial Black', sans-serif" font-size="17" fill="#ffffff" letter-spacing="0.5">WERFT</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="14" fill="none" stroke="#10b981" stroke-width="3" /><circle cx="22" cy="22" r="8" fill="none" stroke="#f59e0b" stroke-width="3" /><circle cx="22" cy="22" r="2" fill="#ef4444" /><text x="44" y="26" font-family="sans-serif" font-size="15" font-weight="800" fill="#10b981" letter-spacing="0.5">KULTUR<tspan fill="#f59e0b">V.</tspan></text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><polygon points="22,8 34,22 22,36 10,22" fill="none" stroke="#fbbf24" stroke-width="2" /><polygon points="22,13 30,22 22,31 14,22" fill="#fbbf24" /><text x="44" y="26" font-family="'Courier New', Courier, monospace" font-size="16" font-weight="bold" fill="#ffffff" letter-spacing="2">GALA-PRO</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="16" fill="#047857" /><path d="M17,20 Q22,12 27,20 M19,25 Q22,18 25,25" fill="none" stroke="#fbbf24" stroke-width="2" /><text x="46" y="26" font-family="'Georgia', serif" font-size="15" font-weight="bold" fill="#fbbf24">Biergarten</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="10" width="8" height="25" fill="#3b82f6" /><rect x="18" y="15" width="8" height="20" fill="#3b82f6" opacity="0.8" /><rect x="28" y="20" width="8" height="15" fill="#3b82f6" opacity="0.6" /><text x="42" y="27" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#ffffff" letter-spacing="1">MESSE<tspan fill="#3b82f6">W</tspan></text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M12,12 C12,18 16,22 20,22 L20,32 L15,32 L15,34 L25,34 L25,32 L20,32 L20,22 C24,22 28,18 28,12 Z" fill="none" stroke="#84cc16" stroke-width="1.5" /><circle cx="20" cy="10" r="4" fill="#fbbf24" /><text x="36" y="26" font-family="Georgia, serif" font-size="16" fill="#84cc16">Sonnenhang</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><polygon points="8,10 16,10 12,24" fill="#ec4899" /><polygon points="16,10 24,10 20,24" fill="#3b82f6" /><polygon points="24,10 32,10 28,24" fill="#eab308" /><line x1="6" y1="10" x2="34" y2="10" stroke="#ffffff" stroke-width="1.5" /><text x="40" y="26" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#ffffff">Stadtfest</text></svg>
+                        </div>
+                        
+                        <!-- Second Copy of 10 Event/Venue/Club Logos (for seamless looping) -->
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M8,32 L8,18 L12,18 L12,22 L16,22 L16,18 L20,18 L20,22 L24,22 L24,18 L28,18 L28,32 Z" fill="#94a3b8" /><path d="M14,32 L14,26 L22,26 L22,32 Z" fill="#1e293b" /><polygon points="18,10 24,15 12,15" fill="#f43f5e" /><text x="35" y="27" font-family="'Georgia', serif" font-size="14" font-weight="bold" fill="#ffffff" letter-spacing="0.5">SCHLOSSBERG</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 165 45" width="165" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-royal-2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fbbf24" /><stop offset="100%" stop-color="#f59e0b" /></linearGradient></defs><path d="M10,28 L13,15 L18,20 L23,12 L28,20 L33,15 L36,28 Z" fill="url(#grad-royal-2)" /><circle cx="23" cy="8" r="2" fill="url(#grad-royal-2)" /><text x="45" y="26" font-family="'Times New Roman', serif" font-size="18" font-weight="bold" fill="url(#grad-royal-2)" letter-spacing="1.5">ROYAL</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,10 L32,10 L32,25 C32,35 21,40 21,40 C21,40 10,35 10,25 Z" fill="#1d4ed8" stroke="#ffffff" stroke-width="1.5" /><path d="M15,10 L18,10 L18,31 C16,29 15,27 15,25 Z" fill="#ffffff" /><path d="M24,10 L27,10 L27,31 C25,29 24,27 24,25 Z" fill="#ffffff" /><text x="40" y="26" font-family="'Arial Black', Impact, sans-serif" font-size="15" fill="#ffffff" letter-spacing="-0.5">SV KICKERS</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,35 L28,35 L22,12 L16,12 Z" fill="#f97316" /><line x1="20" y1="12" x2="35" y2="5" stroke="#f97316" stroke-width="2" /><line x1="32" y1="6" x2="32" y2="18" stroke="#64748b" stroke-width="1" /><text x="42" y="27" font-family="'Impact', 'Arial Black', sans-serif" font-size="17" fill="#ffffff" letter-spacing="0.5">WERFT</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="14" fill="none" stroke="#10b981" stroke-width="3" /><circle cx="22" cy="22" r="8" fill="none" stroke="#f59e0b" stroke-width="3" /><circle cx="22" cy="22" r="2" fill="#ef4444" /><text x="44" y="26" font-family="sans-serif" font-size="15" font-weight="800" fill="#10b981" letter-spacing="0.5">KULTUR<tspan fill="#f59e0b">V.</tspan></text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><polygon points="22,8 34,22 22,36 10,22" fill="none" stroke="#fbbf24" stroke-width="2" /><polygon points="22,13 30,22 22,31 14,22" fill="#fbbf24" /><text x="44" y="26" font-family="'Courier New', Courier, monospace" font-size="16" font-weight="bold" fill="#ffffff" letter-spacing="2">GALA-PRO</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="16" fill="#047857" /><path d="M17,20 Q22,12 27,20 M19,25 Q22,18 25,25" fill="none" stroke="#fbbf24" stroke-width="2" /><text x="46" y="26" font-family="'Georgia', serif" font-size="15" font-weight="bold" fill="#fbbf24">Biergarten</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="10" width="8" height="25" fill="#3b82f6" /><rect x="18" y="15" width="8" height="20" fill="#3b82f6" opacity="0.8" /><rect x="28" y="20" width="8" height="15" fill="#3b82f6" opacity="0.6" /><text x="42" y="27" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#ffffff" letter-spacing="1">MESSE<tspan fill="#3b82f6">W</tspan></text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M12,12 C12,18 16,22 20,22 L20,32 L15,32 L15,34 L25,34 L25,32 L20,32 L20,22 C24,22 28,18 28,12 Z" fill="none" stroke="#84cc16" stroke-width="1.5" /><circle cx="20" cy="10" r="4" fill="#fbbf24" /><text x="36" y="26" font-family="Georgia, serif" font-size="16" fill="#84cc16">Sonnenhang</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><polygon points="8,10 16,10 12,24" fill="#ec4899" /><polygon points="16,10 24,10 20,24" fill="#3b82f6" /><polygon points="24,10 32,10 28,24" fill="#eab308" /><line x1="6" y1="10" x2="34" y2="10" stroke="#ffffff" stroke-width="1.5" /><text x="40" y="26" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#ffffff">Stadtfest</text></svg>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="carousel-container">
@@ -2389,189 +3419,164 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 4. SECTION 3: 7 Vorteile für Musiker (Vibrant Purple Neon Cards with white texts) -->
-            <div style="max-width: 1400px; margin: 0 auto; padding: 0.5rem 1.5rem 0;">
-                <div style="text-align: center; margin-bottom: 1.8rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: #7c3aed; margin: 0;">
-                        7 Vorteile für Musiker
-                    </h2>
-                </div>
-
-                <div class="carousel-container">
-                    <div class="carousel-viewport">
-                        <div class="carousel-track" id="carousel-track-benefits-musician">
+            <!-- 4. SECTION 3 & 4: Vorteile für Musiker & Veranstalter (Split-Layout on laptops) -->
+            <div style="max-width: 1400px; margin: 0 auto; padding: 4rem 1.5rem 0;">
+                <div class="benefits-container-split">
+                    
+                    <!-- Left column: Musiker benefits -->
+                    <div>
+                        <div style="text-align: center; margin-bottom: 1.8rem;">
+                            <h2 style="font-family: var(--font-heading); font-size: clamp(1.3rem, 2.6vw, 2.2rem); font-weight: 900; color: #7c3aed; margin: 0; white-space: nowrap !important;">
+                                GigConnAct für Musiker
+                            </h2>
+                        </div>
+                        <div class="benefits-vertical-stack" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
                             
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: none; display: flex; flex-direction: column; justify-content: space-between;">
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-door-open" style="color: #ffffff; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zu Events</h4>
-                                    </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Hochzeiten, Geburtstage, Firmenfeiern, Kirmes, Gartenpartys etc.</p>
+                            <div class="market-tile-card benefit-card-musician">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-comments" style="color: #4c1d95; font-size: 1.85rem;"></i>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: left;">
+                                    <h4 style="color: #4c1d95; font-weight: 900; margin: 0; font-size: 0.98rem; line-height: 1.2;">Direkter Kontakt zu Veranstaltern</h4>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #5b21b6; font-weight: 600; line-height: 1.4;">Hochzeiten, Geburtstage, Firmenfeiern, Kirmes etc.</p>
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: none; display: flex; flex-direction: column; justify-content: space-between;">
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-sliders" style="color: #ffffff; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Passende Events</h4>
-                                    </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Event-Art, Entfernung, Gage, Verfügbarkeit etc.</p>
+                            <div class="market-tile-card benefit-card-musician">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-sliders" style="color: #4c1d95; font-size: 1.85rem;"></i>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: left;">
+                                    <h4 style="color: #4c1d95; font-weight: 900; margin: 0; font-size: 0.98rem; line-height: 1.2;">Passende Events</h4>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #5b21b6; font-weight: 600; line-height: 1.4;">Event-Art, Entfernung, Gage, Verfügbarkeit etc.</p>
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: none; display: flex; flex-direction: column; justify-content: space-between;">
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-comments" style="color: #ffffff; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Direkter Kontakt zu Veranstaltern</h4>
-                                    </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
+                            <div class="market-tile-card benefit-card-musician">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-location-arrow" style="color: #4c1d95; font-size: 1.85rem;"></i>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: left;">
+                                    <h4 style="color: #4c1d95; font-weight: 900; margin: 0; font-size: 0.98rem; line-height: 1.2;">Interessante Anfragen</h4>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #5b21b6; font-weight: 600; line-height: 1.4;">Telefonnummern, Mail-Adressen, Nachrichten im GCA-Postfach</p>
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: none; display: flex; flex-direction: column; justify-content: space-between;">
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-location-arrow" style="color: #ffffff; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
-                                    </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Nicht nur Anfragen an Veranstalter senden – sondern auch erhalten</p>
+                            <div class="market-tile-card benefit-card-musician">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-wand-magic-sparkles" style="color: #4c1d95; font-size: 1.85rem;"></i>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: left;">
+                                    <h4 style="color: #4c1d95; font-weight: 900; margin: 0; font-size: 0.98rem; line-height: 1.2;">Top-Vorschläge</h4>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #5b21b6; font-weight: 600; line-height: 1.4;">Automatische Empfehlungen von GigConnAct zu Events</p>
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: none; display: flex; flex-direction: column; justify-content: space-between;">
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-wand-magic-sparkles" style="color: #ffffff; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Top-Vorschläge</h4>
-                                    </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Automatische Empfehlungen von GigConnAct zu Events</p>
+                            <div class="market-tile-card benefit-card-musician">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-bolt" style="color: #4c1d95; font-size: 1.85rem;"></i>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: left;">
+                                    <h4 style="color: #4c1d95; font-weight: 900; margin: 0; font-size: 0.98rem; line-height: 1.2;">Schnelle Anmeldung</h4>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #5b21b6; font-weight: 600; line-height: 1.4;">Anlegen des Musiker-Profils ohne Passwort</p>
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: none; display: flex; flex-direction: column; justify-content: space-between;">
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-bolt" style="color: #ffffff; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Schnelle Anmeldung</h4>
-                                    </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Anlegen des Musiker-Profils ohne Passwort</p>
+                            <div class="market-tile-card benefit-card-musician">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-coins" style="color: #4c1d95; font-size: 1.85rem;"></i>
                                 </div>
-                            </div>
-
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; border-radius: 14px; padding: 1.25rem; box-shadow: none; display: flex; flex-direction: column; justify-content: space-between;">
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-coins" style="color: #ffffff; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
-                                    </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Preiswertes Abo-Modell (jederzeit kündbar)</p>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: left;">
+                                    <h4 style="color: #4c1d95; font-weight: 900; margin: 0; font-size: 0.98rem; line-height: 1.2;">Keine Provisionskosten</h4>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #5b21b6; font-weight: 600; line-height: 1.4;">Preiswertes Abo-Modell<br>(jederzeit kündbar)</p>
                                 </div>
                             </div>
 
                         </div>
+                        <div style="margin-top: 1.5rem; text-align: center;">
+                            <button id="btn-benefits-to-events" class="btn-homepage-market theme-musician">
+                                Hier geht´s zum Event-Markt <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
                     </div>
-                    <button class="carousel-btn prev-btn" onclick="slideCarousel('benefits-musician', -1)">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-                    <button class="carousel-btn next-btn" onclick="slideCarousel('benefits-musician', 1)">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
 
-            <!-- 5. SECTION 4: 7 Vorteile für Veranstalter (Vibrant Blue Neon Cards with white texts) -->
-            <div style="max-width: 1400px; margin: 0 auto; padding: 0.5rem 1.5rem 0;">
-                <div style="text-align: center; margin-bottom: 1.8rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 900; color: #2563eb; margin: 0;">
-                        7 Vorteile für Veranstalter
-                    </h2>
-                </div>
-
-                <div class="carousel-container">
-                    <div class="carousel-viewport">
-                        <div class="carousel-track" id="carousel-track-benefits-organizer">
+                    <!-- Right column: Veranstalter benefits -->
+                    <div>
+                        <div style="text-align: center; margin-bottom: 1.8rem;">
+                            <h2 style="font-family: var(--font-heading); font-size: clamp(1.3rem, 2.6vw, 2.2rem); font-weight: 900; color: #2563eb; margin: 0; white-space: nowrap !important;">
+                                GigConnAct für Veranstalter
+                            </h2>
+                        </div>
+                        <div class="benefits-vertical-stack" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
                             
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: none; display: flex; flex-direction: column; justify-content: space-between;">
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-door-open" style="color: #ffffff; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zu Musikern</h4>
-                                    </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Coverbands, Bands, DJs, Duos, Trios, Gitarristen, Sänger etc.</p>
+                            <div class="market-tile-card benefit-card-organizer">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-comments" style="color: #1e3a8a; font-size: 1.85rem;"></i>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: left;">
+                                    <h4 style="color: #1e3a8a; font-weight: 900; margin: 0; font-size: 0.98rem; line-height: 1.2;">Direkter Kontakt zu Musikern</h4>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #1e40af; font-weight: 600; line-height: 1.4;">Coverbands, Bands, DJs, Duos, Trios, Gitarristen, Sänger etc.</p>
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: none; display: flex; flex-direction: column; justify-content: space-between;">
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-sliders" style="color: #ffffff; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Passende Musiker</h4>
-                                    </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Musiker-Typ, Budget, Genre, Spieldauer etc.</p>
+                            <div class="market-tile-card benefit-card-organizer">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-sliders" style="color: #1e3a8a; font-size: 1.85rem;"></i>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: left;">
+                                    <h4 style="color: #1e3a8a; font-weight: 900; margin: 0; font-size: 0.98rem; line-height: 1.2;">Passende Musiker</h4>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #1e40af; font-weight: 600; line-height: 1.4;">Musiker-Typ, Budget, Genre, Spieldauer etc.</p>
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: none; display: flex; flex-direction: column; justify-content: space-between;">
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-comments" style="color: #ffffff; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Direkter Kontakt zu Musikern</h4>
-                                    </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
+                            <div class="market-tile-card benefit-card-organizer">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-location-arrow" style="color: #1e3a8a; font-size: 1.85rem;"></i>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: left;">
+                                    <h4 style="color: #1e3a8a; font-weight: 900; margin: 0; font-size: 0.98rem; line-height: 1.2;">Interessante Anfragen</h4>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #1e40af; font-weight: 600; line-height: 1.4;">Telefonnummern, Mail-Adressen, Nachrichten im GCA-Postfach</p>
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: none; display: flex; flex-direction: column; justify-content: space-between;">
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-location-arrow" style="color: #ffffff; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
-                                    </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Nicht nur Anfragen an Musiker senden – sondern auch erhalten</p>
+                            <div class="market-tile-card benefit-card-organizer">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-wand-magic-sparkles" style="color: #1e3a8a; font-size: 1.85rem;"></i>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: left;">
+                                    <h4 style="color: #1e3a8a; font-weight: 900; margin: 0; font-size: 0.98rem; line-height: 1.2;">Top-Vorschläge</h4>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #1e40af; font-weight: 600; line-height: 1.4;">Automatische Empfehlungen von GigConnAct zu Musikern</p>
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: none; display: flex; flex-direction: column; justify-content: space-between;">
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-wand-magic-sparkles" style="color: #ffffff; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Top-Vorschläge</h4>
-                                    </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Automatische Empfehlungen von GigConnAct zu Musikern</p>
+                            <div class="market-tile-card benefit-card-organizer">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-bolt" style="color: #1e3a8a; font-size: 1.85rem;"></i>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: left;">
+                                    <h4 style="color: #1e3a8a; font-weight: 900; margin: 0; font-size: 0.98rem; line-height: 1.2;">Schnelle Anmeldung</h4>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #1e40af; font-weight: 600; line-height: 1.4;">Anlegen des Veranstalter-Profils ohne Passwort</p>
                                 </div>
                             </div>
 
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: none; display: flex; flex-direction: column; justify-content: space-between;">
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-bolt" style="color: #ffffff; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Schnelle Anmeldung</h4>
-                                    </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Anlegen des Veranstalter-Profils ohne Passwort</p>
+                            <div class="market-tile-card benefit-card-organizer">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-coins" style="color: #1e3a8a; font-size: 1.85rem;"></i>
                                 </div>
-                            </div>
-
-                            <div class="market-tile-card" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; border-radius: 14px; padding: 1.25rem; box-shadow: none; display: flex; flex-direction: column; justify-content: space-between;">
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                                        <i class="fa-solid fa-coins" style="color: #ffffff; font-size: 1.2rem;"></i>
-                                        <h4 style="color: #ffffff; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
-                                    </div>
-                                    <p style="margin: 0; font-size: 0.84rem; color: #ffffff; font-weight: 500; line-height: 1.45; padding-left: 1.8rem; opacity: 0.95;">Oder andere versteckte Kosten</p>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: left;">
+                                    <h4 style="color: #1e3a8a; font-weight: 900; margin: 0; font-size: 0.98rem; line-height: 1.2;">Keine Provisionskosten</h4>
+                                    <p style="margin: 0; font-size: 0.84rem; color: #1e40af; font-weight: 600; line-height: 1.4;">Oder andere versteckte Kosten</p>
                                 </div>
                             </div>
 
                         </div>
+                        <div style="margin-top: 1.5rem; text-align: center;">
+                            <button id="btn-benefits-to-musicians" class="btn-homepage-market theme-organizer">
+                                Hier geht´s zum Musiker-Markt <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
                     </div>
-                    <button class="carousel-btn prev-btn" onclick="slideCarousel('benefits-organizer', -1)">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-                    <button class="carousel-btn next-btn" onclick="slideCarousel('benefits-organizer', 1)">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
+
                 </div>
             </div>
 
@@ -2591,9 +3596,17 @@ function renderLandingPage(container, onNavigate) {
         onNavigate('musicians');
     });
 
+    document.getElementById('btn-benefits-to-events')?.addEventListener('click', () => {
+        onNavigate('events');
+    });
+
+    document.getElementById('btn-benefits-to-musicians')?.addEventListener('click', () => {
+        onNavigate('musicians');
+    });
+
     // Add listeners for bottom buttons
     document.getElementById('btn-bottom-login-trigger')?.addEventListener('click', () => {
-        showModal('auth', () => { navigate('dashboard'); });
+        showModal('auth', () => { navigateAfterLogin(); });
     });
     document.getElementById('btn-bottom-dashboard-trigger')?.addEventListener('click', () => {
         onNavigate('dashboard');
@@ -2606,6 +3619,51 @@ function renderLandingPage(container, onNavigate) {
         initCarouselTouch('events');
         initCarouselTouch('benefits-musician');
         initCarouselTouch('benefits-organizer');
+    }
+
+    // Video cycling logic (Seamless swap)
+    const heroVideos = [
+        'hochzeit.mp4',
+        'gartenparty.mp4',
+        'firmenfeier.mp4',
+        'konzert.mp4'
+    ];
+    let currentVideoIndex = 0;
+    const v1 = container.querySelector('#hero-bg-video-1');
+    const v2 = container.querySelector('#hero-bg-video-2');
+
+    if (v1 && v2) {
+        // Preload next video in v2 immediately
+        v2.src = heroVideos[1];
+        v2.load();
+
+        const swap = function(activePlayer, hiddenPlayer) {
+            activePlayer.addEventListener('ended', function onceEnded() {
+                activePlayer.removeEventListener('ended', onceEnded);
+
+                hiddenPlayer.play().then(() => {
+                    hiddenPlayer.style.display = 'block';
+                    hiddenPlayer.style.zIndex = '1';
+                    activePlayer.style.display = 'none';
+                    activePlayer.style.zIndex = '0';
+
+                    currentVideoIndex = (currentVideoIndex + 1) % heroVideos.length;
+                    const nextIndex = (currentVideoIndex + 1) % heroVideos.length;
+
+                    activePlayer.src = heroVideos[nextIndex];
+                    activePlayer.load();
+
+                    swap(hiddenPlayer, activePlayer);
+                }).catch(err => {
+                    console.log("Preloaded play failed, falling back:", err);
+                    activePlayer.src = heroVideos[(currentVideoIndex + 1) % heroVideos.length];
+                    activePlayer.play();
+                    swap(activePlayer, hiddenPlayer);
+                });
+            });
+        };
+
+        swap(v1, v2);
     }
 }
 
@@ -2722,12 +3780,14 @@ function setupLocationAutocomplete(input, onSelect) {
     wrapper.appendChild(suggestionsContainer);
 
     let activeIndex = -1;
+    if (input.value) input.dataset.lastValidVal = input.value;
 
     function selectSuggestion(item) {
         const val = item.getAttribute('data-val');
         input.value = '';
         suggestionsContainer.classList.add('hidden');
         activeIndex = -1;
+        input.dataset.lastValidVal = val;
         if (onSelect) {
             onSelect(val);
         } else {
@@ -2854,14 +3914,33 @@ function setupLocationAutocomplete(input, onSelect) {
             } else {
                 const val = input.value.trim();
                 if (val) {
-                    if (onSelect) {
-                        onSelect(val);
-                        input.value = '';
+                    const matchedCity = popularGermanCities.find(c => c.toLowerCase() === val.toLowerCase());
+                    if (matchedCity) {
+                        input.dataset.lastValidVal = matchedCity;
+                        if (onSelect) {
+                            onSelect(matchedCity);
+                            input.value = '';
+                        } else {
+                            input.value = matchedCity;
+                            input.dispatchEvent(new Event('input', { bubbles: true }));
+                            input.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
                     } else {
-                        input.dispatchEvent(new Event('change', { bubbles: true }));
+                        if (onSelect) {
+                            input.value = '';
+                        } else {
+                            input.value = input.dataset.lastValidVal || '';
+                            input.dispatchEvent(new Event('input', { bubbles: true }));
+                            input.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                        showToast({
+                            title: "Ort ungültig",
+                            message: "Bitte wähle einen Ort aus den Vorschlägen aus."
+                        });
                     }
                 }
             }
+            suggestionsContainer.classList.add('hidden');
         } else {
             const items = suggestionsContainer.querySelectorAll('.autocomplete-suggestion');
             if (suggestionsContainer.classList.contains('hidden') || items.length === 0) {
@@ -2884,6 +3963,43 @@ function setupLocationAutocomplete(input, onSelect) {
         }
     });
 
+    input.addEventListener('blur', () => {
+        setTimeout(() => {
+            const val = input.value.trim();
+            if (!val) {
+                input.dataset.lastValidVal = '';
+                if (!onSelect) {
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                return;
+            }
+            
+            const matchedCity = popularGermanCities.find(c => c.toLowerCase() === val.toLowerCase());
+            if (matchedCity) {
+                input.value = matchedCity;
+                input.dataset.lastValidVal = matchedCity;
+                if (!onSelect) {
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            } else {
+                if (onSelect) {
+                    input.value = '';
+                } else {
+                    input.value = input.dataset.lastValidVal || '';
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                    showToast({
+                        title: "Ort ungültig",
+                        message: "Bitte wähle einen Ort aus den Vorschlägen aus."
+                    });
+                }
+            }
+            suggestionsContainer.classList.add('hidden');
+        }, 300);
+    });
+
     function updateActiveSuggestion(items) {
         items.forEach((item, index) => {
             if (index === activeIndex) {
@@ -2904,7 +4020,7 @@ function setupLocationAutocomplete(input, onSelect) {
 }
 
 function initAllLocationAutocompletes() {
-    document.querySelectorAll('input[name="location"], input[name="musLocation"], input[name="orgLocation"], #input-mus-location-search, #input-org-location-search').forEach(input => {
+    document.querySelectorAll('input[name="location"], input[name="musLocation"], input[name="orgLocation"], #input-mus-location-search, #input-org-location-search, #filter-location, #filter-location-m').forEach(input => {
         if (!input.dataset.autocompleteBound) {
             setupLocationAutocomplete(input);
             input.dataset.autocompleteBound = "true";
@@ -2920,22 +4036,51 @@ function renderMarket(container, type, onNavigate) {
     
     let selectedFilterDates = [];
     let currentFilterCalDate = new Date(2026, 6, 1); // July 2026
+    let showOnlyTopMatches = false;
+    let showOnlyFavorites = false;
+
+    let profileSelectorHtml = '';
+    let userProfiles = [];
+    let activeProfileId = '';
+    
+    if (state.currentUser) {
+        if (state.currentUser.role === 'musician') {
+            userProfiles = state.musicians.filter(m => m.creatorId === state.currentUser.id);
+            activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || '');
+            if (activeProfileId) state.activeMusicianId = activeProfileId;
+        } else if (state.currentUser.role === 'organizer') {
+            userProfiles = state.events.filter(e => e.creatorId === state.currentUser.id);
+            activeProfileId = state.activeEventId || (userProfiles[0]?.id || '');
+            if (activeProfileId) state.activeEventId = activeProfileId;
+        }
+        
+        if (userProfiles.length > 0) {
+            const options = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''}>${p.name || p.contactName || p.title || 'Profil'}</option>`).join('');
+            profileSelectorHtml = `
+                <div class="profile-switcher-wrapper" style="display: flex; align-items: center; gap: 0.25rem; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 20px; padding: 0.2rem 0.4rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin: 0; min-width: 0; max-width: 120px; flex: 1 1 auto; flex-shrink: 0; height: 36px; box-sizing: border-box;">
+                    <i class="${isEvents ? 'fa-solid fa-guitar' : 'fa-solid fa-calendar-day'}" style="color: ${isEvents ? '#7c3aed' : '#2563eb'}; font-size: 0.75rem; flex-shrink: 0;"></i>
+                    <select id="market-profile-select" class="input-field" style="width: 100%; height: 24px; padding: 0 0.15rem; font-size: 0.7rem; margin: 0; border: none; background: transparent; cursor: pointer; color: var(--text-main); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; outline: none;">
+                        ${options}
+                    </select>
+                </div>
+            `;
+        }
+    }
 
     container.innerHTML = `
         <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1rem 5rem; box-sizing: border-box;">
             
-            <!-- Controls Row: Filter Toggle Button + Results Count + Sort Dropdown -->
-            <div class="market-controls-row" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
-                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%;">
-                    <i class="fa-solid fa-sliders" style="font-size: 1.1rem; margin: 0;"></i>
+            <!-- Controls Row: Filter, Sortierung, Stern, Herz, Ergebnisse, Profil-Auswahl in linear order -->
+            <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0.6rem; -webkit-overflow-scrolling: touch;">
+                
+                <!-- 1. Filter -->
+                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border-radius: 50%; flex-shrink: 0;">
+                    <i class="fa-solid fa-sliders" style="font-size: 0.95rem; margin: 0;"></i>
                 </button>
-                
-                <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: ${isEvents ? '#7c3aed' : '#2563eb'}; text-align: center; flex-grow: 1; letter-spacing: 0.5px;">
-                    ${items.length} Ergebnisse
-                </div>
-                
-                <div class="market-sort-container-round">
-                    <i class="fa-solid fa-arrow-down-wide-short" style="color: ${isEvents ? '#7c3aed' : '#2563eb'}; font-size: 1.1rem; pointer-events: none;"></i>
+
+                <!-- 2. Sortierung -->
+                <div class="market-sort-container-round" style="width: 36px !important; height: 36px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 50% !important; flex-shrink: 0; position: relative; margin: 0;">
+                    <i class="fa-solid fa-arrow-down-wide-short" style="color: ${isEvents ? '#7c3aed' : '#2563eb'}; font-size: 0.95rem; pointer-events: none;"></i>
                     <select id="sort-select" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; margin: 0; z-index: 5;">
                         <option value="match">Match-Faktor absteigend</option>
                         <option value="newest">Neueste zuerst</option>
@@ -2944,6 +4089,24 @@ function renderMarket(container, type, onNavigate) {
                         <option value="name">Name (A-Z)</option>
                     </select>
                 </div>
+
+                <!-- 3. Stern (Nur Top-Matches anzeigen) -->
+                <button class="market-control-toggle" id="btn-toggle-market-top-matches" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border-glass); color: var(--text-muted); cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Top-Matches anzeigen">
+                    <i class="fa-solid fa-star" style="font-size: 0.95rem; margin: 0;"></i>
+                </button>
+
+                <!-- 4. Herz (Nur Favoriten anzeigen) -->
+                <button class="market-control-toggle" id="btn-toggle-market-favorites" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border-glass); color: var(--text-muted); cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Favoriten anzeigen">
+                    <i class="fa-solid fa-heart" style="font-size: 0.95rem; margin: 0;"></i>
+                </button>
+
+                <!-- 5. Ergebnisse als Zahl -->
+                <div id="market-results-count" style="font-family: var(--font-heading); font-size: 0.85rem; font-weight: 800; color: ${isEvents ? '#7c3aed' : '#2563eb'}; text-align: center; flex-shrink: 0; letter-spacing: 0.5px; margin: 0; white-space: nowrap;">
+                    (${items.length})
+                </div>
+
+                <!-- 6. Profil-Auswahl -->
+                ${profileSelectorHtml}
             </div>
 
             <!-- Main Layout: Left Sticky Sidebar Filters + Center Content -->
@@ -2963,12 +4126,12 @@ function renderMarket(container, type, onNavigate) {
                     
                     ${isEvents ? `
                         <!-- 10 Event-Markt Filter + Suchbegriffe mit tag-pill-checkboxes & dual range sliders -->
-                        <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                        <div style="display: flex; flex-direction: column; gap: 0.8rem; padding: 1rem;">
                             
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Event-Typ</label>
                                 <div class="checkbox-tag-grid" id="filter-event-type-grid">
-                                    ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Taufe/Kommunion/Konfirmation', 'Schützenfest/Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
+                                    ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterEventTypes" value="${t}">
                                             <span>${t}</span>
@@ -3064,7 +4227,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Technik</label>
                                 <div class="checkbox-tag-grid" id="filter-technik-grid">
-                                    ${['Technik vorhanden', 'Technik muss noch geklärt werden', 'Technik nicht vorhanden'].map(t => `
+                                    ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterTechnik" value="${t}">
                                             <span>${t}</span>
@@ -3088,7 +4251,7 @@ function renderMarket(container, type, onNavigate) {
                         </div>
                     ` : `
                         <!-- 10 Musiker-Markt Filter + Suchbegriffe mit tag-pill-checkboxes & dual range sliders -->
-                        <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                        <div style="display: flex; flex-direction: column; gap: 0.8rem; padding: 1rem;">
                             
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Musiker-Typ</label>
@@ -3197,7 +4360,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Bevorzugte Event-Typen</label>
                                 <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
-                                    ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Taufe/Kommunion/Konfirmation', 'Schützenfest/Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
+                                    ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterEventTypesM" value="${evt}">
                                             <span>${evt}</span>
@@ -3209,7 +4372,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Technik</label>
                                 <div class="checkbox-tag-grid" id="filter-technik-grid-m">
-                                    ${['Technik vorhanden', 'Technik muss noch geklärt werden', 'Technik nicht vorhanden'].map(t => `
+                                    ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterTechnikM" value="${t}">
                                             <span>${t}</span>
@@ -3277,6 +4440,21 @@ function renderMarket(container, type, onNavigate) {
 
     const sortSelect = container.querySelector('#sort-select');
     const resetBtn = container.querySelector('#btn-reset-filters');
+    const marketProfileSelect = container.querySelector('#market-profile-select');
+    if (marketProfileSelect) {
+        marketProfileSelect.addEventListener('change', function() {
+            const val = this.value;
+            if (state.currentUser) {
+                if (state.currentUser.role === 'musician') {
+                    state.activeMusicianId = val;
+                } else {
+                    state.activeEventId = val;
+                }
+                state.saveState();
+                applyAllFiltersAndSort();
+            }
+        });
+    }
 
     function getCheckedValues(id) {
         const grid = container.querySelector('#' + id);
@@ -3343,6 +4521,54 @@ function renderMarket(container, type, onNavigate) {
         let list = [...items];
         console.log("applyAllFiltersAndSort started. Input items:", list.length, "isEvents:", isEvents);
 
+        // Pre-calculate matchScore for every item in list based on logged in user profile
+        if (state.currentUser) {
+            if (state.currentUser.role === 'musician') {
+                const myProfile = state.musicians.find(m => m.id === state.activeMusicianId) 
+                    || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId);
+                if (myProfile) {
+                    list.forEach(item => {
+                        if (isEvents) {
+                            item.matchScore = calculateMatch(myProfile, item, 'musician').score;
+                        } else {
+                            item.matchScore = 100;
+                        }
+                    });
+                }
+            } else if (state.currentUser.role === 'organizer') {
+                const myProfile = state.events.find(e => e.id === state.activeEventId) 
+                    || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) 
+                    || state.events.find(e => e.creatorId === state.currentUser.id) 
+                    || state.events[0];
+                if (myProfile) {
+                    list.forEach(item => {
+                        if (!isEvents) {
+                            item.matchScore = calculateMatch(item, myProfile, 'organizer').score;
+                        } else {
+                            item.matchScore = 100;
+                        }
+                    });
+                }
+            }
+        } else {
+            list.forEach(item => {
+                let hash = 0;
+                const idStr = String(item.id);
+                for (let i = 0; i < idStr.length; i++) {
+                    hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                item.matchScore = 45 + Math.abs(hash % 51); // 45% to 95%
+            });
+        }
+
+        // Apply Top-Matches and Favorites toggles
+        if (showOnlyTopMatches) {
+            list = list.filter(item => item.matchScore >= 70);
+        }
+        if (showOnlyFavorites) {
+            list = list.filter(item => state.isFavorite(item.id));
+        }
+
         // 1. Ort Filter
         const locInput = isEvents 
             ? (container.querySelector('#filter-location')?.value || '').trim().toLowerCase()
@@ -3364,11 +4590,16 @@ function renderMarket(container, type, onNavigate) {
                             const weekday = getWeekdayFromDate(dateVal);
                             return item.availability.includes(weekday);
                         } else if (typeof item.availability === 'object') {
-                            const isModified = item.availability.modifiedDates && item.availability.modifiedDates.includes(dateVal);
-                            if (item.availability.defaultState === 'all-selected') {
-                                return !isModified;
+                            const eventWeekday = getWeekdayFromDate(dateVal).toLowerCase();
+                            if (item.availability[eventWeekday] !== undefined) {
+                                return !!item.availability[eventWeekday].available;
                             } else {
-                                return isModified;
+                                const isModified = item.availability.modifiedDates && item.availability.modifiedDates.includes(dateVal);
+                                if (item.availability.defaultState === 'all-selected') {
+                                    return !isModified;
+                                } else {
+                                    return isModified;
+                                }
                             }
                         }
                         return true;
@@ -3419,8 +4650,14 @@ function renderMarket(container, type, onNavigate) {
         const selTechnik = isEvents ? getCheckedValues('filter-technik-grid') : getCheckedValues('filter-technik-grid-m');
         if (selTechnik.length > 0) {
             list = list.filter(item => {
-                const val = (item.equipment || item.technik || '');
-                return selTechnik.some(t => val.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(val.toLowerCase()));
+                const rawVal = item.technik || item.equipment || '';
+                const itemTechArr = Array.isArray(rawVal) 
+                    ? rawVal 
+                    : (typeof rawVal === 'string' && rawVal.trim() !== '' ? [rawVal] : []);
+                
+                return selTechnik.some(t => 
+                    itemTechArr.some(it => it.trim().toLowerCase() === t.trim().toLowerCase())
+                );
             });
         }
 
@@ -3429,8 +4666,9 @@ function renderMarket(container, type, onNavigate) {
         const maxD = parseFloat(container.querySelector(isEvents ? '#input-filter-duration-max' : '#input-filter-duration-m-max')?.value || 10);
         list = list.filter(item => {
             if (isEvents) {
-                const dur = parseFloat(item.duration) || 0;
-                return dur >= minD && dur <= maxD;
+                const itemMinD = parseFloat(item.minDuration !== undefined ? item.minDuration : item.duration) || 0.5;
+                const itemMaxD = parseFloat(item.maxDuration !== undefined ? item.maxDuration : item.duration) || 24;
+                return itemMaxD >= minD && itemMinD <= maxD;
             } else {
                 const itemMinD = parseFloat(item.minDuration) || 0.5;
                 const itemMaxD = parseFloat(item.maxDuration) || 24;
@@ -3478,7 +4716,7 @@ function renderMarket(container, type, onNavigate) {
         // Sortierung
         const sortVal = sortSelect?.value || 'match';
         if (sortVal === 'match') {
-            list.sort((a, b) => (b.matchScore || 95) - (a.matchScore || 95));
+            list.sort((a, b) => (b.matchScore !== undefined ? b.matchScore : 95) - (a.matchScore !== undefined ? a.matchScore : 95));
         } else if (sortVal === 'newest') {
             list.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
         } else if (sortVal === 'price') {
@@ -3498,9 +4736,9 @@ function renderMarket(container, type, onNavigate) {
         if (grid) grid.innerHTML = renderMarketGridHTML(list, isEvents);
         
         const countEl = container.querySelector('#market-results-count');
-        if (countEl) countEl.textContent = `${list.length} Ergebnisse`;
+        if (countEl) countEl.textContent = `(${list.length})`;
         
-        console.log("applyAllFiltersAndSort finished. Output items:", list.length);
+        console.log("applyAllFiltersAndSort finished. Output items count:", list.length, "IDs:", list.map(item => item.id).join(', '));
     }
 
     sortSelect?.addEventListener('change', applyAllFiltersAndSort);
@@ -3668,6 +4906,49 @@ function renderMarket(container, type, onNavigate) {
         if (sortSelect) sortSelect.value = 'match';
         applyAllFiltersAndSort();
     });
+
+    const btnToggleTopMatches = container.querySelector('#btn-toggle-market-top-matches');
+    btnToggleTopMatches?.addEventListener('click', () => {
+        if (!state.currentUser) {
+            showModal('auth');
+            return;
+        }
+        showOnlyTopMatches = !showOnlyTopMatches;
+        if (showOnlyTopMatches) {
+            btnToggleTopMatches.style.color = '#eab308';
+            btnToggleTopMatches.style.borderColor = '#eab308';
+            btnToggleTopMatches.style.background = 'rgba(234, 179, 8, 0.1)';
+        } else {
+            btnToggleTopMatches.style.color = 'var(--text-muted)';
+            btnToggleTopMatches.style.borderColor = 'var(--border-glass)';
+            btnToggleTopMatches.style.background = 'var(--bg-card)';
+        }
+        applyAllFiltersAndSort();
+    });
+
+    const btnToggleFavorites = container.querySelector('#btn-toggle-market-favorites');
+    btnToggleFavorites?.addEventListener('click', () => {
+        if (!state.currentUser) {
+            showModal('auth');
+            return;
+        }
+        showOnlyFavorites = !showOnlyFavorites;
+        if (showOnlyFavorites) {
+            btnToggleFavorites.style.color = '#ef4444';
+            btnToggleFavorites.style.borderColor = '#ef4444';
+            btnToggleFavorites.style.background = 'rgba(239, 68, 68, 0.1)';
+        } else {
+            btnToggleFavorites.style.color = 'var(--text-muted)';
+            btnToggleFavorites.style.borderColor = 'var(--border-glass)';
+            btnToggleFavorites.style.background = 'var(--bg-card)';
+        }
+        applyAllFiltersAndSort();
+    });
+
+    window.marketApplyFilters = applyAllFiltersAndSort;
+
+    // Run sorting and filtering initially on page load
+    applyAllFiltersAndSort();
 }
 
 // Unified Tile Card Renderer - NO EXTRA PAGE & NO POPUP BUTTON!
@@ -3677,6 +4958,97 @@ function renderMarket(container, type, onNavigate) {
 
 
 
+
+function formatEventDateWithTime(item) {
+    const dateArr = item.dates && item.dates.length > 0 ? item.dates : (item.date ? [item.date] : []);
+    if (dateArr.length > 0) {
+        let dateDisplay = dateArr.map(d => {
+            const parts = d.split('-');
+            return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : d;
+        }).join(', ');
+        if (item.eventStartTime) {
+            if (item.eventEndTime) {
+                dateDisplay += `, ${item.eventStartTime} - ${item.eventEndTime} Uhr`;
+            } else {
+                dateDisplay += `, ${item.eventStartTime} Uhr`;
+            }
+        }
+        return dateDisplay;
+    }
+    return 'Termin nach Absprache';
+}
+
+function formatMusicianAvailabilityHelper(item) {
+    const avail = item.availability;
+    if (!avail) return 'Auf Anfrage verfügbar';
+    if (typeof avail === 'string') return avail;
+
+    const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    const dayLabels = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+
+    let activeIndices = [];
+
+    if (Array.isArray(avail)) {
+        const lowerAvail = avail.map(d => d.toLowerCase());
+        activeIndices = dayKeys.map((key, index) => lowerAvail.includes(key) ? index : -1).filter(idx => idx !== -1);
+    } else if (typeof avail === 'object') {
+        let hasWeekdays = dayKeys.some(key => avail[key] !== undefined || avail[key.charAt(0).toUpperCase() + key.slice(1)] !== undefined);
+        if (hasWeekdays) {
+            activeIndices = dayKeys.map((key, index) => {
+                const dayObj = avail[key] || avail[key.charAt(0).toUpperCase() + key.slice(1)];
+                return (dayObj && dayObj.available) ? index : -1;
+            }).filter(idx => idx !== -1);
+        } else {
+            const { defaultState, modifiedDates } = avail;
+            if (defaultState === 'all-selected') {
+                if (!modifiedDates || modifiedDates.length === 0) {
+                    return "Flexibel (Jederzeit)";
+                }
+                return "Flexibel (außer einzelne Tage)";
+            } else {
+                if (!modifiedDates || modifiedDates.length === 0) {
+                    return "Keine Termine";
+                }
+                const sortedDates = [...modifiedDates].sort((a, b) => new Date(a) - new Date(b));
+                const formatted = sortedDates.slice(0, 2).map(d => {
+                    const parts = d.split('-');
+                    return `${parts[2]}.${parts[1]}.`;
+                });
+                return `${formatted.join(', ')}${sortedDates.length > 2 ? '...' : ''} (${sortedDates.length} Tage)`;
+            }
+        }
+    }
+
+    if (activeIndices.length === 0) {
+        return 'Auf Anfrage verfügbar';
+    }
+    if (activeIndices.length === 7) {
+        return 'Jeden Tag (Mo-So)';
+    }
+
+    let groups = [];
+    let currentGroup = [activeIndices[0]];
+
+    for (let i = 1; i < activeIndices.length; i++) {
+        if (activeIndices[i] === activeIndices[i - 1] + 1) {
+            currentGroup.push(activeIndices[i]);
+        } else {
+            groups.push(currentGroup);
+            currentGroup = [activeIndices[i]];
+        }
+    }
+    groups.push(currentGroup);
+
+    const formattedGroups = groups.map(group => {
+        if (group.length >= 3) {
+            return `${dayLabels[group[0]]}-${dayLabels[group[group.length - 1]]}`;
+        } else {
+            return group.map(idx => dayLabels[idx]).join(', ');
+        }
+    });
+
+    return formattedGroups.join(', ');
+}
 
 // Global openItemDetailModal function that works for everyone in protected mode!
 window.openItemDetailModal = function(id, isEvents) {
@@ -3696,30 +5068,7 @@ window.openItemDetailModal = function(id, isEvents) {
         : 'Professionelle Live-Musik für unvergleichliche Momente bei Hochzeiten, Geburtstagen & Firmenevents. Großes Repertoire von Klassikern bis zu modernen Charts.');
 
     // Date formatting (German)
-    let dateDisplay = '';
-    if (isEvents) {
-        const dateArr = item.dates && item.dates.length > 0 ? item.dates : (item.date ? [item.date] : []);
-        if (dateArr.length > 0) {
-            dateDisplay = dateArr.map(d => {
-                const parts = d.split('-');
-                return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : d;
-            }).join(', ');
-        } else {
-            dateDisplay = 'Termin nach Absprache';
-        }
-    } else {
-        if (Array.isArray(item.availability)) {
-            const dayMap = {
-                'monday': 'Montag', 'tuesday': 'Dienstag', 'wednesday': 'Mittwoch', 'thursday': 'Donnerstag',
-                'friday': 'Freitag', 'saturday': 'Samstag', 'sunday': 'Sonntag',
-                'Monday': 'Montag', 'Tuesday': 'Dienstag', 'Wednesday': 'Mittwoch', 'Thursday': 'Donnerstag',
-                'Friday': 'Freitag', 'Saturday': 'Samstag', 'Sunday': 'Sonntag'
-            };
-            dateDisplay = item.availability.map(d => dayMap[d] || d).join(', ');
-        } else {
-            dateDisplay = item.availability || 'Auf Anfrage verfügbar';
-        }
-    }
+    let dateDisplay = isEvents ? formatEventDateWithTime(item) : formatMusicianAvailabilityHelper(item);
 
     // Duration formatting (ends with "Stunden.")
     let durationDisplay = '';
@@ -3729,14 +5078,14 @@ window.openItemDetailModal = function(id, isEvents) {
         const minStr = String(minDur).replace('.', ',');
         if (maxDur !== undefined && maxDur !== null && maxDur !== minDur) {
             const maxStr = String(maxDur).replace('.', ',');
-            durationDisplay = `${minStr} - ${maxStr} Stunden.`;
+            durationDisplay = `${minStr} - ${maxStr} Stunden`;
         } else {
-            durationDisplay = `${minStr} Stunden.`;
+            durationDisplay = `${minStr} Stunden`;
         }
     } else {
         let baseDur = String(item.duration || item.spieldauer || '2 - 4');
         baseDur = baseDur.replace(/ca\.\s*/gi, '').replace(/\s*Stunden\.?/gi, '').trim();
-        durationDisplay = `${baseDur} Stunden.`;
+        durationDisplay = `${baseDur} Stunden`;
     }
 
     // Budget formatting (ends with "€")
@@ -3752,7 +5101,7 @@ window.openItemDetailModal = function(id, isEvents) {
             budgetDisplay = `${minBStr} €`;
         }
     } else {
-        budgetDisplay = isEvents ? 'Gage auf Anfrage' : 'Honorar auf Anfrage';
+        budgetDisplay = '0 - 5.000 €';
     }
 
     // Technology formatting
@@ -3777,7 +5126,7 @@ window.openItemDetailModal = function(id, isEvents) {
                             ${isEvents ? (item.eventType || 'Event') : (item.category || 'Musiker')}
                         </span>
                         <h2 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: #ffffff; margin: 0;">
-                            ${isEvents ? item.title : item.name}
+                            ${item.name || item.title || ''}
                         </h2>
                     </div>
                 </div>
@@ -3793,7 +5142,7 @@ window.openItemDetailModal = function(id, isEvents) {
                                 <i class="fa-solid fa-circle-play" style="color: #ef4444;"></i> Video-PrÄsentation
                             </div>
                             <div style="position: relative; height: 140px; border-radius: 10px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; background: url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=500&q=80') center/cover;">
-                                <button onclick="alert('Video-Wiedergabe startet...');" style="width: 50px; height: 50px; border-radius: 50%; background: rgba(239, 68, 68, 0.9); border: none; color: #fff; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+                                <button onclick="window.open('${(item.videos && item.videos.length > 0) ? item.videos[0] : 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'}', '_blank')" title="${(item.videos && item.videos.length > 0) ? item.videos[0] : 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'}" style="width: 50px; height: 50px; border-radius: 50%; background: rgba(239, 68, 68, 0.9); border: none; color: #fff; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
                                     <i class="fa-solid fa-play" style="margin-left: 3px;"></i>
                                 </button>
                             </div>
@@ -3860,30 +5209,45 @@ window.openItemDetailModal = function(id, isEvents) {
                         </div>
 
                         <div>
-                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">Technik & Equipment</span>
-                            <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-plug" style="color: ${roleColor};"></i> ${techDisplayStr}</strong>
+                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">Technik</span>
+                            <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-microchip" style="color: ${roleColor};"></i> ${(item.technik && item.technik.length > 0) ? (Array.isArray(item.technik) ? item.technik.join(', ') : item.technik) : 'Technik ist noch unklar'}</strong>
                         </div>
                     </div>
 
                     <!-- Protected Contact Details Area -->
-                    <div style="background: rgba(15, 23, 42, 0.8); border: 2px solid ${isUnlocked ? 'rgba(34, 197, 94, 0.4)' : roleColor}; border-radius: 16px; padding: 1.5rem; text-align: center;">
+                    <div style="background: rgba(15, 23, 42, 0.8); border: 2px solid ${roleColor}; border-radius: 16px; padding: 1.5rem; text-align: center;">
                         ${isUnlocked ? `
-                            <div style="color: #4ade80; font-weight: 800; font-size: 1.1rem; margin-bottom: 0.8rem;">
+                            <div style="color: ${roleColor}; font-weight: 800; font-size: 1.1rem; margin-bottom: 0.8rem;">
                                 <i class="fa-solid fa-unlock"></i> Kontaktdaten freigeschaltet
                             </div>
-                            <div style="font-size: 1rem; color: #fff; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
-                                <div><i class="fa-solid fa-phone"></i> Tel: <strong>${item.phone || '+49 170 1234567'}</strong></div>
-                                <div><i class="fa-solid fa-envelope"></i> Mail: <strong>${item.email || 'kontakt@gigconnact.de'}</strong></div>
+                            <div style="font-size: 1rem; color: #fff; display: flex; flex-direction: column; align-items: center; gap: 0.6rem; margin-bottom: 1.2rem;">
+                                <div><i class="fa-solid fa-building" style="color: ${roleColor}; margin-right: 0.5rem;"></i> <strong>${isEvents ? ((!item.organizerType || item.organizerType === 'Privater Veranstalter' || item.company === 'Privatperson') ? 'Privatperson' : (item.company || 'Privatperson')) : (item.company || 'Privatperson')}</strong></div>
+                                <div><i class="fa-solid fa-user" style="color: ${roleColor}; margin-right: 0.5rem;"></i> <strong>${isEvents ? (item.contactName || 'Demo Kontakt') : `Name: ${item.contactName || 'Demo Kontakt'}`}</strong></div>
+                                <div><i class="fa-solid fa-phone" style="color: ${roleColor}; margin-right: 0.5rem;"></i> Tel: 
+                                    ${item.hidePhone ? (
+                                        (state && state.currentUser && (item.creatorId === state.currentUser.id || item.id === state.currentUser.profileId)) ? `
+                                            <strong>${item.phone || '+49 170 1234567'}</strong> <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 0.4rem; font-weight: normal;">(nur für dich sichtbar)</span>
+                                        ` : `
+                                            <span style="font-size: 0.9rem; color: var(--text-muted); font-style: italic;">[Vom Nutzer ausgeblendet]</span>
+                                        `
+                                    ) : `
+                                        <strong>${item.phone || '+49 170 1234567'}</strong>
+                                    `}
+                                </div>
+                                <div><i class="fa-solid fa-envelope" style="color: ${roleColor}; margin-right: 0.5rem;"></i> Mail: <strong>${item.email || 'kontakt@gigconnact.de'}</strong></div>
                             </div>
+                            <button class="btn btn-primary" onclick="document.getElementById('modal-item-detail').remove(); window.initiateMarketContact('${isEvents ? item.creatorId : item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}', '${isEvents ? item.id : ''}')" style="background: ${roleColor}; border-color: ${roleColor}; font-weight: 800; padding: 0.8rem 2rem; border-radius: 10px; display: inline-flex; align-items: center; gap: 0.6rem; margin-top: 0.5rem;">
+                                <i class="fa-solid fa-comment"></i> Nachricht senden
+                            </button>
                         ` : `
                             <div style="font-weight: 800; font-size: 1.1rem; color: #ffffff; margin-bottom: 0.4rem;">
-                                <i class="fa-solid fa-lock" style="color: ${roleColor};"></i> GeschÜtzter Kontaktbereich
+                                <i class="fa-solid fa-lock" style="color: ${roleColor};"></i> Geschützter Kontaktbereich
                             </div>
                             <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">
-                                Kontaktdaten (Telefonnummer & E-Mail-Adresse) sind im geschÜtzten Modus verborgen. Schalte die Kontaktdaten frei, um direkt zu kommunizieren.
+                                Kontaktdaten (Telefonnummer & E-Mail-Adresse) sind im geschützten Modus verborgen. Registriere dich oder melde dich an, um direkt zu kommunizieren.
                             </p>
-                            <button class="btn btn-primary btn-unlock-contact" data-id="${item.id}" onclick="document.getElementById('modal-item-detail').remove();" style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; border-color: ${isEvents ? '#7c3aed' : '#1e40af'}; font-weight: 800; padding: 0.9rem 2rem; font-size: 1rem; border-radius: 12px; display: inline-flex; align-items: center; gap: 0.6rem; box-shadow: ${isEvents ? '0 4px 14px rgba(124, 58, 237, 0.35)' : '0 4px 14px rgba(37, 99, 235, 0.35)'};">
-                                <i class="fa-solid fa-key"></i> Kontaktdaten freischalten (1 Credit)
+                            <button class="btn btn-primary" onclick="document.getElementById('modal-item-detail').remove(); showModal('auth');" style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; border-color: ${isEvents ? '#7c3aed' : '#1e40af'}; font-weight: 800; padding: 0.9rem 2rem; font-size: 1rem; border-radius: 12px; display: inline-flex; align-items: center; gap: 0.6rem; box-shadow: ${isEvents ? '0 4px 14px rgba(124, 58, 237, 0.35)' : '0 4px 14px rgba(37, 99, 235, 0.35)'};">
+                                <i class="fa-solid fa-sign-in-alt"></i> Kontaktdaten freischalten
                             </button>
                         `}
                     </div>
@@ -3894,6 +5258,464 @@ window.openItemDetailModal = function(id, isEvents) {
 
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 };
+
+window.initiateMarketContact = function(targetId, targetName, eventId) {
+    if (!state.currentUser) {
+        showModal('auth');
+        return;
+    }
+    const result = state.initiateContact(targetId, targetName, eventId);
+    if (result.success) {
+        if (eventId && state.currentUser && state.currentUser.role === 'musician') {
+            state.addMusicianApplication(state.currentUser.profileId, eventId);
+        }
+        showToast({
+            title: "Verbindung initiiert!",
+            message: `Chat mit ${targetName} geöffnet.`,
+            actionTab: "postbox"
+        });
+        navigate('postbox');
+    }
+};
+
+window.toggleFavorite = function(id) {
+    if (state.toggleFavorite(id)) {
+        const isFav = state.isFavorite(id);
+        showToast({
+            title: isFav ? "Favorit hinzugefügt!" : "Favorit entfernt",
+            message: isFav ? "Dieses Angebot wurde in deinen Favoriten gespeichert." : "Dieses Angebot wurde aus deinen Favoriten entfernt."
+        });
+        if (typeof handleInplaceRefresh === 'function') {
+            handleInplaceRefresh();
+        }
+    }
+};
+
+
+
+function renderProfilePage(container) {
+    if (!state.currentUser) {
+        navigate('');
+        showModal('auth');
+        return;
+    }
+    const u = state.currentUser;
+
+    const getPlanDetails = (planKey) => {
+        switch (planKey) {
+            case 'plus': return { title: 'Plus', priceText: '7,99 € / Monat', details: '6 Monate Vertragslaufzeit, 1. Monat kostenlos' };
+            case 'pro': return { title: 'Pro', priceText: '5,99 € / Monat', details: '12 Monate Vertragslaufzeit, 1. Monat kostenlos' };
+            case 'premium': return { title: 'Premium', priceText: '4,99 € / Monat', details: '12 Monate Vertragslaufzeit, 3 Monate kostenlos' };
+            default: return { title: 'Flex', priceText: '9,99 € / Monat', details: '1 Monat Vertragslaufzeit, 1. Monat kostenlos' };
+        }
+    };
+    
+    const activePlan = u.subscriptionPlan || 'flex';
+    const planInfo = getPlanDetails(activePlan);
+
+    container.innerHTML = `
+        <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem; max-width: 800px; margin: 0 auto; padding: 1rem 0;">
+            <div style="text-align: center; margin-bottom: 1rem;">
+                <i class="fa-solid fa-circle-user text-purple" style="font-size: 4rem; filter: drop-shadow(0 0 15px rgba(124, 58, 237, 0.3)); margin-bottom: 0.8rem;"></i>
+                <h2 style="margin: 0; font-family: var(--font-heading); font-size: 2rem;">Dein Profil verwalten</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.3rem;">Hier kannst du deine persönlichen Daten ändern und dein Abonnement verwalten.</p>
+            </div>
+
+            <div class="profile-section-card">
+                <h3 style="margin-top: 0; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.6rem;">
+                    <i class="fa-solid fa-address-card text-purple"></i> Persönliche Informationen
+                </h3>
+                <form id="profile-details-form">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div class="form-group">
+                            <label style="color: var(--color-purple) !important; font-weight: 800 !important; font-size:0.8rem; display:block; margin-bottom:0.3rem;">Vorname</label>
+                            <input type="text" id="prof-firstname" class="input-field" value="${u.firstName || ''}" required style="margin:0;">
+                        </div>
+                        <div class="form-group">
+                            <label style="color: var(--color-purple) !important; font-weight: 800 !important; font-size:0.8rem; display:block; margin-bottom:0.3rem;">Nachname</label>
+                            <input type="text" id="prof-lastname" class="input-field" value="${u.lastName || ''}" required style="margin:0;">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div class="form-group">
+                            <label style="color: var(--color-purple) !important; font-weight: 800 !important; font-size:0.8rem; display:block; margin-bottom:0.3rem;">E-Mail-Adresse</label>
+                            <input type="email" id="prof-email" class="input-field" value="${u.email || ''}" required style="margin:0;">
+                        </div>
+                        <div class="form-group">
+                            <label style="color: var(--color-purple) !important; font-weight: 800 !important; font-size:0.8rem; display:block; margin-bottom:0.3rem;">Telefonnummer</label>
+                            <input type="text" id="prof-phone" class="input-field" value="${u.phone || ''}" required style="margin:0;">
+                            <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem;">
+                                <input type="checkbox" id="prof-hidephone" ${u.hidePhone ? 'checked' : ''} style="cursor: pointer; width: auto; margin: 0;">
+                                <label for="prof-hidephone" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0;">Telefonnummer verbergen (geblurrt)</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${u.role === 'organizer' ? `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label style="color: var(--color-purple) !important; font-weight: 800 !important; font-size:0.8rem; display:block; margin-bottom:0.3rem;">Unternehmen / Organisation</label>
+                            <input type="text" id="prof-company" class="input-field" value="${u.company || ''}" style="margin:0;">
+                        </div>
+                        <div class="form-group">
+                            <label style="color: var(--color-purple) !important; font-weight: 800 !important; font-size:0.8rem; display:block; margin-bottom:0.3rem;">Veranstalter-Typ</label>
+                            <select id="prof-orgtype" class="input-field" style="margin:0; height:42px;">
+                                <option value="Privater Veranstalter" ${u.organizerType === 'Privater Veranstalter' ? 'selected' : ''}>Privater Veranstalter</option>
+                                <option value="Club / Bar" ${u.organizerType === 'Club / Bar' ? 'selected' : ''}>Club / Bar</option>
+                                <option value="Firma / Agentur" ${u.organizerType === 'Firma / Agentur' ? 'selected' : ''}>Firma / Agentur</option>
+                                <option value="Verein" ${u.organizerType === 'Verein' ? 'selected' : ''}>Verein</option>
+                                <option value="Sonstiges" ${u.organizerType === 'Sonstiges' ? 'selected' : ''}>Sonstiges</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                        <div class="form-group" style="flex: 0 0 150px; width: 150px;">
+                            <label style="color: var(--color-purple) !important; font-weight: 800 !important; font-size:0.8rem; display:block; margin-bottom:0.3rem;">Standard-Event-Startzeit</label>
+                            <input type="time" id="prof-event-starttime" class="input-field" value="${u.eventStartTime || '18:00'}" style="margin:0; height:42px; width: 150px;">
+                        </div>
+                        <div class="form-group" style="flex: 0 0 150px; width: 150px;">
+                            <label style="color: var(--color-purple) !important; font-weight: 800 !important; font-size:0.8rem; display:block; margin-bottom:0.3rem;">Standard-Event-Endzeit</label>
+                            <input type="time" id="prof-event-endtime" class="input-field" value="${u.eventEndTime || '22:00'}" style="margin:0; height:42px; width: 150px;">
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button type="submit" class="btn btn-primary" style="margin:0; background: #7c3aed; border-color: #7c3aed;">
+                            <i class="fa-solid fa-floppy-disk"></i> Änderungen speichern
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            ${u.role === 'musician' ? `
+            <div class="profile-section-card">
+                <h3 style="margin-top: 0; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.6rem;">
+                    <i class="fa-solid fa-credit-card text-purple"></i> Abonnement verwalten
+                </h3>
+                
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 1.2rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Aktueller Tarif</div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--color-purple); display: flex; align-items: center; gap: 0.5rem; margin-top: 0.2rem;">
+                            ${planInfo.title} <span style="font-size:1rem; font-weight:400; color:var(--text-main);">(${planInfo.priceText})</span>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;">
+                            ${planInfo.details}
+                        </div>
+                        <div style="font-size: 0.75rem; font-weight: 700; margin-top: 0.5rem; color: ${u.subscriptionCancelled ? 'var(--color-red)' : '#10b981'};">
+                            Status: ${u.subscriptionCancelled ? 'Gekündigt (Aktiv bis zum Ende des Abrechnungszeitraums)' : 'Aktiv (Automatische Verlängerung)'}
+                        </div>
+                    </div>
+                    
+                    ${u.subscriptionCancelled ? `
+                        <button class="btn btn-primary" id="btn-reactivate-subscription" style="margin:0; background: #10b981; border-color: #10b981;">
+                            <i class="fa-solid fa-arrow-rotate-right"></i> Abo reaktivieren
+                        </button>
+                    ` : `
+                        <button class="btn btn-glass" id="btn-cancel-subscription" style="margin:0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05);">
+                            <i class="fa-solid fa-ban"></i> Abo kündigen
+                        </button>
+                    `}
+                </div>
+
+                <div id="sub-management-options" style="margin-top: 1rem;">
+                    <h4 style="font-family: var(--font-heading); font-size: 0.95rem; margin-bottom: 0.8rem; color: var(--text-main);">Tarif wechseln (Upgrade / Downgrade)</h4>
+                    
+                    <div class="subscription-cards" style="margin-bottom: 1.5rem;">
+                        <div class="subscription-card ${activePlan === 'flex' ? 'active' : ''}" data-plan="flex" data-price="9.99">
+                            <div class="selected-badge">Beliebt</div>
+                            <h5>Flex</h5>
+                            <div class="price">9,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
+                            <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
+                                <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
+                                <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
+                                <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
+                            </ul>
+                        </div>
+                        <div class="subscription-card ${activePlan === 'plus' ? 'active' : ''}" data-plan="plus" data-price="7.99">
+                            <div class="selected-badge">Spare 20 %</div>
+                            <h5>Plus</h5>
+                            <div class="price">7,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
+                            <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
+                                <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
+                                <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
+                                <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
+                            </ul>
+                        </div>
+                        <div class="subscription-card ${activePlan === 'pro' ? 'active' : ''}" data-plan="pro" data-price="5.99">
+                            <div class="selected-badge">Spare 40 %</div>
+                            <h5>Pro</h5>
+                            <div class="price">5,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
+                            <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
+                                <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
+                                <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
+                                <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
+                            </ul>
+                        </div>
+                        <div class="subscription-card ${activePlan === 'premium' ? 'active' : ''}" data-plan="premium" data-price="4.99">
+                            <div class="selected-badge" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;">Spare 59 %</div>
+                            <h5>Premium</h5>
+                            <div class="price">4,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
+                            <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
+                                <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
+                                <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
+                                <li><i class="fa-solid fa-circle-check"></i> 3 Monate kostenlos</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div id="profile-promo-code-box" style="display: none; margin-bottom: 1.5rem; background: rgba(124, 58, 237, 0.05); border: 1px dashed var(--color-purple); padding: 1rem; border-radius: var(--radius-md);">
+                        <h5 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--color-purple);"><i class="fa-brands fa-instagram"></i> Premium-Freischaltung</h5>
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.35;">
+                            Um in den exklusiven Premium-Tarif zu wechseln, gib bitte deinen Gutscheincode ein (Instagram Story-Aktion):
+                        </p>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="prof-promo-code" class="input-field" placeholder="Gutscheincode" style="margin:0; text-transform: uppercase;">
+                            <button type="button" class="btn btn-secondary btn-sm" id="btn-prof-apply-promo" style="margin:0; font-size:0.75rem; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple);">Code prüfen</button>
+                        </div>
+                        <div id="prof-promo-status-msg" style="font-size: 0.7rem; margin-top: 0.4rem; display: none;"></div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button class="btn btn-primary" id="btn-save-subscription-change" style="margin:0; background: #7c3aed; border-color: #7c3aed;">
+                            <i class="fa-solid fa-circle-arrow-right"></i> Tarifwechsel bestätigen
+                        </button>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+
+            <div class="profile-section-card" style="border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.01);">
+                <h3 style="margin-top: 0; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; color: var(--color-red); border-bottom: 1px solid rgba(239, 68, 68, 0.15); padding-bottom: 0.6rem;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Kontoverwaltung
+                </h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;">Möchtest du dich von deinem aktuellen Gerät abmelden?</p>
+                <div style="display: flex; justify-content: flex-start;">
+                    <button class="btn btn-glass" id="btn-profile-logout" style="margin:0; color: #ffffff; border-color: rgba(239, 68, 68, 0.6); background: var(--color-red);">
+                        <i class="fa-solid fa-right-from-bracket"></i> Ausloggen & Abmelden
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const form = document.getElementById('profile-details-form');
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const fName = document.getElementById('prof-firstname').value.trim();
+            const lName = document.getElementById('prof-lastname').value.trim();
+            const email = document.getElementById('prof-email').value.trim();
+            const phone = document.getElementById('prof-phone').value.trim();
+            const hidePhone = document.getElementById('prof-hidephone').checked;
+
+            const nameReg = /^[a-zA-ZäöüÄÖÜß\s\-]+$/;
+            if (!nameReg.test(fName) || !nameReg.test(lName)) {
+                showToast({ title: "Fehler", message: "Der Name darf nur Buchstaben enthalten.", type: "error" });
+                return;
+            }
+
+            u.firstName = fName;
+            u.lastName = lName;
+            u.email = email;
+            u.phone = phone;
+            u.hidePhone = hidePhone;
+
+            if (u.role === 'organizer') {
+                u.company = document.getElementById('prof-company').value.trim();
+                u.organizerType = document.getElementById('prof-orgtype').value;
+                u.eventStartTime = document.getElementById('prof-event-starttime').value;
+                u.eventEndTime = document.getElementById('prof-event-endtime').value;
+                
+                // Update primary event start and end time
+                const primaryEvent = state.events.find(e => e.id === u.profileId);
+                if (primaryEvent) {
+                    primaryEvent.eventStartTime = u.eventStartTime;
+                    primaryEvent.eventEndTime = u.eventEndTime;
+                }
+            }
+
+            // Also update contact details on their created musicians and events!
+            state.musicians.forEach(m => {
+                if (m.creatorId === u.id || m.id === u.profileId) {
+                    m.contactName = `${fName} ${lName}`;
+                    m.phone = phone;
+                    m.email = email;
+                    m.hidePhone = hidePhone;
+                }
+            });
+            state.events.forEach(e => {
+                if (e.creatorId === u.id || e.id === u.profileId) {
+                    e.contactName = `${fName} ${lName}`;
+                    e.phone = phone;
+                    e.email = email;
+                    e.hidePhone = hidePhone;
+                }
+            });
+
+            const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+            const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+            if (idx !== -1) {
+                registeredUsers[idx].firstName = fName;
+                registeredUsers[idx].lastName = lName;
+                registeredUsers[idx].email = email;
+                registeredUsers[idx].phone = phone;
+                registeredUsers[idx].hidePhone = hidePhone;
+                if (u.role === 'organizer') {
+                    registeredUsers[idx].company = u.company;
+                    registeredUsers[idx].organizerType = u.organizerType;
+                    registeredUsers[idx].eventStartTime = u.eventStartTime;
+                    registeredUsers[idx].eventEndTime = u.eventEndTime;
+                }
+                localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+            }
+
+            state.currentUser = u;
+            state.saveState();
+            
+            showToast({
+                title: "Profil aktualisiert! 💾",
+                message: "Deine persönlichen Informationen wurden erfolgreich gespeichert."
+            });
+            updateNavbar();
+        });
+    }
+
+    if (u.role === 'musician') {
+        const cancelBtn = document.getElementById('btn-cancel-subscription');
+        const reactivateBtn = document.getElementById('btn-reactivate-subscription');
+
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                if (confirm("Möchtest du dein Abonnement wirklich zum nächstmöglichen Zeitpunkt kündigen? Du verlierst damit nach Ablauf des Zeitraums den direkten Kontaktzugang zu Veranstaltern.")) {
+                    u.subscriptionCancelled = true;
+                    
+                    const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+                    const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+                    if (idx !== -1) {
+                        registeredUsers[idx].subscriptionCancelled = true;
+                        localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                    }
+                    
+                    state.saveState();
+                    showToast({
+                        title: "Abo gekündigt ℹ",
+                        message: "Dein Abonnement wurde gekündigt. Du hast bis zum Ende des aktuellen Zeitraums vollen Zugriff."
+                    });
+                    renderProfilePage(container);
+                    updateNavbar();
+                }
+            });
+        }
+
+        if (reactivateBtn) {
+            reactivateBtn.addEventListener('click', () => {
+                u.subscriptionCancelled = false;
+                
+                const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+                const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+                if (idx !== -1) {
+                    registeredUsers[idx].subscriptionCancelled = false;
+                    localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                }
+                
+                state.saveState();
+                showToast({
+                    title: "Abo reaktiviert! 🎉",
+                    message: "Deine automatische Abonnement-Verlängerung ist wieder aktiv."
+                });
+                renderProfilePage(container);
+                updateNavbar();
+            });
+        }
+
+        const subCards = container.querySelectorAll('.subscription-card');
+        const promoBox = document.getElementById('profile-promo-code-box');
+        let selectedPlan = activePlan;
+        let isPromoApplied = activePlan === 'premium';
+
+        subCards.forEach(card => {
+            card.addEventListener('click', () => {
+                subCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                selectedPlan = card.getAttribute('data-plan');
+                
+                if (selectedPlan === 'premium' && !isPromoApplied) {
+                    promoBox.style.display = 'block';
+                } else {
+                    promoBox.style.display = 'none';
+                }
+            });
+        });
+
+        const promoBtn = document.getElementById('btn-prof-apply-promo');
+        const promoInput = document.getElementById('prof-promo-code');
+        const promoStatus = document.getElementById('prof-promo-status-msg');
+
+        if (promoBtn && promoInput && promoStatus) {
+            promoBtn.addEventListener('click', () => {
+                const code = promoInput.value.trim().toUpperCase();
+                if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code)) {
+                    isPromoApplied = true;
+                    promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif freigeschaltet.";
+                    promoStatus.style.color = "#10b981";
+                    promoStatus.style.display = "block";
+                    promoInput.disabled = true;
+                    promoBtn.disabled = true;
+                } else {
+                    isPromoApplied = false;
+                    promoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Story-Beitrag.";
+                    promoStatus.style.color = "#ef4444";
+                    promoStatus.style.display = "block";
+                }
+            });
+        }
+
+        const saveSubBtn = document.getElementById('btn-save-subscription-change');
+        if (saveSubBtn) {
+            saveSubBtn.addEventListener('click', () => {
+                if (selectedPlan === 'premium' && !isPromoApplied) {
+                    showToast({ title: "Gutscheincode erforderlich", message: "Bitte gib einen gültigen Instagram-Code ein, um den Premium-Tarif freizuschalten.", type: "error" });
+                    return;
+                }
+
+                u.subscriptionPlan = selectedPlan;
+                u.isPremium = true;
+                u.subscriptionCancelled = false;
+
+                const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+                const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+                if (idx !== -1) {
+                    registeredUsers[idx].subscriptionPlan = selectedPlan;
+                    registeredUsers[idx].isPremium = true;
+                    registeredUsers[idx].subscriptionCancelled = false;
+                    localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                }
+
+                state.saveState();
+                showToast({
+                    title: "Tarif erfolgreich gewechselt! 🚀",
+                    message: `Dein Abonnement wurde auf den Tarif "${selectedPlan.toUpperCase()}" umgestellt.`
+                });
+                renderProfilePage(container);
+                updateNavbar();
+            });
+        }
+    }
+
+    const logoutBtn = document.getElementById('btn-profile-logout');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            state.logout();
+            showToast({
+                title: "Abgemeldet",
+                message: "Auf Wiedersehen!"
+            });
+            window.location.hash = '#/';
+        });
+    }
+}
 
 
 
@@ -3927,7 +5749,7 @@ function renderMatchesPage(container) {
             <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;">
                 <div class="profile-section-card" style="margin-bottom:0;">
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border-bottom: 1px solid var(--border-glass); padding-bottom:1rem; margin-bottom:1rem;">
-                        <h3 style="margin:0;"><i class="fa-solid fa-handshake text-cyan"></i> Matches</h3>
+                        <h3 style="margin:0;"><i class="fa-solid fa-star text-cyan"></i> Top-Matches</h3>
                         <div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
                             ${profiles.length > 1 ? `
                                 <div style="display:flex; align-items:center; gap:0.5rem;">
@@ -3954,24 +5776,13 @@ function renderMatchesPage(container) {
                     
                     ${selectedId ? `
                         <div style="display:flex; align-items:center; gap:2rem; flex-wrap:wrap; margin-top:0.8rem;">
-                            <div class="matches-donut-chart-container" style="position:relative; width:90px; height:90px; flex-shrink:0;">
-                                <div id="matches-credits-donut" style="width:100%; height:100%; border-radius:50%;"></div>
-                                <div style="position:absolute; top:9px; left:9px; width:72px; height:72px; border-radius:50%; background:#ffffff; display:flex; align-items:center; justify-content:center; flex-direction:column; border:1px solid var(--border-glass);">
-                                    <span id="matches-credits-value" style="font-size:1.1rem; font-weight:700; color:var(--text-main);">${creditsValue}</span>
-                                    <span style="font-size:0.45rem; color:var(--text-muted); text-transform:uppercase; font-weight:600; letter-spacing:0.5px; text-align:center;">Guthaben</span>
-                                </div>
-                            </div>
                             <div style="flex:1; display:grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap:1rem;">
-                                <div style="background:rgba(255,215,0,0.02); border:1px solid rgba(255,215,0,0.15); padding:0.6rem 0.8rem; border-radius:var(--radius-md);">
-                                    <div style="font-size:0.65rem; color:#FFD700; text-transform:uppercase; font-weight:700; margin-bottom:0.15rem;">Modell</div>
-                                    <div id="stats-billing-mode" style="font-size:1.1rem; font-weight:700; color:#FFD700;">${billingMode}</div>
-                                </div>
                                 <div style="background:rgba(56,239,125,0.02); border:1px solid rgba(56,239,125,0.15); padding:0.6rem 0.8rem; border-radius:var(--radius-md);">
-                                    <div style="font-size:0.65rem; color:var(--color-green); text-transform:uppercase; font-weight:700; margin-bottom:0.15rem;">Freischaltungen</div>
-                                    <div id="stats-unlocked-contacts" style="font-size:1.3rem; font-weight:700; color:var(--color-green);">${unlockedCount}</div>
+                                    <div style="font-size:0.65rem; color:var(--color-green); text-transform:uppercase; font-weight:700; margin-bottom:0.15rem;">Kontaktdaten</div>
+                                    <div id="stats-unlocked-contacts" style="font-size:1.3rem; font-weight:700; color:var(--color-green);">Unbegrenzt</div>
                                 </div>
                                 <div style="background:rgba(124,58,237,0.02); border:1px solid rgba(124,58,237,0.15); padding:0.6rem 0.8rem; border-radius:var(--radius-md);">
-                                    <div style="font-size:0.65rem; color:var(--color-purple); text-transform:uppercase; font-weight:700; margin-bottom:0.15rem;">Top Matches (>=50%)</div>
+                                    <div style="font-size:0.65rem; color:var(--color-purple); text-transform:uppercase; font-weight:700; margin-bottom:0.15rem;">Top Matches (>=70%)</div>
                                     <div id="stats-top-matches-count" style="font-size:1.3rem; font-weight:700; color:var(--color-purple);">0</div>
                                 </div>
                             </div>
@@ -3986,17 +5797,17 @@ function renderMatchesPage(container) {
                         <p style="color:var(--text-muted); max-width:400px; margin:0.5rem auto 1.5rem;">Um Matches und passende Partner zu sehen, musst du mindestens eine Ausschreibung oder ein Musiker-Profil aktiv haben.</p>
                         <button class="btn btn-primary" id="btn-create-profile-matches" style="margin:0;">
                             <i class="fa-solid fa-plus"></i> Profil erstellen
-                    </button>
-                </div>
-            ` : `
-                <div class="profile-section-card">
-                    <h4 style="margin:0 0 1rem; font-family:var(--font-heading); font-size:1.1rem; border-bottom:1px solid var(--border-glass); padding-bottom:0.6rem; text-align:left;">
-                        <i class="fa-solid fa-star text-cyan"></i> Top Matches (<span id="top-matches-count">0</span>)
-                    </h4>
-                    <div class="listings-grid-layout" id="top-matches-grid">
+                        </button>
                     </div>
-                </div>
-            `}
+                ` : `
+                    <div class="profile-section-card">
+                        <h4 style="margin:0 0 1rem; font-family:var(--font-heading); font-size:1.1rem; border-bottom:1px solid var(--border-glass); padding-bottom:0.6rem; text-align:left;">
+                            <i class="fa-solid fa-star text-cyan"></i> Top Matches (<span id="top-matches-count">0</span>)
+                        </h4>
+                        <div id="top-matches-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+                        </div>
+                    </div>
+                `}
         </div>
     `;
 
@@ -4014,7 +5825,7 @@ function renderMatchesPage(container) {
     if (!selectedId) return;
 
     const updateMatches = () => {
-        const activeId = selectProfile.value;
+        const activeId = selectProfile ? selectProfile.value : '';
         if (!activeId) return;
         
         if (isMusician) state.activeMusicianId = activeId;
@@ -4031,43 +5842,39 @@ function renderMatchesPage(container) {
             : state.musicians.filter(m => m.isActive !== false);
 
         const candidatesWithMatches = candidates.map(item => {
-            const match = isMusician ? calculateMatch(myProfile, item) : calculateMatch(item, myProfile);
+            const match = isMusician ? calculateMatch(myProfile, item, 'musician') : calculateMatch(item, myProfile, 'organizer');
             return { item, match };
         });
 
-        const topMatches = candidatesWithMatches.filter(cand => cand.match.score >= 50);
+        const topMatches = candidatesWithMatches.filter(cand => cand.match.score >= 70);
 
         const sortVal = selectSort?.value || 'match';
-        const sortCandidateList = (list) => {
-            list.sort((a, b) => {
-                if (sortVal === 'match') {
-                    return b.match.score - a.match.score;
-                }
-                if (sortVal === 'newest') {
-                    const dateA = a.item.createdAt ? new Date(a.item.createdAt) : new Date(0);
-                    const dateB = b.item.createdAt ? new Date(b.item.createdAt) : new Date(0);
-                    return dateB - dateA;
-                }
-                if (sortVal === 'price-asc') {
-                    const valA = a.item.minBudget !== undefined ? a.item.minBudget : (a.item.budget || 0);
-                    const valB = b.item.minBudget !== undefined ? b.item.minBudget : (b.item.budget || 0);
-                    return valA - valB;
-                }
-                if (sortVal === 'price-desc') {
-                    const valA = a.item.minBudget !== undefined ? a.item.minBudget : (a.item.budget || 0);
-                    const valB = b.item.minBudget !== undefined ? b.item.minBudget : (b.item.budget || 0);
-                    return valB - valA;
-                }
-                if (sortVal === 'name') {
-                    const nameA = state.hasContactAccess(activeId, a.item.id) ? a.item.name : (isMusician ? a.item.name : a.item.bluffName);
-                    const nameB = state.hasContactAccess(activeId, b.item.id) ? b.item.name : (isMusician ? b.item.name : b.item.bluffName);
-                    return nameA.localeCompare(nameB);
-                }
-                return 0;
-            });
-        };
-
-        sortCandidateList(topMatches);
+        topMatches.sort((a, b) => {
+            if (sortVal === 'match') {
+                return b.match.score - a.match.score;
+            }
+            if (sortVal === 'newest') {
+                const dateA = a.item.createdAt ? new Date(a.item.createdAt) : new Date(0);
+                const dateB = b.item.createdAt ? new Date(b.item.createdAt) : new Date(0);
+                return dateB - dateA;
+            }
+            if (sortVal === 'price-asc') {
+                const valA = a.item.minBudget !== undefined ? a.item.minBudget : (a.item.budget || 0);
+                const valB = b.item.minBudget !== undefined ? b.item.minBudget : (b.item.budget || 0);
+                return valA - valB;
+            }
+            if (sortVal === 'price-desc') {
+                const valA = a.item.minBudget !== undefined ? a.item.minBudget : (a.item.budget || 0);
+                const valB = b.item.minBudget !== undefined ? b.item.minBudget : (b.item.budget || 0);
+                return valB - valA;
+            }
+            if (sortVal === 'name') {
+                const nameA = a.item.name || a.item.title || '';
+                const nameB = b.item.name || b.item.title || '';
+                return nameA.localeCompare(nameB);
+            }
+            return 0;
+        });
 
         if (document.getElementById('top-matches-count')) {
             document.getElementById('top-matches-count').textContent = topMatches.length;
@@ -4076,391 +5883,47 @@ function renderMatchesPage(container) {
             document.getElementById('stats-top-matches-count').textContent = topMatches.length;
         }
 
-        const donut = document.getElementById('matches-credits-donut');
-        const rateLabel = document.getElementById('matches-credits-value');
-        if (donut && rateLabel) {
-            const pct = isOrganizer || u.isPremium ? 100 : Math.min(100, Math.max(0, (u.credits / 50) * 100));
-            donut.style.background = `conic-gradient(${isOrganizer || u.isPremium ? 'var(--color-green)' : '#FFD700'} 0% ${pct}%, rgba(255,255,255,0.05) ${pct}% 100%)`;
-        }
-
-        const renderGrid = (gridEl, list) => {
-            if (list.length === 0) {
-                gridEl.innerHTML = `
-                    <div style="padding:2rem 1rem; text-align:center; color:var(--text-muted); width: 100%;">
-                        <p>Keine passenden Matches gefunden (Score >= 50%).</p>
+        if (topGrid) {
+            if (topMatches.length === 0) {
+                topGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass); width: 100%;">
+                        <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                        <h3 style="margin-bottom: 0.5rem; color: var(--text-main);">Keine Ergebnisse gefunden</h3>
+                        <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0 auto; max-width: 400px;">Keine passenden Top-Matches gefunden (Matching-Faktor >= 70 %).</p>
                     </div>
                 `;
-                return;
+            } else {
+                const isEventMarket = isMusician;
+                const items = topMatches.map(cand => {
+                    cand.item.matchScore = cand.match.score;
+                    return cand.item;
+                });
+                topGrid.innerHTML = renderMarketGridHTML(items, isEventMarket);
             }
-
-            const isEventMarket = isMusician;
-
-            gridEl.innerHTML = list.map(cand => {
-                    const item = cand.item;
-                    const matchScore = cand.match.score;
-                    const matchHtml = renderMatchDial(matchScore);
-                    
-                    const hasContactAccess = state.hasContactAccess(activeId, item.id);
-                    const displayName = hasContactAccess ? item.name : (isEventMarket ? item.name : item.bluffName);
-
-                    const formatLocationWithPlz = (city) => {
-                        if (!city) return "";
-                        const plzMap = {
-                            "münchen": "80331",
-                            "stuttgart": "70173",
-                            "nürnberg": "90402",
-                            "berlin": "10115",
-                            "hamburg": "20095",
-                            "köln": "50667",
-                            "frankfurt": "60311",
-                            "düsseldorf": "40210"
-                        };
-                        const clean = city.trim().toLowerCase();
-                        const plz = plzMap[clean] || "80331";
-                        return `${plz} ${city}`;
-                    };
-
-                    const formatEventDateWithWeekday = (dateStr) => {
-                        if (!dateStr) return "";
-                        const dateObj = new Date(dateStr);
-                        const formattedDate = dateObj.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                        const weekdays = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
-                        const weekday = weekdays[dateObj.getDay()];
-                        return `${formattedDate} (${weekday})`;
-                    };
-
-                    let profilePicUrl = '';
-                    if (isEventMarket) {
-                        profilePicUrl = item.profilePic || (
-                            item.type.toLowerCase().includes('hochzeit') || item.type.toLowerCase().includes('wedding') ? 'https://picsum.photos/id/111/300/300' :
-                            item.type.toLowerCase().includes('club') || item.type.toLowerCase().includes('party') ? 'https://picsum.photos/id/653/300/300' :
-                            item.type.toLowerCase().includes('festival') || item.type.toLowerCase().includes('open') ? 'https://picsum.photos/id/280/300/300' :
-                            item.type.toLowerCase().includes('firma') || item.type.toLowerCase().includes('corporate') ? 'https://picsum.photos/id/30/300/300' :
-                            'https://picsum.photos/id/1025/300/300'
-                        );
-                    } else {
-                        profilePicUrl = item.profilePic || (
-                            item.type === 'DJ' ? 'https://picsum.photos/id/653/300/300' :
-                            item.type === 'Solo' ? 'https://picsum.photos/id/325/300/300' :
-                            'https://picsum.photos/id/453/300/300'
-                        );
-                    }
-
-                    const photos = item.photos && item.photos.length > 0 ? item.photos : [
-                        profilePicUrl,
-                        isEventMarket ? 'https://picsum.photos/id/1025/400/300' : 'https://picsum.photos/id/1082/400/300',
-                        'https://picsum.photos/id/453/400/300'
-                    ];
-
-
-
-                    const videos = item.videos && item.videos.length > 0 ? item.videos : ['vid_1', 'vid_2'];
-                    const audio = item.audio && item.audio.length > 0 ? item.audio : [
-                        'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-                        'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
-                    ];
-
-                    const socialLinks = item.socialLinks && (item.socialLinks.spotify || item.socialLinks.youtube || item.socialLinks.instagram) ? item.socialLinks : {
-                        spotify: "https://spotify.com",
-                        youtube: "https://youtube.com",
-                        instagram: "https://instagram.com"
-                    };
-
-                    // Contact Panel & Social Media html
-                    let contactPanelHtml = '';
-                    let socialMediaHtml = '';
-                    if (hasContactAccess) {
-                        contactPanelHtml = `
-                            <div class="contact-details-box" style="margin-top: 0.5rem; padding: 0.6rem; border: 1px solid rgba(56, 239, 125, 0.2); background: rgba(56, 239, 125, 0.03); border-radius: var(--radius-sm); font-size: 0.75rem; text-align: left; display: flex; flex-direction: column; gap: 0.3rem;">
-                                ${item.company ? `<div class="contact-line" style="word-break: break-all;"><i class="fa-solid fa-building" style="color:var(--color-cyan);"></i> ${item.company}</div>` : ''}
-                                ${item.organizerType ? `<div class="contact-line" style="word-break: break-all;"><i class="fa-solid fa-user-tie" style="color:var(--color-cyan);"></i> ${item.organizerType}</div>` : ''}
-                                <div class="contact-line" style="word-break: break-all;"><i class="fa-solid fa-user" style="color:var(--color-cyan);"></i> ${item.contactName}</div>
-                                <div class="contact-line" style="word-break: break-all;"><i class="fa-solid fa-phone" style="color:var(--color-cyan);"></i> ${item.phone}</div>
-                                <div class="contact-line" style="word-break: break-all;"><i class="fa-solid fa-envelope" style="color:var(--color-cyan);"></i> ${item.email}</div>
-                            </div>
-                        `;
-                        socialMediaHtml = `
-                            <div class="card-social-icons-row" style="margin-top: 0.5rem; display: flex; gap: 0.8rem; justify-content: center; align-items: center; padding: 0.4rem 0;">
-                                ${socialLinks.spotify ? `<a href="${socialLinks.spotify}" target="_blank" style="color: #1DB954; font-size: 1.25rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Spotify" onclick="event.stopPropagation();"><i class="fa-brands fa-spotify"></i></a>` : ''}
-                                ${socialLinks.youtube ? `<a href="${socialLinks.youtube}" target="_blank" style="color: #FF0000; font-size: 1.25rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="YouTube" onclick="event.stopPropagation();"><i class="fa-brands fa-youtube"></i></a>` : ''}
-                                ${socialLinks.instagram ? `<a href="${socialLinks.instagram}" target="_blank" style="color: #E1306C; font-size: 1.25rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Instagram" onclick="event.stopPropagation();"><i class="fa-brands fa-instagram"></i></a>` : ''}
-                            </div>
-                        `;
-                    } else {
-                        contactPanelHtml = `
-                            <div class="contact-details-box" style="position: relative; margin-top: 0.5rem; border-radius: var(--radius-sm); font-size: 0.75rem; text-align: left; overflow: hidden; padding: 0.4rem; border: 1px dashed var(--border-glass);">
-                                <div style="filter: blur(4px); user-select: none; pointer-events: none; display: flex; flex-direction: column; gap: 0.3rem; opacity: 0.7;">
-                                    <div class="contact-line"><i class="fa-solid fa-building"></i> Musterfirma GmbH</div>
-                                    <div class="contact-line"><i class="fa-solid fa-user"></i> Max Mustermann</div>
-                                    <div class="contact-line"><i class="fa-solid fa-phone"></i> +49 176 1234567</div>
-                                    <div class="contact-line"><i class="fa-solid fa-envelope"></i> mail@muster.de</div>
-                                </div>
-                                <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: rgba(255,255,255,0.25);">
-                                    <button class="btn btn-secondary btn-sm" id="btn-activate-premium-inside-${item.id}" style="font-size: 0.65rem; padding: 0.2rem 0.4rem; margin: 0;" onclick="event.stopPropagation(); showModal('premium');">
-                                        <i class="fa-solid fa-lock"></i> Freischalten
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                        socialMediaHtml = `
-                            <div class="card-social-icons-row" style="margin-top: 0.5rem; display: flex; gap: 0.8rem; justify-content: center; align-items: center; padding: 0.4rem 0;">
-                                <div style="filter: blur(4px); display: flex; gap: 0.8rem; pointer-events: none; opacity: 0.6;">
-                                    <span style="font-size: 1.2rem; color: var(--text-muted);"><i class="fa-brands fa-spotify"></i></span>
-                                    <span style="font-size: 1.2rem; color: var(--text-muted);"><i class="fa-brands fa-youtube"></i></span>
-                                    <span style="font-size: 1.2rem; color: var(--text-muted);"><i class="fa-brands fa-instagram"></i></span>
-                                </div>
-                            </div>
-                        `;
-                    }
-
-                    return `
-                        <div class="listing-card" data-id="${item.id}">
-                            <div class="left-media-column" style="display:flex; flex-direction:column; gap:0.6rem; width:200px; flex-shrink:0;">
-                                <div class="listing-thumbnail-wrapper" style="position: relative; width: 200px; height: 200px; overflow: hidden; border-radius: var(--radius-md); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); flex-shrink: 0;">
-                                    ${isNewListing(item) ? `
-                                        <span class="badge-new-listing" style="position: absolute; top: 8px; left: 8px; background: var(--color-purple); color: #000000; font-weight: 800; font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: var(--radius-sm); box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 12; display: flex; align-items: center; gap: 3px; letter-spacing: 0.5px;">
-                                            <i class="fa-solid fa-star"></i> NEU
-                                        </span>
-                                    ` : ''}
-                                    <!-- Slides Container -->
-                                    <div class="listing-gallery-slides" style="width: 100%; height: 100%; display: flex; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(0);">
-                                        ${photos.map(p => `
-                                            <img src="${p}" style="width: 100%; height: 100%; flex-shrink: 0; object-fit: cover;" alt="Vorschau">
-                                        `).join('')}
-                                    </div>
-                                    <!-- Prev/Next Controls -->
-                                    ${photos.length > 1 ? `
-                                        <button class="gallery-arrow prev-arrow" onclick="event.stopPropagation(); window.navigateGallery(this, -1);" style="position: absolute; left: 6px; top: 50%; transform: translateY(-50%); background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; z-index: 10; transition: background 0.2s, transform 0.2s;" onmouseover="this.style.background='rgba(15, 23, 42, 0.85)'" onmouseout="this.style.background='rgba(15, 23, 42, 0.65)'"><i class="fa-solid fa-chevron-left"></i></button>
-                                        <button class="gallery-arrow next-arrow" onclick="event.stopPropagation(); window.navigateGallery(this, 1);" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; z-index: 10; transition: background 0.2s, transform 0.2s;" onmouseover="this.style.background='rgba(15, 23, 42, 0.85)'" onmouseout="this.style.background='rgba(15, 23, 42, 0.65)'"><i class="fa-solid fa-chevron-right"></i></button>
-                                        <!-- Dots indicator -->
-                                        <div class="gallery-dots" style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; z-index: 10;">
-                                            ${photos.map((_, idx) => `
-                                                <span class="gallery-dot" style="width: 6px; height: 6px; border-radius: 50%; background: ${idx === 0 ? '#ffffff' : 'rgba(255,255,255,0.4)'}; transition: background 0.2s, transform 0.2s; transform: ${idx === 0 ? 'scale(1.2)' : 'scale(1)'};"></span>
-                                            `).join('')}
-                                        </div>
-                                    ` : ''}
-                                </div>
-
-                                <!-- Videos under gallery -->
-                                ${videos && videos.length > 0 ? `
-                                    <div class="listing-videos-gallery" style="display:flex; gap:0.4rem; overflow-x:auto; padding:2px 0;">
-                                        ${videos.map((v, idx) => `
-                                            <div class="video-gallery-item" onclick="event.stopPropagation(); window.playVideoModal('${v}');" style="width:64px; height:48px; border-radius:4px; overflow:hidden; position:relative; cursor:pointer; border:1px solid rgba(255,255,255,0.1); flex-shrink:0;" title="Video abspielen">
-                                                <img src="https://picsum.photos/id/653/100/100" style="width:100%; height:100%; object-fit:cover;">
-                                                <div style="position:absolute; inset:0; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center;">
-                                                    <i class="fa-solid fa-play text-red" style="font-size:0.8rem;"></i>
-                                                </div>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                ` : ''}
-
-                                <!-- Audio Tracks under gallery -->
-                                ${audio && audio.length > 0 ? `
-                                    <div class="listing-audios-gallery" style="display:flex; flex-direction:column; gap:0.25rem;">
-                                        ${audio.map((a, idx) => `
-                                            <div class="audio-gallery-item" onclick="event.stopPropagation(); window.toggleAudioTrack(this, '${a}');" style="display:flex; align-items:center; gap:0.4rem; background:rgba(255,255,255,0.03); border:1px solid var(--border-glass); border-radius:4px; padding:0.25rem 0.4rem; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'" title="Audio abspielen">
-                                                <i class="fa-solid fa-play play-icon text-purple" style="font-size:0.65rem;"></i>
-                                                <span style="font-size:0.65rem; color:var(--text-main); font-weight:600; white-space: normal; word-break: break-word; overflow:hidden; text-overflow:ellipsis;">Demo ${idx+1}</span>
-                                                <audio class="hidden-audio-player" src="${a}" style="display:none;"></audio>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                ` : ''}
-                            </div>
-
-                            <div class="listing-main-info">
-                                <div class="listing-top-row" style="display: block; text-align: left;">
-                                    <div class="listing-title" style="white-space: normal; word-break: break-word; overflow: hidden; text-overflow: ellipsis; max-width: 250px; font-weight: 700; font-size: 1.15rem; color: var(--text-main); line-height: 1.2;" title="${displayName}">
-                                        ${displayName}
-                                    </div>
-                                    <div style="margin-top: 0.2rem; margin-bottom: 0.6rem;">
-                                        <span class="listing-badge ${isEventMarket ? 'badge-organizer' : 'badge-musician'}" style="display: inline-block;">
-                                            ${item.type}
-                                        </span>
-                                    </div>
-                                </div>
-         
-                                <div class="listing-details-grid">
-                                    <div class="detail-item"><i class="fa-solid fa-map-marker-alt"></i> ${formatLocationWithPlz(item.location)}</div>
-                                    <div class="detail-item">
-                                        ${isEventMarket 
-                                            ? `<i class="fa-solid fa-calendar-days"></i> ${(item.dates && item.dates.length > 0 ? item.dates : [item.date]).map(d => formatEventDateWithWeekday(d)).join(', ')}` 
-                                            : `<i class="fa-solid fa-calendar-check"></i> Event-Arten: ${item.eventTypes ? item.eventTypes.join(', ') : ''}`}
-                                    </div>
-                                    <div class="detail-item">
-                                        <i class="fa-solid fa-euro-sign"></i> 
-                                        ${(() => {
-                                            const minB = item.minBudget !== undefined ? item.minBudget : (isEventMarket ? item.budget : item.price);
-                                            const maxB = item.maxBudget;
-                                            if (minB !== undefined && minB !== null) {
-                                                const minBStr = typeof minB === 'number' ? minB.toLocaleString('de-DE') : String(minB);
-                                                if (maxB !== undefined && maxB !== null && maxB !== minB) {
-                                                    const maxBStr = typeof maxB === 'number' ? maxB.toLocaleString('de-DE') : String(maxB);
-                                                    return `${minBStr} - ${maxBStr} €`;
-                                                } else {
-                                                    return `${minBStr} €`;
-                                                }
-                                            }
-                                            return 'Auf Anfrage';
-                                        })()}
-                                    </div>
-                                    <div class="detail-item">
-                                        <i class="fa-solid fa-clock"></i> 
-                                        ${(() => {
-                                            if (item.minDuration !== undefined && item.maxDuration !== undefined) {
-                                                const minD = String(item.minDuration).replace('.', ',');
-                                                const maxD = String(item.maxDuration).replace('.', ',');
-                                                return `${minD} - ${maxD} Stunden.`;
-                                            } else {
-                                                const baseD = String(item.duration || item.spieldauer || (isEventMarket ? '2 - 4' : 'Max. 3')).replace(/ca\.\s*/gi, '').replace(/\s*Stunden\.?/gi, '').trim();
-                                                return `${baseD} Stunden.`;
-                                            }
-                                        })()}
-                                    </div>
-                                    <div class="detail-item">
-                                        <i class="fa-solid fa-sliders"></i> 
-                                        Technik: ${(() => {
-                                            const tech = item.technik || item.equipment;
-                                            return Array.isArray(tech) ? tech.join(', ') : String(tech);
-                                        })()}
-                                    </div>
-                                    ${isEventMarket ? `
-                                        <div class="detail-item">
-                                            <i class="fa-solid fa-users"></i> 
-                                            Gesucht: ${item.musicianTypes ? item.musicianTypes.join(', ') : ''}
-                                        </div>
-                                    ` : ''}
-                                </div>
-
-                                <!-- Genres & Instrumente tags (without titles) -->
-                                <div class="listing-details-block" style="margin-top: 0.8rem; font-size: 0.85rem; display: flex; flex-wrap: wrap; gap: 0.4rem; text-align: left;">
-                                    ${item.genres.map(g => `<span class="tag">🎵 ${g}</span>`).join('')}
-                                    ${item.instruments.map(ins => `<span class="tag">🎸 ${ins}</span>`).join('')}
-                                </div>
-
-                                <!-- Description directly visible under tags -->
-                                <div class="listing-description" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.8rem; margin-top: 0.8rem; font-size: 0.85rem; line-height: 1.4; color: var(--text-muted); text-align: left;">
-                                    ${item.description}
-                                </div>
-                            </div>
-
-                            <div class="listing-actions-panel" style="display:flex; flex-direction:column; gap:0.4rem; align-items:stretch; width:180px;">
-                                ${matchHtml}
-                                <div style="display:flex; flex-direction:column; gap:0.4rem; width:100%; margin-top:0.4rem;">
-                                    ${hasContactAccess ? `
-                                        <button class="btn btn-sm ${isEventMarket ? 'btn-primary' : 'btn-secondary'} btn-contact-listing" 
-                                                data-id="${isEventMarket ? item.creatorId : item.id}" 
-                                                data-name="${displayName}"
-                                                data-event-id="${isEventMarket ? item.id : ''}"
-                                                style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin: 0;">
-                                            <i class="fa-solid fa-comment"></i> Nachricht schreiben
-                                        </button>
-                                    ` : ''}
-                                    ${contactPanelHtml}
-                                    ${socialMediaHtml}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                gridEl.querySelectorAll('.btn-contact-listing').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const targetId = btn.getAttribute('data-id');
-                        const targetName = btn.getAttribute('data-name');
-                        const eventId = btn.getAttribute('data-event-id');
-                        const result = state.initiateContact(targetId, targetName);
-                        if (result.success) {
-                            if (eventId && state.currentUser && state.currentUser.role === 'musician') {
-                                state.addMusicianApplication(state.currentUser.profileId, eventId);
-                            }
-                            showToast({
-                                title: "Verbindung initiiert!",
-                                message: `Chat mit ${targetName} geöffnet.`,
-                                actionTab: "postbox"
-                            });
-                            navigate('postbox');
-                        }
-                    });
-                });
-
-                gridEl.querySelectorAll('.btn-interest').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const musicianId = btn.getAttribute('data-musician-id');
-                        const eventId = btn.getAttribute('data-event-id');
-                        const res = state.toggleInterest(u.role, musicianId, eventId);
-                        if (res.success) {
-                            if (res.isPerfectMatch) {
-                                showToast({
-                                    title: "Perfect Match! 💖🎉",
-                                    message: "Ihr habt beide gegenseitig Interesse bekundet! Ihr könnt nun direkt chatten.",
-                                    actionTab: "postbox"
-                                });
-                                let targetId = '';
-                                if (u.role === 'musician') {
-                                    const event = state.events.find(ev => ev.id === eventId);
-                                    targetId = event ? event.creatorId : '';
-                                } else {
-                                    targetId = musicianId;
-                                }
-                                if (targetId) {
-                                    state.initiateContact(targetId, "Perfect Match Partner");
-                                }
-                                navigate('postbox');
-                            } else {
-                                showToast({
-                                    title: res.active ? "Interesse bekundet!" : "Interesse zurÜckgezogen",
-                                    message: res.active ? "Dein Interesse wurde erfolgreich Übermittelt." : "Dein Interesse wurde zurÜckgezogen."
-                                });
-                                updateMatches();
-                            }
-                        }
-                    });
-                });
-
-                gridEl.querySelectorAll('.btn-no-interest').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const musicianId = btn.getAttribute('data-musician-id');
-                        const eventId = btn.getAttribute('data-event-id');
-                        const res = state.toggleNoInterest(u.role, musicianId, eventId);
-                        if (res.success) {
-                            showToast({
-                                title: res.active ? "Kein Interesse markiert" : "Markierung aufgehoben",
-                                message: res.active ? "Dieses Angebot wurde als nicht interessant markiert." : "Die Markierung wurde aufgehoben."
-                            });
-                            updateMatches();
-                        }
-                    });
-                });
-            };
-
-            renderGrid(perfectGrid, perfectMatches, true);
-            renderGrid(topGrid, topMatches, false);
-        };
-
-        if (selectProfile) {
-            selectProfile.addEventListener('change', updateMatches);
         }
-        if (selectSort) {
-            selectSort.addEventListener('change', updateMatches);
-        }
-        window.matchesUpdate = updateMatches;
-        updateMatches();
+    };
 
-        const marketBtn = document.getElementById('btn-goto-market-from-matches');
-        if (marketBtn) {
-            marketBtn.addEventListener('click', () => {
-                navigate(isMusician ? 'events' : 'musicians');
-            });
-        }
+    if (selectProfile) {
+        selectProfile.addEventListener('change', updateMatches);
     }
+    if (selectSort) {
+        selectSort.addEventListener('change', updateMatches);
+    }
+    window.matchesUpdate = updateMatches;
+    updateMatches();
+
+    const marketBtn = document.getElementById('btn-goto-market-from-matches');
+    if (marketBtn) {
+        marketBtn.addEventListener('click', () => {
+            navigate(isMusician ? 'events' : 'musicians');
+        });
+    }
+}
 
 
 function isEventActive(e) {
     if (e.musicianFound || e.isCanceled) return false;
+    if (e.isActive === false) return false;
     if (!e.date) return false;
     const today = new Date();
     today.setHours(0,0,0,0);
@@ -4478,83 +5941,125 @@ function isNewListing(item) {
 }
 
 function renderOrganizerEventItem(e, isActive) {
-    const pic = e.profilePic || (e.type && (e.type.toLowerCase().includes('hochzeit') || e.type.toLowerCase().includes('wedding')) ? 'https://picsum.photos/id/111/300/300' : 'https://picsum.photos/id/1025/300/300');
-    const formattedDate = new Date(e.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    
-    const interestsCount = state.interests?.filter(i => i.eventId === e.id && i.organizerInterested).length || 0;
-    const noInterestsCount = state.interests?.filter(i => i.eventId === e.id && i.organizerNoInterest).length || 0;
-    const contactedCount = state.musicians.filter(m => m.applications?.some(app => app.eventId === e.id && app.status === 'contacted')).length || 0;
-    
-    let perfectMatchesCount = 0;
-    state.interests?.forEach(i => {
-        if (i.eventId === e.id && i.musicianInterested && i.organizerInterested) {
-            perfectMatchesCount++;
+    const photos = (e.photos || [
+        e.profilePic || (e.type && (e.type.toLowerCase().includes('hochzeit') || e.type.toLowerCase().includes('wedding')) ? 'https://picsum.photos/id/111/300/300' : 'https://picsum.photos/id/1025/300/300'),
+        'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80'
+    ]).slice(0, 3);
+
+    const videoSources = e.videos && e.videos.length > 0 ? e.videos : [];
+
+    const genresList = (e.genres || (e.genre ? [e.genre] : ['Pop', 'Rock'])).join(', ');
+    const instrumentsList = (e.instruments || (e.category ? [e.category] : ['Gesang', 'Gitarre'])).join(', ');
+
+    let formattedDate = new Date(e.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    if (e.eventStartTime) {
+        if (e.eventEndTime) {
+            formattedDate += `, ${e.eventStartTime} - ${e.eventEndTime} Uhr`;
+        } else {
+            formattedDate += `, ${e.eventStartTime} Uhr`;
         }
-    });
-    
+    }
+
+    let budgetDisplay = e.budget ? `${e.budget} €` : 'Auf Anfrage';
+    let durationDisplay = e.spieldauer ? `${e.spieldauer} Stunden` : '2 - 4 Stunden';
+    let techDisplayStr = e.technik || 'Technik nach Vereinbarung';
+
+    const description = e.description || 'Wir suchen eine professionelle musikalische Begleitung für unser anstehendes Event mit fantastischer Stimmung.';
+
+    const themeColor = '#7c3aed';
+
     return `
-        <div class="my-event-item" style="display: flex; background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 1.2rem; gap: 1.5rem; width: 100%; position: relative; flex-wrap: wrap;">
-            <!-- Left Section (Image + Info + Stats) -->
-            <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem; min-width: 280px;">
-                <!-- Header Info -->
-                <div style="display: flex; align-items: flex-start; gap: 1.2rem;">
-                    <img src="${pic}" style="width: 55px; height: 55px; border-radius: var(--radius-sm); object-fit: cover; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; ${!isActive ? 'filter:grayscale(0.8);' : ''}">
-                    <div style="min-width: 0; flex: 1;">
-                        <h4 style="margin: 0 0 0.4rem; font-size: 1.05rem; font-weight: 700; color: ${isActive ? 'var(--text-main)' : 'var(--text-muted)'}; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                            ${e.name}
-                            ${e.isCanceled ? ' <span class="tag" style="background:rgba(255,75,75,0.1); color:var(--color-red); font-size:0.7rem; padding:0.1rem 0.4rem; border-radius:4px;"><i class="fa-solid fa-ban"></i> Abgesagt</span>' : ''}
-                            ${(!isActive && !e.isCanceled) ? ' <span class="tag" style="background:rgba(15,23,42,0.08); border: 1px solid var(--border-glass); color:var(--text-muted); font-size:0.7rem; padding:0.1rem 0.4rem; border-radius:4px;"><i class="fa-solid fa-clock"></i> Beendet</span>' : ''}
-                        </h4>
-                        <div style="display: flex; gap: 1.2rem; font-size: 0.8rem; color: var(--text-muted); flex-wrap: wrap; margin-top: 0.2rem;">
-                            <span><i class="fa-solid fa-tag text-cyan"></i> ${e.type}</span>
-                            <span><i class="fa-solid fa-calendar text-cyan"></i> ${formattedDate}</span>
-                            <span><i class="fa-solid fa-map-marker-alt text-cyan"></i> ${e.location}</span>
-                            <span><i class="fa-solid fa-euro-sign text-cyan"></i> ${e.budget} €</span>
+        <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'};">
+            
+            <!-- 1. Combined Galerie: 3 Fotos (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
+            <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 210px; background: #0f172a; overflow: hidden;">
+                
+                <div id="combo-slider-${e.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
+                    <!-- Slides 1-3: Fotos -->
+                    ${photos.map((img) => `
+                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative;">
+                            <img src="${img}" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
+                    `).join('')}
+
+                    <!-- Last Slide: Beschreibung -->
+                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.2rem; box-sizing: border-box; text-align: center;">
+                        <div style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: ${themeColor}; margin-bottom: 0.4rem;">
+                            <i class="fa-solid fa-file-lines"></i> Beschreibung
+                        </div>
+                        <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 120px; overflow-y: auto;">
+                            ${description}
+                        </p>
                     </div>
                 </div>
 
-                <!-- Stats Row (1-to-1 design matching the Dashboard stats grid) -->
-                <div style="display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 0.4rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.8rem;">
-                    <div style="background:rgba(124,58,237,0.02); border:1px solid rgba(124,58,237,0.15); padding:0.8rem; border-radius:var(--radius-md); flex: 1; min-width: 100px;">
-                        <div style="font-size:0.7rem; color:var(--color-purple); text-transform:uppercase; font-weight:700; margin-bottom:0.25rem;">Interesse bekundet</div>
-                        <div style="font-size:1.6rem; font-weight:700; color:var(--color-purple);">${interestsCount}</div>
-                    </div>
-                    <div style="background:rgba(255,75,75,0.02); border:1px solid rgba(255,75,75,0.15); padding:0.8rem; border-radius:var(--radius-md); flex: 1; min-width: 100px;">
-                        <div style="font-size:0.7rem; color:var(--color-red); text-transform:uppercase; font-weight:700; margin-bottom:0.25rem;">Kein Interesse</div>
-                        <div style="font-size:1.6rem; font-weight:700; color:var(--color-red);">${noInterestsCount}</div>
-                    </div>
-                    <div style="background:rgba(0,242,254,0.02); border:1px solid rgba(0,242,254,0.15); padding:0.8rem; border-radius:var(--radius-md); flex: 1; min-width: 100px;">
-                        <div style="font-size:0.7rem; color:var(--color-cyan); text-transform:uppercase; font-weight:700; margin-bottom:0.25rem;">Kontaktiert</div>
-                        <div style="font-size:1.6rem; font-weight:700; color:var(--color-cyan);">${contactedCount}</div>
-                    </div>
-                    <div style="background:rgba(56,239,125,0.02); border:1px solid rgba(56,239,125,0.15); padding:0.8rem; border-radius:var(--radius-md); flex: 1; min-width: 100px;">
-                        <div style="font-size:0.7rem; color:var(--color-green); text-transform:uppercase; font-weight:700; margin-bottom:0.25rem;">Perfekte Matches</div>
-                        <div style="font-size:1.6rem; font-weight:700; color:var(--color-green);">${perfectMatchesCount}</div>
+                <!-- Slide Navigation Arrows -->
+                <button onclick="event.stopPropagation(); window.slideComboGallery('${e.id}', -1)" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                    <i class="fa-solid fa-chevron-left" style="font-size: 0.8rem;"></i>
+                </button>
+                <button onclick="event.stopPropagation(); window.slideComboGallery('${e.id}', 1)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                    <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem;"></i>
+                </button>
+
+                <span class="tile-gallery-counter" style="position: absolute; bottom: 8px; left: 10px; background: rgba(0,0,0,0.75); color: #ffffff; font-size: 0.68rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 5px; backdrop-filter: blur(4px); z-index: 5;">
+                    📷 1 / 3 Fotos
+                </span>
+            </div>
+
+            <!-- Tile Body Content -->
+            <div class="tile-body-content" style="padding: 1rem 1.1rem 0.8rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.6rem; line-height: 1.25;">
+                        ${e.name}
+                        ${e.isCanceled ? ' <span style="background:rgba(255,75,75,0.1); color:var(--color-red); font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;"><i class="fa-solid fa-ban"></i> Abgesagt</span>' : ''}
+                        ${!isActive ? ' <span style="background:rgba(249,115,22,0.1); color:var(--color-orange); font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;"><i class="fa-solid fa-pause"></i> Pausiert</span>' : ''}
+                    </h3>
+
+                    <!-- Single column list matching market style -->
+                    <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>${e.location}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-calendar" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>${formattedDate}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Spieldauer: ${durationDisplay}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-euro-sign" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Budget: ${budgetDisplay}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-tag" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Typ: ${e.type}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Technik: ${techDisplayStr}</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Section (Actions) -->
-            <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-end; gap: 0.5rem; min-width: 160px; border-left: 1px solid rgba(255,255,255,0.05); padding-left: 1.2rem; flex: 0 0 auto;">
-                ${isActive ? `
-                    <button class="btn btn-glass btn-sm btn-edit-my-event" data-id="${e.id}" style="margin:0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.45rem 0.8rem; font-size: 0.8rem;">
-                        <i class="fa-solid fa-pen"></i> Bearbeiten
-                    </button>
-                    <button class="btn btn-glass btn-sm btn-duplicate-my-event" data-id="${e.id}" style="margin:0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.45rem 0.8rem; font-size: 0.8rem; border-color: rgba(0,242,254,0.3); color:var(--color-cyan); background: rgba(0,242,254,0.02);">
-                        <i class="fa-solid fa-copy"></i> Duplizieren
-                    </button>
-                    <button class="btn btn-glass btn-sm btn-delete-my-event" data-id="${e.id}" style="margin:0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.45rem 0.8rem; font-size: 0.8rem; color: var(--color-red); border-color: rgba(255, 75, 75, 0.15);">
-                        <i class="fa-solid fa-power-off"></i> Deaktivieren
-                    </button>
-                ` : `
-                    <button class="btn btn-glass btn-sm btn-activate-my-event" data-id="${e.id}" style="margin:0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.45rem 0.8rem; font-size: 0.8rem; border-color: rgba(56,239,125,0.3); color:var(--color-green); background: rgba(56,239,125,0.02);">
-                        <i class="fa-solid fa-play"></i> Aktivieren
-                    </button>
-                    <button class="btn btn-glass btn-sm btn-delete-my-event" data-id="${e.id}" style="margin:0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.45rem 0.8rem; font-size: 0.8rem; color: var(--color-red); border-color: rgba(255, 75, 75, 0.15);">
-                        <i class="fa-solid fa-trash"></i> Löschen
-                    </button>
-                `}
+            <!-- Actions Grid at the Bottom (Purple theme with white text) -->
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #7c3aed;">
+                <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                    <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
+                </button>
+                <button class="btn btn-sm btn-glass btn-duplicate-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                    <i class="fa-solid fa-copy" style="color: #ffffff;"></i> Duplizieren
+                </button>
+                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                    <i class="fa-solid fa-${isActive ? 'pause' : 'play'}" style="color: #ffffff;"></i> ${isActive ? 'Pausieren' : 'Aktivieren'}
+                </button>
+                <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
+                </button>
             </div>
         </div>
     `;
@@ -4624,22 +6129,24 @@ function renderMyEvents(container) {
             <div class="profile-section-card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom:0.8rem; flex-wrap: wrap; gap:1rem;">
                     <h3 style="margin:0;"><i class="fa-solid fa-calendar-check text-cyan"></i> Aktive Event-Ausschreibungen (${activeEvents.length})</h3>
-                    <button class="btn btn-secondary btn-sm" id="btn-create-event-modal" style="margin:0;">
-                        <i class="fa-solid fa-plus"></i> Neues Event erstellen
-                    </button>
                 </div>
                 
                 <div class="my-events-list">
                     ${activeEvents.length === 0 ? `
-                        <div style="padding:2rem 1rem; text-align:center; color:var(--text-muted);">
+                        <div style="padding:2rem 1rem; text-align:center; color:var(--text-muted); margin-bottom: 1rem;">
                             <i class="fa-solid fa-calendar-days" style="font-size:2.5rem; color:var(--border-glass); margin-bottom:0.8rem;"></i>
                             <p>Keine aktiven Ausschreibungen vorhanden.</p>
                         </div>
                     ` : `
-                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
                             ${activeEvents.map(e => renderOrganizerEventItem(e, true)).join('')}
                         </div>
                     `}
+                    <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
+                        <button class="btn btn-primary" id="btn-create-event-modal" style="margin:0; background: #7c3aed; border-color: #7c3aed; color: #ffffff;">
+                            <i class="fa-solid fa-plus"></i> Neues Event erstellen
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -4656,7 +6163,7 @@ function renderMyEvents(container) {
                             <p>Keine deaktivierten oder beendeten Events.</p>
                         </div>
                     ` : `
-                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
                             ${deactivatedEvents.map(e => renderOrganizerEventItem(e, false)).join('')}
                         </div>
                     `}
@@ -4670,21 +6177,19 @@ function renderMyEvents(container) {
         createBtn.addEventListener('click', () => showEventModal(null));
     }
 
-
-    container.querySelectorAll('.btn-activate-my-event').forEach(btn => {
+    container.querySelectorAll('.btn-pause-my-event').forEach(btn => {
         btn.addEventListener('click', () => {
             const id = btn.getAttribute('data-id');
-            const result = state.reactivateEvent(id);
+            const result = state.toggleEventActive(id);
             if (result.success) {
                 showToast({
-                    title: "Event aktiviert 🟢",
-                    message: "Das Event ist wieder aktiv und auf dem Markt sichtbar."
+                    title: result.isActive ? "Event aktiviert 🟢" : "Event pausiert 🟠",
+                    message: result.isActive ? "Das Event ist wieder aktiv und auf dem Markt sichtbar." : "Das Event wurde pausiert und aus der Suche entfernt."
                 });
                 renderMyEvents(container);
             }
         });
     });
-
 
     container.querySelectorAll('.btn-duplicate-my-event').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -4696,6 +6201,7 @@ function renderMyEvents(container) {
                 duplicatedCopy.name = `${event.name} (Kopie)`;
                 duplicatedCopy.date = '';
                 duplicatedCopy.musicianFound = false;
+                duplicatedCopy.isActive = true;
                 showEventModal(duplicatedCopy, true);
             }
         });
@@ -4714,13 +6220,11 @@ function renderMyEvents(container) {
             const id = btn.getAttribute('data-id');
             const event = state.events.find(e => e.id === id);
             if (event) {
-                const isAct = isEventActive(event);
-                const actionText = isAct ? "deaktivieren" : "unwiderruflich löschen";
-                if (confirm(`Möchtest du das Event "${event.name}" wirklich ${actionText}?`)) {
+                if (confirm(`Möchtest du das Event "${event.name}" wirklich unwiderruflich löschen?`)) {
                     state.deleteEvent(id);
                     showToast({
-                        title: isAct ? "Event deaktiviert" : "Event gelöscht",
-                        message: isAct ? "Das Event wurde erfolgreich deaktiviert." : "Das Event wurde erfolgreich aus der Suche entfernt."
+                        title: "Event gelöscht",
+                        message: "Das Event wurde erfolgreich aus der Suche entfernt."
                     });
                     renderMyEvents(container);
                 }
@@ -4852,80 +6356,184 @@ function renderMusicianInsightsPanel(m) {
 }
 
 function renderMyMusicianItem(m, isActive) {
-    const pic = m.profilePic || (
-        m.type === 'DJ' ? 'https://picsum.photos/id/653/300/300' : m.type === 'Solo' ? 'https://picsum.photos/id/325/300/300' : 'https://picsum.photos/id/453/300/300'
-    );
-    
-    const isExpanded = activeInsightsProfiles.has(m.id);
-    const insightsHtml = isExpanded ? renderMusicianInsightsPanel(m) : '';
-    const insightsStyle = isExpanded ? 'display: block;' : 'display: none;';
-    const activeStyle = isExpanded 
-        ? 'border-color: var(--color-purple); color: #ffffff; background: var(--color-purple);'
-        : 'border-color: rgba(124,58,237,0.3); color:var(--color-purple); background: rgba(124,58,237,0.02);';
+    const photos = (m.photos || [
+        m.profilePic || (m.type === 'DJ' ? 'https://picsum.photos/id/653/300/300' : m.type === 'Solo' ? 'https://picsum.photos/id/325/300/300' : 'https://picsum.photos/id/453/300/300'),
+        'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80'
+    ]).slice(0, 3);
+
+    const videoSources = m.videos && m.videos.length > 0 ? m.videos : [
+        { title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' },
+        { title: 'Auftritt Showreel & Trailer', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },
+        { title: 'Unplugged Live Session', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' }
+    ];
+
+    const genresList = (m.genres || []).join(', ') || 'Pop, Rock';
+    const instrumentsList = (m.instruments || []).join(', ') || (m.type === 'DJ' ? 'DJ-Controller' : 'Gesang, Gitarre');
+
+    let durationDisplay = '';
+    const minDur = m.minDuration;
+    const maxDur = m.maxDuration;
+    if (minDur !== undefined && minDur !== null) {
+        if (maxDur !== undefined && maxDur !== null && maxDur !== minDur) {
+            durationDisplay = `${minDur} - ${maxDur} Stunden`;
+        } else {
+            durationDisplay = `${minDur} Stunden`;
+        }
+    } else {
+        durationDisplay = '2 - 4 Stunden';
+    }
+
+    let budgetDisplay = '';
+    const minB = m.minBudget;
+    const maxB = m.maxBudget;
+    if (minB !== undefined && minB !== null) {
+        if (maxB !== undefined && maxB !== null && maxB !== minB) {
+            budgetDisplay = `${minB.toLocaleString('de-DE')} - ${maxB.toLocaleString('de-DE')} €`;
+        } else {
+            budgetDisplay = `${minB.toLocaleString('de-DE')} €`;
+        }
+    } else {
+        budgetDisplay = 'Auf Anfrage';
+    }
+
+    let techDisplayStr = 'Technik nach Vereinbarung';
+    if (Array.isArray(m.technik) && m.technik.length > 0) {
+        techDisplayStr = m.technik.join(', ');
+    }
+
+    const description = m.description || m.bio || 'Professionelle Live-Musik für unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.';
+
+    const themeColor = '#2563eb';
+
+    // Availability mapping
+    let availDaysStr = 'Nach Vereinbarung';
+    if (m.availability) {
+        const activeDays = [];
+        if (m.availability.monday?.available) activeDays.push('Mo');
+        if (m.availability.tuesday?.available) activeDays.push('Di');
+        if (m.availability.wednesday?.available) activeDays.push('Mi');
+        if (m.availability.thursday?.available) activeDays.push('Do');
+        if (m.availability.friday?.available) activeDays.push('Fr');
+        if (m.availability.saturday?.available) activeDays.push('Sa');
+        if (m.availability.sunday?.available) activeDays.push('So');
+        if (activeDays.length > 0) {
+            availDaysStr = activeDays.join(', ');
+        }
+    }
 
     return `
-        <div class="my-musician-item-container" style="background: #ffffff; border: 1px solid var(--border-glass); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 1rem;">
-            <div class="my-musician-item" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; gap: 1rem; flex-wrap: wrap;">
-                <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 250px;">
-                    <img src="${pic}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; ${!isActive ? 'filter:grayscale(0.8);' : ''}">
-                    <div style="min-width: 0;">
-                        <h4 style="margin:0 0 0.2rem; font-size: 1rem; font-weight: 700; color: ${isActive ? 'var(--text-main)' : 'var(--text-muted)'}; white-space: normal; word-break: break-word; overflow: hidden; text-overflow: ellipsis;">
-                            ${m.name}
-                            ${!isActive ? ' <span class="tag" style="background:rgba(255,75,75,0.1); color:var(--color-red); font-size:0.7rem; padding:0.1rem 0.4rem; border-radius:4px;"><i class="fa-solid fa-pause"></i> Pausiert</span>' : ' <span class="tag" style="background:rgba(56,239,125,0.1); color:var(--color-green); font-size:0.7rem; padding:0.1rem 0.4rem; border-radius:4px;"><i class="fa-solid fa-circle-check"></i> Aktiv</span>'}
-                        </h4>
-                        <div style="display: flex; gap: 1rem; font-size: 0.8rem; color: var(--text-muted); flex-wrap: wrap;">
-                            <span><i class="fa-solid fa-guitar text-purple"></i> ${m.type}</span>
-                            <span><i class="fa-solid fa-map-marker-alt text-purple"></i> ${m.location}</span>
-                            <span><i class="fa-solid fa-euro-sign text-purple"></i> ${(() => {
-                                const minB = m.minBudget;
-                                const maxB = m.maxBudget;
-                                if (minB !== undefined && minB !== null) {
-                                    if (maxB !== undefined && maxB !== null && maxB !== minB) {
-                                        return `${minB.toLocaleString('de-DE')} - ${maxB.toLocaleString('de-DE')} €`;
-                                    }
-                                    return `${minB.toLocaleString('de-DE')} €`;
-                                }
-                                return 'Auf Anfrage';
-                            })()}</span>
-                            <span><i class="fa-solid fa-tag text-purple"></i> ${m.genres.slice(0,2).join(', ')}</span>
+        <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'};">
+            
+            <!-- 1. Combined Galerie: 3 Fotos + 3 Videos direkt folgend (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
+            <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 210px; background: #0f172a; overflow: hidden;">
+                
+                <div id="combo-slider-${m.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
+                    
+                    <!-- Slides 1-3: Fotos -->
+                    ${photos.map((img) => `
+                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative;">
+                            <img src="${img}" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    `).join('')}
+
+                    <!-- Slides 4-6: Nativ abspielbare HTML5 Videos -->
+                    ${videoSources.map((vid, vIdx) => `
+                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #000; display: flex; align-items: center; justify-content: center;">
+                            <video controls preload="metadata" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: cover;">
+                                <source src="${vid.url}" type="video/mp4">
+                                Dein Browser unterstÜtzt dieses Video nicht.
+                            </video>
+                            <span style="position: absolute; top: 12px; left: 12px; z-index: 4; font-size: 0.72rem; font-weight: 800; color: #fff; background: rgba(239, 68, 68, 0.9); padding: 0.25rem 0.6rem; border-radius: 6px; backdrop-filter: blur(4px);">
+                                🎬 Video #${vIdx + 1}: ${vid.title}
+                            </span>
+                        </div>
+                    `).join('')}
+
+                    <!-- Last Slide: Beschreibung -->
+                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.2rem; box-sizing: border-box; text-align: center;">
+                        <div style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: ${themeColor}; margin-bottom: 0.4rem;">
+                            <i class="fa-solid fa-file-lines"></i> Beschreibung
+                        </div>
+                        <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 120px; overflow-y: auto;">
+                            ${description}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Slide Navigation Arrows -->
+                <button onclick="event.stopPropagation(); window.slideComboGallery('${m.id}', -1)" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                    <i class="fa-solid fa-chevron-left" style="font-size: 0.8rem;"></i>
+                </button>
+                <button onclick="event.stopPropagation(); window.slideComboGallery('${m.id}', 1)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                    <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem;"></i>
+                </button>
+
+                <span class="tile-gallery-counter" style="position: absolute; bottom: 8px; left: 10px; background: rgba(0,0,0,0.75); color: #ffffff; font-size: 0.68rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 5px; backdrop-filter: blur(4px); z-index: 5;">
+                    📷 1 / 3 Fotos
+                </span>
+            </div>
+
+            <!-- Tile Body Content -->
+            <div class="tile-body-content" style="padding: 1rem 1.1rem 0.8rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.6rem; line-height: 1.25;">
+                        ${m.name}
+                        ${!isActive ? ' <span style="background:rgba(249,115,22,0.1); color:var(--color-orange); font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;"><i class="fa-solid fa-pause"></i> Pausiert</span>' : ''}
+                    </h3>
+
+                    <!-- Single column list matching market style -->
+                    <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>${m.location}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Typ: ${m.type}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-euro-sign" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Gage: ${budgetDisplay}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-tag" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Genres: ${genresList}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Spieldauer: ${durationDisplay}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Verfügbarkeit: ${availDaysStr}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Technik: ${techDisplayStr}</span>
                         </div>
                     </div>
                 </div>
-                <div style="display: flex; gap: 0.5rem; flex-shrink: 0; flex-wrap: wrap;">
-                    <button class="btn btn-glass btn-sm btn-insights-my-musician" data-id="${m.id}" style="margin:0; padding:0.4rem 0.8rem; ${activeStyle}">
-                        <i class="fa-solid fa-chart-line"></i> Insights
-                    </button>
-                    ${isActive ? `
-                        <button class="btn btn-glass btn-sm btn-pause-my-musician" data-id="${m.id}" style="margin:0; padding:0.4rem 0.8rem; border-color: rgba(255,75,75,0.3); color:var(--color-red); background: rgba(255,75,75,0.02);">
-                            <i class="fa-solid fa-pause"></i> Profil pausieren
-                        </button>
-                        <button class="btn btn-glass btn-sm btn-duplicate-my-musician" data-id="${m.id}" style="margin:0; padding:0.4rem 0.8rem; border-color: rgba(124,58,237,0.3); color:var(--color-purple); background: rgba(124,58,237,0.02);">
-                            <i class="fa-solid fa-copy"></i> Duplizieren
-                        </button>
-                        <button class="btn btn-glass btn-sm btn-edit-my-musician" data-id="${m.id}" style="margin:0; padding:0.4rem 0.8rem;">
-                            <i class="fa-solid fa-pen"></i> Bearbeiten
-                        </button>
-                    ` : `
-                        <button class="btn btn-glass btn-sm btn-pause-my-musician" data-id="${m.id}" style="margin:0; padding:0.4rem 0.8rem; border-color: rgba(56,239,125,0.3); color:var(--color-green); background: rgba(56,239,125,0.02);">
-                            <i class="fa-solid fa-play"></i> Profil aktivieren
-                        </button>
-                        <button class="btn btn-glass btn-sm btn-duplicate-my-musician" data-id="${m.id}" style="margin:0; padding:0.4rem 0.8rem; border-color: rgba(124,58,237,0.3); color:var(--color-purple); background: rgba(124,58,237,0.02);">
-                            <i class="fa-solid fa-copy"></i> Duplizieren
-                        </button>
-                    `}
-                    <button class="btn btn-glass btn-sm btn-delete-my-musician" data-id="${m.id}" style="margin:0; padding:0.4rem 0.8rem; color: var(--color-red); border-color: rgba(255, 75, 75, 0.15);">
-                        <i class="fa-solid fa-trash"></i> Löschen
-                    </button>
-                </div>
             </div>
-            
-            <div class="my-musician-insights-panel" id="insights-panel-${m.id}" style="border-top: 1px solid var(--border-glass); background: rgba(124,58,237,0.01); ${insightsStyle}">
-                ${insightsHtml}
+
+            <!-- Actions Grid at the Bottom (Blue theme with white text) -->
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #2563eb;">
+                <button class="btn btn-sm btn-glass btn-edit-my-musician" data-id="${m.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                    <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
+                </button>
+                <button class="btn btn-sm btn-glass btn-duplicate-my-musician" data-id="${m.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
+                    <i class="fa-solid fa-copy" style="color: #ffffff;"></i> Duplizieren
+                </button>
+                <button class="btn btn-sm btn-glass btn-pause-my-musician" data-id="${m.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
+                    <i class="fa-solid fa-${isActive ? 'pause' : 'play'}" style="color: #ffffff;"></i> ${isActive ? 'Pausieren' : 'Aktivieren'}
+                </button>
+                <button class="btn btn-sm btn-glass btn-delete-my-musician" data-id="${m.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
+                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
+                </button>
             </div>
         </div>
     `;
 }
-
 function renderMyMusicians(container) {
     if (!state.currentUser) return;
     const u = state.currentUser;
@@ -4933,30 +6541,30 @@ function renderMyMusicians(container) {
     const activeMusicians = allMyMusicians.filter(m => m.isActive !== false);
     const deactivatedMusicians = allMyMusicians.filter(m => m.isActive === false);
 
-    const successPercent = allMyMusicians.length > 0 ? Math.round((activeMusicians.length / allMyMusicians.length) * 100) : 0;
-
     container.innerHTML = `
         <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;">
             <!-- Active Musicians -->
             <div class="profile-section-card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom:0.8rem; flex-wrap: wrap; gap:1rem;">
                     <h3 style="margin:0;"><i class="fa-solid fa-guitar text-purple"></i> Aktive Musiker-Profile (${activeMusicians.length})</h3>
-                    <button class="btn btn-secondary btn-sm" id="btn-create-musician-modal" style="margin:0; background: var(--color-purple); border-color: var(--color-purple);">
-                        <i class="fa-solid fa-plus"></i> Profil hinzufügen
-                    </button>
                 </div>
                 
                 <div class="my-musicians-list">
                     ${activeMusicians.length === 0 ? `
-                        <div style="padding:2rem 1rem; text-align:center; color:var(--text-muted);">
+                        <div style="padding:2rem 1rem; text-align:center; color:var(--text-muted); margin-bottom: 1rem;">
                             <i class="fa-solid fa-guitar" style="font-size:2.5rem; color:var(--border-glass); margin-bottom:0.8rem;"></i>
                             <p>Keine aktiven Profile vorhanden.</p>
                         </div>
                     ` : `
-                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
                             ${activeMusicians.map(m => renderMyMusicianItem(m, true)).join('')}
                         </div>
                     `}
+                    <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
+                        <button class="btn btn-primary" id="btn-create-musician-modal" style="margin:0; background: #2563eb; border-color: #2563eb; color: #ffffff;">
+                            <i class="fa-solid fa-plus"></i> Profil hinzufügen
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -4973,7 +6581,7 @@ function renderMyMusicians(container) {
                             <p>Keine pausierten oder inaktiven Profile.</p>
                         </div>
                     ` : `
-                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
                             ${deactivatedMusicians.map(m => renderMyMusicianItem(m, false)).join('')}
                         </div>
                     `}
@@ -4986,87 +6594,6 @@ function renderMyMusicians(container) {
     if (createBtn) {
         createBtn.addEventListener('click', () => showMusicianModal(null));
     }
-
-    const attachInsightsListeners = (panel, m) => {
-        panel.querySelectorAll('.chk-toggle-booked').forEach(chk => {
-            chk.addEventListener('change', () => {
-                const musId = chk.getAttribute('data-musician-id');
-                const evtId = chk.getAttribute('data-event-id');
-                const isChecked = chk.checked;
-                const newStatus = isChecked ? 'booked' : 'contacted';
-                const result = state.setApplicationStatus(musId, evtId, newStatus);
-                if (result.success) {
-                    showToast({
-                        title: newStatus === 'booked' ? "Event gebucht!" : "Status aktualisiert",
-                        message: newStatus === 'booked' ? "Du hast den Auftritt als 'Gebucht' markiert." : "Der Status wurde wieder auf 'Kontaktiert' gesetzt."
-                    });
-                    
-                    const updatedMusician = state.musicians.find(mus => mus.id === musId);
-                    panel.innerHTML = renderMusicianInsightsPanel(updatedMusician);
-                    attachInsightsListeners(panel, updatedMusician);
-                }
-            });
-        });
-
-        panel.querySelectorAll('.chk-toggle-declined').forEach(chk => {
-            chk.addEventListener('change', () => {
-                const musId = chk.getAttribute('data-musician-id');
-                const evtId = chk.getAttribute('data-event-id');
-                const isChecked = chk.checked;
-                const newStatus = isChecked ? 'declined' : 'contacted';
-                const result = state.setApplicationStatus(musId, evtId, newStatus);
-                if (result.success) {
-                    showToast({
-                        title: newStatus === 'declined' ? "Absage markiert" : "Status aktualisiert",
-                        message: newStatus === 'declined' ? "Du hast die Bewerbung als 'Abgesagt' markiert." : "Der Status wurde wieder auf 'Kontaktiert' gesetzt."
-                    });
-                    
-                    const updatedMusician = state.musicians.find(mus => mus.id === musId);
-                    panel.innerHTML = renderMusicianInsightsPanel(updatedMusician);
-                    attachInsightsListeners(panel, updatedMusician);
-                }
-            });
-        });
-    };
-
-    // Attach listeners and load content for already expanded insights panels
-    allMyMusicians.forEach(m => {
-        if (activeInsightsProfiles.has(m.id)) {
-            const panel = document.getElementById(`insights-panel-${m.id}`);
-            if (panel) {
-                attachInsightsListeners(panel, m);
-            }
-        }
-    });
-
-    container.querySelectorAll('.btn-insights-my-musician').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const id = btn.getAttribute('data-id');
-            const panel = document.getElementById(`insights-panel-${id}`);
-            if (panel) {
-                const isHidden = panel.style.display === 'none';
-                if (isHidden) {
-                    activeInsightsProfiles.add(id);
-                    const musician = state.musicians.find(m => m.id === id);
-                    if (musician) {
-                        panel.innerHTML = renderMusicianInsightsPanel(musician);
-                        attachInsightsListeners(panel, musician);
-                    }
-                    panel.style.display = 'block';
-                    btn.style.borderColor = 'var(--color-purple)';
-                    btn.style.color = '#ffffff';
-                    btn.style.background = 'var(--color-purple)';
-                } else {
-                    activeInsightsProfiles.delete(id);
-                    panel.style.display = 'none';
-                    btn.style.borderColor = 'rgba(124,58,237,0.3)';
-                    btn.style.color = 'var(--color-purple)';
-                    btn.style.background = 'rgba(124,58,237,0.02)';
-                }
-            }
-        });
-    });
 
     container.querySelectorAll('.btn-pause-my-musician').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -5121,6 +6648,7 @@ function renderMyMusicians(container) {
 }
 
 function showMusicianModal(musicianObj = null, isDuplication = false) {
+
     const modalWrapper = document.getElementById('modal-container');
     if (!modalWrapper) return;
 
@@ -5133,6 +6661,61 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
         musicianObj?.type === 'DJ' ? 'https://picsum.photos/id/653/300/300' : musicianObj?.type === 'Solo' ? 'https://picsum.photos/id/325/300/300' : 'https://picsum.photos/id/453/300/300'
     );
     let selectedBase64 = musicianObj?.profilePic || '';
+    const localMedia = {
+        photos: musicianObj?.photos ? [...musicianObj.photos] : [],
+        videos: musicianObj?.videos ? [...musicianObj.videos] : []
+    };
+
+    // Extract current types
+    const currentTypes = musicianObj?.type ? musicianObj.type.split(',').map(s => s.trim()) : ['Solo'];
+
+    // Helper to check if weekday availability day is active
+    const isDayActive = (dayKey) => {
+        if (!musicianObj) return true; // Default to checked for new profiles
+        const avail = musicianObj.availability;
+        if (!avail) return false;
+        if (Array.isArray(avail)) {
+            const dayNames = {
+                'mo_do': ['monday', 'tuesday', 'wednesday', 'thursday', 'mo', 'di', 'mi', 'do', 'montag', 'dienstag', 'mittwoch', 'donnerstag'],
+                'fr': ['friday', 'fr', 'freitag'],
+                'sa': ['saturday', 'sa', 'samstag'],
+                'so': ['sunday', 'so', 'sonntag']
+            };
+            const searchTerms = dayNames[dayKey] || [];
+            return avail.some(val => searchTerms.includes(val.toLowerCase()));
+        }
+        if (typeof avail === 'object') {
+            if (dayKey === 'mo_do') {
+                return !!(avail.monday?.available || avail.tuesday?.available || avail.wednesday?.available || avail.thursday?.available);
+            }
+            if (dayKey === 'fr') return !!avail.friday?.available;
+            if (dayKey === 'sa') return !!avail.saturday?.available;
+            if (dayKey === 'so') return !!avail.sunday?.available;
+        }
+        return false;
+    };
+
+    // Helper to get prefilled start/end time
+    const getDayTime = (dayKey, type) => {
+        const defStart = dayKey === 'sa' || dayKey === 'so' ? '00:01' : '18:00';
+        const defEnd = '23:59';
+        const defVal = type === 'start' ? defStart : defEnd;
+        
+        if (!musicianObj) return defVal;
+        const avail = musicianObj.availability;
+        if (!avail || Array.isArray(avail) || typeof avail !== 'object') return defVal;
+        
+        let dayProp = '';
+        if (dayKey === 'mo_do') dayProp = 'monday';
+        else if (dayKey === 'fr') dayProp = 'friday';
+        else if (dayKey === 'sa') dayProp = 'saturday';
+        else if (dayKey === 'so') dayProp = 'sunday';
+        
+        const dayData = avail[dayProp];
+        if (!dayData || !dayData.available) return defVal;
+        
+        return (type === 'start' ? dayData.startTime : dayData.endTime) || defVal;
+    };
 
     modalWrapper.innerHTML = `
         <div class="modal-content" style="max-width: 650px; max-height: 85vh; overflow-y: auto; text-align: left;">
@@ -5142,94 +6725,167 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             </div>
             <div class="modal-body">
                 <form id="musician-editor-form">
-                    <div style="display:flex; gap: 1rem; align-items:center; margin-bottom: 1.5rem; background:rgba(255,255,255,0.02); padding:0.8rem; border-radius:var(--radius-md); border: 1px solid var(--border-glass);">
-                        <div style="width: 60px; height: 60px; border-radius: 50%; overflow:hidden; border: 2px solid var(--color-purple); flex-shrink: 0; background: #111;">
-                            <img id="musician-modal-preview-img" src="${profilePicUrl}" style="width:100%; height:100%; object-fit:cover;">
-                        </div>
-                        <div>
-                            <h4 style="font-size:0.85rem; margin-bottom:0.15rem;">Profilbild hochladen</h4>
-                            <p style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.4rem;">Wird in der Musikersuche angezeigt.</p>
-                            <input type="file" id="musician-pic-file-input" accept="image/*" style="display:none;">
-                            <button type="button" class="btn btn-glass btn-sm" id="btn-select-musician-pic" style="font-size:0.7rem; padding:0.3rem 0.6rem; margin:0;">
-                                <i class="fa-solid fa-cloud-arrow-up"></i> Bild auswÄhlen
-                            </button>
-                        </div>
-                    </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Musiker- oder Bandname</label>
-                            <input type="text" name="bandName" class="input-field" value="${musicianObj?.name || ''}" required>
-                        </div>
-                        <div class="form-group">
-                            <label>KÜnstler-Typ</label>
-                            <select name="musicianType" class="input-field">
-                                ${getSelectOptions(musicianTypesList, [musicianObj?.type || 'Solo'])}
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Standort (Stadt)</label>
-                            <input type="text" name="location" class="input-field" value="${musicianObj?.location || ''}" required autocomplete="off">
-                        </div>
-                        <div class="form-group">
-                            <label>Max. Reisebereitschaft (Umkreis km)</label>
-                            <input type="number" name="radius" class="input-field" value="${musicianObj?.radius || 50}" required>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Mindest-Spieldauer (Stunden)</label>
-                            <input type="number" name="minDuration" step="0.5" class="input-field" value="${musicianObj?.minDuration || 1}" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Maximal-Spieldauer (Stunden)</label>
-                            <input type="number" name="maxDuration" step="0.5" class="input-field" value="${musicianObj?.maxDuration || 3}" required>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Mindest-Gage (€)</label>
-                            <input type="number" name="minBudget" class="input-field" value="${musicianObj?.minBudget || 300}" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Maximal-Gage (€)</label>
-                            <input type="number" name="maxBudget" class="input-field" value="${musicianObj?.maxBudget || 1000}" required>
-                        </div>
-                    </div>
- 
                     <div class="form-group">
-                        <label>Technik (Sound-System/Equipment)</label>
-                        <select name="technik" class="input-field">
-                            <option value="Weiß ich noch nicht" ${(musicianObj?.technik || 'Weiß ich noch nicht') === 'Weiß ich noch nicht' ? 'selected' : ''}>Weiß ich noch nicht</option>
-                            <option value="vorhanden" ${(musicianObj?.technik || '') === 'vorhanden' ? 'selected' : ''}>Vorhanden (bringe eigene Technik mit)</option>
-                            <option value="nicht vorhanden" ${(musicianObj?.technik || '') === 'nicht vorhanden' ? 'selected' : ''}>Nicht vorhanden (benötige Technik vor Ort)</option>
-                        </select>
+                        <label>Musiker- oder Bandname</label>
+                        <input type="text" name="bandName" class="input-field" value="${musicianObj?.name || ''}" required>
                     </div>
 
                     <div class="form-group">
-                        <label>Genres (Halte Strg/Cmd für Mehrfachauswahl)</label>
-                        <select name="genres" class="input-field" multiple style="height: 100px;">
-                            ${getSelectOptions(genresList, musicianObj?.genres || [])}
-                        </select>
+                        <label>Künstler-Typ (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-musician-types">
+                            ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => {
+                                const isChecked = currentTypes.includes(t);
+                                return `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="musicianTypes" value="${t}" ${isChecked ? 'checked' : ''}>
+                                        <span>${t}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Instrumente (Halte Strg/Cmd für Mehrfachauswahl)</label>
-                        <select name="instruments" class="input-field" multiple style="height: 100px;">
-                            ${getSelectOptions(instrumentsList, musicianObj?.instruments || [])}
-                        </select>
+                        <label>Standort (Stadt)</label>
+                        <input type="text" name="location" class="input-field" value="${musicianObj?.location || ''}" required autocomplete="off">
                     </div>
 
                     <div class="form-group">
-                        <label>Event-Arten (Mehrfachauswahl)</label>
-                        <select name="eventTypes" class="input-field" multiple style="height: 100px;">
-                            ${getSelectOptions(eventTypesList, musicianObj?.eventTypes || [])}
-                        </select>
+                        <div class="slider-value-display">
+                            <label>Maximaler Umkreis (Reisebereitschaft)</label>
+                            <span id="val-radius">${musicianObj?.radius || 50} km</span>
+                        </div>
+                        <input type="range" name="radius" min="0" max="500" step="50" value="${musicianObj?.radius || 50}" class="input-field" style="padding:0; height:auto; accent-color:#a855f7;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Genres (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-genres">
+                            ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
+                                const isChecked = musicianObj?.genres?.includes(g);
+                                return `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="genres" value="${g}" ${isChecked ? 'checked' : ''}>
+                                        <span>${g}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Instrumente (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-instruments">
+                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
+                                const isChecked = musicianObj?.instruments?.includes(ins);
+                                return `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="instruments" value="${ins}" ${isChecked ? 'checked' : ''}>
+                                        <span>${ins}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="slider-value-display">
+                            <label>Spieldauer (Stunden)</label>
+                            <span id="val-spieldauer">${musicianObj?.minDuration || 0.5} - ${musicianObj?.maxDuration || 2.0} Std.</span>
+                        </div>
+                        <div class="dual-range-slider" id="slider-spieldauer-container">
+                            <div class="dual-range-track"></div>
+                            <div class="dual-range-active-track" id="track-spieldauer"></div>
+                            <input type="range" id="input-spieldauer-min" name="minDuration" min="0.5" max="10" step="0.5" value="${musicianObj?.minDuration || 0.5}">
+                            <input type="range" id="input-spieldauer-max" name="maxDuration" min="0.5" max="10" step="0.5" value="${musicianObj?.maxDuration || 2.0}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="slider-value-display">
+                            <label>Gage</label>
+                            <span id="val-gage">${musicianObj?.minBudget || 0} - ${musicianObj?.maxBudget || 5000} €</span>
+                        </div>
+                        <div class="dual-range-slider" id="slider-gage-container">
+                            <div class="dual-range-track"></div>
+                            <div class="dual-range-active-track" id="track-gage"></div>
+                            <input type="range" id="input-gage-min" name="minBudget" min="0" max="5000" step="100" value="${musicianObj?.minBudget || 0}">
+                            <input type="range" id="input-gage-max" name="maxBudget" min="0" max="5000" step="100" value="${musicianObj?.maxBudget || 5000}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bevorzugte Event-Typen (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-event-types">
+                            ${['Geburtstag', 'Hochzeit - Trauung', 'Hochzeit - Sektempfang', 'Hochzeit - Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => {
+                                const isChecked = musicianObj?.eventTypes?.includes(evt);
+                                return `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="eventTypes" value="${evt}" ${isChecked ? 'checked' : ''}>
+                                        <span>${evt}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Verfügbarkeiten</label>
+                        <p style="font-size:0.7rem; color:var(--text-muted); margin-bottom: 0.5rem; line-height: 1.3;">
+                            Tage und Zeiten auswählen, an denen du für Gigs verfügbar bist.
+                        </p>
+                        <div class="availability-week-grid">
+                            ${[
+                                { key: 'mo_do', label: 'Montag - Donnerstag', defActive: isDayActive('mo_do'), minTime: getDayTime('mo_do', 'start'), maxTime: getDayTime('mo_do', 'end') },
+                                { key: 'fr', label: 'Freitag', defActive: isDayActive('fr'), minTime: getDayTime('fr', 'start'), maxTime: getDayTime('fr', 'end') },
+                                { key: 'sa', label: 'Samstag', defActive: isDayActive('sa'), minTime: getDayTime('sa', 'start'), maxTime: getDayTime('sa', 'end') },
+                                { key: 'so', label: 'Sonntag', defActive: isDayActive('so'), minTime: getDayTime('so', 'start'), maxTime: getDayTime('so', 'end') }
+                            ].map(day => `
+                                <div class="availability-day-row" data-day="${day.key}">
+                                     <div class="availability-day-info">
+                                         <input type="checkbox" name="availDays" value="${day.key}" id="modal-chk-avail-${day.key}" ${day.defActive ? 'checked' : ''}>
+                                         <label for="modal-chk-avail-${day.key}">${day.label}</label>
+                                     </div>
+                                     <div class="availability-day-times" id="modal-times-container-${day.key}">
+                                         <span>von</span>
+                                         <input type="time" name="availStart_${day.key}" value="${day.minTime}" ${!day.defActive ? 'disabled' : ''}>
+                                         <span>bis</span>
+                                         <input type="time" name="availEnd_${day.key}" value="${day.maxTime}" ${!day.defActive ? 'disabled' : ''}>
+                                     </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="slider-value-display">
+                            <label>Wunschgröße Publikum</label>
+                            <span id="val-publikum">${musicianObj?.minPublikum || 0} - ${musicianObj?.maxPublikum || 500}+</span>
+                        </div>
+                        <div class="dual-range-slider" id="slider-publikum-container">
+                            <div class="dual-range-track"></div>
+                            <div class="dual-range-active-track" id="track-publikum"></div>
+                            <input type="range" id="input-publikum-min" min="0" max="500" step="50" value="${musicianObj?.minPublikum || 0}">
+                            <input type="range" id="input-publikum-max" min="0" max="500" step="50" value="${musicianObj?.maxPublikum || 500}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Technik</label>
+                        <div class="checkbox-tag-grid" id="grid-technik">
+                            ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => {
+                                const isChecked = Array.isArray(musicianObj?.technik) 
+                                    ? musicianObj.technik.includes(t) 
+                                    : (musicianObj?.technik === t || (t === 'Technik ist noch unklar' && !musicianObj?.technik));
+                                return `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="musTechnik" value="${t}" ${isChecked ? 'checked' : ''}>
+                                        <span>${t}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -5237,24 +6893,32 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         <textarea name="description" class="input-field" rows="3" style="resize:vertical;" required>${musicianObj?.description || ''}</textarea>
                     </div>
 
-                    <h4 style="font-family:var(--font-heading); font-size:1rem; margin:1.5rem 0 0.8rem; border-top:1px solid rgba(255,255,255,0.05); padding-top:1rem; color:var(--color-purple);"><i class="fa-solid fa-photo-film"></i> Portfolio & Medien</h4>
-                    
-                    <div style="display:flex; flex-direction:column; gap:1.5rem; background:rgba(255,255,255,0.01); border:1px solid var(--border-glass); padding:1rem; border-radius:var(--radius-md); margin-bottom:1.5rem;">
-                        <div>
-                            <h5 style="margin:0 0 0.5rem; font-size:0.85rem; color:var(--text-muted);">Fotos (Max. 3)</h5>
-                            <div class="media-uploads-grid" id="modal-photos-grid"></div>
+                    <!-- Media Section -->
+                    <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
+                    <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien (Foto & Video)</h4>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
+                        Füge Fotos und Videos für dein Profil hinzu, um es attraktiver zu gestalten.
+                    </p>
+                    <div class="form-group" style="margin-bottom: 1.2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
+                            <button type="button" id="btn-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(34, 197, 94, 0.3); color:#22c55e;">
+                                <i class="fa-solid fa-plus"></i> Foto hinzufügen
+                            </button>
                         </div>
-                        <div>
-                            <h5 style="margin:0 0 0.5rem; font-size:0.85rem; color:var(--text-muted);">Videos (Max. 3)</h5>
-                            <div class="media-uploads-grid" id="modal-videos-grid"></div>
+                        <div id="modal-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
+                            <button type="button" id="btn-modal-add-video" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#a855f7;">
+                                <i class="fa-solid fa-plus"></i> Video hinzufügen
+                            </button>
                         </div>
-                        <div>
-                            <h5 style="margin:0 0 0.5rem; font-size:0.85rem; color:var(--text-muted);">Audio Demos (Max. 3)</h5>
-                            <div class="media-uploads-grid" id="modal-audios-grid"></div>
-                        </div>
+                        <div id="modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 1rem; background: var(--color-purple); border-color: var(--color-purple);">
+                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 1.5rem; background: var(--color-purple); border-color: var(--color-purple);">
                         ${isEdit ? 'Änderungen speichern' : 'Profil erstellen'}
                     </button>
                 </form>
@@ -5264,169 +6928,223 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
     document.getElementById('btn-close-musician-modal').addEventListener('click', closeModal);
     
-    // Autocomplete inside modal
     const locInput = modalWrapper.querySelector('input[name="location"]');
     setupLocationAutocomplete(locInput);
 
-    const selectPicBtn = document.getElementById('btn-select-musician-pic');
-    const picInput = document.getElementById('musician-pic-file-input');
-    const previewImg = document.getElementById('musician-modal-preview-img');
 
-    if (selectPicBtn && picInput) {
-        selectPicBtn.addEventListener('click', () => picInput.click());
-        picInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    selectedBase64 = event.target.result;
-                    if (previewImg) previewImg.src = selectedBase64;
-                };
-                reader.readAsDataURL(file);
-            }
+
+    // Radius range display sync
+    const radiusInput = modalWrapper.querySelector('input[name="radius"]');
+    const radiusDisplay = modalWrapper.querySelector('#val-radius');
+    if (radiusInput && radiusDisplay) {
+        radiusInput.addEventListener('input', () => {
+            radiusDisplay.textContent = `${radiusInput.value} km`;
         });
     }
 
-    // Media renderer helper inside modal
-    const renderModalMedia = () => {
-        const pGrid = document.getElementById('modal-photos-grid');
-        const vGrid = document.getElementById('modal-videos-grid');
-        const aGrid = document.getElementById('modal-audios-grid');
-        if (!pGrid || !vGrid || !aGrid) return;
+    // Dual sliders initialization
+    initDualSlider('slider-spieldauer-container', 'input-spieldauer-min', 'input-spieldauer-max', 'track-spieldauer', 'val-spieldauer', 'Std.', false);
+    initDualSlider('slider-gage-container', 'input-gage-min', 'input-gage-max', 'track-gage', 'val-gage', '€', true);
+    initDualSlider('slider-publikum-container', 'input-publikum-min', 'input-publikum-max', 'track-publikum', 'val-publikum', 'Personen', false);
 
-        const musData = musicianObj || { photos: [], videos: [], audio: [] };
-        if (!musData.photos) musData.photos = [];
-        if (!musData.videos) musData.videos = [];
-        if (!musData.audio) musData.audio = [];
-
-        let pHTML = '';
-        for(let i=0; i<3; i++) {
-            if (musData.photos[i]) {
-                pHTML += `
-                    <div class="media-upload-item">
-                        <img src="${musData.photos[i]}" class="media-preview-img">
-                        <button type="button" class="media-delete-btn" data-type="photo" data-idx="${i}"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
-            } else {
-                pHTML += `
-                    <div class="media-upload-item btn-add-modal-photo" style="cursor:pointer;">
-                        <i class="fa-solid fa-plus"></i>
-                        <span style="font-size:0.65rem;">Hinzufügen</span>
-                    </div>
-                `;
+    // Weekday times enable/disable sync
+    modalWrapper.querySelectorAll('input[name="availDays"]').forEach(chk => {
+        chk.addEventListener('change', (e) => {
+            const day = e.target.value;
+            const timesDiv = document.getElementById(`modal-times-container-${day}`);
+            if (timesDiv) {
+                const inputs = timesDiv.querySelectorAll('input[type="time"]');
+                inputs.forEach(inp => inp.disabled = !e.target.checked);
             }
-        }
-        pGrid.innerHTML = pHTML;
+        });
+    });
 
-        let vHTML = '';
-        for(let i=0; i<3; i++) {
-            if (musData.videos[i]) {
-                vHTML += `
-                    <div class="media-upload-item" style="background:#000;">
-                        <i class="fa-solid fa-play" style="color:var(--color-cyan); font-size:1.5rem;"></i>
-                        <span style="font-size:0.6; color:var(--text-muted)">Video_${i+1}</span>
-                        <button type="button" class="media-delete-btn" data-type="video" data-idx="${i}"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
+    // Sync active class on tag checkboxes
+    modalWrapper.querySelectorAll('.tag-pill-checkbox input').forEach(input => {
+        if (input.checked) {
+            input.parentElement.classList.add('active');
+        } else {
+            input.parentElement.classList.remove('active');
+        }
+        input.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                e.target.parentElement.classList.add('active');
             } else {
-                vHTML += `
-                    <div class="media-upload-item btn-add-modal-video" style="cursor:pointer;">
-                        <i class="fa-solid fa-video"></i>
-                        <span style="font-size:0.65rem;">Hinzufügen</span>
-                    </div>
-                `;
+                e.target.parentElement.classList.remove('active');
             }
-        }
-        vGrid.innerHTML = vHTML;
-
-        let aHTML = '';
-        for(let i=0; i<3; i++) {
-            if (musData.audio[i]) {
-                aHTML += `
-                    <div class="media-upload-item" style="grid-column: span 1; justify-content:space-around; aspect-ratio: unset; padding: 0.5rem; height: auto;">
-                        <span style="font-size:0.65rem; font-weight:600;"><i class="fa-solid fa-music"></i> Track_${i+1}</span>
-                        <button type="button" class="media-delete-btn" data-type="audio" data-idx="${i}" style="position:static; margin-left:0.5rem;"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
-            } else {
-                aHTML += `
-                    <div class="media-upload-item btn-add-modal-audio" style="cursor:pointer; aspect-ratio: unset; padding: 0.5rem; height: 35px; flex-direction:row; gap:0.5rem;">
-                        <i class="fa-solid fa-microphone" style="font-size:0.8rem;"></i>
-                        <span style="font-size:0.65rem;">Hinzufügen</span>
-                    </div>
-                `;
-            }
-        }
-        aGrid.innerHTML = aHTML;
-
-        pGrid.querySelectorAll('.btn-add-modal-photo').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const randomId = Math.floor(Math.random() * 1000);
-                const url = `https://picsum.photos/id/${randomId}/400/300`;
-                musData.photos.push(url);
-                renderModalMedia();
-            });
         });
-        vGrid.querySelectorAll('.btn-add-modal-video').forEach(btn => {
-            btn.addEventListener('click', () => {
-                musData.videos.push('mock_video_url');
-                renderModalMedia();
-            });
-        });
-        aGrid.querySelectorAll('.btn-add-modal-audio').forEach(btn => {
-            btn.addEventListener('click', () => {
-                musData.audio.push('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
-                renderModalMedia();
-            });
-        });
+    });
 
-        modalWrapper.querySelectorAll('.media-delete-btn').forEach(btn => {
+    // Modal local media previews and actions
+    const updateLocalMediaPreview = () => {
+        const photosContainer = document.getElementById('modal-photos-preview');
+        const videosContainer = document.getElementById('modal-videos-preview');
+        if (!photosContainer || !videosContainer) return;
+
+        photosContainer.innerHTML = localMedia.photos.length === 0
+            ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Bilder hinzugefügt</span>`
+            : localMedia.photos.map((p, idx) => `
+                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                    <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
+                    <button type="button" class="btn-delete-modal-photo" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                </div>
+            `).join('');
+
+        videosContainer.innerHTML = localMedia.videos.length === 0
+            ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Videos hinzugefügt</span>`
+            : localMedia.videos.map((v, idx) => `
+                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;" title="${v.title || (typeof v === 'string' ? v : 'Video')}">
+                    <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.1rem;"></i>
+                    <button type="button" class="btn-delete-modal-video" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                </div>
+            `).join('');
+
+        // Bind delete listeners
+        photosContainer.querySelectorAll('.btn-delete-modal-photo').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                e.stopPropagation();
-                const type = btn.getAttribute('data-type');
                 const idx = parseInt(btn.getAttribute('data-idx'));
-                if (type === 'photo') musData.photos.splice(idx, 1);
-                else if (type === 'video') musData.videos.splice(idx, 1);
-                else if (type === 'audio') musData.audio.splice(idx, 1);
-                renderModalMedia();
+                localMedia.photos.splice(idx, 1);
+                updateLocalMediaPreview();
+            });
+        });
+
+        videosContainer.querySelectorAll('.btn-delete-modal-video').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                localMedia.videos.splice(idx, 1);
+                updateLocalMediaPreview();
             });
         });
     };
 
-    renderModalMedia();
+    const addPhotoBtn = document.getElementById('btn-modal-add-photo');
+    if (addPhotoBtn) {
+        addPhotoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (localMedia.photos.length >= 3) {
+                showToast({
+                    title: "Bilder-Limit erreicht 📷",
+                    message: "Es sind maximal 3 Bilder erlaubt."
+                });
+                return;
+            }
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/png, image/jpeg, image/gif, image/webp';
+            fileInput.style.display = 'none';
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    validateAndProcessPhoto(fileInput.files[0], (dataUrl) => {
+                        localMedia.photos.push(dataUrl);
+                        updateLocalMediaPreview();
+                    });
+                }
+            });
+            fileInput.click();
+        });
+    }
+
+    const addVideoBtn = document.getElementById('btn-modal-add-video');
+    if (addVideoBtn) {
+        addVideoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (localMedia.videos.length >= 1) {
+                showToast({
+                    title: "Video-Limit erreicht 🎬",
+                    message: "Es ist maximal 1 Video erlaubt."
+                });
+                return;
+            }
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'video/mp4, video/quicktime, video/webm, video/ogg, video/x-matroska';
+            fileInput.style.display = 'none';
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    validateAndProcessVideo(fileInput.files[0], (videoUrl) => {
+                        localMedia.videos.push(videoUrl);
+                        updateLocalMediaPreview();
+                    });
+                }
+            });
+            fileInput.click();
+        });
+    }
+
+    updateLocalMediaPreview();
 
     const form = document.getElementById('musician-editor-form');
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         const formData = new FormData(form);
-        const musData = musicianObj || { photos: [], videos: [], audio: [] };
-        if (!musData.photos) musData.photos = [];
-        if (!musData.videos) musData.videos = [];
-        if (!musData.audio) musData.audio = [];
+
+        const availability = {};
+        const moDoChk = form.querySelector('input[name="availDays"][value="mo_do"]');
+        const isMoDoChecked = moDoChk ? moDoChk.checked : false;
+        const moDoStart = form.querySelector('input[name="availStart_mo_do"]')?.value || '18:00';
+        const moDoEnd = form.querySelector('input[name="availEnd_mo_do"]')?.value || '23:59';
+        
+        ['monday', 'tuesday', 'wednesday', 'thursday'].forEach(day => {
+            availability[day] = {
+                available: isMoDoChecked,
+                startTime: isMoDoChecked ? moDoStart : '',
+                endTime: isMoDoChecked ? moDoEnd : ''
+            };
+        });
+
+        const frChk = form.querySelector('input[name="availDays"][value="fr"]');
+        const isFrChecked = frChk ? frChk.checked : false;
+        const frStart = form.querySelector('input[name="availStart_fr"]')?.value || '18:00';
+        const frEnd = form.querySelector('input[name="availEnd_fr"]')?.value || '23:59';
+        availability['friday'] = {
+            available: isFrChecked,
+            startTime: isFrChecked ? frStart : '',
+            endTime: isFrChecked ? frEnd : ''
+        };
+        
+        const saChk = form.querySelector('input[name="availDays"][value="sa"]');
+        const isSaChecked = saChk ? saChk.checked : false;
+        availability['saturday'] = {
+            available: isSaChecked,
+            startTime: isSaChecked ? (form.querySelector('input[name="availStart_sa"]')?.value || '00:01') : '',
+            endTime: isSaChecked ? (form.querySelector('input[name="availEnd_sa"]')?.value || '23:59') : ''
+        };
+        
+        const soChk = form.querySelector('input[name="availDays"][value="so"]');
+        const isSoChecked = soChk ? soChk.checked : false;
+        availability['sunday'] = {
+            available: isSoChecked,
+            startTime: isSoChecked ? (form.querySelector('input[name="availStart_so"]')?.value || '00:01') : '',
+            endTime: isSoChecked ? (form.querySelector('input[name="availEnd_so"]')?.value || '23:59') : ''
+        };
 
         const data = {
             name: formData.get('bandName'),
-            type: formData.get('musicianType'),
+            type: Array.from(form.querySelectorAll('input[name="musicianTypes"]:checked')).map(el => el.value).join(', ') || 'Solo',
             location: formData.get('location'),
             radius: parseInt(formData.get('radius')) || 50,
             minDuration: parseFloat(formData.get('minDuration')) || 1,
             maxDuration: parseFloat(formData.get('maxDuration')) || 3,
             minBudget: parseFloat(formData.get('minBudget')) || 300,
             maxBudget: parseFloat(formData.get('maxBudget')) || 1000,
-            genres: Array.from(form.elements.genres.selectedOptions).map(o => o.value),
-            instruments: Array.from(form.elements.instruments.selectedOptions).map(o => o.value),
-            eventTypes: Array.from(form.elements.eventTypes.selectedOptions).map(o => o.value),
+            genres: Array.from(form.querySelectorAll('input[name="genres"]:checked')).map(el => el.value),
+            instruments: Array.from(form.querySelectorAll('input[name="instruments"]:checked')).map(el => el.value),
+            eventTypes: Array.from(form.querySelectorAll('input[name="eventTypes"]:checked')).map(el => el.value),
             description: formData.get('description'),
-            technik: formData.get('technik') || "Weiß ich noch nicht",
+            technik: Array.from(form.querySelectorAll('input[name="musTechnik"]:checked')).map(el => el.value).length > 0
+                ? Array.from(form.querySelectorAll('input[name="musTechnik"]:checked')).map(el => el.value)
+                : ["Technik ist noch unklar"],
             profilePic: selectedBase64,
-            photos: musData.photos,
-            videos: musData.videos,
-            audio: musData.audio,
+            photos: localMedia.photos,
+            videos: localMedia.videos,
             contactName: `${state.currentUser.firstName} ${state.currentUser.lastName}`,
             phone: state.currentUser.phone,
-            email: state.currentUser.email
+            email: state.currentUser.email,
+            availability: availability,
+            minPublikum: parseInt(form.querySelector('#input-publikum-min')?.value) || 0,
+            maxPublikum: parseInt(form.querySelector('#input-publikum-max')?.value) || 500
         };
 
         if (isEdit) {
@@ -5446,6 +7164,537 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
         closeModal();
         const mainContainer = document.getElementById('app-main');
         renderMyMusicians(mainContainer);
+    });
+}
+
+function showEventModal(eventObj = null, isDuplication = false) {
+    const modalWrapper = document.getElementById('modal-container');
+    if (!modalWrapper) return;
+
+    modalWrapper.classList.remove('hidden');
+    
+    const isEdit = !!eventObj && !isDuplication;
+    const title = isEdit ? 'Event bearbeiten' : (isDuplication ? 'Event duplizieren' : 'Neues Event erstellen');
+    const localMedia = {
+        photos: eventObj?.photos ? [...eventObj.photos] : [],
+        videos: eventObj?.videos ? [...eventObj.videos] : []
+    };
+
+    let selectedEventDates = [];
+    if (eventObj?.date) {
+        if (typeof eventObj.date === 'string' && eventObj.date.startsWith('[')) {
+            try {
+                selectedEventDates = JSON.parse(eventObj.date);
+            } catch(e) {
+                selectedEventDates = [eventObj.date];
+            }
+        } else {
+            selectedEventDates = [eventObj.date];
+        }
+    } else if (eventObj?.dates) {
+        selectedEventDates = [...eventObj.dates];
+    } else {
+        selectedEventDates = [new Date().toISOString().split('T')[0]];
+    }
+
+    let selectedOrgLocations = eventObj?.locations ? [...eventObj.locations] : (eventObj?.location ? [eventObj.location] : ['München']);
+    const currentTypes = eventObj?.type ? eventObj.type.split(',').map(s => s.trim()) : ['Hochzeit - Trauung'];
+
+    modalWrapper.innerHTML = `
+        <div class="modal-content" style="max-width: 650px; max-height: 85vh; overflow-y: auto; text-align: left;">
+            <div class="modal-header">
+                <h3>${title}</h3>
+                <button class="close-modal-btn" id="btn-close-event-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="event-editor-form">
+                    
+                    <div class="form-group">
+                        <label>Eventname</label>
+                        <input type="text" name="eventName" class="input-field" value="${eventObj?.name || ''}" placeholder="Name des Events" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Event-Typ (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-org-event-types">
+                            ${['Geburtstag', 'Hochzeit - Trauung', 'Hochzeit - Sektempfang', 'Hochzeit - Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => {
+                                const isChecked = currentTypes.includes(t);
+                                return `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="orgEventTypes" value="${t}" ${isChecked ? 'checked' : ''}>
+                                        <span>${t}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Datum</label>
+                        <p style="font-size:0.7rem; color:var(--text-muted); margin-bottom: 0.5rem; line-height: 1.3;">
+                            An welchem Tag bzw. an welchen Tagen findet dein Event statt?
+                        </p>
+                        <div class="organizer-calendar-widget" id="modal-org-calendar-widget">
+                            <div class="org-calendar-header">
+                                <button type="button" class="btn-cal-nav" id="modal-btn-cal-prev"><i class="fa-solid fa-chevron-left"></i></button>
+                                <span id="modal-org-calendar-month-year">Juli 2026</span>
+                                <button type="button" class="btn-cal-nav" id="modal-btn-cal-next"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                            <div class="org-calendar-weekdays">
+                                <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
+                            </div>
+                            <div class="org-calendar-days" id="modal-org-calendar-days-grid"></div>
+                        </div>
+                        <input type="hidden" name="eventDates" id="modal-input-event-dates" value="">
+                        <div id="modal-org-selected-dates-preview" style="font-size:0.75rem; color:#3b82f6; margin-top:0.5rem; font-weight:600;">
+                            Keine Termine ausgewählt
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;">
+                        <div class="form-group" style="flex: 0 0 120px; width: 120px;">
+                            <label>Startzeit</label>
+                            <input type="time" name="eventStartTime" class="input-field" value="${eventObj?.eventStartTime || '18:00'}" style="margin: 0; width: 120px; height:42px;">
+                        </div>
+                        <div class="form-group" style="flex: 0 0 120px; width: 120px;">
+                            <label>Endzeit</label>
+                            <input type="time" name="eventEndTime" class="input-field" value="${eventObj?.eventEndTime || '22:00'}" style="margin: 0; width: 120px; height:42px;">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ort</label>
+                        <input type="text" id="modal-input-org-location-search" class="input-field" placeholder="Ort eingeben, z.B. München" autocomplete="off" style="width: 100%; margin-bottom: 0.5rem;">
+                        <div class="selected-locations-tags" id="modal-org-selected-locations-container" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.5rem;"></div>
+                        <input type="hidden" name="orgLocations" id="modal-input-org-locations" value="">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Genres (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-org-genres">
+                            ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
+                                const isChecked = eventObj?.genres?.includes(g);
+                                return `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="orgGenres" value="${g}" ${isChecked ? 'checked' : ''}>
+                                        <span>${g}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Instrumente (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-org-instruments">
+                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
+                                const isChecked = eventObj?.instruments?.includes(ins);
+                                return `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="orgInstruments" value="${ins}" ${isChecked ? 'checked' : ''}>
+                                        <span>${ins}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <div class="slider-value-display">
+                            <label>Spieldauer (Spielzeit)</label>
+                            <span id="val-org-spieldauer">${eventObj?.minDuration || 0.5} - ${eventObj?.maxDuration || 2.0} Std.</span>
+                        </div>
+                        <div class="dual-range-slider" id="slider-org-spieldauer-container">
+                            <div class="dual-range-track"></div>
+                            <div class="dual-range-active-track" id="track-org-spieldauer"></div>
+                            <input type="range" id="input-org-spieldauer-min" name="orgMinDuration" min="0.5" max="10" step="0.5" value="${eventObj?.minDuration || 0.5}">
+                            <input type="range" id="input-org-spieldauer-max" name="orgMaxDuration" min="0.5" max="10" step="0.5" value="${eventObj?.maxDuration || 2.0}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="slider-value-display">
+                            <label>Besucheranzahl</label>
+                            <span id="val-org-publikum">${eventObj?.minPublikum || 0} - ${eventObj?.maxPublikum || 500}+</span>
+                        </div>
+                        <div class="dual-range-slider" id="slider-org-publikum-container">
+                            <div class="dual-range-track"></div>
+                            <div class="dual-range-active-track" id="track-org-publikum"></div>
+                            <input type="range" id="input-org-publikum-min" name="orgMinPublikum" min="0" max="500" step="50" value="${eventObj?.minPublikum || 0}">
+                            <input type="range" id="input-org-publikum-max" name="orgMaxPublikum" min="0" max="500" step="50" value="${eventObj?.maxPublikum || 500}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="slider-value-display">
+                            <label>Gage / Budget Spanne</label>
+                            <span id="val-org-gage">${eventObj?.minBudget || eventObj?.budget || 0} - ${eventObj?.maxBudget || eventObj?.budget || 5000}+ €</span>
+                        </div>
+                        <div class="dual-range-slider" id="slider-org-gage-container">
+                            <div class="dual-range-track"></div>
+                            <div class="dual-range-active-track" id="track-org-gage"></div>
+                            <input type="range" id="input-org-gage-min" name="orgMinBudget" min="0" max="5000" step="100" value="${eventObj?.minBudget || eventObj?.budget || 0}">
+                            <input type="range" id="input-org-gage-max" name="orgMaxBudget" min="0" max="5000" step="100" value="${eventObj?.maxBudget || eventObj?.budget || 5000}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Technik</label>
+                        <div class="checkbox-tag-grid" id="grid-org-technik">
+                            ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => {
+                                const isChecked = Array.isArray(eventObj?.technik) 
+                                    ? eventObj.technik.includes(t) 
+                                    : (eventObj?.technik === t || (t === 'Technik ist noch unklar' && !eventObj?.technik));
+                                return `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="orgTechnik" value="${t}" ${isChecked ? 'checked' : ''}>
+                                        <span>${t}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Beschreibung</label>
+                        <textarea name="orgDescription" class="input-field" rows="3" style="resize:vertical;" required>${eventObj?.description || ''}</textarea>
+                    </div>
+
+                    <!-- Media Section -->
+                    <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
+                    <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien (Foto & Video)</h4>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
+                        Füge Fotos und Videos für dein Event hinzu, um es attraktiver zu gestalten.
+                    </p>
+                    <div class="form-group" style="margin-bottom: 1.2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
+                            <button type="button" id="btn-event-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(34, 197, 94, 0.3); color:#22c55e;">
+                                <i class="fa-solid fa-plus"></i> Foto hinzufügen
+                            </button>
+                        </div>
+                        <div id="event-modal-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
+                            <button type="button" id="btn-event-modal-add-video" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#a855f7;">
+                                <i class="fa-solid fa-plus"></i> Video hinzufügen
+                            </button>
+                        </div>
+                        <div id="event-modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 1.5rem; background: var(--color-purple); border-color: var(--color-purple);">
+                        ${isEdit ? 'Änderungen speichern' : 'Event ausschreiben'}
+                    </button>
+                </form>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('btn-close-event-modal').addEventListener('click', closeModal);
+
+    // Initialize Calendar Widget
+    let currentCalDate = new Date(2026, 6, 1); // July 2026
+    const calendarMonthYear = document.getElementById('modal-org-calendar-month-year');
+    const calendarDaysGrid = document.getElementById('modal-org-calendar-days-grid');
+    const calendarPrevBtn = document.getElementById('modal-btn-cal-prev');
+    const calendarNextBtn = document.getElementById('modal-btn-cal-next');
+
+    const renderOrganizerCalendar = () => {
+        if (!calendarDaysGrid || !calendarMonthYear) return;
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth();
+        const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+        calendarMonthYear.textContent = `${monthNames[month]} ${year}`;
+
+        const firstDayIndex = new Date(year, month, 1).getDay();
+        const adjustedFirstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+        const totalDays = new Date(year, month + 1, 0).getDate();
+
+        let daysHtml = '';
+        for (let i = 0; i < adjustedFirstDayIndex; i++) {
+            daysHtml += `<div class="org-cal-day empty"></div>`;
+        }
+        for (let day = 1; day <= totalDays; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const isSelected = selectedEventDates.includes(dateStr);
+            daysHtml += `<div class="org-cal-day ${isSelected ? 'selected' : ''}" data-date="${dateStr}">${day}</div>`;
+        }
+        calendarDaysGrid.innerHTML = daysHtml;
+
+        calendarDaysGrid.querySelectorAll('.org-cal-day:not(.empty)').forEach(cell => {
+            cell.addEventListener('click', (e) => {
+                const dateVal = e.currentTarget.getAttribute('data-date');
+                const idx = selectedEventDates.indexOf(dateVal);
+                if (idx > -1) {
+                    selectedEventDates.splice(idx, 1);
+                } else {
+                    selectedEventDates.push(dateVal);
+                }
+                renderOrganizerCalendar();
+                updateDatesPreview();
+            });
+        });
+    };
+
+    const updateDatesPreview = () => {
+        const inputEventDates = document.getElementById('modal-input-event-dates');
+        const selectedDatesPreview = document.getElementById('modal-org-selected-dates-preview');
+        if (inputEventDates) {
+            inputEventDates.value = selectedEventDates.length > 0 ? JSON.stringify(selectedEventDates) : '';
+        }
+        if (selectedDatesPreview) {
+            if (selectedEventDates.length === 0) {
+                selectedDatesPreview.textContent = "Keine Termine ausgewählt";
+                selectedDatesPreview.style.color = '#60a5fa';
+            } else {
+                const sorted = [...selectedEventDates].sort();
+                const formatted = sorted.map(d => {
+                    const parts = d.split('-');
+                    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+                });
+                selectedDatesPreview.textContent = `Ausgewählt: ${formatted.join(', ')}`;
+                selectedDatesPreview.style.color = '#34d399';
+            }
+        }
+    };
+
+    if (calendarPrevBtn) {
+        calendarPrevBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentCalDate.setMonth(currentCalDate.getMonth() - 1);
+            renderOrganizerCalendar();
+        });
+    }
+    if (calendarNextBtn) {
+        calendarNextBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentCalDate.setMonth(currentCalDate.getMonth() + 1);
+            renderOrganizerCalendar();
+        });
+    }
+
+    renderOrganizerCalendar();
+    updateDatesPreview();
+
+    // Locations setup
+    const orgLocationInput = document.getElementById('modal-input-org-location-search');
+    const orgLocationContainer = document.getElementById('modal-org-selected-locations-container');
+    const orgLocationHidden = document.getElementById('modal-input-org-locations');
+
+    const renderOrgLocations = () => {
+        if (!orgLocationContainer) return;
+        orgLocationContainer.innerHTML = selectedOrgLocations.map((loc, idx) => `
+            <span class="tag" style="background: rgba(96, 165, 250, 0.15) !important; border: 1.5px solid #60a5fa !important; color: #60a5fa !important; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.75rem;">
+                ${loc}
+                <i class="fa-solid fa-xmark remove-location-btn" data-index="${idx}" style="cursor: pointer; font-size: 0.75rem;"></i>
+            </span>
+        `).join('');
+
+        if (orgLocationHidden) {
+            orgLocationHidden.value = selectedOrgLocations.length > 0 ? JSON.stringify(selectedOrgLocations) : '';
+        }
+
+        orgLocationContainer.querySelectorAll('.remove-location-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(e.currentTarget.getAttribute('data-index'));
+                selectedOrgLocations.splice(idx, 1);
+                renderOrgLocations();
+            });
+        });
+    };
+
+    const addLocation = (locText) => {
+        const val = locText.trim();
+        if (!val) return;
+        if (!selectedOrgLocations.includes(val)) {
+            selectedOrgLocations.push(val);
+            renderOrgLocations();
+        }
+        if (orgLocationInput) orgLocationInput.value = '';
+    };
+
+    if (orgLocationInput) {
+        setupLocationAutocomplete(orgLocationInput, addLocation);
+    }
+
+    renderOrgLocations();
+
+    // Dual sliders initialization
+    initDualSlider('slider-org-spieldauer-container', 'input-org-spieldauer-min', 'input-org-spieldauer-max', 'track-org-spieldauer', 'val-org-spieldauer', 'Std.', false);
+    initDualSlider('slider-org-publikum-container', 'input-org-publikum-min', 'input-org-publikum-max', 'track-org-publikum', 'val-org-publikum', 'Personen', false);
+    initDualSlider('slider-org-gage-container', 'input-org-gage-min', 'input-org-gage-max', 'track-org-gage', 'val-org-gage', '€', true);
+
+    // Sync active class on tag checkboxes
+    modalWrapper.querySelectorAll('.tag-pill-checkbox input').forEach(input => {
+        if (input.checked) {
+            input.parentElement.classList.add('active');
+        } else {
+            input.parentElement.classList.remove('active');
+        }
+        input.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                e.target.parentElement.classList.add('active');
+            } else {
+                e.target.parentElement.classList.remove('active');
+            }
+        });
+    });
+
+    // Modal local media previews and actions for event
+    const updateLocalEventMediaPreview = () => {
+        const photosContainer = document.getElementById('event-modal-photos-preview');
+        const videosContainer = document.getElementById('event-modal-videos-preview');
+        if (!photosContainer || !videosContainer) return;
+
+        photosContainer.innerHTML = localMedia.photos.length === 0
+            ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Bilder hinzugefügt</span>`
+            : localMedia.photos.map((p, idx) => `
+                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                    <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
+                    <button type="button" class="btn-delete-event-modal-photo" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                </div>
+            `).join('');
+
+        videosContainer.innerHTML = localMedia.videos.length === 0
+            ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Videos hinzugefügt</span>`
+            : localMedia.videos.map((v, idx) => `
+                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;" title="${v.title || (typeof v === 'string' ? v : 'Video')}">
+                    <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.1rem;"></i>
+                    <button type="button" class="btn-delete-event-modal-video" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                </div>
+            `).join('');
+
+        // Bind delete listeners
+        photosContainer.querySelectorAll('.btn-delete-event-modal-photo').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                localMedia.photos.splice(idx, 1);
+                updateLocalEventMediaPreview();
+            });
+        });
+
+        videosContainer.querySelectorAll('.btn-delete-event-modal-video').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                localMedia.videos.splice(idx, 1);
+                updateLocalEventMediaPreview();
+            });
+        });
+    };
+
+    const addEventPhotoBtn = document.getElementById('btn-event-modal-add-photo');
+    if (addEventPhotoBtn) {
+        addEventPhotoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (localMedia.photos.length >= 3) {
+                showToast({
+                    title: "Bilder-Limit erreicht 📷",
+                    message: "Es sind maximal 3 Bilder erlaubt."
+                });
+                return;
+            }
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/png, image/jpeg, image/gif, image/webp';
+            fileInput.style.display = 'none';
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    validateAndProcessPhoto(fileInput.files[0], (dataUrl) => {
+                        localMedia.photos.push(dataUrl);
+                        updateLocalEventMediaPreview();
+                    });
+                }
+            });
+            fileInput.click();
+        });
+    }
+
+    const addEventVideoBtn = document.getElementById('btn-event-modal-add-video');
+    if (addEventVideoBtn) {
+        addEventVideoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (localMedia.videos.length >= 1) {
+                showToast({
+                    title: "Video-Limit erreicht 🎬",
+                    message: "Es ist maximal 1 Video erlaubt."
+                });
+                return;
+            }
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'video/mp4, video/quicktime, video/webm, video/ogg, video/x-matroska';
+            fileInput.style.display = 'none';
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    validateAndProcessVideo(fileInput.files[0], (videoUrl) => {
+                        localMedia.videos.push(videoUrl);
+                        updateLocalEventMediaPreview();
+                    });
+                }
+            });
+            fileInput.click();
+        });
+    }
+
+    updateLocalEventMediaPreview();
+
+    const form = document.getElementById('event-editor-form');
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+
+        const data = {
+            name: formData.get('eventName'),
+            type: Array.from(form.querySelectorAll('input[name="orgEventTypes"]:checked')).map(el => el.value).join(', ') || 'Sonstige',
+            location: selectedOrgLocations.join(', ') || 'München',
+            locations: selectedOrgLocations,
+            date: selectedEventDates[0] || new Date().toISOString().split('T')[0],
+            dates: selectedEventDates,
+            eventStartTime: formData.get('eventStartTime') || '18:00',
+            eventEndTime: formData.get('eventEndTime') || '22:00',
+            minDuration: parseFloat(formData.get('orgMinDuration')) || 0.5,
+            maxDuration: parseFloat(formData.get('orgMaxDuration')) || 2.0,
+            spieldauer: parseFloat(formData.get('orgMaxDuration')) || 2.0,
+            minPublikum: parseInt(formData.get('orgMinPublikum')) || 0,
+            maxPublikum: parseInt(formData.get('orgMaxPublikum')) || 500,
+            minBudget: parseFloat(formData.get('orgMinBudget')) || 0,
+            maxBudget: parseFloat(formData.get('orgMaxBudget')) || 5000,
+            budget: parseFloat(formData.get('orgMaxBudget')) || 5000,
+            genres: Array.from(form.querySelectorAll('input[name="orgGenres"]:checked')).map(el => el.value),
+            instruments: Array.from(form.querySelectorAll('input[name="orgInstruments"]:checked')).map(el => el.value),
+            technik: Array.from(form.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value).length > 0
+                ? Array.from(form.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value)
+                : ["Technik ist noch unklar"],
+            description: formData.get('orgDescription'),
+            photos: localMedia.photos,
+            videos: localMedia.videos,
+            contactName: `${state.currentUser.firstName} ${state.currentUser.lastName}`,
+            phone: state.currentUser.phone,
+            email: state.currentUser.email
+        };
+
+        if (isEdit) {
+            state.updateEvent(eventObj.id, data);
+            showToast({
+                title: "Event aktualisiert!",
+                message: `Das Event "${data.name}" wurde erfolgreich gespeichert.`
+            });
+        } else {
+            state.addEvent(data);
+            showToast({
+                title: "Event erstellt! 🎉",
+                message: `Das Event "${data.name}" wurde erfolgreich veröffentlicht.`
+            });
+        }
+
+        closeModal();
+        const mainContainer = document.getElementById('app-main');
+        renderMyEvents(mainContainer);
     });
 }
 
@@ -5533,6 +7782,21 @@ function formatAvailability(availability) {
         return `Verfügbar: ${mapped.slice(0, 4).join(', ')}${mapped.length > 4 ? '...' : ''}`;
     }
     if (typeof availability === 'object') {
+        if (availability.monday || availability.tuesday || availability.friday || availability.saturday || availability.sunday) {
+            const dayMap = {
+                'monday': 'Mo', 'tuesday': 'Di', 'wednesday': 'Mi', 'thursday': 'Do',
+                'friday': 'Fr', 'saturday': 'Sa', 'sunday': 'So'
+            };
+            const availableDays = [];
+            Object.keys(dayMap).forEach(day => {
+                if (availability[day] && availability[day].available) {
+                    availableDays.push(dayMap[day]);
+                }
+            });
+            if (availableDays.length === 0) return "Nicht verfügbar";
+            return `Verfügbar: ${availableDays.join(', ')}`;
+        }
+        
         const { defaultState, modifiedDates } = availability;
         if (defaultState === 'all-selected') {
             if (!modifiedDates || modifiedDates.length === 0) {
@@ -5581,6 +7845,16 @@ function closeModal() {
 }
 
 function renderAuthModal(wrapper, onSuccessCallback) {
+    window.registrationMedia = {
+        musician: {
+            photos: ['https://picsum.photos/id/453/400/300'],
+            videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
+        },
+        organizer: {
+            photos: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'],
+            videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
+        }
+    };
     wrapper.innerHTML = `
         <div class="modal-content">
             <div class="modal-header">
@@ -5710,7 +7984,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <div class="form-group">
                             <label>Bevorzugte Event-Typen</label>
                             <div class="checkbox-tag-grid" id="grid-event-types">
-                                ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Taufe/Kommunion/Konfirmation', 'Schützenfest/Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
+                                ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="eventTypes" value="${evt}">
                                         <span>${evt}</span>
@@ -5763,14 +8037,15 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <div class="form-group">
                             <label>Technik</label>
                             <div class="checkbox-tag-grid" id="grid-technik">
-                                ${['Technik vorhanden', 'Technik muss noch geklärt werden', 'Technik nicht vorhanden'].map(t => `
+                                ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
                                     <label class="tag-pill-checkbox">
-                                        <input type="checkbox" name="technik" value="${t}">
+                                        <input type="checkbox" name="musTechnik" value="${t}">
                                         <span>${t}</span>
                                     </label>
                                 `).join('')}
                             </div>
                         </div>
+
 
                         <div class="form-group">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -5778,6 +8053,35 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                                 <span id="desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 200</span>
                             </div>
                             <textarea name="musDescription" id="textarea-mus-desc" class="input-field" rows="3" maxlength="200" placeholder="Erzähle kurz etwas über dich/eure Band..." required></textarea>
+                        </div>
+
+                        <!-- Media Section -->
+                        <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
+                        <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien (Foto & Video)</h4>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
+                            Füge Fotos und Videos für dein Profil hinzu, um es attraktiver zu gestalten.
+                        </p>
+                        <div class="form-group" style="margin-bottom: 1.2rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
+                                <button type="button" onclick="window.addRegMedia('musician', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(34, 197, 94, 0.3); color:#22c55e;">
+                                    <i class="fa-solid fa-plus"></i> Foto hinzufügen
+                                </button>
+                            </div>
+                            <div id="reg-musician-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.2rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
+                                <button type="button" onclick="window.addRegMedia('musician', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#a855f7;">
+                                    <i class="fa-solid fa-plus"></i> Video hinzufügen
+                                </button>
+                            </div>
+                            <div id="reg-musician-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                        </div>
+                        <div style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.15); padding: 0.8rem; border-radius: 8px; font-size:0.75rem; color: var(--text-main); margin-top:0.5rem; margin-bottom: 1.5rem; display: flex; gap: 0.5rem; align-items: flex-start;">
+                            <i class="fa-solid fa-circle-info" style="color: #7c3aed; margin-top: 2px;"></i>
+                            <span>Fotos und Videos können auch zu einem späteren Zeitpunkt im Profil hinzugefügt und geändert werden.</span>
                         </div>
                     </div>
 
@@ -5791,7 +8095,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <div class="form-group">
                             <label>Event-Typ</label>
                             <div class="checkbox-tag-grid" id="grid-org-event-types">
-                                ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Taufe/Kommunion/Konfirmation', 'Schützenfest/Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
+                                ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgEventTypes" value="${t}">
                                         <span>${t}</span>
@@ -5819,6 +8123,17 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             <input type="hidden" name="eventDates" id="input-event-dates" value="">
                             <div id="org-selected-dates-preview" style="font-size:0.75rem; color:#3b82f6; margin-top:0.5rem; font-weight:600;">
                                 Keine Termine ausgewählt
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;">
+                            <div class="form-group" style="flex: 0 0 120px; width: 120px;">
+                                <label>Startzeit</label>
+                                <input type="time" name="eventStartTime" class="input-field" value="18:00" style="margin: 0; width: 120px; height:42px;">
+                            </div>
+                            <div class="form-group" style="flex: 0 0 120px; width: 120px;">
+                                <label>Endzeit</label>
+                                <input type="time" name="eventEndTime" class="input-field" value="22:00" style="margin: 0; width: 120px; height:42px;">
                             </div>
                         </div>
 
@@ -5853,9 +8168,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" style="margin-top: 1rem;">
                             <div class="slider-value-display">
-                                <label>Spieldauer</label>
+                                <label>Spieldauer (Spielzeit)</label>
                                 <span id="val-org-spieldauer">0,5 - 2,0 Std.</span>
                             </div>
                             <div class="dual-range-slider" id="slider-org-spieldauer-container">
@@ -5895,7 +8210,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <div class="form-group">
                             <label>Technik</label>
                             <div class="checkbox-tag-grid" id="grid-org-technik">
-                                ${['Technik vorhanden', 'Technik muss noch geklärt werden', 'Technik nicht vorhanden'].map(t => `
+                                ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgTechnik" value="${t}">
                                         <span>${t}</span>
@@ -5904,6 +8219,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             </div>
                         </div>
 
+
+
                         <div class="form-group">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <label>Beschreibung</label>
@@ -5911,20 +8228,44 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             </div>
                             <textarea name="orgDescription" id="textarea-org-desc" class="input-field" rows="3" maxlength="200" placeholder="Beschreibe kurz dein Event..."></textarea>
                         </div>
+
+                        <!-- Media Section -->
+                        <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
+                        <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien (Foto & Video)</h4>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
+                            Füge Fotos und Videos für dein Event hinzu, um es attraktiver zu gestalten.
+                        </p>
+                        <div class="form-group" style="margin-bottom: 1.2rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
+                                <button type="button" onclick="window.addRegMedia('organizer', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(34, 197, 94, 0.3); color:#22c55e;">
+                                    <i class="fa-solid fa-plus"></i> Foto hinzufügen
+                                </button>
+                            </div>
+                            <div id="reg-organizer-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.2rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
+                                <button type="button" onclick="window.addRegMedia('organizer', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#a855f7;">
+                                    <i class="fa-solid fa-plus"></i> Video hinzufügen
+                                </button>
+                            </div>
+                            <div id="reg-organizer-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                        </div>
+                        <div style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.15); padding: 0.8rem; border-radius: 8px; font-size:0.75rem; color: var(--text-main); margin-top:0.5rem; margin-bottom: 1.5rem; display: flex; gap: 0.5rem; align-items: flex-start;">
+                            <i class="fa-solid fa-circle-info" style="color: #2563eb; margin-top: 2px;"></i>
+                            <span>Fotos und Videos können auch zu einem späteren Zeitpunkt im Profil hinzugefügt und geändert werden.</span>
+                        </div>
                     </div>
 
                     <!-- Personal details at the end -->
                     <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
                     <h4 style="font-family: var(--font-heading); font-size:1rem; margin-bottom:1rem; color:var(--text-main);"><i class="fa-solid fa-user-lock"></i> Persönliche Kontaktdaten</h4>
 
-                    <div class="form-group">
-                        <label>Firma / Privat</label>
-                        <input type="text" name="company" class="input-field" maxlength="30" placeholder="Firma oder Privatperson" required>
-                    </div>
-
                     <div class="form-group hidden" id="reg-organizer-type-container">
                         <label>Veranstalter-Typ</label>
-                        <select name="organizerType" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                        <select name="organizerType" id="reg-org-type-select" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             <option value="" disabled selected>Veranstalter-Typ auswählen</option>
                             <option value="Privater Veranstalter">Privater Veranstalter</option>
                             <option value="Event-Agentur">Event-Agentur</option>
@@ -5941,6 +8282,12 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </select>
                     </div>
 
+                    <!-- Dynamic field for non-private organizers -->
+                    <div class="form-group hidden" id="reg-org-company-dynamic-container" style="margin-top: 1rem;">
+                        <label id="reg-org-company-dynamic-label">Name Organisation</label>
+                        <input type="text" name="company" id="reg-org-company-input" class="input-field" maxlength="30" placeholder="Name eingeben">
+                    </div>
+
                     <div class="form-group">
                         <label>Vor- und Nachname</label>
                         <input type="text" name="fullName" id="input-reg-fullname" class="input-field" maxlength="30" placeholder="z.B. Max Mustermann" required>
@@ -5954,60 +8301,85 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <div class="form-group">
                             <label>Telefonnummer</label>
                             <input type="text" name="phone" id="input-reg-phone" class="input-field" maxlength="13" placeholder="z.B. 01761234567" required>
+                            <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem;">
+                                <input type="checkbox" name="hidePhone" id="input-reg-hidephone" style="width: auto; margin: 0; cursor: pointer;">
+                                <label for="input-reg-hidephone" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0;">Telefonnummer verbergen (geblurrt)</label>
+                            </div>
                         </div>
                     </div>
 
                     <div id="reg-subscription-container" style="margin-top: 1.5rem;">
                         <h4 style="font-family: var(--font-heading); font-size:1rem; margin-bottom:0.5rem; color:var(--color-purple);"><i class="fa-solid fa-credit-card"></i> Abo-Modell auswählen</h4>
                         <div class="subscription-cards">
-                            <div class="subscription-card active" data-plan="flex" data-price="5">
+                            <div class="subscription-card active" data-plan="flex" data-price="9.99">
                                 <div class="selected-badge">Beliebt</div>
                                 <h5>Flex</h5>
-                                <div class="price">5 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
+                                <div class="price">9,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
                                 <ul class="plan-features">
+                                    <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Direkter Kontakt zu Veranstaltern</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Top-Vorschläge erhalten</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Keine Provisionskosten</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (in Testphase)</li>
                                 </ul>
                             </div>
-                            <div class="subscription-card" data-plan="plus" data-price="25">
-                                <div class="selected-badge">Spare 17 %</div>
+                            <div class="subscription-card" data-plan="plus" data-price="7.99">
+                                <div class="selected-badge">Spare 20 %</div>
                                 <h5>Plus</h5>
-                                <div class="price">25 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Halbjahr</span></div>
+                                <div class="price">7,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
                                 <ul class="plan-features">
+                                    <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Direkter Kontakt zu Veranstaltern</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Top-Vorschläge erhalten</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Keine Provisionskosten</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (in Testphase)</li>
                                 </ul>
                             </div>
-                            <div class="subscription-card" data-plan="pro" data-price="40">
-                                <div class="selected-badge">Spare 34 %</div>
+                            <div class="subscription-card" data-plan="pro" data-price="5.99">
+                                <div class="selected-badge">Spare 40 %</div>
                                 <h5>Pro</h5>
-                                <div class="price">40 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Jahr</span></div>
+                                <div class="price">5,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
                                 <ul class="plan-features">
+                                    <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Direkter Kontakt zu Veranstaltern</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Top-Vorschläge erhalten</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Keine Provisionskosten</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (in Testphase)</li>
+                                </ul>
+                            </div>
+                            <div class="subscription-card" data-plan="premium" data-price="4.99">
+                                <div class="selected-badge" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;">Spare 59 %</div>
+                                <h5>Premium</h5>
+                                <div class="price">4,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
+                                <ul class="plan-features">
+                                    <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 3 Monate kostenlos</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (in Testphase)</li>
+                                    <li><i class="fa-solid fa-circle-info"></i> Code erforderlich</li>
                                 </ul>
                             </div>
                         </div>
                         <input type="hidden" name="selectedPlan" id="input-selected-plan" value="flex">
+                        
+                        <div id="premium-promo-container" style="display: none; margin-top: 1.5rem; background: rgba(124, 58, 237, 0.05); border: 1px dashed var(--color-purple); padding: 1rem; border-radius: var(--radius-md);">
+                            <h5 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--color-purple);"><i class="fa-brands fa-instagram"></i> Premium-Zugang freischalten</h5>
+                            <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.35;">
+                                Gib deinen exklusiven Gutscheincode ein. Du erhältst ihn, wenn du <strong>@GigConnAct</strong> auf Instagram folgst und unseren aktuellen Story-Beitrag teilst und uns markierst.
+                            </p>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="reg-promo-code" class="input-field" placeholder="Gutscheincode" style="margin:0; text-transform: uppercase;">
+                                <button type="button" class="btn btn-secondary btn-sm" id="btn-apply-promo" style="margin:0; font-size:0.75rem; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple);">Code prüfen</button>
+                            </div>
+                            <div id="promo-status-msg" style="font-size: 0.7rem; margin-top: 0.4rem; display: none;"></div>
+                        </div>
                     </div>
 
                     <div id="reg-sepa-consent-container" style="margin-top: 1.5rem;">
                         <div class="sepa-panel">
                             <h5><i class="fa-solid fa-circle-info"></i> SEPA Lastschrift-Mandat</h5>
-                            <p id="sepa-mandate-text">Ich ermächtige GigConnAct, Zahlungen für das Musiker-Abonnement (5,00 € pro Monat) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GigConnAct auf mein Konto gezogenen Lastschriften einzulösen.</p>
+                            <p id="sepa-mandate-text">Ich ermächtige GigConnAct, Zahlungen für das Musiker-Abonnement (9,99 € pro Monat) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GigConnAct auf mein Konto gezogenen Lastschriften einzulösen.</p>
                         </div>
                         <label class="form-checkbox" style="margin-bottom: 1.5rem;">
                             <input type="checkbox" name="sepaConsent" required checked>
-                            <span id="sepa-checkbox-label">Ich stimme dem SEPA-Lastschriftmandat für das 5 € Abo zu.</span>
+                            <span id="sepa-checkbox-label">Ich stimme dem SEPA-Lastschriftmandat für das 9,99 € Abo zu.</span>
                         </label>
                     </div>
 
@@ -6080,6 +8452,18 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         registerTab.addEventListener('click', () => {
             setActiveTab(registerTab);
             showForm(registerForm);
+            window.registrationMedia = {
+                musician: {
+                    photos: ['https://picsum.photos/id/453/400/300'],
+                    videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
+                },
+                organizer: {
+                    photos: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'],
+                    videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
+                }
+            };
+            window.updateRegMediaPreview('musician');
+            window.updateRegMediaPreview('organizer');
         });
     }
 
@@ -6115,6 +8499,15 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 if (res.success) {
                     const user = res.user;
                     const roleText = user.role === 'musician' ? 'Musiker' : 'Veranstalter';
+
+                    if (typeof window.addMockEmail === 'function') {
+                        window.addMockEmail(
+                            "Dein Magic Link für GigConnAct",
+                            "GigConnAct <no-reply@gigconnact.de>",
+                            `Hallo ${user.firstName},\n\nklicke auf den Link unten, um dich direkt bei deinem ${roleText}-Account anzumelden:\n\n[Jetzt als ${roleText} einloggen]`
+                        );
+                    }
+
                     mockEmailHtml = `
                         <div style="background: rgba(124, 58, 237, 0.08); border: 1.5px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 1.25rem; margin-top: 1rem; text-align: left;">
                             <h4 style="margin: 0 0 0.5rem; font-family: var(--font-heading); color: #a855f7; display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem;">
@@ -6133,6 +8526,14 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
                     `;
                 } else {
+                    if (typeof window.addMockEmail === 'function') {
+                        window.addMockEmail(
+                            "Registrierung abschließen bei GigConnAct",
+                            "GigConnAct <no-reply@gigconnact.de>",
+                            `Hallo,\n\ndiese E-Mail-Adresse ist neu bei uns. Wähle aus, wie du dich registrieren und einloggen möchtest.`
+                        );
+                    }
+
                     mockEmailHtml = `
                         <div style="background: rgba(124, 58, 237, 0.08); border: 1.5px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 1.25rem; margin-top: 1rem; text-align: left;">
                             <h4 style="margin: 0 0 0.5rem; font-family: var(--font-heading); color: #a855f7; display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem;">
@@ -6187,8 +8588,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             if (loginRes && loginRes.success) {
                                 closeModal();
                                 document.dispatchEvent(new CustomEvent('user-state-changed'));
-                                window.handleRouting();
                                 if (onSuccessCallback) onSuccessCallback();
+                                else navigateAfterLogin();
                                 showToast({
                                     title: 'Erfolgreich angemeldet',
                                     message: 'Willkommen zurück bei GigConnAct!'
@@ -6243,7 +8644,19 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         if (orgTypeContainer) {
             orgTypeContainer.classList.add('hidden');
             const selectEl = orgTypeContainer.querySelector('select');
-            if (selectEl) selectEl.removeAttribute('required');
+            if (selectEl) {
+                selectEl.removeAttribute('required');
+                selectEl.value = '';
+            }
+        }
+        const dynamicContainer = document.getElementById('reg-org-company-dynamic-container');
+        if (dynamicContainer) {
+            dynamicContainer.classList.add('hidden');
+            const dynamicInput = document.getElementById('reg-org-company-input');
+            if (dynamicInput) {
+                dynamicInput.value = '';
+                dynamicInput.removeAttribute('required');
+            }
         }
         
         toggleRequired(fieldsMus, true);
@@ -6294,12 +8707,43 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         container.querySelectorAll('input, select, textarea').forEach(el => {
             if (isRequired) {
                 if (el.type !== 'checkbox' && el.type !== 'hidden' && el.name !== 'musLocation' && el.name !== 'orgLocationSearch' && el.id !== 'input-org-location-search') {
-                    el.setAttribute('required', '');
+                    if (el.id === 'reg-org-company-input') {
+                        const dynamicContainer = document.getElementById('reg-org-company-dynamic-container');
+                        if (dynamicContainer && !dynamicContainer.classList.contains('hidden')) {
+                            el.setAttribute('required', '');
+                        } else {
+                            el.removeAttribute('required');
+                        }
+                    } else {
+                        el.setAttribute('required', '');
+                    }
                 } else if (el.name === 'sepaConsent') {
                     el.setAttribute('required', '');
                 }
             } else {
                 el.removeAttribute('required');
+            }
+        });
+    }
+
+    // Add change listener for dynamically opening the organizer company name field
+    const regOrgTypeSelect = document.getElementById('reg-org-type-select');
+    const dynamicContainer = document.getElementById('reg-org-company-dynamic-container');
+    const dynamicLabel = document.getElementById('reg-org-company-dynamic-label');
+    const dynamicInput = document.getElementById('reg-org-company-input');
+
+    if (regOrgTypeSelect && dynamicContainer && dynamicLabel && dynamicInput) {
+        regOrgTypeSelect.addEventListener('change', () => {
+            const val = regOrgTypeSelect.value;
+            if (val && val !== 'Privater Veranstalter') {
+                dynamicContainer.classList.remove('hidden');
+                dynamicLabel.textContent = `Name ${val}`;
+                dynamicInput.setAttribute('placeholder', `Name ${val} eingeben`);
+                dynamicInput.setAttribute('required', '');
+            } else {
+                dynamicContainer.classList.add('hidden');
+                dynamicInput.value = '';
+                dynamicInput.removeAttribute('required');
             }
         });
     }
@@ -6665,13 +9109,25 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             if (selectedPlanInput) selectedPlanInput.value = plan;
 
             let periodText = 'pro Monat';
-            let priceText = '5 €';
+            let priceText = '9,99 €';
             if (plan === 'plus') {
-                periodText = 'pro Halbjahr';
-                priceText = '25 €';
+                periodText = 'pro Monat (6 Monate Laufzeit)';
+                priceText = '7,99 €';
             } else if (plan === 'pro') {
-                periodText = 'pro Jahr';
-                priceText = '40 €';
+                periodText = 'pro Monat (12 Monate Laufzeit)';
+                priceText = '5,99 €';
+            } else if (plan === 'premium') {
+                periodText = 'pro Monat (12 Monate Laufzeit)';
+                priceText = '4,99 €';
+            }
+
+            const promoContainer = document.getElementById('premium-promo-container');
+            if (promoContainer) {
+                if (plan === 'premium') {
+                    promoContainer.style.display = 'block';
+                } else {
+                    promoContainer.style.display = 'none';
+                }
             }
 
             if (sepaMandateText) {
@@ -6682,6 +9138,30 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             }
         });
     });
+
+    let isPromoCodeApplied = false;
+    const promoBtn = document.getElementById('btn-apply-promo');
+    const promoInput = document.getElementById('reg-promo-code');
+    const promoStatus = document.getElementById('promo-status-msg');
+
+    if (promoBtn && promoInput && promoStatus) {
+        promoBtn.addEventListener('click', () => {
+            const code = promoInput.value.trim().toUpperCase();
+            if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code)) {
+                isPromoCodeApplied = true;
+                promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif freigeschaltet (3 Monate kostenfrei, danach 4,99 €/Monat).";
+                promoStatus.style.color = "#10b981";
+                promoStatus.style.display = "block";
+                promoInput.disabled = true;
+                promoBtn.disabled = true;
+            } else {
+                isPromoCodeApplied = false;
+                promoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Beitrag.";
+                promoStatus.style.color = "#ef4444";
+                promoStatus.style.display = "block";
+            }
+        });
+    }
 
     // Character Counter for Musician Description
     const descTextarea = document.getElementById('textarea-mus-desc');
@@ -6710,6 +9190,14 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         const errDiv = document.getElementById('register-error-msg');
         const email = registerForm.elements.email.value.trim();
         
+        const selectedPlan = document.getElementById('input-selected-plan')?.value || 'flex';
+        if (selectedPlan === 'premium' && !isPromoCodeApplied) {
+            errDiv.textContent = "Bitte gib einen gültigen Gutscheincode ein, um den Premium-Tarif freizuschalten.";
+            errDiv.style.display = 'block';
+            errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
         const emailValidation = validateEmailAddress(email);
         if (!emailValidation.isValid) {
             errDiv.textContent = emailValidation.message;
@@ -6830,13 +9318,22 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             }
         }
 
+        let compValue = "Privatperson";
+        if (selectedRole === 'organizer') {
+            const orgType = registerForm.elements.organizerType.value;
+            if (orgType && orgType !== 'Privater Veranstalter') {
+                compValue = registerForm.elements.company.value.trim() || 'Privatperson';
+            }
+        }
+
         const payload = {
             role: selectedRole,
             firstName: firstName,
             lastName: lastName,
-            company: registerForm.elements.company.value,
+            company: compValue,
             organizerType: selectedRole === 'organizer' ? registerForm.elements.organizerType.value : '',
             phone: cleanPhone,
+            hidePhone: registerForm.querySelector('input[name="hidePhone"]').checked,
             email: email,
             password: ""
         };
@@ -6852,7 +9349,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             payload.maxBudget = registerForm.elements.maxBudget.value;
             payload.description = registerForm.elements.musDescription.value;
             payload.sepaConsent = registerForm.elements.sepaConsent.checked;
-            payload.technik = Array.from(registerForm.querySelectorAll('input[name="musTechnik"]:checked')).map(el => el.value).join(', ') || "Weiß ich noch nicht";
+            payload.technik = Array.from(registerForm.querySelectorAll('input[name="musTechnik"]:checked')).map(el => el.value).length > 0
+                ? Array.from(registerForm.querySelectorAll('input[name="musTechnik"]:checked')).map(el => el.value)
+                : ["Technik ist noch unklar"];
             payload.genres = Array.from(registerForm.querySelectorAll('input[name="genres"]:checked')).map(el => el.value);
             payload.instruments = Array.from(registerForm.querySelectorAll('input[name="instruments"]:checked')).map(el => el.value);
             payload.eventTypes = Array.from(registerForm.querySelectorAll('input[name="eventTypes"]:checked')).map(el => el.value);
@@ -6902,12 +9401,17 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 startTime: isSoChecked ? (registerForm.querySelector('input[name="availStart_so"]')?.value || '00:01') : '',
                 endTime: isSoChecked ? (registerForm.querySelector('input[name="availEnd_so"]')?.value || '23:59') : ''
             };
-            
+            payload.minPublikum = registerForm.querySelector('#input-publikum-min')?.value || 0;
+            payload.maxPublikum = registerForm.querySelector('#input-publikum-max')?.value || 500;
             payload.availability = availability;
+            payload.photos = window.registrationMedia.musician.photos;
+            payload.videos = window.registrationMedia.musician.videos;
         } else {
             payload.eventName = registerForm.elements.eventName.value.trim();
             payload.orgEventTypes = Array.from(registerForm.querySelectorAll('input[name="orgEventTypes"]:checked')).map(el => el.value);
             payload.eventDates = selectedEventDates;
+            payload.eventStartTime = registerForm.querySelector('input[name="eventStartTime"]')?.value || '18:00';
+            payload.eventEndTime = registerForm.querySelector('input[name="eventEndTime"]')?.value || '22:00';
             payload.orgLocations = selectedOrgLocations;
             payload.orgGenres = Array.from(registerForm.querySelectorAll('input[name="orgGenres"]:checked')).map(el => el.value);
             payload.orgInstruments = Array.from(registerForm.querySelectorAll('input[name="orgInstruments"]:checked')).map(el => el.value);
@@ -6915,10 +9419,14 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             payload.orgMaxDuration = registerForm.querySelector('input[name="orgMaxDuration"]').value;
             payload.orgMinPublikum = registerForm.querySelector('input[name="orgMinPublikum"]').value;
             payload.orgMaxPublikum = registerForm.querySelector('input[name="orgMaxPublikum"]').value;
-            payload.orgTechnik = Array.from(registerForm.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value);
+            payload.technik = Array.from(registerForm.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value).length > 0
+                ? Array.from(registerForm.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value)
+                : ["Technik ist noch unklar"];
             payload.orgMinBudget = registerForm.querySelector('input[name="orgMinBudget"]').value;
             payload.orgMaxBudget = registerForm.querySelector('input[name="orgMaxBudget"]').value;
             payload.orgDescription = registerForm.querySelector('textarea[name="orgDescription"]').value.trim();
+            payload.photos = window.registrationMedia.organizer.photos;
+            payload.videos = window.registrationMedia.organizer.videos;
         }
 
         const res = state.register(payload);
@@ -6930,6 +9438,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             errDiv.style.display = 'block';
         }
     });
+
+    window.updateRegMediaPreview('musician');
+    window.updateRegMediaPreview('organizer');
 }
 
 function renderVerificationModal(wrapper, onSuccessCallback) {
@@ -6965,7 +9476,7 @@ function renderVerificationModal(wrapper, onSuccessCallback) {
             });
             document.dispatchEvent(new CustomEvent('user-state-changed'));
             if (onSuccessCallback) onSuccessCallback();
-            else navigate('postbox');
+            else navigateAfterLogin();
         }
     });
 }
@@ -7164,13 +9675,28 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
     });
 }
 
-// ==========================================
-// 5. APPLICATION INITIALIZATION & ROUTING
-// ==========================================
+function navigateAfterLogin() {
+    if (state.currentUser) {
+        if (state.currentUser.role === 'musician') {
+            navigate('events');
+        } else {
+            navigate('musicians');
+        }
+    } else {
+        navigate('');
+    }
+}
+window.navigateAfterLogin = navigateAfterLogin;
 
 function navigate(page) {
     const mainContainer = document.getElementById('app-main');
     if (!mainContainer) return;
+
+    if (page === '') {
+        mainContainer.classList.add('page-landing');
+    } else {
+        mainContainer.classList.remove('page-landing');
+    }
 
     window.scrollTo(0, 0);
     updateNavbar(page === '');
@@ -7193,6 +9719,7 @@ function navigate(page) {
                 navigate('');
                 showModal('auth');
             } else {
+                state.clearUnreadMatches();
                 renderMatchesPage(mainContainer);
                 setActiveLink('link-matches');
                 window.location.hash = '#/matches';
@@ -7210,6 +9737,26 @@ function navigate(page) {
                 renderMyMusicians(mainContainer);
                 setActiveLink('link-dashboard');
                 window.location.hash = '#/dashboard';
+            }
+            break;
+        case 'my-musicians':
+            if (!state.currentUser) {
+                navigate('');
+                showModal('auth');
+            } else {
+                renderMyMusicians(mainContainer);
+                setActiveLink('link-my-musicians');
+                window.location.hash = '#/my-musicians';
+            }
+            break;
+        case 'my-events':
+            if (!state.currentUser) {
+                navigate('');
+                showModal('auth');
+            } else {
+                renderMyEvents(mainContainer);
+                setActiveLink('link-my-events');
+                window.location.hash = '#/my-events';
             }
             break;
         case 'postbox':
@@ -7230,6 +9777,15 @@ function navigate(page) {
                 renderCreditsPage(mainContainer);
                 setActiveLink('link-credits');
                 window.location.hash = '#/credits';
+            }
+            break;
+        case 'profile':
+            if (!state.currentUser) {
+                navigate('');
+                showModal('auth');
+            } else {
+                renderProfilePage(mainContainer);
+                window.location.hash = '#/profile';
             }
             break;
         default:
@@ -7274,10 +9830,15 @@ function updateNavbar(forceLanding) {
         }
     }
 
-    if (u) {
+    if (u && u.id) {
         const unreadCount = state.getUnreadCount();
         const badgeHtml = unreadCount > 0 
             ? ` <span class="nav-badge" style="background: var(--color-red); color: white; border-radius: 50%; padding: 0.1rem 0.4rem; font-size: 0.7rem; font-weight: 700; margin-left: 0.3rem;">${unreadCount}</span>` 
+            : '';
+
+        const unreadMatches = state.getUnreadMatchesCount();
+        const matchesBadgeHtml = unreadMatches > 0
+            ? ` <span class="nav-badge" style="background: var(--color-red); color: white; border-radius: 50%; padding: 0.1rem 0.4rem; font-size: 0.7rem; font-weight: 700; margin-left: 0.3rem;">${unreadMatches}</span>`
             : '';
 
         const marketLinkHtml = u.role === 'musician' 
@@ -7289,28 +9850,20 @@ function updateNavbar(forceLanding) {
             : `<a href="#/my-events" class="nav-link" id="link-my-events"><i class="fa-solid fa-calendar-check"></i> Meine Events</a>`;
 
         nav.innerHTML = `
-            <a href="#/matches" class="nav-link" id="link-matches"><i class="fa-solid fa-handshake"></i> Matches</a>
             ${marketLinkHtml}
             <a href="#/postbox" class="nav-link" id="link-postbox"><i class="fa-solid fa-envelope"></i> Postfach${badgeHtml}</a>
             ${myTabLinkHtml}
         `;
 
         let creditsBadgeHtml = '';
-        if (u.role === 'musician') {
-            creditsBadgeHtml = `
-                <div class="credits-badge" id="btn-navbar-credits" style="display:flex; align-items:center; gap:0.4rem; background:rgba(56,239,125,0.08); border:1px solid rgba(56,239,125,0.3); padding:0.3rem 0.7rem; border-radius:50px; font-size:0.8rem; font-weight:700; color:var(--color-green); cursor:pointer; transition: transform 0.2s, background 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.background='rgba(56,239,125,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.background='rgba(56,239,125,0.08)';" title="Credits aufladen">
-                    <i class="fa-solid fa-coins" style="color: var(--color-green);"></i>
-                    <span>${u.credits !== undefined ? u.credits : 0} Credits</span>
-                </div>
-            `;
-        }
+        const isProfileActive = window.location.hash === '#/profile';
 
         authArea.innerHTML = `
             <div style="display:flex; align-items:center; gap:1.2rem;">
                 ${creditsBadgeHtml}
                 
                 <div class="profile-dropdown-container">
-                    <button class="profile-avatar-btn ${u.role === 'musician' ? 'musician-avatar' : ''}" id="btn-profile-dropdown" aria-label="Benutzermenü">
+                    <button class="profile-avatar-btn ${u.role === 'musician' ? 'musician-avatar' : ''} ${isProfileActive ? 'active' : ''}" id="btn-profile-dropdown" aria-label="Benutzermenü" style="${isProfileActive ? 'border-color: var(--color-purple); color: var(--color-purple); box-shadow: 0 0 10px rgba(177, 0, 255, 0.2);' : ''}">
                         <i class="fa-regular fa-circle-user"></i>
                     </button>
                     <div class="profile-dropdown-menu" id="profile-dropdown-menu">
@@ -7318,7 +9871,7 @@ function updateNavbar(forceLanding) {
                             <div style="font-size:0.8rem; font-weight:700;">${u.firstName} ${u.lastName}</div>
                             <div style="font-size:0.7rem; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; max-width:150px;">${u.email}</div>
                         </div>
-                        <a href="#/profile" class="profile-dropdown-item ${u.role === 'musician' ? 'musician-item' : ''}" id="dropdown-link-profile">
+                        <a href="#/profile" class="profile-dropdown-item ${u.role === 'musician' ? 'musician-item' : ''} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile">
                             <i class="fa-solid fa-user-gear"></i> Profil bearbeiten
                         </a>
                         <div class="profile-dropdown-divider"></div>
@@ -7364,13 +9917,14 @@ function updateNavbar(forceLanding) {
     } else {
         nav.innerHTML = '';
         authArea.innerHTML = `
-            <button class="btn btn-secondary btn-sm" id="btn-login-trigger">
-                <i class="fa-solid fa-sign-in-alt"></i> Anmelden ohne Passwort
+            <button class="btn btn-secondary btn-sm" id="btn-login-trigger" style="white-space: normal !important; line-height: 0.9 !important; padding: 0.28rem 0.65rem !important; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 8px;">
+                <span style="font-weight: 700; display: block; font-size: 0.8rem;">Anmelden/Registrieren</span>
+                <span style="font-weight: 700; display: block; font-size: 0.8rem; margin-top: -1px;">ohne Passwort</span>
             </button>
         `;
         document.getElementById('btn-login-trigger').addEventListener('click', () => {
             showModal('auth', () => {
-                navigate('dashboard');
+                navigateAfterLogin();
             });
         });
     }
@@ -7380,6 +9934,17 @@ function handleRouting() {
     const hash = window.location.hash;
     let page = hash.replace('#/', '');
     if (page === 'top-matches') page = 'matches';
+    
+    // Redirect logged-in users away from the landing page
+    if (state && state.currentUser && state.currentUser.id && (page === '' || page === '/')) {
+        if (state.currentUser.role === 'musician') {
+            navigate('events');
+        } else {
+            navigate('musicians');
+        }
+        return;
+    }
+    
     navigate(page);
 }
 
@@ -7419,6 +9984,16 @@ function initGigConnActApp() {
         if (menu && trigger && !menu.contains(e.target) && !trigger.contains(e.target)) {
             menu.classList.remove('show');
         }
+
+        const infoIcon = e.target.closest('.fa-circle-info');
+        if (infoIcon && infoIcon.hasAttribute('title')) {
+            const title = infoIcon.getAttribute('title');
+            const formattedMessage = title.replace(/\n/g, '<br>');
+            showToast({
+                title: "Information ℹ️",
+                message: formattedMessage
+            });
+        }
     });
 
     if (typeof updateNavbar === 'function') updateNavbar();
@@ -7430,7 +10005,34 @@ function initGigConnActApp() {
     if (logoLink) {
         logoLink.addEventListener('click', (e) => {
             e.preventDefault();
-            window.location.hash = '#/';
+            if (state && state.currentUser) {
+                if (state.currentUser.role === 'musician') {
+                    window.location.hash = '#/events';
+                } else if (state.currentUser.role === 'organizer') {
+                    window.location.hash = '#/musicians';
+                } else {
+                    window.location.hash = '#/';
+                }
+            } else {
+                window.location.hash = '#/';
+            }
+        });
+    }
+
+    const resetDemoBtn = document.getElementById('btn-reset-demo');
+    if (resetDemoBtn) {
+        resetDemoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            if (state) state.currentUser = null;
+            showToast({
+                title: "Demo-Daten zurückgesetzt",
+                message: "Die Anwendung wird neu geladen..."
+            });
+            setTimeout(() => {
+                window.location.hash = '#/';
+                window.location.reload();
+            }, 1000);
         });
     }
 
@@ -7440,25 +10042,15 @@ function initGigConnActApp() {
     });
 
     function runMatchingMonitor() {
-        if (state && state.currentUser) {
-            if (typeof checkAndNotifyMatches === 'function') {
-                checkAndNotifyMatches(state, showToast);
-            }
-            if (window.matchIntervalId) clearInterval(window.matchIntervalId);
-            window.matchIntervalId = setInterval(() => {
-                if (state && state.currentUser && typeof checkAndNotifyMatches === 'function') {
-                    checkAndNotifyMatches(state, showToast);
-                }
-            }, 15000);
-        } else {
-            if (window.matchIntervalId) {
-                clearInterval(window.matchIntervalId);
-                window.matchIntervalId = null;
-            }
+        // Disabled match monitor background notifications as requested
+        if (window.matchIntervalId) {
+            clearInterval(window.matchIntervalId);
+            window.matchIntervalId = null;
         }
     }
 
     runMatchingMonitor();
+    // E-Mail Postfach (Simulation) widget removed as requested
 }
 
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
@@ -7471,19 +10063,43 @@ function renderPostbox(container) {
     if (!state.currentUser) return;
     const u = state.currentUser;
     const isMusician = u.role === 'musician';
-    const currentUserId = isMusician ? u.profileId : u.id;
+    let userProfiles = [];
+    let activeProfileId = '';
+    if (isMusician) {
+        userProfiles = state.musicians.filter(m => m.creatorId === u.id);
+        activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || u.profileId);
+        state.activeMusicianId = activeProfileId;
+    } else {
+        userProfiles = state.events.filter(e => e.creatorId === u.id);
+        activeProfileId = state.activeEventId || (userProfiles[0]?.id || u.id);
+        state.activeEventId = activeProfileId;
+    }
+
+    const currentUserId = activeProfileId;
 
     // Fetch user chats
     const chats = state.getChatsForUser(currentUserId);
-    let activeTab = window.postboxActiveTab || 'perfect'; // 'perfect' | 'received' | 'sent' | 'system'
+    let activeTab = window.postboxActiveTab || 'all'; // 'all' | 'received' | 'sent' | 'system'
     let activeChatId = window.postboxActiveChatId || (chats.length > 0 ? chats[0].id : null);
+
+    let profileSelectorHtml = '';
+    if (userProfiles.length > 0) {
+        const options = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''}>${p.name || p.contactName || p.title || 'Profil'}</option>`).join('');
+        profileSelectorHtml = `
+            <div style="margin-bottom: 0.8rem; display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.2rem;">
+                <label style="font-size: 0.65rem; font-weight: 800; color: var(--color-cyan); text-transform: uppercase; letter-spacing: 0.5px;">Aktives Profil:</label>
+                <select id="postbox-profile-select" class="input-field" style="width: 100%; padding: 0.4rem 0.8rem; font-size: 0.8rem; height: 34px; margin: 0; font-weight: 700; border: 1px solid var(--border-glass); border-radius: 8px; background: rgba(255,255,255,0.02); color: var(--text-main);">
+                    ${options}
+                </select>
+            </div>
+        `;
+    }
 
     const renderView = () => {
         window.postboxActiveTab = activeTab;
         window.postboxActiveChatId = activeChatId;
 
         // Categorize chats
-        const perfectChats = [];
         const receivedChats = [];
         const sentChats = [];
         const systemChats = [];
@@ -7495,33 +10111,18 @@ function renderPostbox(container) {
                 return;
             }
 
-            const counterpartyId = chat.participants.find(id => id !== currentUserId) || chat.participants[0];
-            const eventId = chat.eventId;
+            const firstMsg = chat.messages[0];
+            const isFirstMsgFromMe = firstMsg && firstMsg.senderId === currentUserId;
 
-            // Check interest status
-            let mId = isMusician ? currentUserId : counterpartyId;
-            let eId = eventId || (isMusician ? null : state.events.find(ev => ev.creatorId === currentUserId)?.id);
-
-            const interest = state.interests?.find(i => i.musicianId === mId && (eId ? i.eventId === eId : true));
-            const isPerfect = interest && interest.musicianInterested && interest.organizerInterested;
-
-            if (isPerfect) {
-                perfectChats.push(chat);
+            if (isFirstMsgFromMe) {
+                sentChats.push(chat);
             } else {
-                // Determine sender of first message
-                const firstMsg = chat.messages[0];
-                const isFirstMsgFromMe = firstMsg && firstMsg.senderId === currentUserId;
-
-                if (isFirstMsgFromMe) {
-                    sentChats.push(chat);
-                } else {
-                    receivedChats.push(chat);
-                }
+                receivedChats.push(chat);
             }
         });
 
         let currentCategoryChats = [];
-        if (activeTab === 'perfect') currentCategoryChats = perfectChats;
+        if (activeTab === 'all') currentCategoryChats = chats;
         else if (activeTab === 'received') currentCategoryChats = receivedChats;
         else if (activeTab === 'sent') currentCategoryChats = sentChats;
         else if (activeTab === 'system') currentCategoryChats = systemChats;
@@ -7532,31 +10133,60 @@ function renderPostbox(container) {
 
         const activeChat = chats.find(c => c.id === activeChatId);
 
+        window.postboxShowFilters = window.postboxShowFilters !== undefined ? window.postboxShowFilters : true;
+
         container.innerHTML = `
-            <div class="portal-layout" style="display:flex; gap:1.5rem; height: calc(100vh - 160px); min-height: 550px;">
+            <style>
+                @media(max-width: 900px) {
+                    .portal-layout {
+                        flex-direction: column !important;
+                        height: auto !important;
+                    }
+                    .postbox-sidebar {
+                        width: 100% !important;
+                        height: auto !important;
+                    }
+                    .postbox-chat-detail {
+                        display: none !important;
+                    }
+                    .mobile-chat-accordion {
+                        display: block !important;
+                    }
+                }
+                @media(min-width: 901px) {
+                    .mobile-chat-accordion {
+                        display: none !important;
+                    }
+                }
+            </style>
+            <div class="portal-layout" style="display: flex !important; flex-direction: row !important; gap: 1.5rem; height: calc(100vh - 180px); min-height: 600px; width: 100%;">
                 
                 <!-- Left Sidebar: Categories & Chat Threads List -->
-                <div class="postbox-sidebar" style="width: 340px; flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm);">
+                <div class="postbox-sidebar" style="width: 340px; flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); height: 100%;">
                     
                     <!-- Postbox Header & Tabs -->
                     <div style="padding: 1rem; border-bottom: 1px solid var(--border-glass); background: rgba(255,255,255,0.01);">
-                        <h3 style="margin: 0 0 0.8rem; font-size: 1.15rem; font-family: var(--font-heading); display:flex; align-items:center; gap:0.5rem; color:var(--text-main);">
-                            <i class="fa-solid fa-envelope text-cyan"></i> Postfach
+                        <h3 style="margin: 0 0 0.8rem; font-size: 1.15rem; font-family: var(--font-heading); display:flex; align-items:center; gap:0.5rem; color:var(--text-main); justify-content: space-between;">
+                            <span style="display:flex; align-items:center; gap:0.5rem;">
+                                <i class="fa-solid fa-envelope text-cyan"></i> Postfach
+                            </span>
+                            <i class="fa-solid fa-sliders" id="btn-toggle-postbox-filters" style="color: ${window.postboxShowFilters ? 'var(--color-cyan)' : 'var(--text-muted)'}; cursor: pointer; font-size: 1.05rem; transition: color 0.2s;" title="Filter ein-/ausblenden"></i>
                         </h3>
                         
-                        <!-- 4 Category Tabs -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
-                            <button class="btn btn-sm ${activeTab === 'perfect' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="perfect" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0;">
-                                ðŸ’– Perfect (${perfectChats.length})
+                        ${profileSelectorHtml}
+                        <!-- 4 Category Tabs (2x2 Grid) -->
+                        <div id="postbox-filters-container" style="display: ${window.postboxShowFilters ? 'grid' : 'none'}; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
+                            <button class="btn btn-sm ${activeTab === 'all' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="all" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Alle Nachrichten">
+                                📂 Alle (${chats.length})
                             </button>
-                            <button class="btn btn-sm ${activeTab === 'received' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="received" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0;">
-                                ðŸ“¥ Erhalten (${receivedChats.length})
+                            <button class="btn btn-sm ${activeTab === 'received' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="received" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(34, 197, 94, 0.35); color: #22c55e;" title="Empfangene Anfragen">
+                                📥 Empfangen (${receivedChats.length})
                             </button>
-                            <button class="btn btn-sm ${activeTab === 'sent' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="sent" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0;">
-                                ðŸ“¤ Gestellt (${sentChats.length})
+                            <button class="btn btn-sm ${activeTab === 'sent' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="sent" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(239, 68, 68, 0.35); color: #ef4444;" title="Versendete Anfragen">
+                                📤 Versendet (${sentChats.length})
                             </button>
-                            <button class="btn btn-sm ${activeTab === 'system' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="system" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0;">
-                                âš™ï¸ System (${systemChats.length})
+                            <button class="btn btn-sm ${activeTab === 'system' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="system" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(234, 179, 8, 0.35); color: #eab308;" title="Benachrichtigungen">
+                                🔔 Info (${systemChats.length})
                             </button>
                         </div>
                     </div>
@@ -7578,12 +10208,12 @@ function renderPostbox(container) {
 
                             if (!isSys) {
                                 const counterMus = state.musicians.find(m => m.id === counterpartyId);
-                                const counterOrg = state.events.find(e => e.creatorId === counterpartyId);
+                                const counterOrg = state.events.find(e => e.id === counterpartyId) || state.events.find(e => e.creatorId === counterpartyId);
                                 if (counterMus) {
                                     name = counterMus.name;
                                     avatar = counterMus.profilePic || "https://picsum.photos/id/453/100/100";
                                 } else if (counterOrg) {
-                                    name = counterOrg.contactName || counterOrg.name;
+                                    name = counterOrg.name || counterOrg.contactName || "Veranstalter";
                                     avatar = "https://picsum.photos/id/111/100/100";
                                 }
                             }
@@ -7591,18 +10221,112 @@ function renderPostbox(container) {
                             const lastMsg = c.messages[c.messages.length - 1];
                             const isUnread = !state.readChats?.includes(c.id);
 
+                            // Determine type and colors for specific feedback backgrounds and thick borders
+                            let itemType = 'sent';
+                            if (isSys) {
+                                itemType = 'system';
+                            } else {
+                                const firstMsg = c.messages[0];
+                                const isFirstMsgFromMe = firstMsg && firstMsg.senderId === currentUserId;
+                                if (!isFirstMsgFromMe) {
+                                    itemType = 'received';
+                                }
+                            }
+
+                            let bgColor = 'rgba(255, 255, 255, 0.02)';
+                            let borderColor = 'rgba(255, 255, 255, 0.05)';
+                            let leftBorderColor = 'transparent';
+
+                            if (itemType === 'received') {
+                                bgColor = isSelected ? 'rgba(34, 197, 94, 0.12)' : 'rgba(34, 197, 94, 0.04)';
+                                borderColor = isSelected ? 'rgba(34, 197, 94, 0.4)' : 'rgba(34, 197, 94, 0.15)';
+                                leftBorderColor = isUnread ? '#22c55e' : 'transparent';
+                            } else if (itemType === 'sent') {
+                                bgColor = isSelected ? 'rgba(239, 68, 68, 0.12)' : 'rgba(239, 68, 68, 0.04)';
+                                borderColor = isSelected ? 'rgba(239, 68, 68, 0.4)' : 'rgba(239, 68, 68, 0.15)';
+                                leftBorderColor = isUnread ? '#ef4444' : 'transparent';
+                            } else if (itemType === 'system') {
+                                bgColor = isSelected ? 'rgba(234, 179, 8, 0.12)' : 'rgba(234, 179, 8, 0.04)';
+                                borderColor = isSelected ? 'rgba(234, 179, 8, 0.4)' : 'rgba(234, 179, 8, 0.15)';
+                                leftBorderColor = isUnread ? '#eab308' : 'transparent';
+                            }
+
+                            // Determine lock state for mobile accordion inline view
+                            let isAccordionLock = false;
+                            let lockEventId = c.eventId;
+                            let lockMusicianId = counterpartyId;
+
+                            if (!isMusician && !isSys) {
+                                const interest = state.interests?.find(i => i.musicianId === lockMusicianId && (lockEventId ? i.eventId === lockEventId : true));
+                                const isPerfect = interest && interest.musicianInterested && interest.organizerInterested;
+                                const isDeclined = interest && interest.organizerNoInterest;
+                                const firstMsg = c.messages[0];
+                                const isFirstMsgFromMe = firstMsg && firstMsg.senderId === currentUserId;
+                                if (!isPerfect && !isDeclined && !isFirstMsgFromMe) {
+                                    isAccordionLock = true;
+                                }
+                            }
+
+                            const inlineChatHtml = isSelected ? `
+                                <div class="mobile-chat-accordion" style="margin-top: 0.8rem; border-top: 1px solid var(--border-glass); padding-top: 0.8rem; text-align: left; width: 100%;">
+                                    <!-- Chat Messages Body -->
+                                    <div class="chat-messages-container" style="max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem; padding: 0.5rem 0.2rem;">
+                                        ${c.messages.map(m => {
+                                            const isMe = m.senderId === currentUserId;
+                                            return `
+                                                <div style="display: flex; justify-content: ${isMe ? 'flex-end' : 'flex-start'};">
+                                                    <div style="max-width: 85%; padding: 0.55rem 0.75rem; border-radius: 12px; font-size: 0.78rem; line-height: 1.35; ${isMe ? 'background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #fff; border-bottom-right-radius: 2px;' : 'background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border-glass); border-bottom-left-radius: 2px;'}">
+                                                        <div>${m.text}</div>
+                                                        <div style="font-size: 0.6rem; opacity: 0.7; text-align: right; margin-top: 0.25rem;">
+                                                            ${new Date(m.timestamp).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                    </div>
+
+                                    <!-- Lock Questionnaire or Message Input Footer -->
+                                    <div style="padding-top: 0.8rem; border-top: 1px solid rgba(255,255,255,0.06);">
+                                        ${isAccordionLock ? `
+                                            <div class="organizer-questionnaire-box" style="background: rgba(124, 58, 237, 0.08); border: 1px solid var(--color-purple); border-radius: var(--radius-sm); padding: 0.8rem; text-align: center;">
+                                                <h4 style="margin: 0 0 0.3rem; font-family: var(--font-heading); font-size: 0.9rem; color: var(--text-main);">
+                                                    Ist die Anfrage interessant für dich?
+                                                </h4>
+                                                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.6rem;">
+                                                    Stimme der Anfrage zu, um das Antworten freizuschalten.
+                                                </p>
+                                                <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                                                    <button class="btn btn-sm btn-glass btn-decline-incoming-req" data-musician-id="${lockMusicianId}" data-event-id="${lockEventId || ''}" style="color: var(--color-red); border-color: rgba(255,75,75,0.3); margin:0; font-size: 0.7rem; padding: 0.3rem 0.5rem;">
+                                                        <i class="fa-solid fa-xmark"></i> Nein, ablehnen
+                                                    </button>
+                                                    <button class="btn btn-sm btn-primary btn-accept-incoming-req" data-musician-id="${lockMusicianId}" data-event-id="${lockEventId || ''}" style="background: var(--color-green); border-color: var(--color-green); color: #000; font-weight: 800; margin:0; font-size: 0.7rem; padding: 0.3rem 0.5rem;">
+                                                        <i class="fa-solid fa-check"></i> Ja, kontaktieren
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ` : `
+                                            <form class="chat-send-form-mobile" style="display: flex; gap: 0.4rem; margin-top: 0.2rem;">
+                                                <input type="text" class="input-field chat-message-input-mobile" placeholder="${isSys ? 'Nicht möglich' : 'Schreibe...'}" ${isSys ? 'disabled' : ''} required style="flex: 1; margin: 0; height: 36px; font-size: 0.8rem; padding: 0.5rem; border-radius: 8px;">
+                                                <button type="submit" class="btn btn-primary" ${isSys ? 'disabled' : ''} style="margin: 0; padding: 0 0.8rem; height: 36px; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fa-solid fa-paper-plane"></i>
+                                                </button>
+                                            </form>
+                                        `}
+                                    </div>
+                                </div>
+                            ` : '';
+
                             return `
-                                <div class="thread-item ${isSelected ? 'selected' : ''}" data-chat-id="${c.id}" style="display: flex; align-items: center; gap: 0.8rem; padding: 0.7rem; border-radius: var(--radius-sm); cursor: pointer; margin-bottom: 0.3rem; transition: background 0.2s; background: ${isSelected ? 'rgba(0, 242, 254, 0.08)' : 'transparent'}; border: 1px solid ${isSelected ? 'rgba(0, 242, 254, 0.3)' : 'transparent'};">
-                                    <img src="${avatar}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
-                                    <div style="flex: 1; min-width: 0;">
-                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.15rem;">
-                                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); white-space: normal; word-break: break-word; overflow: hidden; text-overflow: ellipsis;">${name}</span>
-                                            ${isUnread ? '<span style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-cyan); display: inline-block;"></span>' : ''}
-                                        </div>
-                                        <div style="font-size: 0.75rem; color: var(--text-muted); white-space: normal; word-break: break-word; overflow: hidden; text-overflow: ellipsis;">
-                                            ${lastMsg ? lastMsg.text : 'Keine Nachrichten'}
+                                <div class="thread-item ${isSelected ? 'selected' : ''}" data-chat-id="${c.id}" style="display: flex; flex-direction: column; align-items: stretch; gap: 0.5rem; padding: 0.7rem; border-radius: var(--radius-sm); cursor: pointer; margin-bottom: 0.35rem; transition: all 0.2s; background: ${bgColor}; border: 1px solid ${borderColor}; border-left: 5px solid ${leftBorderColor} !important;">
+                                    <div style="display: flex; align-items: center; gap: 0.8rem; width: 100%;">
+                                        <img src="${avatar}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
+                                        <div style="flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                                            <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</span>
+                                            ${isUnread ? '<span style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-cyan); display: inline-block; flex-shrink: 0;"></span>' : ''}
                                         </div>
                                     </div>
+                                    ${inlineChatHtml}
                                 </div>
                             `;
                         }).join('')}
@@ -7610,7 +10334,7 @@ function renderPostbox(container) {
                 </div>
 
                 <!-- Right Detail View: Chat Messages & Controls -->
-                <div class="postbox-chat-detail" style="flex: 1; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm);">
+                <div class="postbox-chat-detail" style="flex: 1; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); height: 100%;">
                     ${!activeChat ? `
                         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); padding: 2rem; text-align: center;">
                             <i class="fa-regular fa-comments" style="font-size: 3.5rem; color: var(--border-glass); margin-bottom: 1rem;"></i>
@@ -7625,12 +10349,12 @@ function renderPostbox(container) {
 
                         if (!isSys) {
                             const counterMus = state.musicians.find(m => m.id === counterpartyId);
-                            const counterOrg = state.events.find(e => e.creatorId === counterpartyId);
+                            const counterOrg = state.events.find(e => e.id === counterpartyId) || state.events.find(e => e.creatorId === counterpartyId);
                             if (counterMus) {
                                 name = counterMus.name;
                                 avatar = counterMus.profilePic || "https://picsum.photos/id/453/100/100";
                             } else if (counterOrg) {
-                                name = counterOrg.contactName || counterOrg.name;
+                                name = counterOrg.name || counterOrg.contactName || "Veranstalter";
                                 avatar = "https://picsum.photos/id/111/100/100";
                             }
                         }
@@ -7722,33 +10446,39 @@ function renderPostbox(container) {
         });
 
         container.querySelectorAll('.thread-item').forEach(item => {
-            item.addEventListener('click', () => {
-                activeChatId = item.getAttribute('data-chat-id');
+            item.addEventListener('click', (e) => {
+                if (e.target.closest('.mobile-chat-accordion')) {
+                    return;
+                }
+                const clickedChatId = item.getAttribute('data-chat-id');
+                if (activeChatId === clickedChatId) {
+                    activeChatId = null;
+                } else {
+                    activeChatId = clickedChatId;
+                }
                 renderView();
             });
         });
 
-        // Question accept/decline handlers
-        const acceptBtn = container.querySelector('.btn-accept-incoming-req');
-        if (acceptBtn) {
-            acceptBtn.addEventListener('click', () => {
-                const mId = acceptBtn.getAttribute('data-musician-id');
-                const eId = acceptBtn.getAttribute('data-event-id');
+        // Question accept/decline handlers (supports both desktop and mobile layouts)
+        container.querySelectorAll('.btn-accept-incoming-req').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mId = btn.getAttribute('data-musician-id');
+                const eId = btn.getAttribute('data-event-id');
                 state.acceptMusicianRequest(mId, eId);
                 showToast({
-                    title: "Perfect Match entstanden! ðŸŽ‰",
+                    title: "Perfect Match entstanden! 🎉",
                     message: "Ihr habt nun gegenseitig Interesse bekundet. Du kannst jetzt direkt antworten."
                 });
-                activeTab = 'perfect';
+                activeTab = 'received';
                 renderView();
             });
-        }
+        });
 
-        const declineBtn = container.querySelector('.btn-decline-incoming-req');
-        if (declineBtn) {
-            declineBtn.addEventListener('click', () => {
-                const mId = declineBtn.getAttribute('data-musician-id');
-                const eId = declineBtn.getAttribute('data-event-id');
+        container.querySelectorAll('.btn-decline-incoming-req').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mId = btn.getAttribute('data-musician-id');
+                const eId = btn.getAttribute('data-event-id');
                 state.declineMusicianRequest(mId, eId);
                 showToast({
                     title: "Anfrage abgelehnt",
@@ -7756,9 +10486,9 @@ function renderPostbox(container) {
                 });
                 renderView();
             });
-        }
+        });
 
-        // Send message form handler
+        // Send message form handler (Desktop)
         const sendForm = container.querySelector('#chat-send-form');
         if (sendForm) {
             sendForm.addEventListener('submit', (e) => {
@@ -7771,6 +10501,45 @@ function renderPostbox(container) {
                 state.sendMessage(counterpartyId, text, activeChat.eventId);
                 input.value = '';
                 renderView();
+            });
+        }
+
+        // Send message form handler (Mobile Accordion)
+        container.querySelectorAll('.chat-send-form-mobile').forEach(form => {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = form.querySelector('.chat-message-input-mobile');
+                const text = input.value.trim();
+                if (!text || !activeChat) return;
+
+                const counterpartyId = activeChat.participants.find(id => id !== currentUserId) || activeChat.participants[0];
+                state.sendMessage(counterpartyId, text, activeChat.eventId);
+                input.value = '';
+                renderView();
+            });
+        });
+
+        const toggleFiltersBtn = container.querySelector('#btn-toggle-postbox-filters');
+        if (toggleFiltersBtn) {
+            toggleFiltersBtn.addEventListener('click', () => {
+                window.postboxShowFilters = !window.postboxShowFilters;
+                renderView();
+            });
+        }
+
+        const postboxProfileSelect = container.querySelector('#postbox-profile-select');
+        if (postboxProfileSelect) {
+            postboxProfileSelect.addEventListener('change', function() {
+                const val = this.value;
+                if (state.currentUser) {
+                    if (state.currentUser.role === 'musician') {
+                        state.activeMusicianId = val;
+                    } else {
+                        state.activeEventId = val;
+                    }
+                    state.saveState();
+                    renderPostbox(container);
+                }
             });
         }
     };
@@ -7793,6 +10562,7 @@ function renderMarketGridHTML(items, isEvents) {
 
     return items.map(item => {
         const isUnlocked = state ? ((typeof state.isUnlocked === 'function') ? state.isUnlocked(item.id) : (state.unlockedContacts && state.unlockedContacts.includes(item.id))) : false;
+        console.log("renderMarketGridHTML: item =", item.id, "isUnlocked =", isUnlocked, "state.currentUser =", state ? state.currentUser : null);
         
         // 3 Fotos pro Musiker/Event
         const photos = (item.photos || [
@@ -7812,32 +10582,9 @@ function renderMarketGridHTML(items, isEvents) {
         const instrumentsList = (item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre'])).join(', ');
         
         // Date formatting (German)
-        let dateDisplay = '';
-        if (isEvents) {
-            const dateArr = item.dates && item.dates.length > 0 ? item.dates : (item.date ? [item.date] : []);
-            if (dateArr.length > 0) {
-                dateDisplay = dateArr.map(d => {
-                    const parts = d.split('-');
-                    return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : d;
-                }).join(', ');
-            } else {
-                dateDisplay = 'Termin nach Absprache';
-            }
-        } else {
-            if (Array.isArray(item.availability)) {
-                const dayMap = {
-                    'monday': 'Montag', 'tuesday': 'Dienstag', 'wednesday': 'Mittwoch', 'thursday': 'Donnerstag',
-                    'friday': 'Freitag', 'saturday': 'Samstag', 'sunday': 'Sonntag',
-                    'Monday': 'Montag', 'Tuesday': 'Dienstag', 'Wednesday': 'Mittwoch', 'Thursday': 'Donnerstag',
-                    'Friday': 'Freitag', 'Saturday': 'Samstag', 'Sunday': 'Sonntag'
-                };
-                dateDisplay = item.availability.map(d => dayMap[d] || d).join(', ');
-            } else {
-                dateDisplay = item.availability || 'Auf Anfrage verfügbar';
-            }
-        }
+        let dateDisplay = isEvents ? formatEventDateWithTime(item) : formatMusicianAvailabilityHelper(item);
 
-        // Duration formatting (ends with "Stunden.")
+        // Duration formatting (ends with "Stunden")
         let durationDisplay = '';
         const minDur = item.minDuration;
         const maxDur = item.maxDuration;
@@ -7845,14 +10592,14 @@ function renderMarketGridHTML(items, isEvents) {
             const minStr = String(minDur).replace('.', ',');
             if (maxDur !== undefined && maxDur !== null && maxDur !== minDur) {
                 const maxStr = String(maxDur).replace('.', ',');
-                durationDisplay = `${minStr} - ${maxStr} Stunden.`;
+                durationDisplay = `${minStr} - ${maxStr} Stunden`;
             } else {
-                durationDisplay = `${minStr} Stunden.`;
+                durationDisplay = `${minStr} Stunden`;
             }
         } else {
             let baseDur = String(item.duration || item.spieldauer || '2 - 4');
             baseDur = baseDur.replace(/ca\.\s*/gi, '').replace(/\s*Stunden\.?/gi, '').trim();
-            durationDisplay = `${baseDur} Stunden.`;
+            durationDisplay = `${baseDur} Stunden`;
         }
 
         // Budget formatting (ends with "€")
@@ -7868,24 +10615,34 @@ function renderMarketGridHTML(items, isEvents) {
                 budgetDisplay = `${minBStr} €`;
             }
         } else {
-            budgetDisplay = isEvents ? 'Gage auf Anfrage' : 'Honorar auf Anfrage';
+            budgetDisplay = '0 - 5.000 €';
         }
 
         // Technology formatting
-        const techDisplay = (isEvents ? (item.technik || 'Technik vorhanden') : (item.technik || 'Technik vorhanden'));
-        const techDisplayStr = Array.isArray(techDisplay) ? techDisplay.join(', ') : String(techDisplay);
+        const techDisplay = item.technik;
+        let techDisplayStr = 'Technik ist noch unklar';
+        if (Array.isArray(techDisplay) && techDisplay.length > 0) {
+            techDisplayStr = techDisplay.join(', ');
+        } else if (typeof techDisplay === 'string' && techDisplay.trim() !== '') {
+            techDisplayStr = techDisplay;
+        }
 
         const description = item.description || item.bio || (isEvents 
             ? 'Wir suchen eine professionelle musikalische Begleitung für unser anstehendes Event mit fantastischer Stimmung.' 
             : 'Professionelle Live-Musik für unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.');
 
-        const bandName = isEvents ? item.title : item.name;
+        const bandName = item.name || item.title || '';
 
         return `
             <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
                 
                 <!-- 1. Combined Galerie: 3 Fotos + 3 Videos direkt folgend (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
+                    ${item.matchScore >= 70 ? `
+                        <span style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); color: #eab308; font-weight: 800; padding: 0.35rem 0.45rem; border-radius: 6px; border: 1px solid rgba(234, 179, 8, 0.4); backdrop-filter: blur(4px); z-index: 10; display: flex; align-items: center; justify-content: center; pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.6); box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
+                            <i class="fa-solid fa-star" style="font-size: 1.15rem; margin: 0;"></i>
+                        </span>
+                    ` : ''}
                     <div id="combo-slider-${item.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
                         
                         <!-- Slides 1-3: Fotos -->
@@ -7903,22 +10660,25 @@ function renderMarketGridHTML(items, isEvents) {
                                     Dein Browser unterstÜtzt dieses Video nicht.
                                 </video>
                                 <span style="position: absolute; top: 12px; left: 12px; z-index: 4; font-size: 0.72rem; font-weight: 800; color: #fff; background: rgba(239, 68, 68, 0.9); padding: 0.25rem 0.6rem; border-radius: 6px; backdrop-filter: blur(4px);">
-                                    ðŸŽ¬ Video #${vIdx + 1}: ${vid.title}
+                                    🎬 Video #${vIdx + 1}: ${vid.title}
                                 </span>
                             </div>
                         `).join('') : ''}
-                    </div>
 
-                    <!-- Bandname oben links auf dem Bild -->
-                    <div style="position: absolute; top: 12px; left: 12px; z-index: 5; max-width: 65%;">
-                        <span style="display: inline-block; padding: 0.45rem 0.95rem; border-radius: 20px; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); color: #ffffff; font-size: 0.96rem; font-weight: 900; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 12px rgba(0,0,0,0.4); white-space: normal; word-break: break-word; overflow: hidden; text-overflow: ellipsis;">
-                            ${bandName}
-                        </span>
+                        <!-- Last Slide: Beschreibung (schwarz mit weisser Schrift) -->
+                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; box-sizing: border-box; text-align: center;">
+                            <div style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: ${themeColor}; margin-bottom: 0.6rem;">
+                                <i class="fa-solid fa-file-lines"></i> Beschreibung
+                            </div>
+                            <p style="font-size: 0.84rem; font-weight: 500; color: #f8fafc; line-height: 1.5; margin: 0; max-height: 140px; overflow-y: auto; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
+                                ${description}
+                            </p>
+                        </div>
                     </div>
 
                     <!-- Match-Faktor Badge oben rechts (OHNE FLAMMEN-EMOJI / VORZEICHEN) -->
                     <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 5px 12px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 50px;">
-                        <span style="font-size: 1.05rem; font-weight: 900;">${item.matchScore || '96'}%</span>
+                        <span style="font-size: 1.05rem; font-weight: 900;">${item.matchScore !== undefined ? item.matchScore : '96'}%</span>
                         <span style="font-size: 0.5rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
                     </div>
 
@@ -7931,79 +10691,134 @@ function renderMarketGridHTML(items, isEvents) {
                     </button>
 
                     <!-- Photo / Video Counter Indicator -->
-                    <span style="position: absolute; bottom: 10px; left: 12px; background: rgba(0,0,0,0.75); color: #ffffff; font-size: 0.72rem; font-weight: 800; padding: 0.2rem 0.65rem; border-radius: 6px; backdrop-filter: blur(4px); z-index: 5;">
-                        ðŸ“· 1 / 3 Fotos
+                    <span class="tile-gallery-counter" style="position: absolute; bottom: 10px; left: 12px; background: rgba(0,0,0,0.75); color: #ffffff; font-size: 0.72rem; font-weight: 800; padding: 0.2rem 0.65rem; border-radius: 6px; backdrop-filter: blur(4px); z-index: 5;">
+                        📷 1 / 3 Fotos
                     </span>
                 </div>
 
                 <!-- Tile Body Content -->
                 <div class="tile-body-content" style="padding: 1.2rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
                     
-                    <!-- 2. Einspaltige Informationen mit Icons (Genres & Instrumente direkt unter Musiker-Typ) -->
-                    <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.75rem;">
+                    <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favorit Herz -->
+                    <div style="margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; flex: 1;">
+                            ${bandName}
+                        </h3>
+                        <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
+                            ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? `
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444" width="22" height="22" style="display: block;">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            ` : `
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffffff" stroke="#ef4444" stroke-width="2" width="22" height="22" style="display: block;">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            `}
+                        </button>
+                    </div>
+
+                    <!-- 2. Einspaltige Informationen mit Icons (Reihenfolge nach Benutzer-Anforderungen) -->
+                    <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: ${isUnlocked ? '0.4rem' : '0.75rem'};">
+                        <!-- 1. Ort -->
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
                             <span>${item.location || 'Deutschlandweit'}</span>
                         </div>
-                        ${isEvents && item.organizerType ? `
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-user-tie" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${item.organizerType}</span>
-                        </div>
-                        ` : ''}
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid ${isEvents ? 'fa-calendar-alt' : 'fa-guitar'}" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${isEvents ? (item.eventType || 'Event') : (item.category || 'Solo / Band')}</span>
-                        </div>
                         
-                        <!-- Genres DIREKT UNTER MUSIKER-TYP -->
+                        ${isEvents ? `
+                        <!-- 2. Event-Art (Event-Typ) -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
+                            <span>${item.type || item.eventType || 'Event'}</span>
+                        </div>
+                        <!-- 3. Datum -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
+                            <span>${dateDisplay}</span>
+                        </div>
+                        ` : `
+                        <!-- 2. Musiker-Typ -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
+                            <span>${item.type || item.category || 'Solo / Band'}</span>
+                        </div>
+                        <!-- 3. Verfügbarkeit -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
+                            <span>${dateDisplay}</span>
+                        </div>
+                        `}
+
+                        <!-- 4. Genres -->
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-music" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
                             <span>${genresList}</span>
                         </div>
-
-                        <!-- Instrumente DIREKT UNTER GENRES -->
+                        <!-- 5. Instrumente -->
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
                             <span>${instrumentsList}</span>
                         </div>
 
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${dateDisplay}</span>
-                        </div>
+                        <!-- 6. Spieldauer -->
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
                             <span>${durationDisplay}</span>
                         </div>
+                        <!-- 7. Budget / Gage -->
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
                             <span>${budgetDisplay}</span>
                         </div>
+                        
+                        <!-- 8. Technik -->
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-plug" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${techDisplayStr}</span>
+                            <i class="fa-solid fa-microchip" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
+                            <span>${(item.technik && item.technik.length > 0) ? (Array.isArray(item.technik) ? item.technik.join(', ') : item.technik) : 'Technik ist noch unklar'}</span>
                         </div>
                     </div>
 
-                    <!-- 3. Beschreibung -->
-                    <div class="tile-description" style="margin-bottom: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed rgba(255,255,255,0.08);">
-                        <p style="font-size: 0.86rem; color: var(--text-muted); line-height: 1.45; margin: 0;">
-                            ${description}
-                        </p>
+                    ${isUnlocked ? `
+                    <!-- Trennlinie & Freigeschaltete persönliche Daten -->
+                    <div class="tile-unlocked-contact-info" style="margin-top: 0.4rem; padding-top: 0.4rem; border-top: 3px solid ${themeColor}; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main);">
+                        <!-- Firma -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-building" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
+                            <span>${isEvents ? ((!item.organizerType || item.organizerType === 'Privater Veranstalter' || item.company === 'Privatperson') ? 'Privatperson' : (item.company || 'Privatperson')) : (item.company || 'Privatperson')}</span>
+                        </div>
+                        <!-- Name -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-user" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
+                            <span>${isEvents ? (item.contactName || 'Demo Kontakt') : `Name: ${item.contactName || 'Demo Kontakt'}`}</span>
+                        </div>
+                        <!-- Telefon -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                            <i class="fa-solid fa-phone" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
+                            <span>Tel: 
+                                ${item.hidePhone ? (
+                                    (state && state.currentUser && (item.creatorId === state.currentUser.id || item.id === state.currentUser.profileId)) ? `
+                                        <span>${item.phone || '+49 170 1234567'}</span> <span style="font-size: 0.7rem; color: var(--text-muted); margin-left: 0.2rem;">(für dich sichtbar)</span>
+                                    ` : `
+                                        <span style="color: var(--text-muted); font-style: italic; font-size: 0.85rem;">[Vom Nutzer ausgeblendet]</span>
+                                    `
+                                ) : `
+                                    <span>${item.phone || '+49 170 1234567'}</span>
+                                `}
+                            </span>
+                        </div>
+                        <!-- E-Mail -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-envelope" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
+                            <span>Mail: ${item.email || 'kontakt@gigconnact.de'}</span>
+                        </div>
                     </div>
+                    ` : ''}
                 </div>
 
                 <!-- 4. Aktions-Button: "Kontaktdaten freischalten" -->
                 <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
                     ${isUnlocked ? `
-                        <!-- Freigeschaltete Kontaktdaten -->
-                        <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 0.75rem; font-size: 0.85rem; color: #4ade80; margin-bottom: 0.5rem;">
-                            <div style="font-weight: 800; margin-bottom: 0.2rem;"><i class="fa-solid fa-unlock"></i> Kontaktdaten</div>
-                            <div>Tel: ${item.phone || '+49 170 1234567'}</div>
-                            <div>Mail: ${item.email || 'kontakt@gigconnact.de'}</div>
-                        </div>
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); showModal('auth')" style="width: 100%; background: ${themeColor}; border-color: ${themeColor}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); window.initiateMarketContact('${isEvents ? item.creatorId : item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}', '${isEvents ? item.id : ''}')" style="width: 100%; background: ${themeColor}; border-color: ${themeColor}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
                             <i class="fa-solid fa-paper-plane"></i> Nachricht senden
                         </button>
                     ` : `
@@ -8024,6 +10839,7 @@ try {
 } catch (e) {
     console.error("StateManager failsafe init error, using fallback:", e);
 }
+console.log("StateManager initialized. Events IDs:", state.events.map(e => e.id).join(", "));
 
 if (!state) {
     state = {
@@ -8115,4 +10931,468 @@ window.initCarouselTouch = function(type) {
         }
         isSwiping = false;
     }, { passive: true });
+};
+
+window.addMockEmail = function(subject, from, body) {
+    const emailRecipient = state && state.currentUser ? state.currentUser.email : 'gast@gigconnact.de';
+    let emails = [];
+    try {
+        emails = JSON.parse(localStorage.getItem('GigConnAct_mock_emails') || '[]');
+    } catch(e) {
+        emails = [];
+    }
+    emails.unshift({
+        id: "mail_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
+        subject: subject,
+        from: from,
+        recipient: emailRecipient,
+        body: body,
+        date: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+        read: false
+    });
+    localStorage.setItem('GigConnAct_mock_emails', JSON.stringify(emails));
+    if (window.refreshMockEmailWidget) {
+        window.refreshMockEmailWidget();
+    }
+};
+
+function initMockEmailWidget() {
+    let widget = document.getElementById('mock-email-widget');
+    if (widget) widget.remove();
+
+    widget = document.createElement('div');
+    widget.id = 'mock-email-widget';
+    widget.style.position = 'fixed';
+    widget.style.bottom = '20px';
+    widget.style.right = '20px';
+    widget.style.zIndex = '99999';
+    widget.style.fontFamily = 'var(--font-heading), sans-serif';
+    document.body.appendChild(widget);
+
+    if (!localStorage.getItem('GigConnAct_mock_emails')) {
+        const initialEmails = [
+            {
+                id: "welcome_mail",
+                subject: "Willkommen bei GigConnAct!",
+                from: "GigConnAct Team <welcome@gigconnact.de>",
+                recipient: "gast@gigconnact.de",
+                body: "Hi! Willkommen auf GigConnAct. Dies ist dein simuliertes E-Mail-Postfach. Alle E-Mails, die das System an dich sendet (z.B. Registrierungs-Mails, Login-Links oder Benachrichtigungen über neue Chat-Nachrichten), werden als Vorschau direkt hier landen.",
+                date: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+                read: true
+            }
+        ];
+        localStorage.setItem('GigConnAct_mock_emails', JSON.stringify(initialEmails));
+    }
+
+    if (!document.getElementById('mock-email-widget-styles')) {
+        const styles = document.createElement('style');
+        styles.id = 'mock-email-widget-styles';
+        styles.innerHTML = `
+            @keyframes slideInUp {
+                from { transform: translateY(100px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            .mock-email-item:hover {
+                background: rgba(255,255,255,0.05) !important;
+            }
+        `;
+        document.head.appendChild(styles);
+    }
+
+    let isExpanded = false;
+    let selectedEmailId = null;
+
+    window.refreshMockEmailWidget = () => {
+        let emails = [];
+        try {
+            emails = JSON.parse(localStorage.getItem('GigConnAct_mock_emails') || '[]');
+        } catch(e) {
+            emails = [];
+        }
+        const unreadCount = emails.filter(e => !e.read).length;
+
+        if (!isExpanded) {
+            widget.innerHTML = `
+                <button id="btn-expand-mock-emails" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #fff; border: 1.5px solid rgba(255,255,255,0.15); border-radius: 30px; padding: 0.75rem 1.4rem; font-weight: 700; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5); transition: transform 0.2s; outline: none;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <i class="fa-solid fa-envelope" style="color: #ef4444; font-size: 1.05rem;"></i>
+                    <span>E-Mail Postfach (Simulation)</span>
+                    ${unreadCount > 0 ? `
+                        <span style="background: #ef4444; color: #fff; font-size: 0.7rem; font-weight: 900; min-width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0 4px; box-sizing: border-box; margin-left: 4px;">${unreadCount}</span>
+                    ` : ''}
+                </button>
+            `;
+            document.getElementById('btn-expand-mock-emails').addEventListener('click', () => {
+                isExpanded = true;
+                selectedEmailId = null;
+                window.refreshMockEmailWidget();
+            });
+        } else {
+            let innerHTML = '';
+            if (selectedEmailId) {
+                const email = emails.find(e => e.id === selectedEmailId);
+                if (!email) {
+                    selectedEmailId = null;
+                    window.refreshMockEmailWidget();
+                    return;
+                }
+                innerHTML = `
+                    <div style="padding: 0.6rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.2);">
+                        <button id="btn-back-to-emails" style="background: none; border: none; color: #a855f7; cursor: pointer; padding: 0.2rem; display: flex; align-items: center; font-size: 0.85rem; font-weight: 700; outline: none;">
+                            <i class="fa-solid fa-arrow-left" style="margin-right: 0.3rem;"></i> Zurück
+                        </button>
+                        <div style="flex: 1; text-align: right; font-size: 0.72rem; color: #94a3b8;">${email.date}</div>
+                    </div>
+                    <div style="padding: 1.25rem; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; text-align: left;">
+                        <div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; margin-bottom: 0.15rem;">Von:</div>
+                            <div style="font-size: 0.84rem; font-weight: 700; color: #ffffff;">${email.from}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; margin-bottom: 0.15rem;">An:</div>
+                            <div style="font-size: 0.84rem; color: #ffffff;">${email.recipient}</div>
+                        </div>
+                        <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem;">
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; margin-bottom: 0.15rem;">Betreff:</div>
+                            <div style="font-size: 0.95rem; font-weight: 800; color: #a855f7; line-height: 1.35;">${email.subject}</div>
+                        </div>
+                        <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1rem; font-size: 0.85rem; color: #e2e8f0; line-height: 1.5; white-space: pre-wrap; word-break: break-word;">${email.body}</div>
+                    </div>
+                `;
+            } else {
+                innerHTML = `
+                    <div style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 0.5rem; text-align: left;">
+                        ${emails.length === 0 ? `
+                            <div style="text-align: center; color: #94a3b8; padding: 3rem 1rem; font-size: 0.85rem;">
+                                <i class="fa-regular fa-envelope-open" style="font-size: 2.5rem; color: rgba(255,255,255,0.1); margin-bottom: 0.75rem; display: block;"></i>
+                                Keine simulierten E-Mails im Postfach.
+                            </div>
+                        ` : emails.map(email => `
+                            <div class="mock-email-item" data-id="${email.id}" style="padding: 0.8rem 1rem; border-radius: 8px; cursor: pointer; margin-bottom: 0.4rem; transition: background 0.2s; border: 1px solid ${email.read ? 'transparent' : 'rgba(168, 85, 247, 0.25)'}; background: ${email.read ? 'rgba(255,255,255,0.02)' : 'rgba(168, 85, 247, 0.06)'};">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem; gap: 0.5rem;">
+                                    <span style="font-size: 0.75rem; font-weight: 800; color: #a855f7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px;">${email.from.split(' <')[0]}</span>
+                                    <span style="font-size: 0.68rem; color: #94a3b8; flex-shrink: 0;">${email.date}</span>
+                                </div>
+                                <div style="font-size: 0.82rem; font-weight: 700; color: #ffffff; margin-bottom: 0.15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${email.subject}</div>
+                                <div style="font-size: 0.72rem; color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${email.body.replace(/\n/g, ' ')}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            widget.innerHTML = `
+                <div style="width: 360px; height: 480px; background: linear-gradient(135deg, #0f172a 0%, #020617 100%); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; box-shadow: 0 20px 45px rgba(0,0,0,0.65); display: flex; flex-direction: column; overflow: hidden; animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+                    <div style="background: rgba(255,255,255,0.02); padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-envelope-open-text" style="color: #a855f7;"></i> E-Mail-Postfach <span style="font-size: 0.72rem; font-weight: 400; color: #94a3b8;">(Demo)</span>
+                        </h4>
+                        <button id="btn-collapse-mock-emails" style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1.1rem; padding: 0.2rem; display: flex; align-items: center; justify-content: center; transition: color 0.2s; outline: none;" onmouseover="this.style.color='#ffffff'" onmouseout="this.style.color='#94a3b8'">
+                            <i class="fa-solid fa-minus"></i>
+                        </button>
+                    </div>
+                    ${innerHTML}
+                </div>
+            `;
+
+            document.getElementById('btn-collapse-mock-emails').addEventListener('click', () => {
+                isExpanded = false;
+                window.refreshMockEmailWidget();
+            });
+
+            if (selectedEmailId) {
+                document.getElementById('btn-back-to-emails').addEventListener('click', () => {
+                    selectedEmailId = null;
+                    window.refreshMockEmailWidget();
+                });
+            } else {
+                widget.querySelectorAll('.mock-email-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const id = item.getAttribute('data-id');
+                        let updatedEmails = emails.map(e => {
+                            if (e.id === id) e.read = true;
+                            return e;
+                        });
+                        localStorage.setItem('GigConnAct_mock_emails', JSON.stringify(updatedEmails));
+                        selectedEmailId = id;
+                        window.refreshMockEmailWidget();
+                    });
+                });
+            }
+        }
+    };
+
+    window.refreshMockEmailWidget();
+}
+
+function validateAndProcessPhoto(file, callback) {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const maxSize = 5 * 1024 * 1024; // 5 MB
+
+    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+        showToast({
+            title: "Fehler beim Bildupload ❌",
+            message: "Ungültiges Dateiformat. Erlaubt sind JPG, JPEG, PNG, GIF und WEBP."
+        });
+        return;
+    }
+
+    if (file.size > maxSize) {
+        showToast({
+            title: "Fehler beim Bildupload ❌",
+            message: "Die Datei ist zu groß. Maximale Größe ist 5 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+        });
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxDim = 300;
+            let w = img.width;
+            let h = img.height;
+            if (w > h) {
+                if (w > maxDim) {
+                    h = Math.round((h * maxDim) / w);
+                    w = maxDim;
+                }
+            } else {
+                if (h > maxDim) {
+                    w = Math.round((w * maxDim) / h);
+                    h = maxDim;
+                }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            callback(canvas.toDataURL('image/jpeg', 0.8));
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function validateAndProcessVideo(file, callback) {
+    const allowedTypes = ['video/mp4', 'video/quicktime', 'video/webm', 'video/ogg', 'video/x-matroska'];
+    const maxSize = 20 * 1024 * 1024; // 20 MB
+
+    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(mp4|mov|webm|ogg|mkv)$/i)) {
+        showToast({
+            title: "Fehler beim Videoupload ❌",
+            message: "Ungültiges Dateiformat. Erlaubt sind MP4, MOV, WebM und OGG."
+        });
+        return;
+    }
+
+    if (file.size > maxSize) {
+        showToast({
+            title: "Fehler beim Videoupload ❌",
+            message: "Die Datei ist zu groß. Maximale Größe ist 20 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+        });
+        return;
+    }
+
+    const mockVids = ['hochzeit.mp4', 'gartenparty.mp4', 'firmenfeier.mp4', 'konzert.mp4'];
+    const randomMockVid = mockVids[Math.floor(Math.random() * mockVids.length)];
+    showToast({
+        title: "Video validiert ✅",
+        message: "Das Video (" + file.name + ") wurde erfolgreich validiert und verknüpft."
+    });
+    callback(randomMockVid);
+}
+
+window.showMediaModal = function(itemId, isEvents) {
+    const list = isEvents ? state.events : state.musicians;
+    const item = list.find(x => x.id === itemId);
+    if (!item) return;
+
+    let modal = document.getElementById('media-upload-modal');
+    if (modal) modal.remove();
+
+    modal = document.createElement('div');
+    modal.id = 'media-upload-modal';
+    modal.className = 'modal-backdrop';
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100vw';
+    modal.style.height = '100vh';
+    modal.style.background = 'rgba(15, 23, 42, 0.75)';
+    modal.style.display = 'flex';
+    modal.style.justifyContent = 'center';
+    modal.style.alignItems = 'center';
+    modal.style.zIndex = '100000';
+    modal.style.backdropFilter = 'blur(8px)';
+
+    const photos = item.photos || [item.profilePic || item.image || (isEvents ? 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80' : 'https://picsum.photos/id/453/300/300')];
+    const videos = item.videos || [];
+
+    modal.innerHTML = `
+        <div class="modal-card" style="width: 450px; max-width: 90%; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px; box-shadow: var(--shadow-lg); overflow: hidden; display: flex; flex-direction: column; animation: modalFadeIn 0.3s ease;">
+            <div style="padding: 1.2rem; border-bottom: 1px solid var(--border-glass); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01);">
+                <h3 style="margin: 0; font-size: 1.1rem; font-family: var(--font-heading); color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-photo-film text-cyan"></i> Medien verwalten
+                </h3>
+                <button id="btn-close-media-modal" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div style="padding: 1.5rem; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1.2rem;">
+                <!-- Section: Photos -->
+                <div>
+                    <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (${photos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></span>
+                        ${photos.length < 3 ? `
+                            <button id="btn-add-mock-photo" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: rgba(34, 197, 94, 0.3); color: #22c55e; display: flex; align-items: center; gap: 0.25rem;">
+                                <i class="fa-solid fa-plus"></i> Hinzufügen
+                            </button>
+                        ` : ''}
+                    </h4>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        ${photos.map((p, idx) => `
+                            <div style="position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-glass);">
+                                <img src="${p}" style="width: 100%; height: 100%; object-fit: cover;">
+                                <button class="btn-delete-photo" data-idx="${idx}" style="position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.6rem;"><i class="fa-solid fa-times"></i></button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Section: Videos -->
+                <div>
+                    <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (${videos.length}/1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></span>
+                        ${videos.length < 1 ? `
+                            <button id="btn-add-mock-video" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: rgba(124, 58, 237, 0.3); color: #a855f7; display: flex; align-items: center; gap: 0.25rem;">
+                                <i class="fa-solid fa-plus"></i> Hinzufügen
+                            </button>
+                        ` : ''}
+                    </h4>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        ${videos.length === 0 ? `
+                            <span style="font-size: 0.78rem; color: var(--text-muted); font-style: italic;">Keine Videos hochgeladen</span>
+                        ` : videos.map((v, idx) => `
+                            <div style="position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-glass); background: #000; display:flex; align-items:center; justify-content:center;">
+                                <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.5rem;"></i>
+                                <button class="btn-delete-video" data-idx="${idx}" style="position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.6rem;"><i class="fa-solid fa-times"></i></button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+
+            <div style="padding: 1rem; border-top: 1px solid var(--border-glass); display: flex; justify-content: flex-end; gap: 0.5rem; background: rgba(255,255,255,0.01);">
+                <button id="btn-cancel-media" class="btn btn-glass btn-sm" style="margin:0;">Abbrechen</button>
+                <button id="btn-save-media" class="btn btn-primary btn-sm" style="margin:0;">Speichern</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+
+    const close = () => modal.remove();
+    document.getElementById('btn-close-media-modal').addEventListener('click', close);
+    document.getElementById('btn-cancel-media').addEventListener('click', close);
+
+    const addPhotoBtn = document.getElementById('btn-add-mock-photo');
+    if (addPhotoBtn) {
+        addPhotoBtn.addEventListener('click', () => {
+            if (photos.length >= 3) {
+                showToast({
+                    title: "Bilder-Limit erreicht 📷",
+                    message: "Es sind maximal 3 Bilder erlaubt."
+                });
+                return;
+            }
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/png, image/jpeg, image/gif, image/webp';
+            fileInput.style.display = 'none';
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    validateAndProcessPhoto(fileInput.files[0], (dataUrl) => {
+                        photos.push(dataUrl);
+                        close();
+                        window.showMediaModal(itemId, isEvents);
+                    });
+                }
+            });
+            fileInput.click();
+        });
+    }
+
+    const addVideoBtn = document.getElementById('btn-add-mock-video');
+    if (addVideoBtn) {
+        addVideoBtn.addEventListener('click', () => {
+            if (videos.length >= 1) {
+                showToast({
+                    title: "Video-Limit erreicht 🎬",
+                    message: "Es ist maximal 1 Video erlaubt."
+                });
+                return;
+            }
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'video/mp4, video/quicktime, video/webm, video/ogg, video/x-matroska';
+            fileInput.style.display = 'none';
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    validateAndProcessVideo(fileInput.files[0], (videoUrl) => {
+                        videos.push(videoUrl);
+                        close();
+                        window.showMediaModal(itemId, isEvents);
+                    });
+                }
+            });
+            fileInput.click();
+        });
+    }
+
+    modal.querySelectorAll('.btn-delete-photo').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const idx = parseInt(btn.getAttribute('data-idx'));
+            photos.splice(idx, 1);
+            close();
+            window.showMediaModal(itemId, isEvents);
+        });
+    });
+
+    modal.querySelectorAll('.btn-delete-video').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const idx = parseInt(btn.getAttribute('data-idx'));
+            videos.splice(idx, 1);
+            close();
+            window.showMediaModal(itemId, isEvents);
+        });
+    });
+
+    document.getElementById('btn-save-media').addEventListener('click', () => {
+        item.photos = photos;
+        if (photos.length > 0) {
+            item.profilePic = photos[0];
+            item.image = photos[0];
+        }
+        item.videos = videos;
+
+        if (isEvents) {
+            localStorage.setItem('GigConnAct_events', JSON.stringify(state.events));
+        } else {
+            localStorage.setItem('GigConnAct_musicians', JSON.stringify(state.musicians));
+        }
+
+        showToast({
+            title: "Medien aktualisiert 📸",
+            message: "Deine Fotos und Videos wurden erfolgreich gespeichert."
+        });
+        
+        close();
+        
+        const container = document.getElementById('app-main');
+        if (isEvents) {
+            renderMyEvents(container);
+        } else {
+            renderMyMusicians(container);
+        }
+    });
 };
