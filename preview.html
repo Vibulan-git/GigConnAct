@@ -4401,6 +4401,72 @@ input[type="range"].input-field {
         top: 102px !important;
     }
 }
+
+/* Feedback button header styles */
+.feedback-trigger-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1.05rem;
+    cursor: pointer;
+    border: 1px solid var(--border-glass) !important;
+}
+
+/* Musicians feedback button is blue */
+.feedback-trigger-btn.feedback-blue {
+    background: rgba(37, 99, 235, 0.1) !important;
+    border-color: rgba(37, 99, 235, 0.3) !important;
+    color: #3b82f6 !important;
+}
+.feedback-trigger-btn.feedback-blue:hover {
+    background: rgba(37, 99, 235, 0.2) !important;
+    color: #2563eb !important;
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.25) !important;
+    transform: translateY(-1px);
+}
+
+/* Organizers feedback button is purple/lila */
+.feedback-trigger-btn.feedback-purple {
+    background: rgba(168, 85, 247, 0.1) !important;
+    border-color: rgba(168, 85, 247, 0.3) !important;
+    color: #a855f7 !important;
+}
+.feedback-trigger-btn.feedback-purple:hover {
+    background: rgba(168, 85, 247, 0.2) !important;
+    color: #8b5cf6 !important;
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.25) !important;
+    transform: translateY(-1px);
+}
+
+/* Modal Submit Buttons: Swapped colors */
+.btn-submit-feedback.feedback-blue-btn {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
+    border-color: #1e40af !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+}
+.btn-submit-feedback.feedback-blue-btn:hover {
+    background: #1d4ed8 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+}
+
+.btn-submit-feedback.feedback-purple-btn {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+    border-color: #7c3aed !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35) !important;
+}
+.btn-submit-feedback.feedback-purple-btn:hover {
+    background: #6d28d9 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25) !important;
+}
 </style>
 </head>
 <body>
@@ -12342,6 +12408,8 @@ function showModal(type, onSuccessCallback) {
         renderPremiumModal(modalWrapper, onSuccessCallback);
     } else if (type === 'verification') {
         renderVerificationModal(modalWrapper, onSuccessCallback);
+    } else if (type === 'feedback') {
+        renderFeedbackModal(modalWrapper, onSuccessCallback);
     }
     
     initAllLocationAutocompletes();
@@ -13995,6 +14063,88 @@ function renderVerificationModal(wrapper, onSuccessCallback) {
     });
 }
 
+function renderFeedbackModal(wrapper, onSuccessCallback) {
+    if (!state.currentUser) return;
+    const u = state.currentUser;
+    const isMusician = u.role === 'musician';
+    
+    wrapper.innerHTML = `
+        <div class="modal-content" style="max-width: 500px; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-lg);">
+            <div class="modal-header" style="padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border-glass); display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 1.3rem; font-family: var(--font-heading); display: flex; align-items: center; gap: 0.6rem; color: var(--text-main);">
+                    <i class="fa-solid fa-comment-dots" style="color: ${isMusician ? '#3b82f6' : '#a855f7'};"></i> Feedback senden
+                </h3>
+                <button class="close-modal-btn" id="btn-close-modal" style="background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; padding: 0; line-height: 1;">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem;">
+                <form id="feedback-form" style="display: flex; flex-direction: column; gap: 1.2rem;">
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--text-main);">Absender</label>
+                        <input type="text" class="input-field" value="${u.firstName} ${u.lastName} (${u.email})" disabled style="background: rgba(255,255,255,0.03) !important; opacity: 0.75; cursor: not-allowed; width: 100%; box-sizing: border-box; color: var(--text-muted) !important;">
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--text-main);">Empfänger</label>
+                        <input type="email" class="input-field" value="info@gigconnact.de" disabled style="background: rgba(255,255,255,0.03) !important; opacity: 0.75; cursor: not-allowed; width: 100%; box-sizing: border-box; color: var(--text-muted) !important;">
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--text-main);">Betreff</label>
+                        <input type="text" id="feedback-subject" class="input-field" placeholder="Z. B. Verbesserungsvorschlag, Frage, Lob..." required style="width: 100%; box-sizing: border-box;">
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
+                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--text-main);">Deine Nachricht</label>
+                        <textarea id="feedback-message" class="input-field" rows="5" placeholder="Beschreibe dein Anliegen..." required style="width: 100%; box-sizing: border-box; resize: vertical; min-height: 120px;"></textarea>
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.8rem; margin-top: 0.5rem; width: 100%;">
+                        <button type="submit" class="btn btn-submit-feedback ${isMusician ? 'feedback-blue-btn' : 'feedback-purple-btn'}" id="btn-submit-feedback" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 42px; border-radius: var(--radius-sm); border: none; font-weight: 600;">
+                            <i class="fa-solid fa-paper-plane"></i> Feedback absenden
+                        </button>
+                        <button type="button" class="btn btn-glass" id="btn-mailto-fallback" title="Über eigenes E-Mail-Programm senden" style="display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; flex-shrink: 0; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); color: var(--text-main); cursor: pointer; transition: all 0.2s;">
+                            <i class="fa-solid fa-envelope-open-text" style="font-size: 1.1rem;"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('btn-close-modal').addEventListener('click', closeModal);
+
+    const feedbackForm = document.getElementById('feedback-form');
+    feedbackForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const subject = document.getElementById('feedback-subject').value.trim();
+        const message = document.getElementById('feedback-message').value.trim();
+        
+        // Disable buttons and show loading state
+        const submitBtn = document.getElementById('btn-submit-feedback');
+        const mailtoBtn = document.getElementById('btn-mailto-fallback');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Wird gesendet...';
+        }
+        if (mailtoBtn) mailtoBtn.disabled = true;
+
+        setTimeout(() => {
+            closeModal();
+            showToast({
+                title: "Feedback gesendet! ✉️",
+                message: "Vielen Dank! Deine Nachricht wurde erfolgreich an info@gigconnact.de übermittelt."
+            });
+            if (onSuccessCallback) onSuccessCallback();
+        }, 1000);
+    });
+
+    const mailtoBtn = document.getElementById('btn-mailto-fallback');
+    mailtoBtn.addEventListener('click', () => {
+        const subject = document.getElementById('feedback-subject').value.trim() || 'Feedback an GigConnAct';
+        const message = document.getElementById('feedback-message').value.trim() || 'Hallo GigConnAct Team,';
+        
+        const mailtoUrl = `mailto:info@gigconnact.de?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+        window.location.href = mailtoUrl;
+    });
+}
+
 function renderPremiumModal(wrapper, onSuccessCallback) {
     wrapper.innerHTML = `
         <div class="modal-content" style="max-width: 540px;">
@@ -14373,8 +14523,12 @@ function updateNavbar(forceLanding) {
         const isProfileActive = window.location.hash === '#/profile';
 
         authArea.innerHTML = `
-            <div style="display:flex; align-items:center; gap:1.2rem;">
+            <div style="display:flex; align-items:center; gap:0.9rem;">
                 ${creditsBadgeHtml}
+                
+                <button class="feedback-trigger-btn ${u.role === 'musician' ? 'feedback-blue' : 'feedback-purple'}" id="btn-header-feedback" title="Feedback senden">
+                    <i class="fa-regular fa-comment-dots"></i>
+                </button>
                 
                 <div class="profile-dropdown-container">
                     <button class="profile-avatar-btn ${u.role === 'musician' ? 'musician-avatar' : ''} ${isProfileActive ? 'active' : ''}" id="btn-profile-dropdown" aria-label="Benutzermenü" style="${isProfileActive ? 'border-color: var(--color-purple); color: var(--color-purple); box-shadow: 0 0 10px rgba(177, 0, 255, 0.2);' : ''}">
@@ -14405,6 +14559,14 @@ function updateNavbar(forceLanding) {
             trigger.addEventListener('click', (e) => {
                 e.stopPropagation();
                 menu.classList.toggle('show');
+            });
+        }
+
+        // Toggle feedback modal logic
+        const feedbackBtn = document.getElementById('btn-header-feedback');
+        if (feedbackBtn) {
+            feedbackBtn.addEventListener('click', () => {
+                showModal('feedback');
             });
         }
 

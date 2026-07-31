@@ -4385,3 +4385,69 @@ input[type="range"].input-field {
         top: 102px !important;
     }
 }
+
+/* Feedback button header styles */
+.feedback-trigger-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1.05rem;
+    cursor: pointer;
+    border: 1px solid var(--border-glass) !important;
+}
+
+/* Musicians feedback button is blue */
+.feedback-trigger-btn.feedback-blue {
+    background: rgba(37, 99, 235, 0.1) !important;
+    border-color: rgba(37, 99, 235, 0.3) !important;
+    color: #3b82f6 !important;
+}
+.feedback-trigger-btn.feedback-blue:hover {
+    background: rgba(37, 99, 235, 0.2) !important;
+    color: #2563eb !important;
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.25) !important;
+    transform: translateY(-1px);
+}
+
+/* Organizers feedback button is purple/lila */
+.feedback-trigger-btn.feedback-purple {
+    background: rgba(168, 85, 247, 0.1) !important;
+    border-color: rgba(168, 85, 247, 0.3) !important;
+    color: #a855f7 !important;
+}
+.feedback-trigger-btn.feedback-purple:hover {
+    background: rgba(168, 85, 247, 0.2) !important;
+    color: #8b5cf6 !important;
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.25) !important;
+    transform: translateY(-1px);
+}
+
+/* Modal Submit Buttons: Swapped colors */
+.btn-submit-feedback.feedback-blue-btn {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
+    border-color: #1e40af !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+}
+.btn-submit-feedback.feedback-blue-btn:hover {
+    background: #1d4ed8 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+}
+
+.btn-submit-feedback.feedback-purple-btn {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+    border-color: #7c3aed !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35) !important;
+}
+.btn-submit-feedback.feedback-purple-btn:hover {
+    background: #6d28d9 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25) !important;
+}
