@@ -3594,7 +3594,7 @@ function renderLandingPage(container, onNavigate) {
                             </div>
                         </div>
                         <p style="font-size: 1.05rem; font-style: italic; color: var(--text-muted); line-height: 1.6; margin: 0; position: relative; padding-left: 1.2rem; border-left: 3px solid var(--color-purple);">
-                            "Als Musiker und Eventmanager kenne ich beide Seiten nur zu gut. Ich weiß, wie schwierig es sein kann, passende Gigs zu finden – und genauso herausfordernd ist es für Veranstalter, den richtigen Musiker zu entdecken und ihn unkompliziert zu kontaktieren. Genau aus diesem Problem heraus ist GigConnAct entstanden – das „Airbnb für Live-Musik“."
+                            Als Musiker und Eventmanager kenne ich beide Seiten nur zu gut. Ich weiß, wie schwierig es sein kann, passende Gigs zu finden – und genauso herausfordernd ist es für Veranstalter, den richtigen Musiker zu entdecken und ihn unkompliziert zu kontaktieren. Genau aus diesem Problem heraus ist GigConnAct entstanden – das „Airbnb für Live-Musik“.
                         </p>
                     </div>
                 </div>
@@ -4137,12 +4137,12 @@ function renderMarket(container, type, onNavigate) {
                 </div>
 
                 <!-- 3. Stern (Nur Top-Matches anzeigen) -->
-                <button class="market-control-toggle" id="btn-toggle-market-top-matches" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border-glass); color: var(--text-muted); cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Top-Matches anzeigen">
+                <button class="market-control-toggle" id="btn-toggle-market-top-matches" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Top-Matches anzeigen">
                     <i class="fa-solid fa-star" style="font-size: 0.95rem; margin: 0;"></i>
                 </button>
 
                 <!-- 4. Herz (Nur Favoriten anzeigen) -->
-                <button class="market-control-toggle" id="btn-toggle-market-favorites" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border-glass); color: var(--text-muted); cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Favoriten anzeigen">
+                <button class="market-control-toggle" id="btn-toggle-market-favorites" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Favoriten anzeigen">
                     <i class="fa-solid fa-heart" style="font-size: 0.95rem; margin: 0;"></i>
                 </button>
 
@@ -9966,9 +9966,9 @@ function updateNavbar(forceLanding) {
     } else {
         nav.innerHTML = '';
         authArea.innerHTML = `
-            <button class="btn btn-secondary btn-sm" id="btn-login-trigger" style="white-space: nowrap !important; line-height: 1.15 !important; padding: 0.35rem 0.85rem !important; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 8px;">
-                <span style="font-weight: 700; display: block; font-size: 0.75rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; color: #ffffff;">Anmelden/Registrieren</span>
-                <span style="font-weight: 900; display: block; font-size: 1.12rem; color: #ffffff; text-shadow: 0 0 8px rgba(255,255,255,0.1); margin-top: 1px; letter-spacing: 2.2px;">ohne Passwort</span>
+            <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger">
+                <span class="btn-text-top">Anmelden/Registrieren</span>
+                <span class="btn-text-bottom">ohne Passwort</span>
             </button>
         `;
         document.getElementById('btn-login-trigger').addEventListener('click', () => {

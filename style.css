@@ -52,7 +52,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow-x: clip;
+    overflow-x: visible;
     /* Soft background glowing spots */
     background-image: 
         radial-gradient(circle at 10% 20%, rgba(0, 242, 254, 0.05) 0%, transparent 40%),
@@ -3801,7 +3801,7 @@ body {
 
 /* Prevent horizontal scroll globally on iOS and android */
 html {
-    overflow-x: clip;
+    overflow-x: visible;
     max-width: 100%;
 }
 
@@ -4194,4 +4194,186 @@ input[type="range"].input-field {
     align-items: center !important;
     gap: 1.2rem !important;
     backdrop-filter: blur(8px) !important;
+}
+
+/* -------------------------------------------------------------
+ * New Custom Responsive and Themed Layout Adjustments
+ * ------------------------------------------------------------- */
+
+/* App container overflow fix to restore sticky headers on mobile */
+.app-container {
+    overflow-x: clip !important;
+}
+
+/* Header Login Button Styling */
+.header-login-btn {
+    white-space: nowrap !important;
+    line-height: 1.15 !important;
+    padding: 0.35rem 0.85rem !important;
+    display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    border-radius: 8px !important;
+    flex-shrink: 0 !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.header-login-btn:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.header-login-btn .btn-text-top {
+    font-weight: 700 !important;
+    display: block !important;
+    font-size: 0.75rem !important;
+    opacity: 0.9 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    color: #ffffff !important;
+}
+
+.header-login-btn .btn-text-bottom {
+    font-weight: 900 !important;
+    display: block !important;
+    font-size: 1.12rem !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 8px rgba(255,255,255,0.1) !important;
+    margin-top: 1px !important;
+    letter-spacing: 2.2px !important;
+}
+
+/* Mobile responsive styles for the Header Login Button */
+@media (max-width: 768px) {
+    .header-login-btn {
+        padding: 0.25rem 0.5rem !important;
+    }
+    .header-login-btn .btn-text-top {
+        font-size: 0.6rem !important;
+        letter-spacing: 0.2px !important;
+    }
+    .header-login-btn .btn-text-bottom {
+        font-size: 0.88rem !important;
+        letter-spacing: 1.6px !important;
+    }
+}
+@media (max-width: 380px) {
+    .header-login-btn .btn-text-top {
+        font-size: 0.55rem !important;
+    }
+    .header-login-btn .btn-text-bottom {
+        font-size: 0.8rem !important;
+        letter-spacing: 1.2px !important;
+    }
+}
+
+/* Default styling for control toggles (no inline styles) */
+.market-control-toggle {
+    background: var(--bg-card);
+    border: 1px solid var(--border-glass);
+    color: var(--text-muted);
+}
+
+/* Blue theme (organizer) for Musiker-Markt filters */
+.theme-organizer .market-controls-row {
+    background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.92) 100%) !important;
+    border: 2px solid rgba(96, 165, 250, 0.6) !important;
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.45) !important;
+    color: #ffffff !important;
+}
+
+/* Purple theme (musician) for Event-Markt filters */
+.theme-musician .market-controls-row {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.92) 100%) !important;
+    border: 2px solid rgba(167, 139, 250, 0.6) !important;
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.45) !important;
+    color: #ffffff !important;
+}
+
+/* Themed elements inside the market-controls-row */
+.theme-organizer .market-controls-row i,
+.theme-musician .market-controls-row i {
+    color: #ffffff !important;
+}
+
+.theme-organizer .market-controls-row #market-results-count,
+.theme-musician .market-controls-row #market-results-count {
+    color: #ffffff !important;
+}
+
+.theme-organizer .market-controls-row .market-control-toggle,
+.theme-musician .market-controls-row .market-control-toggle {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.theme-organizer .market-controls-row .market-control-toggle:hover,
+.theme-musician .market-controls-row .market-control-toggle:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+}
+
+.theme-organizer .market-controls-row .market-sort-container-round,
+.theme-musician .market-controls-row .market-sort-container-round {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.theme-organizer .market-controls-row .market-sort-container-round:hover,
+.theme-musician .market-controls-row .market-sort-container-round:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+}
+
+.theme-organizer .market-controls-row .market-filter-mobile-toggle,
+.theme-musician .market-controls-row .market-filter-mobile-toggle {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+    color: #ffffff !important;
+}
+
+.theme-organizer .market-controls-row .market-filter-mobile-toggle:hover,
+.theme-musician .market-controls-row .market-filter-mobile-toggle:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+}
+
+.theme-organizer .market-controls-row .profile-switcher-wrapper,
+.theme-musician .market-controls-row .profile-switcher-wrapper {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: #ffffff !important;
+}
+
+.theme-organizer .market-controls-row .profile-switcher-wrapper i,
+.theme-musician .market-controls-row .profile-switcher-wrapper i {
+    color: #ffffff !important;
+}
+
+.theme-organizer .market-controls-row .profile-switcher-wrapper select,
+.theme-musician .market-controls-row .profile-switcher-wrapper select {
+    color: #ffffff !important;
+    background: transparent !important;
+}
+
+.theme-organizer .market-controls-row .profile-switcher-wrapper select option,
+.theme-musician .market-controls-row .profile-switcher-wrapper select option {
+    color: #0f172a !important;
+    background: #ffffff !important;
+}
+
+/* Mobile responsive sticky top offset adjustments based on header navigation height */
+@media (max-width: 768px) {
+    /* Sticky offset when logged out (single row header, height ~52px) */
+    .market-controls-row {
+        top: 52px !important;
+    }
+    
+    /* Sticky offset when logged in (two-row header, height ~90px) */
+    .app-header:has(.main-nav a) + #app-main .market-controls-row {
+        top: 90px !important;
+    }
 }
