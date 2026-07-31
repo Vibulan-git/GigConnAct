@@ -3318,7 +3318,7 @@ function renderLandingPage(container, onNavigate) {
 
                 <div class="carousel-container">
                     <div class="carousel-viewport">
-                        <div class="carousel-track" id="carousel-track-musicians">
+                        <div class="carousel-track theme-organizer" id="carousel-track-musicians">
                             ${renderMarketGridHTML(state.musicians.slice(0, 9), false)}
                         </div>
                     </div>
@@ -3403,7 +3403,7 @@ function renderLandingPage(container, onNavigate) {
 
                 <div class="carousel-container">
                     <div class="carousel-viewport">
-                        <div class="carousel-track" id="carousel-track-events">
+                        <div class="carousel-track theme-musician" id="carousel-track-events">
                             ${renderMarketGridHTML(state.events.slice(0, 9), true)}
                         </div>
                     </div>
