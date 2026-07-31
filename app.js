@@ -10003,16 +10003,41 @@ function updateNavbar(forceLanding) {
         let creditsBadgeHtml = '';
         const isProfileActive = window.location.hash === '#/profile';
 
+        const isMusician = u.role === 'musician';
+        const marketIcon = isMusician ? 'fa-calendar-days' : 'fa-guitar';
+        const marketLink = isMusician ? '#/events' : '#/musicians';
+        const marketTitle = isMusician ? 'Event-Markt' : 'Musiker-Markt';
+        
+        const isMarketActive = isMusician 
+            ? (window.location.hash === '#/events' || window.location.hash.startsWith('#/events'))
+            : (window.location.hash === '#/musicians' || window.location.hash.startsWith('#/musicians'));
+        const isPostboxActive = window.location.hash === '#/postbox' || window.location.hash.startsWith('#/postbox');
+
+        const marketIconHtml = `
+            <a href="${marketLink}" class="nav-icon-btn ${isMusician ? 'btn-blue' : 'btn-purple'} ${isMarketActive ? 'active' : ''}" title="${marketTitle}">
+                <i class="fa-solid ${marketIcon}"></i>
+            </a>
+        `;
+        
+        const postboxIconHtml = `
+            <a href="#/postbox" class="nav-icon-btn ${isMusician ? 'btn-blue' : 'btn-purple'} ${isPostboxActive ? 'active' : ''}" title="Postfach" style="position: relative;">
+                <i class="fa-solid fa-envelope"></i>
+                ${unreadCount > 0 ? `
+                    <span style="position: absolute; top: -4px; right: -4px; background: var(--color-red); color: white; font-size: 0.65rem; font-weight: 800; min-width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--bg-card); padding: 0 2px; box-sizing: border-box; line-height: 1;">
+                        ${unreadCount}
+                    </span>
+                ` : ''}
+            </a>
+        `;
+
         authArea.innerHTML = `
-            <div style="display:flex; align-items:center; gap:0.9rem;">
+            <div style="display:flex; align-items:center; gap:0.6rem;">
                 ${creditsBadgeHtml}
-                
-                <button class="feedback-trigger-btn ${u.role === 'musician' ? 'feedback-blue' : 'feedback-purple'}" id="btn-header-feedback" title="Feedback senden">
-                    <i class="fa-regular fa-comment-dots"></i>
-                </button>
+                ${marketIconHtml}
+                ${postboxIconHtml}
                 
                 <div class="profile-dropdown-container">
-                    <button class="profile-avatar-btn ${u.role === 'musician' ? 'profile-avatar-blue' : 'profile-avatar-purple'} ${isProfileActive ? 'active' : ''}" id="btn-profile-dropdown" aria-label="Benutzermenü">
+                    <button class="profile-avatar-btn ${isMusician ? 'profile-avatar-blue' : 'profile-avatar-purple'} ${isProfileActive ? 'active' : ''}" id="btn-profile-dropdown" aria-label="Benutzermenü">
                         <i class="fa-regular fa-circle-user"></i>
                     </button>
                     <div class="profile-dropdown-menu" id="profile-dropdown-menu">
@@ -10020,9 +10045,21 @@ function updateNavbar(forceLanding) {
                             <div style="font-size:0.8rem; font-weight:700;">${u.firstName} ${u.lastName}</div>
                             <div style="font-size:0.7rem; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; max-width:150px;">${u.email}</div>
                         </div>
-                        <a href="#/profile" class="profile-dropdown-item ${u.role === 'musician' ? 'profile-dropdown-blue' : 'profile-dropdown-purple'} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile">
+                        
+                        <!-- Meine Musiker / Meine Events Link -->
+                        <a href="${isMusician ? '#/my-musicians' : '#/my-events'}" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-blue' : 'profile-dropdown-purple'} ${window.location.hash === (isMusician ? '#/my-musicians' : '#/my-events') ? 'active' : ''}" id="dropdown-link-my-tab">
+                            <i class="fa-solid ${isMusician ? 'fa-guitar' : 'fa-calendar-check'}"></i> ${isMusician ? 'Meine Musiker' : 'Meine Events'}
+                        </a>
+                        
+                        <a href="#/profile" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-blue' : 'profile-dropdown-purple'} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile">
                             <i class="fa-solid fa-user-gear"></i> Profil bearbeiten
                         </a>
+                        
+                        <!-- Feedback Button (Moved from Header to Dropdown under Profil bearbeiten) -->
+                        <button class="profile-dropdown-item ${isMusician ? 'profile-dropdown-blue' : 'profile-dropdown-purple'}" id="dropdown-btn-feedback" style="background: none; border: none; text-align: left; width: 100%; font-family: inherit; font-size: inherit; cursor: pointer;">
+                            <i class="fa-solid fa-comment-dots"></i> Feedback senden
+                        </button>
+                        
                         <div class="profile-dropdown-divider"></div>
                         <button class="profile-dropdown-item logout-item" id="dropdown-btn-logout">
                             <i class="fa-solid fa-right-from-bracket"></i> Abmelden
@@ -10044,9 +10081,10 @@ function updateNavbar(forceLanding) {
         }
 
         // Toggle feedback modal logic
-        const feedbackBtn = document.getElementById('btn-header-feedback');
+        const feedbackBtn = document.getElementById('dropdown-btn-feedback');
         if (feedbackBtn) {
             feedbackBtn.addEventListener('click', () => {
+                menu.classList.remove('show');
                 showModal('feedback');
             });
         }
@@ -10055,6 +10093,13 @@ function updateNavbar(forceLanding) {
         const profileLink = document.getElementById('dropdown-link-profile');
         if (profileLink) {
             profileLink.addEventListener('click', () => {
+                menu.classList.remove('show');
+            });
+        }
+        
+        const myTabLink = document.getElementById('dropdown-link-my-tab');
+        if (myTabLink) {
+            myTabLink.addEventListener('click', () => {
                 menu.classList.remove('show');
             });
         }

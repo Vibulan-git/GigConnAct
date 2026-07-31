@@ -4488,3 +4488,46 @@ input[type="range"].input-field {
     color: #ffffff !important;
     box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25) !important;
 }
+
+/* Navigation icon buttons in header (next to profile) */
+.nav-icon-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1.05rem;
+    cursor: pointer;
+    border: 1px solid var(--border-glass) !important;
+    text-decoration: none;
+    position: relative;
+}
+
+.nav-icon-btn.btn-blue {
+    background: rgba(37, 99, 235, 0.1) !important;
+    border-color: rgba(37, 99, 235, 0.3) !important;
+    color: #3b82f6 !important;
+}
+.nav-icon-btn.btn-blue:hover,
+.nav-icon-btn.btn-blue.active {
+    background: rgba(37, 99, 235, 0.2) !important;
+    color: #2563eb !important;
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.25) !important;
+    transform: translateY(-1px);
+}
+
+.nav-icon-btn.btn-purple {
+    background: rgba(168, 85, 247, 0.1) !important;
+    border-color: rgba(168, 85, 247, 0.3) !important;
+    color: #a855f7 !important;
+}
+.nav-icon-btn.btn-purple:hover,
+.nav-icon-btn.btn-purple.active {
+    background: rgba(168, 85, 247, 0.2) !important;
+    color: #8b5cf6 !important;
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.25) !important;
+    transform: translateY(-1px);
+}
