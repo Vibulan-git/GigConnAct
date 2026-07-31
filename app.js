@@ -3582,13 +3582,13 @@ function renderLandingPage(container, onNavigate) {
 
             <!-- 5.5. FOUNDER STORY SECTION -->
             <div style="max-width: 900px; margin: 16rem auto 0; padding: 0 1.5rem;">
-                <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 24px; padding: 3rem 2.5rem; display: flex; align-items: center; gap: 3rem; flex-wrap: wrap; backdrop-filter: blur(12px); box-shadow: var(--shadow-glass);">
-                    <div style="flex: 1 1 200px; display: flex; justify-content: center;">
-                        <div style="position: relative; width: 180px; height: 180px; border-radius: 16px; overflow: hidden; border: 3px solid var(--color-purple); box-shadow: 0 10px 25px rgba(124, 58, 237, 0.25);">
-                            <img src="founder.jpg" alt="Vibulan Sivanathan" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
+                <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 24px; display: flex; flex-wrap: wrap; overflow: hidden; backdrop-filter: blur(12px); box-shadow: var(--shadow-glass);">
+                    <!-- Left column: Image filling the space -->
+                    <div style="flex: 1 1 300px; position: relative; min-height: 320px;">
+                        <img src="founder.jpg" alt="Vibulan Sivanathan" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
                     </div>
-                    <div style="flex: 2 1 400px; display: flex; flex-direction: column; gap: 1rem; text-align: left;">
+                    <!-- Right column: Text with padding -->
+                    <div style="flex: 1.5 1 400px; padding: 3rem 2.5rem; display: flex; flex-direction: column; justify-content: center; gap: 1.2rem; text-align: left;">
                         <div style="display: flex; flex-direction: column; gap: 0.35rem;">
                             <h3 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin: 0;">Vibulan Sivanathan</h3>
                             <div style="display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.3px;">
@@ -3604,9 +3604,33 @@ function renderLandingPage(container, onNavigate) {
             </div>
 
             <!-- 6. BOTTOM CALL-TO-ACTION SECTION -->
-            <div style="max-width: 1400px; margin: 16rem auto 6rem; padding: 0 1.5rem; text-align: center;">
+            <div style="max-width: 1400px; margin: 16rem auto 0; padding: 0 1.5rem; text-align: center;">
                 ${bottomCtaButtonHtml}
             </div>
+
+            <!-- 7. FOOTER / IMPRESSUM -->
+            <footer style="margin-top: 10rem; border-top: 1px solid var(--border-glass); padding: 4rem 1.5rem; text-align: center;">
+                <div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
+                    <!-- Brand / Name -->
+                    <div style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">
+                        GigConnAct
+                    </div>
+                    <!-- Impressum Info -->
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
+                        <span style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; margin-bottom: 0.2rem;">Impressum</span>
+                        <span>GigConnAct &bull; Montanusstraße 49 &bull; 51065 Köln</span>
+                        <span>
+                            Tel: <a href="tel:+4915788703998" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">+49 15788703998</a>
+                            &nbsp;|&nbsp;
+                            E-Mail: <a href="mailto:info@gigconnact.de" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">info@gigconnact.de</a>
+                        </span>
+                    </div>
+                    <!-- Copyright -->
+                    <div style="font-size: 0.8rem; color: rgba(15, 23, 42, 0.4); margin-top: 1.5rem; font-weight: 500;">
+                        &copy; 2026 GigConnAct. Alle Rechte vorbehalten.
+                    </div>
+                </div>
+            </footer>
 
         </div>
     `;
