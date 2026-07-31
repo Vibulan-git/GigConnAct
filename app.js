@@ -4961,13 +4961,15 @@ function renderMarket(container, type, onNavigate) {
         }
         showOnlyTopMatches = !showOnlyTopMatches;
         if (showOnlyTopMatches) {
+            btnToggleTopMatches.classList.add('active');
             btnToggleTopMatches.style.color = '#eab308';
             btnToggleTopMatches.style.borderColor = '#eab308';
             btnToggleTopMatches.style.background = 'rgba(234, 179, 8, 0.1)';
         } else {
-            btnToggleTopMatches.style.color = 'var(--text-muted)';
-            btnToggleTopMatches.style.borderColor = 'var(--border-glass)';
-            btnToggleTopMatches.style.background = 'var(--bg-card)';
+            btnToggleTopMatches.classList.remove('active');
+            btnToggleTopMatches.style.color = '';
+            btnToggleTopMatches.style.borderColor = '';
+            btnToggleTopMatches.style.background = '';
         }
         applyAllFiltersAndSort();
     });
@@ -4980,13 +4982,15 @@ function renderMarket(container, type, onNavigate) {
         }
         showOnlyFavorites = !showOnlyFavorites;
         if (showOnlyFavorites) {
+            btnToggleFavorites.classList.add('active');
             btnToggleFavorites.style.color = '#ef4444';
             btnToggleFavorites.style.borderColor = '#ef4444';
             btnToggleFavorites.style.background = 'rgba(239, 68, 68, 0.1)';
         } else {
-            btnToggleFavorites.style.color = 'var(--text-muted)';
-            btnToggleFavorites.style.borderColor = 'var(--border-glass)';
-            btnToggleFavorites.style.background = 'var(--bg-card)';
+            btnToggleFavorites.classList.remove('active');
+            btnToggleFavorites.style.color = '';
+            btnToggleFavorites.style.borderColor = '';
+            btnToggleFavorites.style.background = '';
         }
         applyAllFiltersAndSort();
     });
@@ -10182,7 +10186,7 @@ function renderPostbox(container) {
 
         const activeChat = chats.find(c => c.id === activeChatId);
 
-        window.postboxShowFilters = window.postboxShowFilters !== undefined ? window.postboxShowFilters : true;
+        window.postboxShowFilters = window.postboxShowFilters !== undefined ? window.postboxShowFilters : false;
 
         container.innerHTML = `
             <style>

@@ -3959,13 +3959,6 @@ input[type="range"].input-field {
     border: 1.5px solid rgba(37, 99, 235, 0.25) !important;
 }
 
-/* Mobile responsive sticky top offset adjustment for market controls row */
-@media (max-width: 768px) {
-    .market-controls-row {
-        top: 68px !important; /* aligns with mobile header height */
-    }
-}
-
 /* Backdrop blur overlay for mobile filters drawer */
 .market-filters-overlay {
     position: fixed !important;
@@ -4381,16 +4374,31 @@ input[type="range"].input-field {
     background: #ffffff !important;
 }
 
-/* Mobile responsive sticky top offset adjustments based on header navigation height */
-@media (max-width: 768px) {
-    /* Sticky offset when logged out (single row header, height ~52px) */
+/* Active states for filter buttons, overriding transparent white themes */
+.theme-organizer .market-controls-row .market-control-toggle.active#btn-toggle-market-top-matches,
+.theme-musician .market-controls-row .market-control-toggle.active#btn-toggle-market-top-matches {
+    background: rgba(234, 179, 8, 0.18) !important;
+    border-color: #eab308 !important;
+    color: #eab308 !important;
+}
+
+.theme-organizer .market-controls-row .market-control-toggle.active#btn-toggle-market-favorites,
+.theme-musician .market-controls-row .market-control-toggle.active#btn-toggle-market-favorites {
+    background: rgba(239, 68, 68, 0.18) !important;
+    border-color: #ef4444 !important;
+    color: #ef4444 !important;
+}
+
+/* Mobile responsive sticky top offset adjustments based on header navigation height (updated to max-width: 900px) */
+@media (max-width: 900px) {
+    /* Sticky offset when logged out (single row header, height ~52px plus margin) */
     .market-controls-row {
-        top: 52px !important;
+        top: 60px !important;
     }
     
-    /* Sticky offset when logged in (two-row header, height ~90px) */
+    /* Sticky offset when logged in (two-row header, height ~90px plus margin) */
     .app-header:has(.main-nav a) + #app-main .market-controls-row {
-        top: 90px !important;
+        top: 102px !important;
     }
 }
 </style>
@@ -9414,13 +9422,15 @@ function renderMarket(container, type, onNavigate) {
         }
         showOnlyTopMatches = !showOnlyTopMatches;
         if (showOnlyTopMatches) {
+            btnToggleTopMatches.classList.add('active');
             btnToggleTopMatches.style.color = '#eab308';
             btnToggleTopMatches.style.borderColor = '#eab308';
             btnToggleTopMatches.style.background = 'rgba(234, 179, 8, 0.1)';
         } else {
-            btnToggleTopMatches.style.color = 'var(--text-muted)';
-            btnToggleTopMatches.style.borderColor = 'var(--border-glass)';
-            btnToggleTopMatches.style.background = 'var(--bg-card)';
+            btnToggleTopMatches.classList.remove('active');
+            btnToggleTopMatches.style.color = '';
+            btnToggleTopMatches.style.borderColor = '';
+            btnToggleTopMatches.style.background = '';
         }
         applyAllFiltersAndSort();
     });
@@ -9433,13 +9443,15 @@ function renderMarket(container, type, onNavigate) {
         }
         showOnlyFavorites = !showOnlyFavorites;
         if (showOnlyFavorites) {
+            btnToggleFavorites.classList.add('active');
             btnToggleFavorites.style.color = '#ef4444';
             btnToggleFavorites.style.borderColor = '#ef4444';
             btnToggleFavorites.style.background = 'rgba(239, 68, 68, 0.1)';
         } else {
-            btnToggleFavorites.style.color = 'var(--text-muted)';
-            btnToggleFavorites.style.borderColor = 'var(--border-glass)';
-            btnToggleFavorites.style.background = 'var(--bg-card)';
+            btnToggleFavorites.classList.remove('active');
+            btnToggleFavorites.style.color = '';
+            btnToggleFavorites.style.borderColor = '';
+            btnToggleFavorites.style.background = '';
         }
         applyAllFiltersAndSort();
     });
@@ -14635,7 +14647,7 @@ function renderPostbox(container) {
 
         const activeChat = chats.find(c => c.id === activeChatId);
 
-        window.postboxShowFilters = window.postboxShowFilters !== undefined ? window.postboxShowFilters : true;
+        window.postboxShowFilters = window.postboxShowFilters !== undefined ? window.postboxShowFilters : false;
 
         container.innerHTML = `
             <style>
