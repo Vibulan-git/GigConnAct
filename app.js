@@ -10012,30 +10012,10 @@ function updateNavbar(forceLanding) {
     }
 
     if (u && u.id) {
-        nav.className = `main-nav ${u.role === 'musician' ? 'nav-blue' : 'nav-purple'}`;
+        nav.className = `main-nav ${u.role === 'musician' ? 'nav-purple' : 'nav-blue'}`;
+        nav.innerHTML = ''; // Hide text-based navigation links since icon buttons are used instead
+        
         const unreadCount = state.getUnreadCount();
-        const badgeHtml = unreadCount > 0 
-            ? ` <span class="nav-badge" style="background: var(--color-red); color: white; border-radius: 50%; padding: 0.1rem 0.4rem; font-size: 0.7rem; font-weight: 700; margin-left: 0.3rem;">${unreadCount}</span>` 
-            : '';
-
-        const unreadMatches = state.getUnreadMatchesCount();
-        const matchesBadgeHtml = unreadMatches > 0
-            ? ` <span class="nav-badge" style="background: var(--color-red); color: white; border-radius: 50%; padding: 0.1rem 0.4rem; font-size: 0.7rem; font-weight: 700; margin-left: 0.3rem;">${unreadMatches}</span>`
-            : '';
-
-        const marketLinkHtml = u.role === 'musician' 
-            ? `<a href="#/events" class="nav-link" id="link-events"><i class="fa-solid fa-calendar-days"></i> Event-Markt</a>` 
-            : `<a href="#/musicians" class="nav-link" id="link-musicians"><i class="fa-solid fa-guitar"></i> Musiker-Markt</a>`;
-
-        const myTabLinkHtml = u.role === 'musician'
-            ? `<a href="#/my-musicians" class="nav-link" id="link-my-musicians"><i class="fa-solid fa-guitar"></i> Meine Musiker</a>`
-            : `<a href="#/my-events" class="nav-link" id="link-my-events"><i class="fa-solid fa-calendar-check"></i> Meine Events</a>`;
-
-        nav.innerHTML = `
-            ${marketLinkHtml}
-            <a href="#/postbox" class="nav-link" id="link-postbox"><i class="fa-solid fa-envelope"></i> Postfach${badgeHtml}</a>
-            ${myTabLinkHtml}
-        `;
 
         let creditsBadgeHtml = '';
         const isProfileActive = window.location.hash === '#/profile';
@@ -10051,13 +10031,13 @@ function updateNavbar(forceLanding) {
         const isPostboxActive = window.location.hash === '#/postbox' || window.location.hash.startsWith('#/postbox');
 
         const marketIconHtml = `
-            <a href="${marketLink}" class="nav-icon-btn ${isMusician ? 'btn-blue' : 'btn-purple'} ${isMarketActive ? 'active' : ''}" title="${marketTitle}">
+            <a href="${marketLink}" class="nav-icon-btn ${isMusician ? 'btn-purple' : 'btn-blue'} ${isMarketActive ? 'active' : ''}" title="${marketTitle}">
                 <i class="fa-solid ${marketIcon}"></i>
             </a>
         `;
         
         const postboxIconHtml = `
-            <a href="#/postbox" class="nav-icon-btn ${isMusician ? 'btn-blue' : 'btn-purple'} ${isPostboxActive ? 'active' : ''}" title="Postfach" style="position: relative;">
+            <a href="#/postbox" class="nav-icon-btn ${isMusician ? 'btn-purple' : 'btn-blue'} ${isPostboxActive ? 'active' : ''}" title="Postfach" style="position: relative;">
                 <i class="fa-solid fa-envelope"></i>
                 ${unreadCount > 0 ? `
                     <span style="position: absolute; top: -4px; right: -4px; background: var(--color-red); color: white; font-size: 0.65rem; font-weight: 800; min-width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--bg-card); padding: 0 2px; box-sizing: border-box; line-height: 1;">
@@ -10074,7 +10054,7 @@ function updateNavbar(forceLanding) {
                 ${postboxIconHtml}
                 
                 <div class="profile-dropdown-container">
-                    <button class="profile-avatar-btn ${isMusician ? 'profile-avatar-blue' : 'profile-avatar-purple'} ${isProfileActive ? 'active' : ''}" id="btn-profile-dropdown" aria-label="Benutzermenü">
+                    <button class="profile-avatar-btn ${isMusician ? 'profile-avatar-purple' : 'profile-avatar-blue'} ${isProfileActive ? 'active' : ''}" id="btn-profile-dropdown" aria-label="Benutzermenü">
                         <i class="fa-regular fa-circle-user"></i>
                     </button>
                     <div class="profile-dropdown-menu" id="profile-dropdown-menu">
@@ -10084,16 +10064,16 @@ function updateNavbar(forceLanding) {
                         </div>
                         
                         <!-- Meine Musiker / Meine Events Link -->
-                        <a href="${isMusician ? '#/my-musicians' : '#/my-events'}" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-blue' : 'profile-dropdown-purple'} ${window.location.hash === (isMusician ? '#/my-musicians' : '#/my-events') ? 'active' : ''}" id="dropdown-link-my-tab">
+                        <a href="${isMusician ? '#/my-musicians' : '#/my-events'}" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${window.location.hash === (isMusician ? '#/my-musicians' : '#/my-events') ? 'active' : ''}" id="dropdown-link-my-tab">
                             <i class="fa-solid ${isMusician ? 'fa-guitar' : 'fa-calendar-check'}"></i> ${isMusician ? 'Meine Musiker' : 'Meine Events'}
                         </a>
                         
-                        <a href="#/profile" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-blue' : 'profile-dropdown-purple'} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile">
+                        <a href="#/profile" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile">
                             <i class="fa-solid fa-user-gear"></i> Profil bearbeiten
                         </a>
                         
                         <!-- Feedback Button (Moved from Header to Dropdown under Profil bearbeiten) -->
-                        <button class="profile-dropdown-item ${isMusician ? 'profile-dropdown-blue' : 'profile-dropdown-purple'}" id="dropdown-btn-feedback" style="background: none; border: none; text-align: left; width: 100%; font-family: inherit; font-size: inherit; cursor: pointer;">
+                        <button class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'}" id="dropdown-btn-feedback" style="background: none; border: none; text-align: left; width: 100%; font-family: inherit; font-size: inherit; cursor: pointer;">
                             <i class="fa-solid fa-comment-dots"></i> Feedback senden
                         </button>
                         
@@ -10798,7 +10778,7 @@ function renderMarketGridHTML(items, isEvents) {
         `;
     }
 
-    const themeColor = isEvents ? '#7c3aed' : '#2563eb';
+    const themeColor = isEvents ? '#2563eb' : '#7c3aed';
 
     return items.map(item => {
         const isUnlocked = state ? ((typeof state.isUnlocked === 'function') ? state.isUnlocked(item.id) : (state.unlockedContacts && state.unlockedContacts.includes(item.id))) : false;
@@ -10899,7 +10879,7 @@ function renderMarketGridHTML(items, isEvents) {
                                     <source src="${vid.url}" type="video/mp4">
                                     Dein Browser unterstÜtzt dieses Video nicht.
                                 </video>
-                                <span style="position: absolute; top: 12px; left: 12px; z-index: 4; font-size: 0.72rem; font-weight: 800; color: #fff; background: rgba(239, 68, 68, 0.9); padding: 0.25rem 0.6rem; border-radius: 6px; backdrop-filter: blur(4px);">
+                                <span style="position: absolute; top: 12px; left: 12px; z-index: 4; font-size: 0.72rem; font-weight: 800; color: #fff; background: rgba(239, 68, 68, 0.9); padding: 0.25rem 0.65rem; border-radius: 6px; backdrop-filter: blur(4px);">
                                     🎬 Video #${vIdx + 1}: ${vid.title}
                                 </span>
                             </div>
@@ -10917,7 +10897,7 @@ function renderMarketGridHTML(items, isEvents) {
                     </div>
 
                     <!-- Match-Faktor Badge oben rechts (OHNE FLAMMEN-EMOJI / VORZEICHEN) -->
-                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 5px 12px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 50px;">
+                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: ${isEvents ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 5px 12px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 50px;">
                         <span style="font-size: 1.05rem; font-weight: 900;">${item.matchScore !== undefined ? item.matchScore : '96'}%</span>
                         <span style="font-size: 0.5rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
                     </div>
@@ -11062,8 +11042,8 @@ function renderMarketGridHTML(items, isEvents) {
                             <i class="fa-solid fa-paper-plane"></i> Nachricht senden
                         </button>
                     ` : `
-                        <!-- Kontaktdaten freischalten Button (Purple for events, Blue for musicians-market) -->
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); showModal('auth')" style="width: 100%; background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; border-color: ${isEvents ? '#7c3aed' : '#1e40af'}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${isEvents ? '0 4px 14px rgba(124, 58, 237, 0.35)' : '0 4px 14px rgba(37, 99, 235, 0.35)'};">
+                        <!-- Kontaktdaten freischalten Button (Blue for events, Purple for musicians-market) -->
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); showModal('auth')" style="width: 100%; background: ${isEvents ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'}; border-color: ${isEvents ? '#1e40af' : '#7c3aed'}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${isEvents ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'};">
                             <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
                         </button>
                     `}
