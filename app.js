@@ -3578,7 +3578,7 @@ function renderLandingPage(container, onNavigate) {
             </div>
 
             <!-- 5.5. FOUNDER STORY SECTION -->
-            <div style="max-width: 900px; margin: 16rem auto 0; padding: 0 1.5rem;">
+            <div style="max-width: 900px; margin: 6rem auto 0; padding: 0 1.5rem;">
                 <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 24px; display: flex; flex-wrap: wrap; overflow: hidden; backdrop-filter: blur(12px); box-shadow: var(--shadow-glass);">
                     <!-- Left column: Image filling the space -->
                     <div style="flex: 1 1 300px; position: relative; min-height: 320px;">
@@ -3590,10 +3590,10 @@ function renderLandingPage(container, onNavigate) {
                             <h3 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin: 0;">Vibulan Sivanathan</h3>
                             <div style="display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.3px;">
                                 <span style="color: var(--text-muted);">Gründer von GigConnAct</span>
-                                <span style="color: var(--color-purple);">Stolzer Sänger von <a href="https://miamipink.de/" target="_blank" rel="noopener noreferrer" style="color: var(--color-purple); text-decoration: underline; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">MIAMI PINK</a></span>
+                                <span style="color: var(--text-muted);">Sänger von <a href="https://miamipink.de/" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: underline; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">MIAMI PINK</a></span>
                             </div>
                         </div>
-                        <p style="font-size: 1.05rem; font-style: italic; color: var(--text-muted); line-height: 1.6; margin: 0; position: relative; padding-left: 1.2rem; border-left: 3px solid var(--color-purple);">
+                        <p style="font-size: 1.05rem; font-style: italic; color: var(--text-muted); line-height: 1.6; margin: 0; position: relative; padding-left: 1.2rem; border-left: 3px solid transparent; border-image: linear-gradient(to bottom, #7c3aed, #2563eb) 1;">
                             Als Musiker und Eventmanager kenne ich beide Seiten nur zu gut. Ich weiß, wie schwierig es sein kann, passende Gigs zu finden – und genauso herausfordernd ist es für Veranstalter, den richtigen Musiker zu entdecken und ihn unkompliziert zu kontaktieren. Genau aus diesem Problem heraus ist GigConnAct entstanden – das „Airbnb für Live-Musik“.
                         </p>
                     </div>
@@ -3602,17 +3602,54 @@ function renderLandingPage(container, onNavigate) {
 
             <!-- 6. BOTTOM CALL-TO-ACTION SECTION -->
             ${bottomCtaButtonHtml ? `
-            <div style="max-width: 1400px; margin: 16rem auto 0; padding: 0 1.5rem; text-align: center;">
+            <div style="max-width: 1400px; margin: 6rem auto 0; padding: 0 1.5rem; text-align: center;">
                 ${bottomCtaButtonHtml}
             </div>
             ` : ''}
 
             <!-- 7. FOOTER / IMPRESSUM -->
-            <footer style="margin-top: 10rem; border-top: 1px solid var(--border-glass); padding: 4rem 1.5rem; text-align: center;">
+            <footer style="margin-top: 6rem; border-top: 1px solid var(--border-glass); padding: 4rem 1.5rem; text-align: center;">
                 <div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
-                    <!-- Brand / Name -->
-                    <div style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">
-                        GigConnAct
+                    <!-- Brand / Name with SVG Disco Ball -->
+                    <div style="display: flex; align-items: center; gap: 0.6rem; justify-content: center; margin-bottom: 0.5rem;">
+                        <!-- SVG Disco Ball -->
+                        <svg viewBox="0 0 100 100" style="width: 28px; height: 28px; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(124,58,237,0.15));">
+                          <defs>
+                            <radialGradient id="sphereGradFooter" cx="35%" cy="35%" r="65%">
+                              <stop offset="0%" stop-color="#ffffff" />
+                              <stop offset="40%" stop-color="#a78bfa" />
+                              <stop offset="75%" stop-color="#6d28d9" />
+                              <stop offset="100%" stop-color="#1e40af" />
+                            </radialGradient>
+                            <filter id="glowFooter" x="-20%" y="-20%" width="140%" height="140%">
+                              <feGaussianBlur stdDeviation="1.2" result="blur" />
+                              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                          </defs>
+                          <circle cx="50" cy="50" r="40" fill="url(#sphereGradFooter)" />
+                          <!-- Grid arcs -->
+                          <path d="M 10 50 A 40 40 0 0 0 90 50 A 40 40 0 0 0 10 50" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
+                          <path d="M 11.5 40 A 40 30 0 0 0 88.5 40" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 15 30 A 40 20 0 0 0 85 30" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 21.8 20 A 40 10 0 0 0 78.2 20" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 11.5 60 A 40 30 0 0 1 88.5 60" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 15 70 A 40 20 0 0 1 85 70" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 21.8 80 A 40 10 0 0 1 78.2 80" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 50 10 A 40 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
+                          <path d="M 50 10 A 30 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 50 10 A 20 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 50 10 A 10 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 50 10 A 30 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 50 10 A 20 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 50 10 A 10 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <!-- Sparkles -->
+                          <g transform="translate(22, 25)" filter="url(#glowFooter)"><polygon points="0,-8 2,-2 8,0 2,2 0,8 -2,2 -8,0 -2,-2" fill="#ffffff" /></g>
+                          <g transform="translate(75, 30)" filter="url(#glowFooter)"><polygon points="0,-6 1.5,-1.5 6,0 1.5,1.5 0,6 -1.5,1.5 -6,0 -1.5,-1.5" fill="#ffffff" /></g>
+                          <g transform="translate(68, 68)" filter="url(#glowFooter)"><polygon points="0,-7 1.8,-1.8 7,0 1.8,1.8 0,7 -1.8,1.8 -7,0 -1.8,-1.8" fill="#ffffff" /></g>
+                        </svg>
+                        <div style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">
+                            GigConnAct
+                        </div>
                     </div>
                     <!-- Impressum Info -->
                     <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; font-weight: 500;">

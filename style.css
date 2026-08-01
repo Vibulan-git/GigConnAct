@@ -2916,6 +2916,8 @@ body {
     background: transparent !important;
     border-bottom: none !important;
     box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
 @media (max-width: 600px) {
@@ -4238,7 +4240,7 @@ input[type="range"].input-field {
 /* Header Login Button Styling */
 .header-login-btn {
     white-space: nowrap !important;
-    line-height: 1.15 !important;
+    line-height: 1.0 !important;
     padding: 0.35rem 0.85rem !important;
     display: inline-flex !important;
     flex-direction: column !important;
@@ -4273,7 +4275,7 @@ input[type="range"].input-field {
     font-size: 1.12rem !important;
     color: #ffffff !important;
     text-shadow: 0 0 8px rgba(255,255,255,0.1) !important;
-    margin-top: 1px !important;
+    margin-top: -2px !important;
     letter-spacing: 2.2px !important;
 }
 
