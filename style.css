@@ -83,7 +83,7 @@ body {
 .header-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0.6rem 2rem;
+    padding: 0.35rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -4202,17 +4202,31 @@ input[type="range"].input-field {
 }
 .btn-homepage-market.theme-musician {
     background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35);
+    box-shadow: 0 0 15px rgba(124, 58, 237, 0.5), 0 4px 20px rgba(124, 58, 237, 0.3);
+    animation: purpleGlowPulse 3s infinite alternate;
 }
 .btn-homepage-market.theme-musician:hover {
-    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5);
+    box-shadow: 0 0 25px rgba(124, 58, 237, 0.8), 0 6px 30px rgba(124, 58, 237, 0.6) !important;
+    animation: none;
 }
 .btn-homepage-market.theme-organizer {
     background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.65), 0 4px 20px rgba(59, 130, 246, 0.45);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.6), 0 4px 20px rgba(59, 130, 246, 0.4);
+    animation: blueGlowPulse 3s infinite alternate;
 }
 .btn-homepage-market.theme-organizer:hover {
-    box-shadow: 0 0 25px rgba(59, 130, 246, 0.95), 0 6px 30px rgba(59, 130, 246, 0.75);
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.95), 0 6px 30px rgba(59, 130, 246, 0.75) !important;
+    animation: none;
+}
+
+@keyframes purpleGlowPulse {
+    0% { box-shadow: 0 0 12px rgba(124, 58, 237, 0.4), 0 4px 15px rgba(124, 58, 237, 0.2); }
+    100% { box-shadow: 0 0 22px rgba(124, 58, 237, 0.7), 0 4px 25px rgba(124, 58, 237, 0.45); }
+}
+
+@keyframes blueGlowPulse {
+    0% { box-shadow: 0 0 12px rgba(59, 130, 246, 0.5), 0 4px 15px rgba(59, 130, 246, 0.3); }
+    100% { box-shadow: 0 0 22px rgba(59, 130, 246, 0.8), 0 4px 25px rgba(59, 130, 246, 0.5); }
 }
 
 /* Paler benefits cards */
@@ -4653,4 +4667,37 @@ input[type="range"].input-field {
     background: #2563eb !important;
     border-color: #2563eb !important;
     color: #ffffff !important;
+}
+
+/* Styled contact circular buttons in action row */
+.market-contact-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    padding: 0;
+}
+.market-contact-btn i {
+    font-size: 1.05rem !important;
+    color: #ffffff !important;
+}
+.market-contact-btn:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    border-color: rgba(255, 255, 255, 0.8) !important;
+    transform: translateY(-2px);
+}
+.market-contact-btn.active {
+    background: #ffffff !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+.market-contact-btn.active i {
+    color: #0f172a !important;
 }

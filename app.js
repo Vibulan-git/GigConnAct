@@ -5624,44 +5624,67 @@ window.initiateMarketContact = function(targetId, targetName, eventId) {
     }
 };
 
-window.revealMarketContact = function(itemId, type, value) {
+window.revealMarketContact = function(itemId, type, value, clickedBtn) {
     const container = document.getElementById(`contact-reveal-${itemId}`);
     if (!container) return;
+    
+    const card = container.closest('.market-tile-card');
+    const buttons = card ? card.querySelectorAll('.market-contact-btn') : [];
     
     const isCurrentlyVisible = container.style.display === 'block';
     const currentType = container.getAttribute('data-type');
     
+    const clearActiveButtons = () => {
+        buttons.forEach(btn => btn.classList.remove('active'));
+    };
+    
     if (isCurrentlyVisible && currentType === type) {
         container.style.display = 'none';
         container.removeAttribute('data-type');
+        clearActiveButtons();
     } else {
-        let label = '';
-        let icon = '';
-        if (type === 'phone') {
-            label = 'Telefon';
-            icon = '<i class="fa-solid fa-phone" style="margin-right: 0.4rem;"></i>';
-        } else if (type === 'email') {
-            label = 'E-Mail';
-            icon = '<i class="fa-solid fa-envelope" style="margin-right: 0.4rem;"></i>';
-        } else if (type === 'company') {
-            label = 'Veranstalter-Typ';
-            icon = '<i class="fa-solid fa-building" style="margin-right: 0.4rem;"></i>';
-        } else if (type === 'name') {
-            label = 'Name';
-            icon = '<i class="fa-solid fa-user" style="margin-right: 0.4rem;"></i>';
+        clearActiveButtons();
+        if (clickedBtn) {
+            clickedBtn.classList.add('active');
         }
         
-        container.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap;">
-                <span style="font-weight: 700; color: #ffffff;">${icon}${label}:</span>
-                <span style="color: #ffffff; user-select: all;">${value}</span>
-                ${(value !== 'Vom Nutzer ausgeblendet' && value !== '[Vom Nutzer ausgeblendet]') ? `
-                    <button onclick="event.stopPropagation(); navigator.clipboard.writeText('${value}'); this.innerHTML='<i class=\\'fa-solid fa-check\\'></i> Kopiert'; setTimeout(() => this.innerHTML='<i class=\\'fa-solid fa-copy\\'></i> Kopieren', 1800);" style="background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.72rem; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 0.2rem; transition: background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
-                        <i class="fa-solid fa-copy"></i> Kopieren
+        let contentHtml = '';
+        if (type === 'chat') {
+            const parts = value.split('|');
+            const recId = parts[0];
+            const recName = parts[1] || '';
+            const evId = parts[2] || '';
+            
+            contentHtml = `
+                <div style="display: flex; align-items: center; justify-content: center; padding: 0.2rem 0;">
+                    <button class="btn btn-primary" 
+                            onclick="event.stopPropagation(); window.initiateMarketContact('${recId}', '${recName.replace(/'/g, "\\'")}', '${evId}')" 
+                            style="background: #ffffff; color: #0f172a; border: 1px solid #ffffff; font-weight: 800; padding: 0.5rem 1.5rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;"
+                            onmouseover="this.style.background='rgba(255,255,255,0.9)'; this.style.transform='translateY(-1px)';"
+                            onmouseout="this.style.background='#ffffff'; this.style.transform='translateY(0)';"
+                            title="Chat im Postfach öffnen">
+                        <i class="fa-solid fa-comments"></i> Nachricht schreiben
                     </button>
-                ` : ''}
-            </div>
-        `;
+                </div>
+            `;
+        } else {
+            contentHtml = `
+                <div style="display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap;">
+                    <span style="font-weight: 600; color: #ffffff; font-size: 0.9rem; user-select: all;">${value}</span>
+                    ${(value !== 'Vom Nutzer ausgeblendet' && value !== '[Vom Nutzer ausgeblendet]') ? `
+                        <button onclick="event.stopPropagation(); navigator.clipboard.writeText('${value}'); this.innerHTML='<i class=\\'fa-solid fa-check\\'></i>'; setTimeout(() => this.innerHTML='<i class=\\'fa-solid fa-copy\\'></i>', 1800);" 
+                                style="background: rgba(255,255,255,0.2); border: none; color: #fff; width: 26px; height: 26px; border-radius: 4px; font-size: 0.78rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: background 0.15s; margin: 0;" 
+                                onmouseover="this.style.background='rgba(255,255,255,0.35)'" 
+                                onmouseout="this.style.background='rgba(255,255,255,0.2)'"
+                                title="Kopieren">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        container.innerHTML = contentHtml;
         container.style.display = 'block';
         container.setAttribute('data-type', type);
     }
@@ -10616,7 +10639,7 @@ function renderPostbox(container) {
             }
 
             const firstMsg = chat.messages[0];
-            const isFirstMsgFromMe = firstMsg && firstMsg.senderId === currentUserId;
+            const isFirstMsgFromMe = firstMsg ? (firstMsg.senderId === currentUserId) : (chat.initiatorId === currentUserId);
 
             if (isFirstMsgFromMe) {
                 sentChats.push(chat);
@@ -10731,7 +10754,7 @@ function renderPostbox(container) {
                                 itemType = 'system';
                             } else {
                                 const firstMsg = c.messages[0];
-                                const isFirstMsgFromMe = firstMsg && firstMsg.senderId === currentUserId;
+                                const isFirstMsgFromMe = firstMsg ? (firstMsg.senderId === currentUserId) : (c.initiatorId === currentUserId);
                                 if (!isFirstMsgFromMe) {
                                     itemType = 'received';
                                 }
@@ -10765,7 +10788,7 @@ function renderPostbox(container) {
                                 const isPerfect = interest && interest.musicianInterested && interest.organizerInterested;
                                 const isDeclined = interest && interest.organizerNoInterest;
                                 const firstMsg = c.messages[0];
-                                const isFirstMsgFromMe = firstMsg && firstMsg.senderId === currentUserId;
+                                const isFirstMsgFromMe = firstMsg ? (firstMsg.senderId === currentUserId) : (c.initiatorId === currentUserId);
                                 if (!isPerfect && !isDeclined && !isFirstMsgFromMe) {
                                     isAccordionLock = true;
                                 }
@@ -11180,8 +11203,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         `).join('') : ''}
 
                         <!-- Last Slide: Beschreibung (schwarz mit weisser Schrift) -->
-                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 1.2rem 2rem 1rem; box-sizing: border-box; text-align: center;">
-                            <p style="font-size: 0.84rem; font-weight: 500; color: #f8fafc; line-height: 1.5; margin: 0; max-height: 180px; overflow-y: auto; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
+                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.6rem 1rem 0.5rem; box-sizing: border-box; text-align: center;">
+                            <p style="font-size: 0.84rem; font-weight: 500; color: #f8fafc; line-height: 1.5; margin: 0; max-height: 200px; overflow-y: auto; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
                                 ${description}
                             </p>
                         </div>
@@ -11291,48 +11314,33 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <!-- Row of circular action buttons -->
                         <div style="display: flex; align-items: center; justify-content: center; gap: 1.2rem;">
                             <!-- Organizer Type Button -->
-                            <button onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'company', '${(item.company || 'Privatperson').replace(/'/g, "\\'")}')" 
-                                    style="width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" 
-                                    onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.borderColor='rgba(255,255,255,0.8)';" 
-                                    onmouseout="this.style.background='rgba(255, 255, 255, 0.12)'; this.style.borderColor='rgba(255, 255, 255, 0.4)';"
+                            <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'company', '${(item.company || 'Privatperson').replace(/'/g, "\\'")}', this)" 
                                     title="Veranstalter-Typ anzeigen">
-                                <i class="fa-solid fa-building" style="color: #ffffff; font-size: 1.05rem;"></i>
+                                <i class="fa-solid fa-building"></i>
                             </button>
 
                             <!-- Contact Name Button -->
-                            <button onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'name', '${(item.contactName || 'Demo Kontakt').replace(/'/g, "\\'")}')" 
-                                    style="width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" 
-                                    onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.borderColor='rgba(255,255,255,0.8)';" 
-                                    onmouseout="this.style.background='rgba(255, 255, 255, 0.12)'; this.style.borderColor='rgba(255, 255, 255, 0.4)';"
+                            <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'name', '${(item.contactName || 'Demo Kontakt').replace(/'/g, "\\'")}', this)" 
                                     title="Vor- und Nachname anzeigen">
-                                <i class="fa-solid fa-user" style="color: #ffffff; font-size: 1.05rem;"></i>
+                                <i class="fa-solid fa-user"></i>
                             </button>
 
                             <!-- Phone Button -->
-                            <button onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'phone', '${(item.hidePhone && !(state && state.currentUser && (item.creatorId === state.currentUser.id || item.id === state.currentUser.profileId))) ? 'Vom Nutzer ausgeblendet' : (item.phone || '+49 170 1234567')}')" 
-                                    style="width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" 
-                                    onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.borderColor='rgba(255,255,255,0.8)';" 
-                                    onmouseout="this.style.background='rgba(255, 255, 255, 0.12)'; this.style.borderColor='rgba(255, 255, 255, 0.4)';"
+                            <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'phone', '${(item.hidePhone && !(state && state.currentUser && (item.creatorId === state.currentUser.id || item.id === state.currentUser.profileId))) ? 'Vom Nutzer ausgeblendet' : (item.phone || '+49 170 1234567')}', this)" 
                                     title="Telefonnummer anzeigen">
-                                <i class="fa-solid fa-phone" style="color: #ffffff; font-size: 1.05rem;"></i>
+                                <i class="fa-solid fa-phone"></i>
                             </button>
 
                             <!-- Email Button -->
-                            <button onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'email', '${item.email || 'kontakt@gigconnact.de'}')" 
-                                    style="width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" 
-                                    onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.borderColor='rgba(255, 255, 255, 0.8)';" 
-                                    onmouseout="this.style.background='rgba(255, 255, 255, 0.12)'; this.style.borderColor='rgba(255, 255, 255, 0.4)';"
+                            <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'email', '${item.email || 'kontakt@gigconnact.de'}', this)" 
                                     title="E-Mail-Adresse anzeigen">
-                                <i class="fa-solid fa-envelope" style="color: #ffffff; font-size: 1.05rem;"></i>
+                                <i class="fa-solid fa-envelope"></i>
                             </button>
 
                             <!-- Chat / Message Button -->
-                            <button onclick="event.stopPropagation(); window.initiateMarketContact('${isEvents ? item.creatorId : item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}', '${isEvents ? item.id : ''}')" 
-                                    style="width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" 
-                                    onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.borderColor='rgba(255,255,255,0.8)';" 
-                                    onmouseout="this.style.background='rgba(255, 255, 255, 0.12)'; this.style.borderColor='rgba(255, 255, 255, 0.4)';"
+                            <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'chat', '${isEvents ? item.creatorId : item.id}|${(item.name || item.title || '').replace(/'/g, "\\'")}|${isEvents ? item.id : ''}', this)" 
                                     title="Nachricht schreiben">
-                                <i class="fa-solid fa-comments" style="color: #ffffff; font-size: 1.05rem;"></i>
+                                <i class="fa-solid fa-comments"></i>
                             </button>
                         </div>
 
