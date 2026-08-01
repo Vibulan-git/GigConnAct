@@ -6079,9 +6079,6 @@ function renderOrganizerEventItem(e, isActive) {
 
                     <!-- Last Slide: Beschreibung -->
                     <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.2rem; box-sizing: border-box; text-align: center;">
-                        <div style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: ${themeColor}; margin-bottom: 0.4rem;">
-                            <i class="fa-solid fa-file-lines"></i> Beschreibung
-                        </div>
                         <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 120px; overflow-y: auto;">
                             ${description}
                         </p>
@@ -6095,10 +6092,6 @@ function renderOrganizerEventItem(e, isActive) {
                 <button onclick="event.stopPropagation(); window.slideComboGallery('${e.id}', 1)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                     <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem;"></i>
                 </button>
-
-                <span class="tile-gallery-counter" style="position: absolute; bottom: 8px; left: 10px; background: rgba(0,0,0,0.75); color: #ffffff; font-size: 0.68rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 5px; backdrop-filter: blur(4px); z-index: 5;">
-                    📷 1 / 3 Fotos
-                </span>
             </div>
 
             <!-- Tile Body Content -->
@@ -6546,9 +6539,6 @@ function renderMyMusicianItem(m, isActive) {
 
                     <!-- Last Slide: Beschreibung -->
                     <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.2rem; box-sizing: border-box; text-align: center;">
-                        <div style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: ${themeColor}; margin-bottom: 0.4rem;">
-                            <i class="fa-solid fa-file-lines"></i> Beschreibung
-                        </div>
                         <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 120px; overflow-y: auto;">
                             ${description}
                         </p>
@@ -6562,10 +6552,6 @@ function renderMyMusicianItem(m, isActive) {
                 <button onclick="event.stopPropagation(); window.slideComboGallery('${m.id}', 1)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                     <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem;"></i>
                 </button>
-
-                <span class="tile-gallery-counter" style="position: absolute; bottom: 8px; left: 10px; background: rgba(0,0,0,0.75); color: #ffffff; font-size: 0.68rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 5px; backdrop-filter: blur(4px); z-index: 5;">
-                    📷 1 / 3 Fotos
-                </span>
             </div>
 
             <!-- Tile Body Content -->
@@ -10887,9 +10873,6 @@ function renderMarketGridHTML(items, isEvents) {
 
                         <!-- Last Slide: Beschreibung (schwarz mit weisser Schrift) -->
                         <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; box-sizing: border-box; text-align: center;">
-                            <div style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: ${themeColor}; margin-bottom: 0.6rem;">
-                                <i class="fa-solid fa-file-lines"></i> Beschreibung
-                            </div>
                             <p style="font-size: 0.84rem; font-weight: 500; color: #f8fafc; line-height: 1.5; margin: 0; max-height: 140px; overflow-y: auto; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
                                 ${description}
                             </p>
@@ -10909,11 +10892,6 @@ function renderMarketGridHTML(items, isEvents) {
                     <button onclick="event.stopPropagation(); window.slideComboGallery('${item.id}', 1)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.68); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                         <i class="fa-solid fa-chevron-right" style="font-size: 0.9rem;"></i>
                     </button>
-
-                    <!-- Photo / Video Counter Indicator -->
-                    <span class="tile-gallery-counter" style="position: absolute; bottom: 10px; left: 12px; background: rgba(0,0,0,0.75); color: #ffffff; font-size: 0.72rem; font-weight: 800; padding: 0.2rem 0.65rem; border-radius: 6px; backdrop-filter: blur(4px); z-index: 5;">
-                        📷 1 / 3 Fotos
-                    </span>
                 </div>
 
                 <!-- Tile Body Content -->

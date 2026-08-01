@@ -4267,6 +4267,9 @@ input[type="range"].input-field {
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
     color: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.0 !important;
 }
 
 .header-login-btn .btn-text-bottom {
@@ -4275,7 +4278,9 @@ input[type="range"].input-field {
     font-size: 1.12rem !important;
     color: #ffffff !important;
     text-shadow: 0 0 8px rgba(255,255,255,0.1) !important;
-    margin-top: -2px !important;
+    margin: -3px 0 0 0 !important;
+    padding: 0 !important;
+    line-height: 1.0 !important;
     letter-spacing: 2.2px !important;
 }
 
@@ -4287,19 +4292,23 @@ input[type="range"].input-field {
     .header-login-btn .btn-text-top {
         font-size: 0.6rem !important;
         letter-spacing: 0.2px !important;
+        margin: 0 !important;
     }
     .header-login-btn .btn-text-bottom {
         font-size: 0.88rem !important;
         letter-spacing: 1.6px !important;
+        margin: -2px 0 0 0 !important;
     }
 }
 @media (max-width: 380px) {
     .header-login-btn .btn-text-top {
         font-size: 0.55rem !important;
+        margin: 0 !important;
     }
     .header-login-btn .btn-text-bottom {
         font-size: 0.8rem !important;
         letter-spacing: 1.2px !important;
+        margin: -1px 0 0 0 !important;
     }
 }
 
