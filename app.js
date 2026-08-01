@@ -5593,6 +5593,43 @@ window.initiateMarketContact = function(targetId, targetName, eventId) {
     }
 };
 
+window.revealMarketContact = function(itemId, type, value) {
+    const container = document.getElementById(`contact-reveal-${itemId}`);
+    if (!container) return;
+    
+    const isCurrentlyVisible = container.style.display === 'block';
+    const currentType = container.getAttribute('data-type');
+    
+    if (isCurrentlyVisible && currentType === type) {
+        container.style.display = 'none';
+        container.removeAttribute('data-type');
+    } else {
+        let label = '';
+        let icon = '';
+        if (type === 'phone') {
+            label = 'Telefon';
+            icon = '<i class="fa-solid fa-phone" style="margin-right: 0.4rem;"></i>';
+        } else {
+            label = 'E-Mail';
+            icon = '<i class="fa-solid fa-envelope" style="margin-right: 0.4rem;"></i>';
+        }
+        
+        container.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap;">
+                <span style="font-weight: 700; color: #ffffff;">${icon}${label}:</span>
+                <span style="color: #ffffff; user-select: all;">${value}</span>
+                \${(value !== 'Vom Nutzer ausgeblendet' && value !== '[Vom Nutzer ausgeblendet]') ? `
+                    <button onclick="event.stopPropagation(); navigator.clipboard.writeText('\${value}'); this.innerHTML='<i class=\\'fa-solid fa-check\\'></i> Kopiert'; setTimeout(() => this.innerHTML='<i class=\\'fa-solid fa-copy\\'></i> Kopieren', 1800);" style="background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.72rem; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 0.2rem; transition: background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                        <i class="fa-solid fa-copy"></i> Kopieren
+                    </button>
+                ` : ''}
+            </div>
+        `;
+        container.style.display = 'block';
+        container.setAttribute('data-type', type);
+    }
+};
+
 window.toggleFavorite = function(id) {
     if (state.toggleFavorite(id)) {
         const isFav = state.isFavorite(id);
@@ -10283,14 +10320,14 @@ function updateNavbar(forceLanding) {
                         </a>
                         
                         <!-- Feedback Button (Moved from Header to Dropdown under Profil bearbeiten) -->
-                        <button class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'}" id="dropdown-btn-feedback" style="background: none; border: none; text-align: left; width: 100%; font-family: inherit; font-size: inherit; cursor: pointer;">
+                        <a href="javascript:void(0)" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'}" id="dropdown-btn-feedback">
                             <i class="fa-solid fa-comment-dots"></i> Feedback senden
-                        </button>
+                        </a>
                         
                         <div class="profile-dropdown-divider"></div>
-                        <button class="profile-dropdown-item logout-item" id="dropdown-btn-logout">
+                        <a href="javascript:void(0)" class="profile-dropdown-item logout-item" id="dropdown-btn-logout">
                             <i class="fa-solid fa-right-from-bracket"></i> Abmelden
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -11212,43 +11249,40 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 </div>
 
                 ${isUnlocked ? `
-                    <!-- Solid Colored Unlocked Contact & Action Footer Box -->
-                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 1.1rem 1.3rem; background: ${themeColor}; color: #ffffff; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.84rem; border-radius: 0 0 18px 18px;">
-                        <!-- Company / Type -->
-                        <div style="display: flex; align-items: center; gap: 0.65rem;">
-                            <i class="fa-solid fa-building" style="color: #ffffff; width: 16px; text-align: center; font-size: 0.9rem; opacity: 0.9;"></i>
-                            <span style="font-weight: 700;">${isEvents ? ((!item.organizerType || item.organizerType === 'Privater Veranstalter' || item.company === 'Privatperson') ? 'Privatperson' : (item.company || 'Privatperson')) : (item.company || 'Privatperson')}</span>
+                    <!-- Solid Colored Unlocked Contact Footer Box -->
+                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 1rem 1.3rem; background: ${themeColor}; color: #ffffff; display: flex; flex-direction: column; gap: 0.8rem; border-radius: 0 0 18px 18px;">
+                        <!-- Row of circular action buttons -->
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 1.2rem;">
+                            <!-- Phone Button -->
+                            <button onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'phone', '${(item.hidePhone && !(state && state.currentUser && (item.creatorId === state.currentUser.id || item.id === state.currentUser.profileId))) ? 'Vom Nutzer ausgeblendet' : (item.phone || '+49 170 1234567')}')" 
+                                    style="width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" 
+                                    onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.borderColor='rgba(255,255,255,0.8)';" 
+                                    onmouseout="this.style.background='rgba(255, 255, 255, 0.12)'; this.style.borderColor='rgba(255, 255, 255, 0.4)';"
+                                    title="Telefonnummer anzeigen">
+                                <i class="fa-solid fa-phone" style="color: #ffffff; font-size: 1.05rem;"></i>
+                            </button>
+
+                            <!-- Email Button -->
+                            <button onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'email', '${item.email || 'kontakt@gigconnact.de'}')" 
+                                    style="width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" 
+                                    onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.borderColor='rgba(255,255,255,0.8)';" 
+                                    onmouseout="this.style.background='rgba(255, 255, 255, 0.12)'; this.style.borderColor='rgba(255, 255, 255, 0.4)';"
+                                    title="E-Mail-Adresse anzeigen">
+                                <i class="fa-solid fa-envelope" style="color: #ffffff; font-size: 1.05rem;"></i>
+                            </button>
+
+                            <!-- Chat / Message Button -->
+                            <button onclick="event.stopPropagation(); window.initiateMarketContact('${isEvents ? item.creatorId : item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}', '${isEvents ? item.id : ''}')" 
+                                    style="width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" 
+                                    onmouseover="this.style.background='rgba(255,255,255,0.25)'; this.style.borderColor='rgba(255,255,255,0.8)';" 
+                                    onmouseout="this.style.background='rgba(255, 255, 255, 0.12)'; this.style.borderColor='rgba(255, 255, 255, 0.4)';"
+                                    title="Nachricht schreiben">
+                                <i class="fa-solid fa-comments" style="color: #ffffff; font-size: 1.05rem;"></i>
+                            </button>
                         </div>
-                        <!-- Contact Name -->
-                        <div style="display: flex; align-items: center; gap: 0.65rem;">
-                            <i class="fa-solid fa-user" style="color: #ffffff; width: 16px; text-align: center; font-size: 0.9rem; opacity: 0.9;"></i>
-                            <span>${isEvents ? (item.contactName || 'Demo Kontakt') : `${item.contactName || 'Demo Kontakt'}`}</span>
-                        </div>
-                        <!-- Phone -->
-                        <div style="display: flex; align-items: center; gap: 0.65rem;">
-                            <i class="fa-solid fa-phone" style="color: #ffffff; width: 16px; text-align: center; font-size: 0.9rem; opacity: 0.9;"></i>
-                            <span>
-                                ${item.hidePhone ? (
-                                    (state && state.currentUser && (item.creatorId === state.currentUser.id || item.id === state.currentUser.profileId)) ? `
-                                        <span>${item.phone || '+49 170 1234567'}</span> <span style="font-size: 0.68rem; opacity: 0.7; margin-left: 0.2rem;">(für dich sichtbar)</span>
-                                    ` : `
-                                        <span style="opacity: 0.75; font-style: italic; font-size: 0.78rem;">[Vom Nutzer ausgeblendet]</span>
-                                    `
-                                ) : `
-                                    <span>${item.phone || '+49 170 1234567'}</span>
-                                `}
-                            </span>
-                        </div>
-                        <!-- Email -->
-                        <div style="display: flex; align-items: center; gap: 0.65rem;">
-                            <i class="fa-solid fa-envelope" style="color: #ffffff; width: 16px; text-align: center; font-size: 0.9rem; opacity: 0.9;"></i>
-                            <span style="word-break: break-all;">${item.email || 'kontakt@gigconnact.de'}</span>
-                        </div>
-                        
-                        <!-- Embedded Message Button -->
-                        <button class="btn btn-sm btn-glass" onclick="event.stopPropagation(); window.initiateMarketContact('${isEvents ? item.creatorId : item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}', '${isEvents ? item.id : ''}')" style="margin: 0; margin-top: 0.4rem; padding: 0.5rem; font-size: 0.8rem; color: #ffffff; border-color: rgba(255, 255, 255, 0.45); background: rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; gap: 0.4rem; font-weight: 800; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.22)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
-                            <i class="fa-solid fa-paper-plane" style="color: #ffffff;"></i> Nachricht senden
-                        </button>
+
+                        <!-- Reveal panel for contact data -->
+                        <div id="contact-reveal-${item.id}" style="display: none; text-align: center; font-size: 0.82rem; padding: 0.55rem; background: rgba(255,255,255,0.15); border-radius: 8px; animation: fadeIn 0.2s; word-break: break-all;"></div>
                     </div>
                 ` : `
                     <!-- 4. Aktions-Button: "Kontaktdaten freischalten" -->
