@@ -3054,7 +3054,7 @@ body {
     position: absolute;
     height: 6px;
     width: 100%;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.1);
     border-radius: 3px;
     top: 50%;
     transform: translateY(-50%);
@@ -3254,8 +3254,8 @@ body {
 }
 
 /* Make all criteria labels inside the registration form purple and bold */
-#auth-register-form .form-group > label,
-#auth-register-form .slider-value-display > label {
+#auth-register-form .form-group label:not(.tag-pill-checkbox),
+#auth-register-form .slider-value-display label {
     color: var(--color-purple) !important;
     font-weight: 800 !important;
 }
@@ -3300,6 +3300,16 @@ body {
     color: #a855f7;
 }
 
+#auth-register-form.role-musician-active {
+    --market-primary: #7c3aed;
+    --market-primary-rgb: 124, 58, 237;
+}
+
+#auth-register-form.role-organizer-active {
+    --market-primary: #2563eb;
+    --market-primary-rgb: 37, 99, 235;
+}
+
 /* Card layout for criteria form groups inside the registration form */
 #auth-register-form .form-group {
     background: rgba(255, 255, 255, 0.015);
@@ -3326,8 +3336,8 @@ body {
     box-shadow: 0 4px 18px rgba(96, 165, 250, 0.2);
 }
 
-#auth-register-form.role-organizer-active .form-group > label,
-#auth-register-form.role-organizer-active .slider-value-display > label {
+#auth-register-form.role-organizer-active .form-group label:not(.tag-pill-checkbox),
+#auth-register-form.role-organizer-active .slider-value-display label {
     color: #2563eb !important; /* dunkelblau text instead of light blue */
 }
 
@@ -11022,7 +11032,7 @@ function renderOrganizerEventItem(e, isActive) {
                     `).join('')}
 
                     <!-- Last Slide: Beschreibung -->
-                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.2rem; box-sizing: border-box; text-align: center;">
+                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.2rem 3.2rem; box-sizing: border-box; text-align: center;">
                         <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 120px; overflow-y: auto;">
                             ${description}
                         </p>
@@ -11482,7 +11492,7 @@ function renderMyMusicianItem(m, isActive) {
                     `).join('')}
 
                     <!-- Last Slide: Beschreibung -->
-                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.2rem; box-sizing: border-box; text-align: center;">
+                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.2rem 3.2rem; box-sizing: border-box; text-align: center;">
                         <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 120px; overflow-y: auto;">
                             ${description}
                         </p>
@@ -11752,7 +11762,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <label>Musiker- oder Bandname</label>
-                        <input type="text" name="bandName" class="input-field" value="${musicianObj?.name || ''}" required>
+                        <input type="text" name="bandName" class="input-field" value="${musicianObj?.name || ''}" maxlength="50" required>
                     </div>
 
                     <div class="form-group">
@@ -11914,7 +11924,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <label>Beschreibung</label>
-                        <textarea name="description" class="input-field" rows="3" style="resize:vertical;" required>${musicianObj?.description || ''}</textarea>
+                        <textarea name="description" class="input-field" rows="3" style="resize:vertical;" maxlength="200" required>${musicianObj?.description || ''}</textarea>
                     </div>
 
                     <!-- Media Section -->
@@ -12235,7 +12245,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     
                     <div class="form-group">
                         <label>Eventname</label>
-                        <input type="text" name="eventName" class="input-field" value="${eventObj?.name || ''}" placeholder="Name des Events" required>
+                        <input type="text" name="eventName" class="input-field" value="${eventObj?.name || ''}" placeholder="Name des Events" maxlength="50" required>
                     </div>
 
                     <div class="form-group">
@@ -12381,7 +12391,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <label>Beschreibung</label>
-                        <textarea name="orgDescription" class="input-field" rows="3" style="resize:vertical;" required>${eventObj?.description || ''}</textarea>
+                        <textarea name="orgDescription" class="input-field" rows="3" style="resize:vertical;" maxlength="200" required>${eventObj?.description || ''}</textarea>
                     </div>
 
                     <!-- Media Section -->
@@ -12930,7 +12940,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         
                         <div class="form-group">
                             <label>Musikername</label>
-                            <input type="text" name="bandName" class="input-field" maxlength="20" required placeholder="Name des Acts">
+                            <input type="text" name="bandName" class="input-field" maxlength="50" required placeholder="Name des Acts">
                         </div>
 
                         <div class="form-group">
@@ -13118,7 +13128,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         
                         <div class="form-group">
                             <label>Eventname</label>
-                            <input type="text" name="eventName" class="input-field" maxlength="25" placeholder="Name des Events">
+                            <input type="text" name="eventName" class="input-field" maxlength="50" placeholder="Name des Events">
                         </div>
 
                         <div class="form-group">
@@ -13314,22 +13324,22 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     <!-- Dynamic field for non-private organizers -->
                     <div class="form-group hidden" id="reg-org-company-dynamic-container" style="margin-top: 1rem;">
                         <label id="reg-org-company-dynamic-label">Name Organisation</label>
-                        <input type="text" name="company" id="reg-org-company-input" class="input-field" maxlength="30" placeholder="Name eingeben">
+                        <input type="text" name="company" id="reg-org-company-input" class="input-field" maxlength="50" placeholder="Name eingeben">
                     </div>
 
                     <div class="form-group">
                         <label>Vor- und Nachname</label>
-                        <input type="text" name="fullName" id="input-reg-fullname" class="input-field" maxlength="30" placeholder="z.B. Max Mustermann" required>
+                        <input type="text" name="fullName" id="input-reg-fullname" class="input-field" maxlength="50" placeholder="z.B. Max Mustermann" required>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label>E-Mail-Adresse</label>
-                            <input type="email" name="email" class="input-field" maxlength="30" placeholder="z.B. max.mustermann@gmail.com" required>
+                            <input type="email" name="email" class="input-field" maxlength="80" placeholder="z.B. max.mustermann@gmail.com" required>
                         </div>
                         <div class="form-group">
                             <label>Telefonnummer</label>
-                            <input type="text" name="phone" id="input-reg-phone" class="input-field" maxlength="13" placeholder="z.B. 01761234567" required>
+                            <input type="text" name="phone" id="input-reg-phone" class="input-field" maxlength="20" placeholder="z.B. 01761234567" required>
                             <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem;">
                                 <input type="checkbox" name="hidePhone" id="input-reg-hidephone" style="width: auto; margin: 0; cursor: pointer;">
                                 <label for="input-reg-hidephone" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0;">Telefonnummer verbergen (geblurrt)</label>
@@ -15826,7 +15836,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         `).join('') : ''}
 
                         <!-- Last Slide: Beschreibung (schwarz mit weisser Schrift) -->
-                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; box-sizing: border-box; text-align: center;">
+                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3.8rem 3rem 1.5rem; box-sizing: border-box; text-align: center;">
                             <p style="font-size: 0.84rem; font-weight: 500; color: #f8fafc; line-height: 1.5; margin: 0; max-height: 140px; overflow-y: auto; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
                                 ${description}
                             </p>
@@ -15870,7 +15880,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     </div>
 
                     <!-- 2. Einspaltige Informationen mit Icons (Reihenfolge nach Benutzer-Anforderungen) -->
-                    <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: ${isUnlocked ? '0.4rem' : '0.75rem'};">
+                    <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.75rem;">
                         <!-- 1. Ort -->
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
@@ -15929,57 +15939,55 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                             <span>${(item.technik && item.technik.length > 0) ? (Array.isArray(item.technik) ? item.technik.join(', ') : item.technik) : 'Technik ist noch unklar'}</span>
                         </div>
                     </div>
+                </div>
 
-                    ${isUnlocked ? `
-                    <!-- Trennlinie & Freigeschaltete persönliche Daten -->
-                    <div class="tile-unlocked-contact-info" style="margin-top: 0.4rem; padding-top: 0.4rem; border-top: 3px solid ${themeColor}; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main);">
-                        <!-- Firma -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-building" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${isEvents ? ((!item.organizerType || item.organizerType === 'Privater Veranstalter' || item.company === 'Privatperson') ? 'Privatperson' : (item.company || 'Privatperson')) : (item.company || 'Privatperson')}</span>
+                ${isUnlocked ? `
+                    <!-- Solid Colored Unlocked Contact & Action Footer Box -->
+                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 1.1rem 1.3rem; background: ${themeColor}; color: #ffffff; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.84rem; border-radius: 0 0 18px 18px;">
+                        <!-- Company / Type -->
+                        <div style="display: flex; align-items: center; gap: 0.65rem;">
+                            <i class="fa-solid fa-building" style="color: #ffffff; width: 16px; text-align: center; font-size: 0.9rem; opacity: 0.9;"></i>
+                            <span style="font-weight: 700;">${isEvents ? ((!item.organizerType || item.organizerType === 'Privater Veranstalter' || item.company === 'Privatperson') ? 'Privatperson' : (item.company || 'Privatperson')) : (item.company || 'Privatperson')}</span>
                         </div>
-                        <!-- Name -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-user" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${isEvents ? (item.contactName || 'Demo Kontakt') : `Name: ${item.contactName || 'Demo Kontakt'}`}</span>
+                        <!-- Contact Name -->
+                        <div style="display: flex; align-items: center; gap: 0.65rem;">
+                            <i class="fa-solid fa-user" style="color: #ffffff; width: 16px; text-align: center; font-size: 0.9rem; opacity: 0.9;"></i>
+                            <span>${isEvents ? (item.contactName || 'Demo Kontakt') : `${item.contactName || 'Demo Kontakt'}`}</span>
                         </div>
-                        <!-- Telefon -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-                            <i class="fa-solid fa-phone" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>Tel: 
+                        <!-- Phone -->
+                        <div style="display: flex; align-items: center; gap: 0.65rem;">
+                            <i class="fa-solid fa-phone" style="color: #ffffff; width: 16px; text-align: center; font-size: 0.9rem; opacity: 0.9;"></i>
+                            <span>
                                 ${item.hidePhone ? (
                                     (state && state.currentUser && (item.creatorId === state.currentUser.id || item.id === state.currentUser.profileId)) ? `
-                                        <span>${item.phone || '+49 170 1234567'}</span> <span style="font-size: 0.7rem; color: var(--text-muted); margin-left: 0.2rem;">(für dich sichtbar)</span>
+                                        <span>${item.phone || '+49 170 1234567'}</span> <span style="font-size: 0.68rem; opacity: 0.7; margin-left: 0.2rem;">(für dich sichtbar)</span>
                                     ` : `
-                                        <span style="color: var(--text-muted); font-style: italic; font-size: 0.85rem;">[Vom Nutzer ausgeblendet]</span>
+                                        <span style="opacity: 0.75; font-style: italic; font-size: 0.78rem;">[Vom Nutzer ausgeblendet]</span>
                                     `
                                 ) : `
                                     <span>${item.phone || '+49 170 1234567'}</span>
                                 `}
                             </span>
                         </div>
-                        <!-- E-Mail -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-envelope" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>Mail: ${item.email || 'kontakt@gigconnact.de'}</span>
+                        <!-- Email -->
+                        <div style="display: flex; align-items: center; gap: 0.65rem;">
+                            <i class="fa-solid fa-envelope" style="color: #ffffff; width: 16px; text-align: center; font-size: 0.9rem; opacity: 0.9;"></i>
+                            <span style="word-break: break-all;">${item.email || 'kontakt@gigconnact.de'}</span>
                         </div>
-                    </div>
-                    ` : ''}
-                </div>
-
-                <!-- 4. Aktions-Button: "Kontaktdaten freischalten" -->
-                <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
-                    ${isUnlocked ? `
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); window.initiateMarketContact('${isEvents ? item.creatorId : item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}', '${isEvents ? item.id : ''}')" style="width: 100%; background: ${themeColor}; border-color: ${themeColor}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-paper-plane"></i> Nachricht senden
+                        
+                        <!-- Embedded Message Button -->
+                        <button class="btn btn-sm btn-glass" onclick="event.stopPropagation(); window.initiateMarketContact('${isEvents ? item.creatorId : item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}', '${isEvents ? item.id : ''}')" style="margin: 0; margin-top: 0.4rem; padding: 0.5rem; font-size: 0.8rem; color: #ffffff; border-color: rgba(255, 255, 255, 0.45); background: rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; gap: 0.4rem; font-weight: 800; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.22)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+                            <i class="fa-solid fa-paper-plane" style="color: #ffffff;"></i> Nachricht senden
                         </button>
-                    ` : `
-                        <!-- Kontaktdaten freischalten Button (Themed based on context) -->
+                    </div>
+                ` : `
+                    <!-- 4. Aktions-Button: "Kontaktdaten freischalten" -->
+                    <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
                         <button class="btn btn-primary" onclick="event.stopPropagation(); showModal('auth')" style="width: 100%; background: ${btnGradient}; border-color: ${btnBorderColor}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow};">
                             <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
                         </button>
-                    `}
-                </div>
+                    </div>
+                `}
             </div>
         `;
     }).join('');

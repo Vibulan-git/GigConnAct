@@ -3038,7 +3038,7 @@ body {
     position: absolute;
     height: 6px;
     width: 100%;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.1);
     border-radius: 3px;
     top: 50%;
     transform: translateY(-50%);
@@ -3238,8 +3238,8 @@ body {
 }
 
 /* Make all criteria labels inside the registration form purple and bold */
-#auth-register-form .form-group > label,
-#auth-register-form .slider-value-display > label {
+#auth-register-form .form-group label:not(.tag-pill-checkbox),
+#auth-register-form .slider-value-display label {
     color: var(--color-purple) !important;
     font-weight: 800 !important;
 }
@@ -3284,6 +3284,16 @@ body {
     color: #a855f7;
 }
 
+#auth-register-form.role-musician-active {
+    --market-primary: #7c3aed;
+    --market-primary-rgb: 124, 58, 237;
+}
+
+#auth-register-form.role-organizer-active {
+    --market-primary: #2563eb;
+    --market-primary-rgb: 37, 99, 235;
+}
+
 /* Card layout for criteria form groups inside the registration form */
 #auth-register-form .form-group {
     background: rgba(255, 255, 255, 0.015);
@@ -3310,8 +3320,8 @@ body {
     box-shadow: 0 4px 18px rgba(96, 165, 250, 0.2);
 }
 
-#auth-register-form.role-organizer-active .form-group > label,
-#auth-register-form.role-organizer-active .slider-value-display > label {
+#auth-register-form.role-organizer-active .form-group label:not(.tag-pill-checkbox),
+#auth-register-form.role-organizer-active .slider-value-display label {
     color: #2563eb !important; /* dunkelblau text instead of light blue */
 }
 
