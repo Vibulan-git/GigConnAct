@@ -3561,7 +3561,7 @@ function renderLandingPage(container, onNavigate) {
                                 <!-- Item 5 -->
                                 <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-wand-magic" style="color: #7c3aed; font-size: 1rem;"></i>
+                                        <i class="fa-solid fa-star" style="color: #eab308; font-size: 1rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
@@ -3698,7 +3698,7 @@ function renderLandingPage(container, onNavigate) {
                                 <!-- Item 5 -->
                                 <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                                        <i class="fa-solid fa-wand-magic-sparkles" style="color: #2563eb; font-size: 1rem;"></i>
+                                        <i class="fa-solid fa-star" style="color: #eab308; font-size: 1rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
@@ -10977,7 +10977,7 @@ function renderPostbox(container) {
     renderView();
 }
 
-function renderMarketGridHTML(items, isEvents) {
+function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
     if (!items || items.length === 0) {
         return `
             <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass);">
@@ -10993,6 +10993,16 @@ function renderMarketGridHTML(items, isEvents) {
     return items.map(item => {
         const isUnlocked = state ? ((typeof state.isUnlocked === 'function') ? state.isUnlocked(item.id) : (state.unlockedContacts && state.unlockedContacts.includes(item.id))) : false;
         console.log("renderMarketGridHTML: item =", item.id, "isUnlocked =", isUnlocked, "state.currentUser =", state ? state.currentUser : null);
+        
+        // Dynamically compute button styles based on page context and type
+        const btnIsPurple = isEvents ? !isLandingPage : isLandingPage;
+        const btnGradient = btnIsPurple 
+            ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' 
+            : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)';
+        const btnBorderColor = btnIsPurple ? '#7c3aed' : '#1e40af';
+        const btnBoxShadow = btnIsPurple 
+            ? '0 4px 14px rgba(124, 58, 237, 0.35)' 
+            : '0 4px 14px rgba(37, 99, 235, 0.35)';
         
         // 3 Fotos pro Musiker/Event
         const photos = (item.photos || [
@@ -11244,8 +11254,8 @@ function renderMarketGridHTML(items, isEvents) {
                             <i class="fa-solid fa-paper-plane"></i> Nachricht senden
                         </button>
                     ` : `
-                        <!-- Kontaktdaten freischalten Button (Blue for events, Purple for musicians-market) -->
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); showModal('auth')" style="width: 100%; background: ${isEvents ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'}; border-color: ${isEvents ? '#1e40af' : '#7c3aed'}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${isEvents ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'};">
+                        <!-- Kontaktdaten freischalten Button (Themed based on context) -->
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); showModal('auth')" style="width: 100%; background: ${btnGradient}; border-color: ${btnBorderColor}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow};">
                             <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
                         </button>
                     `}
