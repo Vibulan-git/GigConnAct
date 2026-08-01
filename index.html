@@ -2,6 +2,27 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <!-- Global Error Catcher -->
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            var div = document.createElement('div');
+            div.style.position = 'fixed';
+            div.style.top = '0';
+            div.style.left = '0';
+            div.style.width = '100%';
+            div.style.background = '#ef4444';
+            div.style.color = '#fff';
+            div.style.padding = '1rem';
+            div.style.zIndex = '999999';
+            div.style.fontFamily = 'monospace';
+            div.style.fontSize = '0.9rem';
+            div.style.boxSizing = 'border-box';
+            div.style.textAlign = 'left';
+            div.innerHTML = '<strong>JavaScript Fehler:</strong> ' + message + '<br>Datei: ' + source + '<br>Zeile: ' + lineno + ' | Spalte: ' + colno;
+            document.body.appendChild(div);
+            return false;
+        };
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
