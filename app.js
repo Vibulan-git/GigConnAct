@@ -3169,11 +3169,11 @@ function renderLandingPage(container, onNavigate) {
             <!-- 1. Fullscreen 100vh Hero Background Video Section -->
             <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 22vh 1.5rem 9rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
                 
-                <!-- Seamless Dual Background Videos (Scaled to crop out Capcut watermark) -->
-                <video id="hero-bg-video-1" autoplay muted playsinline style="position: absolute; top: -8%; left: -8%; width: 116%; height: 116%; object-fit: cover; z-index: 1;">
+                <!-- Seamless Dual Background Videos (Scaled to crop out Capcut watermark and cross-fade) -->
+                <video id="hero-bg-video-1" autoplay muted playsinline style="position: absolute; top: -12%; left: -12%; width: 124%; height: 124%; object-fit: cover; z-index: 2; opacity: 1; transition: opacity 1.5s ease-in-out;">
                     <source src="hochzeit.mp4" type="video/mp4">
                 </video>
-                <video id="hero-bg-video-2" muted playsinline style="position: absolute; top: -8%; left: -8%; width: 116%; height: 116%; object-fit: cover; z-index: 0; display: none;">
+                <video id="hero-bg-video-2" muted playsinline style="position: absolute; top: -12%; left: -12%; width: 124%; height: 124%; object-fit: cover; z-index: 1; opacity: 0; transition: opacity 1.5s ease-in-out;">
                 </video>
 
                 <!-- Dark overlay gradient -->
@@ -3452,23 +3452,15 @@ function renderLandingPage(container, onNavigate) {
                         <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Firmenfeiern</span>
                     </div>
 
-                    <!-- Card 4: Kirmes & Stadtfeste -->
+                    <!-- Card 4: Stadtfeste -->
                     <div class="event-type-card card-blue">
                         <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                            <i class="fa-solid fa-tent" style="color: #2563eb; font-size: 1.5rem;"></i>
+                            <i class="fa-solid fa-city" style="color: #2563eb; font-size: 1.3rem;"></i>
                         </div>
-                        <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Kirmes & Stadtfeste</span>
+                        <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Stadtfeste</span>
                     </div>
 
-                    <!-- Card 5: Garten- & Sommerpartys -->
-                    <div class="event-type-card card-blue">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                            <i class="fa-solid fa-champagne-glasses" style="color: #2563eb; font-size: 1.5rem;"></i>
-                        </div>
-                        <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Garten- & Sommerpartys</span>
-                    </div>
-
-                    <!-- Card 6: Private Feiern -->
+                    <!-- Card 5: Private Feiern -->
                     <div class="event-type-card card-blue">
                         <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(96, 165, 250, 0.35);">
                             <i class="fa-solid fa-gifts" style="color: #2563eb; font-size: 1.5rem;"></i>
@@ -3476,26 +3468,6 @@ function renderLandingPage(container, onNavigate) {
                         <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Private Feiern</span>
                     </div>
 
-                    <!-- Card 7: Vereins- & Clubveranstaltungen -->
-                    <div class="event-type-card card-blue">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                            <i class="fa-solid fa-users" style="color: #2563eb; font-size: 1.5rem;"></i>
-                        </div>
-                        <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Vereins- & Clubveranstaltungen</span>
-                    </div>
-
-                    <!-- Card 8: Weitere Events -->
-                    <div class="event-type-card card-gray">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(148, 163, 184, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(148, 163, 184, 0.35);">
-                            <i class="fa-solid fa-ellipsis" style="color: #94a3b8; font-size: 1.5rem;"></i>
-                        </div>
-                        <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Weitere Events</span>
-                    </div>
-
-                </div>
-
-                <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
-                    ... und viele weitere Veranstaltungen
                 </div>
             </div>
 
@@ -3508,7 +3480,7 @@ function renderLandingPage(container, onNavigate) {
                         <div>
                             <!-- Header badge -->
                             <div style="background: rgba(124, 58, 237, 0.1); color: #7c3aed; border-radius: 20px; padding: 0.4rem 0.9rem; font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1.2rem; text-transform: uppercase;">
-                                <i class="fa-solid fa-user"></i> Für Musiker
+                                <i class="fa-solid fa-guitar"></i> Für Musiker
                             </div>
                             
                             <!-- Title and Illustration Row -->
@@ -3516,9 +3488,9 @@ function renderLandingPage(container, onNavigate) {
                                 <h3 style="font-family: var(--font-heading); font-size: clamp(1.4rem, 2.5vw, 1.95rem); font-weight: 900; color: var(--text-main); margin: 0; line-height: 1.25; text-align: left;">
                                     <span style="color: #7c3aed;">Mehr passende Gigs.</span><br>Weniger Suche.
                                 </h3>
-                                <!-- Illustration: mic + music notes -->
+                                <!-- Illustration: guitar + music notes -->
                                 <div style="width: 76px; height: 76px; background: rgba(124, 58, 237, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0;">
-                                    <i class="fa-solid fa-microphone" style="font-size: 2rem; color: #7c3aed;"></i>
+                                    <i class="fa-solid fa-guitar" style="font-size: 2.2rem; color: #7c3aed; transform: rotate(-15deg);"></i>
                                     <i class="fa-solid fa-music" style="font-size: 0.9rem; color: #a78bfa; position: absolute; top: 12px; right: 12px; animation: bounce 2s infinite;"></i>
                                 </div>
                             </div>
@@ -3891,7 +3863,7 @@ function renderLandingPage(container, onNavigate) {
         initCarouselTouch('benefits-organizer');
     }
 
-    // Video cycling logic (Seamless swap)
+    // Video cycling logic (Seamless swap & cross-fade, avoiding Capcut outro)
     const heroVideos = [
         'hochzeit.mp4',
         'gartenparty.mp4',
@@ -3907,33 +3879,81 @@ function renderLandingPage(container, onNavigate) {
         v2.src = heroVideos[1];
         v2.load();
 
-        const swap = function(activePlayer, hiddenPlayer) {
-            activePlayer.addEventListener('ended', function onceEnded() {
-                activePlayer.removeEventListener('ended', onceEnded);
+        const transitionDuration = 1500; // 1.5s fade transition
+        let isTransitioning = false;
 
-                hiddenPlayer.play().then(() => {
-                    hiddenPlayer.style.display = 'block';
-                    hiddenPlayer.style.zIndex = '1';
-                    activePlayer.style.display = 'none';
-                    activePlayer.style.zIndex = '0';
+        const startCrossfade = function(activePlayer, hiddenPlayer) {
+            if (isTransitioning) return;
+            isTransitioning = true;
 
-                    currentVideoIndex = (currentVideoIndex + 1) % heroVideos.length;
-                    const nextIndex = (currentVideoIndex + 1) % heroVideos.length;
+            // Start playing the hidden player
+            hiddenPlayer.play().then(() => {
+                const onPlaying = () => {
+                    hiddenPlayer.removeEventListener('playing', onPlaying);
 
-                    activePlayer.src = heroVideos[nextIndex];
-                    activePlayer.load();
+                    // Cross-fade opacity
+                    hiddenPlayer.style.opacity = '1';
+                    activePlayer.style.opacity = '0';
 
-                    swap(hiddenPlayer, activePlayer);
-                }).catch(err => {
-                    console.log("Preloaded play failed, falling back:", err);
-                    activePlayer.src = heroVideos[(currentVideoIndex + 1) % heroVideos.length];
-                    activePlayer.play();
-                    swap(activePlayer, hiddenPlayer);
-                });
+                    // After CSS transition finishes (1.5s)
+                    setTimeout(() => {
+                        // Swap z-indexes: hidden player becomes foreground
+                        hiddenPlayer.style.zIndex = '2';
+                        activePlayer.style.zIndex = '1';
+
+                        // Preload the next video in activePlayer (which is now in background/hidden)
+                        currentVideoIndex = (currentVideoIndex + 1) % heroVideos.length;
+                        const nextIndex = (currentVideoIndex + 1) % heroVideos.length;
+
+                        activePlayer.src = heroVideos[nextIndex];
+                        activePlayer.load();
+
+                        isTransitioning = false;
+
+                        // Start monitoring the new active player
+                        monitorPlayer(hiddenPlayer, activePlayer);
+                    }, transitionDuration);
+                };
+
+                hiddenPlayer.addEventListener('playing', onPlaying);
+                
+                // Fallback if playing event is delayed
+                setTimeout(() => {
+                    if (isTransitioning && hiddenPlayer.style.opacity !== '1') {
+                        onPlaying();
+                    }
+                }, 300);
+            }).catch(err => {
+                console.log("Play failed, fallback:", err);
+                isTransitioning = false;
+                // Try again in 2 seconds
+                setTimeout(() => monitorPlayer(activePlayer, hiddenPlayer), 2000);
             });
         };
 
-        swap(v1, v2);
+        const monitorPlayer = function(activePlayer, hiddenPlayer) {
+            const onTimeUpdate = () => {
+                const duration = activePlayer.duration;
+                // Transition 2.5 seconds early to avoid CapCut outro watermark
+                if (duration && activePlayer.currentTime >= Math.max(duration - 2.5, 3)) {
+                    activePlayer.removeEventListener('timeupdate', onTimeUpdate);
+                    activePlayer.removeEventListener('ended', onEnded);
+                    startCrossfade(activePlayer, hiddenPlayer);
+                }
+            };
+
+            const onEnded = () => {
+                activePlayer.removeEventListener('timeupdate', onTimeUpdate);
+                activePlayer.removeEventListener('ended', onEnded);
+                startCrossfade(activePlayer, hiddenPlayer);
+            };
+
+            activePlayer.addEventListener('timeupdate', onTimeUpdate);
+            activePlayer.addEventListener('ended', onEnded);
+        };
+
+        // Monitor the initial active player (v1)
+        monitorPlayer(v1, v2);
     }
 }
 

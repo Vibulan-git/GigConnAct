@@ -1768,7 +1768,9 @@ body {
     background: linear-gradient(135deg, #eab308 0%, #7c3aed 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    line-height: 1;
+    line-height: 1.35;
+    padding: 0.15rem 0;
+    overflow: visible;
     font-family: var(--font-heading);
 }
 
@@ -4069,7 +4071,7 @@ input[type="range"].input-field {
         flex-direction: row;
         gap: 4rem;
         justify-content: center;
-        align-items: flex-start;
+        align-items: stretch;
     }
     .benefits-container-split > div {
         flex: 1;
