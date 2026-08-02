@@ -3441,11 +3441,8 @@ function renderLandingPage(container, onNavigate) {
 
             <!-- 3.5. EVENT TYPES SECTION -->
             <div style="max-width: 1400px; margin: 5rem auto 3rem; padding: 0 1.5rem; text-align: center;">
-                <div style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.8px; color: #7c3aed; margin-bottom: 0.5rem;">
-                    FÜR JEDES EVENT DIE PASSENDE MUSIK
-                </div>
                 <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.5rem); font-weight: 900; color: var(--text-main); margin: 0 0 2.5rem; line-height: 1.2;">
-                    Finde Musiker für nahezu jeden Anlass.
+                    Live-Musik für jedes Event
                 </h2>
                 
                 <!-- Horizontal row of event type cards -->
@@ -3460,9 +3457,9 @@ function renderLandingPage(container, onNavigate) {
                     </div>
 
                     <!-- Card 2: Geburtstage -->
-                    <div class="event-type-card card-purple">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                            <i class="fa-solid fa-cake-candles" style="color: #7c3aed; font-size: 1.5rem;"></i>
+                    <div class="event-type-card card-blue">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                            <i class="fa-solid fa-cake-candles" style="color: #2563eb; font-size: 1.5rem;"></i>
                         </div>
                         <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Geburtstage</span>
                     </div>
@@ -3476,9 +3473,9 @@ function renderLandingPage(container, onNavigate) {
                     </div>
 
                     <!-- Card 4: Stadtfeste -->
-                    <div class="event-type-card card-purple">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                            <i class="fa-solid fa-city" style="color: #7c3aed; font-size: 1.3rem;"></i>
+                    <div class="event-type-card card-blue">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                            <i class="fa-solid fa-city" style="color: #2563eb; font-size: 1.3rem;"></i>
                         </div>
                         <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Stadtfeste</span>
                     </div>
@@ -6145,10 +6142,6 @@ function renderProfilePage(container) {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             state.logout();
-            showToast({
-                title: "Abgemeldet",
-                message: "Auf Wiedersehen!"
-            });
             window.location.hash = '#/';
         });
     }
@@ -10455,10 +10448,6 @@ function updateNavbar(forceLanding) {
             logoutBtn.addEventListener('click', () => {
                 menu.classList.remove('show');
                 state.logout();
-                showToast({
-                    title: "Abgemeldet",
-                    message: "Auf Wiedersehen!"
-                });
                 window.location.hash = '#/';
             });
         }
