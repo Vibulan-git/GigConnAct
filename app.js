@@ -2274,8 +2274,8 @@ class StateManager {
         
         const recipientId = eventId || targetId;
         const senderId = this.currentUser.role === 'musician' 
-            ? this.currentUser.profileId 
-            : this.currentUser.id;
+            ? (this.activeMusicianId || this.currentUser.profileId) 
+            : (this.activeEventId || this.currentUser.id);
 
         let chat = this.chats.find(c => 
             c.participants.includes(senderId) && c.participants.includes(recipientId)
@@ -4454,6 +4454,10 @@ function renderMarket(container, type, onNavigate) {
                             <i class="fa-solid fa-sliders"></i> Filter
                         </span>
                         
+                        <button id="btn-reset-filters" class="btn-reset-round" title="Filter zurücksetzen">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                        
                         <button id="btn-close-filters-m" class="btn-close-filters-m">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
@@ -4575,12 +4579,6 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Suchbegriffe</label>
                                 <input type="text" id="filter-keyword" placeholder="z.B. Hochzeit, Sax, Rock..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                            </div>
-
-                            <div style="padding-top: 0.2rem;">
-                                <button id="btn-reset-filters" class="btn btn-secondary" style="width: 100% !important; padding: 0.65rem; border-radius: 10px; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; transition: all 0.2s;">
-                                    <i class="fa-solid fa-rotate-left"></i> Zurücksetzen
-                                </button>
                             </div>
 
                         </div>
@@ -4720,12 +4718,6 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Suchbegriffe</label>
                                 <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                            </div>
-
-                            <div style="padding-top: 0.2rem;">
-                                <button id="btn-reset-filters" class="btn btn-secondary" style="width: 100% !important; padding: 0.65rem; border-radius: 10px; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; transition: all 0.2s;">
-                                    <i class="fa-solid fa-rotate-left"></i> Zurücksetzen
-                                </button>
                             </div>
 
                         </div>
@@ -10625,7 +10617,7 @@ function renderPostbox(container) {
         const options = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''}>${p.name || p.contactName || p.title || 'Profil'}</option>`).join('');
         profileSelectorHtml = `
             <div style="margin-bottom: 0.8rem; display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.2rem;">
-                <label style="font-size: 0.65rem; font-weight: 800; color: var(--color-cyan); text-transform: uppercase; letter-spacing: 0.5px;">Aktives Profil:</label>
+                <label style="font-size: 0.65rem; font-weight: 800; color: ${isMusician ? 'var(--color-purple)' : 'var(--color-cyan)'}; text-transform: uppercase; letter-spacing: 0.5px;">Aktives Profil:</label>
                 <select id="postbox-profile-select" class="input-field" style="width: 100%; padding: 0.4rem 0.8rem; font-size: 0.8rem; height: 34px; margin: 0; font-weight: 700; border: 1px solid var(--border-glass); border-radius: 8px; background: rgba(255,255,255,0.02); color: var(--text-main);">
                     ${options}
                 </select>
@@ -10706,9 +10698,9 @@ function renderPostbox(container) {
                     <div style="padding: 1rem; border-bottom: 1px solid var(--border-glass); background: rgba(255,255,255,0.01);">
                         <h3 style="margin: 0 0 0.8rem; font-size: 1.15rem; font-family: var(--font-heading); display:flex; align-items:center; gap:0.5rem; color:var(--text-main); justify-content: space-between;">
                             <span style="display:flex; align-items:center; gap:0.5rem;">
-                                <i class="fa-solid fa-envelope text-cyan"></i> Postfach
+                                <i class="fa-solid fa-envelope ${isMusician ? 'text-purple' : 'text-cyan'}"></i> Postfach
                             </span>
-                            <i class="fa-solid fa-sliders" id="btn-toggle-postbox-filters" style="color: ${window.postboxShowFilters ? 'var(--color-cyan)' : 'var(--text-muted)'}; cursor: pointer; font-size: 1.05rem; transition: color 0.2s;" title="Filter ein-/ausblenden"></i>
+                            <i class="fa-solid fa-sliders" id="btn-toggle-postbox-filters" style="color: ${window.postboxShowFilters ? (isMusician ? 'var(--color-purple)' : 'var(--color-cyan)') : 'var(--text-muted)'}; cursor: pointer; font-size: 1.05rem; transition: color 0.2s;" title="Filter ein-/ausblenden"></i>
                         </h3>
                         
                         ${profileSelectorHtml}
