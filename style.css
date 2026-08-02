@@ -3212,7 +3212,7 @@ body {
 }
 
 .subscription-card {
-    border: 1px solid var(--border-glass);
+    border: 2px solid rgba(168, 85, 247, 0.45);
     border-radius: 16px;
     padding: 1.25rem 1.5rem;
     text-align: left;
@@ -3221,7 +3221,7 @@ body {
     position: relative;
     background: rgba(255, 255, 255, 0.01) !important;
     display: grid;
-    grid-template-columns: 1.1fr 1fr;
+    grid-template-columns: 0.8fr 1.2fr;
     gap: 1.5rem;
     align-items: start;
     box-sizing: border-box;
@@ -3242,9 +3242,9 @@ body {
 
 .subscription-card h5 {
     font-family: var(--font-heading);
-    font-size: 1.25rem;
+    font-size: 1.6rem;
     font-weight: 800;
-    margin: 0 0 0.4rem;
+    margin: 0 0 0.2rem;
     color: var(--text-main);
 }
 
@@ -3256,6 +3256,13 @@ body {
     display: flex;
     align-items: baseline;
     gap: 0.3rem;
+    white-space: nowrap;
+}
+
+.subscription-card .price span {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text-muted);
 }
 
 .subscription-card .price span {
@@ -4853,7 +4860,18 @@ input[type="range"].input-field {
 }
 @media (max-width: 580px) {
     .subscription-card {
-        grid-template-columns: 1fr !important;
-        gap: 1rem !important;
-    }
+    border: 2px solid rgba(168, 85, 247, 0.45);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    background: rgba(255, 255, 255, 0.01) !important;
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 1.5rem;
+    align-items: start;
+    box-sizing: border-box;
+}
 }

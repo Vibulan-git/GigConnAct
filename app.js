@@ -5838,7 +5838,7 @@ function renderProfilePage(container) {
                             <i class="fa-solid fa-arrow-rotate-right"></i> Abo reaktivieren
                         </button>
                     ` : `
-                        <button class="btn btn-glass" id="btn-cancel-subscription" style="margin:0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05);">
+                        <button class="btn btn-glass btn-sm" id="btn-cancel-subscription" style="margin:0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); font-size: 0.75rem; padding: 0.35rem 0.75rem;">
                             <i class="fa-solid fa-ban"></i> Abo kündigen
                         </button>
                     `}
@@ -5847,18 +5847,121 @@ function renderProfilePage(container) {
                 <div id="sub-management-options" style="margin-top: 1rem;">
                     <h4 style="font-family: var(--font-heading); font-size: 0.95rem; margin-bottom: 0.8rem; color: var(--text-main);">Tarif wechseln (Upgrade / Downgrade)</h4>
                     
-                                        <div class="subscription-cards" style="margin-bottom: 1.5rem;">
+                                                            <div class="subscription-cards" style="margin-bottom: 1.5rem;">
                         <div class="subscription-card ${activePlan === 'flex' ? 'active' : ''}" data-plan="flex" data-price="9.99">
                             <div class="selected-badge"><i class="fa-solid fa-star"></i> BELIEBTESTE WAHL</div>
                             <div>
                                 <h5>Flex</h5>
-                                <div class="price">9,99 â‚¬ <span>/ Monat</span></div>
+                                <div class="price">9,99 â‚¬</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-top: 0.15rem; text-transform: uppercase;">Monat</div>
+                            </div>
+                            <div>
+                                <ul class="plan-features">
+                                    <li><i class="fa-solid fa-circle-check"></i> Kontakt zu allen Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kÃ¼ndbar (auch in der Testphase)</li>
+                                </ul>
                                 <div class="subscription-gift-box">
                                     <i class="fa-solid fa-gift"></i>
                                     <div>
                                         <div class="gift-title">1. Monat kostenlos</div>
                                         <div class="gift-sub">Keine Kosten zum Start</div>
                                     </div>
+                                </div>
+                            </div>
+                            <div style="grid-column: 1 / span 2; margin-top: 0.5rem; width: 100%;">
+                                <button type="button" class="btn subscription-card-btn">
+                                    <span>${activePlan === 'flex' ? 'Aktueller Tarif' : 'Flex auswÃ¤hlen'}</span> <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="subscription-card ${activePlan === 'plus' ? 'active' : ''}" data-plan="plus" data-price="7.99">
+                            <div class="selected-badge">20 % SPAREN</div>
+                            <div>
+                                <h5>Plus</h5>
+                                <div class="price">7,99 â‚¬</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-top: 0.15rem; text-transform: uppercase;">Monat</div>
+                            </div>
+                            <div>
+                                <ul class="plan-features">
+                                    <li><i class="fa-solid fa-circle-check"></i> Kontakt zu allen Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kÃ¼ndbar (auch in der Testphase)</li>
+                                </ul>
+                                <div class="subscription-gift-box">
+                                    <i class="fa-solid fa-gift"></i>
+                                    <div>
+                                        <div class="gift-title">1. Monat kostenlos</div>
+                                        <div class="gift-sub">Keine Kosten zum Start</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="grid-column: 1 / span 2; margin-top: 0.5rem; width: 100%;">
+                                <button type="button" class="btn subscription-card-btn">
+                                    <span>${activePlan === 'plus' ? 'Aktueller Tarif' : 'Plus auswÃ¤hlen'}</span> <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="subscription-card ${activePlan === 'pro' ? 'active' : ''}" data-plan="pro" data-price="5.99">
+                            <div class="selected-badge">40 % SPAREN</div>
+                            <div>
+                                <h5>Pro</h5>
+                                <div class="price">5,99 â‚¬</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-top: 0.15rem; text-transform: uppercase;">Monat</div>
+                            </div>
+                            <div>
+                                <ul class="plan-features">
+                                    <li><i class="fa-solid fa-circle-check"></i> Kontakt zu allen Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kÃ¼ndbar (auch in der Testphase)</li>
+                                </ul>
+                                <div class="subscription-gift-box">
+                                    <i class="fa-solid fa-gift"></i>
+                                    <div>
+                                        <div class="gift-title">1. Monat kostenlos</div>
+                                        <div class="gift-sub">Keine Kosten zum Start</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="grid-column: 1 / span 2; margin-top: 0.5rem; width: 100%;">
+                                <button type="button" class="btn subscription-card-btn">
+                                    <span>${activePlan === 'pro' ? 'Aktueller Tarif' : 'Pro auswÃ¤hlen'}</span> <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="subscription-card ${activePlan === 'premium' ? 'active' : ''}" data-plan="premium" data-price="4.99">
+                            <div class="selected-badge" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;">50 % SPAREN</div>
+                            <div>
+                                <h5>Premium</h5>
+                                <div class="price">4,99 â‚¬</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-top: 0.15rem; text-transform: uppercase;">Monat</div>
+                            </div>
+                            <div>
+                                <ul class="plan-features">
+                                    <li><i class="fa-solid fa-circle-check"></i> Kontakt zu allen Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 3 Monate kostenlos</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kÃ¼ndbar (auch in der Testphase)</li>
+                                    <li><i class="fa-solid fa-circle-info"></i> Code erforderlich</li>
+                                </ul>
+                                <div class="subscription-gift-box">
+                                    <i class="fa-solid fa-gift"></i>
+                                    <div>
+                                        <div class="gift-title">3 Monate kostenlos</div>
+                                        <div class="gift-sub">Instagram-Story Aktion</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="grid-column: 1 / span 2; margin-top: 0.5rem; width: 100%;">
+                                <button type="button" class="btn subscription-card-btn">
+                                    <span>${activePlan === 'premium' ? 'Aktueller Tarif' : 'Premium freischalten'}</span> <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                                 </div>
                             </div>
                             <div>
@@ -5983,7 +6086,7 @@ function renderProfilePage(container) {
                         <div id="prof-promo-status-msg" style="font-size: 0.7rem; margin-top: 0.4rem; display: none;"></div>
                     </div>
 
-                    <div style="display: flex; justify-content: flex-end;">
+                    <div style="display: flex; justify-content: center;">
                         <button class="btn btn-primary" id="btn-save-subscription-change" style="margin:0; background: #7c3aed; border-color: #7c3aed;">
                             <i class="fa-solid fa-circle-arrow-right"></i> Tarifwechsel bestätigen
                         </button>
@@ -8795,18 +8898,121 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                     <div id="reg-subscription-container" style="margin-top: 1.5rem;">
                         <h4 style="font-family: var(--font-heading); font-size:1rem; margin-bottom:0.5rem; color:var(--color-purple);"><i class="fa-solid fa-credit-card"></i> Abo-Modell auswählen</h4>
-                                                <div class="subscription-cards">
+                                                                        <div class="subscription-cards">
                             <div class="subscription-card active" data-plan="flex" data-price="9.99">
                                 <div class="selected-badge"><i class="fa-solid fa-star"></i> BELIEBTESTE WAHL</div>
                                 <div>
                                     <h5>Flex</h5>
-                                    <div class="price">9,99 â‚¬ <span>/ Monat</span></div>
+                                    <div class="price">9,99 â‚¬</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-top: 0.15rem; text-transform: uppercase;">Monat</div>
+                                </div>
+                                <div>
+                                    <ul class="plan-features">
+                                        <li><i class="fa-solid fa-circle-check"></i> Kontakt zu allen Veranstaltern</li>
+                                        <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
+                                        <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
+                                        <li><i class="fa-solid fa-circle-check"></i> Jederzeit kÃ¼ndbar (auch in der Testphase)</li>
+                                    </ul>
                                     <div class="subscription-gift-box">
                                         <i class="fa-solid fa-gift"></i>
                                         <div>
                                             <div class="gift-title">1. Monat kostenlos</div>
                                             <div class="gift-sub">Keine Kosten zum Start</div>
                                         </div>
+                                    </div>
+                                </div>
+                                <div style="grid-column: 1 / span 2; margin-top: 0.5rem; width: 100%;">
+                                    <button type="button" class="btn subscription-card-btn">
+                                        <span>Flex auswÃ¤hlen</span> <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="subscription-card" data-plan="plus" data-price="7.99">
+                                <div class="selected-badge">20 % SPAREN</div>
+                                <div>
+                                    <h5>Plus</h5>
+                                    <div class="price">7,99 â‚¬</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-top: 0.15rem; text-transform: uppercase;">Monat</div>
+                                </div>
+                                <div>
+                                    <ul class="plan-features">
+                                        <li><i class="fa-solid fa-circle-check"></i> Kontakt zu allen Veranstaltern</li>
+                                        <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
+                                        <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
+                                        <li><i class="fa-solid fa-circle-check"></i> Jederzeit kÃ¼ndbar (auch in der Testphase)</li>
+                                    </ul>
+                                    <div class="subscription-gift-box">
+                                        <i class="fa-solid fa-gift"></i>
+                                        <div>
+                                            <div class="gift-title">1. Monat kostenlos</div>
+                                            <div class="gift-sub">Keine Kosten zum Start</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="grid-column: 1 / span 2; margin-top: 0.5rem; width: 100%;">
+                                    <button type="button" class="btn subscription-card-btn">
+                                        <span>Plus auswÃ¤hlen</span> <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="subscription-card" data-plan="pro" data-price="5.99">
+                                <div class="selected-badge">40 % SPAREN</div>
+                                <div>
+                                    <h5>Pro</h5>
+                                    <div class="price">5,99 â‚¬</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-top: 0.15rem; text-transform: uppercase;">Monat</div>
+                                </div>
+                                <div>
+                                    <ul class="plan-features">
+                                        <li><i class="fa-solid fa-circle-check"></i> Kontakt zu allen Veranstaltern</li>
+                                        <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
+                                        <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
+                                        <li><i class="fa-solid fa-circle-check"></i> Jederzeit kÃ¼ndbar (auch in der Testphase)</li>
+                                    </ul>
+                                    <div class="subscription-gift-box">
+                                        <i class="fa-solid fa-gift"></i>
+                                        <div>
+                                            <div class="gift-title">1. Monat kostenlos</div>
+                                            <div class="gift-sub">Keine Kosten zum Start</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="grid-column: 1 / span 2; margin-top: 0.5rem; width: 100%;">
+                                    <button type="button" class="btn subscription-card-btn">
+                                        <span>Pro auswÃ¤hlen</span> <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="subscription-card" data-plan="premium" data-price="4.99">
+                                <div class="selected-badge" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;">50 % SPAREN</div>
+                                <div>
+                                    <h5>Premium</h5>
+                                    <div class="price">4,99 â‚¬</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; margin-top: 0.15rem; text-transform: uppercase;">Monat</div>
+                                </div>
+                                <div>
+                                    <ul class="plan-features">
+                                        <li><i class="fa-solid fa-circle-check"></i> Kontakt zu allen Veranstaltern</li>
+                                        <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
+                                        <li><i class="fa-solid fa-circle-check"></i> 3 Monate kostenlos</li>
+                                        <li><i class="fa-solid fa-circle-check"></i> Jederzeit kÃ¼ndbar (auch in der Testphase)</li>
+                                        <li><i class="fa-solid fa-circle-info"></i> Code erforderlich</li>
+                                    </ul>
+                                    <div class="subscription-gift-box">
+                                        <i class="fa-solid fa-gift"></i>
+                                        <div>
+                                            <div class="gift-title">3 Monate kostenlos</div>
+                                            <div class="gift-sub">Instagram-Story Aktion</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="grid-column: 1 / span 2; margin-top: 0.5rem; width: 100%;">
+                                    <button type="button" class="btn subscription-card-btn">
+                                        <span>Premium freischalten</span> <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                                     </div>
                                 </div>
                                 <div>
@@ -9065,7 +9271,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         window.addMockEmail(
                             "Dein Anmeldelink für GigConnAct",
                             "GigConnAct <no-reply@gigconnact.de>",
-                            `Hallo ${user.firstName},\n\nklicke auf den Link unten, um dich direkt bei deinem ${roleText}-Account anzumelden:\n\n[Jetzt als ${roleText} anmelden]`
+                            `Hallo ${user.firstName},\n\nklicke auf den Link unten, um dich direkt bei deinem ${roleText}-Account anzumelden:\n\n[Jetzt anmelden]`
                         );
                     }
 
@@ -9081,8 +9287,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                                 Hallo <strong>${user.firstName}</strong>,<br><br>
                                 Klicke auf den Button unten, um dich direkt bei deinem <strong>${roleText}-Account</strong> anzumelden:
                             </p>
-                            <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="login" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); font-weight: 800; border: none; padding: 0.7rem; border-radius: 8px;">
-                                Jetzt als ${roleText} anmelden
+                                                        <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="login" style="width: 100%; background: ${user.role === 'musician' ? '#7c3aed' : '#2563eb'}; font-weight: 800; border: none; padding: 0.7rem; border-radius: 8px;">
+                                Jetzt anmelden
                             </button>
                         </div>
                     `;
