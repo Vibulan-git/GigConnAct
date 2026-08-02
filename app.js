@@ -6401,8 +6401,8 @@ function renderOrganizerEventItem(e, isActive) {
                     `).join('')}
 
                     <!-- Last Slide: Beschreibung -->
-                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.8rem 3.2rem 0.5rem; box-sizing: border-box; text-align: center;">
-                        <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 165px; overflow-y: auto;">
+                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.3rem 3.2rem 0.5rem; box-sizing: border-box; text-align: center;">
+                        <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 145px; overflow-y: auto;">
                             ${description}
                         </p>
                     </div>
@@ -6861,8 +6861,8 @@ function renderMyMusicianItem(m, isActive) {
                     `).join('')}
 
                     <!-- Last Slide: Beschreibung -->
-                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.8rem 3.2rem 0.5rem; box-sizing: border-box; text-align: center;">
-                        <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 165px; overflow-y: auto;">
+                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.3rem 3.2rem 0.5rem; box-sizing: border-box; text-align: center;">
+                        <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 145px; overflow-y: auto;">
                             ${description}
                         </p>
                     </div>
@@ -10800,7 +10800,12 @@ function renderPostbox(container) {
                                 <div class="mobile-chat-accordion" style="margin-top: 0.8rem; border-top: 1px solid var(--border-glass); padding-top: 0.8rem; text-align: left; width: 100%;">
                                     <!-- Chat Messages Body -->
                                     <div class="chat-messages-container" style="max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem; padding: 0.5rem 0.2rem;">
-                                        ${c.messages.map(m => {
+                                        ${c.messages.length === 0 ? `
+                                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-align: center; padding: 1.5rem 1rem;">
+                                                <i class="fa-regular fa-paper-plane" style="font-size: 1.8rem; color: var(--border-glass); margin-bottom: 0.6rem;"></i>
+                                                <p style="font-size: 0.78rem; margin: 0; line-height: 1.3;">Keine Nachrichten vorhanden. Schreibe eine Nachricht, um das Gespräch zu beginnen!</p>
+                                            </div>
+                                        ` : c.messages.map(m => {
                                             const isMe = m.senderId === currentUserId;
                                             return `
                                                 <div style="display: flex; justify-content: ${isMe ? 'flex-end' : 'flex-start'};">
@@ -10917,7 +10922,12 @@ function renderPostbox(container) {
 
                             <!-- Chat Messages Body -->
                             <div class="chat-messages-container" style="flex: 1; padding: 1.2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem;">
-                                ${activeChat.messages.map(m => {
+                                ${activeChat.messages.length === 0 ? `
+                                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-align: center; padding: 2rem;">
+                                        <i class="fa-regular fa-paper-plane" style="font-size: 2.5rem; color: var(--border-glass); margin-bottom: 0.8rem;"></i>
+                                        <p style="font-size: 0.85rem; margin: 0;">Keine Nachrichten vorhanden. Schreibe eine Nachricht, um das Gespräch zu beginnen!</p>
+                                    </div>
+                                ` : activeChat.messages.map(m => {
                                     const isMe = m.senderId === currentUserId;
                                     return `
                                         <div style="display: flex; justify-content: ${isMe ? 'flex-end' : 'flex-start'};">
@@ -11205,15 +11215,15 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         `).join('') : ''}
 
                         <!-- Last Slide: Beschreibung (schwarz mit weisser Schrift) -->
-                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.8rem 4.2rem 0.5rem; box-sizing: border-box; text-align: center;">
-                            <p style="font-size: 0.84rem; font-weight: 500; color: #f8fafc; line-height: 1.5; margin: 0; max-height: 195px; overflow-y: auto; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
+                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.3rem 4.2rem 0.5rem; box-sizing: border-box; text-align: center;">
+                            <p style="font-size: 0.84rem; font-weight: 500; color: #f8fafc; line-height: 1.5; margin: 0; max-height: 145px; overflow-y: auto; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
                                 ${description}
                             </p>
                         </div>
                     </div>
 
                     <!-- Match-Faktor Badge oben rechts (OHNE FLAMMEN-EMOJI / VORZEICHEN) -->
-                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: ${isEvents ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 5px 12px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 50px;">
+                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 5px 12px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 50px;">
                         <span style="font-size: 1.05rem; font-weight: 900;">${item.matchScore !== undefined ? item.matchScore : '96'}%</span>
                         <span style="font-size: 0.5rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
                     </div>
