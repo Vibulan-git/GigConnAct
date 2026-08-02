@@ -5827,7 +5827,7 @@ function renderProfilePage(container) {
                             <i class="fa-solid fa-arrow-rotate-right"></i> Abo reaktivieren
                         </button>
                     ` : `
-                        <button class="btn btn-glass btn-sm" id="btn-cancel-subscription" style="margin:0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); font-size: 0.75rem; padding: 0.35rem 0.75rem;">
+                        <button class="btn btn-glass" id="btn-cancel-subscription" style="margin:0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05);">
                             <i class="fa-solid fa-ban"></i> Abo kündigen
                         </button>
                     `}
@@ -5836,8 +5836,9 @@ function renderProfilePage(container) {
                 <div id="sub-management-options" style="margin-top: 1rem;">
                     <h4 style="font-family: var(--font-heading); font-size: 0.95rem; margin-bottom: 0.8rem; color: var(--text-main);">Tarif wechseln (Upgrade / Downgrade)</h4>
                     
-                                                                                <div class="subscription-cards" style="margin-bottom: 1.5rem;">
-                        <div class="subscription-card ${activePlan === 'flex' ? 'active' : ''}" data-plan="flex" data-price="9.99">
+                    
+                    <div class="subscription-cards" style="margin-bottom: 1.5rem;">
+                        <div class="subscription-card ${activePlan === 'flex' ? 'active' : '}" data-plan="flex" data-price="9.99">
                             <div class="selected-badge">Beliebt</div>
                             <h5>Flex</h5>
                             <div class="price">9,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
@@ -5856,7 +5857,7 @@ function renderProfilePage(container) {
                                 <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === 'flex' ? 'Aktueller Tarif' : (selectedPlan === 'flex' ? 'Ausgewählt' : 'Auswählen')}</button>
                             </div>
                         </div>
-                        <div class="subscription-card ${activePlan === 'plus' ? 'active' : ''}" data-plan="plus" data-price="7.99">
+                        <div class="subscription-card ${activePlan === 'plus' ? 'active' : '}" data-plan="plus" data-price="7.99">
                             <div class="selected-badge">Spare 20 %</div>
                             <h5>Plus</h5>
                             <div class="price">7,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
@@ -5875,7 +5876,7 @@ function renderProfilePage(container) {
                                 <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === 'plus' ? 'Aktueller Tarif' : (selectedPlan === 'plus' ? 'Ausgewählt' : 'Auswählen')}</button>
                             </div>
                         </div>
-                        <div class="subscription-card ${activePlan === 'pro' ? 'active' : ''}" data-plan="pro" data-price="5.99">
+                        <div class="subscription-card ${activePlan === 'pro' ? 'active' : '}" data-plan="pro" data-price="5.99">
                             <div class="selected-badge">Spare 40 %</div>
                             <h5>Pro</h5>
                             <div class="price">5,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
@@ -5894,7 +5895,7 @@ function renderProfilePage(container) {
                                 <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === 'pro' ? 'Aktueller Tarif' : (selectedPlan === 'pro' ? 'Ausgewählt' : 'Auswählen')}</button>
                             </div>
                         </div>
-                        <div class="subscription-card ${activePlan === 'premium' ? 'active' : ''}" data-plan="premium" data-price="4.99">
+                        <div class="subscription-card ${activePlan === 'premium' ? 'active' : '}" data-plan="premium" data-price="4.99">
                             <div class="selected-badge" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;">Spare 59 %</div>
                             <h5>Premium</h5>
                             <div class="price">4,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
@@ -5925,7 +5926,7 @@ function renderProfilePage(container) {
                         <div id="prof-promo-status-msg" style="font-size: 0.7rem; margin-top: 0.4rem; display: none;"></div>
                     </div>
 
-                    <div style="display: flex; justify-content: center;">
+                    <div style="display: flex; justify-content: flex-end;">
                         <button class="btn btn-primary" id="btn-save-subscription-change" style="margin:0; background: #7c3aed; border-color: #7c3aed;">
                             <i class="fa-solid fa-circle-arrow-right"></i> Tarifwechsel bestätigen
                         </button>
@@ -5962,10 +5963,7 @@ function renderProfilePage(container) {
             if (u.role === 'organizer') {
                 u.company = document.getElementById('prof-company').value.trim();
                 u.organizerType = document.getElementById('prof-orgtype').value;
-                                const startEl = document.getElementById('prof-event-starttime');
-                const endEl = document.getElementById('prof-event-endtime');
-                if (startEl) u.eventStartTime = startEl.value;
-                if (endEl) u.eventEndTime = endEl.value;
+                const startEl = document.getElementById('prof-event-starttime'); const endEl = document.getElementById('prof-event-endtime'); if (startEl) u.eventStartTime = startEl.value; if (endEl) u.eventEndTime = endEl.value;
                 
                 // Update primary event start and end time
                 const primaryEvent = state.events.find(e => e.id === u.profileId);
@@ -6077,7 +6075,8 @@ function renderProfilePage(container) {
         subCards.forEach(card => {
             card.addEventListener('click', () => {
                 subCards.forEach(c => c.classList.remove('active'));
-                                card.classList.add('active');
+                
+                card.classList.add('active');
                 selectedPlan = card.getAttribute('data-plan');
 
                 // Dynamically update card buttons text in profile edit
@@ -7203,7 +7202,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <div class="slider-value-display">
-                            <label>Gage (�)</label>
+                            <label>Gage (€)</label>
                             <span id="val-gage">${musicianObj?.minBudget || 0} - ${musicianObj?.maxBudget || 5000} €</span>
                         </div>
                         <div class="dual-range-slider" id="slider-gage-container">
@@ -7295,15 +7294,15 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         </p>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (max.3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Grösse: 5 MB`></i></label>
-                                <button type="button" onclick="window.addRegMedia('musician', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 6px; border-color: rgba(34, 197, 94, 0.3); color:#22c55e; min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Foto hinzufügen`><i class="fa-solid fa-plus`></i></button>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (max.3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Grösse: 5 MB"></i></label>
+                                <button type="button" onclick="window.addRegMedia('musician', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 6px; border-color: rgba(34, 197, 94, 0.3); color:#22c55e; min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Foto hinzufügen"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div id="reg-musician-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (max.1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Grösse: 20 MB`></i></label>
-                                <button type="button" onclick="window.addRegMedia('musician', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 6px; border-color: rgba(124, 58, 237, 0.3); color:#a855f7; min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Video hinzufügen`><i class="fa-solid fa-plus`></i></button>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (max.1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Grösse: 20 MB"></i></label>
+                                <button type="button" onclick="window.addRegMedia('musician', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 6px; border-color: rgba(124, 58, 237, 0.3); color:#a855f7; min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Video hinzufügen"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div id="reg-musician-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
@@ -7427,7 +7426,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                         <div class="form-group">
                             <div class="slider-value-display">
-                                <label>Gage (�)</label>
+                                <label>Gage (€)</label>
                                 <span id="val-org-gage">0 - 5.000+ €</span>
                             </div>
                             <div class="dual-range-slider" id="slider-org-gage-container">
@@ -7468,15 +7467,15 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         </p>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (max.3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Grösse: 5 MB`></i></label>
-                                <button type="button" onclick="window.addRegMedia('organizer', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 6px; border-color: rgba(34, 197, 94, 0.3); color:#22c55e; min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Foto hinzufügen`><i class="fa-solid fa-plus`></i></button>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (max.3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Grösse: 5 MB"></i></label>
+                                <button type="button" onclick="window.addRegMedia('organizer', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 6px; border-color: rgba(34, 197, 94, 0.3); color:#22c55e; min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Foto hinzufügen"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div id="reg-organizer-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (max.1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Grösse: 20 MB`></i></label>
-                                <button type="button" onclick="window.addRegMedia('organizer', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 6px; border-color: rgba(124, 58, 237, 0.3); color:#a855f7; min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Video hinzufügen`><i class="fa-solid fa-plus`></i></button>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (max.1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Grösse: 20 MB"></i></label>
+                                <button type="button" onclick="window.addRegMedia('organizer', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 6px; border-color: rgba(124, 58, 237, 0.3); color:#a855f7; min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Video hinzufügen"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div id="reg-organizer-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
@@ -7537,7 +7536,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                     <div id="reg-subscription-container" style="margin-top: 1.5rem;">
                         <h4 style="font-family: var(--font-heading); font-size:1rem; margin-bottom:0.5rem; color:var(--color-purple);"><i class="fa-solid fa-credit-card"></i> Abo-Modell auswählen</h4>
-                                                                                                <div class="subscription-cards">
+                        
+                        <div class="subscription-cards">
                             <div class="subscription-card active" data-plan="flex" data-price="9.99">
                                 <div class="selected-badge">Beliebt</div>
                                 <h5>Flex</h5>
@@ -7781,9 +7781,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                 Hallo <strong>${user.firstName}</strong>,<br><br>
                                 Klicke auf den Button unten, um dich direkt bei deinem <strong>${roleText}-Account</strong> anzumelden:
                             </p>
-                                                        <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="login" style="width: 100%; background: ${user.role === 'musician' ? '#7c3aed' : '#2563eb'}; font-weight: 800; border: none; padding: 0.7rem; border-radius: 8px;">
-                                Jetzt anmelden
-                            </button>
+                            <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="login" style="width: 100%; background: ${user.role === 'musician' ? '#7c3aed' : '#2563eb'}; font-weight: 800; border: none; padding: 0.7rem; border-radius: 8px;">Jetzt anmelden</button>
                         </div>
                     `;
                 } else {
@@ -8362,7 +8360,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     subCards.forEach(card => {
         card.addEventListener('click', () => {
             subCards.forEach(c => c.classList.remove('active'));
-                        card.classList.add('active');
+            
+            card.classList.add('active');
             const plan = card.getAttribute('data-plan');
             if (selectedPlanInput) selectedPlanInput.value = plan;
 

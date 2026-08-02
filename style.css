@@ -3234,7 +3234,7 @@ body {
 .subscription-card.active {
     border-color: #a855f7 !important;
     background: transparent !important;
-    box-shadow: 0 0 25px rgba(168, 85, 247, 0.45) !important;
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.65) !important;
 }
 
 .subscription-card h5 {
@@ -3249,18 +3249,6 @@ body {
     font-weight: 800;
     color: #a855f7;
     margin: 0.25rem 0;
-}
-
-.subscription-card .price span {
-    font-size: 0.85rem;
-    font-weight: 400;
-    color: var(--text-muted);
-}
-
-.subscription-card .price span {
-    font-size: 0.85rem;
-    font-weight: 400;
-    color: var(--text-muted);
 }
 
 .subscription-card .meta {
@@ -3286,10 +3274,7 @@ body {
 
 @media (max-width: 768px) {
     .subscription-cards {
-        display: grid;
         grid-template-columns: 1fr !important;
-        gap: 12px;
-        margin-top: 0.5rem;
     }
 }
 
@@ -4782,7 +4767,6 @@ input[type="range"].input-field {
         gap: 4px;
     }
 }
-
 /* Helper styles for new subscription cards */
 .subscription-gift-box {
     background: rgba(168, 85, 247, 0.04);
