@@ -4525,7 +4525,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Spieldauer</label>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Spieldauer (Std.)</label>
                                     <span id="val-filter-duration" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0,5 - 10,0 Std.</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-duration-container">
@@ -4538,7 +4538,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Budget / Gage</label>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Budget (€)</label>
                                     <span id="val-filter-budget" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0 - 5.000+ €</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-budget-container">
@@ -4551,7 +4551,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Besucheranzahl</label>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
                                     <span id="val-filter-publikum" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0 - 500+</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-publikum-container">
@@ -4658,7 +4658,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Spieldauer</label>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Spieldauer (Std.)</label>
                                     <span id="val-filter-duration-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0,5 - 10,0 Std.</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-duration-m-container">
@@ -4671,7 +4671,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Gage (Honorar)</label>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Gage (€)</label>
                                     <span id="val-filter-gage-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0 - 5.000+ €</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-gage-m-container">
@@ -4684,7 +4684,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Bevorzugte Gästezahl</label>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
                                     <span id="val-filter-publikum-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0 - 500+</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-publikum-m-container">

@@ -83,7 +83,7 @@ body {
 .header-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0.2rem 2rem;
+    padding: 0.5rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1578,7 +1578,7 @@ body {
         flex-wrap: nowrap;
         justify-content: space-between;
         align-items: center;
-        padding: 0.25rem 0.8rem;
+        padding: 0.45rem 0.8rem;
         gap: 0.5rem;
     }
     .logo-title-nav {
