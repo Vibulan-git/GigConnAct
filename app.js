@@ -5261,6 +5261,16 @@ function renderMarket(container, type, onNavigate) {
             btnToggleTopMatches.style.color = '#eab308';
             btnToggleTopMatches.style.borderColor = '#eab308';
             btnToggleTopMatches.style.background = 'rgba(234, 179, 8, 0.1)';
+            
+            if (showOnlyFavorites) {
+                showOnlyFavorites = false;
+                if (btnToggleFavorites) {
+                    btnToggleFavorites.classList.remove('active');
+                    btnToggleFavorites.style.color = '';
+                    btnToggleFavorites.style.borderColor = '';
+                    btnToggleFavorites.style.background = '';
+                }
+            }
         } else {
             btnToggleTopMatches.classList.remove('active');
             btnToggleTopMatches.style.color = '';
@@ -5282,6 +5292,16 @@ function renderMarket(container, type, onNavigate) {
             btnToggleFavorites.style.color = '#ef4444';
             btnToggleFavorites.style.borderColor = '#ef4444';
             btnToggleFavorites.style.background = 'rgba(239, 68, 68, 0.1)';
+            
+            if (showOnlyTopMatches) {
+                showOnlyTopMatches = false;
+                if (btnToggleTopMatches) {
+                    btnToggleTopMatches.classList.remove('active');
+                    btnToggleTopMatches.style.color = '';
+                    btnToggleTopMatches.style.borderColor = '';
+                    btnToggleTopMatches.style.background = '';
+                }
+            }
         } else {
             btnToggleFavorites.classList.remove('active');
             btnToggleFavorites.style.color = '';

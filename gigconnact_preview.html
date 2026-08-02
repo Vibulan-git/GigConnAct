@@ -120,7 +120,7 @@ body {
 .header-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0.35rem 2rem;
+    padding: 0.2rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1612,10 +1612,10 @@ body {
     }
     .header-container {
         flex-direction: row;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         justify-content: space-between;
         align-items: center;
-        padding: 0.5rem 0.8rem;
+        padding: 0.25rem 0.8rem;
         gap: 0.5rem;
     }
     .logo-title-nav {
@@ -1623,6 +1623,15 @@ body {
     }
     .logo-underline-connector-nav {
         display: none !important;
+    }
+    .logo-area svg {
+        width: 26px !important;
+        height: 26px !important;
+    }
+    .nav-icon-btn, .profile-avatar-btn {
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 0.95rem !important;
     }
     .auth-area .btn:not(.feedback-trigger-btn):not(.profile-avatar-btn), 
     .auth-area button:not(.feedback-trigger-btn):not(.profile-avatar-btn), 
@@ -1633,19 +1642,10 @@ body {
         white-space: nowrap !important;
     }
     .main-nav {
-        display: flex !important;
-        width: 100%;
-        order: 3;
-        justify-content: center;
-        gap: 0.6rem;
-        margin-top: 0.4rem;
-        padding-top: 0.4rem;
-        border-top: 1px solid var(--border-glass);
+        display: none !important;
     }
-    .main-nav .nav-link {
-        font-size: 0.75rem !important;
-        padding: 0.35rem 0.6rem !important;
-        gap: 0.3rem !important;
+    .app-header {
+        border-bottom: none !important;
     }
 }
 @media(max-width: 600px) {
@@ -10070,6 +10070,16 @@ function renderMarket(container, type, onNavigate) {
             btnToggleTopMatches.style.color = '#eab308';
             btnToggleTopMatches.style.borderColor = '#eab308';
             btnToggleTopMatches.style.background = 'rgba(234, 179, 8, 0.1)';
+            
+            if (showOnlyFavorites) {
+                showOnlyFavorites = false;
+                if (btnToggleFavorites) {
+                    btnToggleFavorites.classList.remove('active');
+                    btnToggleFavorites.style.color = '';
+                    btnToggleFavorites.style.borderColor = '';
+                    btnToggleFavorites.style.background = '';
+                }
+            }
         } else {
             btnToggleTopMatches.classList.remove('active');
             btnToggleTopMatches.style.color = '';
@@ -10091,6 +10101,16 @@ function renderMarket(container, type, onNavigate) {
             btnToggleFavorites.style.color = '#ef4444';
             btnToggleFavorites.style.borderColor = '#ef4444';
             btnToggleFavorites.style.background = 'rgba(239, 68, 68, 0.1)';
+            
+            if (showOnlyTopMatches) {
+                showOnlyTopMatches = false;
+                if (btnToggleTopMatches) {
+                    btnToggleTopMatches.classList.remove('active');
+                    btnToggleTopMatches.style.color = '';
+                    btnToggleTopMatches.style.borderColor = '';
+                    btnToggleTopMatches.style.background = '';
+                }
+            }
         } else {
             btnToggleFavorites.classList.remove('active');
             btnToggleFavorites.style.color = '';
