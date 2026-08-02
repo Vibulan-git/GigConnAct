@@ -1,4 +1,4 @@
-var state = null;
+﻿var state = null;
 
 const mockPhotoUrls = [
     'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
@@ -10371,10 +10371,7 @@ function updateNavbar(forceLanding) {
                         <i class="fa-regular fa-circle-user"></i>
                     </button>
                     <div class="profile-dropdown-menu" id="profile-dropdown-menu">
-                        <div style="padding: 0.5rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom:0.3rem;">
-                            <div style="font-size:0.8rem; font-weight:700;">${u.firstName} ${u.lastName}</div>
-                            <div style="font-size:0.7rem; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; max-width:150px;">${u.email}</div>
-                        </div>
+
                         
                         <!-- Meine Musiker / Meine Events Link -->
                         <a href="${isMusician ? '#/my-musicians' : '#/my-events'}" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${window.location.hash === (isMusician ? '#/my-musicians' : '#/my-events') ? 'active' : ''}" id="dropdown-link-my-tab"><i class="fa-solid ${isMusician ? 'fa-guitar' : 'fa-calendar-check'}"></i><span>${isMusician ? 'Meine Musiker' : 'Meine Events'}</span></a>
