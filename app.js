@@ -4833,12 +4833,12 @@ function renderMarket(container, type, onNavigate) {
             if (display) {
                 if (isPrice) {
                     if (maxVal >= 5000) {
-                        display.textContent = `${minVal.toLocaleString('de-DE')} - 5.000+ ${unit}`;
+                        display.textContent = `${minVal.toLocaleString('de-DE')} - 5.000+`;
                     } else {
-                        display.textContent = `${minVal.toLocaleString('de-DE')} - ${maxVal.toLocaleString('de-DE')} ${unit}`;
+                        display.textContent = `${minVal.toLocaleString('de-DE')} - ${maxVal.toLocaleString('de-DE')}`;
                     }
                 } else if (unit === 'Std.') {
-                    display.textContent = `${minVal.toFixed(1).replace('.', ',')} - ${maxVal.toFixed(1).replace('.', ',')} ${unit}`;
+                    display.textContent = `${minVal.toFixed(1).replace('.', ',')} - ${maxVal.toFixed(1).replace('.', ',')}`;
                 } else if (unit === 'Personen') {
                     if (maxVal >= 500) {
                         display.textContent = `${minVal} - 500+`;
@@ -9223,12 +9223,12 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
             if (isPrice) {
                 if (maxVal >= 5000) {
-                    display.textContent = `${minVal.toLocaleString('de-DE')} - 5.000+ ${unit}`;
+                    display.textContent = `${minVal.toLocaleString('de-DE')} - 5.000+`;
                 } else {
-                    display.textContent = `${minVal.toLocaleString('de-DE')} - ${maxVal.toLocaleString('de-DE')} ${unit}`;
+                    display.textContent = `${minVal.toLocaleString('de-DE')} - ${maxVal.toLocaleString('de-DE')}`;
                 }
             } else if (unit === 'Std.') {
-                display.textContent = `${minVal.toFixed(1).replace('.', ',')} - ${maxVal.toFixed(1).replace('.', ',')} ${unit}`;
+                display.textContent = `${minVal.toFixed(1).replace('.', ',')} - ${maxVal.toFixed(1).replace('.', ',')}`;
             } else if (unit === 'Personen') {
                 if (maxVal >= 500) {
                     display.textContent = `${minVal} - 500+`;
