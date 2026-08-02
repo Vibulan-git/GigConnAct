@@ -3859,11 +3859,10 @@ function renderLandingPage(container, onNavigate) {
                     <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
                         <span style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; margin-bottom: 0.2rem;">Impressum</span>
                         <span>GigConnAct &bull; Montanusstraße 49 &bull; 51065 Köln</span>
-                        <span>
-                            Tel: <a href="tel:+4915788703998" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">+49 15788703998</a>
-                            &nbsp;|&nbsp;
-                            E-Mail: <a href="mailto:info@gigconnact.de" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">info@gigconnact.de</a>
-                        </span>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <span>Tel: <a href="tel:+4915788703998" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">+49 15788703998</a></span>
+                            <span>E-Mail: <a href="mailto:info@gigconnact.de" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">info@gigconnact.de</a></span>
+                        </div>
                     </div>
                     <!-- Copyright -->
                     <div style="font-size: 0.8rem; color: rgba(15, 23, 42, 0.4); margin-top: 1.5rem; font-weight: 500;">
@@ -8276,7 +8275,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             </div>
             
             <div class="auth-tabs">
-                <button class="auth-tab-btn active" id="tab-magic-btn">Einloggen</button>
+                <button class="auth-tab-btn active" id="tab-magic-btn">Anmelden</button>
                 <button class="auth-tab-btn" id="tab-register-btn">Registrieren</button>
             </div>
 
@@ -8290,7 +8289,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     <div id="magic-error-msg" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
                     <div id="magic-success-container" style="display:none; margin-bottom: 1.5rem;"></div>
                     <button type="submit" class="btn btn-primary" id="btn-send-magic" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: none;">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> Magic Link senden
+                        Anmeldelink senden
                     </button>
                 </form>
 
@@ -8539,14 +8538,17 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             </div>
                         </div>
 
-                        <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;">
-                            <div class="form-group" style="flex: 0 0 120px; width: 120px;">
-                                <label>Startzeit</label>
-                                <input type="time" name="eventStartTime" class="input-field" value="18:00" style="margin: 0; width: 120px; height:42px;">
-                            </div>
-                            <div class="form-group" style="flex: 0 0 120px; width: 120px;">
-                                <label>Endzeit</label>
-                                <input type="time" name="eventEndTime" class="input-field" value="22:00" style="margin: 0; width: 120px; height:42px;">
+                        <div class="form-group">
+                            <label>Standard-Uhrzeit</label>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                                <div style="flex: 1; min-width: 100px;">
+                                    <span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.3rem;">Startzeit</span>
+                                    <input type="time" name="eventStartTime" class="input-field" value="18:00" style="margin: 0; width: 100%; height:42px; min-width: 90px;">
+                                </div>
+                                <div style="flex: 1; min-width: 100px;">
+                                    <span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.3rem;">Endzeit</span>
+                                    <input type="time" name="eventEndTime" class="input-field" value="22:00" style="margin: 0; width: 100%; height:42px; min-width: 90px;">
+                                </div>
                             </div>
                         </div>
 
@@ -8856,7 +8858,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             const btn = document.getElementById('btn-send-magic');
             if (btn) {
                 btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Magic Link senden`;
+                btn.innerHTML = `Anmeldelink senden`;
             }
         });
     }
@@ -8892,7 +8894,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Magic Link wird generiert...`;
+                btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Anmeldelink wird generiert...`;
             }
 
             setTimeout(() => {
@@ -8915,9 +8917,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                     if (typeof window.addMockEmail === 'function') {
                         window.addMockEmail(
-                            "Dein Magic Link für GigConnAct",
+                            "Dein Anmeldelink für GigConnAct",
                             "GigConnAct <no-reply@gigconnact.de>",
-                            `Hallo ${user.firstName},\n\nklicke auf den Link unten, um dich direkt bei deinem ${roleText}-Account anzumelden:\n\n[Jetzt als ${roleText} einloggen]`
+                            `Hallo ${user.firstName},\n\nklicke auf den Link unten, um dich direkt bei deinem ${roleText}-Account anzumelden:\n\n[Jetzt als ${roleText} anmelden]`
                         );
                     }
 
@@ -8927,14 +8929,14 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                                 <i class="fa-solid fa-envelope-open-text"></i> Posteingang (Simulation)
                             </h4>
                             <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">
-                                <strong>Betreff:</strong> Dein Magic Link für GigConnAct
+                                <strong>Betreff:</strong> Dein Anmeldelink für GigConnAct
                             </p>
                             <p style="font-size: 0.82rem; margin-bottom: 1rem; line-height: 1.4; color: var(--text-main);">
                                 Hallo <strong>${user.firstName}</strong>,<br><br>
                                 Klicke auf den Button unten, um dich direkt bei deinem <strong>${roleText}-Account</strong> anzumelden:
                             </p>
                             <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="login" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); font-weight: 800; border: none; padding: 0.7rem; border-radius: 8px;">
-                                Jetzt als ${roleText} einloggen
+                                Jetzt als ${roleText} anmelden
                             </button>
                         </div>
                     `;
@@ -8943,7 +8945,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         window.addMockEmail(
                             "Registrierung abschließen bei GigConnAct",
                             "GigConnAct <no-reply@gigconnact.de>",
-                            `Hallo,\n\ndiese E-Mail-Adresse ist neu bei uns. Wähle aus, wie du dich registrieren und einloggen möchtest.`
+                            `Hallo,\n\ndiese E-Mail-Adresse ist neu bei uns. Wähle aus, wie du dich registrieren und anmelden möchtest.`
                         );
                     }
 
@@ -8957,7 +8959,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             </p>
                             <p style="font-size: 0.82rem; margin-bottom: 1rem; line-height: 1.4; color: var(--text-main);">
                                 Hallo!<br><br>
-                                Diese E-Mail-Adresse ist neu bei uns. Wähle aus, wie du dich registrieren und einloggen möchtest:
+                                Diese E-Mail-Adresse ist neu bei uns. Wähle aus, wie du dich registrieren und anmelden möchtest:
                             </p>
                             <div style="display: flex; gap: 0.75rem;">
                                 <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="register-mus" style="flex: 1; background: #7c3aed; border: none; font-weight: 700; font-size: 0.78rem; padding: 0.6rem;">
@@ -8976,7 +8978,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <div style="text-align: center; color: var(--color-green); font-size: 1.8rem; margin-bottom: 0.5rem;">
                             <i class="fa-solid fa-circle-check"></i>
                         </div>
-                        <h4 style="text-align: center; margin: 0 0 0.5rem; font-family: var(--font-heading); color: var(--text-main);">Magic Link gesendet!</h4>
+                        <h4 style="text-align: center; margin: 0 0 0.5rem; font-family: var(--font-heading); color: var(--text-main);">Anmeldelink gesendet!</h4>
                         <p style="text-align: center; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.4;">
                             Wir haben einen sicheren Link an <strong>${email}</strong> gesendet.
                         </p>
@@ -9003,10 +9005,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                                 document.dispatchEvent(new CustomEvent('user-state-changed'));
                                 if (onSuccessCallback) onSuccessCallback();
                                 else navigateAfterLogin();
-                                showToast({
-                                    title: 'Erfolgreich angemeldet',
-                                    message: 'Willkommen zurück bei GigConnAct!'
-                                });
+                                /* Success toast disabled per user request */
                             }
                         });
                     });
@@ -10378,23 +10377,15 @@ function updateNavbar(forceLanding) {
                         </div>
                         
                         <!-- Meine Musiker / Meine Events Link -->
-                        <a href="${isMusician ? '#/my-musicians' : '#/my-events'}" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${window.location.hash === (isMusician ? '#/my-musicians' : '#/my-events') ? 'active' : ''}" id="dropdown-link-my-tab">
-                            <i class="fa-solid ${isMusician ? 'fa-guitar' : 'fa-calendar-check'}"></i> ${isMusician ? 'Meine Musiker' : 'Meine Events'}
-                        </a>
+                        <a href="${isMusician ? '#/my-musicians' : '#/my-events'}" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${window.location.hash === (isMusician ? '#/my-musicians' : '#/my-events') ? 'active' : ''}" id="dropdown-link-my-tab"><i class="fa-solid ${isMusician ? 'fa-guitar' : 'fa-calendar-check'}"></i><span>${isMusician ? 'Meine Musiker' : 'Meine Events'}</span></a>
                         
-                        <a href="#/profile" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile">
-                            <i class="fa-solid fa-user-gear"></i> Profil bearbeiten
-                        </a>
+                        <a href="#/profile" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile"><i class="fa-solid fa-user-gear"></i><span>Profil bearbeiten</span></a>
                         
                         <!-- Feedback Button (Moved from Header to Dropdown under Profil bearbeiten) -->
-                        <a href="javascript:void(0)" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'}" id="dropdown-btn-feedback">
-                            <i class="fa-solid fa-comment-dots"></i> Feedback senden
-                        </a>
+                        <a href="javascript:void(0)" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'}" id="dropdown-btn-feedback"><i class="fa-solid fa-comment-dots"></i><span>Feedback senden</span></a>
                         
                         <div class="profile-dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="profile-dropdown-item logout-item" id="dropdown-btn-logout">
-                            <i class="fa-solid fa-right-from-bracket"></i> Abmelden
-                        </a>
+                        <a href="javascript:void(0)" class="profile-dropdown-item logout-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'}" id="dropdown-btn-logout"><i class="fa-solid fa-right-from-bracket"></i><span>Abmelden</span></a>
                     </div>
                 </div>
             </div>

@@ -1917,7 +1917,7 @@ body {
 .profile-dropdown-item {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
+    gap: 0.5rem;
     padding: 0.6rem 1rem;
     width: 100%;
     text-align: left;
@@ -1930,8 +1930,24 @@ body {
     transition: all var(--transition-fast);
 }
 
+.profile-dropdown-item i {
+    width: 1.25rem;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .profile-dropdown-item:hover {
     background: rgba(255,255,255,0.05);
+}
+
+.profile-dropdown-item.profile-dropdown-blue {
+    color: var(--color-cyan) !important;
+}
+
+.profile-dropdown-item.profile-dropdown-purple {
+    color: var(--color-purple) !important;
 }
 
 .profile-dropdown-item.profile-dropdown-blue:hover,
@@ -1950,9 +1966,13 @@ body {
     margin: 0.4rem 0;
 }
 
+.profile-dropdown-item.logout-item {
+    color: var(--text-main) !important;
+}
+
 .profile-dropdown-item.logout-item:hover {
     background: rgba(255, 78, 80, 0.05);
-    color: var(--color-red);
+    color: var(--color-red) !important;
 }
 
 /* -------------------------------------------------------------
@@ -1989,6 +2009,14 @@ body {
 
 .profile-dropdown-item {
     color: var(--text-main) !important;
+}
+
+.profile-dropdown-item.profile-dropdown-blue {
+    color: var(--color-cyan) !important;
+}
+
+.profile-dropdown-item.profile-dropdown-purple {
+    color: var(--color-purple) !important;
 }
 
 .profile-dropdown-item:hover {
@@ -2046,6 +2074,18 @@ body {
     background: rgba(15, 23, 42, 0.02) !important;
     border-color: rgba(15, 23, 42, 0.08) !important;
 }
+
+.availability-day-times input[type="time"] {
+    background: #ffffff !important;
+    border: 1.5px solid rgba(15, 23, 42, 0.15) !important;
+    color: var(--text-main) !important;
+}
+
+.availability-day-row {
+    background: rgba(15, 23, 42, 0.02) !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+
 
 .calendar-slot-btn {
     background: rgba(255, 255, 255, 0.8) !important;
@@ -3154,6 +3194,7 @@ body {
     border-radius: 6px;
     font-size: 0.8rem;
     font-family: inherit;
+    width: 90px;
 }
 
 .availability-day-times input[type="time"]:disabled {
@@ -4712,3 +4753,17 @@ input[type="range"].input-field {
 .market-contact-btn.active i {
     color: #0f172a !important;
 }
+
+/* Mobile responsiveness for weekly availability grid */
+@media (max-width: 480px) {
+    .availability-day-times input[type="time"] {
+        width: 80px;
+    }
+    .availability-day-row {
+        gap: 6px;
+        padding: 0.4rem 0.5rem;
+    }
+    .availability-day-times {
+        gap: 4px;
+    }
+}
