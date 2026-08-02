@@ -1,4 +1,4 @@
-﻿var state = null;
+var state = null;
 
 const mockPhotoUrls = [
     'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
@@ -6670,7 +6670,7 @@ function renderMyEvents(container) {
     const successPercent = totalInterestsExpressedByMe > 0 ? Math.round((totalPerfectMatches / totalInterestsExpressedByMe) * 100) : 0;
 
     container.innerHTML = `
-        <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;"></div>
+        <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;">
 
             <!-- Active Events -->
             <div class="profile-section-card">
