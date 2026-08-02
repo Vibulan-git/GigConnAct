@@ -1,4 +1,4 @@
-﻿/* -------------------------------------------------------------
+/* -------------------------------------------------------------
  * GigMatch - Premium CSS Stylesheet
  * Brand: Obsidian dark background, Glassmorphism, Neon highlights
  * ------------------------------------------------------------- */
@@ -3229,7 +3229,7 @@ body {
 
 .subscription-card:hover {
     transform: translateY(-2px);
-    border-color: rgba(168, 85, 247, 0.6);
+    border-color: rgba(168, 85, 247, 0.8);
     background: rgba(168, 85, 247, 0.03) !important;
     box-shadow: 0 5px 15px rgba(168, 85, 247, 0.15);
 }
@@ -3257,12 +3257,6 @@ body {
     align-items: baseline;
     gap: 0.3rem;
     white-space: nowrap;
-}
-
-.subscription-card .price span {
-    font-size: 0.85rem;
-    font-weight: 400;
-    color: var(--text-muted);
 }
 
 .subscription-card .price span {
@@ -4860,18 +4854,7 @@ input[type="range"].input-field {
 }
 @media (max-width: 580px) {
     .subscription-card {
-    border: 2px solid rgba(168, 85, 247, 0.45);
-    border-radius: 16px;
-    padding: 1.25rem 1.5rem;
-    text-align: left;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    background: rgba(255, 255, 255, 0.01) !important;
-    display: grid;
-    grid-template-columns: 0.8fr 1.2fr;
-    gap: 1.5rem;
-    align-items: start;
-    box-sizing: border-box;
-}
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
 }
