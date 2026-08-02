@@ -3284,13 +3284,13 @@ body {
     box-shadow: 0 2px 5px rgba(124, 58, 237, 0.3);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .subscription-cards {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-top: 0.5rem;
-}
+        display: grid;
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+        margin-top: 0.5rem;
+    }
 }
 
 /* Make all criteria labels inside the registration form purple and bold */
