@@ -5779,7 +5779,7 @@ function renderProfilePage(container) {
                     ${u.role === 'organizer' ? `
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
                         <div class="form-group">
-                            <label style="color: ${themeColor} !important; font-weight: 800 !important; font-size:0.8rem; display:block; margin-bottom:0.3rem;">Unternehmen / Organisation</label>
+                            <label style="color: ${themeColor} !important; font-weight: 800 !important; font-size:0.8rem; display:block; margin-bottom:0.3rem;">Organisation</label>
                             <input type="text" id="prof-company" class="input-field" value="${u.company || ''}" style="margin:0;">
                         </div>
                         <div class="form-group">
@@ -5792,18 +5792,7 @@ function renderProfilePage(container) {
                                 <option value="Sonstiges" ${u.organizerType === 'Sonstiges' ? 'selected' : ''}>Sonstiges</option>
                             </select>
                         </div>
-                    </div>
-                    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-                        <div class="form-group" style="flex: 0 0 150px; width: 150px;">
-                            <label style="color: ${themeColor} !important; font-weight: 800 !important; font-size:0.8rem; display:block; margin-bottom:0.3rem;">Standard-Event-Startzeit</label>
-                            <input type="time" id="prof-event-starttime" class="input-field" value="${u.eventStartTime || '18:00'}" style="margin:0; height:42px; width: 150px;">
-                        </div>
-                        <div class="form-group" style="flex: 0 0 150px; width: 150px;">
-                            <label style="color: ${themeColor} !important; font-weight: 800 !important; font-size:0.8rem; display:block; margin-bottom:0.3rem;">Standard-Event-Endzeit</label>
-                            <input type="time" id="prof-event-endtime" class="input-field" value="${u.eventEndTime || '22:00'}" style="margin:0; height:42px; width: 150px;">
-                        </div>
-                    </div>
-                    ` : ''}
+                    </div>` : ''}
 
                     <div style="display: flex; justify-content: center;">
                         <button type="submit" class="btn btn-primary" style="margin:0; background: ${themeBtnBg}; border-color: ${themeBtnBorder};">
@@ -6123,8 +6112,10 @@ function renderProfilePage(container) {
             if (u.role === 'organizer') {
                 u.company = document.getElementById('prof-company').value.trim();
                 u.organizerType = document.getElementById('prof-orgtype').value;
-                u.eventStartTime = document.getElementById('prof-event-starttime').value;
-                u.eventEndTime = document.getElementById('prof-event-endtime').value;
+                                const startEl = document.getElementById('prof-event-starttime');
+                const endEl = document.getElementById('prof-event-endtime');
+                if (startEl) u.eventStartTime = startEl.value;
+                if (endEl) u.eventEndTime = endEl.value;
                 
                 // Update primary event start and end time
                 const primaryEvent = state.events.find(e => e.id === u.profileId);
@@ -6679,43 +6670,12 @@ function renderMyEvents(container) {
     const successPercent = totalInterestsExpressedByMe > 0 ? Math.round((totalPerfectMatches / totalInterestsExpressedByMe) * 100) : 0;
 
     container.innerHTML = `
-        <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;">
-            <!-- Integrated Dashboard Header -->
-            <div class="profile-section-card" style="margin-bottom:0;">
-                <h3 style="margin-bottom:1.5rem;"><i class="fa-solid fa-chart-pie text-cyan"></i> Event-Statistiken (Dashboard)</h3>
-                <div style="display:flex; align-items:center; gap:3rem; flex-wrap:wrap;">
-                    <!-- CSS Donut Chart -->
-                    <div style="position: relative; width: 120px; height: 120px; flex-shrink: 0; margin: 0 auto 1rem;">
-                        <div style="width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(var(--color-green) 0% ${successPercent}%, rgba(124,58,237,0.15) ${successPercent}% 100%);"></div>
-                        <div style="position: absolute; top: 12px; left: 12px; width: 96px; height: 96px; border-radius: 50%; background: #ffffff; border: 1px solid var(--border-glass);"></div>
-                    </div>
-                    
-                    <!-- Stats Grid -->
-                    <div style="flex:1; display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:1.2rem; min-width:250px;">
-                        <div style="background:rgba(124,58,237,0.02); border:1px solid rgba(124,58,237,0.15); padding:0.8rem; border-radius:var(--radius-md);">
-                            <div style="font-size:0.7rem; color:var(--color-purple); text-transform:uppercase; font-weight:700; margin-bottom:0.25rem;">Interesse bekundet</div>
-                            <div style="font-size:1.6rem; font-weight:700; color:var(--color-purple);">${totalInterestsExpressedByMe}</div>
-                        </div>
-                        <div style="background:rgba(255,75,75,0.02); border:1px solid rgba(255,75,75,0.15); padding:0.8rem; border-radius:var(--radius-md);">
-                            <div style="font-size:0.7rem; color:var(--color-red); text-transform:uppercase; font-weight:700; margin-bottom:0.25rem;">Kein Interesse</div>
-                            <div style="font-size:1.6rem; font-weight:700; color:var(--color-red);">${totalNoInterestsByMe}</div>
-                        </div>
-                        <div style="background:rgba(0,242,254,0.02); border:1px solid rgba(0,242,254,0.15); padding:0.8rem; border-radius:var(--radius-md);">
-                            <div style="font-size:0.7rem; color:var(--color-cyan); text-transform:uppercase; font-weight:700; margin-bottom:0.25rem;">Kontaktiert</div>
-                            <div style="font-size:1.6rem; font-weight:700; color:var(--color-cyan);">${totalContactedByMe}</div>
-                        </div>
-                        <div style="background:rgba(56,239,125,0.02); border:1px solid rgba(56,239,125,0.15); padding:0.8rem; border-radius:var(--radius-md);">
-                            <div style="font-size:0.7rem; color:var(--color-green); text-transform:uppercase; font-weight:700; margin-bottom:0.25rem;">Perfekte Matches</div>
-                            <div style="font-size:1.6rem; font-weight:700; color:var(--color-green);">${totalPerfectMatches}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;"></div>
 
             <!-- Active Events -->
             <div class="profile-section-card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom:0.8rem; flex-wrap: wrap; gap:1rem;">
-                    <h3 style="margin:0;"><i class="fa-solid fa-calendar-check text-cyan"></i> Aktive Event-Ausschreibungen (${activeEvents.length})</h3>
+                    <h3 style="margin:0;"><i class="fa-solid fa-calendar-check text-cyan"></i> Aktive Events (${activeEvents.length})</h3>
                 </div>
                 
                 <div class="my-events-list">
@@ -6730,7 +6690,7 @@ function renderMyEvents(container) {
                         </div>
                     `}
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
-                        <button class="btn btn-primary" id="btn-create-event-modal" style="margin:0; background: #7c3aed; border-color: #7c3aed; color: #ffffff;">
+                        <button class="btn btn-primary" id="btn-create-event-modal" style="margin:0; background: #2563eb; border-color: #2563eb; color: #ffffff;">
                             <i class="fa-solid fa-plus"></i> Neues Event erstellen
                         </button>
                     </div>
