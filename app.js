@@ -1,4 +1,4 @@
-﻿var state = null;
+var state = null;
 
 const mockPhotoUrls = [
     'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
@@ -5769,9 +5769,9 @@ function renderProfilePage(container) {
                         <div class="form-group">
                             <label style="color: ${themeColor} !important; font-weight: 800 !important; font-size:0.8rem; display:block; margin-bottom:0.3rem;">Telefonnummer</label>
                             <input type="text" id="prof-phone" class="input-field" value="${u.phone || ''}" required style="margin:0;">
-                            <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem;">
-                                <input type="checkbox" id="prof-hidephone" ${u.hidePhone ? 'checked' : ''} style="cursor: pointer; width: auto; margin: 0;">
-                                <label for="prof-hidephone" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0;">Telefonnummer verbergen (geblurrt)</label>
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem;">
+                                <input type="checkbox" id="prof-hidephone" ${u.hidePhone ? 'checked' : ''} style="cursor: pointer; width: auto; margin: 0; scale: 1.3; transform-origin: left center; margin-right: 0.15rem;">
+                                <label for="prof-hidephone" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0;">Telefonnummer verbergen</label>
                             </div>
                         </div>
                     </div>
@@ -5805,7 +5805,7 @@ function renderProfilePage(container) {
                     </div>
                     ` : ''}
 
-                    <div style="display: flex; justify-content: flex-end;">
+                    <div style="display: flex; justify-content: center;">
                         <button type="submit" class="btn btn-primary" style="margin:0; background: ${themeBtnBg}; border-color: ${themeBtnBorder};">
                             <i class="fa-solid fa-floppy-disk"></i> Änderungen speichern
                         </button>
@@ -5911,17 +5911,6 @@ function renderProfilePage(container) {
             </div>
             ` : ''}
 
-            <div class="profile-section-card" style="border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.01);">
-                <h3 style="margin-top: 0; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; color: var(--color-red); border-bottom: 1px solid rgba(239, 68, 68, 0.15); padding-bottom: 0.6rem;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Kontoverwaltung
-                </h3>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;">Möchtest du dich von deinem aktuellen Gerät abmelden?</p>
-                <div style="display: flex; justify-content: flex-start;">
-                    <button class="btn btn-glass" id="btn-profile-logout" style="margin:0; color: #ffffff; border-color: rgba(239, 68, 68, 0.6); background: var(--color-red);">
-                        <i class="fa-solid fa-right-from-bracket"></i> Ausloggen & Abmelden
-                    </button>
-                </div>
-            </div>
         </div>
     `;
 
@@ -6953,7 +6942,7 @@ function renderMyMusicians(container) {
             <!-- Active Musicians -->
             <div class="profile-section-card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom:0.8rem; flex-wrap: wrap; gap:1rem;">
-                    <h3 style="margin:0;"><i class="fa-solid fa-guitar text-purple"></i> Aktive Musiker-Profile (${activeMusicians.length})</h3>
+                    <h3 style="margin:0; color:var(--color-purple);"><i class="fa-solid fa-guitar"></i> Aktive Musiker-Profile (${activeMusicians.length})</h3>
                 </div>
                 
                 <div class="my-musicians-list">
@@ -8716,9 +8705,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <div class="form-group">
                             <label>Telefonnummer</label>
                             <input type="text" name="phone" id="input-reg-phone" class="input-field" maxlength="20" placeholder="z.B. 01761234567" required>
-                            <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem;">
-                                <input type="checkbox" name="hidePhone" id="input-reg-hidephone" style="width: auto; margin: 0; cursor: pointer;">
-                                <label for="input-reg-hidephone" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0;">Telefonnummer verbergen (geblurrt)</label>
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem;">
+                                <input type="checkbox" name="hidePhone" id="input-reg-hidephone" style="width: auto; margin: 0; cursor: pointer; scale: 1.3; transform-origin: left center; margin-right: 0.15rem;">
+                                <label for="input-reg-hidephone" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0;">Telefonnummer verbergen</label>
                             </div>
                         </div>
                     </div>
