@@ -4447,6 +4447,17 @@ input[type="range"].input-field {
     color: #ef4444 !important;
 }
 
+.theme-organizer .market-controls-row .market-control-toggle.active#btn-toggle-market-top-matches i,
+.theme-musician .market-controls-row .market-control-toggle.active#btn-toggle-market-top-matches i {
+    color: #eab308 !important;
+}
+
+.theme-organizer .market-controls-row .market-control-toggle.active#btn-toggle-market-favorites i,
+.theme-musician .market-controls-row .market-control-toggle.active#btn-toggle-market-favorites i {
+    color: #ef4444 !important;
+}
+
+
 /* Mobile responsive sticky top offset adjustments based on header navigation height (updated to max-width: 900px) */
 @media (max-width: 900px) {
     /* Sticky offset when logged out (single row header, height ~52px plus margin) */

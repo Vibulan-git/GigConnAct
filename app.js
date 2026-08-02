@@ -3468,25 +3468,25 @@ function renderLandingPage(container, onNavigate) {
                     </div>
 
                     <!-- Card 3: Firmenfeiern -->
-                    <div class="event-type-card card-blue">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                            <i class="fa-solid fa-briefcase" style="color: #2563eb; font-size: 1.5rem;"></i>
+                    <div class="event-type-card card-purple">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                            <i class="fa-solid fa-briefcase" style="color: #7c3aed; font-size: 1.5rem;"></i>
                         </div>
                         <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Firmenfeiern</span>
                     </div>
 
                     <!-- Card 4: Stadtfeste -->
-                    <div class="event-type-card card-blue">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                            <i class="fa-solid fa-city" style="color: #2563eb; font-size: 1.3rem;"></i>
+                    <div class="event-type-card card-purple">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                            <i class="fa-solid fa-city" style="color: #7c3aed; font-size: 1.3rem;"></i>
                         </div>
                         <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Stadtfeste</span>
                     </div>
 
                     <!-- Card 5: Private Feiern -->
-                    <div class="event-type-card card-blue">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                            <i class="fa-solid fa-gifts" style="color: #2563eb; font-size: 1.5rem;"></i>
+                    <div class="event-type-card card-purple">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                            <i class="fa-solid fa-gifts" style="color: #7c3aed; font-size: 1.5rem;"></i>
                         </div>
                         <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Private Feiern</span>
                     </div>
@@ -3592,7 +3592,7 @@ function renderLandingPage(container, onNavigate) {
                                 <!-- Item 5 -->
                                 <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-star" style="color: #eab308; font-size: 1rem;"></i>
+                                        <i class="fa-solid fa-star" style="color: #7c3aed; font-size: 1rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
@@ -3729,7 +3729,7 @@ function renderLandingPage(container, onNavigate) {
                                 <!-- Item 5 -->
                                 <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                                        <i class="fa-solid fa-star" style="color: #eab308; font-size: 1rem;"></i>
+                                        <i class="fa-solid fa-star" style="color: #2563eb; font-size: 1rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
@@ -5615,6 +5615,8 @@ window.initiateMarketContact = function(targetId, targetName, eventId) {
         if (eventId && state.currentUser && state.currentUser.role === 'musician') {
             state.addMusicianApplication(state.currentUser.profileId, eventId);
         }
+        window.postboxActiveChatId = result.chatId;
+        window.postboxActiveTab = 'all';
         showToast({
             title: "Verbindung initiiert!",
             message: `Chat mit ${targetName} geöffnet.`,
@@ -6399,8 +6401,8 @@ function renderOrganizerEventItem(e, isActive) {
                     `).join('')}
 
                     <!-- Last Slide: Beschreibung -->
-                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.2rem 3.2rem; box-sizing: border-box; text-align: center;">
-                        <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 120px; overflow-y: auto;">
+                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.8rem 3.2rem 0.5rem; box-sizing: border-box; text-align: center;">
+                        <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 165px; overflow-y: auto;">
                             ${description}
                         </p>
                     </div>
@@ -6859,8 +6861,8 @@ function renderMyMusicianItem(m, isActive) {
                     `).join('')}
 
                     <!-- Last Slide: Beschreibung -->
-                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.2rem 3.2rem; box-sizing: border-box; text-align: center;">
-                        <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 120px; overflow-y: auto;">
+                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.8rem 3.2rem 0.5rem; box-sizing: border-box; text-align: center;">
+                        <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 165px; overflow-y: auto;">
                             ${description}
                         </p>
                     </div>
@@ -11085,14 +11087,14 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
         `;
     }
 
-    const themeColor = isEvents ? '#2563eb' : '#7c3aed';
+    const themeColor = isEvents ? '#7c3aed' : '#2563eb';
 
     return items.map(item => {
         const isUnlocked = state ? ((typeof state.isUnlocked === 'function') ? state.isUnlocked(item.id) : (state.unlockedContacts && state.unlockedContacts.includes(item.id))) : false;
         console.log("renderMarketGridHTML: item =", item.id, "isUnlocked =", isUnlocked, "state.currentUser =", state ? state.currentUser : null);
         
         // Dynamically compute button styles based on page context and type
-        const btnIsPurple = isEvents ? !isLandingPage : isLandingPage;
+        const btnIsPurple = isEvents;
         const btnGradient = btnIsPurple 
             ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' 
             : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)';
@@ -11203,8 +11205,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         `).join('') : ''}
 
                         <!-- Last Slide: Beschreibung (schwarz mit weisser Schrift) -->
-                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.6rem 1rem 0.5rem; box-sizing: border-box; text-align: center;">
-                            <p style="font-size: 0.84rem; font-weight: 500; color: #f8fafc; line-height: 1.5; margin: 0; max-height: 200px; overflow-y: auto; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
+                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.8rem 4.2rem 0.5rem; box-sizing: border-box; text-align: center;">
+                            <p style="font-size: 0.84rem; font-weight: 500; color: #f8fafc; line-height: 1.5; margin: 0; max-height: 195px; overflow-y: auto; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
                                 ${description}
                             </p>
                         </div>
