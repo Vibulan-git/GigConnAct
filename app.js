@@ -5786,10 +5786,17 @@ function renderProfilePage(container) {
                             <label style="color: ${themeColor} !important; font-weight: 800 !important; font-size:0.8rem; display:block; margin-bottom:0.3rem;">Veranstalter-Typ</label>
                             <select id="prof-orgtype" class="input-field" style="margin:0; height:42px;">
                                 <option value="Privater Veranstalter" ${u.organizerType === 'Privater Veranstalter' ? 'selected' : ''}>Privater Veranstalter</option>
-                                <option value="Club / Bar" ${u.organizerType === 'Club / Bar' ? 'selected' : ''}>Club / Bar</option>
-                                <option value="Firma / Agentur" ${u.organizerType === 'Firma / Agentur' ? 'selected' : ''}>Firma / Agentur</option>
+                                <option value="Event-Agentur" ${u.organizerType === 'Event-Agentur' ? 'selected' : ''}>Event-Agentur</option>
+                                <option value="Hochzeitsplaner" ${u.organizerType === 'Hochzeitsplaner' ? 'selected' : ''}>Hochzeitsplaner</option>
+                                <option value="Eventlocation" ${u.organizerType === 'Eventlocation' ? 'selected' : ''}>Eventlocation</option>
+                                <option value="Firma" ${u.organizerType === 'Firma' ? 'selected' : ''}>Firma</option>
+                                <option value="Hotel" ${u.organizerType === 'Hotel' ? 'selected' : ''}>Hotel</option>
+                                <option value="Restaurant" ${u.organizerType === 'Restaurant' ? 'selected' : ''}>Restaurant</option>
+                                <option value="Bar" ${u.organizerType === 'Bar' ? 'selected' : ''}>Bar</option>
+                                <option value="Stadtmarketing" ${u.organizerType === 'Stadtmarketing' ? 'selected' : ''}>Stadtmarketing</option>
+                                <option value="Festivalveranstalter" ${u.organizerType === 'Festivalveranstalter' ? 'selected' : ''}>Festivalveranstalter</option>
                                 <option value="Verein" ${u.organizerType === 'Verein' ? 'selected' : ''}>Verein</option>
-                                <option value="Sonstiges" ${u.organizerType === 'Sonstiges' ? 'selected' : ''}>Sonstiges</option>
+                                <option value="Sonstige" ${u.organizerType === 'Sonstige' ? 'selected' : ''}>Sonstige</option>
                             </select>
                         </div>
                     </div>` : ''}
@@ -7772,7 +7779,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                         <div id="event-modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 1.5rem; background: var(--color-purple); border-color: var(--color-purple);">
+                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 1.5rem; background: #2563eb; border-color: #2563eb;">
                         ${isEdit ? 'Änderungen speichern' : 'Event ausschreiben'}
                     </button>
                 </form>
