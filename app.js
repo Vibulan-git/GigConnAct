@@ -34,7 +34,7 @@ window.updateRegMediaPreview = function(role) {
     const videos = window.registrationMedia[role].videos;
 
     photosContainer.innerHTML = photos.length === 0 
-        ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Bilder hinzugefügt</span>`
+        ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Bilder hinzugefÃ¼gt</span>`
         : photos.map((p, idx) => `
             <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
                 <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
@@ -43,7 +43,7 @@ window.updateRegMediaPreview = function(role) {
         `).join('');
 
     videosContainer.innerHTML = videos.length === 0
-        ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Videos hinzugefügt</span>`
+        ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Videos hinzugefÃ¼gt</span>`
         : videos.map((v, idx) => `
             <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;" title="${v.title}">
                 <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.1rem;"></i>
@@ -57,7 +57,7 @@ window.addRegMedia = function(role, type) {
     const limit = type === 'photo' ? 3 : 1;
     if (list.length >= limit) {
         showToast({
-            title: type === 'photo' ? "Bilder-Limit erreicht 📷" : "Video-Limit erreicht 🎬",
+            title: type === 'photo' ? "Bilder-Limit erreicht ðŸ“·" : "Video-Limit erreicht ðŸŽ¬",
             message: type === 'photo' ? "Es sind maximal 3 Bilder erlaubt." : "Es ist maximal 1 Video erlaubt."
         });
         return;
@@ -118,7 +118,7 @@ window.slideComboGallery = function(itemId, direction) {
             for (let i = 0; i < slidesCount; i++) {
                 if (s.children[i].querySelector('img')) totalPhotos++;
             }
-            counter.innerText = '📷 ' + photoIdx + ' / ' + totalPhotos + ' Fotos';
+            counter.innerText = 'ðŸ“· ' + photoIdx + ' / ' + totalPhotos + ' Fotos';
         } else if (isVideo) {
             let videoIdx = 1;
             for (let i = 0; i < cur; i++) {
@@ -128,9 +128,9 @@ window.slideComboGallery = function(itemId, direction) {
             for (let i = 0; i < slidesCount; i++) {
                 if (s.children[i].querySelector('video')) totalVideos++;
             }
-            counter.innerText = '🎬 Video ' + videoIdx + ' / ' + totalVideos;
+            counter.innerText = 'ðŸŽ¬ Video ' + videoIdx + ' / ' + totalVideos;
         } else {
-            counter.innerHTML = '📝 Beschreibung';
+            counter.innerHTML = 'ðŸ“ Beschreibung';
         }
     }
 };
@@ -231,7 +231,7 @@ window.unlockListing = function(targetId, targetName) {
                 <i class="fa-solid fa-coins" style="font-size:3rem; color:#FFD700; margin-bottom:1rem;"></i>
                 <h4 style="font-family:var(--font-heading); font-size:1.2rem; margin-bottom:0.5rem; color:var(--text-main);">Kontaktdaten freischalten?</h4>
                 <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem;">
-                    Möchtest du die Kontaktdaten für <strong>${targetName}</strong> freischalten? Dies kostet dich 1 Credit.<br><br>
+                    MÃ¶chtest du die Kontaktdaten fÃ¼r <strong>${targetName}</strong> freischalten? Dies kostet dich 1 Credit.<br><br>
                     <span style="font-weight:700; color:var(--text-main);">Deine verbleibenden Credits: ${state.currentUser.credits}</span>
                 </p>
                 <div style="display:flex; gap:1rem; justify-content:center;">
@@ -249,7 +249,7 @@ window.unlockListing = function(targetId, targetName) {
             modal.remove();
             if (res.success) {
                 showToast({
-                    title: "Kontaktdaten freigeschaltet! 🪙",
+                    title: "Kontaktdaten freigeschaltet! ðŸª™",
                     message: `Du hast die Kontaktdaten von ${targetName} erfolgreich freigeschaltet.`
                 });
                 updateNavbar();
@@ -288,9 +288,9 @@ const initialMusicians = [
         maxDuration: 4, // in hours
         minBudget: 1200,
         maxBudget: 2500, // EUR
-        eventTypes: ["Bar/Kneipe/Club", "Festival", "Firmenfeier", "Hochzeit – Party"],
+        eventTypes: ["Bar/Kneipe/Club", "Festival", "Firmenfeier", "Hochzeit â€“ Party"],
         availability: ["Friday", "Saturday"],
-        description: "Wir bringen jeden Dancefloor zum Glühen! Mit unserem einzigartigen Elektro-Pop Sound und Covers der 80er, 90er und heutigen Hits im modernen Gewand. Eigene PA- und Lichttechnik ist immer inklusive.",
+        description: "Wir bringen jeden Dancefloor zum GlÃ¼hen! Mit unserem einzigartigen Elektro-Pop Sound und Covers der 80er, 90er und heutigen Hits im modernen Gewand. Eigene PA- und Lichttechnik ist immer inklusive.",
         contactName: "Maximilian Schmidt",
         phone: "+49 176 12345678",
         hidePhone: true,
@@ -317,7 +317,7 @@ const initialMusicians = [
         name: "Clara Lichtblick",
         bluffName: "Klassische & Pop-Pianistin",
         type: "Solo",
-        location: "München",
+        location: "MÃ¼nchen",
         radius: 80,
         genres: ["Klassik", "Pop", "Jazz"],
         instruments: ["Klavier", "Keyboard"],
@@ -327,7 +327,7 @@ const initialMusicians = [
         maxBudget: 800,
         eventTypes: ["Hochzeit - Trauung", "Firmenfeier", "Geburtstag"],
         availability: ["Saturday", "Sunday"],
-        description: "Elegante Hintergrundmusik am Klavier für Ihre Trauung, den Sektempfang oder ein festliches Dinner. Ich spiele sowohl klassische Meisterwerke als auch moderne Pop-Balladen im sanften Klavier-Arrangement. Keyboard bringe ich bei Bedarf mit.",
+        description: "Elegante Hintergrundmusik am Klavier fÃ¼r Ihre Trauung, den Sektempfang oder ein festliches Dinner. Ich spiele sowohl klassische Meisterwerke als auch moderne Pop-Balladen im sanften Klavier-Arrangement. Keyboard bringe ich bei Bedarf mit.",
         contactName: "Clara Weber",
         phone: "+49 152 98765432",
         hidePhone: true,
@@ -348,7 +348,7 @@ const initialMusicians = [
         name: "DJ Soundwave",
         bluffName: "Professional Club & Event DJ",
         type: "DJ",
-        location: "Köln",
+        location: "KÃ¶ln",
         radius: 200,
         genres: ["Electro", "HipHop", "Charts", "Pop"],
         instruments: ["Turntables", "Mischpult"],
@@ -356,9 +356,9 @@ const initialMusicians = [
         maxDuration: 8,
         minBudget: 850,
         maxBudget: 1500,
-        eventTypes: ["Bar/Kneipe/Club", "Firmenfeier", "Hochzeit – Party", "Geburtstag"],
+        eventTypes: ["Bar/Kneipe/Club", "Firmenfeier", "Hochzeit â€“ Party", "Geburtstag"],
         availability: ["Friday", "Saturday", "Sunday"],
-        description: "Seit 10 Jahren als DJ auf Hochzeiten, Firmenfeiern und in Clubs unterwegs. Professionelle High-End Licht- und Tontechnik für Events bis 300 Personen bringe ich komplett selbst mit.",
+        description: "Seit 10 Jahren als DJ auf Hochzeiten, Firmenfeiern und in Clubs unterwegs. Professionelle High-End Licht- und Tontechnik fÃ¼r Events bis 300 Personen bringe ich komplett selbst mit.",
         contactName: "Andreas Richter",
         phone: "+49 171 55566677",
         hidePhone: true,
@@ -389,7 +389,7 @@ const initialMusicians = [
         maxBudget: 1200,
         eventTypes: ["Hochzeit - Trauung", "Firmenfeier", "Geburtstag", "Festival"],
         availability: ["Saturday", "Sunday", "Thursday"],
-        description: "Zweistimmiger Gesang, feine Akustikgitarren-Klänge und sanfte Rhythmen. Wir bieten den perfekten Soundtrack für chillige Sommerevents, Gartenpartys oder romantische Trauungen. Kompakte Akustikanlage ist vorhanden.",
+        description: "Zweistimmiger Gesang, feine Akustikgitarren-KlÃ¤nge und sanfte Rhythmen. Wir bieten den perfekten Soundtrack fÃ¼r chillige Sommerevents, Gartenpartys oder romantische Trauungen. Kompakte Akustikanlage ist vorhanden.",
         contactName: "Sarah & Ben",
         phone: "+49 160 88877799",
         hidePhone: true,
@@ -420,8 +420,8 @@ const initialMusicians = [
         maxBudget: 3000,
         eventTypes: ["Bar/Kneipe/Club", "Festival", "Firmenfeier"],
         availability: ["Friday", "Saturday"],
-        description: "Echte Rock-Klassiker und harte Riffs von AC/DC bis Led Zeppelin. Wir spielen 100% live, energetisch und laut. Ton- und Lichtanlage (PA) müssen vom Veranstalter gestellt werden.",
-        contactName: "Thorsten Müller",
+        description: "Echte Rock-Klassiker und harte Riffs von AC/DC bis Led Zeppelin. Wir spielen 100% live, energetisch und laut. Ton- und Lichtanlage (PA) mÃ¼ssen vom Veranstalter gestellt werden.",
+        contactName: "Thorsten MÃ¼ller",
         phone: "+49 170 44433322",
         hidePhone: true,
         email: "info@blackwood-rock.de",
@@ -449,9 +449,9 @@ const initialMusicians = [
         maxDuration: 3,
         minBudget: 350,
         maxBudget: 600,
-        eventTypes: ["Sommerfest", "Firmenfeier", "Hochzeit – Party", "Jubiläum"],
+        eventTypes: ["Sommerfest", "Firmenfeier", "Hochzeit â€“ Party", "JubilÃ¤um"],
         availability: ["Saturday", "Sunday", "Wednesday"],
-        description: "Sinnliche Saxophonklänge und samtige Vocals. Begleitung beim Sektempfang, Dinnermusik oder als Live-Highlight zu Lounge-Beats. Professionelle, platzsparende Beschallungsanlage vorhanden.",
+        description: "Sinnliche SaxophonklÃ¤nge und samtige Vocals. Begleitung beim Sektempfang, Dinnermusik oder als Live-Highlight zu Lounge-Beats. Professionelle, platzsparende Beschallungsanlage vorhanden.",
         contactName: "Leo Berg",
         phone: "+49 157 77788899",
         email: "leo.sax@gmx.net",
@@ -469,7 +469,7 @@ const initialMusicians = [
     {
         id: "mus_zero",
         name: "Leo Null",
-        bluffName: "Gitarrist & SÄnger (0 Credits Demo)",
+        bluffName: "Gitarrist & SÃ„nger (0 Credits Demo)",
         type: "Solo",
         location: "Bremen",
         radius: 100,
@@ -479,7 +479,7 @@ const initialMusicians = [
         maxDuration: 3,
         minBudget: 250,
         maxBudget: 250,
-        eventTypes: ["Geburtstag", "Hochzeit – Party"],
+        eventTypes: ["Geburtstag", "Hochzeit â€“ Party"],
         availability: ["Saturday", "Sunday"],
         description: "Demo-Musiker-Account mit 0 Credits zum Testen des Bezahlfensters.",
         contactName: "Leo Null",
@@ -495,7 +495,7 @@ const initialMusicians = [
     },
     {
         id: "mus_five",
-        name: "Fynn Fünf",
+        name: "Fynn FÃ¼nf",
         bluffName: "Singer-Songwriter (5 Credits Demo)",
         type: "Solo",
         location: "Dortmund",
@@ -509,7 +509,7 @@ const initialMusicians = [
         eventTypes: ["Firmenfeier", "Geburtstag"],
         availability: ["Friday", "Saturday"],
         description: "Demo-Musiker-Account mit 5 Credits zum Testen der Einzelfreischaltung.",
-        contactName: "Fynn Fünf",
+        contactName: "Fynn FÃ¼nf",
         phone: "+49 175 55555555",
         email: "five@musician.de",
         isPremium: false,
@@ -532,7 +532,7 @@ const initialEvents = [
         date: "2026-08-15",
         eventStartTime: "14:00",
         eventEndTime: "17:00",
-        location: "Köln",
+        location: "KÃ¶ln",
         genres: ["Pop", "Klassik"],
         instruments: ["Klavier", "Gesang"],
         minDuration: 1.5,
@@ -542,7 +542,7 @@ const initialEvents = [
         maxBudget: 1200,
         budget: 950,
         musicianTypes: ["Solo", "Duo"],
-        description: "Für unsere kirchliche Trauung und den anschließenden Sektempfang direkt am See suchen wir eine gefühlvolle musikalische Untermalung (Klavier & Gesang). Gewünscht sind ca. 3 Lieder während der Zeremonie und 1.5 Stunden Hintergrundmusik beim Empfang.",
+        description: "FÃ¼r unsere kirchliche Trauung und den anschlieÃŸenden Sektempfang direkt am See suchen wir eine gefÃ¼hlvolle musikalische Untermalung (Klavier & Gesang). GewÃ¼nscht sind ca. 3 Lieder wÃ¤hrend der Zeremonie und 1.5 Stunden Hintergrundmusik beim Empfang.",
         contactName: "Julia & Michael",
         phone: "+49 173 11122233",
         hidePhone: true,
@@ -562,7 +562,7 @@ const initialEvents = [
         date: "2026-09-05",
         eventStartTime: "17:00",
         eventEndTime: "23:00",
-        location: "München",
+        location: "MÃ¼nchen",
         genres: ["Electro", "Pop"],
         instruments: ["Synthesizer", "Turntables", "Gesang"],
         minDuration: 4,
@@ -572,7 +572,7 @@ const initialEvents = [
         maxBudget: 3000,
         budget: 2500,
         musicianTypes: ["Band", "DJ"],
-        description: "Großes Sommer-Event am Stadtstrand! Wir suchen eine energiegeladene Live-Band oder einen DJ, der für fette Beats und Sommerstimmung sorgt. PA-Anlage und Bühne sind vorhanden. Verpflegung wird gestellt.",
+        description: "GroÃŸes Sommer-Event am Stadtstrand! Wir suchen eine energiegeladene Live-Band oder einen DJ, der fÃ¼r fette Beats und Sommerstimmung sorgt. PA-Anlage und BÃ¼hne sind vorhanden. Verpflegung wird gestellt.",
         contactName: "Eventagentur SommerSonne",
         phone: "+49 89 9876540",
         hidePhone: true,
@@ -585,14 +585,14 @@ const initialEvents = [
     },
     {
         id: "evt_3",
-        name: "Firmenjubiläum TechCorp",
+        name: "FirmenjubilÃ¤um TechCorp",
         type: "Firmenfeier",
         organizerType: "Firma",
         company: "TechCorp GmbH",
         date: "2026-10-20",
         eventStartTime: "19:00",
         eventEndTime: "22:00",
-        location: "Düsseldorf",
+        location: "DÃ¼sseldorf",
         genres: ["Jazz", "Pop", "Rock"],
         instruments: ["Schlagzeug", "E-Gitarre", "Bass", "Saxophon"],
         minDuration: 3,
@@ -602,7 +602,7 @@ const initialEvents = [
         maxBudget: 1800,
         budget: 1500,
         musicianTypes: ["Band", "Duo"],
-        description: "Wir feiern unser 10-jähriges Bestehen und suchen eine Band für den Abend. Zuerst gediegener Jazz zum Dinner, danach Pop/Rock-Klassiker zum Tanzen. Licht/Ton muss mitgebracht werden.",
+        description: "Wir feiern unser 10-jÃ¤hriges Bestehen und suchen eine Band fÃ¼r den Abend. Zuerst gediegener Jazz zum Dinner, danach Pop/Rock-Klassiker zum Tanzen. Licht/Ton muss mitgebracht werden.",
         contactName: "Sandra Meier (TechCorp HR)",
         phone: "+49 911 445566",
         hidePhone: true,
@@ -632,7 +632,7 @@ const initialEvents = [
         maxBudget: 900,
         budget: 800,
         musicianTypes: ["DJ"],
-        description: "Wir veranstalten unser alljährliches Open Air am See und suchen einen professionellen Club-DJ für fette EDM, House & Techno-Beats. Sound- & Lichtanlage sind komplett vorhanden.",
+        description: "Wir veranstalten unser alljÃ¤hrliches Open Air am See und suchen einen professionellen Club-DJ fÃ¼r fette EDM, House & Techno-Beats. Sound- & Lichtanlage sind komplett vorhanden.",
         contactName: "Club Seeufer Frankfurt",
         phone: "+49 69 555666",
         hidePhone: true,
@@ -645,7 +645,7 @@ const initialEvents = [
     },
     {
         id: "evt_5",
-        name: "50. Geburtstag im Gewölbekeller",
+        name: "50. Geburtstag im GewÃ¶lbekeller",
         type: "Geburtstag",
         organizerType: "Privater Veranstalter",
         company: "Privatperson",
@@ -662,7 +662,7 @@ const initialEvents = [
         maxBudget: 600,
         budget: 600,
         musicianTypes: ["Duo", "Solo", "Band"],
-        description: "Zu meinem 50. Geburtstag suche ich ein Akustik-Duo oder einen Solo-Musiker, der alte Rock- und Popklassiker spielt und für gute Laune im Kellergewölbe sorgt. Platz ist begrenzt, Strom vorhanden.",
+        description: "Zu meinem 50. Geburtstag suche ich ein Akustik-Duo oder einen Solo-Musiker, der alte Rock- und Popklassiker spielt und fÃ¼r gute Laune im KellergewÃ¶lbe sorgt. Platz ist begrenzt, Strom vorhanden.",
         contactName: "Thomas Wagner",
         phone: "+49 172 77766655",
         hidePhone: true,
@@ -676,8 +676,8 @@ const initialEvents = [
 ];
 
 const genresList = ["Pop", "Rock", "Electro", "Jazz", "Klassik", "Folk", "HipHop", "Metal", "Schlager", "Country", "Blues"];
-const instrumentsList = ["Gesang", "Klavier", "Keyboard", "Synthesizer", "Turntables", "Akustikgitarre", "E-Gitarre", "Bass", "Schlagzeug", "Cajon", "Saxophon", "Violine", "Flöte"];
-const eventTypesList = ['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
+const instrumentsList = ["Gesang", "Klavier", "Keyboard", "Synthesizer", "Turntables", "Akustikgitarre", "E-Gitarre", "Bass", "Schlagzeug", "Cajon", "Saxophon", "Violine", "FlÃ¶te"];
+const eventTypesList = ['Geburtstag', 'Hochzeit â€“ Trauung', 'Hochzeit - Sektempfang', 'Hochzeit â€“ Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Ã–ffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'SchÃ¼tzenfest', 'Vereinsfest', 'Sportveranstaltung', 'JubilÃ¤um', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
 const musicianTypesList = ["Band", "Solo", "DJ", "Duo", "Orchestre", "Trio"];
 
 // ==========================================
@@ -690,15 +690,15 @@ function generateRemainingMusicians(existing) {
     
     const musicians = [...existing];
     const firstNames = ["Lukas", "Jonas", "Sarah", "Emma", "Tim", "Ben", "Nina", "Leon", "David", "Felix", "Julia", "Laura", "Anna", "Maximilian", "Paul", "Sophia", "Clara", "Jakob", "Marie", "Alexander"];
-    const lastNames = ["Müller", "Schmidt", "Weber", "Fischer", "Meyer", "Wagner", "Schulz", "Becker", "Hoffmann", "Schäfer", "Koch", "Bauer", "Richter", "Klein", "Wolf", "Neumann", "Lange"];
+    const lastNames = ["MÃ¼ller", "Schmidt", "Weber", "Fischer", "Meyer", "Wagner", "Schulz", "Becker", "Hoffmann", "SchÃ¤fer", "Koch", "Bauer", "Richter", "Klein", "Wolf", "Neumann", "Lange"];
     const adjectives = ["Neon", "Cosmic", "Velvet", "Rusty", "Silent", "Golden", "Electric", "Midnight", "Crimson", "Royal", "Sweet", "Acoustic", "Vintage", "Sonic"];
     const nouns = ["Beats", "Rebels", "Strings", "Keys", "Vibers", "Dials", "Waves", "Project", "Trio", "Collective", "Horizon", "Sound", "Groove", "Melody"];
     const genresPool = ["Pop", "Rock", "Electro", "Jazz", "Klassik", "Schlager", "HipHop", "Blues", "Metal"];
     const instrumentsPool = ["E-Gitarre", "Akustikgitarre", "Klavier", "Keyboard", "Schlagzeug", "Gesang", "Bass", "Saxophon"];
-    const locationsPool = ["München", "Augsburg", "Nürnberg", "Stuttgart", "Hamburg", "Köln", "Frankfurt", "Düsseldorf", "Berlin"];
+    const locationsPool = ["MÃ¼nchen", "Augsburg", "NÃ¼rnberg", "Stuttgart", "Hamburg", "KÃ¶ln", "Frankfurt", "DÃ¼sseldorf", "Berlin"];
     const typesPool = ["Band", "Solo", "DJ", "Duo"];
     const daysPool = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-    const eventTypesPool = ['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
+    const eventTypesPool = ['Geburtstag', 'Hochzeit â€“ Trauung', 'Hochzeit - Sektempfang', 'Hochzeit â€“ Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Ã–ffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'SchÃ¼tzenfest', 'Vereinsfest', 'Sportveranstaltung', 'JubilÃ¤um', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
     const techPool = ["Technik vorhanden", "Technik ist noch unklar", "Technik nicht vorhanden"];
 
     for (let i = existing.length; i < targetCount; i++) {
@@ -713,7 +713,7 @@ function generateRemainingMusicians(existing) {
             bluffName = `Professionelle ${genresPool[Math.floor(Math.random() * genresPool.length)]}-${type}`;
         } else {
             name = contactName;
-            bluffName = type === "DJ" ? `Erfahrener Event-DJ` : `Akustik-Solo-Künstler`;
+            bluffName = type === "DJ" ? `Erfahrener Event-DJ` : `Akustik-Solo-KÃ¼nstler`;
         }
 
         const genresCount = Math.floor(Math.random() * 2) + 2;
@@ -766,7 +766,7 @@ function generateRemainingMusicians(existing) {
             maxBudget,
             eventTypes,
             availability,
-            description: `Hallo, wir sind ${name}! Mit viel Herzblut und Leidenschaft spielen wir ${genres.join(" & ")} für Ihre Veranstaltung in ${location} und Umgebung. Kontaktieren Sie uns gerne!`,
+            description: `Hallo, wir sind ${name}! Mit viel Herzblut und Leidenschaft spielen wir ${genres.join(" & ")} fÃ¼r Ihre Veranstaltung in ${location} und Umgebung. Kontaktieren Sie uns gerne!`,
             contactName,
             phone: `+49 176 ${Math.floor(10000000 + Math.random() * 90000000)}`,
             email: `${name.toLowerCase().replace(/[^a-z0-9]/g, "")}@example.com`,
@@ -788,10 +788,10 @@ function generateRemainingEvents(existing) {
 
     const events = [...existing];
     const firstNames = ["Lukas", "Jonas", "Sarah", "Emma", "Tim", "Ben", "Nina", "Leon", "David", "Felix", "Julia", "Laura", "Anna", "Maximilian", "Paul", "Sophia"];
-    const lastNames = ["Müller", "Schmidt", "Weber", "Fischer", "Meyer", "Wagner", "Schulz", "Becker", "Hoffmann", "Schäfer"];
-    const locationsPool = ["München", "Augsburg", "Nürnberg", "Stuttgart", "Hamburg", "Köln", "Frankfurt", "Düsseldorf", "Berlin"];
-    const eventTypesPool = ['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
-    const eventAdjectives = ["Große", "Gemütliche", "Exklusive", "Traditionelle", "Stimmungsvolle", "Moderne"];
+    const lastNames = ["MÃ¼ller", "Schmidt", "Weber", "Fischer", "Meyer", "Wagner", "Schulz", "Becker", "Hoffmann", "SchÃ¤fer"];
+    const locationsPool = ["MÃ¼nchen", "Augsburg", "NÃ¼rnberg", "Stuttgart", "Hamburg", "KÃ¶ln", "Frankfurt", "DÃ¼sseldorf", "Berlin"];
+    const eventTypesPool = ['Geburtstag', 'Hochzeit â€“ Trauung', 'Hochzeit - Sektempfang', 'Hochzeit â€“ Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Ã–ffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'SchÃ¼tzenfest', 'Vereinsfest', 'Sportveranstaltung', 'JubilÃ¤um', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
+    const eventAdjectives = ["GroÃŸe", "GemÃ¼tliche", "Exklusive", "Traditionelle", "Stimmungsvolle", "Moderne"];
     const genresPool = ["Pop", "Rock", "Electro", "Jazz", "Klassik", "Schlager"];
     const instrumentsPool = ["E-Gitarre", "Akustikgitarre", "Klavier", "Keyboard", "Schlagzeug", "Gesang"];
     const musicianTypesPool = ["Band", "DJ", "Solo", "Duo"];
@@ -849,11 +849,11 @@ function generateRemainingEvents(existing) {
         let generatedCompany = "Privatperson";
         if (organizerType !== "Privater Veranstalter") {
             const orgNames = {
-                "Firma": ["TechCorp GmbH", "Müller & Söhne KG", "InnoWave Solutions", "FutureMedia Group", "Hansa Logistik"],
-                "Verein": ["Musikverein e.V.", "Kulturverein Regenbogen", "Sportfreunde 1920", "Stadtjugendring", "Förderverein Kunst"],
+                "Firma": ["TechCorp GmbH", "MÃ¼ller & SÃ¶hne KG", "InnoWave Solutions", "FutureMedia Group", "Hansa Logistik"],
+                "Verein": ["Musikverein e.V.", "Kulturverein Regenbogen", "Sportfreunde 1920", "Stadtjugendring", "FÃ¶rderverein Kunst"],
                 "Event-Agentur": ["SommerSonne Events", "StarGigs Agency", "GoldenMoment Weddings", "BlueMoon Entertainment", "Epic Events"],
                 "Festivalveranstalter": ["BeachBeat Festival Group", "Rock am See GmbH", "JazzTime e.V.", "CityFestivals UG", "SoundScape Productions"],
-                "Sonstige": ["Kulturamt", "Bürgerhaus e.V.", "Stadtmarketing GmbH"]
+                "Sonstige": ["Kulturamt", "BÃ¼rgerhaus e.V.", "Stadtmarketing GmbH"]
             };
             const list = orgNames[organizerType] || ["Event Organisation"];
             generatedCompany = list[Math.floor(Math.random() * list.length)];
@@ -887,7 +887,7 @@ function generateRemainingEvents(existing) {
             organizerType,
             company: generatedCompany,
             musicianTypes: [musicianTypesPool[Math.floor(Math.random() * musicianTypesPool.length)]],
-            description: `Für unsere Veranstaltung '${eventName}' suchen wir einen passenden Live-Act. Wir freuen uns auf eure Bewerbung!`,
+            description: `FÃ¼r unsere Veranstaltung '${eventName}' suchen wir einen passenden Live-Act. Wir freuen uns auf eure Bewerbung!`,
             contactName,
             phone: `+49 176 ${Math.floor(10000000 + Math.random() * 90000000)}`,
             email: `event_${i}@example.com`,
@@ -1151,7 +1151,7 @@ class StateManager {
                 id: "mus_1_dup",
                 name: "Neon Beats Acoustic",
                 type: "Solo",
-                bluffName: "Acoustic Pop-SÄnger & Gitarrist",
+                bluffName: "Acoustic Pop-SÃ„nger & Gitarrist",
                 minBudget: 400,
                 genres: ["Pop", "Rock", "Singer-Songwriter"],
                 isActive: true
@@ -1196,16 +1196,16 @@ class StateManager {
                     e.company = user.company;
                 } else {
                     const orgNames = {
-                        "Firma": ["TechCorp GmbH", "Müller & Söhne KG", "InnoWave Solutions", "FutureMedia Group", "Hansa Logistik"],
-                        "Verein": ["Musikverein e.V.", "Kulturverein Regenbogen", "Sportfreunde 1920", "Stadtjugendring", "Förderverein Kunst"],
+                        "Firma": ["TechCorp GmbH", "MÃ¼ller & SÃ¶hne KG", "InnoWave Solutions", "FutureMedia Group", "Hansa Logistik"],
+                        "Verein": ["Musikverein e.V.", "Kulturverein Regenbogen", "Sportfreunde 1920", "Stadtjugendring", "FÃ¶rderverein Kunst"],
                         "Event-Agentur": ["SommerSonne Events", "StarGigs Agency", "GoldenMoment Weddings", "BlueMoon Entertainment", "Epic Events"],
                         "Festivalveranstalter": ["BeachBeat Festival Group", "Rock am See GmbH", "JazzTime e.V.", "CityFestivals UG", "SoundScape Productions"],
-                        "Eventlocation": ["Bürgerhaus", "Alte Mälzerei", "Schloss-Schenke"],
+                        "Eventlocation": ["BÃ¼rgerhaus", "Alte MÃ¤lzerei", "Schloss-Schenke"],
                         "Hotel": ["Grand Hotel", "Hotel Post", "Sonnenblick Resort"],
                         "Restaurant": ["La Piazza", "Zum Wilden Hirsch", "Hafenblick Restaurant"],
                         "Bar": ["Blue Note Jazz Bar", "Tiki Lounge", "Skyline Bar"],
                         "Stadtmarketing": ["Stadtmarketing GmbH", "Tourismusverband"],
-                        "Sonstige": ["Kulturverein", "Bürgerbüro"]
+                        "Sonstige": ["Kulturverein", "BÃ¼rgerbÃ¼ro"]
                     };
                     const list = orgNames[e.organizerType] || ["Event Organisation"];
                     e.company = list[Math.floor(Math.random() * list.length)];
@@ -1487,9 +1487,9 @@ class StateManager {
                 id: "chat_demo_1",
                 participants: ["mus_1", "org_1"],
                 messages: [
-                    { senderId: "org_1", text: "Hallo! Wir finden euren Sound absolut genial. HÄttet ihr Zeit, bei unserer Hochzeit zu spielen?", timestamp: "2026-07-12T14:30:00Z" },
-                    { senderId: "mus_1", text: "Hallo Julia! Vielen Dank für die Anfrage. Der 15. August 2026 passt uns super. Welche Art von Songs wÜnscht ihr euch?", timestamp: "2026-07-12T15:15:00Z" },
-                    { senderId: "org_1", text: "Hauptsächlich Pop-Cover für die Party am Abend und etwas Ruhiges für den Sektempfang. Das Budget liegt bei ca. 800-1000 EUR.", timestamp: "2026-07-12T16:00:00Z" }
+                    { senderId: "org_1", text: "Hallo! Wir finden euren Sound absolut genial. HÃ„ttet ihr Zeit, bei unserer Hochzeit zu spielen?", timestamp: "2026-07-12T14:30:00Z" },
+                    { senderId: "mus_1", text: "Hallo Julia! Vielen Dank fÃ¼r die Anfrage. Der 15. August 2026 passt uns super. Welche Art von Songs wÃœnscht ihr euch?", timestamp: "2026-07-12T15:15:00Z" },
+                    { senderId: "org_1", text: "HauptsÃ¤chlich Pop-Cover fÃ¼r die Party am Abend und etwas Ruhiges fÃ¼r den Sektempfang. Das Budget liegt bei ca. 800-1000 EUR.", timestamp: "2026-07-12T16:00:00Z" }
                 ],
                 updatedAt: "2026-07-12T16:00:00Z"
             },
@@ -1497,7 +1497,7 @@ class StateManager {
                 id: "chat_system_mus_1",
                 participants: ["mus_1", "system"],
                 messages: [
-                    { senderId: "system", text: "🚨 NEUES MATCHING: Ein Event mit 100% Match-Faktor wurde veröffentlicht! 'Sommerfestival Stadtstrand' passt perfekt zu Ihren Kriterien.", timestamp: "2026-07-13T10:00:00Z" }
+                    { senderId: "system", text: "ðŸš¨ NEUES MATCHING: Ein Event mit 100% Match-Faktor wurde verÃ¶ffentlicht! 'Sommerfestival Stadtstrand' passt perfekt zu Ihren Kriterien.", timestamp: "2026-07-13T10:00:00Z" }
                 ],
                 updatedAt: "2026-07-13T10:00:00Z"
             }
@@ -1571,10 +1571,10 @@ class StateManager {
                     const newMusician = {
                         id: registered.profileId || ("mus_" + registered.id),
                         name: "Demo Musiker",
-                        bluffName: "Akustik-Solo-Künstler",
+                        bluffName: "Akustik-Solo-KÃ¼nstler",
                         type: "Solo",
-                        location: "München",
-                        locations: ["München"],
+                        location: "MÃ¼nchen",
+                        locations: ["MÃ¼nchen"],
                         radius: 100,
                         genres: ["Pop", "Rock"],
                         instruments: ["Gesang", "Akustikgitarre"],
@@ -1586,7 +1586,7 @@ class StateManager {
                         availability: ["Friday", "Saturday"],
                         minPublikum: 0,
                         maxPublikum: 500,
-                        description: "Professioneller Solo-Künstler für Events aller Art.",
+                        description: "Professioneller Solo-KÃ¼nstler fÃ¼r Events aller Art.",
                         technik: ["Technik vorhanden"],
                         company: registered.company || "Privatperson",
                         contactName: `${registered.firstName} ${registered.lastName}`,
@@ -1615,8 +1615,8 @@ class StateManager {
                         eventTypes: ["Geburtstag"],
                         date: "2026-08-15",
                         dates: ["2026-08-15"],
-                        location: "München",
-                        locations: ["München"],
+                        location: "MÃ¼nchen",
+                        locations: ["MÃ¼nchen"],
                         genres: ["Pop", "Rock"],
                         instruments: ["Gesang", "Akustikgitarre"],
                         minDuration: 2.0,
@@ -1627,7 +1627,7 @@ class StateManager {
                         publikum: "50 - 150",
                         minBudget: 300,
                         maxBudget: 800,
-                        description: "Private Feier in München. Wir suchen einen netten Live-Act.",
+                        description: "Private Feier in MÃ¼nchen. Wir suchen einen netten Live-Act.",
                         technik: ["Technik ist noch unklar"],
                         company: registered.company || "Privatperson",
                         organizerType: registered.organizerType || "Privater Veranstalter",
@@ -1663,7 +1663,7 @@ class StateManager {
             return { success: true, user: this.currentUser };
         }
 
-        return { success: false, message: "Ungültige E-Mail-Adresse oder Passwort. Für Demo-Accounts nutze 'pass123' als Passwort." };
+        return { success: false, message: "UngÃ¼ltige E-Mail-Adresse oder Passwort. FÃ¼r Demo-Accounts nutze 'pass123' als Passwort." };
     }
 
     loginPasswordless(email) {
@@ -1721,10 +1721,10 @@ class StateManager {
                     const newMusician = {
                         id: registered.profileId || ("mus_" + registered.id),
                         name: "Demo Musiker",
-                        bluffName: "Akustik-Solo-Künstler",
+                        bluffName: "Akustik-Solo-KÃ¼nstler",
                         type: "Solo",
-                        location: "München",
-                        locations: ["München"],
+                        location: "MÃ¼nchen",
+                        locations: ["MÃ¼nchen"],
                         radius: 100,
                         genres: ["Pop", "Rock"],
                         instruments: ["Gesang", "Akustikgitarre"],
@@ -1736,7 +1736,7 @@ class StateManager {
                         availability: ["Friday", "Saturday"],
                         minPublikum: 0,
                         maxPublikum: 500,
-                        description: "Professioneller Solo-Künstler für Events aller Art.",
+                        description: "Professioneller Solo-KÃ¼nstler fÃ¼r Events aller Art.",
                         technik: ["Technik vorhanden"],
                         company: registered.company || "Privatperson",
                         contactName: `${registered.firstName} ${registered.lastName}`,
@@ -1765,8 +1765,8 @@ class StateManager {
                         eventTypes: ["Geburtstag"],
                         date: "2026-08-15",
                         dates: ["2026-08-15"],
-                        location: "München",
-                        locations: ["München"],
+                        location: "MÃ¼nchen",
+                        locations: ["MÃ¼nchen"],
                         genres: ["Pop", "Rock"],
                         instruments: ["Gesang", "Akustikgitarre"],
                         minDuration: 2.0,
@@ -1777,7 +1777,7 @@ class StateManager {
                         publikum: "50 - 150",
                         minBudget: 300,
                         maxBudget: 800,
-                        description: "Private Feier in München. Wir suchen einen netten Live-Act.",
+                        description: "Private Feier in MÃ¼nchen. Wir suchen einen netten Live-Act.",
                         technik: ["Technik ist noch unklar"],
                         company: registered.company || "Privatperson",
                         organizerType: registered.organizerType || "Privater Veranstalter",
@@ -1848,10 +1848,10 @@ class StateManager {
             const newMusician = {
                 id: profileId,
                 name: "Demo Musiker",
-                bluffName: "Akustik-Solo-Künstler",
+                bluffName: "Akustik-Solo-KÃ¼nstler",
                 type: "Solo",
-                location: "München",
-                locations: ["München"],
+                location: "MÃ¼nchen",
+                locations: ["MÃ¼nchen"],
                 radius: 100,
                 genres: ["Pop", "Rock"],
                 instruments: ["Gesang", "Akustikgitarre"],
@@ -1863,7 +1863,7 @@ class StateManager {
                 availability: ["Friday", "Saturday"],
                 minPublikum: 0,
                 maxPublikum: 500,
-                description: "Professioneller Solo-Künstler für Events aller Art.",
+                description: "Professioneller Solo-KÃ¼nstler fÃ¼r Events aller Art.",
                 technik: ["Technik vorhanden"],
                 company: "Privatperson",
                 contactName: `${firstName} Gast`,
@@ -1889,8 +1889,8 @@ class StateManager {
                 eventTypes: ["Geburtstag"],
                 date: "2026-08-15",
                 dates: ["2026-08-15"],
-                location: "München",
-                locations: ["München"],
+                location: "MÃ¼nchen",
+                locations: ["MÃ¼nchen"],
                 genres: ["Pop", "Rock"],
                 instruments: ["Gesang", "Akustikgitarre"],
                 minDuration: 2.0,
@@ -1901,7 +1901,7 @@ class StateManager {
                 publikum: "50 - 150",
                 minBudget: 300,
                 maxBudget: 800,
-                description: "Private Feier in München. Wir suchen einen netten Live-Act.",
+                description: "Private Feier in MÃ¼nchen. Wir suchen einen netten Live-Act.",
                 technik: ["Technik ist noch unklar"],
                 company: "Privatperson",
                 organizerType: "Privater Veranstalter",
@@ -1933,7 +1933,7 @@ class StateManager {
 
     unlockContact(targetId) {
         if (!this.currentUser) return { success: false, message: "Bitte melde dich an." };
-        if (this.currentUser.credits <= 0 && !this.currentUser.isPremium) return { success: false, message: "Nicht genügend Credits." };
+        if (this.currentUser.credits <= 0 && !this.currentUser.isPremium) return { success: false, message: "Nicht genÃ¼gend Credits." };
         
         if (!this.currentUser.isPremium) {
             this.currentUser.credits -= 1;
@@ -2056,8 +2056,8 @@ class StateManager {
                 name: data.bandName,
                 bluffName: `Anonyme/r ${data.musicianType} (${data.genres[0] || 'Musik'})`,
                 type: data.musicianType,
-                location: data.locations ? data.locations.join(', ') : (data.location || 'München'),
-                locations: data.locations || [data.location || 'München'],
+                location: data.locations ? data.locations.join(', ') : (data.location || 'MÃ¼nchen'),
+                locations: data.locations || [data.location || 'MÃ¼nchen'],
                 radius: parseInt(data.radius) || 50,
                 genres: data.genres,
                 instruments: data.instruments,
@@ -2197,7 +2197,7 @@ class StateManager {
             window.addMockEmail(
                 `Gesendete Anfrage an ${recipientName}`,
                 `GigConnAct <no-reply@gigconnact.de>`,
-                `Hallo ${this.currentUser.firstName},\n\ndeine Anfrage an ${recipientName} mit folgendem Inhalt wurde erfolgreich übermittelt:\n\n"${text}"`
+                `Hallo ${this.currentUser.firstName},\n\ndeine Anfrage an ${recipientName} mit folgendem Inhalt wurde erfolgreich Ã¼bermittelt:\n\n"${text}"`
             );
         }
 
@@ -2206,14 +2206,14 @@ class StateManager {
             if (this.currentUser && recipientId !== 'system') {
                 const replies = this.currentUser.role === 'musician'
                     ? [
-                        "Hi! Das klingt super. Euer Profil gefällt uns sehr gut. Seid ihr an dem gewünschten Termin noch flexibel?",
-                        "Hallo! Vielen Dank für die Anfrage. Wir schauen uns die Details an und melden uns in Kürze wieder bei euch.",
-                        "Guten Tag, danke für die Nachricht. Das Angebot klingt sehr interessant. Könnten wir vorab kurz telefonieren?"
+                        "Hi! Das klingt super. Euer Profil gefÃ¤llt uns sehr gut. Seid ihr an dem gewÃ¼nschten Termin noch flexibel?",
+                        "Hallo! Vielen Dank fÃ¼r die Anfrage. Wir schauen uns die Details an und melden uns in KÃ¼rze wieder bei euch.",
+                        "Guten Tag, danke fÃ¼r die Nachricht. Das Angebot klingt sehr interessant. KÃ¶nnten wir vorab kurz telefonieren?"
                       ]
                     : [
-                        "Hallo! Danke für die Nachricht. Das passt zeitlich perfekt bei uns. Wann können wir die Einzelheiten besprechen?",
-                        "Hi! Eure Anfrage freut uns sehr. Wir haben großes Interesse. Welche Liedwünsche habt ihr denn?",
-                        "Vielen Dank für die Anfrage. Wir sind an diesem Tag verfügbar und würden uns freuen, bei eurem Event zu spielen."
+                        "Hallo! Danke fÃ¼r die Nachricht. Das passt zeitlich perfekt bei uns. Wann kÃ¶nnen wir die Einzelheiten besprechen?",
+                        "Hi! Eure Anfrage freut uns sehr. Wir haben groÃŸes Interesse. Welche LiedwÃ¼nsche habt ihr denn?",
+                        "Vielen Dank fÃ¼r die Anfrage. Wir sind an diesem Tag verfÃ¼gbar und wÃ¼rden uns freuen, bei eurem Event zu spielen."
                       ];
                 const randomReply = replies[Math.floor(Math.random() * replies.length)];
                 this.receiveMessage(recipientId, senderId, randomReply);
@@ -2222,7 +2222,7 @@ class StateManager {
                 /*
                 if (typeof showToast === 'function') {
                     showToast({
-                        title: "Neue Nachricht erhalten! ✉️",
+                        title: "Neue Nachricht erhalten! âœ‰ï¸",
                         message: `Antwort von ${recipientName} im Postfach.`
                     });
                 }
@@ -2763,12 +2763,12 @@ function getEstimatedDistance(city1, city2) {
     
     const key = [c1, c2].sort().join("-");
     const distances = {
-        "augsburg-münchen": 80,
+        "augsburg-mÃ¼nchen": 80,
         "augsburg-stuttgart": 150,
-        "augsburg-nürnberg": 140,
-        "münchen-nürnberg": 170,
-        "münchen-stuttgart": 220,
-        "nürnberg-stuttgart": 210
+        "augsburg-nÃ¼rnberg": 140,
+        "mÃ¼nchen-nÃ¼rnberg": 170,
+        "mÃ¼nchen-stuttgart": 220,
+        "nÃ¼rnberg-stuttgart": 210
     };
     return distances[key] !== undefined ? distances[key] : 250;
 }
@@ -2861,7 +2861,7 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
         eventTypeScore = 20;
     }
 
-    // 8. Verfügbarkeit / Datum (5 %)
+    // 8. VerfÃ¼gbarkeit / Datum (5 %)
     let dateScore = 0;
     let isAvailable = false;
     if (musician.availability) {
@@ -2961,7 +2961,7 @@ function checkAndNotifyMatches(stateManager, showToastCallback) {
                 }
 
                 if (!alreadyNotified) {
-                    const messageText = `🚨 GIG-MATCH ALERT (${match.score}% Übereinstimmung): Das Event '${event.name}' in ${event.location} am ${event.date} passt hervorragend zu Ihrem Profil! (ID: ${event.id})`;
+                    const messageText = `ðŸš¨ GIG-MATCH ALERT (${match.score}% Ãœbereinstimmung): Das Event '${event.name}' in ${event.location} am ${event.date} passt hervorragend zu Ihrem Profil! (ID: ${event.id})`;
                     stateManager.addSystemNotification(musician.id, messageText);
                     
                     /*
@@ -2992,7 +2992,7 @@ function checkAndNotifyMatches(stateManager, showToastCallback) {
                     }
 
                     if (!alreadyNotified) {
-                        const messageText = `🚨 MUSIKER-MATCH ALERT (${match.score}% Übereinstimmung): Der Musiker/die Band '${musician.name}' passt optimal zu Ihrem Event '${event.name}'. (ID: ${musician.id})`;
+                        const messageText = `ðŸš¨ MUSIKER-MATCH ALERT (${match.score}% Ãœbereinstimmung): Der Musiker/die Band '${musician.name}' passt optimal zu Ihrem Event '${event.name}'. (ID: ${musician.id})`;
                         stateManager.addSystemNotification(event.id, messageText);
 
                         /*
@@ -3067,7 +3067,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Passende Events</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Event-Art, Entfernung, Gage, VerfÜgbarkeit etc.</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Event-Art, Entfernung, Gage, VerfÃœgbarkeit etc.</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
@@ -3083,13 +3083,13 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Veranstalter senden – sondern auch erhalten</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Veranstalter senden â€“ sondern auch erhalten</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÄge</h4>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÃ„ge</h4>
                     </div>
                     <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Automatische Empfehlungen von GigConnAct zu Events</p>
                 </div>
@@ -3107,7 +3107,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Preiswertes Abo-Modell (jederzeit kÜndbar)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Preiswertes Abo-Modell (jederzeit kÃœndbar)</p>
                 </div>
 
             </div>
@@ -3121,7 +3121,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
                         <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zu Musikern</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Coverbands, Bands, DJs, Duos, Trios, Gitarristen, SÄnger etc.</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Coverbands, Bands, DJs, Duos, Trios, Gitarristen, SÃ„nger etc.</p>
                 </div>
 
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
@@ -3145,13 +3145,13 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
                         <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Musiker senden – sondern auch erhalten</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Musiker senden â€“ sondern auch erhalten</p>
                 </div>
 
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
-                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÄge</h4>
+                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÃ„ge</h4>
                     </div>
                     <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Automatische Empfehlungen von GigConnAct zu Musikern</p>
                 </div>
@@ -3442,7 +3442,7 @@ function renderLandingPage(container, onNavigate) {
             <!-- 3.5. EVENT TYPES SECTION -->
             <div style="max-width: 1400px; margin: 5rem auto 3rem; padding: 0 1.5rem; text-align: center;">
                 <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.5rem); font-weight: 900; color: var(--text-main); margin: 0 0 2.5rem; line-height: 1.2;">
-                    Live-Musik für jedes Event
+                    Live-Musik fÃ¼r jedes Event
                 </h2>
                 
                 <!-- Horizontal row of event type cards -->
@@ -3499,7 +3499,7 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 4. SECTION 3 & 4: Vorteile für Musiker & Veranstalter (Split-Layout on laptops) -->
+            <!-- 4. SECTION 3 & 4: Vorteile fÃ¼r Musiker & Veranstalter (Split-Layout on laptops) -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem 0;">
                 <div class="benefits-container-split" style="gap: 2rem;">
                     
@@ -3508,7 +3508,7 @@ function renderLandingPage(container, onNavigate) {
                         <div>
                             <!-- Header badge -->
                             <div style="background: rgba(124, 58, 237, 0.1); color: #7c3aed; border-radius: 20px; padding: 0.4rem 0.9rem; font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1.2rem; text-transform: uppercase;">
-                                <i class="fa-solid fa-guitar"></i> Für Musiker
+                                <i class="fa-solid fa-guitar"></i> FÃ¼r Musiker
                             </div>
                             
                             <!-- Title and Illustration Row -->
@@ -3551,7 +3551,7 @@ function renderLandingPage(container, onNavigate) {
                                             Passende Events
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Event-Art, Entfernung, Gage, Verfügbarkeit etc.
+                                            Event-Art, Entfernung, Gage, VerfÃ¼gbarkeit etc.
                                         </div>
                                     </div>
                                 </div>
@@ -3581,7 +3581,7 @@ function renderLandingPage(container, onNavigate) {
                                             Interessante Anfragen
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Nicht nur Anfragen an Veranstalter senden – sondern auch erhalten
+                                            Nicht nur Anfragen an Veranstalter senden â€“ sondern auch erhalten
                                         </div>
                                     </div>
                                 </div>
@@ -3593,7 +3593,7 @@ function renderLandingPage(container, onNavigate) {
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
-                                            Top-Vorschläge
+                                            Top-VorschlÃ¤ge
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
                                             Automatische Empfehlungen von GigConnAct zu Events
@@ -3626,7 +3626,7 @@ function renderLandingPage(container, onNavigate) {
                                             Keine Provisionskosten
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Preiswertes Abo-Modell (jederzeit kündbar)
+                                            Preiswertes Abo-Modell (jederzeit kÃ¼ndbar)
                                         </div>
                                     </div>
                                 </div>
@@ -3636,7 +3636,7 @@ function renderLandingPage(container, onNavigate) {
 
                         <div style="margin-top: 2rem; text-align: center; width: 100%;">
                             <button id="btn-benefits-to-events" class="btn-homepage-market theme-musician" style="width: 100%; box-sizing: border-box;">
-                                Hier geht´s zum Event-Markt <i class="fa-solid fa-arrow-right"></i>
+                                Hier gehtÂ´s zum Event-Markt <i class="fa-solid fa-arrow-right"></i>
                             </button>
                         </div>
                     </div>
@@ -3646,7 +3646,7 @@ function renderLandingPage(container, onNavigate) {
                         <div>
                             <!-- Header badge -->
                             <div style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-radius: 20px; padding: 0.4rem 0.9rem; font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1.2rem; text-transform: uppercase;">
-                                <i class="fa-solid fa-building"></i> Für Veranstalter
+                                <i class="fa-solid fa-building"></i> FÃ¼r Veranstalter
                             </div>
                             
                             <!-- Title and Illustration Row -->
@@ -3673,7 +3673,7 @@ function renderLandingPage(container, onNavigate) {
                                             Kostenloser Zugang zu Musikern
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Coverbands, Bands, DJs, Duos, Trios, Gitarristen, Sänger etc.
+                                            Coverbands, Bands, DJs, Duos, Trios, Gitarristen, SÃ¤nger etc.
                                         </div>
                                     </div>
                                 </div>
@@ -3718,7 +3718,7 @@ function renderLandingPage(container, onNavigate) {
                                             Interessante Anfragen
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Nicht nur Anfragen an Musiker senden – sondern auch erhalten
+                                            Nicht nur Anfragen an Musiker senden â€“ sondern auch erhalten
                                         </div>
                                     </div>
                                 </div>
@@ -3730,7 +3730,7 @@ function renderLandingPage(container, onNavigate) {
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
-                                            Top-Vorschläge
+                                            Top-VorschlÃ¤ge
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
                                             Automatische Empfehlungen von GigConnAct zu Musikern
@@ -3773,7 +3773,7 @@ function renderLandingPage(container, onNavigate) {
 
                         <div style="margin-top: 2rem; text-align: center; width: 100%;">
                             <button id="btn-benefits-to-musicians" class="btn-homepage-market theme-organizer" style="width: 100%; box-sizing: border-box;">
-                                Hier geht´s zum Musiker-Markt <i class="fa-solid fa-arrow-right"></i>
+                                Hier gehtÂ´s zum Musiker-Markt <i class="fa-solid fa-arrow-right"></i>
                             </button>
                         </div>
                     </div>
@@ -3793,12 +3793,12 @@ function renderLandingPage(container, onNavigate) {
                         <div style="display: flex; flex-direction: column; gap: 0.35rem;">
                             <h3 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin: 0;">Vibulan Sivanathan</h3>
                             <div style="display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.3px;">
-                                <span style="color: var(--text-muted);">Gründer von GigConnAct</span>
-                                <span style="color: var(--text-muted);">Sänger von <a href="https://miamipink.de/" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: underline; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">MIAMI PINK</a></span>
+                                <span style="color: var(--text-muted);">GrÃ¼nder von GigConnAct</span>
+                                <span style="color: var(--text-muted);">SÃ¤nger von <a href="https://miamipink.de/" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: underline; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">MIAMI PINK</a></span>
                             </div>
                         </div>
                         <p style="font-size: 1.05rem; font-style: italic; color: var(--text-muted); line-height: 1.6; margin: 0; position: relative; padding-left: 1.2rem; border-left: 3px solid transparent; border-image: linear-gradient(to bottom, #7c3aed, #2563eb) 1;">
-                            Als Musiker und Eventmanager kenne ich beide Seiten nur zu gut. Ich weiß, wie schwierig es sein kann, passende Gigs zu finden – und genauso herausfordernd ist es für Veranstalter, den richtigen Musiker zu entdecken und ihn unkompliziert zu kontaktieren. Genau aus diesem Problem heraus ist GigConnAct entstanden – das „Airbnb für Live-Musik“.
+                            Als Musiker und Eventmanager kenne ich beide Seiten nur zu gut. Ich weiÃŸ, wie schwierig es sein kann, passende Gigs zu finden â€“ und genauso herausfordernd ist es fÃ¼r Veranstalter, den richtigen Musiker zu entdecken und ihn unkompliziert zu kontaktieren. Genau aus diesem Problem heraus ist GigConnAct entstanden â€“ das â€žAirbnb fÃ¼r Live-Musikâ€œ.
                         </p>
                     </div>
                 </div>
@@ -3858,7 +3858,7 @@ function renderLandingPage(container, onNavigate) {
                     <!-- Impressum Info -->
                     <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
                         <span style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; margin-bottom: 0.2rem;">Impressum</span>
-                        <span>GigConnAct &bull; Montanusstraße 49 &bull; 51065 Köln</span>
+                        <span>GigConnAct &bull; MontanusstraÃŸe 49 &bull; 51065 KÃ¶ln</span>
                         <div style="display: flex; flex-direction: column; gap: 0.25rem;">
                             <span>Tel: <a href="tel:+4915788703998" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">+49 15788703998</a></span>
                             <span>E-Mail: <a href="mailto:info@gigconnact.de" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">info@gigconnact.de</a></span>
@@ -4029,7 +4029,7 @@ function renderMatchDial(score) {
 }
 
 const popularGermanCities = [
-    "Berlin", "Hamburg", "MÜnchen", "KÖln", "Frankfurt am Main", "Stuttgart", "Düsseldorf", "Dortmund", "Essen", "Leipzig", "Bremen", "Dresden", "Hannover", "Nürnberg", "Duisburg", "Bochum", "Wuppertal", "Bielefeld", "Bonn", "Münster", "Karlsruhe", "Mannheim", "Augsburg", "Wiesbaden", "Gelsenkirchen", "MÜnchengladbach", "Braunschweig", "Chemnitz", "Aachen", "Kiel", "Halle (Saale)", "Magdeburg", "Freiburg im Breisgau", "Krefeld", "Lübeck", "Oberhausen", "Erfurt", "Mainz", "Rostock", "Kassel", "Hagen", "Hamm", "Saarbrücken", "Mülheim an der Ruhr", "Potsdam", "Ludwigshafen am Rhein", "Oldenburg", "Leverkusen", "Osnabrück", "Solingen", "Heidelberg", "Herne", "Neuss", "Darmstadt", "Paderborn", "Regensburg", "Ingolstadt", "Würzburg", "FÜrth", "Wolfsburg", "Offenbach am Main", "Ulm", "Heilbronn", "Pforzheim", "Göttingen", "Bottrop", "Recklinghausen", "Reutlingen", "Koblenz", "Bergisch Gladbach", "Remscheid", "Bremerhaven", "Jena", "Trier", "Erlangen", "Moers", "Siegen", "Hildesheim", "Salzgitter", "Cottbus", "Kaiserslautern", "Witten", "Gütersloh", "Schwerin", "Gera", "Bad Homburg", "Marl", "Flensburg", "Lünen", "Villingen-Schwenningen", "Ratingen", "Neu-Isenburg", "Bad Salzuflen", "Tübingen", "Minden", "Worms", "Konstanz", "Wilhelmshaven", "Velbert", "Norderstedt", "Stein", "Castrop-Rauxel", "Delmenhorst", "Viersen", "Gladbeck", "Marburg", "Rheine", "Troisdorf", "Dorsten", "Lüneburg", "Detmold", "Bayreuth", "Arnsberg", "Lippstadt", "Landshut", "Dinslaken", "Plauen", "Weimar", "Neuwied", "Ibbenbüren", "Gießen", "Passau", "Freising", "Freital", "Frankfurt (Oder)", "Ravensburg", "Rosenheim", "Stralsund", "Lörrach", "Schweinfurt", "Baden-Baden", "Offenburg", "Stendal", "Heidenheim", "Garmisch-Partenkirchen", "Memmingen", "Dachau", "Kempten (Allgäu)", "Görlitz", "Bautzen", "Sindelfingen", "Goch", "Kleve", "Wesel", "Kevelaer", "Kempen", "Nettetal"
+    "Berlin", "Hamburg", "MÃœnchen", "KÃ–ln", "Frankfurt am Main", "Stuttgart", "DÃ¼sseldorf", "Dortmund", "Essen", "Leipzig", "Bremen", "Dresden", "Hannover", "NÃ¼rnberg", "Duisburg", "Bochum", "Wuppertal", "Bielefeld", "Bonn", "MÃ¼nster", "Karlsruhe", "Mannheim", "Augsburg", "Wiesbaden", "Gelsenkirchen", "MÃœnchengladbach", "Braunschweig", "Chemnitz", "Aachen", "Kiel", "Halle (Saale)", "Magdeburg", "Freiburg im Breisgau", "Krefeld", "LÃ¼beck", "Oberhausen", "Erfurt", "Mainz", "Rostock", "Kassel", "Hagen", "Hamm", "SaarbrÃ¼cken", "MÃ¼lheim an der Ruhr", "Potsdam", "Ludwigshafen am Rhein", "Oldenburg", "Leverkusen", "OsnabrÃ¼ck", "Solingen", "Heidelberg", "Herne", "Neuss", "Darmstadt", "Paderborn", "Regensburg", "Ingolstadt", "WÃ¼rzburg", "FÃœrth", "Wolfsburg", "Offenbach am Main", "Ulm", "Heilbronn", "Pforzheim", "GÃ¶ttingen", "Bottrop", "Recklinghausen", "Reutlingen", "Koblenz", "Bergisch Gladbach", "Remscheid", "Bremerhaven", "Jena", "Trier", "Erlangen", "Moers", "Siegen", "Hildesheim", "Salzgitter", "Cottbus", "Kaiserslautern", "Witten", "GÃ¼tersloh", "Schwerin", "Gera", "Bad Homburg", "Marl", "Flensburg", "LÃ¼nen", "Villingen-Schwenningen", "Ratingen", "Neu-Isenburg", "Bad Salzuflen", "TÃ¼bingen", "Minden", "Worms", "Konstanz", "Wilhelmshaven", "Velbert", "Norderstedt", "Stein", "Castrop-Rauxel", "Delmenhorst", "Viersen", "Gladbeck", "Marburg", "Rheine", "Troisdorf", "Dorsten", "LÃ¼neburg", "Detmold", "Bayreuth", "Arnsberg", "Lippstadt", "Landshut", "Dinslaken", "Plauen", "Weimar", "Neuwied", "IbbenbÃ¼ren", "GieÃŸen", "Passau", "Freising", "Freital", "Frankfurt (Oder)", "Ravensburg", "Rosenheim", "Stralsund", "LÃ¶rrach", "Schweinfurt", "Baden-Baden", "Offenburg", "Stendal", "Heidenheim", "Garmisch-Partenkirchen", "Memmingen", "Dachau", "Kempten (AllgÃ¤u)", "GÃ¶rlitz", "Bautzen", "Sindelfingen", "Goch", "Kleve", "Wesel", "Kevelaer", "Kempen", "Nettetal"
 ];
 
 function levenshteinDistance(a, b) {
@@ -4057,10 +4057,10 @@ function levenshteinDistance(a, b) {
 function normalizeStringForSearch(str) {
     if (!str) return '';
     return str.toLowerCase()
-        .replace(/ä/g, 'a')
-        .replace(/ö/g, 'o')
-        .replace(/ü/g, 'u')
-        .replace(/ß/g, 'ss')
+        .replace(/Ã¤/g, 'a')
+        .replace(/Ã¶/g, 'o')
+        .replace(/Ã¼/g, 'u')
+        .replace(/ÃŸ/g, 'ss')
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
@@ -4144,7 +4144,7 @@ function setupLocationAutocomplete(input, onSelect) {
 
         debounceTimer = setTimeout(async () => {
             try {
-                // 1. Get local fuzzy matches (error-tolerant, e.g. Koln -> Köln)
+                // 1. Get local fuzzy matches (error-tolerant, e.g. Koln -> KÃ¶ln)
                 const localMatches = [];
                 popularGermanCities.forEach(city => {
                     const score = getFuzzyScore(query, city);
@@ -4268,8 +4268,8 @@ function setupLocationAutocomplete(input, onSelect) {
                             input.dispatchEvent(new Event('change', { bubbles: true }));
                         }
                         showToast({
-                            title: "Ort ungültig",
-                            message: "Bitte wähle einen Ort aus den Vorschlägen aus."
+                            title: "Ort ungÃ¼ltig",
+                            message: "Bitte wÃ¤hle einen Ort aus den VorschlÃ¤gen aus."
                         });
                     }
                 }
@@ -4325,8 +4325,8 @@ function setupLocationAutocomplete(input, onSelect) {
                     input.dispatchEvent(new Event('input', { bubbles: true }));
                     input.dispatchEvent(new Event('change', { bubbles: true }));
                     showToast({
-                        title: "Ort ungültig",
-                        message: "Bitte wähle einen Ort aus den Vorschlägen aus."
+                        title: "Ort ungÃ¼ltig",
+                        message: "Bitte wÃ¤hle einen Ort aus den VorschlÃ¤gen aus."
                     });
                 }
             }
@@ -4364,7 +4364,7 @@ function initAllLocationAutocompletes() {
 
 function renderMarket(container, type, onNavigate) {
     const isEvents = type === 'events';
-    const title = isEvents ? 'Event-Markt für Musiker' : 'Musiker-Markt für Veranstalter';
+    const title = isEvents ? 'Event-Markt fÃ¼r Musiker' : 'Musiker-Markt fÃ¼r Veranstalter';
 
     const items = isEvents ? state.events : state.musicians;
     
@@ -4418,8 +4418,8 @@ function renderMarket(container, type, onNavigate) {
                     <select id="sort-select" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; margin: 0; z-index: 5;">
                         <option value="match">Match-Faktor absteigend</option>
                         <option value="newest">Neueste zuerst</option>
-                        <option value="price">Günstig zuerst</option>
-                        <option value="distance">Nächste zuerst</option>
+                        <option value="price">GÃ¼nstig zuerst</option>
+                        <option value="distance">NÃ¤chste zuerst</option>
                         <option value="name">Name (A-Z)</option>
                     </select>
                 </div>
@@ -4453,7 +4453,7 @@ function renderMarket(container, type, onNavigate) {
                             <i class="fa-solid fa-sliders"></i> Filter
                         </span>
                         
-                        <button id="btn-reset-filters" class="btn-reset-round" title="Filter zurücksetzen">
+                        <button id="btn-reset-filters" class="btn-reset-round" title="Filter zurÃ¼cksetzen">
                             <i class="fa-solid fa-rotate-left"></i>
                         </button>
                         
@@ -4469,7 +4469,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Event-Typ</label>
                                 <div class="checkbox-tag-grid" id="filter-event-type-grid">
-                                    ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
+                                    ${['Geburtstag', 'Hochzeit â€“ Trauung', 'Hochzeit - Sektempfang', 'Hochzeit â€“ Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Ã–ffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'SchÃ¼tzenfest', 'Vereinsfest', 'Sportveranstaltung', 'JubilÃ¤um', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterEventTypes" value="${t}">
                                             <span>${t}</span>
@@ -4496,7 +4496,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Ort / PLZ</label>
-                                <input type="text" id="filter-location" placeholder="z.B. Köln, Berlin..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                                <input type="text" id="filter-location" placeholder="z.B. KÃ¶ln, Berlin..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
@@ -4514,7 +4514,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Instrumente</label>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid">
-                                    ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                    ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/CajÃ³n', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterInstruments" value="${ins}">
                                             <span>${ins}</span>
@@ -4538,8 +4538,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Budget (€)</label>
-                                    <span id="val-filter-budget" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0 - 5.000+ €</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Budget (â‚¬)</label>
+                                    <span id="val-filter-budget" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0 - 5.000+ â‚¬</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-budget-container">
                                     <div class="dual-range-track"></div>
@@ -4551,7 +4551,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">GÃ¤ste (Anzahl)</label>
                                     <span id="val-filter-publikum" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0 - 500+</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-publikum-container">
@@ -4588,7 +4588,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Musiker-Typ</label>
                                 <div class="checkbox-tag-grid" id="filter-musician-type-grid">
-                                    ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
+                                    ${['SÃ¤nger', 'SolokÃ¼nstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'ShowkÃ¼nstler/TÃ¤nzer', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterMusicianTypes" value="${t}">
                                             <span>${t}</span>
@@ -4615,7 +4615,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Ort</label>
-                                <input type="text" id="filter-location-m" placeholder="z.B. München, Köln..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                                <input type="text" id="filter-location-m" placeholder="z.B. MÃ¼nchen, KÃ¶ln..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
@@ -4641,7 +4641,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Instrumente</label>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
-                                    ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                    ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/CajÃ³n', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterInstrumentsM" value="${ins}">
                                             <span>${ins}</span>
@@ -4665,8 +4665,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Gage (€)</label>
-                                    <span id="val-filter-gage-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0 - 5.000+ €</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Gage (â‚¬)</label>
+                                    <span id="val-filter-gage-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0 - 5.000+ â‚¬</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-gage-m-container">
                                     <div class="dual-range-track"></div>
@@ -4678,7 +4678,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">GÃ¤ste (Anzahl)</label>
                                     <span id="val-filter-publikum-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0 - 500+</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-publikum-m-container">
@@ -4692,7 +4692,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Bevorzugte Event-Typen</label>
                                 <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
-                                    ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
+                                    ${['Geburtstag', 'Hochzeit â€“ Trauung', 'Hochzeit - Sektempfang', 'Hochzeit â€“ Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Ã–ffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'SchÃ¼tzenfest', 'Vereinsfest', 'Sportveranstaltung', 'JubilÃ¤um', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterEventTypesM" value="${evt}">
                                             <span>${evt}</span>
@@ -5088,7 +5088,7 @@ function renderMarket(container, type, onNavigate) {
         const month = currentFilterCalDate.getMonth();
 
         const monthNames = [
-            "Januar", "Februar", "März", "April", "Mai", "Juni",
+            "Januar", "Februar", "MÃ¤rz", "April", "Mai", "Juni",
             "Juli", "August", "September", "Oktober", "November", "Dezember"
         ];
         calendarMonthYear.textContent = `${monthNames[month]} ${year}`;
@@ -5184,7 +5184,7 @@ function renderMarket(container, type, onNavigate) {
     // Initialize range sliders
     if (isEvents) {
         initDualSlider('slider-filter-duration-container', 'input-filter-duration-min', 'input-filter-duration-max', 'track-filter-duration', 'val-filter-duration', 'Std.', false);
-        initDualSlider('slider-filter-budget-container', 'input-filter-budget-min', 'input-filter-budget-max', 'track-filter-budget', 'val-filter-budget', '€', true);
+        initDualSlider('slider-filter-budget-container', 'input-filter-budget-min', 'input-filter-budget-max', 'track-filter-budget', 'val-filter-budget', 'â‚¬', true);
         initDualSlider('slider-filter-publikum-container', 'input-filter-publikum-min', 'input-filter-publikum-max', 'track-filter-publikum', 'val-filter-publikum', 'Personen', false);
     } else {
         const radiusInput = container.querySelector('#input-filter-radius-m');
@@ -5196,7 +5196,7 @@ function renderMarket(container, type, onNavigate) {
             });
         }
         initDualSlider('slider-filter-duration-m-container', 'input-filter-duration-m-min', 'input-filter-duration-m-max', 'track-filter-duration-m', 'val-filter-duration-m', 'Std.', false);
-        initDualSlider('slider-filter-gage-m-container', 'input-filter-gage-m-min', 'input-filter-gage-m-max', 'track-filter-gage-m', 'val-filter-gage-m', '€', true);
+        initDualSlider('slider-filter-gage-m-container', 'input-filter-gage-m-min', 'input-filter-gage-m-max', 'track-filter-gage-m', 'val-filter-gage-m', 'â‚¬', true);
         initDualSlider('slider-filter-publikum-m-container', 'input-filter-publikum-m-min', 'input-filter-publikum-m-max', 'track-filter-publikum-m', 'val-filter-publikum-m', 'Personen', false);
     }
 
@@ -5334,7 +5334,7 @@ function formatEventDateWithTime(item) {
 
 function formatMusicianAvailabilityHelper(item) {
     const avail = item.availability;
-    if (!avail) return 'Auf Anfrage verfügbar';
+    if (!avail) return 'Auf Anfrage verfÃ¼gbar';
     if (typeof avail === 'string') return avail;
 
     const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -5358,7 +5358,7 @@ function formatMusicianAvailabilityHelper(item) {
                 if (!modifiedDates || modifiedDates.length === 0) {
                     return "Flexibel (Jederzeit)";
                 }
-                return "Flexibel (außer einzelne Tage)";
+                return "Flexibel (auÃŸer einzelne Tage)";
             } else {
                 if (!modifiedDates || modifiedDates.length === 0) {
                     return "Keine Termine";
@@ -5374,7 +5374,7 @@ function formatMusicianAvailabilityHelper(item) {
     }
 
     if (activeIndices.length === 0) {
-        return 'Auf Anfrage verfügbar';
+        return 'Auf Anfrage verfÃ¼gbar';
     }
     if (activeIndices.length === 7) {
         return 'Jeden Tag (Mo-So)';
@@ -5418,8 +5418,8 @@ window.openItemDetailModal = function(id, isEvents) {
     const genres = item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic']);
     const instruments = item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre']);
     const description = item.description || item.bio || (isEvents 
-        ? 'Wir suchen eine professionelle musikalische Begleitung für unser anstehendes Event mit toller Stimmung. Bitte Ton- und Lichttechnik mitbringen oder absprechen.' 
-        : 'Professionelle Live-Musik für unvergleichliche Momente bei Hochzeiten, Geburtstagen & Firmenevents. Großes Repertoire von Klassikern bis zu modernen Charts.');
+        ? 'Wir suchen eine professionelle musikalische Begleitung fÃ¼r unser anstehendes Event mit toller Stimmung. Bitte Ton- und Lichttechnik mitbringen oder absprechen.' 
+        : 'Professionelle Live-Musik fÃ¼r unvergleichliche Momente bei Hochzeiten, Geburtstagen & Firmenevents. GroÃŸes Repertoire von Klassikern bis zu modernen Charts.');
 
     // Date formatting (German)
     let dateDisplay = isEvents ? formatEventDateWithTime(item) : formatMusicianAvailabilityHelper(item);
@@ -5442,7 +5442,7 @@ window.openItemDetailModal = function(id, isEvents) {
         durationDisplay = `${baseDur} Stunden`;
     }
 
-    // Budget formatting (ends with "€")
+    // Budget formatting (ends with "â‚¬")
     let budgetDisplay = '';
     const minB = item.minBudget !== undefined ? item.minBudget : item.price;
     const maxB = item.maxBudget;
@@ -5450,12 +5450,12 @@ window.openItemDetailModal = function(id, isEvents) {
         const minBStr = typeof minB === 'number' ? minB.toLocaleString('de-DE') : String(minB);
         if (maxB !== undefined && maxB !== null && maxB !== minB) {
             const maxBStr = typeof maxB === 'number' ? maxB.toLocaleString('de-DE') : String(maxB);
-            budgetDisplay = `${minBStr} - ${maxBStr} €`;
+            budgetDisplay = `${minBStr} - ${maxBStr} â‚¬`;
         } else {
-            budgetDisplay = `${minBStr} €`;
+            budgetDisplay = `${minBStr} â‚¬`;
         }
     } else {
-        budgetDisplay = '0 - 5.000 €';
+        budgetDisplay = '0 - 5.000 â‚¬';
     }
 
     // Technology formatting
@@ -5493,7 +5493,7 @@ window.openItemDetailModal = function(id, isEvents) {
                         <!-- Video Showcase Box -->
                         <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 1.2rem;">
                             <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="fa-solid fa-circle-play" style="color: #ef4444;"></i> Video-PrÄsentation
+                                <i class="fa-solid fa-circle-play" style="color: #ef4444;"></i> Video-PrÃ„sentation
                             </div>
                             <div style="position: relative; height: 140px; border-radius: 10px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; background: url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=500&q=80') center/cover;">
                                 <button onclick="window.open('${(item.videos && item.videos.length > 0) ? item.videos[0] : 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'}', '_blank')" title="${(item.videos && item.videos.length > 0) ? item.videos[0] : 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'}" style="width: 50px; height: 50px; border-radius: 50%; background: rgba(239, 68, 68, 0.9); border: none; color: #fff; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
@@ -5505,7 +5505,7 @@ window.openItemDetailModal = function(id, isEvents) {
                         <!-- Audio Player Box -->
                         <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 1.2rem;">
                             <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
-                                <i class="fa-solid fa-music" style="color: ${roleColor};"></i> HÖrproben & Audio
+                                <i class="fa-solid fa-music" style="color: ${roleColor};"></i> HÃ–rproben & Audio
                             </div>
                             <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 0.8rem; display: flex; align-items: center; gap: 0.8rem;">
                                 <button onclick="const icon=this.querySelector('i'); if(icon.classList.contains('fa-play')){icon.classList.remove('fa-play');icon.classList.add('fa-pause');}else{icon.classList.remove('fa-pause');icon.classList.add('fa-play');}" style="width: 40px; height: 40px; border-radius: 50%; background: ${roleColor}; border: none; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;">
@@ -5548,7 +5548,7 @@ window.openItemDetailModal = function(id, isEvents) {
                         </div>
 
                         <div>
-                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">${isEvents ? 'Veranstaltungsdatum' : 'Verfügbarkeiten'}</span>
+                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">${isEvents ? 'Veranstaltungsdatum' : 'VerfÃ¼gbarkeiten'}</span>
                             <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-calendar-days" style="color: ${roleColor};"></i> ${dateDisplay}</strong>
                         </div>
 
@@ -5580,7 +5580,7 @@ window.openItemDetailModal = function(id, isEvents) {
                                 <div><i class="fa-solid fa-phone" style="color: ${roleColor}; margin-right: 0.5rem;"></i> Tel: 
                                     ${item.hidePhone ? (
                                         (state && state.currentUser && (item.creatorId === state.currentUser.id || item.id === state.currentUser.profileId)) ? `
-                                            <strong>${item.phone || '+49 170 1234567'}</strong> <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 0.4rem; font-weight: normal;">(nur für dich sichtbar)</span>
+                                            <strong>${item.phone || '+49 170 1234567'}</strong> <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 0.4rem; font-weight: normal;">(nur fÃ¼r dich sichtbar)</span>
                                         ` : `
                                             <span style="font-size: 0.9rem; color: var(--text-muted); font-style: italic;">[Vom Nutzer ausgeblendet]</span>
                                         `
@@ -5595,10 +5595,10 @@ window.openItemDetailModal = function(id, isEvents) {
                             </button>
                         ` : `
                             <div style="font-weight: 800; font-size: 1.1rem; color: #ffffff; margin-bottom: 0.4rem;">
-                                <i class="fa-solid fa-lock" style="color: ${roleColor};"></i> Geschützter Kontaktbereich
+                                <i class="fa-solid fa-lock" style="color: ${roleColor};"></i> GeschÃ¼tzter Kontaktbereich
                             </div>
                             <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">
-                                Kontaktdaten (Telefonnummer & E-Mail-Adresse) sind im geschützten Modus verborgen. Registriere dich oder melde dich an, um direkt zu kommunizieren.
+                                Kontaktdaten (Telefonnummer & E-Mail-Adresse) sind im geschÃ¼tzten Modus verborgen. Registriere dich oder melde dich an, um direkt zu kommunizieren.
                             </p>
                             <button class="btn btn-primary" onclick="document.getElementById('modal-item-detail').remove(); showModal('auth');" style="background: ${isEvents ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'}; border-color: ${isEvents ? '#1e40af' : '#7c3aed'}; font-weight: 800; padding: 0.9rem 2rem; font-size: 1rem; border-radius: 12px; display: inline-flex; align-items: center; gap: 0.6rem; box-shadow: ${isEvents ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'};">
                                 <i class="fa-solid fa-sign-in-alt"></i> Kontaktdaten freischalten
@@ -5627,7 +5627,7 @@ window.initiateMarketContact = function(targetId, targetName, eventId) {
         window.postboxActiveTab = 'all';
         showToast({
             title: "Verbindung initiiert!",
-            message: `Chat mit ${targetName} geöffnet.`,
+            message: `Chat mit ${targetName} geÃ¶ffnet.`,
             actionTab: "postbox"
         });
         navigate('postbox');
@@ -5672,7 +5672,7 @@ window.revealMarketContact = function(itemId, type, value, clickedBtn) {
                             style="background: #ffffff; color: #0f172a; border: 1px solid #ffffff; font-weight: 800; padding: 0.5rem 1.5rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;"
                             onmouseover="this.style.background='rgba(255,255,255,0.9)'; this.style.transform='translateY(-1px)';"
                             onmouseout="this.style.background='#ffffff'; this.style.transform='translateY(0)';"
-                            title="Chat im Postfach öffnen">
+                            title="Chat im Postfach Ã¶ffnen">
                         <i class="fa-solid fa-comments"></i> Nachricht schreiben
                     </button>
                 </div>
@@ -5704,7 +5704,7 @@ window.toggleFavorite = function(id) {
     if (state.toggleFavorite(id)) {
         const isFav = state.isFavorite(id);
         showToast({
-            title: isFav ? "Favorit hinzugefügt!" : "Favorit entfernt",
+            title: isFav ? "Favorit hinzugefÃ¼gt!" : "Favorit entfernt",
             message: isFav ? "Dieses Angebot wurde in deinen Favoriten gespeichert." : "Dieses Angebot wurde aus deinen Favoriten entfernt."
         });
         if (typeof window.marketApplyFilters === 'function') {
@@ -5734,10 +5734,10 @@ function renderProfilePage(container) {
 
     const getPlanDetails = (planKey) => {
         switch (planKey) {
-            case 'plus': return { title: 'Plus', priceText: '7,99 € / Monat', details: '6 Monate Vertragslaufzeit, 1. Monat kostenlos' };
-            case 'pro': return { title: 'Pro', priceText: '5,99 € / Monat', details: '12 Monate Vertragslaufzeit, 1. Monat kostenlos' };
-            case 'premium': return { title: 'Premium', priceText: '4,99 € / Monat', details: '12 Monate Vertragslaufzeit, 3 Monate kostenlos' };
-            default: return { title: 'Flex', priceText: '9,99 € / Monat', details: '1 Monat Vertragslaufzeit, 1. Monat kostenlos' };
+            case 'plus': return { title: 'Plus', priceText: '7,99 â‚¬ / Monat', details: '6 Monate Vertragslaufzeit, 1. Monat kostenlos' };
+            case 'pro': return { title: 'Pro', priceText: '5,99 â‚¬ / Monat', details: '12 Monate Vertragslaufzeit, 1. Monat kostenlos' };
+            case 'premium': return { title: 'Premium', priceText: '4,99 â‚¬ / Monat', details: '12 Monate Vertragslaufzeit, 3 Monate kostenlos' };
+            default: return { title: 'Flex', priceText: '9,99 â‚¬ / Monat', details: '1 Monat Vertragslaufzeit, 1. Monat kostenlos' };
         }
     };
     
@@ -5748,7 +5748,7 @@ function renderProfilePage(container) {
         <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem; max-width: 800px; margin: 0 auto; padding: 1rem 0;">
             <div class="profile-section-card">
                 <h3 style="color: ${themeColor}; margin-top: 0; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.6rem;">
-                    <i class="fa-solid fa-address-card ${themeClass}"></i> Persönliche Kontaktdaten
+                    <i class="fa-solid fa-address-card ${themeClass}"></i> PersÃ¶nliche Kontaktdaten
                 </h3>
                 <form id="profile-details-form">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
@@ -5796,7 +5796,7 @@ function renderProfilePage(container) {
 
                     <div style="display: flex; justify-content: center;">
                         <button type="submit" class="btn btn-primary" style="margin:0; background: ${themeBtnBg}; border-color: ${themeBtnBorder};">
-                            <i class="fa-solid fa-floppy-disk"></i> Änderungen speichern
+                            <i class="fa-solid fa-floppy-disk"></i> Ã„nderungen speichern
                         </button>
                     </div>
                 </form>
@@ -5818,7 +5818,7 @@ function renderProfilePage(container) {
                             ${planInfo.details}
                         </div>
                         <div style="font-size: 0.75rem; font-weight: 700; margin-top: 0.5rem; color: ${u.subscriptionCancelled ? 'var(--color-red)' : '#10b981'};">
-                            Status: ${u.subscriptionCancelled ? 'Gekündigt (Aktiv bis zum Ende des Abrechnungszeitraums)' : 'Aktiv (Automatische Verlängerung)'}
+                            Status: ${u.subscriptionCancelled ? 'GekÃ¼ndigt (Aktiv bis zum Ende des Abrechnungszeitraums)' : 'Aktiv (Automatische VerlÃ¤ngerung)'}
                         </div>
                     </div>
                     
@@ -5828,7 +5828,7 @@ function renderProfilePage(container) {
                         </button>
                     ` : `
                         <button class="btn btn-glass" id="btn-cancel-subscription" style="margin:0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05);">
-                            <i class="fa-solid fa-ban"></i> Abo kündigen
+                            <i class="fa-solid fa-ban"></i> Abo kÃ¼ndigen
                         </button>
                     `}
                 </div>
@@ -5841,7 +5841,7 @@ function renderProfilePage(container) {
                         <div class="subscription-card ${activePlan === "flex" ? "active" : ""}" data-plan="flex" data-price="9.99">
                             <div class="selected-badge">Beliebt</div>
                             <h5>Flex</h5>
-                            <div class="price">9,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
+                            <div class="price">9,99 â‚¬ <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
                                 <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
@@ -5854,13 +5854,13 @@ function renderProfilePage(container) {
                                 </div>
                             </div>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "flex" ? "Aktueller Tarif" : (selectedPlan === "flex" ? "Ausgewählt" : "Auswählen")}</button>
+                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "flex" ? "Aktueller Tarif" : (selectedPlan === "flex" ? "AusgewÃ¤hlt" : "AuswÃ¤hlen")}</button>
                             </div>
                         </div>
                         <div class="subscription-card ${activePlan === "plus" ? "active" : ""}" data-plan="plus" data-price="7.99">
                             <div class="selected-badge">Spare 20 %</div>
                             <h5>Plus</h5>
-                            <div class="price">7,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
+                            <div class="price">7,99 â‚¬ <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
                                 <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
@@ -5873,13 +5873,13 @@ function renderProfilePage(container) {
                                 </div>
                             </div>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "plus" ? "Aktueller Tarif" : (selectedPlan === "plus" ? "Ausgewählt" : "Auswählen")}</button>
+                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "plus" ? "Aktueller Tarif" : (selectedPlan === "plus" ? "AusgewÃ¤hlt" : "AuswÃ¤hlen")}</button>
                             </div>
                         </div>
                         <div class="subscription-card ${activePlan === "pro" ? "active" : ""}" data-plan="pro" data-price="5.99">
                             <div class="selected-badge">Spare 40 %</div>
                             <h5>Pro</h5>
-                            <div class="price">5,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
+                            <div class="price">5,99 â‚¬ <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
                                 <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
@@ -5892,13 +5892,13 @@ function renderProfilePage(container) {
                                 </div>
                             </div>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "pro" ? "Aktueller Tarif" : (selectedPlan === "pro" ? "Ausgewählt" : "Auswählen")}</button>
+                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "pro" ? "Aktueller Tarif" : (selectedPlan === "pro" ? "AusgewÃ¤hlt" : "AuswÃ¤hlen")}</button>
                             </div>
                         </div>
                         <div class="subscription-card ${activePlan === "premium" ? "active" : ""}" data-plan="premium" data-price="4.99">
                             <div class="selected-badge" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;">Spare 59 %</div>
                             <h5>Premium</h5>
-                            <div class="price">4,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
+                            <div class="price">4,99 â‚¬ <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
                                 <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
@@ -5911,7 +5911,7 @@ function renderProfilePage(container) {
                                 </div>
                             </div>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "premium" ? "Aktueller Tarif" : (selectedPlan === "premium" ? "Ausgewählt" : "Auswählen")}</button>
+                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "premium" ? "Aktueller Tarif" : (selectedPlan === "premium" ? "AusgewÃ¤hlt" : "AuswÃ¤hlen")}</button>
                             </div>
                         </div>
                     </div><div id="profile-promo-code-box" style="display: none; margin-bottom: 1.5rem; background: rgba(124, 58, 237, 0.05); border: 1px dashed var(--color-purple); padding: 1rem; border-radius: var(--radius-md);">
@@ -5921,14 +5921,14 @@ function renderProfilePage(container) {
                         </p>
                         <div style="display: flex; gap: 0.5rem;">
                             <input type="text" id="prof-promo-code" class="input-field" placeholder="Gutscheincode" style="margin:0; text-transform: uppercase;">
-                            <button type="button" class="btn btn-secondary btn-sm" id="btn-prof-apply-promo" style="margin:0; font-size:0.75rem; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple);">Code prüfen</button>
+                            <button type="button" class="btn btn-secondary btn-sm" id="btn-prof-apply-promo" style="margin:0; font-size:0.75rem; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple);">Code prÃ¼fen</button>
                         </div>
                         <div id="prof-promo-status-msg" style="font-size: 0.7rem; margin-top: 0.4rem; display: none;"></div>
                     </div>
 
                     <div style="display: flex; justify-content: flex-end;">
                         <button class="btn btn-primary" id="btn-save-subscription-change" style="margin:0; background: #7c3aed; border-color: #7c3aed;">
-                            <i class="fa-solid fa-circle-arrow-right"></i> Tarifwechsel bestätigen
+                            <i class="fa-solid fa-circle-arrow-right"></i> Tarifwechsel bestÃ¤tigen
                         </button>
                     </div>
                 </div>
@@ -5948,7 +5948,7 @@ function renderProfilePage(container) {
             const phone = document.getElementById('prof-phone').value.trim();
             const hidePhone = document.getElementById('prof-hidephone').checked;
 
-            const nameReg = /^[a-zA-ZäöüÄÖÜß\s\-]+$/;
+            const nameReg = /^[a-zA-ZÃ¤Ã¶Ã¼Ã„Ã–ÃœÃŸ\s\-]+$/;
             if (!nameReg.test(fName) || !nameReg.test(lName)) {
                 showToast({ title: "Fehler", message: "Der Name darf nur Buchstaben enthalten.", type: "error" });
                 return;
@@ -6012,8 +6012,8 @@ function renderProfilePage(container) {
             state.saveState();
             
             showToast({
-                title: "Profil aktualisiert! 💾",
-                message: "Deine persönlichen Informationen wurden erfolgreich gespeichert."
+                title: "Profil aktualisiert! ðŸ’¾",
+                message: "Deine persÃ¶nlichen Informationen wurden erfolgreich gespeichert."
             });
             updateNavbar();
         });
@@ -6025,7 +6025,7 @@ function renderProfilePage(container) {
 
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => {
-                if (confirm("Möchtest du dein Abonnement wirklich zum nächstmöglichen Zeitpunkt kündigen? Du verlierst damit nach Ablauf des Zeitraums den direkten Kontaktzugang zu Veranstaltern.")) {
+                if (confirm("MÃ¶chtest du dein Abonnement wirklich zum nÃ¤chstmÃ¶glichen Zeitpunkt kÃ¼ndigen? Du verlierst damit nach Ablauf des Zeitraums den direkten Kontaktzugang zu Veranstaltern.")) {
                     u.subscriptionCancelled = true;
                     
                     const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
@@ -6037,8 +6037,8 @@ function renderProfilePage(container) {
                     
                     state.saveState();
                     showToast({
-                        title: "Abo gekündigt ℹ",
-                        message: "Dein Abonnement wurde gekündigt. Du hast bis zum Ende des aktuellen Zeitraums vollen Zugriff."
+                        title: "Abo gekÃ¼ndigt â„¹",
+                        message: "Dein Abonnement wurde gekÃ¼ndigt. Du hast bis zum Ende des aktuellen Zeitraums vollen Zugriff."
                     });
                     renderProfilePage(container);
                     updateNavbar();
@@ -6059,8 +6059,8 @@ function renderProfilePage(container) {
                 
                 state.saveState();
                 showToast({
-                    title: "Abo reaktiviert! 🎉",
-                    message: "Deine automatische Abonnement-Verlängerung ist wieder aktiv."
+                    title: "Abo reaktiviert! ðŸŽ‰",
+                    message: "Deine automatische Abonnement-VerlÃ¤ngerung ist wieder aktiv."
                 });
                 renderProfilePage(container);
                 updateNavbar();
@@ -6086,7 +6086,7 @@ function renderProfilePage(container) {
                         const plan = c.getAttribute("data-plan");
                         btn.textContent = plan === activePlan
                             ? "Aktueller Tarif"
-                            : (c.classList.contains("active") ? "Ausgewählt" : "Auswählen");
+                            : (c.classList.contains("active") ? "AusgewÃ¤hlt" : "AuswÃ¤hlen");
                     }
                 });
 
@@ -6107,14 +6107,14 @@ function renderProfilePage(container) {
                 const code = promoInput.value.trim().toUpperCase();
                 if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code)) {
                     isPromoApplied = true;
-                    promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif freigeschaltet.";
+                    promoStatus.textContent = "âœ” Gutscheincode gÃ¼ltig! Premium-Tarif freigeschaltet.";
                     promoStatus.style.color = "#10b981";
                     promoStatus.style.display = "block";
                     promoInput.disabled = true;
                     promoBtn.disabled = true;
                 } else {
                     isPromoApplied = false;
-                    promoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Story-Beitrag.";
+                    promoStatus.textContent = "âŒ UngÃ¼ltiger Gutscheincode. Bitte folge uns auf Instagram und teile den Story-Beitrag.";
                     promoStatus.style.color = "#ef4444";
                     promoStatus.style.display = "block";
                 }
@@ -6125,7 +6125,7 @@ function renderProfilePage(container) {
         if (saveSubBtn) {
             saveSubBtn.addEventListener('click', () => {
                 if (selectedPlan === 'premium' && !isPromoApplied) {
-                    showToast({ title: "Gutscheincode erforderlich", message: "Bitte gib einen gültigen Instagram-Code ein, um den Premium-Tarif freizuschalten.", type: "error" });
+                    showToast({ title: "Gutscheincode erforderlich", message: "Bitte gib einen gÃ¼ltigen Instagram-Code ein, um den Premium-Tarif freizuschalten.", type: "error" });
                     return;
                 }
 
@@ -6144,7 +6144,7 @@ function renderProfilePage(container) {
 
                 state.saveState();
                 showToast({
-                    title: "Tarif erfolgreich gewechselt! 🚀",
+                    title: "Tarif erfolgreich gewechselt! ðŸš€",
                     message: `Dein Abonnement wurde auf den Tarif "${selectedPlan.toUpperCase()}" umgestellt.`
                 });
                 renderProfilePage(container);
@@ -6186,7 +6186,7 @@ function renderMatchesPage(container) {
         const selectOptionsHtml = profiles.map(p => `<option value="${p.id}" ${p.id === selectedId ? 'selected' : ''}>${p.name}</option>`).join('');
         
         const isOrganizer = u.role === 'organizer';
-        const creditsValue = isOrganizer ? 'Gratis' : (u.isPremium ? '∞' : u.credits);
+        const creditsValue = isOrganizer ? 'Gratis' : (u.isPremium ? 'âˆž' : u.credits);
         const billingMode = isOrganizer ? 'Kostenlos' : (u.isPremium ? 'Flatrate' : 'Prepaid');
         const unlockedCount = isOrganizer ? 'Unbegrenzt' : (u.unlockedContacts || []).length;
 
@@ -6406,18 +6406,18 @@ function renderOrganizerEventItem(e, isActive) {
         }
     }
 
-    let budgetDisplay = e.budget ? `${e.budget} €` : 'Auf Anfrage';
+    let budgetDisplay = e.budget ? `${e.budget} â‚¬` : 'Auf Anfrage';
     let durationDisplay = e.spieldauer ? `${e.spieldauer} Stunden` : '2 - 4 Stunden';
     let techDisplayStr = e.technik || 'Technik nach Vereinbarung';
 
-    const description = e.description || 'Wir suchen eine professionelle musikalische Begleitung für unser anstehendes Event mit fantastischer Stimmung.';
+    const description = e.description || 'Wir suchen eine professionelle musikalische Begleitung fÃ¼r unser anstehendes Event mit fantastischer Stimmung.';
 
     const themeColor = '#7c3aed';
 
     return `
         <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'};">
             
-            <!-- 1. Combined Galerie: 3 Fotos (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
+            <!-- 1. Combined Galerie: 3 Fotos (FÃœLLT DIE KACHEL IN DER BREITE 100% AUS) -->
             <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 210px; background: #0f172a; overflow: hidden;">
                 
                 <div id="combo-slider-${e.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
@@ -6496,7 +6496,7 @@ function renderOrganizerEventItem(e, isActive) {
                     <i class="fa-solid fa-${isActive ? 'pause' : 'play'}" style="color: #ffffff;"></i> ${isActive ? 'Pausieren' : 'Aktivieren'}
                 </button>
                 <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
-                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
+                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i> LÃ¶schen
                 </button>
             </div>
         </div>
@@ -6588,7 +6588,7 @@ function renderMyEvents(container) {
             const result = state.toggleEventActive(id);
             if (result.success) {
                 showToast({
-                    title: result.isActive ? "Event aktiviert 🟢" : "Event pausiert 🟠",
+                    title: result.isActive ? "Event aktiviert ðŸŸ¢" : "Event pausiert ðŸŸ ",
                     message: result.isActive ? "Das Event ist wieder aktiv und auf dem Markt sichtbar." : "Das Event wurde pausiert und aus der Suche entfernt."
                 });
                 renderMyEvents(container);
@@ -6625,10 +6625,10 @@ function renderMyEvents(container) {
             const id = btn.getAttribute('data-id');
             const event = state.events.find(e => e.id === id);
             if (event) {
-                if (confirm(`Möchtest du das Event "${event.name}" wirklich unwiderruflich löschen?`)) {
+                if (confirm(`MÃ¶chtest du das Event "${event.name}" wirklich unwiderruflich lÃ¶schen?`)) {
                     state.deleteEvent(id);
                     showToast({
-                        title: "Event gelöscht",
+                        title: "Event gelÃ¶scht",
                         message: "Das Event wurde erfolgreich aus der Suche entfernt."
                     });
                     renderMyEvents(container);
@@ -6666,7 +6666,7 @@ function renderMusicianInsightsPanel(m) {
     const eventListHtml = resolvedApps.length === 0 ? `
         <div style="padding:1.5rem; text-align:center; color:var(--text-muted); font-size:0.8rem; background:#ffffff; border: 1px solid var(--border-glass); border-radius:var(--radius-sm);">
             <i class="fa-solid fa-envelope-open" style="font-size:1.8rem; color:var(--border-glass); margin-bottom:0.5rem; display:block;"></i>
-            Keine kontaktierten Events für dieses Profil gefunden. Bewirb dich auf dem Event-Marktplatz!
+            Keine kontaktierten Events fÃ¼r dieses Profil gefunden. Bewirb dich auf dem Event-Marktplatz!
         </div>
     ` : `
         <div style="display:flex; flex-direction:column; gap:0.6rem;">
@@ -6682,9 +6682,9 @@ function renderMusicianInsightsPanel(m) {
                                 const maxB = event.maxBudget;
                                 if (minB !== undefined && minB !== null) {
                                     if (maxB !== undefined && maxB !== null && maxB !== minB) {
-                                        return `${minB.toLocaleString('de-DE')} - ${maxB.toLocaleString('de-DE')} €`;
+                                        return `${minB.toLocaleString('de-DE')} - ${maxB.toLocaleString('de-DE')} â‚¬`;
                                     }
-                                    return `${minB.toLocaleString('de-DE')} €`;
+                                    return `${minB.toLocaleString('de-DE')} â‚¬`;
                                 }
                                 return 'Auf Anfrage';
                             })()}</span>
@@ -6794,9 +6794,9 @@ function renderMyMusicianItem(m, isActive) {
     const maxB = m.maxBudget;
     if (minB !== undefined && minB !== null) {
         if (maxB !== undefined && maxB !== null && maxB !== minB) {
-            budgetDisplay = `${minB.toLocaleString('de-DE')} - ${maxB.toLocaleString('de-DE')} €`;
+            budgetDisplay = `${minB.toLocaleString('de-DE')} - ${maxB.toLocaleString('de-DE')} â‚¬`;
         } else {
-            budgetDisplay = `${minB.toLocaleString('de-DE')} €`;
+            budgetDisplay = `${minB.toLocaleString('de-DE')} â‚¬`;
         }
     } else {
         budgetDisplay = 'Auf Anfrage';
@@ -6807,7 +6807,7 @@ function renderMyMusicianItem(m, isActive) {
         techDisplayStr = m.technik.join(', ');
     }
 
-    const description = m.description || m.bio || 'Professionelle Live-Musik für unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.';
+    const description = m.description || m.bio || 'Professionelle Live-Musik fÃ¼r unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.';
 
     const themeColor = '#2563eb';
 
@@ -6830,7 +6830,7 @@ function renderMyMusicianItem(m, isActive) {
     return `
         <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'};">
             
-            <!-- 1. Combined Galerie: 3 Fotos + 3 Videos direkt folgend (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
+            <!-- 1. Combined Galerie: 3 Fotos + 3 Videos direkt folgend (FÃœLLT DIE KACHEL IN DER BREITE 100% AUS) -->
             <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 210px; background: #0f172a; overflow: hidden;">
                 
                 <div id="combo-slider-${m.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
@@ -6847,10 +6847,10 @@ function renderMyMusicianItem(m, isActive) {
                         <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #000; display: flex; align-items: center; justify-content: center;">
                             <video controls preload="metadata" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: cover;">
                                 <source src="${vid.url}" type="video/mp4">
-                                Dein Browser unterstÜtzt dieses Video nicht.
+                                Dein Browser unterstÃœtzt dieses Video nicht.
                             </video>
                             <span style="position: absolute; top: 12px; left: 12px; z-index: 4; font-size: 0.72rem; font-weight: 800; color: #fff; background: rgba(239, 68, 68, 0.9); padding: 0.25rem 0.6rem; border-radius: 6px; backdrop-filter: blur(4px);">
-                                🎬 Video #${vIdx + 1}: ${vid.title}
+                                ðŸŽ¬ Video #${vIdx + 1}: ${vid.title}
                             </span>
                         </div>
                     `).join('')}
@@ -6904,7 +6904,7 @@ function renderMyMusicianItem(m, isActive) {
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Verfügbarkeit: ${availDaysStr}</span>
+                            <span>VerfÃ¼gbarkeit: ${availDaysStr}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
@@ -6926,7 +6926,7 @@ function renderMyMusicianItem(m, isActive) {
                     <i class="fa-solid fa-${isActive ? 'pause' : 'play'}" style="color: #ffffff;"></i> ${isActive ? 'Pausieren' : 'Aktivieren'}
                 </button>
                 <button class="btn btn-sm btn-glass btn-delete-my-musician" data-id="${m.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
-                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
+                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i> LÃ¶schen
                 </button>
             </div>
         </div>
@@ -6960,7 +6960,7 @@ function renderMyMusicians(container) {
                     `}
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
                         <button class="btn btn-primary" id="btn-create-musician-modal" style="margin:0; background: #2563eb; border-color: #2563eb; color: #ffffff;">
-                            <i class="fa-solid fa-plus"></i> Profil hinzufügen
+                            <i class="fa-solid fa-plus"></i> Profil hinzufÃ¼gen
                         </button>
                     </div>
                 </div>
@@ -7033,10 +7033,10 @@ function renderMyMusicians(container) {
         btn.addEventListener('click', () => {
             const id = btn.getAttribute('data-id');
             const musician = state.musicians.find(m => m.id === id);
-            if (musician && confirm(`Möchtest du das Musiker-Profil "${musician.name}" wirklich unwiderruflich löschen?`)) {
+            if (musician && confirm(`MÃ¶chtest du das Musiker-Profil "${musician.name}" wirklich unwiderruflich lÃ¶schen?`)) {
                 state.deleteMusician(id);
                 showToast({
-                    title: "Profil gelöscht",
+                    title: "Profil gelÃ¶scht",
                     message: "Das Musiker-Profil wurde erfolgreich entfernt."
                 });
                 renderMyMusicians(container);
@@ -7130,9 +7130,9 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Künstler-Typ (Mehrfachauswahl)</label>
+                        <label>KÃ¼nstler-Typ (Mehrfachauswahl)</label>
                         <div class="checkbox-tag-grid" id="grid-musician-types">
-                            ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => {
+                            ${['SÃ¤nger', 'SolokÃ¼nstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'ShowkÃ¼nstler/TÃ¤nzer', 'Sonstige'].map(t => {
                                 const isChecked = currentTypes.includes(t);
                                 return `
                                     <label class="tag-pill-checkbox">
@@ -7175,7 +7175,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     <div class="form-group">
                         <label>Instrumente (Mehrfachauswahl)</label>
                         <div class="checkbox-tag-grid" id="grid-instruments">
-                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
+                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/CajÃ³n', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
                                 const isChecked = musicianObj?.instruments?.includes(ins);
                                 return `
                                     <label class="tag-pill-checkbox">
@@ -7202,8 +7202,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <div class="slider-value-display">
-                            <label>Gage (€)</label>
-                            <span id="val-gage">${musicianObj?.minBudget || 0} - ${musicianObj?.maxBudget || 5000} €</span>
+                            <label>Gage (â‚¬)</label>
+                            <span id="val-gage">${musicianObj?.minBudget || 0} - ${musicianObj?.maxBudget || 5000} â‚¬</span>
                         </div>
                         <div class="dual-range-slider" id="slider-gage-container">
                             <div class="dual-range-track"></div>
@@ -7216,7 +7216,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     <div class="form-group">
                         <label>Bevorzugte Event-Typen (Mehrfachauswahl)</label>
                         <div class="checkbox-tag-grid" id="grid-event-types">
-                            ${['Geburtstag', 'Hochzeit - Trauung', 'Hochzeit - Sektempfang', 'Hochzeit - Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => {
+                            ${['Geburtstag', 'Hochzeit - Trauung', 'Hochzeit - Sektempfang', 'Hochzeit - Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Ã–ffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'SchÃ¼tzenfest', 'Vereinsfest', 'Sportveranstaltung', 'JubilÃ¤um', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => {
                                 const isChecked = musicianObj?.eventTypes?.includes(evt);
                                 return `
                                     <label class="tag-pill-checkbox">
@@ -7230,6 +7230,1177 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <label>Verfügbarkeiten</label>
+                        <p style="font-size:0.7rem; color:var(--text-muted); margin-bottom: 0.5rem; line-height: 1.3;">
+                            Tage und Zeiten auswählen, an denen du für Gigs verfügbar bist.
+                        </p>
+                        <div class="availability-week-grid">
+                            ${[
+                                { key: 'mo_do', label: 'Montag - Donnerstag', defActive: isDayActive('mo_do'), minTime: getDayTime('mo_do', 'start'), maxTime: getDayTime('mo_do', 'end') },
+                                { key: 'fr', label: 'Freitag', defActive: isDayActive('fr'), minTime: getDayTime('fr', 'start'), maxTime: getDayTime('fr', 'end') },
+                                { key: 'sa', label: 'Samstag', defActive: isDayActive('sa'), minTime: getDayTime('sa', 'start'), maxTime: getDayTime('sa', 'end') },
+                                { key: 'so', label: 'Sonntag', defActive: isDayActive('so'), minTime: getDayTime('so', 'start'), maxTime: getDayTime('so', 'end') }
+                            ].map(day => `
+                                <div class="availability-day-row" data-day="${day.key}">
+                                     <div class="availability-day-info">
+                                         <input type="checkbox" name="availDays" value="${day.key}" id="modal-chk-avail-${day.key}" ${day.defActive ? 'checked' : ''}>
+                                         <label for="modal-chk-avail-${day.key}">${day.label}</label>
+                                     </div>
+                                     <div class="availability-day-times" id="modal-times-container-${day.key}">
+                                         <span>von</span>
+                                         <input type="time" name="availStart_${day.key}" value="${day.minTime}" ${!day.defActive ? 'disabled' : ''}>
+                                         <span>bis</span>
+                                         <input type="time" name="availEnd_${day.key}" value="${day.maxTime}" ${!day.defActive ? 'disabled' : ''}>
+                                     </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="slider-value-display">
+                            <label>Wunschgröße Publikum</label>
+                            <span id="val-publikum">${musicianObj?.minPublikum || 0} - ${musicianObj?.maxPublikum || 500}+</span>
+                        </div>
+                        <div class="dual-range-slider" id="slider-publikum-container">
+                            <div class="dual-range-track"></div>
+                            <div class="dual-range-active-track" id="track-publikum"></div>
+                            <input type="range" id="input-publikum-min" min="0" max="500" step="50" value="${musicianObj?.minPublikum || 0}">
+                            <input type="range" id="input-publikum-max" min="0" max="500" step="50" value="${musicianObj?.maxPublikum || 500}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Technik</label>
+                        <div class="checkbox-tag-grid" id="grid-technik">
+                            ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => {
+                                const isChecked = Array.isArray(musicianObj?.technik) 
+                                    ? musicianObj.technik.includes(t) 
+                                    : (musicianObj?.technik === t || (t === 'Technik ist noch unklar' && !musicianObj?.technik));
+                                return `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="musTechnik" value="${t}" ${isChecked ? 'checked' : ''}>
+                                        <span>${t}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Beschreibung</label>
+                        <textarea name="description" class="input-field" rows="3" style="resize:vertical;" maxlength="200" required>${musicianObj?.description || ''}</textarea>
+                    </div>
+
+                    <!-- Media Section -->
+                    <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
+                    <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien (Foto & Video)</h4>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
+                        Füge Fotos und Videos für dein Profil hinzu, um es attraktiver zu gestalten.
+                    </p>
+                    <div class="form-group" style="margin-bottom: 1.2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">?? Bilder (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
+                            <button type="button" id="btn-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(34, 197, 94, 0.3); color:#22c55e;">
+                                <i class="fa-solid fa-plus"></i> Foto hinzufügen
+                            </button>
+                        </div>
+                        <div id="modal-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">?? Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
+                            <button type="button" id="btn-modal-add-video" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#a855f7;">
+                                <i class="fa-solid fa-plus"></i> Video hinzufügen
+                            </button>
+                        </div>
+                        <div id="modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 1.5rem; background: var(--color-purple); border-color: var(--color-purple);">
+                        ${isEdit ? 'Änderungen speichern' : 'Profil erstellen'}
+                    </button>
+                </form>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('btn-close-musician-modal').addEventListener('click', closeModal);
+    
+    const locInput = modalWrapper.querySelector('input[name="location"]');
+    setupLocationAutocomplete(locInput);
+
+
+
+    // Radius range display sync
+    const radiusInput = modalWrapper.querySelector('input[name="radius"]');
+    const radiusDisplay = modalWrapper.querySelector('#val-radius');
+    if (radiusInput && radiusDisplay) {
+        radiusInput.addEventListener('input', () => {
+            radiusDisplay.textContent = `${radiusInput.value} km`;
+        });
+    }
+
+    // Dual sliders initialization
+    initDualSlider('slider-spieldauer-container', 'input-spieldauer-min', 'input-spieldauer-max', 'track-spieldauer', 'val-spieldauer', 'Std.', false);
+    initDualSlider('slider-gage-container', 'input-gage-min', 'input-gage-max', 'track-gage', 'val-gage', '€', true);
+    initDualSlider('slider-publikum-container', 'input-publikum-min', 'input-publikum-max', 'track-publikum', 'val-publikum', 'Personen', false);
+
+    // Weekday times enable/disable sync
+    modalWrapper.querySelectorAll('input[name="availDays"]').forEach(chk => {
+        chk.addEventListener('change', (e) => {
+            const day = e.target.value;
+            const timesDiv = document.getElementById(`modal-times-container-${day}`);
+            if (timesDiv) {
+                const inputs = timesDiv.querySelectorAll('input[type="time"]');
+                inputs.forEach(inp => inp.disabled = !e.target.checked);
+            }
+        });
+    });
+
+    // Sync active class on tag checkboxes
+    modalWrapper.querySelectorAll('.tag-pill-checkbox input').forEach(input => {
+        if (input.checked) {
+            input.parentElement.classList.add('active');
+        } else {
+            input.parentElement.classList.remove('active');
+        }
+        input.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                e.target.parentElement.classList.add('active');
+            } else {
+                e.target.parentElement.classList.remove('active');
+            }
+        });
+    });
+
+    // Modal local media previews and actions
+    const updateLocalMediaPreview = () => {
+        const photosContainer = document.getElementById('modal-photos-preview');
+        const videosContainer = document.getElementById('modal-videos-preview');
+        if (!photosContainer || !videosContainer) return;
+
+        photosContainer.innerHTML = localMedia.photos.length === 0
+            ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Bilder hinzugefügt</span>`
+            : localMedia.photos.map((p, idx) => `
+                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                    <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
+                    <button type="button" class="btn-delete-modal-photo" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                </div>
+            `).join('');
+
+        videosContainer.innerHTML = localMedia.videos.length === 0
+            ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Videos hinzugefügt</span>`
+            : localMedia.videos.map((v, idx) => `
+                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;" title="${v.title || (typeof v === 'string' ? v : 'Video')}">
+                    <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.1rem;"></i>
+                    <button type="button" class="btn-delete-modal-video" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                </div>
+            `).join('');
+
+        // Bind delete listeners
+        photosContainer.querySelectorAll('.btn-delete-modal-photo').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                localMedia.photos.splice(idx, 1);
+                updateLocalMediaPreview();
+            });
+        });
+
+        videosContainer.querySelectorAll('.btn-delete-modal-video').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                localMedia.videos.splice(idx, 1);
+                updateLocalMediaPreview();
+            });
+        });
+    };
+
+    const addPhotoBtn = document.getElementById('btn-modal-add-photo');
+    if (addPhotoBtn) {
+        addPhotoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (localMedia.photos.length >= 3) {
+                showToast({
+                    title: "Bilder-Limit erreicht ??",
+                    message: "Es sind maximal 3 Bilder erlaubt."
+                });
+                return;
+            }
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/png, image/jpeg, image/gif, image/webp';
+            fileInput.style.display = 'none';
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    validateAndProcessPhoto(fileInput.files[0], (dataUrl) => {
+                        localMedia.photos.push(dataUrl);
+                        updateLocalMediaPreview();
+                    });
+                }
+            });
+            fileInput.click();
+        });
+    }
+
+    const addVideoBtn = document.getElementById('btn-modal-add-video');
+    if (addVideoBtn) {
+        addVideoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (localMedia.videos.length >= 1) {
+                showToast({
+                    title: "Video-Limit erreicht ??",
+                    message: "Es ist maximal 1 Video erlaubt."
+                });
+                return;
+            }
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'video/mp4, video/quicktime, video/webm, video/ogg, video/x-matroska';
+            fileInput.style.display = 'none';
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    validateAndProcessVideo(fileInput.files[0], (videoUrl) => {
+                        localMedia.videos.push(videoUrl);
+                        updateLocalMediaPreview();
+                    });
+                }
+            });
+            fileInput.click();
+        });
+    }
+
+    updateLocalMediaPreview();
+
+    const form = document.getElementById('musician-editor-form');
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+
+        const availability = {};
+        const moDoChk = form.querySelector('input[name="availDays"][value="mo_do"]');
+        const isMoDoChecked = moDoChk ? moDoChk.checked : false;
+        const moDoStart = form.querySelector('input[name="availStart_mo_do"]')?.value || '18:00';
+        const moDoEnd = form.querySelector('input[name="availEnd_mo_do"]')?.value || '23:59';
+        
+        ['monday', 'tuesday', 'wednesday', 'thursday'].forEach(day => {
+            availability[day] = {
+                available: isMoDoChecked,
+                startTime: isMoDoChecked ? moDoStart : '',
+                endTime: isMoDoChecked ? moDoEnd : ''
+            };
+        });
+
+        const frChk = form.querySelector('input[name="availDays"][value="fr"]');
+        const isFrChecked = frChk ? frChk.checked : false;
+        const frStart = form.querySelector('input[name="availStart_fr"]')?.value || '18:00';
+        const frEnd = form.querySelector('input[name="availEnd_fr"]')?.value || '23:59';
+        availability['friday'] = {
+            available: isFrChecked,
+            startTime: isFrChecked ? frStart : '',
+            endTime: isFrChecked ? frEnd : ''
+        };
+        
+        const saChk = form.querySelector('input[name="availDays"][value="sa"]');
+        const isSaChecked = saChk ? saChk.checked : false;
+        availability['saturday'] = {
+            available: isSaChecked,
+            startTime: isSaChecked ? (form.querySelector('input[name="availStart_sa"]')?.value || '00:01') : '',
+            endTime: isSaChecked ? (form.querySelector('input[name="availEnd_sa"]')?.value || '23:59') : ''
+        };
+        
+        const soChk = form.querySelector('input[name="availDays"][value="so"]');
+        const isSoChecked = soChk ? soChk.checked : false;
+        availability['sunday'] = {
+            available: isSoChecked,
+            startTime: isSoChecked ? (form.querySelector('input[name="availStart_so"]')?.value || '00:01') : '',
+            endTime: isSoChecked ? (form.querySelector('input[name="availEnd_so"]')?.value || '23:59') : ''
+        };
+
+        const data = {
+            name: formData.get('bandName'),
+            type: Array.from(form.querySelectorAll('input[name="musicianTypes"]:checked')).map(el => el.value).join(', ') || 'Solo',
+            location: formData.get('location'),
+            radius: parseInt(formData.get('radius')) || 50,
+            minDuration: parseFloat(formData.get('minDuration')) || 1,
+            maxDuration: parseFloat(formData.get('maxDuration')) || 3,
+            minBudget: parseFloat(formData.get('minBudget')) || 300,
+            maxBudget: parseFloat(formData.get('maxBudget')) || 1000,
+            genres: Array.from(form.querySelectorAll('input[name="genres"]:checked')).map(el => el.value),
+            instruments: Array.from(form.querySelectorAll('input[name="instruments"]:checked')).map(el => el.value),
+            eventTypes: Array.from(form.querySelectorAll('input[name="eventTypes"]:checked')).map(el => el.value),
+            description: formData.get('description'),
+            technik: Array.from(form.querySelectorAll('input[name="musTechnik"]:checked')).map(el => el.value).length > 0
+                ? Array.from(form.querySelectorAll('input[name="musTechnik"]:checked')).map(el => el.value)
+                : ["Technik ist noch unklar"],
+            profilePic: selectedBase64,
+            photos: localMedia.photos,
+            videos: localMedia.videos,
+            contactName: `${state.currentUser.firstName} ${state.currentUser.lastName}`,
+            phone: state.currentUser.phone,
+            email: state.currentUser.email,
+            availability: availability,
+            minPublikum: parseInt(form.querySelector('#input-publikum-min')?.value) || 0,
+            maxPublikum: parseInt(form.querySelector('#input-publikum-max')?.value) || 500
+        };
+
+        if (isEdit) {
+            state.updateMusician(musicianObj.id, data);
+            showToast({
+                title: "Musiker aktualisiert!",
+                message: `Das Profil "${data.name}" wurde erfolgreich gespeichert.`
+            });
+        } else {
+            state.addMusician(data);
+            showToast({
+                title: "Musiker angelegt! ??",
+                message: `Das Profil "${data.name}" wurde erfolgreich veröffentlicht.`
+            });
+        }
+
+        closeModal();
+        const mainContainer = document.getElementById('app-main');
+        renderMyMusicians(mainContainer);
+    });
+}
+
+function showEventModal(eventObj = null, isDuplication = false) {
+    const modalWrapper = document.getElementById('modal-container');
+    if (!modalWrapper) return;
+
+    modalWrapper.classList.remove('hidden');
+    
+    const isEdit = !!eventObj && !isDuplication;
+    const title = isEdit ? 'Event bearbeiten' : (isDuplication ? 'Event duplizieren' : 'Neues Event erstellen');
+    const localMedia = {
+        photos: eventObj?.photos ? [...eventObj.photos] : [],
+        videos: eventObj?.videos ? [...eventObj.videos] : []
+    };
+
+    let selectedEventDates = [];
+    if (eventObj?.date) {
+        if (typeof eventObj.date === 'string' && eventObj.date.startsWith('[')) {
+            try {
+                selectedEventDates = JSON.parse(eventObj.date);
+            } catch(e) {
+                selectedEventDates = [eventObj.date];
+            }
+        } else {
+            selectedEventDates = [eventObj.date];
+        }
+    } else if (eventObj?.dates) {
+        selectedEventDates = [...eventObj.dates];
+    } else {
+        selectedEventDates = [new Date().toISOString().split('T')[0]];
+    }
+
+    let selectedOrgLocations = eventObj?.locations ? [...eventObj.locations] : (eventObj?.location ? [eventObj.location] : ['München']);
+    const currentTypes = eventObj?.type ? eventObj.type.split(',').map(s => s.trim()) : ['Hochzeit - Trauung'];
+
+    modalWrapper.innerHTML = `
+        <div class="modal-content" style="max-width: 650px; max-height: 85vh; overflow-y: auto; text-align: left;">
+            <div class="modal-header">
+                <h3>${title}</h3>
+                <button class="close-modal-btn" id="btn-close-event-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="event-editor-form">
+                    
+                    <div class="form-group">
+                        <label>Eventname</label>
+                        <input type="text" name="eventName" class="input-field" value="${eventObj?.name || ''}" placeholder="Name des Events" maxlength="50" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Event-Typ (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-org-event-types">
+                            ${['Geburtstag', 'Hochzeit - Trauung', 'Hochzeit - Sektempfang', 'Hochzeit - Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => {
+                                const isChecked = currentTypes.includes(t);
+                                return `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="orgEventTypes" value="${t}" ${isChecked ? 'checked' : ''}>
+                                        <span>${t}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Datum</label>
+                        <p style="font-size:0.7rem; color:var(--text-muted); margin-bottom: 0.5rem; line-height: 1.3;">
+                            An welchem Tag bzw. an welchen Tagen findet dein Event statt?
+                        </p>
+                        <div class="organizer-calendar-widget" id="modal-org-calendar-widget">
+                            <div class="org-calendar-header">
+                                <button type="button" class="btn-cal-nav" id="modal-btn-cal-prev"><i class="fa-solid fa-chevron-left"></i></button>
+                                <span id="modal-org-calendar-month-year">Juli 2026</span>
+                                <button type="button" class="btn-cal-nav" id="modal-btn-cal-next"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                            <div class="org-calendar-weekdays">
+                                <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
+                            </div>
+                            <div class="org-calendar-days" id="modal-org-calendar-days-grid"></div>
+                        </div>
+                        <input type="hidden" name="eventDates" id="modal-input-event-dates" value="">
+                        <div id="modal-org-selected-dates-preview" style="font-size:0.75rem; color:#3b82f6; margin-top:0.5rem; font-weight:600;">
+                            Keine Termine ausgewählt
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;">
+                        <div class="form-group" style="flex: 0 0 120px; width: 120px;">
+                            <label>Startzeit</label>
+                            <input type="time" name="eventStartTime" class="input-field" value="${eventObj?.eventStartTime || '18:00'}" style="margin: 0; width: 120px; height:42px;">
+                        </div>
+                        <div class="form-group" style="flex: 0 0 120px; width: 120px;">
+                            <label>Endzeit</label>
+                            <input type="time" name="eventEndTime" class="input-field" value="${eventObj?.eventEndTime || '22:00'}" style="margin: 0; width: 120px; height:42px;">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ort</label>
+                        <input type="text" id="modal-input-org-location-search" class="input-field" placeholder="Ort eingeben, z.B. München" autocomplete="off" style="width: 100%; margin-bottom: 0.5rem;">
+                        <div class="selected-locations-tags" id="modal-org-selected-locations-container" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.5rem;"></div>
+                        <input type="hidden" name="orgLocations" id="modal-input-org-locations" value="">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Genres (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-org-genres">
+                            ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
+                                const isChecked = eventObj?.genres?.includes(g);
+                                return `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="orgGenres" value="${g}" ${isChecked ? 'checked' : ''}>
+                                        <span>${g}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Instrumente (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-org-instruments">
+                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
+                                const isChecked = eventObj?.instruments?.includes(ins);
+                                return `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="orgInstruments" value="${ins}" ${isChecked ? 'checked' : ''}>
+                                        <span>${ins}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <div class="slider-value-display">
+                            <label>Spieldauer (Spielzeit)</label>
+                            <span id="val-org-spieldauer">${eventObj?.minDuration || 0.5} - ${eventObj?.maxDuration || 2.0} Std.</span>
+                        </div>
+                        <div class="dual-range-slider" id="slider-org-spieldauer-container">
+                            <div class="dual-range-track"></div>
+                            <div class="dual-range-active-track" id="track-org-spieldauer"></div>
+                            <input type="range" id="input-org-spieldauer-min" name="orgMinDuration" min="0.5" max="10" step="0.5" value="${eventObj?.minDuration || 0.5}">
+                            <input type="range" id="input-org-spieldauer-max" name="orgMaxDuration" min="0.5" max="10" step="0.5" value="${eventObj?.maxDuration || 2.0}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="slider-value-display">
+                            <label>Besucheranzahl</label>
+                            <span id="val-org-publikum">${eventObj?.minPublikum || 0} - ${eventObj?.maxPublikum || 500}+</span>
+                        </div>
+                        <div class="dual-range-slider" id="slider-org-publikum-container">
+                            <div class="dual-range-track"></div>
+                            <div class="dual-range-active-track" id="track-org-publikum"></div>
+                            <input type="range" id="input-org-publikum-min" name="orgMinPublikum" min="0" max="500" step="50" value="${eventObj?.minPublikum || 0}">
+                            <input type="range" id="input-org-publikum-max" name="orgMaxPublikum" min="0" max="500" step="50" value="${eventObj?.maxPublikum || 500}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="slider-value-display">
+                            <label>Gage / Budget Spanne</label>
+                            <span id="val-org-gage">${eventObj?.minBudget || eventObj?.budget || 0} - ${eventObj?.maxBudget || eventObj?.budget || 5000}+ €</span>
+                        </div>
+                        <div class="dual-range-slider" id="slider-org-gage-container">
+                            <div class="dual-range-track"></div>
+                            <div class="dual-range-active-track" id="track-org-gage"></div>
+                            <input type="range" id="input-org-gage-min" name="orgMinBudget" min="0" max="5000" step="100" value="${eventObj?.minBudget || eventObj?.budget || 0}">
+                            <input type="range" id="input-org-gage-max" name="orgMaxBudget" min="0" max="5000" step="100" value="${eventObj?.maxBudget || eventObj?.budget || 5000}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Technik</label>
+                        <div class="checkbox-tag-grid" id="grid-org-technik">
+                            ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => {
+                                const isChecked = Array.isArray(eventObj?.technik) 
+                                    ? eventObj.technik.includes(t) 
+                                    : (eventObj?.technik === t || (t === 'Technik ist noch unklar' && !eventObj?.technik));
+                                return `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="orgTechnik" value="${t}" ${isChecked ? 'checked' : ''}>
+                                        <span>${t}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Beschreibung</label>
+                        <textarea name="orgDescription" class="input-field" rows="3" style="resize:vertical;" maxlength="200" required>${eventObj?.description || ''}</textarea>
+                    </div>
+
+                    <!-- Media Section -->
+                    <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
+                    <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien (Foto & Video)</h4>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
+                        Füge Fotos und Videos für dein Event hinzu, um es attraktiver zu gestalten.
+                    </p>
+                    <div class="form-group" style="margin-bottom: 1.2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">?? Bilder (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
+                            <button type="button" id="btn-event-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(34, 197, 94, 0.3); color:#22c55e;">
+                                <i class="fa-solid fa-plus"></i> Foto hinzufügen
+                            </button>
+                        </div>
+                        <div id="event-modal-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">?? Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
+                            <button type="button" id="btn-event-modal-add-video" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#a855f7;">
+                                <i class="fa-solid fa-plus"></i> Video hinzufügen
+                            </button>
+                        </div>
+                        <div id="event-modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 1.5rem; background: var(--color-purple); border-color: var(--color-purple);">
+                        ${isEdit ? 'Änderungen speichern' : 'Event ausschreiben'}
+                    </button>
+                </form>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('btn-close-event-modal').addEventListener('click', closeModal);
+
+    // Initialize Calendar Widget
+    let currentCalDate = new Date(2026, 6, 1); // July 2026
+    const calendarMonthYear = document.getElementById('modal-org-calendar-month-year');
+    const calendarDaysGrid = document.getElementById('modal-org-calendar-days-grid');
+    const calendarPrevBtn = document.getElementById('modal-btn-cal-prev');
+    const calendarNextBtn = document.getElementById('modal-btn-cal-next');
+
+    const renderOrganizerCalendar = () => {
+        if (!calendarDaysGrid || !calendarMonthYear) return;
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth();
+        const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+        calendarMonthYear.textContent = `${monthNames[month]} ${year}`;
+
+        const firstDayIndex = new Date(year, month, 1).getDay();
+        const adjustedFirstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+        const totalDays = new Date(year, month + 1, 0).getDate();
+
+        let daysHtml = '';
+        for (let i = 0; i < adjustedFirstDayIndex; i++) {
+            daysHtml += `<div class="org-cal-day empty"></div>`;
+        }
+        for (let day = 1; day <= totalDays; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const isSelected = selectedEventDates.includes(dateStr);
+            daysHtml += `<div class="org-cal-day ${isSelected ? 'selected' : ''}" data-date="${dateStr}">${day}</div>`;
+        }
+        calendarDaysGrid.innerHTML = daysHtml;
+
+        calendarDaysGrid.querySelectorAll('.org-cal-day:not(.empty)').forEach(cell => {
+            cell.addEventListener('click', (e) => {
+                const dateVal = e.currentTarget.getAttribute('data-date');
+                const idx = selectedEventDates.indexOf(dateVal);
+                if (idx > -1) {
+                    selectedEventDates.splice(idx, 1);
+                } else {
+                    selectedEventDates.push(dateVal);
+                }
+                renderOrganizerCalendar();
+                updateDatesPreview();
+            });
+        });
+    };
+
+    const updateDatesPreview = () => {
+        const inputEventDates = document.getElementById('modal-input-event-dates');
+        const selectedDatesPreview = document.getElementById('modal-org-selected-dates-preview');
+        if (inputEventDates) {
+            inputEventDates.value = selectedEventDates.length > 0 ? JSON.stringify(selectedEventDates) : '';
+        }
+        if (selectedDatesPreview) {
+            if (selectedEventDates.length === 0) {
+                selectedDatesPreview.textContent = "Keine Termine ausgewählt";
+                selectedDatesPreview.style.color = '#60a5fa';
+            } else {
+                const sorted = [...selectedEventDates].sort();
+                const formatted = sorted.map(d => {
+                    const parts = d.split('-');
+                    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+                });
+                selectedDatesPreview.textContent = `Ausgewählt: ${formatted.join(', ')}`;
+                selectedDatesPreview.style.color = '#34d399';
+            }
+        }
+    };
+
+    if (calendarPrevBtn) {
+        calendarPrevBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentCalDate.setMonth(currentCalDate.getMonth() - 1);
+            renderOrganizerCalendar();
+        });
+    }
+    if (calendarNextBtn) {
+        calendarNextBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentCalDate.setMonth(currentCalDate.getMonth() + 1);
+            renderOrganizerCalendar();
+        });
+    }
+
+    renderOrganizerCalendar();
+    updateDatesPreview();
+
+    // Locations setup
+    const orgLocationInput = document.getElementById('modal-input-org-location-search');
+    const orgLocationContainer = document.getElementById('modal-org-selected-locations-container');
+    const orgLocationHidden = document.getElementById('modal-input-org-locations');
+
+    const renderOrgLocations = () => {
+        if (!orgLocationContainer) return;
+        orgLocationContainer.innerHTML = selectedOrgLocations.map((loc, idx) => `
+            <span class="tag" style="background: rgba(96, 165, 250, 0.15) !important; border: 1.5px solid #60a5fa !important; color: #60a5fa !important; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.75rem;">
+                ${loc}
+                <i class="fa-solid fa-xmark remove-location-btn" data-index="${idx}" style="cursor: pointer; font-size: 0.75rem;"></i>
+            </span>
+        `).join('');
+
+        if (orgLocationHidden) {
+            orgLocationHidden.value = selectedOrgLocations.length > 0 ? JSON.stringify(selectedOrgLocations) : '';
+        }
+
+        orgLocationContainer.querySelectorAll('.remove-location-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(e.currentTarget.getAttribute('data-index'));
+                selectedOrgLocations.splice(idx, 1);
+                renderOrgLocations();
+            });
+        });
+    };
+
+    const addLocation = (locText) => {
+        const val = locText.trim();
+        if (!val) return;
+        if (!selectedOrgLocations.includes(val)) {
+            selectedOrgLocations.push(val);
+            renderOrgLocations();
+        }
+        if (orgLocationInput) orgLocationInput.value = '';
+    };
+
+    if (orgLocationInput) {
+        setupLocationAutocomplete(orgLocationInput, addLocation);
+    }
+
+    renderOrgLocations();
+
+    // Dual sliders initialization
+    initDualSlider('slider-org-spieldauer-container', 'input-org-spieldauer-min', 'input-org-spieldauer-max', 'track-org-spieldauer', 'val-org-spieldauer', 'Std.', false);
+    initDualSlider('slider-org-publikum-container', 'input-org-publikum-min', 'input-org-publikum-max', 'track-org-publikum', 'val-org-publikum', 'Personen', false);
+    initDualSlider('slider-org-gage-container', 'input-org-gage-min', 'input-org-gage-max', 'track-org-gage', 'val-org-gage', '€', true);
+
+    // Sync active class on tag checkboxes
+    modalWrapper.querySelectorAll('.tag-pill-checkbox input').forEach(input => {
+        if (input.checked) {
+            input.parentElement.classList.add('active');
+        } else {
+            input.parentElement.classList.remove('active');
+        }
+        input.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                e.target.parentElement.classList.add('active');
+            } else {
+                e.target.parentElement.classList.remove('active');
+            }
+        });
+    });
+
+    // Modal local media previews and actions for event
+    const updateLocalEventMediaPreview = () => {
+        const photosContainer = document.getElementById('event-modal-photos-preview');
+        const videosContainer = document.getElementById('event-modal-videos-preview');
+        if (!photosContainer || !videosContainer) return;
+
+        photosContainer.innerHTML = localMedia.photos.length === 0
+            ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Bilder hinzugefügt</span>`
+            : localMedia.photos.map((p, idx) => `
+                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                    <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
+                    <button type="button" class="btn-delete-event-modal-photo" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                </div>
+            `).join('');
+
+        videosContainer.innerHTML = localMedia.videos.length === 0
+            ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Videos hinzugefügt</span>`
+            : localMedia.videos.map((v, idx) => `
+                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;" title="${v.title || (typeof v === 'string' ? v : 'Video')}">
+                    <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.1rem;"></i>
+                    <button type="button" class="btn-delete-event-modal-video" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                </div>
+            `).join('');
+
+        // Bind delete listeners
+        photosContainer.querySelectorAll('.btn-delete-event-modal-photo').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                localMedia.photos.splice(idx, 1);
+                updateLocalEventMediaPreview();
+            });
+        });
+
+        videosContainer.querySelectorAll('.btn-delete-event-modal-video').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                localMedia.videos.splice(idx, 1);
+                updateLocalEventMediaPreview();
+            });
+        });
+    };
+
+    const addEventPhotoBtn = document.getElementById('btn-event-modal-add-photo');
+    if (addEventPhotoBtn) {
+        addEventPhotoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (localMedia.photos.length >= 3) {
+                showToast({
+                    title: "Bilder-Limit erreicht ??",
+                    message: "Es sind maximal 3 Bilder erlaubt."
+                });
+                return;
+            }
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/png, image/jpeg, image/gif, image/webp';
+            fileInput.style.display = 'none';
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    validateAndProcessPhoto(fileInput.files[0], (dataUrl) => {
+                        localMedia.photos.push(dataUrl);
+                        updateLocalEventMediaPreview();
+                    });
+                }
+            });
+            fileInput.click();
+        });
+    }
+
+    const addEventVideoBtn = document.getElementById('btn-event-modal-add-video');
+    if (addEventVideoBtn) {
+        addEventVideoBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (localMedia.videos.length >= 1) {
+                showToast({
+                    title: "Video-Limit erreicht ??",
+                    message: "Es ist maximal 1 Video erlaubt."
+                });
+                return;
+            }
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'video/mp4, video/quicktime, video/webm, video/ogg, video/x-matroska';
+            fileInput.style.display = 'none';
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    validateAndProcessVideo(fileInput.files[0], (videoUrl) => {
+                        localMedia.videos.push(videoUrl);
+                        updateLocalEventMediaPreview();
+                    });
+                }
+            });
+            fileInput.click();
+        });
+    }
+
+    updateLocalEventMediaPreview();
+
+    const form = document.getElementById('event-editor-form');
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+
+        const data = {
+            name: formData.get('eventName'),
+            type: Array.from(form.querySelectorAll('input[name="orgEventTypes"]:checked')).map(el => el.value).join(', ') || 'Sonstige',
+            location: selectedOrgLocations.join(', ') || 'München',
+            locations: selectedOrgLocations,
+            date: selectedEventDates[0] || new Date().toISOString().split('T')[0],
+            dates: selectedEventDates,
+            eventStartTime: formData.get('eventStartTime') || '18:00',
+            eventEndTime: formData.get('eventEndTime') || '22:00',
+            minDuration: parseFloat(formData.get('orgMinDuration')) || 0.5,
+            maxDuration: parseFloat(formData.get('orgMaxDuration')) || 2.0,
+            spieldauer: parseFloat(formData.get('orgMaxDuration')) || 2.0,
+            minPublikum: parseInt(formData.get('orgMinPublikum')) || 0,
+            maxPublikum: parseInt(formData.get('orgMaxPublikum')) || 500,
+            minBudget: parseFloat(formData.get('orgMinBudget')) || 0,
+            maxBudget: parseFloat(formData.get('orgMaxBudget')) || 5000,
+            budget: parseFloat(formData.get('orgMaxBudget')) || 5000,
+            genres: Array.from(form.querySelectorAll('input[name="orgGenres"]:checked')).map(el => el.value),
+            instruments: Array.from(form.querySelectorAll('input[name="orgInstruments"]:checked')).map(el => el.value),
+            technik: Array.from(form.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value).length > 0
+                ? Array.from(form.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value)
+                : ["Technik ist noch unklar"],
+            description: formData.get('orgDescription'),
+            photos: localMedia.photos,
+            videos: localMedia.videos,
+            contactName: `${state.currentUser.firstName} ${state.currentUser.lastName}`,
+            phone: state.currentUser.phone,
+            email: state.currentUser.email
+        };
+
+        if (isEdit) {
+            state.updateEvent(eventObj.id, data);
+            showToast({
+                title: "Event aktualisiert!",
+                message: `Das Event "${data.name}" wurde erfolgreich gespeichert.`
+            });
+        } else {
+            state.addEvent(data);
+            showToast({
+                title: "Event erstellt! ??",
+                message: `Das Event "${data.name}" wurde erfolgreich veröffentlicht.`
+            });
+        }
+
+        closeModal();
+        const mainContainer = document.getElementById('app-main');
+        renderMyEvents(mainContainer);
+    });
+}
+
+function validateEmailAddress(email) {
+    const emailTrimmed = email.trim().toLowerCase();
+    
+    // 1. Structural validation using a robust regex
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!regex.test(emailTrimmed)) {
+        return { isValid: false, message: "Bitte gib eine gültige E-Mail-Adresse ein." };
+    }
+    
+    // 2. Levenshtein-based typo detection
+    const parts = emailTrimmed.split('@');
+    if (parts.length === 2) {
+        const domain = parts[1];
+        const commonEmailDomains = [
+            "gmail.com", "googlemail.com",
+            "hotmail.com", "hotmail.de",
+            "outlook.com", "outlook.de",
+            "gmx.de", "gmx.net", "gmx.at", "gmx.ch",
+            "web.de",
+            "yahoo.com", "yahoo.de",
+            "t-online.de",
+            "aol.com", "aol.de",
+            "icloud.com"
+        ];
+
+        // If it's a common domain but has a specific typo
+        if (commonEmailDomains.includes(domain)) {
+            return { isValid: true };
+        }
+
+        // Check Levenshtein distance to find typos
+        for (const common of commonEmailDomains) {
+            const dist = getLevenshteinDistance(domain, common);
+            
+            // Check if distance is 1 or 2, or if domain contains a common provider name with extra letters (e.g. hotmailx.com)
+            const isTypo = (dist >= 1 && dist <= 2) || 
+                           (domain.includes('hotmail') && domain !== 'hotmail.com' && domain !== 'hotmail.de') ||
+                           (domain.includes('gmail') && domain !== 'gmail.com' && domain !== 'googlemail.com') ||
+                           (domain.includes('gmx') && domain !== 'gmx.de' && domain !== 'gmx.net' && domain !== 'gmx.at' && domain !== 'gmx.ch') ||
+                           (domain.includes('web.de') && domain !== 'web.de') ||
+                           (domain.includes('outlook') && domain !== 'outlook.com' && domain !== 'outlook.de');
+
+            if (isTypo) {
+                return { 
+                    isValid: false, 
+                    message: `Tippfehler in E-Mail-Domain erkannt. Meintest du @${common}?` 
+                };
+            }
+        }
+    }
+    return { isValid: true };
+}
+
+function getLevenshteinDistance(a, b) {
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1, // substitution
+                    matrix[i][j - 1] + 1,     // insertion
+                    matrix[i - 1][j] + 1      // deletion
+                );
+            }
+        }
+    }
+    return matrix[b.length][a.length];
+}
+
+function formatAvailability(availability) {
+    if (!availability) return "Keine Angabe";
+    if (Array.isArray(availability)) {
+        const mapping = {
+            "Monday": "Mo", "Tuesday": "Di", "Wednesday": "Mi", 
+            "Thursday": "Do", "Friday": "Fr", "Saturday": "Sa", "Sunday": "So"
+        };
+        const mapped = availability.map(d => mapping[d] || d);
+        return `Verfügbar: ${mapped.slice(0, 4).join(', ')}${mapped.length > 4 ? '...' : ''}`;
+    }
+    if (typeof availability === 'object') {
+        if (availability.monday || availability.tuesday || availability.friday || availability.saturday || availability.sunday) {
+            const dayMap = {
+                'monday': 'Mo', 'tuesday': 'Di', 'wednesday': 'Mi', 'thursday': 'Do',
+                'friday': 'Fr', 'saturday': 'Sa', 'sunday': 'So'
+            };
+            const availableDays = [];
+            Object.keys(dayMap).forEach(day => {
+                if (availability[day] && availability[day].available) {
+                    availableDays.push(dayMap[day]);
+                }
+            });
+            if (availableDays.length === 0) return "Nicht verfügbar";
+            return `Verfügbar: ${availableDays.join(', ')}`;
+        }
+        
+        const { defaultState, modifiedDates } = availability;
+        if (defaultState === 'all-selected') {
+            if (!modifiedDates || modifiedDates.length === 0) {
+                return "Verfügbar: Flexibel (Jederzeit)";
+            }
+            return "Verfügbar: Flexibel (außer einzelne Tage)";
+        } else {
+            if (!modifiedDates || modifiedDates.length === 0) {
+                return "Verfügbar: Keine Termine";
+            }
+            const sortedDates = [...modifiedDates].sort((a, b) => new Date(a) - new Date(b));
+            const formatted = sortedDates.slice(0, 2).map(d => {
+                const parts = d.split('-');
+                return `${parts[2]}.${parts[1]}.`;
+            });
+            return `Verfügbar: ${formatted.join(', ')}${sortedDates.length > 2 ? '...' : ''} (${sortedDates.length} Tage)`;
+        }
+    }
+    return "Keine Angabe";
+}
+
+// Modal Controllers
+function showModal(type, onSuccessCallback) {
+    const modalWrapper = document.getElementById('modal-container');
+    if (!modalWrapper) return;
+
+    modalWrapper.classList.remove('hidden');
+
+    if (type === 'auth') {
+        renderAuthModal(modalWrapper, onSuccessCallback);
+    } else if (type === 'premium') {
+        renderPremiumModal(modalWrapper, onSuccessCallback);
+    } else if (type === 'verification') {
+        renderVerificationModal(modalWrapper, onSuccessCallback);
+    } else if (type === 'feedback') {
+        renderFeedbackModal(modalWrapper, onSuccessCallback);
+    }
+    
+    initAllLocationAutocompletes();
+}
+
+function closeModal() {
+    const modalWrapper = document.getElementById('modal-container');
+    if (modalWrapper) {
+        modalWrapper.classList.add('hidden');
+        modalWrapper.innerHTML = '';
+    }
+}
+
+function renderAuthModal(wrapper, onSuccessCallback) {
+    window.registrationMedia = {
+        musician: {
+            photos: ['https://picsum.photos/id/453/400/300'],
+            videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
+        },
+        organizer: {
+            photos: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'],
+            videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
+        }
+    };
+    wrapper.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header" style="flex-direction: column; padding: 1.5rem 2rem 1.2rem;">
+                <h3 style="line-height: 1.2; text-align: center; margin: 0; font-family: var(--font-heading); width: 100%;">
+                    <span style="display: block; font-size: 0.95rem; font-weight: 700; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; color: #475569;">Anmelden/Registrieren</span>
+                    <span style="display: block; font-size: 1.45rem; font-weight: 900; color: #000000; margin-top: 0.25rem; letter-spacing: 0.5px;">ohne Passwort</span>
+                </h3>
+                <button class="close-modal-btn" id="btn-close-modal">&times;</button>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" id="tab-magic-btn">Anmelden</button>
+                <button class="auth-tab-btn" id="tab-register-btn">Registrieren</button>
+            </div>
+
+            <div class="modal-body">
+                <form id="auth-magic-form">
+                    <div class="form-group">
+                        <label>E-Mail-Adresse</label>
+                        <input type="email" name="email" class="input-field" placeholder="deine@mail.de" required>
+                        <p style="font-size:0.7rem; color:var(--text-muted); margin-top: 0.3rem;">Gib deine E-Mail-Adresse ein, um einen Anmeldelink zu erhalten. Demo-E-Mails: contact@neonbeats.de oder julia.michael.wedding2026@gmail.com</p>
+                    </div>
+                    <div id="magic-error-msg" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
+                    <div id="magic-success-container" style="display:none; margin-bottom: 1.5rem;"></div>
+                    <button type="submit" class="btn btn-primary" id="btn-send-magic" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: none;">
+                        Anmeldelink senden
+                    </button>
+                </form>
+
+                <form id="auth-register-form" class="hidden">
+                    <div class="role-picker-container" style="margin-bottom: 1.5rem;">
+                        <div class="role-picker">
+                            <div class="role-card active musician-role" id="role-picker-mus">
+                                <i class="fa-solid fa-guitar"></i>
+                                <h4>Musiker</h4>
+                                <p>Ich suche Gigs</p>
+                            </div>
+                            <div class="role-card organizer-role" id="role-picker-org">
+                                <i class="fa-solid fa-calendar-days"></i>
+                                <h4>Veranstalter</h4>
+                                <p>ich suche Acts</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="reg-fields-musician">
+                        
+                        <div class="form-group">
+                            <label>Musikername</label>
+                            <input type="text" name="bandName" class="input-field" maxlength="50" required placeholder="Name des Acts">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Musiker-Typ</label>
+                            <div class="checkbox-tag-grid" id="grid-musician-types">
+                                ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="musicianTypes" value="${t}">
+                                        <span>${t}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Standort</label>
+                            <input type="text" id="input-mus-location-search" class="input-field" placeholder="Ort eingeben, z.B. München" autocomplete="off" style="width: 100%; margin-bottom: 0.5rem;">
+                            <div class="selected-locations-tags" id="mus-selected-locations-container" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.5rem;"></div>
+                            <input type="hidden" name="musLocation" id="input-mus-locations" value="">
+                        </div>
+
+                        <div class="form-group">
+                            <div class="slider-value-display">
+                                <label>Maximaler Umkreis</label>
+                                <span id="val-radius">50 km</span>
+                            </div>
+                            <input type="range" name="radius" min="0" max="500" step="50" value="50" class="input-field" style="padding:0; height:auto; accent-color:#a855f7;">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Genres</label>
+                            <div class="checkbox-tag-grid" id="grid-genres">
+                                ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="genres" value="${g}">
+                                        <span>${g}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Instrumente</label>
+                            <div class="checkbox-tag-grid" id="grid-instruments">
+                                ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="instruments" value="${ins}">
+                                        <span>${ins}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="slider-value-display">
+                                <label>Spieldauer</label>
+                                <span id="val-spieldauer">0,5 - 2,0 Std.</span>
+                            </div>
+                            <div class="dual-range-slider" id="slider-spieldauer-container">
+                                <div class="dual-range-track"></div>
+                                <div class="dual-range-active-track" id="track-spieldauer"></div>
+                                <input type="range" id="input-spieldauer-min" name="minDuration" min="0.5" max="10" step="0.5" value="0.5">
+                                <input type="range" id="input-spieldauer-max" name="maxDuration" min="0.5" max="10" step="0.5" value="2.0">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="slider-value-display">
+                                <label>Gage</label>
+                                <span id="val-gage">0 - 5.000+ €</span>
+                            </div>
+                            <div class="dual-range-slider" id="slider-gage-container">
+                                <div class="dual-range-track"></div>
+                                <div class="dual-range-active-track" id="track-gage"></div>
+                                <input type="range" id="input-gage-min" name="minBudget" min="0" max="5000" step="100" value="0">
+                                <input type="range" id="input-gage-max" name="maxBudget" min="0" max="5000" step="100" value="5000">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Bevorzugte Event-Typen</label>
+                            <div class="checkbox-tag-grid" id="grid-event-types">
+                                ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="eventTypes" value="${evt}">
+                                        <span>${evt}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Verfügbarkeiten</label>
+                            <p style="font-size:0.7rem; color:var(--text-muted); margin-bottom: 0.5rem; line-height: 1.3;">
+                                Montag - Donnerstag ist standardmäßig von 18:00 – 23:59 Uhr, Freitag von 18:00 – 23:59 Uhr und Samstag/Sonntag von 00:01 – 23:59 Uhr voreingestellt. Nicht benötigte Tage abwählen.
+                            </p>
                             <div class="availability-week-grid">
                                 ${[
                                     { key: 'mo_do', label: 'Montag - Donnerstag', defActive: true, minTime: '18:00', maxTime: '23:59' },
@@ -7243,6 +8414,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                             <label for="chk-avail-${day.key}">${day.label}</label>
                                         </div>
                                         <div class="availability-day-times" id="times-container-${day.key}">
+                                            <span>von</span>
                                             <input type="time" name="availStart_${day.key}" value="${day.minTime}">
                                             <span>bis</span>
                                             <input type="time" name="availEnd_${day.key}" value="${day.maxTime}">
@@ -7294,15 +8466,19 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         </p>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (max.3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Grösse: 5 MB"></i></label>
-                                <button type="button" onclick="window.addRegMedia('musician', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 6px; border-color: rgba(34, 197, 94, 0.3); color:#22c55e; min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Foto hinzufügen"><i class="fa-solid fa-plus"></i></button>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">?? Bilder (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
+                                <button type="button" onclick="window.addRegMedia('musician', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(34, 197, 94, 0.3); color:#22c55e;">
+                                    <i class="fa-solid fa-plus"></i> Foto hinzufügen
+                                </button>
                             </div>
                             <div id="reg-musician-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (max.1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Grösse: 20 MB"></i></label>
-                                <button type="button" onclick="window.addRegMedia('musician', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 6px; border-color: rgba(124, 58, 237, 0.3); color:#a855f7; min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Video hinzufügen"><i class="fa-solid fa-plus"></i></button>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">?? Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
+                                <button type="button" onclick="window.addRegMedia('musician', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#a855f7;">
+                                    <i class="fa-solid fa-plus"></i> Video hinzufügen
+                                </button>
                             </div>
                             <div id="reg-musician-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
@@ -7400,7 +8576,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                         <div class="form-group" style="margin-top: 1rem;">
                             <div class="slider-value-display">
-                                <label>Spieldauer (Std.)</label>
+                                <label>Spieldauer (Spielzeit)</label>
                                 <span id="val-org-spieldauer">0,5 - 2,0 Std.</span>
                             </div>
                             <div class="dual-range-slider" id="slider-org-spieldauer-container">
@@ -7426,7 +8602,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                         <div class="form-group">
                             <div class="slider-value-display">
-                                <label>Gage (€)</label>
+                                <label>Gage / Budget Spanne</label>
                                 <span id="val-org-gage">0 - 5.000+ €</span>
                             </div>
                             <div class="dual-range-slider" id="slider-org-gage-container">
@@ -7467,15 +8643,19 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         </p>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (max.3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Grösse: 5 MB"></i></label>
-                                <button type="button" onclick="window.addRegMedia('organizer', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 6px; border-color: rgba(34, 197, 94, 0.3); color:#22c55e; min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Foto hinzufügen"><i class="fa-solid fa-plus"></i></button>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">?? Bilder (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
+                                <button type="button" onclick="window.addRegMedia('organizer', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(34, 197, 94, 0.3); color:#22c55e;">
+                                    <i class="fa-solid fa-plus"></i> Foto hinzufügen
+                                </button>
                             </div>
                             <div id="reg-organizer-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (max.1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Grösse: 20 MB"></i></label>
-                                <button type="button" onclick="window.addRegMedia('organizer', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 6px; border-color: rgba(124, 58, 237, 0.3); color:#a855f7; min-width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Video hinzufügen"><i class="fa-solid fa-plus"></i></button>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">?? Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
+                                <button type="button" onclick="window.addRegMedia('organizer', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#a855f7;">
+                                    <i class="fa-solid fa-plus"></i> Video hinzufügen
+                                </button>
                             </div>
                             <div id="reg-organizer-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
@@ -7527,16 +8707,15 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         <div class="form-group">
                             <label>Telefonnummer</label>
                             <input type="text" name="phone" id="input-reg-phone" class="input-field" maxlength="20" placeholder="z.B. 01761234567" required>
-                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem;">
-                                <input type="checkbox" name="hidePhone" id="input-reg-hidephone" style="width: auto; margin: 0; cursor: pointer; scale: 1.3; transform-origin: left center; margin-right: 0.15rem;">
-                                <label for="input-reg-hidephone" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0;">Telefonnummer verbergen</label>
+                            <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem;">
+                                <input type="checkbox" name="hidePhone" id="input-reg-hidephone" style="width: auto; margin: 0; cursor: pointer;">
+                                <label for="input-reg-hidephone" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0;">Telefonnummer verbergen (geblurrt)</label>
                             </div>
                         </div>
                     </div>
 
                     <div id="reg-subscription-container" style="margin-top: 1.5rem;">
                         <h4 style="font-family: var(--font-heading); font-size:1rem; margin-bottom:0.5rem; color:var(--color-purple);"><i class="fa-solid fa-credit-card"></i> Abo-Modell auswählen</h4>
-                        
                         <div class="subscription-cards">
                             <div class="subscription-card active" data-plan="flex" data-price="9.99">
                                 <div class="selected-badge">Beliebt</div>
@@ -7545,18 +8724,9 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                 <ul class="plan-features">
                                     <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
                                     <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (in Testphase)</li>
                                 </ul>
-                                <div class="subscription-gift-box">
-                                    <i class="fa-solid fa-gift"></i>
-                                    <div>
-                                        <div class="gift-title">1. Monat kostenlos</div>
-                                        <div class="gift-sub">Keine Kosten zum Start</div>
-                                    </div>
-                                </div>
-                                <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                    <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Ausgewählt</button>
-                                </div>
                             </div>
                             <div class="subscription-card" data-plan="plus" data-price="7.99">
                                 <div class="selected-badge">Spare 20 %</div>
@@ -7565,18 +8735,9 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                 <ul class="plan-features">
                                     <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
                                     <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (in Testphase)</li>
                                 </ul>
-                                <div class="subscription-gift-box">
-                                    <i class="fa-solid fa-gift"></i>
-                                    <div>
-                                        <div class="gift-title">1. Monat kostenlos</div>
-                                        <div class="gift-sub">Keine Kosten zum Start</div>
-                                    </div>
-                                </div>
-                                <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                    <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Auswählen</button>
-                                </div>
                             </div>
                             <div class="subscription-card" data-plan="pro" data-price="5.99">
                                 <div class="selected-badge">Spare 40 %</div>
@@ -7585,18 +8746,9 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                 <ul class="plan-features">
                                     <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 1. Monat kostenlos</li>
                                     <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (in Testphase)</li>
                                 </ul>
-                                <div class="subscription-gift-box">
-                                    <i class="fa-solid fa-gift"></i>
-                                    <div>
-                                        <div class="gift-title">1. Monat kostenlos</div>
-                                        <div class="gift-sub">Keine Kosten zum Start</div>
-                                    </div>
-                                </div>
-                                <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                    <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Auswählen</button>
-                                </div>
                             </div>
                             <div class="subscription-card" data-plan="premium" data-price="4.99">
                                 <div class="selected-badge" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;">Spare 59 %</div>
@@ -7605,20 +8757,13 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                 <ul class="plan-features">
                                     <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> 3 Monate kostenlos</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (in Testphase)</li>
                                     <li><i class="fa-solid fa-circle-info"></i> Code erforderlich</li>
                                 </ul>
-                                <div class="subscription-gift-box">
-                                    <i class="fa-solid fa-gift"></i>
-                                    <div>
-                                        <div class="gift-title">3 Monate kostenlos</div>
-                                        <div class="gift-sub">Instagram-Story Aktion</div>
-                                    </div>
-                                </div>
-                                <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                    <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Auswählen</button>
-                                </div>
                             </div>
-                        </div><input type="hidden" name="selectedPlan" id="input-selected-plan" value="flex">
+                        </div>
+                        <input type="hidden" name="selectedPlan" id="input-selected-plan" value="flex">
                         
                         <div id="premium-promo-container" style="display: none; margin-top: 1.5rem; background: rgba(124, 58, 237, 0.05); border: 1px dashed var(--color-purple); padding: 1rem; border-radius: var(--radius-md);">
                             <h5 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--color-purple);"><i class="fa-brands fa-instagram"></i> Premium-Zugang freischalten</h5>
@@ -7765,7 +8910,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         window.addMockEmail(
                             "Dein Anmeldelink für GigConnAct",
                             "GigConnAct <no-reply@gigconnact.de>",
-                            `Hallo ${user.firstName},\n\nklicke auf den Link unten, um dich direkt bei deinem ${roleText}-Account anzumelden:\n\n[Jetzt anmelden]`
+                            `Hallo ${user.firstName},\n\nklicke auf den Link unten, um dich direkt bei deinem ${roleText}-Account anzumelden:\n\n[Jetzt als ${roleText} anmelden]`
                         );
                     }
 
@@ -7781,7 +8926,9 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                 Hallo <strong>${user.firstName}</strong>,<br><br>
                                 Klicke auf den Button unten, um dich direkt bei deinem <strong>${roleText}-Account</strong> anzumelden:
                             </p>
-                            <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="login" style="width: 100%; background: ${user.role === 'musician' ? '#7c3aed' : '#2563eb'}; font-weight: 800; border: none; padding: 0.7rem; border-radius: 8px;">Jetzt anmelden</button>
+                            <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="login" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); font-weight: 800; border: none; padding: 0.7rem; border-radius: 8px;">
+                                Jetzt als ${roleText} anmelden
+                            </button>
                         </div>
                     `;
                 } else {
@@ -8360,18 +9507,9 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     subCards.forEach(card => {
         card.addEventListener('click', () => {
             subCards.forEach(c => c.classList.remove('active'));
-            
-            card.classList.add("active");
-            const plan = card.getAttribute("data-plan");
+            card.classList.add('active');
+            const plan = card.getAttribute('data-plan');
             if (selectedPlanInput) selectedPlanInput.value = plan;
-
-            // Dynamically update card buttons text in registration
-            subCards.forEach(c => {
-                const btn = c.querySelector(".btn-sub-select");
-                if (btn) {
-                    btn.textContent = c.classList.contains("active") ? "Ausgewählt" : "Auswählen";
-                }
-            });
 
             let periodText = 'pro Monat';
             let priceText = '9,99 €';
@@ -8414,14 +9552,14 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             const code = promoInput.value.trim().toUpperCase();
             if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code)) {
                 isPromoCodeApplied = true;
-                promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif freigeschaltet (3 Monate kostenfrei, danach 4,99 €/Monat).";
+                promoStatus.textContent = "? Gutscheincode gültig! Premium-Tarif freigeschaltet (3 Monate kostenfrei, danach 4,99 €/Monat).";
                 promoStatus.style.color = "#10b981";
                 promoStatus.style.display = "block";
                 promoInput.disabled = true;
                 promoBtn.disabled = true;
             } else {
                 isPromoCodeApplied = false;
-                promoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Beitrag.";
+                promoStatus.textContent = "? Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Beitrag.";
                 promoStatus.style.color = "#ef4444";
                 promoStatus.style.display = "block";
             }
@@ -8718,13 +9856,13 @@ function renderVerificationModal(wrapper, onSuccessCallback) {
             <div class="modal-body" style="padding-top:0;">
                 <p style="margin-bottom:1.5rem; line-height: 1.5; color: var(--text-muted);">
                     Wir haben eine E-Mail zur Registrierung an <strong>${pendingUser.email || 'deine E-Mail'}</strong> gesendet.<br><br>
-                    FÜr diese Demo kannst du die Registrierung direkt hier durch Klick auf den Bestätigungslink abschließen.
+                    FÃœr diese Demo kannst du die Registrierung direkt hier durch Klick auf den BestÃ¤tigungslink abschlieÃŸen.
                 </p>
                 <div style="background:rgba(0,242,254,0.03); border: 1px dashed rgba(0,242,254,0.3); border-radius:var(--radius-md); padding:1rem; margin-bottom: 2rem;">
                     <div style="font-size: 0.75rem; text-transform: uppercase; color:var(--color-cyan); font-weight:700; margin-bottom: 0.5rem;">Simulierte E-Mail-Nachricht</div>
                     <p style="font-size:0.85rem; margin-bottom:1rem;">Hi ${pendingUser.firstName || 'Musiker'}, bitte klicke unten, um dein GigConnAct Konto zu aktivieren.</p>
                     <button class="btn btn-primary btn-sm" id="btn-mock-email-confirm">
-                        E-Mail bestätigen
+                        E-Mail bestÃ¤tigen
                     </button>
                 </div>
             </div>
@@ -8736,7 +9874,7 @@ function renderVerificationModal(wrapper, onSuccessCallback) {
         if (res.success) {
             closeModal();
             showToast({
-                title: "Registrierung abgeschlossen! 🎉",
+                title: "Registrierung abgeschlossen! ðŸŽ‰",
                 message: "Dein Profil ist nun aktiv. Willkommen bei GigConnAct!"
             });
             document.dispatchEvent(new CustomEvent('user-state-changed'));
@@ -8766,7 +9904,7 @@ function renderFeedbackModal(wrapper, onSuccessCallback) {
                         <input type="text" class="input-field" value="${u.firstName} ${u.lastName} (${u.email})" disabled style="background: rgba(255,255,255,0.03) !important; opacity: 0.75; cursor: not-allowed; width: 100%; box-sizing: border-box; color: var(--text-muted) !important;">
                     </div>
                     <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
-                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--text-main);">Empfänger</label>
+                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--text-main);">EmpfÃ¤nger</label>
                         <input type="email" class="input-field" value="info@gigconnact.de" disabled style="background: rgba(255,255,255,0.03) !important; opacity: 0.75; cursor: not-allowed; width: 100%; box-sizing: border-box; color: var(--text-muted) !important;">
                     </div>
                     <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
@@ -8782,7 +9920,7 @@ function renderFeedbackModal(wrapper, onSuccessCallback) {
                         <button type="submit" class="btn btn-submit-feedback ${isMusician ? 'feedback-blue-btn' : 'feedback-purple-btn'}" id="btn-submit-feedback" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 42px; border-radius: var(--radius-sm); border: none; font-weight: 600;">
                             <i class="fa-solid fa-paper-plane"></i> Feedback absenden
                         </button>
-                        <button type="button" class="btn btn-glass" id="btn-mailto-fallback" title="Über eigenes E-Mail-Programm senden" style="display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; flex-shrink: 0; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); color: var(--text-main); cursor: pointer; transition: all 0.2s;">
+                        <button type="button" class="btn btn-glass" id="btn-mailto-fallback" title="Ãœber eigenes E-Mail-Programm senden" style="display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; flex-shrink: 0; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); color: var(--text-main); cursor: pointer; transition: all 0.2s;">
                             <i class="fa-solid fa-envelope-open-text" style="font-size: 1.1rem;"></i>
                         </button>
                     </div>
@@ -8811,8 +9949,8 @@ function renderFeedbackModal(wrapper, onSuccessCallback) {
         setTimeout(() => {
             closeModal();
             showToast({
-                title: "Feedback gesendet! ✉️",
-                message: "Vielen Dank! Deine Nachricht wurde erfolgreich an info@gigconnact.de übermittelt."
+                title: "Feedback gesendet! âœ‰ï¸",
+                message: "Vielen Dank! Deine Nachricht wurde erfolgreich an info@gigconnact.de Ã¼bermittelt."
             });
             if (onSuccessCallback) onSuccessCallback();
         }, 1000);
@@ -8838,7 +9976,7 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
             <div class="modal-body">
                 <div style="text-align:center; margin-bottom: 1.2rem;">
                     <i class="fa-solid fa-coins" style="font-size: 2.8rem; color:#FFD700; margin-bottom:0.5rem;"></i>
-                    <h4 style="font-family: var(--font-heading); font-size:1.25rem; color: var(--text-main);">WÄhle deine Zahlungsoption</h4>
+                    <h4 style="font-family: var(--font-heading); font-size:1.25rem; color: var(--text-main);">WÃ„hle deine Zahlungsoption</h4>
                     <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.2rem;">Schalte Kontaktdaten frei, um direkt zu chatten und Angebote zu verhandeln.</p>
                 </div>
                 
@@ -8852,10 +9990,10 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
                             <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">Option 1: Prepaid</span>
                             <div style="font-size: 1.2rem; font-weight: 800; color: #FFD700; margin: 0.1rem 0; display:flex; align-items:center; justify-content:center; gap:0.25rem;">
                                 <input type="number" id="credits-amount-input" min="1" max="999" value="10" onclick="event.stopPropagation();" style="width: 55px; height: 26px; text-align: center; font-size: 0.9rem; font-weight: 800; border-radius: 4px; border: 1px solid rgba(255, 215, 0, 0.4); background: rgba(0,0,0,0.4); color: #FFD700; padding:0; margin:0;">
-                                <span>Credits für</span>
-                                <span id="credits-total-price">10</span><span> €</span>
+                                <span>Credits fÃ¼r</span>
+                                <span id="credits-total-price">10</span><span> â‚¬</span>
                             </div>
-                            <span style="font-size: 0.7rem; color: var(--text-muted);">1 € pro Credit, ab 1 Credit aufladbar</span>
+                            <span style="font-size: 0.7rem; color: var(--text-muted);">1 â‚¬ pro Credit, ab 1 Credit aufladbar</span>
                         </label>
                         
                         <!-- Option 2: Subscription -->
@@ -8863,8 +10001,8 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
                             <input type="radio" name="paymentOption" value="subscription" style="position: absolute; top: 12px; right: 12px; accent-color: var(--color-purple); scale: 1.25;">
                             <i class="fa-solid fa-calendar-check" style="font-size: 1.6rem; color: var(--color-purple); margin-bottom: 0.2rem;"></i>
                             <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">Option 2: Flatrate-Abo</span>
-                            <span style="font-size: 1.2rem; font-weight: 800; color: var(--color-purple); margin: 0.1rem 0;">5 € / Monat</span>
-                            <span style="font-size: 0.7rem; color: var(--text-muted);">Unbegrenzt freischalten, kÜndbar</span>
+                            <span style="font-size: 1.2rem; font-weight: 800; color: var(--color-purple); margin: 0.1rem 0;">5 â‚¬ / Monat</span>
+                            <span style="font-size: 0.7rem; color: var(--text-muted);">Unbegrenzt freischalten, kÃœndbar</span>
                         </label>
                     </div>
                     
@@ -8877,7 +10015,7 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
                         </div>
                         <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; line-height: 1.4;">
                             <input type="checkbox" required style="margin-top:2px;">
-                            <span>Ich stimme dem Lastschriftverfahren für die gewählte Option ausdrücklich zu.</span>
+                            <span>Ich stimme dem Lastschriftverfahren fÃ¼r die gewÃ¤hlte Option ausdrÃ¼cklich zu.</span>
                         </label>
                     </div>
                     
@@ -8958,11 +10096,11 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
                         <h3 style="font-family: var(--font-heading); margin-bottom: 0.5rem; color: var(--text-main);">Credits erfolgreich aufgeladen!</h3>
                         <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
                             Dir wurden <strong>${buyAmount} Credits</strong> gutgeschrieben.<br><br>
-                            Möchtest du jetzt <strong>1 Credit</strong> einlösen, um die Kontaktdaten für <strong>${targetName}</strong> freizuschalten?
+                            MÃ¶chtest du jetzt <strong>1 Credit</strong> einlÃ¶sen, um die Kontaktdaten fÃ¼r <strong>${targetName}</strong> freizuschalten?
                         </p>
                         
                         <div style="display: flex; gap: 1rem; justify-content: center;">
-                            <button class="btn btn-sm btn-glass" id="btn-confirm-later" style="margin:0;">Nein, später</button>
+                            <button class="btn btn-sm btn-glass" id="btn-confirm-later" style="margin:0;">Nein, spÃ¤ter</button>
                             <button class="btn btn-sm btn-primary" id="btn-confirm-now" style="margin:0; background:var(--color-green); border-color:var(--color-green); color:#000; font-weight:700;">Ja, jetzt freischalten</button>
                         </div>
                     </div>
@@ -8984,7 +10122,7 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
                     
                     if (unlockRes.success) {
                         showToast({
-                            title: "Kontaktdaten freigeschaltet! 🪙",
+                            title: "Kontaktdaten freigeschaltet! ðŸª™",
                             message: `Du hast die Kontaktdaten von ${targetName} erfolgreich freigeschaltet.`
                         });
                     }
@@ -8995,7 +10133,7 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
                 return; // Prevent closing the modal yet!
             } else {
                 showToast({
-                    title: "Credits aufgeladen! 🪙",
+                    title: "Credits aufgeladen! ðŸª™",
                     message: `${buyAmount} Credits wurden erfolgreich deinem Konto gutgeschrieben.`
                 });
             }
@@ -9009,7 +10147,7 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
             }
             
             showToast({
-                title: "Flatrate-Abo aktiviert! 🚀",
+                title: "Flatrate-Abo aktiviert! ðŸš€",
                 message: "Du hast nun unbegrenzten Zugriff auf alle Kontaktdaten."
             });
         }
@@ -9220,7 +10358,7 @@ function updateNavbar(forceLanding) {
                 ${postboxIconHtml}
                 
                 <div class="profile-dropdown-container">
-                    <button class="profile-avatar-btn ${isMusician ? 'profile-avatar-purple' : 'profile-avatar-blue'} ${isProfileActive ? 'active' : ''}" id="btn-profile-dropdown" aria-label="Benutzermenü">
+                    <button class="profile-avatar-btn ${isMusician ? 'profile-avatar-purple' : 'profile-avatar-blue'} ${isProfileActive ? 'active' : ''}" id="btn-profile-dropdown" aria-label="BenutzermenÃ¼">
                         <i class="fa-regular fa-circle-user"></i>
                     </button>
                     <div class="profile-dropdown-menu" id="profile-dropdown-menu">
@@ -9361,7 +10499,7 @@ function initGigConnActApp() {
             const title = infoIcon.getAttribute('title');
             const formattedMessage = title.replace(/\n/g, '<br>');
             showToast({
-                title: "Information ℹ️",
+                title: "Information â„¹ï¸",
                 message: formattedMessage
             });
         }
@@ -9397,7 +10535,7 @@ function initGigConnActApp() {
             localStorage.clear();
             if (state) state.currentUser = null;
             showToast({
-                title: "Demo-Daten zurückgesetzt",
+                title: "Demo-Daten zurÃ¼ckgesetzt",
                 message: "Die Anwendung wird neu geladen..."
             });
             setTimeout(() => {
@@ -9548,16 +10686,16 @@ function renderPostbox(container) {
                         <!-- 4 Category Tabs (2x2 Grid) -->
                         <div id="postbox-filters-container" style="display: ${window.postboxShowFilters ? 'grid' : 'none'}; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
                             <button class="btn btn-sm ${activeTab === 'all' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="all" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Alle Nachrichten">
-                                📂 Alle (${chats.length})
+                                ðŸ“‚ Alle (${chats.length})
                             </button>
                             <button class="btn btn-sm ${activeTab === 'received' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="received" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(34, 197, 94, 0.35); color: #22c55e;" title="Empfangene Anfragen">
-                                📥 Empfangen (${receivedChats.length})
+                                ðŸ“¥ Empfangen (${receivedChats.length})
                             </button>
                             <button class="btn btn-sm ${activeTab === 'sent' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="sent" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(239, 68, 68, 0.35); color: #ef4444;" title="Versendete Anfragen">
-                                📤 Versendet (${sentChats.length})
+                                ðŸ“¤ Versendet (${sentChats.length})
                             </button>
                             <button class="btn btn-sm ${activeTab === 'system' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="system" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(234, 179, 8, 0.35); color: #eab308;" title="Benachrichtigungen">
-                                🔔 Info (${systemChats.length})
+                                ðŸ”” Info (${systemChats.length})
                             </button>
                         </div>
                     </div>
@@ -9645,7 +10783,7 @@ function renderPostbox(container) {
                                         ${c.messages.length === 0 ? `
                                             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-align: center; padding: 1.5rem 1rem;">
                                                 <i class="fa-regular fa-paper-plane" style="font-size: 1.8rem; color: var(--border-glass); margin-bottom: 0.6rem;"></i>
-                                                <p style="font-size: 0.78rem; margin: 0; line-height: 1.3;">Keine Nachrichten vorhanden. Schreibe eine Nachricht, um das Gespräch zu beginnen!</p>
+                                                <p style="font-size: 0.78rem; margin: 0; line-height: 1.3;">Keine Nachrichten vorhanden. Schreibe eine Nachricht, um das GesprÃ¤ch zu beginnen!</p>
                                             </div>
                                         ` : c.messages.map(m => {
                                             const isMe = m.senderId === currentUserId;
@@ -9667,7 +10805,7 @@ function renderPostbox(container) {
                                         ${isAccordionLock ? `
                                             <div class="organizer-questionnaire-box" style="background: rgba(124, 58, 237, 0.08); border: 1px solid var(--color-purple); border-radius: var(--radius-sm); padding: 0.8rem; text-align: center;">
                                                 <h4 style="margin: 0 0 0.3rem; font-family: var(--font-heading); font-size: 0.9rem; color: var(--text-main);">
-                                                    Ist die Anfrage interessant für dich?
+                                                    Ist die Anfrage interessant fÃ¼r dich?
                                                 </h4>
                                                 <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.6rem;">
                                                     Stimme der Anfrage zu, um das Antworten freizuschalten.
@@ -9683,7 +10821,7 @@ function renderPostbox(container) {
                                             </div>
                                         ` : `
                                             <form class="chat-send-form-mobile" style="display: flex; gap: 0.4rem; margin-top: 0.2rem;">
-                                                <input type="text" class="input-field chat-message-input-mobile" placeholder="${isSys ? 'Nicht möglich' : 'Schreibe...'}" ${isSys ? 'disabled' : ''} required style="flex: 1; margin: 0; height: 36px; font-size: 0.8rem; padding: 0.5rem; border-radius: 8px;">
+                                                <input type="text" class="input-field chat-message-input-mobile" placeholder="${isSys ? 'Nicht mÃ¶glich' : 'Schreibe...'}" ${isSys ? 'disabled' : ''} required style="flex: 1; margin: 0; height: 36px; font-size: 0.8rem; padding: 0.5rem; border-radius: 8px;">
                                                 <button type="submit" class="btn btn-primary" ${isSys ? 'disabled' : ''} style="margin: 0; padding: 0 0.8rem; height: 36px; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; justify-content: center;">
                                                     <i class="fa-solid fa-paper-plane"></i>
                                                 </button>
@@ -9714,7 +10852,7 @@ function renderPostbox(container) {
                     ${!activeChat ? `
                         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); padding: 2rem; text-align: center;">
                             <i class="fa-regular fa-comments" style="font-size: 3.5rem; color: var(--border-glass); margin-bottom: 1rem;"></i>
-                            <h4 style="margin: 0 0 0.5rem; color: var(--text-main);">WÄhle einen Unterhaltung aus</h4>
+                            <h4 style="margin: 0 0 0.5rem; color: var(--text-main);">WÃ„hle einen Unterhaltung aus</h4>
                             <p style="max-width: 360px; font-size: 0.85rem;">Klicke links auf eine Nachricht, um den Verlauf zu sehen und zu antworten.</p>
                         </div>
                     ` : (() => {
@@ -9767,7 +10905,7 @@ function renderPostbox(container) {
                                 ${activeChat.messages.length === 0 ? `
                                     <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-align: center; padding: 2rem;">
                                         <i class="fa-regular fa-paper-plane" style="font-size: 2.5rem; color: var(--border-glass); margin-bottom: 0.8rem;"></i>
-                                        <p style="font-size: 0.85rem; margin: 0;">Keine Nachrichten vorhanden. Schreibe eine Nachricht, um das Gespräch zu beginnen!</p>
+                                        <p style="font-size: 0.85rem; margin: 0;">Keine Nachrichten vorhanden. Schreibe eine Nachricht, um das GesprÃ¤ch zu beginnen!</p>
                                     </div>
                                 ` : activeChat.messages.map(m => {
                                     const isMe = m.senderId === currentUserId;
@@ -9789,7 +10927,7 @@ function renderPostbox(container) {
                                 ${isOrganizerIncomingLock ? `
                                     <div class="organizer-questionnaire-box" style="background: rgba(124, 58, 237, 0.08); border: 1px solid var(--color-purple); border-radius: var(--radius-md); padding: 1.2rem; text-align: center;">
                                         <h4 style="margin: 0 0 0.4rem; font-family: var(--font-heading); font-size: 1rem; color: var(--text-main);">
-                                            Ist die Anfrage interessant für dich?
+                                            Ist die Anfrage interessant fÃ¼r dich?
                                         </h4>
                                         <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
                                             Stimme der Anfrage zu, um automatisch ein <strong>Perfect Match</strong> zu erstellen und das Antworten freizuschalten.
@@ -9805,7 +10943,7 @@ function renderPostbox(container) {
                                     </div>
                                 ` : `
                                     <form id="chat-send-form" style="display: flex; gap: 0.8rem;">
-                                        <input type="text" id="chat-message-input" class="input-field" placeholder="${isSys ? 'Antworten auf Systemnachrichten nicht mÖglich' : 'Schreibe eine Nachricht...'}" ${isSys ? 'disabled' : ''} required style="flex: 1; margin: 0; height: 42px;">
+                                        <input type="text" id="chat-message-input" class="input-field" placeholder="${isSys ? 'Antworten auf Systemnachrichten nicht mÃ–glich' : 'Schreibe eine Nachricht...'}" ${isSys ? 'disabled' : ''} required style="flex: 1; margin: 0; height: 42px;">
                                         <button type="submit" class="btn btn-primary" ${isSys ? 'disabled' : ''} style="margin: 0; padding: 0 1.2rem; height: 42px; font-weight: 700;">
                                             <i class="fa-solid fa-paper-plane"></i> Senden
                                         </button>
@@ -9848,7 +10986,7 @@ function renderPostbox(container) {
                 const eId = btn.getAttribute('data-event-id');
                 state.acceptMusicianRequest(mId, eId);
                 showToast({
-                    title: "Perfect Match entstanden! 🎉",
+                    title: "Perfect Match entstanden! ðŸŽ‰",
                     message: "Ihr habt nun gegenseitig Interesse bekundet. Du kannst jetzt direkt antworten."
                 });
                 activeTab = 'received';
@@ -9962,7 +11100,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
             'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80'
         ]).slice(0, 3);
 
-        // 3 Real Playable HTML5 Videos für Slides 4, 5, 6
+        // 3 Real Playable HTML5 Videos fÃ¼r Slides 4, 5, 6
         const videoSources = [
             { title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' },
             { title: 'Auftritt Showreel & Trailer', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },
@@ -9993,7 +11131,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
             durationDisplay = `${baseDur} Stunden`;
         }
 
-        // Budget formatting (ends with "€")
+        // Budget formatting (ends with "â‚¬")
         let budgetDisplay = '';
         const minB = item.minBudget !== undefined ? item.minBudget : item.price;
         const maxB = item.maxBudget;
@@ -10001,12 +11139,12 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
             const minBStr = typeof minB === 'number' ? minB.toLocaleString('de-DE') : String(minB);
             if (maxB !== undefined && maxB !== null && maxB !== minB) {
                 const maxBStr = typeof maxB === 'number' ? maxB.toLocaleString('de-DE') : String(maxB);
-                budgetDisplay = `${minBStr} - ${maxBStr} €`;
+                budgetDisplay = `${minBStr} - ${maxBStr} â‚¬`;
             } else {
-                budgetDisplay = `${minBStr} €`;
+                budgetDisplay = `${minBStr} â‚¬`;
             }
         } else {
-            budgetDisplay = '0 - 5.000 €';
+            budgetDisplay = '0 - 5.000 â‚¬';
         }
 
         // Technology formatting
@@ -10019,15 +11157,15 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
         }
 
         const description = item.description || item.bio || (isEvents 
-            ? 'Wir suchen eine professionelle musikalische Begleitung für unser anstehendes Event mit fantastischer Stimmung.' 
-            : 'Professionelle Live-Musik für unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.');
+            ? 'Wir suchen eine professionelle musikalische Begleitung fÃ¼r unser anstehendes Event mit fantastischer Stimmung.' 
+            : 'Professionelle Live-Musik fÃ¼r unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.');
 
         const bandName = item.name || item.title || '';
 
         return `
             <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
                 
-                <!-- 1. Combined Galerie: 3 Fotos + 3 Videos direkt folgend (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
+                <!-- 1. Combined Galerie: 3 Fotos + 3 Videos direkt folgend (FÃœLLT DIE KACHEL IN DER BREITE 100% AUS) -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
                     ${item.matchScore >= 70 ? `
                         <span style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); color: #eab308; font-weight: 800; padding: 0.35rem 0.45rem; border-radius: 6px; border: 1px solid rgba(234, 179, 8, 0.4); backdrop-filter: blur(4px); z-index: 10; display: flex; align-items: center; justify-content: center; pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.6); box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
@@ -10048,10 +11186,10 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                             <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #000; display: flex; align-items: center; justify-content: center;">
                                 <video controls preload="metadata" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: cover;">
                                     <source src="${vid.url}" type="video/mp4">
-                                    Dein Browser unterstÜtzt dieses Video nicht.
+                                    Dein Browser unterstÃœtzt dieses Video nicht.
                                 </video>
                                 <span style="position: absolute; top: 12px; left: 12px; z-index: 4; font-size: 0.72rem; font-weight: 800; color: #fff; background: rgba(239, 68, 68, 0.9); padding: 0.25rem 0.65rem; border-radius: 6px; backdrop-filter: blur(4px);">
-                                    🎬 Video #${vIdx + 1}: ${vid.title}
+                                    ðŸŽ¬ Video #${vIdx + 1}: ${vid.title}
                                 </span>
                             </div>
                         `).join('') : ''}
@@ -10087,7 +11225,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; flex: 1;">
                             ${bandName}
                         </h3>
-                        <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
+                        <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufÃ¼gen/entfernen">
                             ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? `
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444" width="22" height="22" style="display: block;">
                                     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -10125,7 +11263,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                             <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
                             <span>${item.type || item.category || 'Solo / Band'}</span>
                         </div>
-                        <!-- 3. Verfügbarkeit -->
+                        <!-- 3. VerfÃ¼gbarkeit -->
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
                             <span>${dateDisplay}</span>
@@ -10357,7 +11495,7 @@ function initMockEmailWidget() {
                 subject: "Willkommen bei GigConnAct!",
                 from: "GigConnAct Team <welcome@gigconnact.de>",
                 recipient: "gast@gigconnact.de",
-                body: "Hi! Willkommen auf GigConnAct. Dies ist dein simuliertes E-Mail-Postfach. Alle E-Mails, die das System an dich sendet (z.B. Registrierungs-Mails, Login-Links oder Benachrichtigungen über neue Chat-Nachrichten), werden als Vorschau direkt hier landen.",
+                body: "Hi! Willkommen auf GigConnAct. Dies ist dein simuliertes E-Mail-Postfach. Alle E-Mails, die das System an dich sendet (z.B. Registrierungs-Mails, Login-Links oder Benachrichtigungen Ã¼ber neue Chat-Nachrichten), werden als Vorschau direkt hier landen.",
                 date: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
                 read: true
             }
@@ -10419,7 +11557,7 @@ function initMockEmailWidget() {
                 innerHTML = `
                     <div style="padding: 0.6rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.2);">
                         <button id="btn-back-to-emails" style="background: none; border: none; color: #a855f7; cursor: pointer; padding: 0.2rem; display: flex; align-items: center; font-size: 0.85rem; font-weight: 700; outline: none;">
-                            <i class="fa-solid fa-arrow-left" style="margin-right: 0.3rem;"></i> Zurück
+                            <i class="fa-solid fa-arrow-left" style="margin-right: 0.3rem;"></i> ZurÃ¼ck
                         </button>
                         <div style="flex: 1; text-align: right; font-size: 0.72rem; color: #94a3b8;">${email.date}</div>
                     </div>
@@ -10511,16 +11649,16 @@ function validateAndProcessPhoto(file, callback) {
 
     if (!allowedTypes.includes(file.type) && !file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
         showToast({
-            title: "Fehler beim Bildupload ❌",
-            message: "Ungültiges Dateiformat. Erlaubt sind JPG, JPEG, PNG, GIF und WEBP."
+            title: "Fehler beim Bildupload âŒ",
+            message: "UngÃ¼ltiges Dateiformat. Erlaubt sind JPG, JPEG, PNG, GIF und WEBP."
         });
         return;
     }
 
     if (file.size > maxSize) {
         showToast({
-            title: "Fehler beim Bildupload ❌",
-            message: "Die Datei ist zu groß. Maximale Größe ist 5 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+            title: "Fehler beim Bildupload âŒ",
+            message: "Die Datei ist zu groÃŸ. Maximale GrÃ¶ÃŸe ist 5 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
         });
         return;
     }
@@ -10561,16 +11699,16 @@ function validateAndProcessVideo(file, callback) {
 
     if (!allowedTypes.includes(file.type) && !file.name.match(/\.(mp4|mov|webm|ogg|mkv)$/i)) {
         showToast({
-            title: "Fehler beim Videoupload ❌",
-            message: "Ungültiges Dateiformat. Erlaubt sind MP4, MOV, WebM und OGG."
+            title: "Fehler beim Videoupload âŒ",
+            message: "UngÃ¼ltiges Dateiformat. Erlaubt sind MP4, MOV, WebM und OGG."
         });
         return;
     }
 
     if (file.size > maxSize) {
         showToast({
-            title: "Fehler beim Videoupload ❌",
-            message: "Die Datei ist zu groß. Maximale Größe ist 20 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+            title: "Fehler beim Videoupload âŒ",
+            message: "Die Datei ist zu groÃŸ. Maximale GrÃ¶ÃŸe ist 20 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
         });
         return;
     }
@@ -10578,8 +11716,8 @@ function validateAndProcessVideo(file, callback) {
     const mockVids = ['hochzeit.mp4', 'gartenparty.mp4', 'firmenfeier.mp4', 'konzert.mp4'];
     const randomMockVid = mockVids[Math.floor(Math.random() * mockVids.length)];
     showToast({
-        title: "Video validiert ✅",
-        message: "Das Video (" + file.name + ") wurde erfolgreich validiert und verknüpft."
+        title: "Video validiert âœ…",
+        message: "Das Video (" + file.name + ") wurde erfolgreich validiert und verknÃ¼pft."
     });
     callback(randomMockVid);
 }
@@ -10623,10 +11761,10 @@ window.showMediaModal = function(itemId, isEvents) {
                 <!-- Section: Photos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (${photos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></span>
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">ðŸ“· Bilder (${photos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale GrÃ¶ÃŸe: 5 MB"></i></span>
                         ${photos.length < 3 ? `
                             <button id="btn-add-mock-photo" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: rgba(34, 197, 94, 0.3); color: #22c55e; display: flex; align-items: center; gap: 0.25rem;">
-                                <i class="fa-solid fa-plus"></i> Hinzufügen
+                                <i class="fa-solid fa-plus"></i> HinzufÃ¼gen
                             </button>
                         ` : ''}
                     </h4>
@@ -10643,10 +11781,10 @@ window.showMediaModal = function(itemId, isEvents) {
                 <!-- Section: Videos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (${videos.length}/1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></span>
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">ðŸŽ¬ Video (${videos.length}/1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale GrÃ¶ÃŸe: 20 MB"></i></span>
                         ${videos.length < 1 ? `
                             <button id="btn-add-mock-video" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: rgba(124, 58, 237, 0.3); color: #a855f7; display: flex; align-items: center; gap: 0.25rem;">
-                                <i class="fa-solid fa-plus"></i> Hinzufügen
+                                <i class="fa-solid fa-plus"></i> HinzufÃ¼gen
                             </button>
                         ` : ''}
                     </h4>
@@ -10681,7 +11819,7 @@ window.showMediaModal = function(itemId, isEvents) {
         addPhotoBtn.addEventListener('click', () => {
             if (photos.length >= 3) {
                 showToast({
-                    title: "Bilder-Limit erreicht 📷",
+                    title: "Bilder-Limit erreicht ðŸ“·",
                     message: "Es sind maximal 3 Bilder erlaubt."
                 });
                 return;
@@ -10708,7 +11846,7 @@ window.showMediaModal = function(itemId, isEvents) {
         addVideoBtn.addEventListener('click', () => {
             if (videos.length >= 1) {
                 showToast({
-                    title: "Video-Limit erreicht 🎬",
+                    title: "Video-Limit erreicht ðŸŽ¬",
                     message: "Es ist maximal 1 Video erlaubt."
                 });
                 return;
@@ -10763,7 +11901,7 @@ window.showMediaModal = function(itemId, isEvents) {
         }
 
         showToast({
-            title: "Medien aktualisiert 📸",
+            title: "Medien aktualisiert ðŸ“¸",
             message: "Deine Fotos und Videos wurden erfolgreich gespeichert."
         });
         
