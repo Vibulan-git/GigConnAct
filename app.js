@@ -5845,14 +5845,11 @@ function renderProfilePage(container) {
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
                                 <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
-                                <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (auch in der Testphase)</li>
+                                <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar<br>(auch in der Testphase)</span></li>
                             </ul>
                             <div class="subscription-gift-box">
                                 <i class="fa-solid fa-gift"></i>
-                                <div>
-                                    <div class="gift-title">1 Monat kostenlos</div>
-                                    <div class="gift-sub">Keine Kosten zum Start</div>
-                                </div>
+                                <div class="gift-title">1 Monat kostenlos</div>
                             </div>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                 <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "flex" ? "Aktueller Tarif" : (selectedPlan === "flex" ? "Ausgewählt" : "Auswählen")}</button>
@@ -5865,14 +5862,11 @@ function renderProfilePage(container) {
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
                                 <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
-                                <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (auch in der Testphase)</li>
+                                <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar<br>(auch in der Testphase)</span></li>
                             </ul>
                             <div class="subscription-gift-box">
                                 <i class="fa-solid fa-gift"></i>
-                                <div>
-                                    <div class="gift-title">1 Monat kostenlos</div>
-                                    <div class="gift-sub">Keine Kosten zum Start</div>
-                                </div>
+                                <div class="gift-title">1 Monat kostenlos</div>
                             </div>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                 <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "plus" ? "Aktueller Tarif" : (selectedPlan === "plus" ? "Ausgewählt" : "Auswählen")}</button>
@@ -5885,14 +5879,11 @@ function renderProfilePage(container) {
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
                                 <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
-                                <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (auch in der Testphase)</li>
+                                <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar<br>(auch in der Testphase)</span></li>
                             </ul>
                             <div class="subscription-gift-box">
                                 <i class="fa-solid fa-gift"></i>
-                                <div>
-                                    <div class="gift-title">1 Monat kostenlos</div>
-                                    <div class="gift-sub">Keine Kosten zum Start</div>
-                                </div>
+                                <div class="gift-title">1 Monat kostenlos</div>
                             </div>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                 <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "pro" ? "Aktueller Tarif" : (selectedPlan === "pro" ? "Ausgewählt" : "Auswählen")}</button>
@@ -5905,14 +5896,11 @@ function renderProfilePage(container) {
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
                                 <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
-                                <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (auch in der Testphase)</li>
+                                <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar<br>(auch in der Testphase)</span></li>
                             </ul>
                             <div class="subscription-gift-box">
                                 <i class="fa-solid fa-gift"></i>
-                                <div>
-                                    <div class="gift-title">3 Monate kostenlos</div>
-                                    <div class="gift-sub">Instagram-Story Aktion</div>
-                                </div>
+                                <div class="gift-title">3 Monate kostenlos</div>
                             </div>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                 <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "premium" ? "Aktueller Tarif" : (selectedPlan === "premium" ? "Ausgewählt" : "Auswählen")}</button>
@@ -6854,7 +6842,7 @@ function renderMyMusicianItem(m, isActive) {
                                 Dein Browser unterstÃœtzt dieses Video nicht.
                             </video>
                             <span style="position: absolute; top: 12px; left: 12px; z-index: 4; font-size: 0.72rem; font-weight: 800; color: #fff; background: rgba(239, 68, 68, 0.9); padding: 0.25rem 0.6rem; border-radius: 6px; backdrop-filter: blur(4px);">
-                                ðŸŽ¬ Video #${vIdx + 1}: ${vid.title}
+                                🎬 Video #${vIdx + 1}: ${vid.title}
                             </span>
                         </div>
                     `).join('')}
@@ -7234,9 +7222,6 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <label>Verfügbarkeiten</label>
-                        <p style="font-size:0.7rem; color:var(--text-muted); margin-bottom: 0.5rem; line-height: 1.3;">
-                            Tage und Zeiten auswählen, an denen du für Gigs verfügbar bist.
-                        </p>
                         <div class="availability-week-grid">
                             ${[
                                 { key: 'mo_do', label: 'Montag - Donnerstag', defActive: isDayActive('mo_do'), minTime: getDayTime('mo_do', 'start'), maxTime: getDayTime('mo_do', 'end') },
@@ -7297,7 +7282,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                     <!-- Media Section -->
                     <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
-                    <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien (Foto & Video)</h4>
+                    <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien</h4>
                     <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
                         Füge Fotos und Videos für dein Profil hinzu, um es attraktiver zu gestalten.
                     </p>
@@ -7764,7 +7749,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
                     <!-- Media Section -->
                     <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
-                    <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien (Foto & Video)</h4>
+                    <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien</h4>
                     <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
                         Füge Fotos und Videos für dein Event hinzu, um es attraktiver zu gestalten.
                     </p>
@@ -8402,9 +8387,6 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group">
                             <label>Verfügbarkeiten</label>
-                            <p style="font-size:0.7rem; color:var(--text-muted); margin-bottom: 0.5rem; line-height: 1.3;">
-                                Montag - Donnerstag ist standardmäßig von 18:00 – 23:59 Uhr, Freitag von 18:00 – 23:59 Uhr und Samstag/Sonntag von 00:01 – 23:59 Uhr voreingestellt. Nicht benötigte Tage abwählen.
-                            </p>
                             <div class="availability-week-grid">
                                 ${[
                                     { key: 'mo_do', label: 'Montag - Donnerstag', defActive: true, minTime: '18:00', maxTime: '23:59' },
@@ -8464,7 +8446,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- Media Section -->
                         <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
-                        <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien (Foto & Video)</h4>
+                        <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien</h4>
                         <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
                             Füge Fotos und Videos für dein Profil hinzu, um es attraktiver zu gestalten.
                         </p>
@@ -8641,7 +8623,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- Media Section -->
                         <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
-                        <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien (Foto & Video)</h4>
+                        <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien</h4>
                         <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
                             Füge Fotos und Videos für dein Event hinzu, um es attraktiver zu gestalten.
                         </p>
@@ -8713,7 +8695,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             <input type="text" name="phone" id="input-reg-phone" class="input-field" maxlength="20" placeholder="z.B. 01761234567" required>
                             <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem;">
                                 <input type="checkbox" name="hidePhone" id="input-reg-hidephone" style="width: auto; margin: 0; cursor: pointer;">
-                                <label for="input-reg-hidephone" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0;">Telefonnummer verbergen (geblurrt)</label>
+                                <label for="input-reg-hidephone" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0;">Telefonnummer verbergen</label>
                             </div>
                         </div>
                     </div>
@@ -8728,14 +8710,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                                 <ul class="plan-features">
                                     <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (auch in der Testphase)</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar<br>(auch in der Testphase)</span></li>
                                 </ul>
                                 <div class="subscription-gift-box">
                                     <i class="fa-solid fa-gift"></i>
-                                    <div>
-                                        <div class="gift-title">1 Monat kostenlos</div>
-                                        <div class="gift-sub">Keine Kosten zum Start</div>
-                                    </div>
+                                    <div class="gift-title">1 Monat kostenlos</div>
                                 </div>
                                 <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                     <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Ausgewählt</button>
@@ -8748,14 +8727,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                                 <ul class="plan-features">
                                     <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (auch in der Testphase)</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar<br>(auch in der Testphase)</span></li>
                                 </ul>
                                 <div class="subscription-gift-box">
                                     <i class="fa-solid fa-gift"></i>
-                                    <div>
-                                        <div class="gift-title">1 Monat kostenlos</div>
-                                        <div class="gift-sub">Keine Kosten zum Start</div>
-                                    </div>
+                                    <div class="gift-title">1 Monat kostenlos</div>
                                 </div>
                                 <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                     <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Auswählen</button>
@@ -8768,14 +8744,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                                 <ul class="plan-features">
                                     <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (auch in der Testphase)</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar<br>(auch in der Testphase)</span></li>
                                 </ul>
                                 <div class="subscription-gift-box">
                                     <i class="fa-solid fa-gift"></i>
-                                    <div>
-                                        <div class="gift-title">1 Monat kostenlos</div>
-                                        <div class="gift-sub">Keine Kosten zum Start</div>
-                                    </div>
+                                    <div class="gift-title">1 Monat kostenlos</div>
                                 </div>
                                 <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                     <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Auswählen</button>
@@ -8788,15 +8761,12 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                                 <ul class="plan-features">
                                     <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (auch in der Testphase)</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar<br>(auch in der Testphase)</span></li>
                                     <li><i class="fa-solid fa-circle-info"></i> Code erforderlich</li>
                                 </ul>
                                 <div class="subscription-gift-box">
                                     <i class="fa-solid fa-gift"></i>
-                                    <div>
-                                        <div class="gift-title">3 Monate kostenlos</div>
-                                        <div class="gift-sub">Instagram-Story Aktion</div>
-                                    </div>
+                                    <div class="gift-title">3 Monate kostenlos</div>
                                 </div>
                                 <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                     <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Auswählen</button>
@@ -11237,7 +11207,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                                     Dein Browser unterstÃœtzt dieses Video nicht.
                                 </video>
                                 <span style="position: absolute; top: 12px; left: 12px; z-index: 4; font-size: 0.72rem; font-weight: 800; color: #fff; background: rgba(239, 68, 68, 0.9); padding: 0.25rem 0.65rem; border-radius: 6px; backdrop-filter: blur(4px);">
-                                    ðŸŽ¬ Video #${vIdx + 1}: ${vid.title}
+                                    🎬 Video #${vIdx + 1}: ${vid.title}
                                 </span>
                             </div>
                         `).join('') : ''}
