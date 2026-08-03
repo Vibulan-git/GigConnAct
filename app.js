@@ -5742,6 +5742,7 @@ function renderProfilePage(container) {
     
     const activePlan = u.subscriptionPlan || 'flex';
     const planInfo = getPlanDetails(activePlan);
+    let selectedPlan = activePlan;
 
     container.innerHTML = `
         <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem; max-width: 800px; margin: 0 auto; padding: 1rem 0;">
@@ -6060,7 +6061,7 @@ function renderProfilePage(container) {
 
         const subCards = container.querySelectorAll('.subscription-card');
         const promoBox = document.getElementById('profile-promo-code-box');
-        let selectedPlan = activePlan;
+        selectedPlan = activePlan;
         let isPromoApplied = activePlan === 'premium';
 
         subCards.forEach(card => {

@@ -1849,8 +1849,8 @@ body {
 }
 
 .profile-avatar-btn {
-    width: 36px;
-    height: 36px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -1858,7 +1858,7 @@ body {
     cursor: pointer;
     border: 1px solid var(--border-glass);
     transition: all var(--transition-fast);
-    font-size: 0.95rem;
+    font-size: 1.2rem;
 }
 
 /* Musicians: Profile avatar button is blue */
@@ -4585,10 +4585,10 @@ input[type="range"].input-field {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
-    font-size: 0.95rem;
+    font-size: 1.2rem;
     cursor: pointer;
     border: 1px solid var(--border-glass) !important;
     text-decoration: none;
