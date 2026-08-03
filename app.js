@@ -5838,7 +5838,7 @@ function renderProfilePage(container) {
                     
                     
                     <div class="subscription-cards" style="margin-bottom: 1.5rem;">
-                        <div class="subscription-card ${activePlan === 'flex' ? 'active' : '}" data-plan="flex" data-price="9.99">
+                        <div class="subscription-card ${activePlan === "flex" ? "active" : ""}" data-plan="flex" data-price="9.99">
                             <div class="selected-badge">Beliebt</div>
                             <h5>Flex</h5>
                             <div class="price">9,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
@@ -5854,10 +5854,10 @@ function renderProfilePage(container) {
                                 </div>
                             </div>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === 'flex' ? 'Aktueller Tarif' : (selectedPlan === 'flex' ? 'Ausgewählt' : 'Auswählen')}</button>
+                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "flex" ? "Aktueller Tarif" : (selectedPlan === "flex" ? "Ausgew' + $ae + 'hlt" : "Ausw' + $ae + 'hlen")}</button>
                             </div>
                         </div>
-                        <div class="subscription-card ${activePlan === 'plus' ? 'active' : '}" data-plan="plus" data-price="7.99">
+                        <div class="subscription-card ${activePlan === "plus" ? "active" : ""}" data-plan="plus" data-price="7.99">
                             <div class="selected-badge">Spare 20 %</div>
                             <h5>Plus</h5>
                             <div class="price">7,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
@@ -5873,10 +5873,10 @@ function renderProfilePage(container) {
                                 </div>
                             </div>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === 'plus' ? 'Aktueller Tarif' : (selectedPlan === 'plus' ? 'Ausgewählt' : 'Auswählen')}</button>
+                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "plus" ? "Aktueller Tarif" : (selectedPlan === "plus" ? "Ausgew' + $ae + 'hlt" : "Ausw' + $ae + 'hlen")}</button>
                             </div>
                         </div>
-                        <div class="subscription-card ${activePlan === 'pro' ? 'active' : '}" data-plan="pro" data-price="5.99">
+                        <div class="subscription-card ${activePlan === "pro" ? "active" : ""}" data-plan="pro" data-price="5.99">
                             <div class="selected-badge">Spare 40 %</div>
                             <h5>Pro</h5>
                             <div class="price">5,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
@@ -5892,10 +5892,10 @@ function renderProfilePage(container) {
                                 </div>
                             </div>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === 'pro' ? 'Aktueller Tarif' : (selectedPlan === 'pro' ? 'Ausgewählt' : 'Auswählen')}</button>
+                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "pro" ? "Aktueller Tarif" : (selectedPlan === "pro" ? "Ausgew' + $ae + 'hlt" : "Ausw' + $ae + 'hlen")}</button>
                             </div>
                         </div>
-                        <div class="subscription-card ${activePlan === 'premium' ? 'active' : '}" data-plan="premium" data-price="4.99">
+                        <div class="subscription-card ${activePlan === "premium" ? "active" : ""}" data-plan="premium" data-price="4.99">
                             <div class="selected-badge" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;">Spare 59 %</div>
                             <h5>Premium</h5>
                             <div class="price">4,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
@@ -5911,7 +5911,7 @@ function renderProfilePage(container) {
                                 </div>
                             </div>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === 'premium' ? 'Aktueller Tarif' : (selectedPlan === 'premium' ? 'Ausgewählt' : 'Auswählen')}</button>
+                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "premium" ? "Aktueller Tarif" : (selectedPlan === "premium" ? "Ausgew' + $ae + 'hlt" : "Ausw' + $ae + 'hlen")}</button>
                             </div>
                         </div>
                     </div><div id="profile-promo-code-box" style="display: none; margin-bottom: 1.5rem; background: rgba(124, 58, 237, 0.05); border: 1px dashed var(--color-purple); padding: 1rem; border-radius: var(--radius-md);">
@@ -5963,7 +5963,7 @@ function renderProfilePage(container) {
             if (u.role === 'organizer') {
                 u.company = document.getElementById('prof-company').value.trim();
                 u.organizerType = document.getElementById('prof-orgtype').value;
-                const startEl = document.getElementById('prof-event-starttime'); const endEl = document.getElementById('prof-event-endtime'); if (startEl) u.eventStartTime = startEl.value; if (endEl) u.eventEndTime = endEl.value;
+                const startEl = document.getElementById("prof-event-starttime"); const endEl = document.getElementById("prof-event-endtime"); if (startEl) u.eventStartTime = startEl.value; if (endEl) u.eventEndTime = endEl.value;
                 
                 // Update primary event start and end time
                 const primaryEvent = state.events.find(e => e.id === u.profileId);
@@ -6076,21 +6076,21 @@ function renderProfilePage(container) {
             card.addEventListener('click', () => {
                 subCards.forEach(c => c.classList.remove('active'));
                 
-                card.classList.add('active');
-                selectedPlan = card.getAttribute('data-plan');
+                card.classList.add("active");
+                selectedPlan = card.getAttribute("data-plan");
 
                 // Dynamically update card buttons text in profile edit
                 subCards.forEach(c => {
-                    const btn = c.querySelector('.btn-sub-select');
+                    const btn = c.querySelector(".btn-sub-select");
                     if (btn) {
-                        const plan = c.getAttribute('data-plan');
+                        const plan = c.getAttribute("data-plan");
                         btn.textContent = plan === activePlan
-                            ? 'Aktueller Tarif'
-                            : (c.classList.contains('active') ? 'Ausgewählt' : 'Auswählen');
+                            ? "Aktueller Tarif"
+                            : (c.classList.contains("active") ? "Ausgew' + $ae + 'hlt" : "Ausw' + $ae + 'hlen");
                     }
                 });
 
-                if (selectedPlan === 'premium' && !isPromoApplied) {
+                if (selectedPlan === "premium" && !isPromoApplied) {
                     promoBox.style.display = 'block';
                 } else {
                     promoBox.style.display = 'none';
@@ -7545,7 +7545,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                 <ul class="plan-features">
                                     <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (in Testphase)</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit k' + $ue + 'ndbar (in Testphase)</li>
                                 </ul>
                                 <div class="subscription-gift-box">
                                     <i class="fa-solid fa-gift"></i>
@@ -7555,7 +7555,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                     </div>
                                 </div>
                                 <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                    <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Ausgewählt</button>
+                                    <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Ausgew' + $ae + 'hlt</button>
                                 </div>
                             </div>
                             <div class="subscription-card" data-plan="plus" data-price="7.99">
@@ -7565,7 +7565,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                 <ul class="plan-features">
                                     <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (in Testphase)</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit k' + $ue + 'ndbar (in Testphase)</li>
                                 </ul>
                                 <div class="subscription-gift-box">
                                     <i class="fa-solid fa-gift"></i>
@@ -7575,7 +7575,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                     </div>
                                 </div>
                                 <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                    <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Auswählen</button>
+                                    <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Ausw' + $ae + 'hlen</button>
                                 </div>
                             </div>
                             <div class="subscription-card" data-plan="pro" data-price="5.99">
@@ -7585,7 +7585,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                 <ul class="plan-features">
                                     <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit kündbar (in Testphase)</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Jederzeit k' + $ue + 'ndbar (in Testphase)</li>
                                 </ul>
                                 <div class="subscription-gift-box">
                                     <i class="fa-solid fa-gift"></i>
@@ -7595,7 +7595,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                     </div>
                                 </div>
                                 <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                    <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Auswählen</button>
+                                    <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Ausw' + $ae + 'hlen</button>
                                 </div>
                             </div>
                             <div class="subscription-card" data-plan="premium" data-price="4.99">
@@ -7615,7 +7615,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                     </div>
                                 </div>
                                 <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                    <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Auswählen</button>
+                                    <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Ausw' + $ae + 'hlen</button>
                                 </div>
                             </div>
                         </div><input type="hidden" name="selectedPlan" id="input-selected-plan" value="flex">
@@ -8361,15 +8361,15 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
         card.addEventListener('click', () => {
             subCards.forEach(c => c.classList.remove('active'));
             
-            card.classList.add('active');
-            const plan = card.getAttribute('data-plan');
+            card.classList.add("active");
+            const plan = card.getAttribute("data-plan");
             if (selectedPlanInput) selectedPlanInput.value = plan;
 
             // Dynamically update card buttons text in registration
             subCards.forEach(c => {
-                const btn = c.querySelector('.btn-sub-select');
+                const btn = c.querySelector(".btn-sub-select");
                 if (btn) {
-                    btn.textContent = c.classList.contains('active') ? 'Ausgewählt' : 'Auswählen';
+                    btn.textContent = c.classList.contains("active") ? "Ausgew' + $ae + 'hlt" : "Ausw' + $ae + 'hlen";
                 }
             });
 
