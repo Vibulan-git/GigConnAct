@@ -4775,10 +4775,12 @@ input[type="range"].input-field {
     padding: 0.4rem 0.6rem;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
-    margin-top: 0.6rem;
+    margin: 0.6rem auto 0 auto;
     box-sizing: border-box;
-    text-align: left;
+    text-align: center;
+    width: 100%;
 }
 .subscription-gift-box i {
     font-size: 1rem;
