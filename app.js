@@ -1,3 +1,19 @@
+﻿// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCuGm5JDhKwFILPrgxz3iQftTBUFGpb8qo",
+    authDomain: "gigconnact.firebaseapp.com",
+    projectId: "gigconnact",
+    storageBucket: "gigconnact.firebasestorage.app",
+    messagingSenderId: "539302141767",
+    appId: "1:539302141767:web:435e2716fc1936dc327662",
+    measurementId: "G-7M91GD63PQ"
+};
+
+// Initialize Firebase (Compat)
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
 var state = null;
 
 const mockPhotoUrls = [
@@ -57,7 +73,7 @@ window.addRegMedia = function(role, type) {
     const limit = type === 'photo' ? 3 : 1;
     if (list.length >= limit) {
         showToast({
-            title: type === 'photo' ? "Bilder-Limit erreicht ðŸ“·" : "Video-Limit erreicht ðŸŽ¬",
+            title: type === 'photo' ? "Bilder-Limit erreicht 📷" : "Video-Limit erreicht 🎬",
             message: type === 'photo' ? "Es sind maximal 3 Bilder erlaubt." : "Es ist maximal 1 Video erlaubt."
         });
         return;
@@ -118,7 +134,7 @@ window.slideComboGallery = function(itemId, direction) {
             for (let i = 0; i < slidesCount; i++) {
                 if (s.children[i].querySelector('img')) totalPhotos++;
             }
-            counter.innerText = 'ðŸ“· ' + photoIdx + ' / ' + totalPhotos + ' Fotos';
+            counter.innerText = '📷 ' + photoIdx + ' / ' + totalPhotos + ' Fotos';
         } else if (isVideo) {
             let videoIdx = 1;
             for (let i = 0; i < cur; i++) {
@@ -128,9 +144,9 @@ window.slideComboGallery = function(itemId, direction) {
             for (let i = 0; i < slidesCount; i++) {
                 if (s.children[i].querySelector('video')) totalVideos++;
             }
-            counter.innerText = 'ðŸŽ¬ Video ' + videoIdx + ' / ' + totalVideos;
+            counter.innerText = '🎬 Video ' + videoIdx + ' / ' + totalVideos;
         } else {
-            counter.innerHTML = 'ðŸ“ Beschreibung';
+            counter.innerHTML = '📝 Beschreibung';
         }
     }
 };
@@ -244,12 +260,12 @@ window.unlockListing = function(targetId, targetName) {
         document.body.appendChild(modal);
         
         modal.querySelector('#btn-cancel-unlock').addEventListener('click', () => modal.remove());
-        modal.querySelector('#btn-confirm-unlock').addEventListener('click', () => {
-            const res = state.unlockContact(targetId);
+        modal.querySelector('#btn-confirm-unlock').addEventListener('click', async () => {
+            const res = await state.unlockContact(targetId);
             modal.remove();
             if (res.success) {
                 showToast({
-                    title: "Kontaktdaten freigeschaltet! ðŸª™",
+                    title: "Kontaktdaten freigeschaltet! 🪙",
                     message: `Du hast die Kontaktdaten von ${targetName} erfolgreich freigeschaltet.`
                 });
                 updateNavbar();
@@ -288,7 +304,7 @@ const initialMusicians = [
         maxDuration: 4, // in hours
         minBudget: 1200,
         maxBudget: 2500, // EUR
-        eventTypes: ["Bar/Kneipe/Club", "Festival", "Firmenfeier", "Hochzeit â€“ Party"],
+        eventTypes: ["Bar/Kneipe/Club", "Festival", "Firmenfeier", "Hochzeit – Party"],
         availability: ["Friday", "Saturday"],
         description: "Wir bringen jeden Dancefloor zum Glühen! Mit unserem einzigartigen Elektro-Pop Sound und Covers der 80er, 90er und heutigen Hits im modernen Gewand. Eigene PA- und Lichttechnik ist immer inklusive.",
         contactName: "Maximilian Schmidt",
@@ -356,7 +372,7 @@ const initialMusicians = [
         maxDuration: 8,
         minBudget: 850,
         maxBudget: 1500,
-        eventTypes: ["Bar/Kneipe/Club", "Firmenfeier", "Hochzeit â€“ Party", "Geburtstag"],
+        eventTypes: ["Bar/Kneipe/Club", "Firmenfeier", "Hochzeit – Party", "Geburtstag"],
         availability: ["Friday", "Saturday", "Sunday"],
         description: "Seit 10 Jahren als DJ auf Hochzeiten, Firmenfeiern und in Clubs unterwegs. Professionelle High-End Licht- und Tontechnik für Events bis 300 Personen bringe ich komplett selbst mit.",
         contactName: "Andreas Richter",
@@ -449,7 +465,7 @@ const initialMusicians = [
         maxDuration: 3,
         minBudget: 350,
         maxBudget: 600,
-        eventTypes: ["Sommerfest", "Firmenfeier", "Hochzeit â€“ Party", "Jubiläum"],
+        eventTypes: ["Sommerfest", "Firmenfeier", "Hochzeit – Party", "Jubiläum"],
         availability: ["Saturday", "Sunday", "Wednesday"],
         description: "Sinnliche Saxophonklänge und samtige Vocals. Begleitung beim Sektempfang, Dinnermusik oder als Live-Highlight zu Lounge-Beats. Professionelle, platzsparende Beschallungsanlage vorhanden.",
         contactName: "Leo Berg",
@@ -479,7 +495,7 @@ const initialMusicians = [
         maxDuration: 3,
         minBudget: 250,
         maxBudget: 250,
-        eventTypes: ["Geburtstag", "Hochzeit â€“ Party"],
+        eventTypes: ["Geburtstag", "Hochzeit – Party"],
         availability: ["Saturday", "Sunday"],
         description: "Demo-Musiker-Account mit 0 Credits zum Testen des Bezahlfensters.",
         contactName: "Leo Null",
@@ -677,7 +693,7 @@ const initialEvents = [
 
 const genresList = ["Pop", "Rock", "Electro", "Jazz", "Klassik", "Folk", "HipHop", "Metal", "Schlager", "Country", "Blues"];
 const instrumentsList = ["Gesang", "Klavier", "Keyboard", "Synthesizer", "Turntables", "Akustikgitarre", "E-Gitarre", "Bass", "Schlagzeug", "Cajon", "Saxophon", "Violine", "Flöte"];
-const eventTypesList = ['Geburtstag', 'Hochzeit â€“ Trauung', 'Hochzeit - Sektempfang', 'Hochzeit â€“ Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
+const eventTypesList = ['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
 const musicianTypesList = ["Band", "Solo", "DJ", "Duo", "Orchestre", "Trio"];
 
 // ==========================================
@@ -698,7 +714,7 @@ function generateRemainingMusicians(existing) {
     const locationsPool = ["München", "Augsburg", "Nürnberg", "Stuttgart", "Hamburg", "Köln", "Frankfurt", "Düsseldorf", "Berlin"];
     const typesPool = ["Band", "Solo", "DJ", "Duo"];
     const daysPool = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-    const eventTypesPool = ['Geburtstag', 'Hochzeit â€“ Trauung', 'Hochzeit - Sektempfang', 'Hochzeit â€“ Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
+    const eventTypesPool = ['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
     const techPool = ["Technik vorhanden", "Technik ist noch unklar", "Technik nicht vorhanden"];
 
     for (let i = existing.length; i < targetCount; i++) {
@@ -790,7 +806,7 @@ function generateRemainingEvents(existing) {
     const firstNames = ["Lukas", "Jonas", "Sarah", "Emma", "Tim", "Ben", "Nina", "Leon", "David", "Felix", "Julia", "Laura", "Anna", "Maximilian", "Paul", "Sophia"];
     const lastNames = ["Müller", "Schmidt", "Weber", "Fischer", "Meyer", "Wagner", "Schulz", "Becker", "Hoffmann", "Schäfer"];
     const locationsPool = ["München", "Augsburg", "Nürnberg", "Stuttgart", "Hamburg", "Köln", "Frankfurt", "Düsseldorf", "Berlin"];
-    const eventTypesPool = ['Geburtstag', 'Hochzeit â€“ Trauung', 'Hochzeit - Sektempfang', 'Hochzeit â€“ Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
+    const eventTypesPool = ['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
     const eventAdjectives = ["Große", "Gemütliche", "Exklusive", "Traditionelle", "Stimmungsvolle", "Moderne"];
     const genresPool = ["Pop", "Rock", "Electro", "Jazz", "Klassik", "Schlager"];
     const instrumentsPool = ["E-Gitarre", "Akustikgitarre", "Klavier", "Keyboard", "Schlagzeug", "Gesang"];
@@ -914,7 +930,347 @@ function generateRemainingEvents(existing) {
 class StateManager {
     constructor() {
         this.listeners = [];
-        this.loadState();
+        this.currentUser = null;
+        this.musicians = [];
+        this.events = [];
+        this.chats = [];
+        this.readChats = [];
+        this.interests = [];
+        this.favorites = [];
+        this.initFirebaseData();
+    }
+
+    async initFirebaseData() {
+        try {
+            await this.loadStateFromFirestore();
+            this.setupAuthListener();
+            this.handleSignInWithEmailLink();
+        } catch (e) {
+            console.error("Firebase init failed, falling back to mock localStorage:", e);
+            this.loadState();
+        }
+    }
+
+    async loadStateFromFirestore() {
+        // 1. Seed database if empty
+        const musSnapshot = await db.collection('musicians').limit(1).get();
+        if (musSnapshot.empty) {
+            console.log("Firestore 'musicians' is empty. Seeding initial data...");
+            this.loadState();
+            
+            const seedMus = this.musicians.map(m => db.collection('musicians').doc(m.id).set(m));
+            await Promise.all(seedMus);
+            
+            const seedEvt = this.events.map(e => db.collection('events').doc(e.id).set(e));
+            await Promise.all(seedEvt);
+
+            const seedChats = this.chats.map(c => db.collection('chats').doc(c.id).set(c));
+            await Promise.all(seedChats);
+            
+            console.log("Database seeded successfully!");
+            this.notify();
+            return;
+        }
+
+        // 2. Real-time snapshot listeners
+        db.collection('musicians').onSnapshot(snapshot => {
+            const list = [];
+            snapshot.forEach(doc => list.push(doc.data()));
+            this.musicians = list;
+            this.notify();
+        }, err => console.error("Musicians snapshot error:", err));
+
+        db.collection('events').onSnapshot(snapshot => {
+            const list = [];
+            snapshot.forEach(doc => list.push(doc.data()));
+            this.events = list;
+            this.notify();
+        }, err => console.error("Events snapshot error:", err));
+
+        db.collection('chats').onSnapshot(snapshot => {
+            const list = [];
+            snapshot.forEach(doc => list.push(doc.data()));
+            this.chats = list;
+            this.notify();
+        }, err => console.error("Chats snapshot error:", err));
+
+        db.collection('interests').onSnapshot(snapshot => {
+            const list = [];
+            snapshot.forEach(doc => list.push(doc.data()));
+            this.interests = list;
+            this.notify();
+        }, err => console.error("Interests snapshot error:", err));
+    }
+
+    setupAuthListener() {
+        auth.onAuthStateChanged(async (firebaseUser) => {
+            if (firebaseUser) {
+                console.log("Firebase user logged in:", firebaseUser.email);
+                const userDocRef = db.collection('users').doc(firebaseUser.uid);
+                
+                userDocRef.onSnapshot(async (doc) => {
+                    if (doc.exists) {
+                        this.currentUser = doc.data();
+                        if (this.currentUser.role === 'musician') {
+                            this.activeMusicianId = this.currentUser.profileId || null;
+                        } else if (this.currentUser.role === 'organizer') {
+                            this.activeEventId = this.activeEventId && this.events.some(e => e.id === this.activeEventId)
+                                ? this.activeEventId
+                                : (this.events.find(e => e.creatorId === this.currentUser.id)?.id || null);
+                        }
+                        this.notify();
+                    } else {
+                        console.warn("Logged in user has no document in Firestore 'users' collection.");
+                    }
+                }, err => console.error("User doc snapshot error:", err));
+            } else {
+                console.log("No Firebase user logged in.");
+                this.currentUser = null;
+                this.notify();
+            }
+        });
+    }
+
+    async handleSignInWithEmailLink() {
+        if (auth.isSignInWithEmailLink(window.location.href)) {
+            let email = window.localStorage.getItem('emailForSignIn');
+            if (!email) {
+                email = window.prompt('Bitte gib deine E-Mail-Adresse zur Bestätigung ein:');
+            }
+            if (!email) return;
+
+            showToast({
+                title: "Anmeldung läuft... 🔄",
+                message: "Dein Anmeldelink wird verifiziert."
+            });
+
+            try {
+                const result = await auth.signInWithEmailLink(email, window.location.href);
+                window.localStorage.removeItem('emailForSignIn');
+                const user = result.user;
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const userDoc = await db.collection('users').doc(user.uid).get();
+
+                if (userDoc.exists) {
+                    console.log("Existing user signed in successfully!");
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } else {
+                    const pendingRegStr = window.localStorage.getItem('GigConnAct_pending_registration');
+                    const pendingReg = pendingRegStr ? JSON.parse(pendingRegStr) : null;
+
+                    if (pendingReg && pendingReg.email.toLowerCase() === email.toLowerCase()) {
+                        console.log("Completing registration for new user:", email);
+                        const profileId = pendingReg.role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
+                        
+                        const newUser = {
+                            id: user.uid,
+                            role: pendingReg.role,
+                            firstName: pendingReg.firstName,
+                            lastName: pendingReg.lastName,
+                            company: pendingReg.company || "Privatperson",
+                            organizerType: pendingReg.organizerType || "",
+                            phone: pendingReg.phone,
+                            hidePhone: pendingReg.hidePhone || false,
+                            email: pendingReg.email,
+                            profileId: profileId,
+                            isPremium: pendingReg.role === "musician" ? pendingReg.sepaConsent : true,
+                            successfulGigs: 0,
+                            contactRequests: 0,
+                            favorites: [],
+                            interests: []
+                        };
+
+                        await db.collection('users').doc(user.uid).set(newUser);
+
+                        if (pendingReg.role === 'musician') {
+                            const newMusician = {
+                                id: profileId,
+                                name: pendingReg.bandName,
+                                bluffName: `Anonyme/r ${pendingReg.musicianType} (${pendingReg.genres[0] || 'Musik'})`,
+                                type: pendingReg.musicianType,
+                                location: pendingReg.locations ? pendingReg.locations.join(', ') : (pendingReg.location || 'München'),
+                                locations: pendingReg.locations || [pendingReg.location || 'München'],
+                                radius: parseInt(pendingReg.radius) || 50,
+                                genres: pendingReg.genres,
+                                instruments: pendingReg.instruments,
+                                minDuration: parseFloat(pendingReg.minDuration) || 1,
+                                maxDuration: parseFloat(pendingReg.maxDuration) || 3,
+                                minBudget: parseFloat(pendingReg.minBudget) || 150,
+                                maxBudget: parseFloat(pendingReg.maxBudget) || 1000,
+                                eventTypes: pendingReg.eventTypes,
+                                availability: pendingReg.availability,
+                                minPublikum: parseInt(pendingReg.minPublikum) || 0,
+                                maxPublikum: parseInt(pendingReg.maxPublikum) || 500,
+                                description: pendingReg.description,
+                                technik: pendingReg.technik || ["Technik ist noch unklar"],
+                                company: newUser.company || "Privatperson",
+                                contactName: `${newUser.firstName} ${newUser.lastName}`,
+                                phone: newUser.phone,
+                                hidePhone: pendingReg.hidePhone || false,
+                                email: newUser.email,
+                                isPremium: newUser.isPremium,
+                                subscriptionPlan: pendingReg.subscriptionPlan || "flex",
+                                credits: 5,
+                                unlockedContacts: [],
+                                socialLinks: { spotify: "", youtube: "", instagram: "" },
+                                photos: pendingReg.photos || [],
+                                videos: pendingReg.videos || [],
+                                audio: [],
+                                creatorId: user.uid
+                            };
+                            await db.collection('musicians').doc(profileId).set(newMusician);
+                        } else {
+                            const newEvent = {
+                                id: profileId,
+                                name: pendingReg.eventName,
+                                type: pendingReg.orgEventTypes ? pendingReg.orgEventTypes[0] : "",
+                                eventTypes: pendingReg.orgEventTypes || [],
+                                date: pendingReg.eventDates ? pendingReg.eventDates[0] : "",
+                                dates: pendingReg.eventDates || [],
+                                eventStartTime: pendingReg.eventStartTime || "18:00",
+                                eventEndTime: pendingReg.eventEndTime || "22:00",
+                                location: pendingReg.orgLocations ? pendingReg.orgLocations.join(', ') : "",
+                                locations: pendingReg.orgLocations || [],
+                                genres: pendingReg.orgGenres || [],
+                                instruments: pendingReg.orgInstruments || [],
+                                minDuration: parseFloat(pendingReg.orgMinDuration) || 2.0,
+                                maxDuration: parseFloat(pendingReg.orgMaxDuration) || 4.0,
+                                duration: parseFloat(pendingReg.orgMinDuration) || 2.0,
+                                minPublikum: parseInt(pendingReg.orgMinPublikum) || 50,
+                                maxPublikum: parseInt(pendingReg.orgMaxPublikum) || 150,
+                                publikum: `${pendingReg.orgMinPublikum || 50} - ${pendingReg.orgMaxPublikum || 150}`,
+                                minBudget: parseFloat(pendingReg.orgMinBudget) || 300,
+                                maxBudget: parseFloat(pendingReg.orgMaxBudget) || 800,
+                                budget: parseFloat(pendingReg.orgMinBudget) || 300,
+                                description: pendingReg.orgDescription || "",
+                                technik: pendingReg.technik || ["Technik ist noch unklar"],
+                                company: newUser.company || "Privatperson",
+                                organizerType: newUser.organizerType || "Privater Veranstalter",
+                                contactName: `${newUser.firstName} ${newUser.lastName}`,
+                                phone: newUser.phone,
+                                hidePhone: pendingReg.hidePhone || false,
+                                email: newUser.email,
+                                isOnline: true,
+                                creatorId: user.uid
+                            };
+                            await db.collection('events').doc(profileId).set(newEvent);
+                        }
+                        window.localStorage.removeItem('GigConnAct_pending_registration');
+                        showToast({
+                            title: "Registrierung abgeschlossen! 🎉",
+                            message: "Dein Profil wurde erfolgreich erstellt."
+                        });
+                    } else {
+                        console.log("Creating default user profile on the fly...");
+                        const role = urlParams.get('role') || 'musician';
+                        const profileId = role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
+                        
+                        const newUser = {
+                            id: user.uid,
+                            role: role,
+                            firstName: role === 'musician' ? 'Demo-Musiker' : 'Demo-Veranstalter',
+                            lastName: 'Gast',
+                            company: 'Privatperson',
+                            organizerType: role === 'organizer' ? 'Privater Veranstalter' : '',
+                            phone: '+49 170 1234567',
+                            email: email,
+                            profileId: profileId,
+                            isPremium: true,
+                            subscriptionPlan: 'flex',
+                            credits: role === 'musician' ? 5 : 0,
+                            unlockedContacts: [],
+                            successfulGigs: 0,
+                            contactRequests: 0,
+                            favorites: [],
+                            interests: []
+                        };
+
+                        await db.collection('users').doc(user.uid).set(newUser);
+                        
+                        if (role === 'musician') {
+                            const newMusician = {
+                                id: profileId,
+                                name: "Demo Musiker",
+                                bluffName: "Akustik-Solo-Künstler",
+                                type: "Solo",
+                                location: "München",
+                                locations: ["München"],
+                                radius: 100,
+                                genres: ["Pop", "Rock"],
+                                instruments: ["Gesang", "Akustikgitarre"],
+                                minDuration: 1,
+                                maxDuration: 3,
+                                minBudget: 150,
+                                maxBudget: 1000,
+                                eventTypes: ["Geburtstag", "Sommerfest"],
+                                availability: {
+                                    friday: { available: true, startTime: '18:00', endTime: '23:59' },
+                                    saturday: { available: true, startTime: '00:01', endTime: '23:59' }
+                                },
+                                minPublikum: 0,
+                                maxPublikum: 500,
+                                description: "Professioneller Solo-Künstler für Events aller Art.",
+                                technik: ["Technik vorhanden"],
+                                company: "Privatperson",
+                                contactName: "Demo-Musiker Gast",
+                                phone: "+49 170 1234567",
+                                email: email,
+                                isPremium: false,
+                                subscriptionPlan: "flex",
+                                credits: 5,
+                                unlockedContacts: [],
+                                socialLinks: { spotify: "", youtube: "", instagram: "" },
+                                photos: [],
+                                videos: [],
+                                audio: [],
+                                creatorId: user.uid
+                            };
+                            await db.collection('musicians').doc(profileId).set(newMusician);
+                        } else {
+                            const newEvent = {
+                                id: profileId,
+                                name: "Demo Veranstaltung",
+                                type: "Geburtstag",
+                                eventTypes: ["Geburtstag"],
+                                date: "2026-08-15",
+                                dates: ["2026-08-15"],
+                                location: "München",
+                                locations: ["München"],
+                                genres: ["Pop", "Rock"],
+                                instruments: ["Gesang", "Akustikgitarre"],
+                                minDuration: 2.0,
+                                maxDuration: 4.0,
+                                duration: 4.0,
+                                minPublikum: 50,
+                                maxPublikum: 150,
+                                publikum: "50 - 150",
+                                minBudget: 300,
+                                maxBudget: 800,
+                                description: "Private Feier in München. Wir suchen einen netten Live-Act.",
+                                technik: ["Technik ist noch unklar"],
+                                company: "Privatperson",
+                                organizerType: "Privater Veranstalter",
+                                contactName: "Demo-Veranstalter Gast",
+                                phone: "+49 170 1234567",
+                                email: email,
+                                isOnline: true,
+                                creatorId: user.uid
+                            };
+                            await db.collection('events').doc(profileId).set(newEvent);
+                        }
+                    }
+                }
+                window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
+                navigateAfterLogin();
+            } catch (err) {
+                console.error("Sign in link verification failed:", err);
+                showToast({
+                    title: "Anmeldung fehlgeschlagen ❌",
+                    message: "Der Link ist ungültig oder abgelaufen."
+                });
+            }
+        }
     }
 
     loadState() {
@@ -951,7 +1307,6 @@ class StateManager {
                 } else if (!m.technik) {
                     m.technik = ["Technik ist noch unklar"];
                 }
-                // Force hidePhone for mus_1, mus_3, mus_5, and every 4th generated musician
                 if (["mus_1", "mus_3", "mus_5"].includes(m.id)) {
                     m.hidePhone = true;
                 } else if (m.id && m.id.startsWith('mus_gen_')) {
@@ -962,7 +1317,6 @@ class StateManager {
                 }
                 return m;
             });
-            localStorage.setItem('GigConnAct_musicians', JSON.stringify(this.musicians));
         } catch (e) {
             this.musicians = generateRemainingMusicians(initialMusicians);
         }
@@ -1018,7 +1372,6 @@ class StateManager {
                     e.maxPublikum = e.minPublikum + [30, 50, 100, 200][Math.floor(Math.random() * 4)];
                     e.publikum = `${e.minPublikum} - ${e.maxPublikum}`;
                 }
-                // Force hidePhone for evt_1, evt_3, evt_5, and every 4th generated event
                 if (["evt_1", "evt_3", "evt_5"].includes(e.id)) {
                     e.hidePhone = true;
                 } else if (e.id && e.id.startsWith('evt_gen_')) {
@@ -1029,7 +1382,6 @@ class StateManager {
                 }
                 return e;
             });
-            localStorage.setItem('GigConnAct_events', JSON.stringify(this.events));
         } catch (err) {
             this.events = generateRemainingEvents(initialEvents).map(e => {
                 if (!e.eventStartTime) {
@@ -1090,30 +1442,15 @@ class StateManager {
             this.favorites = [];
         }
 
-        // Ensure all entities have a createdAt timestamp for sorting and correct creatorId mapping
-        let registeredUsers = [];
-        try {
-            const parsedUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-            registeredUsers = Array.isArray(parsedUsers) ? parsedUsers : [];
-        } catch (e) {
-            registeredUsers = [];
-        }
-
         this.musicians.forEach((m, idx) => {
             if (!m.createdAt) m.createdAt = new Date(Date.now() - idx * 2 * 60 * 60 * 1000).toISOString();
-            const matchingUser = registeredUsers.find(u => u.profileId === m.id);
-            if (matchingUser) {
-                m.creatorId = matchingUser.id;
-            } else if (!m.creatorId) {
-                m.creatorId = m.id;
-            }
+            if (!m.creatorId) m.creatorId = m.id;
         });
         this.events.forEach((e, idx) => {
             if (!e.createdAt) e.createdAt = new Date(Date.now() - idx * 2 * 60 * 60 * 1000).toISOString();
             if (!e.creatorId) e.creatorId = e.creatorId || "org_1";
         });
 
-        // Ensure there are at least 3 events for Julia (creatorId: "org_1")
         const juliaEvents = this.events.filter(e => e.creatorId === "org_1");
         if (juliaEvents.length === 1) {
             const first = juliaEvents[0];
@@ -1137,12 +1474,10 @@ class StateManager {
             juliaEvents.push(second, third);
         }
 
-        // Also let's set first event to musicianFound = true for Julia
         if (juliaEvents.length >= 3) {
             juliaEvents[0].musicianFound = true;
         }
 
-        // Ensure there are at least 2 profiles for contact@neonbeats.de (creatorId: "mus_1")
         const contactMusicians = this.musicians.filter(m => m.creatorId === "mus_1");
         if (contactMusicians.length === 1) {
             const first = contactMusicians[0];
@@ -1151,7 +1486,7 @@ class StateManager {
                 id: "mus_1_dup",
                 name: "Neon Beats Acoustic",
                 type: "Solo",
-                bluffName: "Acoustic Pop-SÄnger & Gitarrist",
+                bluffName: "Acoustic Pop-Sänger & Gitarrist",
                 minBudget: 400,
                 genres: ["Pop", "Rock", "Singer-Songwriter"],
                 isActive: true
@@ -1160,7 +1495,6 @@ class StateManager {
             contactMusicians.push(second);
         }
 
-        // For each of the contact musicians, populate exactly 10 contacted events (3 booked, 2 declined, 5 contacted)
         contactMusicians.forEach((m, mIdx) => {
             if (!m.applications || m.applications.length < 10) {
                 m.applications = [];
@@ -1178,48 +1512,16 @@ class StateManager {
             }
         });
         
-        // Ensure all musicians and events have a company name (defaulting to "Privatperson" if not present) and a random technik value
         const techOptions = ["Technik vorhanden", "Technik ist noch unklar", "Technik nicht vorhanden"];
         this.musicians.forEach(m => {
-            if (!m.company) {
-                const user = registeredUsers.find(u => u.id === m.creatorId || u.profileId === m.id);
-                m.company = user ? (user.company || "Privatperson") : "Privatperson";
-            }
-            if (!m.technik) {
-                m.technik = techOptions[Math.floor(Math.random() * techOptions.length)];
-            }
+            if (!m.company) m.company = "Privatperson";
+            if (!m.technik) m.technik = techOptions[Math.floor(Math.random() * techOptions.length)];
         });
         this.events.forEach(e => {
-            if (!e.company || (e.company === "Privatperson" && e.organizerType && e.organizerType !== "Privater Veranstalter")) {
-                const user = registeredUsers.find(u => u.id === e.creatorId || u.profileId === e.id);
-                if (user && user.company && user.company !== "Privatperson") {
-                    e.company = user.company;
-                } else {
-                    const orgNames = {
-                        "Firma": ["TechCorp GmbH", "Müller & Söhne KG", "InnoWave Solutions", "FutureMedia Group", "Hansa Logistik"],
-                        "Verein": ["Musikverein e.V.", "Kulturverein Regenbogen", "Sportfreunde 1920", "Stadtjugendring", "Förderverein Kunst"],
-                        "Event-Agentur": ["SommerSonne Events", "StarGigs Agency", "GoldenMoment Weddings", "BlueMoon Entertainment", "Epic Events"],
-                        "Festivalveranstalter": ["BeachBeat Festival Group", "Rock am See GmbH", "JazzTime e.V.", "CityFestivals UG", "SoundScape Productions"],
-                        "Eventlocation": ["Bürgerhaus", "Alte Mälzerei", "Schloss-Schenke"],
-                        "Hotel": ["Grand Hotel", "Hotel Post", "Sonnenblick Resort"],
-                        "Restaurant": ["La Piazza", "Zum Wilden Hirsch", "Hafenblick Restaurant"],
-                        "Bar": ["Blue Note Jazz Bar", "Tiki Lounge", "Skyline Bar"],
-                        "Stadtmarketing": ["Stadtmarketing GmbH", "Tourismusverband"],
-                        "Sonstige": ["Kulturverein", "Bürgerbüro"]
-                    };
-                    const list = orgNames[e.organizerType] || ["Event Organisation"];
-                    e.company = list[Math.floor(Math.random() * list.length)];
-                }
-            }
-            if (!e.technik) {
-                e.technik = techOptions[Math.floor(Math.random() * techOptions.length)];
-            }
-            if (e.duration === undefined || e.duration === null) {
-                e.duration = e.minDuration !== undefined ? e.minDuration : 2;
-            }
-            if (e.budget === undefined || e.budget === null) {
-                e.budget = e.minBudget !== undefined ? e.minBudget : 300;
-            }
+            if (!e.company) e.company = "Event Organisation";
+            if (!e.technik) e.technik = techOptions[Math.floor(Math.random() * techOptions.length)];
+            if (e.duration === undefined || e.duration === null) e.duration = e.minDuration !== undefined ? e.minDuration : 2;
+            if (e.budget === undefined || e.budget === null) e.budget = e.minBudget !== undefined ? e.minBudget : 300;
             if (e.minPublikum === undefined || e.minPublikum === null) {
                 e.minPublikum = [20, 50, 100, 150, 200, 300][Math.floor(Math.random() * 6)];
                 e.maxPublikum = e.minPublikum + [30, 50, 100, 200][Math.floor(Math.random() * 4)];
@@ -1227,7 +1529,6 @@ class StateManager {
             }
         });
 
-        // Initialize active musician and event IDs for matches / interest tracking
         if (this.currentUser) {
             if (this.currentUser.role === 'musician') {
                 this.activeMusicianId = this.activeMusicianId || this.currentUser.profileId || (this.musicians.find(m => m.creatorId === this.currentUser.id)?.id || null);
@@ -1238,8 +1539,6 @@ class StateManager {
             }
             this.runDailyMatchCheck();
         }
-
-        this.saveState();
     }
 
     saveState() {
@@ -1268,55 +1567,54 @@ class StateManager {
         
         if (lastCheckDate !== todayStr) {
             console.log("Running daily match check for", this.currentUser.id);
-            
             let myProfiles = [];
             if (this.currentUser.role === 'musician') {
                 myProfiles = this.musicians.filter(m => m.creatorId === this.currentUser.id);
             } else {
                 myProfiles = this.events.filter(e => e.creatorId === this.currentUser.id);
             }
-            
             const candidates = this.currentUser.role === 'musician' 
                 ? this.events.filter(e => e.isCanceled !== true && e.musicianFound !== true)
                 : this.musicians.filter(m => m.isActive !== false);
                 
             const matchesKey = `GigConnAct_matches_list_${this.currentUser.id}`;
-            const storedMatchesRaw = localStorage.getItem(matchesKey);
-            const storedMatches = storedMatchesRaw ? JSON.parse(storedMatchesRaw) : [];
-            const storedIds = storedMatches.map(m => m.id);
+            const unreadKey = `GigConnAct_unread_matches_${this.currentUser.id}`;
             
-            let currentDayMatches = [];
-            let newMatchIds = [];
+            let matchedIds = [];
+            try {
+                const storedMatchesRaw = localStorage.getItem(matchesKey);
+                matchedIds = storedMatchesRaw ? JSON.parse(matchedIds) : [];
+            } catch(e){}
             
-            myProfiles.forEach(myProfile => {
+            const currentDayMatches = [...matchedIds];
+            const newMatchesThisDay = [];
+            
+            myProfiles.forEach(myProf => {
                 candidates.forEach(cand => {
-                    const match = this.currentUser.role === 'musician'
-                        ? calculateMatch(myProfile, cand, 'musician')
-                        : calculateMatch(cand, myProfile, 'organizer');
-                        
-                    if (match.score >= 70) {
-                        currentDayMatches.push({
-                            id: cand.id,
-                            matchScore: match.score
-                        });
-                        if (!storedIds.includes(cand.id)) {
-                            newMatchIds.push(cand.id);
-                        }
+                    if (currentDayMatches.includes(cand.id)) return;
+                    
+                    let score = 0;
+                    if (this.currentUser.role === 'musician') {
+                        score = calculateMatchScore(myProf, cand);
+                    } else {
+                        score = calculateMatchScore(cand, myProf);
+                    }
+                    
+                    if (score >= 40) {
+                        currentDayMatches.push(cand.id);
+                        newMatchesThisDay.push(cand.id);
                     }
                 });
             });
             
-            if (newMatchIds.length > 0) {
-                const unreadKey = `GigConnAct_unread_matches_${this.currentUser.id}`;
-                const storedUnreadRaw = localStorage.getItem(unreadKey);
-                const storedUnread = storedUnreadRaw ? JSON.parse(storedUnreadRaw) : [];
+            if (newMatchesThisDay.length > 0) {
+                let storedUnread = [];
+                try {
+                    const storedUnreadRaw = localStorage.getItem(unreadKey);
+                    storedUnread = storedUnreadRaw ? JSON.parse(storedUnreadRaw) : [];
+                } catch(e){}
                 
-                newMatchIds.forEach(id => {
-                    if (!storedUnread.includes(id)) {
-                        storedUnread.push(id);
-                    }
-                });
-                
+                storedUnread = [...storedUnread, ...newMatchesThisDay];
                 localStorage.setItem(unreadKey, JSON.stringify(storedUnread));
             }
             
@@ -1325,12 +1623,15 @@ class StateManager {
         }
     }
 
-    getUnreadMatchesCount() {
-        if (!this.currentUser) return 0;
+    getUnreadMatches() {
+        if (!this.currentUser) return [];
         const unreadKey = `GigConnAct_unread_matches_${this.currentUser.id}`;
-        const storedUnreadRaw = localStorage.getItem(unreadKey);
-        const storedUnread = storedUnreadRaw ? JSON.parse(storedUnreadRaw) : [];
-        return storedUnread.length;
+        try {
+            const storedUnreadRaw = localStorage.getItem(unreadKey);
+            return storedUnreadRaw ? JSON.parse(storedUnreadRaw) : [];
+        } catch (e) {
+            return [];
+        }
     }
 
     clearUnreadMatches() {
@@ -1338,170 +1639,6 @@ class StateManager {
         const unreadKey = `GigConnAct_unread_matches_${this.currentUser.id}`;
         localStorage.setItem(unreadKey, JSON.stringify([]));
         this.notify();
-    }
-
-    toggleFavorite(id) {
-        if (!this.currentUser) {
-            showModal('auth');
-            return false;
-        }
-        if (!this.favorites) this.favorites = [];
-        const idx = this.favorites.indexOf(id);
-        if (idx === -1) {
-            this.favorites.push(id);
-        } else {
-            this.favorites.splice(idx, 1);
-        }
-        this.saveState();
-        this.notify();
-        return true;
-    }
-
-    isFavorite(id) {
-        if (!this.favorites) return false;
-        return this.favorites.includes(id);
-    }
-
-    hasExpressedInterest(fromRole, musicianId, eventId) {
-        if (!this.interests) this.interests = [];
-        const interest = this.interests.find(i => i.musicianId === musicianId && i.eventId === eventId);
-        if (!interest) return false;
-        return fromRole === 'musician' ? !!interest.musicianInterested : !!interest.organizerInterested;
-    }
-
-    hasExpressedNoInterest(fromRole, musicianId, eventId) {
-        if (!this.interests) this.interests = [];
-        const interest = this.interests.find(i => i.musicianId === musicianId && i.eventId === eventId);
-        if (!interest) return false;
-        return fromRole === 'musician' ? !!interest.musicianNoInterest : !!interest.organizerNoInterest;
-    }
-
-    toggleInterest(fromRole, musicianId, eventId) {
-        if (!this.interests) this.interests = [];
-        let interest = this.interests.find(i => i.musicianId === musicianId && i.eventId === eventId);
-        if (!interest) {
-            interest = {
-                musicianId: musicianId,
-                eventId: eventId,
-                musicianInterested: false,
-                organizerInterested: false,
-                musicianNoInterest: false,
-                organizerNoInterest: false
-            };
-            this.interests.push(interest);
-        }
-
-        const isPerfect = !!interest.musicianInterested && !!interest.organizerInterested;
-        if (isPerfect) {
-            return { success: false, message: "Perfect Match ist bereits gesperrt.", isPerfectMatch: true };
-        }
-
-        if (fromRole === 'musician') {
-            interest.musicianInterested = !interest.musicianInterested;
-            if (interest.musicianInterested) {
-                interest.musicianNoInterest = false;
-            }
-        } else {
-            interest.organizerInterested = !interest.organizerInterested;
-            if (interest.organizerInterested) {
-                interest.organizerNoInterest = false;
-            }
-        }
-
-        const isPerfectNow = !!interest.musicianInterested && !!interest.organizerInterested;
-        this.saveState();
-        this.notify();
-        return { success: true, isPerfectMatch: isPerfectNow, active: fromRole === 'musician' ? interest.musicianInterested : interest.organizerInterested };
-    }
-
-    toggleNoInterest(fromRole, musicianId, eventId) {
-        if (!this.interests) this.interests = [];
-        let interest = this.interests.find(i => i.musicianId === musicianId && i.eventId === eventId);
-        if (!interest) {
-            interest = {
-                musicianId: musicianId,
-                eventId: eventId,
-                musicianInterested: false,
-                organizerInterested: false,
-                musicianNoInterest: false,
-                organizerNoInterest: false
-            };
-            this.interests.push(interest);
-        }
-
-        const isPerfect = !!interest.musicianInterested && !!interest.organizerInterested;
-        if (isPerfect) {
-            return { success: false, message: "Perfect Match ist bereits gesperrt." };
-        }
-
-        if (fromRole === 'musician') {
-            interest.musicianNoInterest = !interest.musicianNoInterest;
-            if (interest.musicianNoInterest) {
-                interest.musicianInterested = false;
-            }
-        } else {
-            interest.organizerNoInterest = !interest.organizerNoInterest;
-            if (interest.organizerNoInterest) {
-                interest.organizerInterested = false;
-            }
-        }
-
-        this.saveState();
-        this.notify();
-        return { success: true, active: fromRole === 'musician' ? interest.musicianNoInterest : interest.organizerNoInterest };
-    }
-
-    expressInterest(fromRole, musicianId, eventId) {
-        if (!this.interests) this.interests = [];
-        let interest = this.interests.find(i => i.musicianId === musicianId && i.eventId === eventId);
-        if (!interest) {
-            interest = {
-                musicianId: musicianId,
-                eventId: eventId,
-                musicianInterested: false,
-                organizerInterested: false,
-                musicianNoInterest: false,
-                organizerNoInterest: false
-            };
-            this.interests.push(interest);
-        }
-        
-        if (fromRole === 'musician') {
-            interest.musicianInterested = true;
-            interest.musicianNoInterest = false;
-        } else {
-            interest.organizerInterested = true;
-            interest.organizerNoInterest = false;
-        }
-
-        const isPerfect = !!interest.musicianInterested && !!interest.organizerInterested;
-        
-        this.saveState();
-        this.notify();
-        return { success: true, isPerfectMatch: isPerfect };
-    }
-
-    getInitialChats() {
-        return [
-            {
-                id: "chat_demo_1",
-                participants: ["mus_1", "org_1"],
-                messages: [
-                    { senderId: "org_1", text: "Hallo! Wir finden euren Sound absolut genial. HÄttet ihr Zeit, bei unserer Hochzeit zu spielen?", timestamp: "2026-07-12T14:30:00Z" },
-                    { senderId: "mus_1", text: "Hallo Julia! Vielen Dank für die Anfrage. Der 15. August 2026 passt uns super. Welche Art von Songs wÜnscht ihr euch?", timestamp: "2026-07-12T15:15:00Z" },
-                    { senderId: "org_1", text: "Hauptsächlich Pop-Cover für die Party am Abend und etwas Ruhiges für den Sektempfang. Das Budget liegt bei ca. 800-1000 EUR.", timestamp: "2026-07-12T16:00:00Z" }
-                ],
-                updatedAt: "2026-07-12T16:00:00Z"
-            },
-            {
-                id: "chat_system_mus_1",
-                participants: ["mus_1", "system"],
-                messages: [
-                    { senderId: "system", text: "ðŸš¨ NEUES MATCHING: Ein Event mit 100% Match-Faktor wurde veröffentlicht! 'Sommerfestival Stadtstrand' passt perfekt zu Ihren Kriterien.", timestamp: "2026-07-13T10:00:00Z" }
-                ],
-                updatedAt: "2026-07-13T10:00:00Z"
-            }
-        ];
     }
 
     subscribe(callback) {
@@ -1518,333 +1655,162 @@ class StateManager {
         document.dispatchEvent(new CustomEvent('user-state-changed'));
     }
 
-    login(email, password) {
-        const musician = this.musicians.find(m => m.email && m.email.toLowerCase() === email.toLowerCase() && password === "pass123");
-        if (musician) {
-            this.currentUser = {
-                id: musician.id,
-                role: "musician",
-                firstName: musician.contactName ? (musician.contactName.split(" ")[0] || "Musiker") : "Musiker",
-                lastName: musician.contactName ? (musician.contactName.split(" ")[1] || "") : "",
-                company: "Privatperson",
-                phone: musician.phone,
-                email: musician.email,
-                isPremium: true,
-                subscriptionPlan: musician.subscriptionPlan || "flex",
-                subscriptionCancelled: musician.subscriptionCancelled || false,
-                credits: musician.credits !== undefined ? musician.credits : 5,
-                unlockedContacts: musician.unlockedContacts || [],
-                profileId: musician.id,
-                successfulGigs: 3,
-                contactRequests: 5
-            };
-            this.notify();
-            return { success: true, user: this.currentUser };
+    toggleFavorite(id) {
+        if (!this.currentUser) return;
+        let favs = this.currentUser.favorites || [];
+        const idx = favs.indexOf(id);
+        if (idx === -1) {
+            favs = [...favs, id];
+        } else {
+            favs = favs.filter(x => x !== id);
         }
-
-        const event = this.events.find(e => e.email && e.email.toLowerCase() === email.toLowerCase() && password === "pass123");
-        if (event) {
-            this.currentUser = {
-                id: event.creatorId,
-                role: "organizer",
-                firstName: event.contactName ? (event.contactName.split(" ")[0] || "Veranstalter") : "Veranstalter",
-                lastName: event.contactName ? (event.contactName.split(" ")[1] || "") : "",
-                company: "Privatperson",
-                phone: event.phone,
-                email: event.email,
-                isPremium: true,
-                profileId: event.creatorId,
-                successfulGigs: 1,
-                contactRequests: 2
-            };
-            this.notify();
-            return { success: true, user: this.currentUser };
-        }
-
-        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-        const registered = registeredUsers.find(u => u.email && u.email.toLowerCase() === email.toLowerCase() && u.password === password);
-        if (registered) {
-            // Repair missing profiles dynamically on standard login
-            if (registered.role === "musician") {
-                const profileExists = this.musicians.some(m => m.id === registered.profileId || m.creatorId === registered.id || (m.email && m.email.toLowerCase() === email.toLowerCase()));
-                if (!profileExists) {
-                    const newMusician = {
-                        id: registered.profileId || ("mus_" + registered.id),
-                        name: "Demo Musiker",
-                        bluffName: "Akustik-Solo-Künstler",
-                        type: "Solo",
-                        location: "München",
-                        locations: ["München"],
-                        radius: 100,
-                        genres: ["Pop", "Rock"],
-                        instruments: ["Gesang", "Akustikgitarre"],
-                        minDuration: 1,
-                        maxDuration: 3,
-                        minBudget: 150,
-                        maxBudget: 1000,
-                        eventTypes: ["Geburtstag", "Sommerfest"],
-                        availability: ["Friday", "Saturday"],
-                        minPublikum: 0,
-                        maxPublikum: 500,
-                        description: "Professioneller Solo-Künstler für Events aller Art.",
-                        technik: ["Technik vorhanden"],
-                        company: registered.company || "Privatperson",
-                        contactName: `${registered.firstName} ${registered.lastName}`,
-                        phone: registered.phone,
-                        email: registered.email,
-                        isPremium: registered.isPremium,
-                        subscriptionPlan: "flex",
-                        credits: 5,
-                        unlockedContacts: [],
-                        socialLinks: { spotify: "", youtube: "", instagram: "" },
-                        photos: [],
-                        videos: [],
-                        audio: [],
-                        creatorId: registered.id
-                    };
-                    this.musicians.push(newMusician);
-                    localStorage.setItem('GigConnAct_musicians', JSON.stringify(this.musicians));
-                }
-            } else if (registered.role === "organizer") {
-                const profileExists = this.events.some(e => e.creatorId === registered.id || (e.email && e.email.toLowerCase() === email.toLowerCase()));
-                if (!profileExists) {
-                    const newEvent = {
-                        id: registered.profileId || ("evt_" + registered.id),
-                        name: "Demo Veranstaltung",
-                        type: "Geburtstag",
-                        eventTypes: ["Geburtstag"],
-                        date: "2026-08-15",
-                        dates: ["2026-08-15"],
-                        location: "München",
-                        locations: ["München"],
-                        genres: ["Pop", "Rock"],
-                        instruments: ["Gesang", "Akustikgitarre"],
-                        minDuration: 2.0,
-                        maxDuration: 4.0,
-                        duration: 4.0,
-                        minPublikum: 50,
-                        maxPublikum: 150,
-                        publikum: "50 - 150",
-                        minBudget: 300,
-                        maxBudget: 800,
-                        description: "Private Feier in München. Wir suchen einen netten Live-Act.",
-                        technik: ["Technik ist noch unklar"],
-                        company: registered.company || "Privatperson",
-                        organizerType: registered.organizerType || "Privater Veranstalter",
-                        contactName: `${registered.firstName} ${registered.lastName}`,
-                        phone: registered.phone,
-                        email: registered.email,
-                        isOnline: true,
-                        creatorId: registered.id
-                    };
-                    this.events.push(newEvent);
-                    localStorage.setItem('GigConnAct_events', JSON.stringify(this.events));
-                }
-            }
-
-            this.currentUser = {
-                id: registered.id,
-                role: registered.role,
-                firstName: registered.firstName,
-                lastName: registered.lastName,
-                company: registered.company || "Privatperson",
-                phone: registered.phone,
-                email: registered.email,
-                isPremium: true,
-                subscriptionPlan: registered.role === "musician" ? (registered.subscriptionPlan || "flex") : "",
-                subscriptionCancelled: registered.role === "musician" ? (registered.subscriptionCancelled || false) : false,
-                credits: registered.role === "musician" ? (registered.credits !== undefined ? registered.credits : 5) : 0,
-                unlockedContacts: registered.unlockedContacts || [],
-                profileId: registered.profileId,
-                successfulGigs: registered.successfulGigs || 0,
-                contactRequests: registered.contactRequests || 0
-            };
-            this.notify();
-            return { success: true, user: this.currentUser };
-        }
-
-        return { success: false, message: "Ungültige E-Mail-Adresse oder Passwort. Für Demo-Accounts nutze 'pass123' als Passwort." };
+        this.currentUser.favorites = favs;
+        db.collection('users').doc(this.currentUser.id).update({ favorites: favs })
+            .catch(err => console.error("toggleFavorite failed:", err));
     }
 
-    loginPasswordless(email) {
-        const targetEmail = email.toLowerCase();
-        
-        const musician = this.musicians.find(m => m.email && m.email.toLowerCase() === targetEmail);
-        if (musician) {
-            this.currentUser = {
-                id: musician.id,
-                role: "musician",
-                firstName: musician.contactName ? (musician.contactName.split(" ")[0] || "Musiker") : "Musiker",
-                lastName: musician.contactName ? (musician.contactName.split(" ")[1] || "") : "",
-                company: "Privatperson",
-                phone: musician.phone,
-                email: musician.email,
-                isPremium: true,
-                subscriptionPlan: musician.subscriptionPlan || "flex",
-                subscriptionCancelled: musician.subscriptionCancelled || false,
-                credits: musician.credits !== undefined ? musician.credits : 5,
-                unlockedContacts: musician.unlockedContacts || [],
-                profileId: musician.id,
-                successfulGigs: 3,
-                contactRequests: 5
-            };
-            this.notify();
-            return { success: true, user: this.currentUser };
-        }
-
-        const event = this.events.find(e => e.email && e.email.toLowerCase() === targetEmail);
-        if (event) {
-            this.currentUser = {
-                id: event.creatorId,
-                role: "organizer",
-                firstName: event.contactName ? (event.contactName.split(" ")[0] || "Veranstalter") : "Veranstalter",
-                lastName: event.contactName ? (event.contactName.split(" ")[1] || "") : "",
-                company: "Privatperson",
-                phone: event.phone,
-                email: event.email,
-                isPremium: true,
-                profileId: event.creatorId,
-                successfulGigs: 1,
-                contactRequests: 2
-            };
-            this.notify();
-            return { success: true, user: this.currentUser };
-        }
-
-        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-        const registered = registeredUsers.find(u => u.email && u.email.toLowerCase() === targetEmail);
-        if (registered) {
-            // Repair missing profiles dynamically
-            if (registered.role === "musician") {
-                const profileExists = this.musicians.some(m => m.id === registered.profileId || m.creatorId === registered.id || (m.email && m.email.toLowerCase() === targetEmail));
-                if (!profileExists) {
-                    const newMusician = {
-                        id: registered.profileId || ("mus_" + registered.id),
-                        name: "Demo Musiker",
-                        bluffName: "Akustik-Solo-Künstler",
-                        type: "Solo",
-                        location: "München",
-                        locations: ["München"],
-                        radius: 100,
-                        genres: ["Pop", "Rock"],
-                        instruments: ["Gesang", "Akustikgitarre"],
-                        minDuration: 1,
-                        maxDuration: 3,
-                        minBudget: 150,
-                        maxBudget: 1000,
-                        eventTypes: ["Geburtstag", "Sommerfest"],
-                        availability: ["Friday", "Saturday"],
-                        minPublikum: 0,
-                        maxPublikum: 500,
-                        description: "Professioneller Solo-Künstler für Events aller Art.",
-                        technik: ["Technik vorhanden"],
-                        company: registered.company || "Privatperson",
-                        contactName: `${registered.firstName} ${registered.lastName}`,
-                        phone: registered.phone,
-                        email: registered.email,
-                        isPremium: registered.isPremium,
-                        subscriptionPlan: "flex",
-                        credits: 5,
-                        unlockedContacts: [],
-                        socialLinks: { spotify: "", youtube: "", instagram: "" },
-                        photos: [],
-                        videos: [],
-                        audio: [],
-                        creatorId: registered.id
-                    };
-                    this.musicians.push(newMusician);
-                    localStorage.setItem('GigConnAct_musicians', JSON.stringify(this.musicians));
-                }
-            } else if (registered.role === "organizer") {
-                const profileExists = this.events.some(e => e.creatorId === registered.id || (e.email && e.email.toLowerCase() === targetEmail));
-                if (!profileExists) {
-                    const newEvent = {
-                        id: registered.profileId || ("evt_" + registered.id),
-                        name: "Demo Veranstaltung",
-                        type: "Geburtstag",
-                        eventTypes: ["Geburtstag"],
-                        date: "2026-08-15",
-                        dates: ["2026-08-15"],
-                        location: "München",
-                        locations: ["München"],
-                        genres: ["Pop", "Rock"],
-                        instruments: ["Gesang", "Akustikgitarre"],
-                        minDuration: 2.0,
-                        maxDuration: 4.0,
-                        duration: 4.0,
-                        minPublikum: 50,
-                        maxPublikum: 150,
-                        publikum: "50 - 150",
-                        minBudget: 300,
-                        maxBudget: 800,
-                        description: "Private Feier in München. Wir suchen einen netten Live-Act.",
-                        technik: ["Technik ist noch unklar"],
-                        company: registered.company || "Privatperson",
-                        organizerType: registered.organizerType || "Privater Veranstalter",
-                        contactName: `${registered.firstName} ${registered.lastName}`,
-                        phone: registered.phone,
-                        email: registered.email,
-                        isOnline: true,
-                        creatorId: registered.id
-                    };
-                    this.events.push(newEvent);
-                    localStorage.setItem('GigConnAct_events', JSON.stringify(this.events));
-                }
-            }
-
-            this.currentUser = {
-                id: registered.id,
-                role: registered.role,
-                firstName: registered.firstName,
-                lastName: registered.lastName,
-                company: registered.company || "Privatperson",
-                phone: registered.phone,
-                email: registered.email,
-                isPremium: true,
-                subscriptionPlan: registered.role === "musician" ? (registered.subscriptionPlan || "flex") : "",
-                subscriptionCancelled: registered.role === "musician" ? (registered.subscriptionCancelled || false) : false,
-                credits: registered.role === "musician" ? (registered.credits !== undefined ? registered.credits : 5) : 0,
-                unlockedContacts: registered.unlockedContacts || [],
-                profileId: registered.profileId,
-                successfulGigs: registered.successfulGigs || 0,
-                contactRequests: registered.contactRequests || 0
-            };
-            this.notify();
-            return { success: true, user: this.currentUser };
-        }
-
-        return { success: false, code: 'NOT_FOUND', message: "E-Mail-Adresse nicht gefunden." };
+    isFavorite(id) {
+        if (!this.currentUser || !this.currentUser.favorites) return false;
+        return this.currentUser.favorites.includes(id);
     }
 
-    registerOnTheFly(email, role) {
-        const id = role === "musician" ? "mus_" + Date.now() : "org_" + Date.now();
-        const profileId = id;
+    async initiateContact(targetId, targetName, eventId) {
+        if (!this.currentUser) return { success: false, redirectAuth: true };
         
-        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-        const firstName = role === "musician" ? "Demo-Musiker" : "Demo-Veranstalter";
+        const recipientId = eventId || targetId;
+        const senderId = this.currentUser.role === 'musician' 
+            ? (this.activeMusicianId || this.currentUser.profileId) 
+            : (this.activeEventId || this.currentUser.id);
+
+        let chat = this.chats.find(c => 
+            c.participants.includes(senderId) && c.participants.includes(recipientId)
+        );
+
+        const newId = chat ? chat.id : "chat_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+
+        if (!chat) {
+            chat = {
+                id: newId,
+                participants: [senderId, recipientId],
+                messages: [],
+                updatedAt: new Date().toISOString(),
+                initiatorId: senderId
+            };
+            try {
+                await db.collection('chats').doc(newId).set(chat);
+            } catch (err) {
+                console.error("initiateContact failed to create chat:", err);
+            }
+        }
         
-        const newUser = {
-            id,
-            role,
-            firstName,
-            lastName: "Gast",
-            company: "Privatperson",
-            organizerType: role === "organizer" ? "Privater Veranstalter" : "",
-            phone: "+49 170 1234567",
-            email,
-            password: "pass123",
-            isPremium: true,
-            subscriptionPlan: "flex",
-            credits: role === "musician" ? 5 : 0,
-            unlockedContacts: [],
-            profileId,
-            successfulGigs: 0,
-            contactRequests: 0
+        const newContactRequests = (this.currentUser.contactRequests || 0) + 1;
+        try {
+            await db.collection('users').doc(this.currentUser.id).update({
+                contactRequests: newContactRequests
+            });
+        } catch (err) {
+            console.error("initiateContact failed to update user requests:", err);
+        }
+
+        return { success: true, chatId: newId };
+    }
+
+    async addSystemNotification(recipientId, text) {
+        let chat = this.chats.find(c => c.participants.includes(recipientId) && c.participants.includes("system"));
+        const newId = chat ? chat.id : "chat_sys_" + Math.random().toString(36).substr(2, 9);
+        
+        const newMessage = {
+            senderId: "system",
+            text,
+            timestamp: new Date().toISOString()
         };
-        registeredUsers.push(newUser);
-        localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
 
-        if (role === "musician") {
+        if (!chat) {
+            chat = {
+                id: newId,
+                participants: [recipientId, "system"],
+                messages: [newMessage],
+                updatedAt: new Date().toISOString()
+            };
+            try {
+                await db.collection('chats').doc(newId).set(chat);
+            } catch (err) {
+                console.error("addSystemNotification failed to create chat:", err);
+            }
+        } else {
+            const updatedMessages = [...chat.messages, newMessage];
+            try {
+                await db.collection('chats').doc(newId).update({
+                    messages: updatedMessages,
+                    updatedAt: new Date().toISOString()
+                });
+            } catch (err) {
+                console.error("addSystemNotification failed to update chat:", err);
+            }
+        }
+        
+        this.readChats = this.readChats.filter(id => id !== newId);
+        
+        const user = this.currentUser;
+        if (user) {
+            if (typeof window.addMockEmail === 'function') {
+                window.addMockEmail(
+                    `Systembenachrichtigung: ${text.length > 40 ? text.substring(0, 40) + '...' : text}`,
+                    `GigConnAct System <system@gigconnact.de>`,
+                    `Hallo ${user.firstName},\n\ndu hast eine neue Systembenachrichtigung in deinem GigConnAct-Postfach erhalten:\n\n"${text}"`
+                );
+            }
+        }
+    }
+
+    getInitialChats() {
+        return [
+            {
+                id: "chat_demo_1",
+                participants: ["mus_1", "org_1"],
+                messages: [
+                    { senderId: "org_1", text: "Hallo! Wir finden euren Sound absolut genial. Hätten ihr Zeit, bei unserer Hochzeit zu spielen?", timestamp: "2026-07-12T14:30:00Z" },
+                    { senderId: "mus_1", text: "Hallo Julia! Vielen Dank für die Anfrage. Der 15. August 2026 passt uns super. Welche Art von Songs wünscht ihr euch?", timestamp: "2026-07-12T15:15:00Z" },
+                    { senderId: "org_1", text: "Hauptsächlich Pop-Cover für die Party am Abend und etwas Ruhiges für den Sektempfang. Das Budget liegt bei ca. 800-1000 EUR.", timestamp: "2026-07-12T16:00:00Z" }
+                ],
+                updatedAt: "2026-07-12T16:00:00Z"
+            }
+        ];
+    }
+
+    async loginAsDemoUser(email) {
+        const snapshot = await db.collection('users').where('email', '==', email.toLowerCase()).limit(1).get();
+        if (!snapshot.empty) {
+            this.currentUser = snapshot.docs[0].data();
+            if (this.currentUser.role === 'musician') {
+                this.activeMusicianId = this.currentUser.profileId || null;
+            } else {
+                this.activeEventId = this.events.find(e => e.creatorId === this.currentUser.id)?.id || null;
+            }
+            this.notify();
+            return { success: true };
+        } else {
+            const mockUid = "demo_" + Date.now();
+            const profileId = "mus_" + mockUid;
+            const newUser = {
+                id: mockUid,
+                role: 'musician',
+                firstName: 'Demo-Musiker',
+                lastName: 'Gast',
+                company: 'Privatperson',
+                phone: '+49 170 1234567',
+                email: email,
+                profileId: profileId,
+                isPremium: true,
+                credits: 5,
+                unlockedContacts: [],
+                successfulGigs: 0,
+                contactRequests: 0,
+                favorites: [],
+                interests: []
+            };
+            await db.collection('users').doc(mockUid).set(newUser);
+            
             const newMusician = {
                 id: profileId,
                 name: "Demo Musiker",
@@ -1860,13 +1826,16 @@ class StateManager {
                 minBudget: 150,
                 maxBudget: 1000,
                 eventTypes: ["Geburtstag", "Sommerfest"],
-                availability: ["Friday", "Saturday"],
+                availability: {
+                    friday: { available: true, startTime: '18:00', endTime: '23:59' },
+                    saturday: { available: true, startTime: '00:01', endTime: '23:59' }
+                },
                 minPublikum: 0,
                 maxPublikum: 500,
                 description: "Professioneller Solo-Künstler für Events aller Art.",
                 technik: ["Technik vorhanden"],
                 company: "Privatperson",
-                contactName: `${firstName} Gast`,
+                contactName: "Demo-Musiker Gast",
                 phone: "+49 170 1234567",
                 email: email,
                 isPremium: false,
@@ -1877,878 +1846,237 @@ class StateManager {
                 photos: [],
                 videos: [],
                 audio: [],
-                creatorId: id
+                creatorId: mockUid
             };
-            this.musicians.push(newMusician);
-            localStorage.setItem('GigConnAct_musicians', JSON.stringify(this.musicians));
-        } else if (role === "organizer") {
-            const newEvent = {
-                id: profileId,
-                name: "Demo Veranstaltung",
-                type: "Geburtstag",
-                eventTypes: ["Geburtstag"],
-                date: "2026-08-15",
-                dates: ["2026-08-15"],
-                location: "München",
-                locations: ["München"],
-                genres: ["Pop", "Rock"],
-                instruments: ["Gesang", "Akustikgitarre"],
-                minDuration: 2.0,
-                maxDuration: 4.0,
-                duration: 4.0,
-                minPublikum: 50,
-                maxPublikum: 150,
-                publikum: "50 - 150",
-                minBudget: 300,
-                maxBudget: 800,
-                description: "Private Feier in München. Wir suchen einen netten Live-Act.",
-                technik: ["Technik ist noch unklar"],
-                company: "Privatperson",
-                organizerType: "Privater Veranstalter",
-                contactName: `${firstName} Gast`,
-                phone: "+49 170 1234567",
-                email: email,
-                isOnline: true,
-                creatorId: id
-            };
-            this.events.push(newEvent);
-            localStorage.setItem('GigConnAct_events', JSON.stringify(this.events));
+            await db.collection('musicians').doc(profileId).set(newMusician);
+            
+            this.currentUser = newUser;
+            this.notify();
+            return { success: true };
         }
-
-        return this.loginPasswordless(email);
     }
 
-    logout() {
-        this.currentUser = null;
-        this.notify();
-    }
-
-    isUnlocked(targetId) {
-        return !!this.currentUser;
-    }
-
-    hasContactAccess(activeId, targetId) {
-        return !!this.currentUser;
-    }
-
-    unlockContact(targetId) {
-        if (!this.currentUser) return { success: false, message: "Bitte melde dich an." };
-        if (this.currentUser.credits <= 0 && !this.currentUser.isPremium) return { success: false, message: "Nicht genügend Credits." };
+    async registerOnTheFly(email, role) {
+        const mockUid = "demo_" + Date.now();
+        const profileId = role === 'musician' ? 'mus_' + mockUid : 'evt_' + mockUid;
         
-        if (!this.currentUser.isPremium) {
-            this.currentUser.credits -= 1;
-        }
-        
-        if (!this.currentUser.unlockedContacts) this.currentUser.unlockedContacts = [];
-        if (!this.currentUser.unlockedContacts.includes(targetId)) {
-            this.currentUser.unlockedContacts.push(targetId);
-        }
-        
-        // Update registered users
-        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-        const index = registeredUsers.findIndex(u => u.id === this.currentUser.id);
-        if (index !== -1) {
-            registeredUsers[index].credits = this.currentUser.credits;
-            registeredUsers[index].unlockedContacts = this.currentUser.unlockedContacts;
-            localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
-        }
-
-        // Also update musician profile if applicable
-        const musician = this.musicians.find(m => m.id === this.currentUser.profileId);
-        if (musician) {
-            musician.credits = this.currentUser.credits;
-            musician.unlockedContacts = this.currentUser.unlockedContacts;
-        }
-        
-        this.saveState();
-        this.notify();
-        return { success: true };
-    }
-
-    addCredits(amount) {
-        if (!this.currentUser) return;
-        this.currentUser.credits = (this.currentUser.credits || 0) + amount;
-        
-        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-        const index = registeredUsers.findIndex(u => u.id === this.currentUser.id);
-        if (index !== -1) {
-            registeredUsers[index].credits = this.currentUser.credits;
-            localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
-        }
-
-        const musician = this.musicians.find(m => m.id === this.currentUser.profileId);
-        if (musician) {
-            musician.credits = this.currentUser.credits;
-        }
-
-        this.saveState();
-        this.notify();
-    }
-
-    register(payload) {
-        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-        const emailExists = this.musicians.some(m => m.email && m.email.toLowerCase() === payload.email.toLowerCase()) || 
-                            this.events.some(e => e.email && e.email.toLowerCase() === payload.email.toLowerCase()) ||
-                            registeredUsers.some(u => u.email && u.email.toLowerCase() === payload.email.toLowerCase());
-        
-        if (emailExists) {
-            return { success: false, message: "Diese E-Mail-Adresse wird bereits verwendet." };
-        }
-
-        const id = "usr_" + Math.random().toString(36).substr(2, 9);
-        const profileId = payload.role === "musician" ? "mus_" + id : "evt_" + id;
-
         const newUser = {
-            id,
-            role: payload.role,
-            firstName: payload.firstName,
-            lastName: payload.lastName,
-            company: payload.company || "Privatperson",
-            organizerType: payload.organizerType || "",
-            phone: payload.phone,
-            hidePhone: payload.hidePhone || false,
-            email: payload.email,
-            password: payload.password,
-            profileId,
-            isVerified: false,
-            isPremium: payload.role === "musician" ? payload.sepaConsent : true,
-            successfulGigs: 0,
-            contactRequests: 0,
-            rawData: payload
-        };
-
-        localStorage.setItem('GigConnAct_pending_user', JSON.stringify(newUser));
-        return { success: true, user: newUser };
-    }
-
-    confirmEmail() {
-        const pending = localStorage.getItem('GigConnAct_pending_user');
-        if (!pending) return { success: false, message: "Keine ausstehende Registrierung gefunden." };
-
-        const user = JSON.parse(pending);
-        user.isVerified = true;
-
-        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-        registeredUsers.push({
-            id: user.id,
-            role: user.role,
-            email: user.email,
-            password: user.password,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            company: user.company || "Privatperson",
-            organizerType: user.organizerType || "",
-            phone: user.phone,
-            hidePhone: user.hidePhone || false,
-            profileId: user.profileId,
-            isPremium: user.isPremium,
-            credits: user.role === "musician" ? 5 : 0,
+            id: mockUid,
+            role: role,
+            firstName: role === 'musician' ? 'Demo-Musiker' : 'Demo-Veranstalter',
+            lastName: 'Gast',
+            company: 'Privatperson',
+            organizerType: role === 'organizer' ? 'Privater Veranstalter' : '',
+            phone: '+49 170 1234567',
+            email: email,
+            profileId: profileId,
+            isPremium: true,
+            credits: role === 'musician' ? 5 : 0,
             unlockedContacts: [],
             successfulGigs: 0,
-            contactRequests: 0
-        });
-        localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+            contactRequests: 0,
+            favorites: [],
+            interests: []
+        };
 
-        if (user.role === "musician") {
-            const data = user.rawData;
-            const newMusician = {
-                id: user.profileId,
-                name: data.bandName,
-                bluffName: `Anonyme/r ${data.musicianType} (${data.genres[0] || 'Musik'})`,
-                type: data.musicianType,
-                location: data.locations ? data.locations.join(', ') : (data.location || 'München'),
-                locations: data.locations || [data.location || 'München'],
-                radius: parseInt(data.radius) || 50,
-                genres: data.genres,
-                instruments: data.instruments,
-                minDuration: parseFloat(data.minDuration) || 1,
-                maxDuration: parseFloat(data.maxDuration) || 3,
-                minBudget: parseFloat(data.minBudget) || 150,
-                maxBudget: parseFloat(data.maxBudget) || 1000,
-                eventTypes: data.eventTypes,
-                availability: data.availability,
-                minPublikum: parseInt(data.minPublikum) || 0,
-                maxPublikum: parseInt(data.maxPublikum) || 500,
-                description: data.description,
-                technik: data.technik || ["Technik ist noch unklar"],
-                company: user.company || "Privatperson",
-                contactName: `${user.firstName} ${user.lastName}`,
-                phone: user.phone,
-                hidePhone: data.hidePhone || false,
-                email: user.email,
-                isPremium: user.isPremium,
-                subscriptionPlan: data.subscriptionPlan || "flex",
-                credits: 5,
-                unlockedContacts: [],
-                socialLinks: { spotify: "", youtube: "", instagram: "" },
-                photos: data.photos || (data.photoUrl ? [data.photoUrl] : []),
-                videos: data.videos || (data.videoUrl ? [data.videoUrl] : []),
-                audio: [],
-                creatorId: user.id
-            };
-            this.musicians.push(newMusician);
-        } else if (user.role === "organizer") {
-            const data = user.rawData;
-            const newEvent = {
-                id: user.profileId,
-                name: data.eventName,
-                type: data.orgEventTypes ? data.orgEventTypes[0] : "",
-                eventTypes: data.orgEventTypes || [],
-                date: data.eventDates ? data.eventDates[0] : "",
-                dates: data.eventDates || [],
-                eventStartTime: data.eventStartTime || "18:00",
-                eventEndTime: data.eventEndTime || "22:00",
-                location: data.orgLocations ? data.orgLocations.join(', ') : "",
-                locations: data.orgLocations || [],
-                genres: data.orgGenres || [],
-                instruments: data.orgInstruments || [],
-                minDuration: parseFloat(data.orgMinDuration) || 0.5,
-                maxDuration: parseFloat(data.orgMaxDuration) || 2.0,
-                duration: parseFloat(data.orgMaxDuration) || 2.0,
-                minPublikum: parseInt(data.orgMinPublikum) || 0,
-                maxPublikum: parseInt(data.orgMaxPublikum) || 500,
-                publikum: `${data.orgMinPublikum || 0} - ${data.orgMaxPublikum || 500}`,
-                minBudget: parseFloat(data.orgMinBudget) || 0,
-                maxBudget: parseFloat(data.orgMaxBudget) || 5000,
-                description: data.orgDescription,
-                technik: data.technik || ["Technik ist noch unklar"],
-                company: user.company || "Privatperson",
-                organizerType: data.organizerType || "",
-                contactName: `${user.firstName} ${user.lastName}`,
-                phone: user.phone,
-                hidePhone: data.hidePhone || false,
-                email: user.email,
-                isOnline: true,
-                photos: data.photos || (data.photoUrl ? [data.photoUrl] : []),
-                videos: data.videos || (data.videoUrl ? [data.videoUrl] : []),
-                creatorId: user.id
-            };
-            this.events.push(newEvent);
+        try {
+            await db.collection('users').doc(mockUid).set(newUser);
+            
+            if (role === 'musician') {
+                const newMusician = {
+                    id: profileId,
+                    name: "Demo Musiker",
+                    bluffName: "Akustik-Solo-Künstler",
+                    type: "Solo",
+                    location: "München",
+                    locations: ["München"],
+                    radius: 100,
+                    genres: ["Pop", "Rock"],
+                    instruments: ["Gesang", "Akustikgitarre"],
+                    minDuration: 1,
+                    maxDuration: 3,
+                    minBudget: 150,
+                    maxBudget: 1000,
+                    eventTypes: ["Geburtstag", "Sommerfest"],
+                    availability: {
+                        friday: { available: true, startTime: '18:00', endTime: '23:59' },
+                        saturday: { available: true, startTime: '00:01', endTime: '23:59' }
+                    },
+                    minPublikum: 0,
+                    maxPublikum: 500,
+                    description: "Professioneller Solo-Künstler für Events aller Art.",
+                    technik: ["Technik vorhanden"],
+                    company: "Privatperson",
+                    contactName: "Demo-Musiker Gast",
+                    phone: "+49 170 1234567",
+                    email: email,
+                    isPremium: false,
+                    subscriptionPlan: "flex",
+                    credits: 5,
+                    unlockedContacts: [],
+                    socialLinks: { spotify: "", youtube: "", instagram: "" },
+                    photos: [],
+                    videos: [],
+                    audio: [],
+                    creatorId: mockUid
+                };
+                await db.collection('musicians').doc(profileId).set(newMusician);
+            } else {
+                const newEvent = {
+                    id: profileId,
+                    name: "Demo Veranstaltung",
+                    type: "Geburtstag",
+                    eventTypes: ["Geburtstag"],
+                    date: "2026-08-15",
+                    dates: ["2026-08-15"],
+                    location: "München",
+                    locations: ["München"],
+                    genres: ["Pop", "Rock"],
+                    instruments: ["Gesang", "Akustikgitarre"],
+                    minDuration: 2.0,
+                    maxDuration: 4.0,
+                    duration: 4.0,
+                    minPublikum: 50,
+                    maxPublikum: 150,
+                    publikum: "50 - 150",
+                    minBudget: 300,
+                    maxBudget: 800,
+                    description: "Private Feier in München. Wir suchen einen netten Live-Act.",
+                    technik: ["Technik ist noch unklar"],
+                    company: "Privatperson",
+                    organizerType: "Privater Veranstalter",
+                    contactName: "Demo-Veranstalter Gast",
+                    phone: "+49 170 1234567",
+                    email: email,
+                    isOnline: true,
+                    creatorId: mockUid
+                };
+                await db.collection('events').doc(profileId).set(newEvent);
+            }
+            this.currentUser = newUser;
+            this.notify();
+            return { success: true };
+        } catch (err) {
+            console.error("registerOnTheFly failed:", err);
+            return { success: false, message: err.message };
         }
+    }
 
-        this.currentUser = {
-            id: user.id,
-            role: user.role,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            company: user.company || "Privatperson",
-            organizerType: user.organizerType || "",
-            eventStartTime: user.role === "organizer" ? (user.rawData?.eventStartTime || "18:00") : undefined,
-            eventEndTime: user.role === "organizer" ? (user.rawData?.eventEndTime || "22:00") : undefined,
-            phone: user.phone,
-            hidePhone: user.hidePhone || false,
-            email: user.email,
-            isPremium: user.isPremium,
-            profileId: user.profileId,
+    async confirmPendingRegistration() {
+        const pendingRegStr = window.localStorage.getItem('GigConnAct_pending_registration');
+        const pendingReg = pendingRegStr ? JSON.parse(pendingRegStr) : null;
+        if (!pendingReg) return { success: false, message: "Keine ausstehende Registrierung gefunden." };
+
+        const email = pendingReg.email.toLowerCase();
+        // Create user in users and musicians/events
+        const mockUid = "demo_" + Date.now();
+        const profileId = pendingReg.role === 'musician' ? 'mus_' + mockUid : 'evt_' + mockUid;
+
+        const newUser = {
+            id: mockUid,
+            role: pendingReg.role,
+            firstName: pendingReg.firstName,
+            lastName: pendingReg.lastName,
+            company: pendingReg.company || "Privatperson",
+            organizerType: pendingReg.organizerType || "",
+            phone: pendingReg.phone,
+            hidePhone: pendingReg.hidePhone || false,
+            email: pendingReg.email,
+            profileId: profileId,
+            isPremium: pendingReg.role === "musician" ? pendingReg.sepaConsent : true,
             successfulGigs: 0,
-            contactRequests: 0
+            contactRequests: 0,
+            favorites: [],
+            interests: []
         };
 
-        localStorage.removeItem('GigConnAct_pending_user');
-        this.notify();
-        return { success: true, user: this.currentUser };
-    }
+        try {
+            await db.collection('users').doc(mockUid).set(newUser);
 
-    getChat(chatId) {
-        return this.chats.find(c => c.id === chatId);
-    }
-
-    getChatsForUser(userId) {
-        return this.chats.filter(c => 
-            c.participants.includes(userId)
-        ).sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-    }
-
-    sendMessage(recipientId, text) {
-        if (!this.currentUser) return { success: false, message: "Bitte melde dich an." };
-        const senderId = this.currentUser.role === 'musician' 
-            ? (this.activeMusicianId || this.currentUser.profileId) 
-            : (this.activeEventId || this.currentUser.id);
-        
-        let chat = this.chats.find(c => 
-            (c.participants.includes(senderId) && c.participants.includes(recipientId))
-        );
-
-        if (!chat) {
-            chat = {
-                id: "chat_" + Math.random().toString(36).substr(2, 9),
-                participants: [senderId, recipientId],
-                messages: [],
-                updatedAt: new Date().toISOString()
-            };
-            this.chats.push(chat);
-        }
-
-        const newMessage = {
-            senderId,
-            text,
-            timestamp: new Date().toISOString()
-        };
-
-        chat.messages.push(newMessage);
-        chat.updatedAt = new Date().toISOString();
-        
-        // Mark as unread for the recipient (remove from read list)
-        this.readChats = this.readChats.filter(id => id !== chat.id);
-
-        // Trigger mock email for sent message
-        const recipientName = this.musicians.find(m => m.id === recipientId)?.name || this.events.find(e => e.creatorId === recipientId)?.contactName || "Musiker/Veranstalter";
-        if (typeof window.addMockEmail === 'function') {
-            window.addMockEmail(
-                `Gesendete Anfrage an ${recipientName}`,
-                `GigConnAct <no-reply@gigconnact.de>`,
-                `Hallo ${this.currentUser.firstName},\n\ndeine Anfrage an ${recipientName} mit folgendem Inhalt wurde erfolgreich übermittelt:\n\n"${text}"`
-            );
-        }
-
-        // Schedule mock reply from counterparty after 3s
-        setTimeout(() => {
-            if (this.currentUser && recipientId !== 'system') {
-                const replies = this.currentUser.role === 'musician'
-                    ? [
-                        "Hi! Das klingt super. Euer Profil gefällt uns sehr gut. Seid ihr an dem gewünschten Termin noch flexibel?",
-                        "Hallo! Vielen Dank für die Anfrage. Wir schauen uns die Details an und melden uns in Kürze wieder bei euch.",
-                        "Guten Tag, danke für die Nachricht. Das Angebot klingt sehr interessant. Könnten wir vorab kurz telefonieren?"
-                      ]
-                    : [
-                        "Hallo! Danke für die Nachricht. Das passt zeitlich perfekt bei uns. Wann können wir die Einzelheiten besprechen?",
-                        "Hi! Eure Anfrage freut uns sehr. Wir haben großes Interesse. Welche Liedwünsche habt ihr denn?",
-                        "Vielen Dank für die Anfrage. Wir sind an diesem Tag verfügbar und würden uns freuen, bei eurem Event zu spielen."
-                      ];
-                const randomReply = replies[Math.floor(Math.random() * replies.length)];
-                this.receiveMessage(recipientId, senderId, randomReply);
-                
-                // Push notifications disabled per user request
-                /*
-                if (typeof showToast === 'function') {
-                    showToast({
-                        title: "Neue Nachricht erhalten! âœ‰ï¸",
-                        message: `Antwort von ${recipientName} im Postfach.`
-                    });
-                }
-                */
+            if (pendingReg.role === 'musician') {
+                const newMusician = {
+                    id: profileId,
+                    name: pendingReg.bandName,
+                    bluffName: `Anonyme/r ${pendingReg.musicianType} (${pendingReg.genres[0] || 'Musik'})`,
+                    type: pendingReg.musicianType,
+                    location: pendingReg.locations ? pendingReg.locations.join(', ') : (pendingReg.location || 'München'),
+                    locations: pendingReg.locations || [pendingReg.location || 'München'],
+                    radius: parseInt(pendingReg.radius) || 50,
+                    genres: pendingReg.genres,
+                    instruments: pendingReg.instruments,
+                    minDuration: parseFloat(pendingReg.minDuration) || 1,
+                    maxDuration: parseFloat(pendingReg.maxDuration) || 3,
+                    minBudget: parseFloat(pendingReg.minBudget) || 150,
+                    maxBudget: parseFloat(pendingReg.maxBudget) || 1000,
+                    eventTypes: pendingReg.eventTypes,
+                    availability: pendingReg.availability,
+                    minPublikum: parseInt(pendingReg.minPublikum) || 0,
+                    maxPublikum: parseInt(pendingReg.maxPublikum) || 500,
+                    description: pendingReg.description,
+                    technik: pendingReg.technik || ["Technik ist noch unklar"],
+                    company: newUser.company || "Privatperson",
+                    contactName: `${newUser.firstName} ${newUser.lastName}`,
+                    phone: newUser.phone,
+                    hidePhone: pendingReg.hidePhone || false,
+                    email: newUser.email,
+                    isPremium: newUser.isPremium,
+                    subscriptionPlan: pendingReg.subscriptionPlan || "flex",
+                    credits: 5,
+                    unlockedContacts: [],
+                    socialLinks: { spotify: "", youtube: "", instagram: "" },
+                    photos: pendingReg.photos || [],
+                    videos: pendingReg.videos || [],
+                    audio: [],
+                    creatorId: mockUid
+                };
+                await db.collection('musicians').doc(profileId).set(newMusician);
+            } else {
+                const newEvent = {
+                    id: profileId,
+                    name: pendingReg.eventName,
+                    type: pendingReg.orgEventTypes ? pendingReg.orgEventTypes[0] : "",
+                    eventTypes: pendingReg.orgEventTypes || [],
+                    date: pendingReg.eventDates ? pendingReg.eventDates[0] : "",
+                    dates: pendingReg.eventDates || [],
+                    eventStartTime: pendingReg.eventStartTime || "18:00",
+                    eventEndTime: pendingReg.eventEndTime || "22:00",
+                    location: pendingReg.orgLocations ? pendingReg.orgLocations.join(', ') : "",
+                    locations: pendingReg.orgLocations || [],
+                    genres: pendingReg.orgGenres || [],
+                    instruments: pendingReg.orgInstruments || [],
+                    minDuration: parseFloat(pendingReg.orgMinDuration) || 2.0,
+                    maxDuration: parseFloat(pendingReg.orgMaxDuration) || 4.0,
+                    duration: parseFloat(pendingReg.orgMinDuration) || 2.0,
+                    minPublikum: parseInt(pendingReg.orgMinPublikum) || 50,
+                    maxPublikum: parseInt(pendingReg.orgMaxPublikum) || 150,
+                    publikum: `${pendingReg.orgMinPublikum || 50} - ${pendingReg.orgMaxPublikum || 150}`,
+                    minBudget: parseFloat(pendingReg.orgMinBudget) || 300,
+                    maxBudget: parseFloat(pendingReg.orgMaxBudget) || 800,
+                    budget: parseFloat(pendingReg.orgMinBudget) || 300,
+                    description: pendingReg.orgDescription || "",
+                    technik: pendingReg.technik || ["Technik ist noch unklar"],
+                    company: newUser.company || "Privatperson",
+                    organizerType: newUser.organizerType || "Privater Veranstalter",
+                    contactName: `${newUser.firstName} ${newUser.lastName}`,
+                    phone: newUser.phone,
+                    hidePhone: pendingReg.hidePhone || false,
+                    email: newUser.email,
+                    isOnline: true,
+                    creatorId: mockUid
+                };
+                await db.collection('events').doc(profileId).set(newEvent);
             }
-        }, 3000);
-        
-        this.notify();
-        return { success: true, chat };
-    }
-
-    receiveMessage(senderId, recipientId, text) {
-        let chat = this.chats.find(c => 
-            (c.participants.includes(senderId) && c.participants.includes(recipientId))
-        );
-        if (!chat) return;
-
-        const newMessage = {
-            senderId,
-            text,
-            timestamp: new Date().toISOString()
-        };
-        chat.messages.push(newMessage);
-        chat.updatedAt = new Date().toISOString();
-        
-        this.readChats = this.readChats.filter(id => id !== chat.id);
-        
-        const user = this.currentUser;
-        if (user && (user.id === recipientId || user.profileId === recipientId)) {
-            const senderName = this.musicians.find(m => m.id === senderId)?.name || this.events.find(e => e.creatorId === senderId)?.contactName || "Musiker/Veranstalter";
-            if (typeof window.addMockEmail === 'function') {
-                window.addMockEmail(
-                    `Neue Anfrage von ${senderName}`,
-                    `${senderName} via GigConnAct <no-reply@gigconnact.de>`,
-                    `Hallo ${user.firstName},\n\ndu hast eine neue Nachricht von ${senderName} erhalten:\n\n"${text}"\n\nLogge dich bei GigConnAct ein, um direkt im Postfach zu antworten.`
-                );
-            }
-        }
-        
-        this.notify();
-        
-        if (window.location.hash.includes('postbox') && typeof window.handleRouting === 'function') {
-            window.handleRouting();
-        }
-    }
-
-    initiateContact(targetId, targetName, eventId) {
-        if (!this.currentUser) return { success: false, redirectAuth: true };
-        
-        const recipientId = eventId || targetId;
-        const senderId = this.currentUser.role === 'musician' 
-            ? (this.activeMusicianId || this.currentUser.profileId) 
-            : (this.activeEventId || this.currentUser.id);
-
-        let chat = this.chats.find(c => 
-            c.participants.includes(senderId) && c.participants.includes(recipientId)
-        );
-
-        if (!chat) {
-            chat = {
-                id: "chat_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
-                participants: [senderId, recipientId],
-                messages: [],
-                updatedAt: new Date().toISOString(),
-                initiatorId: senderId
-            };
-            this.chats.push(chat);
-        }
-        
-        this.currentUser.contactRequests = (this.currentUser.contactRequests || 0) + 1;
-        this.notify();
-
-        return { success: true, chatId: chat.id };
-    }
-
-    addSystemNotification(recipientId, text) {
-        let chat = this.chats.find(c => c.participants.includes(recipientId) && c.participants.includes("system"));
-        if (!chat) {
-            chat = {
-                id: "chat_sys_" + Math.random().toString(36).substr(2, 9),
-                participants: [recipientId, "system"],
-                messages: [],
-                updatedAt: new Date().toISOString()
-            };
-            this.chats.push(chat);
-        }
-        
-        chat.messages.push({
-            senderId: "system",
-            text,
-            timestamp: new Date().toISOString()
-        });
-        chat.updatedAt = new Date().toISOString();
-
-        // Mark as unread
-        this.readChats = this.readChats.filter(id => id !== chat.id);
-
-        // Add to email preview
-        const user = this.currentUser;
-        if (user) {
-            if (typeof window.addMockEmail === 'function') {
-                window.addMockEmail(
-                    `Systembenachrichtigung: ${text.length > 40 ? text.substring(0, 40) + '...' : text}`,
-                    `GigConnAct System <system@gigconnact.de>`,
-                    `Hallo ${user.firstName},\n\ndu hast eine neue Systembenachrichtigung in deinem GigConnAct-Postfach erhalten:\n\n"${text}"`
-                );
-            }
-        }
-
-        this.notify();
-    }
-
-    markChatAsRead(chatId) {
-        if (!this.readChats.includes(chatId)) {
-            this.readChats.push(chatId);
-            this.notify();
-        }
-    }
-
-    getUnreadCount() {
-        if (!this.currentUser) return 0;
-        let myProfileIds = [];
-        if (this.currentUser.role === 'musician') {
-            myProfileIds = this.musicians.filter(m => m.creatorId === this.currentUser.id || m.id === this.currentUser.profileId).map(m => m.id);
-            if (this.currentUser.profileId && !myProfileIds.includes(this.currentUser.profileId)) {
-                myProfileIds.push(this.currentUser.profileId);
-            }
-        } else {
-            myProfileIds = this.events.filter(e => e.creatorId === this.currentUser.id).map(e => e.id);
-            if (this.currentUser.id && !myProfileIds.includes(this.currentUser.id)) {
-                myProfileIds.push(this.currentUser.id);
-            }
-        }
-        
-        const myChats = this.chats.filter(c => c.participants.some(p => myProfileIds.includes(p)));
-        
-        return myChats.filter(c => {
-            if (this.readChats.includes(c.id)) return false;
-            if (c.messages.length === 0) return false;
-            const lastMsg = c.messages[c.messages.length - 1];
-            return !myProfileIds.includes(lastMsg.senderId);
-        }).length;
-    }
-
-    updateProfilePicture(dataUrl) {
-        if (!this.currentUser) return;
-        const profileId = this.currentUser.profileId;
-        
-        if (this.currentUser.role === 'musician') {
-            const musician = this.musicians.find(m => m.id === profileId);
-            if (musician) {
-                musician.profilePic = dataUrl;
-            }
-        } else {
-            const event = this.events.find(e => e.creatorId === this.currentUser.id);
-            if (event) {
-                event.profilePic = dataUrl;
-            }
-        }
-        this.notify();
-    }
-
-    incrementSuccessfulGigs() {
-        if (!this.currentUser) return;
-        this.currentUser.successfulGigs = (this.currentUser.successfulGigs || 0) + 1;
-        
-        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-        const index = registeredUsers.findIndex(u => u.id === this.currentUser.id);
-        if (index !== -1) {
-            registeredUsers[index].successfulGigs = this.currentUser.successfulGigs;
-            localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
-        }
-
-        this.notify();
-    }
-
-    updateProfile(updatedData) {
-        if (!this.currentUser) return { success: false };
-        
-        // Update current user
-        this.currentUser.firstName = updatedData.firstName;
-        this.currentUser.lastName = updatedData.lastName;
-        this.currentUser.company = updatedData.company || "Privatperson";
-        this.currentUser.organizerType = updatedData.organizerType || "";
-        this.currentUser.phone = updatedData.phone;
-        this.currentUser.hidePhone = updatedData.hidePhone || false;
-        this.currentUser.email = updatedData.email;
-        
-        // Update user storage
-        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-        const index = registeredUsers.findIndex(u => u.id === this.currentUser.id);
-        if (index !== -1) {
-            registeredUsers[index].firstName = this.currentUser.firstName;
-            registeredUsers[index].lastName = this.currentUser.lastName;
-            registeredUsers[index].company = this.currentUser.company;
-            registeredUsers[index].organizerType = this.currentUser.organizerType;
-            registeredUsers[index].phone = this.currentUser.phone;
-            registeredUsers[index].hidePhone = this.currentUser.hidePhone;
-            registeredUsers[index].email = this.currentUser.email;
-            if (updatedData.password) {
-                registeredUsers[index].password = updatedData.password;
-            }
-            localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
-        }
-
-        // Also update contact details on their created musicians and events!
-        this.musicians.forEach(m => {
-            if (m.creatorId === this.currentUser.id) {
-                m.company = this.currentUser.company;
-                m.contactName = `${this.currentUser.firstName} ${this.currentUser.lastName}`;
-                m.phone = this.currentUser.phone;
-                m.hidePhone = this.currentUser.hidePhone;
-                m.email = this.currentUser.email;
-            }
-        });
-        this.events.forEach(e => {
-            if (e.creatorId === this.currentUser.id) {
-                e.company = this.currentUser.company;
-                e.organizerType = this.currentUser.organizerType || "";
-                e.contactName = `${this.currentUser.firstName} ${this.currentUser.lastName}`;
-                e.phone = this.currentUser.phone;
-                e.hidePhone = this.currentUser.hidePhone;
-                e.email = this.currentUser.email;
-            }
-        });
-        
-        this.saveState();
-        this.notify();
-        return { success: true };
-    }
-
-    deleteAccount() {
-        if (!this.currentUser) return { success: false };
-        const userId = this.currentUser.id;
-        
-        // 1. Delete user's musician profiles
-        this.musicians = this.musicians.filter(m => m.creatorId !== userId);
-        
-        // 2. Delete user's event profiles
-        this.events = this.events.filter(e => e.creatorId !== userId);
-        
-        // 3. Delete user's chats
-        this.chats = this.chats.filter(c => !c.participants.includes(userId));
-        
-        // 4. Delete user from registered users database
-        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-        const updatedUsers = registeredUsers.filter(u => u.id !== userId);
-        localStorage.setItem('GigConnAct_registered_users', JSON.stringify(updatedUsers));
-        
-        // 5. Logout current user
-        this.currentUser = null;
-        
-        this.saveState();
-        this.notify();
-        return { success: true };
-    }
-
-    addEvent(eventData) {
-        if (!this.currentUser) return { success: false };
-        const newEvent = {
-            id: 'evt_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-            creatorId: this.currentUser.id,
-            createdAt: new Date().toISOString(),
-            ...eventData
-        };
-        this.events.push(newEvent);
-        this.saveState();
-        this.notify();
-        return { success: true, event: newEvent };
-    }
-
-    updateEvent(eventId, updatedData) {
-        const event = this.events.find(e => e.id === eventId);
-        if (event) {
-            Object.assign(event, updatedData);
-            this.saveState();
+            window.localStorage.removeItem('GigConnAct_pending_registration');
+            this.currentUser = newUser;
             this.notify();
             return { success: true };
+        } catch (err) {
+            console.error("confirmPendingRegistration failed:", err);
+            return { success: false, message: err.message };
         }
-        return { success: false };
-    }
-
-    deleteEvent(eventId) {
-        const index = this.events.findIndex(e => e.id === eventId);
-        if (index !== -1) {
-            this.events.splice(index, 1);
-            this.saveState();
-            this.notify();
-            return { success: true };
-        }
-        return { success: false };
-    }
-
-    markMusicianFound(eventId) {
-        const event = this.events.find(e => e.id === eventId);
-        if (event) {
-            event.musicianFound = true;
-            const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-            const creator = registeredUsers.find(u => u.id === event.creatorId);
-            if (creator) {
-                creator.successfulGigs = (creator.successfulGigs || 0) + 1;
-                localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
-            }
-            if (this.currentUser && this.currentUser.id === event.creatorId) {
-                this.currentUser.successfulGigs = (this.currentUser.successfulGigs || 0) + 1;
-            }
-            this.saveState();
-            this.notify();
-            return { success: true };
-        }
-        return { success: false, message: 'Event nicht gefunden' };
-    }
-
-    markEventCanceled(eventId) {
-        const event = this.events.find(e => e.id === eventId);
-        if (event) {
-            event.isCanceled = true;
-            this.saveState();
-            this.notify();
-            return { success: true };
-        }
-        return { success: false };
-    }
- 
-    reactivateEvent(eventId) {
-        const event = this.events.find(e => e.id === eventId);
-        if (event) {
-            event.isCanceled = false;
-            event.musicianFound = false;
-            this.saveState();
-            this.notify();
-            return { success: true };
-        }
-        return { success: false };
-    }
-
-    addMusician(musicianData) {
-        if (!this.currentUser) return { success: false };
-        const newMusician = {
-            id: 'mus_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-            creatorId: this.currentUser.id,
-            createdAt: new Date().toISOString(),
-            photos: [],
-            videos: [],
-            audio: [],
-            socialLinks: { spotify: "", youtube: "", instagram: "" },
-            ...musicianData
-        };
-        this.musicians.push(newMusician);
-        this.saveState();
-        this.notify();
-        return { success: true, musician: newMusician };
-    }
-
-    updateMusician(musicianId, updatedData) {
-        const musician = this.musicians.find(m => m.id === musicianId);
-        if (musician) {
-            Object.assign(musician, updatedData);
-            this.saveState();
-            this.notify();
-            return { success: true };
-        }
-        return { success: false };
-    }
-
-    deleteMusician(musicianId) {
-        const index = this.musicians.findIndex(m => m.id === musicianId);
-        if (index !== -1) {
-            this.musicians.splice(index, 1);
-            this.saveState();
-            this.notify();
-            return { success: true };
-        }
-        return { success: false };
-    }
-
-    toggleMusicianActive(musicianId) {
-        const musician = this.musicians.find(m => m.id === musicianId);
-        if (musician) {
-            musician.isActive = musician.isActive === false ? true : false;
-            this.saveState();
-            this.notify();
-            return { success: true, isActive: musician.isActive };
-        }
-    }
-
-    toggleEventActive(eventId) {
-        const event = this.events.find(e => e.id === eventId);
-        if (event) {
-            event.isActive = event.isActive === false ? true : false;
-            this.saveState();
-            this.notify();
-            return { success: true, isActive: event.isActive };
-        }
-        return { success: false };
-    }
-
-    addMusicianApplication(musicianId, eventId) {
-        const musician = this.musicians.find(m => m.id === musicianId);
-        if (musician) {
-            musician.applications = musician.applications || [];
-            if (!musician.applications.some(app => app.eventId === eventId)) {
-                musician.applications.push({ eventId, status: 'contacted' });
-                this.saveState();
-                this.notify();
-            }
-            return { success: true };
-        }
-        return { success: false };
-    }
-
-    setApplicationStatus(musicianId, eventId, status) {
-        const musician = this.musicians.find(m => m.id === musicianId);
-        if (musician && musician.applications) {
-            const app = musician.applications.find(a => a.eventId === eventId);
-            if (app) {
-                app.status = status; // 'contacted' | 'booked' | 'declined'
-                this.saveState();
-                this.notify();
-                return { success: true, status: app.status };
-            }
-        }
-        return { success: false };
-    }
-
-        acceptMusicianRequest(musicianId, eventId) {
-        if (!this.interests) this.interests = [];
-        let interest = this.interests.find(i => i.musicianId === musicianId && i.eventId === eventId);
-        if (!interest) {
-            interest = {
-                musicianId: musicianId,
-                eventId: eventId,
-                musicianInterested: true,
-                organizerInterested: true,
-                musicianNoInterest: false,
-                organizerNoInterest: false
-            };
-            this.interests.push(interest);
-        } else {
-            interest.musicianInterested = true;
-            interest.organizerInterested = true;
-            interest.musicianNoInterest = false;
-            interest.organizerNoInterest = false;
-        }
-        this.setApplicationStatus(musicianId, eventId, 'booked');
-        this.saveState();
-        this.notify();
-        return { success: true };
-    }
-
-    declineMusicianRequest(musicianId, eventId) {
-        if (!this.interests) this.interests = [];
-        let interest = this.interests.find(i => i.musicianId === musicianId && i.eventId === eventId);
-        if (!interest) {
-            interest = {
-                musicianId: musicianId,
-                eventId: eventId,
-                musicianInterested: true,
-                organizerInterested: false,
-                musicianNoInterest: false,
-                organizerNoInterest: true
-            };
-            this.interests.push(interest);
-        } else {
-            interest.organizerInterested = false;
-            interest.organizerNoInterest = true;
-        }
-        this.setApplicationStatus(musicianId, eventId, 'declined');
-        this.saveState();
-        this.notify();
-        return { success: true };
-    }
-
-    addMedia(musicianId, type, fileUrl) {
-        if (!this.currentUser || this.currentUser.role !== "musician") return;
-        const musician = this.musicians.find(m => m.id === musicianId);
-        if (!musician) return;
-
-        if (type === "photo" && musician.photos.length < 3) {
-            musician.photos.push(fileUrl);
-        } else if (type === "video" && musician.videos.length < 1) {
-            musician.videos.push(fileUrl);
-        } else if (type === "audio" && musician.audio.length < 3) {
-            musician.audio.push(fileUrl);
-        }
-        
-        this.saveState();
-        this.notify();
-    }
-
-    deleteMedia(musicianId, type, index) {
-        if (!this.currentUser || this.currentUser.role !== "musician") return;
-        const musician = this.musicians.find(m => m.id === musicianId);
-        if (!musician) return;
-
-        if (type === "photo") {
-            musician.photos.splice(index, 1);
-        } else if (type === "video") {
-            musician.videos.splice(index, 1);
-        } else if (type === "audio") {
-            musician.audio.splice(index, 1);
-        }
-
-        this.saveState();
-        this.notify();
-    }
-
-    toggleSubscription() {
-        if (!this.currentUser || this.currentUser.role !== "musician") return;
-        this.currentUser.isPremium = !this.currentUser.isPremium;
-        
-        const musician = this.musicians.find(m => m.id === this.currentUser.profileId);
-        if (musician) {
-            musician.isPremium = this.currentUser.isPremium;
-        }
-
-        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-        const index = registeredUsers.findIndex(u => u.id === this.currentUser.id);
-        if (index !== -1) {
-            registeredUsers[index].isPremium = this.currentUser.isPremium;
-            localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
-        }
-
-        this.notify();
     }
 }
+
 
 /* StateManager clean */
 
@@ -2961,7 +2289,7 @@ function checkAndNotifyMatches(stateManager, showToastCallback) {
                 }
 
                 if (!alreadyNotified) {
-                    const messageText = `ðŸš¨ GIG-MATCH ALERT (${match.score}% Übereinstimmung): Das Event '${event.name}' in ${event.location} am ${event.date} passt hervorragend zu Ihrem Profil! (ID: ${event.id})`;
+                    const messageText = `🚨 GIG-MATCH ALERT (${match.score}% Übereinstimmung): Das Event '${event.name}' in ${event.location} am ${event.date} passt hervorragend zu Ihrem Profil! (ID: ${event.id})`;
                     stateManager.addSystemNotification(musician.id, messageText);
                     
                     /*
@@ -2992,7 +2320,7 @@ function checkAndNotifyMatches(stateManager, showToastCallback) {
                     }
 
                     if (!alreadyNotified) {
-                        const messageText = `ðŸš¨ MUSIKER-MATCH ALERT (${match.score}% Übereinstimmung): Der Musiker/die Band '${musician.name}' passt optimal zu Ihrem Event '${event.name}'. (ID: ${musician.id})`;
+                        const messageText = `🚨 MUSIKER-MATCH ALERT (${match.score}% Übereinstimmung): Der Musiker/die Band '${musician.name}' passt optimal zu Ihrem Event '${event.name}'. (ID: ${musician.id})`;
                         stateManager.addSystemNotification(event.id, messageText);
 
                         /*
@@ -3083,7 +2411,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Veranstalter senden â€“ sondern auch erhalten</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Veranstalter senden – sondern auch erhalten</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
@@ -3145,7 +2473,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
                         <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Musiker senden â€“ sondern auch erhalten</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Musiker senden – sondern auch erhalten</p>
                 </div>
 
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
@@ -3580,7 +2908,7 @@ function renderLandingPage(container, onNavigate) {
                                             Interessante Anfragen
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Nicht nur Anfragen an Veranstalter senden â€“ sondern auch erhalten
+                                            Nicht nur Anfragen an Veranstalter senden – sondern auch erhalten
                                         </div>
                                     </div>
                                 </div>
@@ -3717,7 +3045,7 @@ function renderLandingPage(container, onNavigate) {
                                             Interessante Anfragen
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Nicht nur Anfragen an Musiker senden â€“ sondern auch erhalten
+                                            Nicht nur Anfragen an Musiker senden – sondern auch erhalten
                                         </div>
                                     </div>
                                 </div>
@@ -3797,7 +3125,7 @@ function renderLandingPage(container, onNavigate) {
                             </div>
                         </div>
                         <p style="font-size: 1.05rem; font-style: italic; color: var(--text-muted); line-height: 1.6; margin: 0; position: relative; padding-left: 1.2rem; border-left: 3px solid transparent; border-image: linear-gradient(to bottom, #7c3aed, #2563eb) 1;">
-                            Als Musiker und Eventmanager kenne ich beide Seiten nur zu gut. Ich weiß, wie schwierig es sein kann, passende Gigs zu finden â€“ und genauso herausfordernd ist es für Veranstalter, den richtigen Musiker zu entdecken und ihn unkompliziert zu kontaktieren. Genau aus diesem Problem heraus ist GigConnAct entstanden â€“ das â€žAirbnb für Live-Musikâ€œ.
+                            Als Musiker und Eventmanager kenne ich beide Seiten nur zu gut. Ich weiß, wie schwierig es sein kann, passende Gigs zu finden – und genauso herausfordernd ist es für Veranstalter, den richtigen Musiker zu entdecken und ihn unkompliziert zu kontaktieren. Genau aus diesem Problem heraus ist GigConnAct entstanden – das „Airbnb für Live-Musik“.
                         </p>
                     </div>
                 </div>
@@ -4468,7 +3796,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Event-Typ</label>
                                 <div class="checkbox-tag-grid" id="filter-event-type-grid">
-                                    ${['Geburtstag', 'Hochzeit â€“ Trauung', 'Hochzeit - Sektempfang', 'Hochzeit â€“ Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
+                                    ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterEventTypes" value="${t}">
                                             <span>${t}</span>
@@ -4691,7 +4019,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Bevorzugte Event-Typen</label>
                                 <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
-                                    ${['Geburtstag', 'Hochzeit â€“ Trauung', 'Hochzeit - Sektempfang', 'Hochzeit â€“ Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
+                                    ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterEventTypesM" value="${evt}">
                                             <span>${evt}</span>
@@ -5612,15 +4940,15 @@ window.openItemDetailModal = function(id, isEvents) {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 };
 
-window.initiateMarketContact = function(targetId, targetName, eventId) {
+window.initiateMarketContact = async function(targetId, targetName, eventId) {
     if (!state.currentUser) {
         showModal('auth');
         return;
     }
-    const result = state.initiateContact(targetId, targetName, eventId);
+    const result = await state.initiateContact(targetId, targetName, eventId);
     if (result.success) {
         if (eventId && state.currentUser && state.currentUser.role === 'musician') {
-            state.addMusicianApplication(state.currentUser.profileId, eventId);
+            await state.addMusicianApplication(state.currentUser.profileId, eventId);
         }
         window.postboxActiveChatId = result.chatId;
         window.postboxActiveTab = 'all';
@@ -6011,7 +5339,7 @@ function renderProfilePage(container) {
             state.saveState();
             
             showToast({
-                title: "Profil aktualisiert! ðŸ’¾",
+                title: "Profil aktualisiert! 💾",
                 message: "Deine persönlichen Informationen wurden erfolgreich gespeichert."
             });
             updateNavbar();
@@ -6036,7 +5364,7 @@ function renderProfilePage(container) {
                     
                     state.saveState();
                     showToast({
-                        title: "Abo gekündigt â„¹",
+                        title: "Abo gekündigt ℹ",
                         message: "Dein Abonnement wurde gekündigt. Du hast bis zum Ende des aktuellen Zeitraums vollen Zugriff."
                     });
                     renderProfilePage(container);
@@ -6058,7 +5386,7 @@ function renderProfilePage(container) {
                 
                 state.saveState();
                 showToast({
-                    title: "Abo reaktiviert! ðŸŽ‰",
+                    title: "Abo reaktiviert! 🎉",
                     message: "Deine automatische Abonnement-Verlängerung ist wieder aktiv."
                 });
                 renderProfilePage(container);
@@ -6106,14 +5434,14 @@ function renderProfilePage(container) {
                 const code = promoInput.value.trim().toUpperCase();
                 if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code)) {
                     isPromoApplied = true;
-                    promoStatus.textContent = "âœ” Gutscheincode gültig! Premium-Tarif freigeschaltet.";
+                    promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif freigeschaltet.";
                     promoStatus.style.color = "#10b981";
                     promoStatus.style.display = "block";
                     promoInput.disabled = true;
                     promoBtn.disabled = true;
                 } else {
                     isPromoApplied = false;
-                    promoStatus.textContent = "âŒ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Story-Beitrag.";
+                    promoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Story-Beitrag.";
                     promoStatus.style.color = "#ef4444";
                     promoStatus.style.display = "block";
                 }
@@ -6143,7 +5471,7 @@ function renderProfilePage(container) {
 
                 state.saveState();
                 showToast({
-                    title: "Tarif erfolgreich gewechselt! ðŸš€",
+                    title: "Tarif erfolgreich gewechselt! 🚀",
                     message: `Dein Abonnement wurde auf den Tarif "${selectedPlan.toUpperCase()}" umgestellt.`
                 });
                 renderProfilePage(container);
@@ -6185,7 +5513,7 @@ function renderMatchesPage(container) {
         const selectOptionsHtml = profiles.map(p => `<option value="${p.id}" ${p.id === selectedId ? 'selected' : ''}>${p.name}</option>`).join('');
         
         const isOrganizer = u.role === 'organizer';
-        const creditsValue = isOrganizer ? 'Gratis' : (u.isPremium ? 'âˆž' : u.credits);
+        const creditsValue = isOrganizer ? 'Gratis' : (u.isPremium ? '∞' : u.credits);
         const billingMode = isOrganizer ? 'Kostenlos' : (u.isPremium ? 'Flatrate' : 'Prepaid');
         const unlockedCount = isOrganizer ? 'Unbegrenzt' : (u.unlockedContacts || []).length;
 
@@ -6587,7 +5915,7 @@ function renderMyEvents(container) {
             const result = state.toggleEventActive(id);
             if (result.success) {
                 showToast({
-                    title: result.isActive ? "Event aktiviert ðŸŸ¢" : "Event pausiert ðŸŸ ",
+                    title: result.isActive ? "Event aktiviert 🟢" : "Event pausiert 🟠",
                     message: result.isActive ? "Das Event ist wieder aktiv und auf dem Markt sichtbar." : "Das Event wurde pausiert und aus der Suche entfernt."
                 });
                 renderMyEvents(container);
@@ -6620,12 +5948,12 @@ function renderMyEvents(container) {
     });
 
     container.querySelectorAll('.btn-delete-my-event').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
             const id = btn.getAttribute('data-id');
             const event = state.events.find(e => e.id === id);
             if (event) {
                 if (confirm(`Möchtest du das Event "${event.name}" wirklich unwiderruflich löschen?`)) {
-                    state.deleteEvent(id);
+                    await state.deleteEvent(id);
                     showToast({
                         title: "Event gelöscht",
                         message: "Das Event wurde erfolgreich aus der Suche entfernt."
@@ -7470,7 +6798,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     updateLocalMediaPreview();
 
     const form = document.getElementById('musician-editor-form');
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(form);
 
@@ -8038,7 +7366,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
     updateLocalEventMediaPreview();
 
     const form = document.getElementById('event-editor-form');
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(form);
 
@@ -8891,7 +8219,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     }
 
     if (magicForm) {
-        magicForm.addEventListener('submit', (e) => {
+        magicForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = magicForm.elements.email.value.trim();
             const btn = document.getElementById('btn-send-magic');
@@ -8905,122 +8233,134 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Anmeldelink wird generiert...`;
             }
 
-            setTimeout(() => {
-                if (btn) btn.style.display = 'none';
-                if (magicForm.elements.email) magicForm.elements.email.style.display = 'none';
-                const grp = magicForm.querySelector('.form-group');
-                if (grp) {
-                    const lbl = grp.querySelector('label');
-                    const para = grp.querySelector('p');
-                    if (lbl) lbl.style.display = 'none';
-                    if (para) para.style.display = 'none';
+            // Trigger the real Firebase auth email sending
+            const res = await state.loginPasswordless(email);
+            
+            if (btn) btn.style.display = 'none';
+            if (magicForm.elements.email) magicForm.elements.email.style.display = 'none';
+            const grp = magicForm.querySelector('.form-group');
+            if (grp) {
+                const lbl = grp.querySelector('label');
+                const para = grp.querySelector('p');
+                if (lbl) lbl.style.display = 'none';
+                if (para) para.style.display = 'none';
+            }
+
+            if (!res.success) {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.display = 'flex';
+                    btn.innerHTML = `<i class="fa-solid fa-magic"></i> Magic Link anfordern`;
+                }
+                if (magicForm.elements.email) magicForm.elements.email.style.display = 'block';
+                if (errDiv) {
+                    errDiv.innerText = res.message || "Fehler beim Senden des Links.";
+                    errDiv.style.display = 'block';
+                }
+                return;
+            }
+
+            let mockEmailHtml = '';
+
+            if (!res.isNewUser) {
+                // Existing user
+                if (typeof window.addMockEmail === 'function') {
+                    window.addMockEmail(
+                        "Dein Anmeldelink für GigConnAct",
+                        "GigConnAct <no-reply@gigconnact.de>",
+                        `Hallo,\n\nklicke auf den Link unten, um dich direkt anzumelden:\n\n[Jetzt anmelden]`
+                    );
                 }
 
-                const res = state.loginPasswordless(email);
-                let mockEmailHtml = '';
+                mockEmailHtml = `
+                    <div style="background: rgba(124, 58, 237, 0.08); border: 1.5px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 1.25rem; margin-top: 1rem; text-align: left;">
+                        <h4 style="margin: 0 0 0.5rem; font-family: var(--font-heading); color: #a855f7; display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem;">
+                            <i class="fa-solid fa-envelope-open-text"></i> Posteingang (Simulation)
+                        </h4>
+                        <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">
+                            <strong>Betreff:</strong> Dein Anmeldelink für GigConnAct
+                        </p>
+                        <p style="font-size: 0.82rem; margin-bottom: 1rem; line-height: 1.4; color: var(--text-main);">
+                            Hallo!<br><br>
+                            Klicke auf den Button unten, um dich direkt bei deinem Account anzumelden (Simulator-Abkürzung):
+                        </p>
+                        <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="login" style="width: 100%; background: #7c3aed; font-weight: 800; border: none; padding: 0.7rem; border-radius: 8px;">Jetzt anmelden</button>
+                    </div>
+                `;
+            } else {
+                // New user
+                if (typeof window.addMockEmail === 'function') {
+                    window.addMockEmail(
+                        "Registrierung abschließen bei GigConnAct",
+                        "GigConnAct <no-reply@gigconnact.de>",
+                        `Hallo,\n\ndiese E-Mail-Adresse ist neu bei uns. Wähle aus, wie du dich registrieren und anmelden möchtest.`
+                    );
+                }
 
-                if (res.success) {
-                    const user = res.user;
-                    const roleText = user.role === 'musician' ? 'Musiker' : 'Veranstalter';
-
-                    if (typeof window.addMockEmail === 'function') {
-                        window.addMockEmail(
-                            "Dein Anmeldelink für GigConnAct",
-                            "GigConnAct <no-reply@gigconnact.de>",
-                            `Hallo ${user.firstName},\n\nklicke auf den Link unten, um dich direkt bei deinem ${roleText}-Account anzumelden:\n\n[Jetzt als ${roleText} anmelden]`
-                        );
-                    }
-
-                    mockEmailHtml = `
-                        <div style="background: rgba(124, 58, 237, 0.08); border: 1.5px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 1.25rem; margin-top: 1rem; text-align: left;">
-                            <h4 style="margin: 0 0 0.5rem; font-family: var(--font-heading); color: #a855f7; display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem;">
-                                <i class="fa-solid fa-envelope-open-text"></i> Posteingang (Simulation)
-                            </h4>
-                            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">
-                                <strong>Betreff:</strong> Dein Anmeldelink für GigConnAct
-                            </p>
-                            <p style="font-size: 0.82rem; margin-bottom: 1rem; line-height: 1.4; color: var(--text-main);">
-                                Hallo <strong>${user.firstName}</strong>,<br><br>
-                                Klicke auf den Button unten, um dich direkt bei deinem <strong>${roleText}-Account</strong> anzumelden:
-                            </p>
-                            <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="login" style="width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); font-weight: 800; border: none; padding: 0.7rem; border-radius: 8px;">
-                                Jetzt als ${roleText} anmelden
+                mockEmailHtml = `
+                    <div style="background: rgba(124, 58, 237, 0.08); border: 1.5px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 1.25rem; margin-top: 1rem; text-align: left;">
+                        <h4 style="margin: 0 0 0.5rem; font-family: var(--font-heading); color: #a855f7; display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem;">
+                            <i class="fa-solid fa-envelope-open-text"></i> Posteingang (Simulation)
+                        </h4>
+                        <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">
+                            <strong>Betreff:</strong> Registrierung abschließen bei GigConnAct
+                        </p>
+                        <p style="font-size: 0.82rem; margin-bottom: 1rem; line-height: 1.4; color: var(--text-main);">
+                            Hallo!<br><br>
+                            Diese E-Mail-Adresse ist neu bei uns. Wähle aus, wie du dich registrieren und anmelden möchtest:
+                        </p>
+                        <div style="display: flex; gap: 0.75rem;">
+                            <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="register-mus" style="flex: 1; background: #7c3aed; border: none; font-weight: 700; font-size: 0.78rem; padding: 0.6rem;">
+                                <i class="fa-solid fa-guitar"></i> Als Musiker
+                            </button>
+                            <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="register-org" style="flex: 1; background: #2563eb; border: none; font-weight: 700; font-size: 0.78rem; padding: 0.6rem;">
+                                <i class="fa-solid fa-calendar-days"></i> Als Veranstalter
                             </button>
                         </div>
-                    `;
-                } else {
-                    if (typeof window.addMockEmail === 'function') {
-                        window.addMockEmail(
-                            "Registrierung abschließen bei GigConnAct",
-                            "GigConnAct <no-reply@gigconnact.de>",
-                            `Hallo,\n\ndiese E-Mail-Adresse ist neu bei uns. Wähle aus, wie du dich registrieren und anmelden möchtest.`
-                        );
-                    }
+                    </div>
+                `;
+            }
 
-                    mockEmailHtml = `
-                        <div style="background: rgba(124, 58, 237, 0.08); border: 1.5px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 1.25rem; margin-top: 1rem; text-align: left;">
-                            <h4 style="margin: 0 0 0.5rem; font-family: var(--font-heading); color: #a855f7; display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem;">
-                                <i class="fa-solid fa-envelope-open-text"></i> Posteingang (Simulation)
-                            </h4>
-                            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">
-                                <strong>Betreff:</strong> Registrierung abschließen bei GigConnAct
-                            </p>
-                            <p style="font-size: 0.82rem; margin-bottom: 1rem; line-height: 1.4; color: var(--text-main);">
-                                Hallo!<br><br>
-                                Diese E-Mail-Adresse ist neu bei uns. Wähle aus, wie du dich registrieren und anmelden möchtest:
-                            </p>
-                            <div style="display: flex; gap: 0.75rem;">
-                                <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="register-mus" style="flex: 1; background: #7c3aed; border: none; font-weight: 700; font-size: 0.78rem; padding: 0.6rem;">
-                                    <i class="fa-solid fa-guitar"></i> Als Musiker
-                                </button>
-                                <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="register-org" style="flex: 1; background: #2563eb; border: none; font-weight: 700; font-size: 0.78rem; padding: 0.6rem;">
-                                    <i class="fa-solid fa-calendar-days"></i> Als Veranstalter
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }
+            if (successContainer) {
+                successContainer.innerHTML = `
+                    <div style="text-align: center; color: var(--color-green); font-size: 1.8rem; margin-bottom: 0.5rem;">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <h4 style="text-align: center; margin: 0 0 0.5rem; font-family: var(--font-heading); color: var(--text-main);">Anmeldelink gesendet!</h4>
+                    <p style="text-align: center; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.4;">
+                        Wir haben einen sicheren Link an <strong>${email}</strong> gesendet.
+                    </p>
+                    ${mockEmailHtml}
+                `;
+                successContainer.style.display = 'block';
 
-                if (successContainer) {
-                    successContainer.innerHTML = `
-                        <div style="text-align: center; color: var(--color-green); font-size: 1.8rem; margin-bottom: 0.5rem;">
-                            <i class="fa-solid fa-circle-check"></i>
-                        </div>
-                        <h4 style="text-align: center; margin: 0 0 0.5rem; font-family: var(--font-heading); color: var(--text-main);">Anmeldelink gesendet!</h4>
-                        <p style="text-align: center; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.4;">
-                            Wir haben einen sicheren Link an <strong>${email}</strong> gesendet.
-                        </p>
-                        ${mockEmailHtml}
-                    `;
-                    successContainer.style.display = 'block';
+                successContainer.querySelectorAll('.btn-magic-action').forEach(actionBtn => {
+                    actionBtn.addEventListener('click', async (ev) => {
+                        const action = ev.currentTarget.getAttribute('data-action');
+                        const userEmail = ev.currentTarget.getAttribute('data-email');
+                        let loginRes;
 
-                    successContainer.querySelectorAll('.btn-magic-action').forEach(actionBtn => {
-                        actionBtn.addEventListener('click', (ev) => {
-                            const action = ev.currentTarget.getAttribute('data-action');
-                            const userEmail = ev.currentTarget.getAttribute('data-email');
-                            let loginRes;
+                        if (action === 'login') {
+                            loginRes = await state.loginAsDemoUser(userEmail);
+                        } else if (action === 'register-mus') {
+                            loginRes = await state.registerOnTheFly(userEmail, 'musician');
+                        } else if (action === 'register-org') {
+                            loginRes = await state.registerOnTheFly(userEmail, 'organizer');
+                        }
 
-                            if (action === 'login') {
-                                loginRes = state.loginPasswordless(userEmail);
-                            } else if (action === 'register-mus') {
-                                loginRes = state.registerOnTheFly(userEmail, 'musician');
-                            } else if (action === 'register-org') {
-                                loginRes = state.registerOnTheFly(userEmail, 'organizer');
-                            }
-
-                            if (loginRes && loginRes.success) {
-                                closeModal();
-                                document.dispatchEvent(new CustomEvent('user-state-changed'));
-                                if (onSuccessCallback) onSuccessCallback();
-                                else navigateAfterLogin();
-                                /* Success toast disabled per user request */
-                            }
-                        });
+                        if (loginRes && loginRes.success) {
+                            closeModal();
+                            document.dispatchEvent(new CustomEvent('user-state-changed'));
+                            if (onSuccessCallback) onSuccessCallback();
+                            else navigateAfterLogin();
+                        }
                     });
-                }
-            }, 1200);
+                });
+            }
         });
     }
+
+
     const pickerMus = document.getElementById('role-picker-mus');
     const pickerOrg = document.getElementById('role-picker-org');
     const fieldsMus = document.getElementById('reg-fields-musician');
@@ -9613,7 +8953,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             e.target.value = e.target.value.replace(/\D/g, '').substring(0, 13);
         });
     }
-    registerForm.addEventListener('submit', (e) => {
+    registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const errDiv = document.getElementById('register-error-msg');
         const email = registerForm.elements.email.value.trim();
@@ -9656,7 +8996,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         }
 
         if (selectedRole === 'musician') {
-            const checkedTypes = registerForm.querySelectorAll('input[name="musicianType"]:checked');
+            const checkedTypes = registerForm.querySelectorAll('input[name="musicianTypes"]:checked');
             if (checkedTypes.length === 0) {
                 errDiv.textContent = 'Bitte wähle mindestens eine Kategorie (z.B. Band oder Solokünstler) aus.';
                 errDiv.style.display = 'block';
@@ -9768,7 +9108,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
         if (selectedRole === 'musician') {
             payload.bandName = registerForm.elements.bandName.value;
-            payload.musicianType = Array.from(registerForm.querySelectorAll('input[name="musicianType"]:checked')).map(el => el.value).join(', ');
+            payload.musicianType = Array.from(registerForm.querySelectorAll('input[name="musicianTypes"]:checked')).map(el => el.value).join(', ');
             payload.locations = selectedMusLocations;
             payload.radius = registerForm.elements.radius.value;
             payload.minDuration = registerForm.elements.minDuration.value;
@@ -9857,7 +9197,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             payload.videos = window.registrationMedia.organizer.videos;
         }
 
-        const res = state.register(payload);
+        const res = await state.registerPasswordless(payload);
         if (res.success) {
             closeModal();
             showModal('verification', onSuccessCallback);
@@ -9872,7 +9212,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 }
 
 function renderVerificationModal(wrapper, onSuccessCallback) {
-    const pendingUser = JSON.parse(localStorage.getItem('GigConnAct_pending_user') || '{}');
+    const pendingUser = JSON.parse(localStorage.getItem('GigConnAct_pending_registration') || '{}');
     wrapper.innerHTML = `
         <div class="modal-content" style="max-width: 450px; text-align: center;">
             <div class="modal-header" style="border-bottom:none; justify-content:center;">
@@ -9881,7 +9221,7 @@ function renderVerificationModal(wrapper, onSuccessCallback) {
             <div class="modal-body" style="padding-top:0;">
                 <p style="margin-bottom:1.5rem; line-height: 1.5; color: var(--text-muted);">
                     Wir haben eine E-Mail zur Registrierung an <strong>${pendingUser.email || 'deine E-Mail'}</strong> gesendet.<br><br>
-                    FÜr diese Demo kannst du die Registrierung direkt hier durch Klick auf den Bestätigungslink abschließen.
+                    Für diese Demo kannst du die Registrierung direkt hier durch Klick auf den Bestätigungslink abschließen.
                 </p>
                 <div style="background:rgba(0,242,254,0.03); border: 1px dashed rgba(0,242,254,0.3); border-radius:var(--radius-md); padding:1rem; margin-bottom: 2rem;">
                     <div style="font-size: 0.75rem; text-transform: uppercase; color:var(--color-cyan); font-weight:700; margin-bottom: 0.5rem;">Simulierte E-Mail-Nachricht</div>
@@ -9894,12 +9234,12 @@ function renderVerificationModal(wrapper, onSuccessCallback) {
         </div>
     `;
 
-    document.getElementById('btn-mock-email-confirm').addEventListener('click', () => {
-        const res = state.confirmEmail();
+    document.getElementById('btn-mock-email-confirm').addEventListener('click', async () => {
+        const res = await state.confirmPendingRegistration();
         if (res.success) {
             closeModal();
             showToast({
-                title: "Registrierung abgeschlossen! ðŸŽ‰",
+                title: "Registrierung abgeschlossen! 🎉",
                 message: "Dein Profil ist nun aktiv. Willkommen bei GigConnAct!"
             });
             document.dispatchEvent(new CustomEvent('user-state-changed'));
@@ -9908,6 +9248,7 @@ function renderVerificationModal(wrapper, onSuccessCallback) {
         }
     });
 }
+
 
 function renderFeedbackModal(wrapper, onSuccessCallback) {
     if (!state.currentUser) return;
@@ -9974,7 +9315,7 @@ function renderFeedbackModal(wrapper, onSuccessCallback) {
         setTimeout(() => {
             closeModal();
             showToast({
-                title: "Feedback gesendet! âœ‰ï¸",
+                title: "Feedback gesendet! ✉️",
                 message: "Vielen Dank! Deine Nachricht wurde erfolgreich an info@gigconnact.de übermittelt."
             });
             if (onSuccessCallback) onSuccessCallback();
@@ -10087,7 +9428,7 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
 
     document.getElementById('btn-close-modal').addEventListener('click', closeModal);
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const selectedOption = form.querySelector('input[name="paymentOption"]:checked').value;
         const targetUnlockId = state.pendingUnlockListingId;
@@ -10105,7 +9446,7 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
 
         if (selectedOption === 'credits') {
             const buyAmount = parseInt(creditsInput?.value || '10');
-            state.addCredits(buyAmount);
+            await state.addCredits(buyAmount);
             
             if (targetUnlockId) {
                 // Determine target name
@@ -10139,15 +9480,15 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
                     if (onSuccessCallback) onSuccessCallback();
                 });
 
-                wrapper.querySelector('#btn-confirm-now').addEventListener('click', () => {
-                    const unlockRes = state.unlockContact(targetUnlockId);
+                wrapper.querySelector('#btn-confirm-now').addEventListener('click', async () => {
+                    const unlockRes = await state.unlockContact(targetUnlockId);
                     state.pendingUnlockListingId = null;
                     closeModal();
                     updateNavbar();
                     
                     if (unlockRes.success) {
                         showToast({
-                            title: "Kontaktdaten freigeschaltet! ðŸª™",
+                            title: "Kontaktdaten freigeschaltet! 🪙",
                             message: `Du hast die Kontaktdaten von ${targetName} erfolgreich freigeschaltet.`
                         });
                     }
@@ -10158,21 +9499,21 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
                 return; // Prevent closing the modal yet!
             } else {
                 showToast({
-                    title: "Credits aufgeladen! ðŸª™",
+                    title: "Credits aufgeladen! 🪙",
                     message: `${buyAmount} Credits wurden erfolgreich deinem Konto gutgeschrieben.`
                 });
             }
         } else {
             // Subscription flatrate
-            state.toggleSubscription(); // sets isPremium = true
+            await state.toggleSubscription(); // sets isPremium = true
             
             if (targetUnlockId) {
-                state.unlockContact(targetUnlockId); // ensure it's in unlockedContacts as well, though subscription covers it
+                await state.unlockContact(targetUnlockId); // ensure it's in unlockedContacts as well, though subscription covers it
                 state.pendingUnlockListingId = null;
             }
             
             showToast({
-                title: "Flatrate-Abo aktiviert! ðŸš€",
+                title: "Flatrate-Abo aktiviert! 🚀",
                 message: "Du hast nun unbegrenzten Zugriff auf alle Kontaktdaten."
             });
         }
@@ -10524,7 +9865,7 @@ function initGigConnActApp() {
             const title = infoIcon.getAttribute('title');
             const formattedMessage = title.replace(/\n/g, '<br>');
             showToast({
-                title: "Information â„¹ï¸",
+                title: "Information ℹ️",
                 message: formattedMessage
             });
         }
@@ -10711,16 +10052,16 @@ function renderPostbox(container) {
                         <!-- 4 Category Tabs (2x2 Grid) -->
                         <div id="postbox-filters-container" style="display: ${window.postboxShowFilters ? 'grid' : 'none'}; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
                             <button class="btn btn-sm ${activeTab === 'all' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="all" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Alle Nachrichten">
-                                ðŸ“‚ Alle (${chats.length})
+                                📂 Alle (${chats.length})
                             </button>
                             <button class="btn btn-sm ${activeTab === 'received' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="received" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(34, 197, 94, 0.35); color: #22c55e;" title="Empfangene Anfragen">
-                                ðŸ“¥ Empfangen (${receivedChats.length})
+                                📥 Empfangen (${receivedChats.length})
                             </button>
                             <button class="btn btn-sm ${activeTab === 'sent' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="sent" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(239, 68, 68, 0.35); color: #ef4444;" title="Versendete Anfragen">
-                                ðŸ“¤ Versendet (${sentChats.length})
+                                📤 Versendet (${sentChats.length})
                             </button>
                             <button class="btn btn-sm ${activeTab === 'system' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="system" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(234, 179, 8, 0.35); color: #eab308;" title="Benachrichtigungen">
-                                ðŸ”” Info (${systemChats.length})
+                                🔔 Info (${systemChats.length})
                             </button>
                         </div>
                     </div>
@@ -11006,12 +10347,12 @@ function renderPostbox(container) {
 
         // Question accept/decline handlers (supports both desktop and mobile layouts)
         container.querySelectorAll('.btn-accept-incoming-req').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
                 const mId = btn.getAttribute('data-musician-id');
                 const eId = btn.getAttribute('data-event-id');
-                state.acceptMusicianRequest(mId, eId);
+                await state.acceptMusicianRequest(mId, eId);
                 showToast({
-                    title: "Perfect Match entstanden! ðŸŽ‰",
+                    title: "Perfect Match entstanden! 🎉",
                     message: "Ihr habt nun gegenseitig Interesse bekundet. Du kannst jetzt direkt antworten."
                 });
                 activeTab = 'received';
@@ -11020,10 +10361,10 @@ function renderPostbox(container) {
         });
 
         container.querySelectorAll('.btn-decline-incoming-req').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
                 const mId = btn.getAttribute('data-musician-id');
                 const eId = btn.getAttribute('data-event-id');
-                state.declineMusicianRequest(mId, eId);
+                await state.declineMusicianRequest(mId, eId);
                 showToast({
                     title: "Anfrage abgelehnt",
                     message: "Die Anfrage wurde als nicht interessant markiert."
@@ -11035,14 +10376,14 @@ function renderPostbox(container) {
         // Send message form handler (Desktop)
         const sendForm = container.querySelector('#chat-send-form');
         if (sendForm) {
-            sendForm.addEventListener('submit', (e) => {
+            sendForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const input = container.querySelector('#chat-message-input');
                 const text = input.value.trim();
                 if (!text || !activeChat) return;
 
                 const counterpartyId = activeChat.participants.find(id => id !== currentUserId) || activeChat.participants[0];
-                state.sendMessage(counterpartyId, text, activeChat.eventId);
+                await state.sendMessage(counterpartyId, text, activeChat.eventId);
                 input.value = '';
                 renderView();
             });
@@ -11674,7 +11015,7 @@ function validateAndProcessPhoto(file, callback) {
 
     if (!allowedTypes.includes(file.type) && !file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
         showToast({
-            title: "Fehler beim Bildupload âŒ",
+            title: "Fehler beim Bildupload ❌",
             message: "Ungültiges Dateiformat. Erlaubt sind JPG, JPEG, PNG, GIF und WEBP."
         });
         return;
@@ -11682,7 +11023,7 @@ function validateAndProcessPhoto(file, callback) {
 
     if (file.size > maxSize) {
         showToast({
-            title: "Fehler beim Bildupload âŒ",
+            title: "Fehler beim Bildupload ❌",
             message: "Die Datei ist zu groß. Maximale Größe ist 5 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
         });
         return;
@@ -11724,7 +11065,7 @@ function validateAndProcessVideo(file, callback) {
 
     if (!allowedTypes.includes(file.type) && !file.name.match(/\.(mp4|mov|webm|ogg|mkv)$/i)) {
         showToast({
-            title: "Fehler beim Videoupload âŒ",
+            title: "Fehler beim Videoupload ❌",
             message: "Ungültiges Dateiformat. Erlaubt sind MP4, MOV, WebM und OGG."
         });
         return;
@@ -11732,7 +11073,7 @@ function validateAndProcessVideo(file, callback) {
 
     if (file.size > maxSize) {
         showToast({
-            title: "Fehler beim Videoupload âŒ",
+            title: "Fehler beim Videoupload ❌",
             message: "Die Datei ist zu groß. Maximale Größe ist 20 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
         });
         return;
@@ -11741,7 +11082,7 @@ function validateAndProcessVideo(file, callback) {
     const mockVids = ['hochzeit.mp4', 'gartenparty.mp4', 'firmenfeier.mp4', 'konzert.mp4'];
     const randomMockVid = mockVids[Math.floor(Math.random() * mockVids.length)];
     showToast({
-        title: "Video validiert âœ…",
+        title: "Video validiert ✅",
         message: "Das Video (" + file.name + ") wurde erfolgreich validiert und verknüpft."
     });
     callback(randomMockVid);
@@ -11786,7 +11127,7 @@ window.showMediaModal = function(itemId, isEvents) {
                 <!-- Section: Photos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">ðŸ“· Bilder (${photos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></span>
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (${photos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></span>
                         ${photos.length < 3 ? `
                             <button id="btn-add-mock-photo" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: rgba(34, 197, 94, 0.3); color: #22c55e; display: flex; align-items: center; gap: 0.25rem;">
                                 <i class="fa-solid fa-plus"></i> Hinzufügen
@@ -11806,7 +11147,7 @@ window.showMediaModal = function(itemId, isEvents) {
                 <!-- Section: Videos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">ðŸŽ¬ Video (${videos.length}/1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></span>
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (${videos.length}/1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></span>
                         ${videos.length < 1 ? `
                             <button id="btn-add-mock-video" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: rgba(124, 58, 237, 0.3); color: #a855f7; display: flex; align-items: center; gap: 0.25rem;">
                                 <i class="fa-solid fa-plus"></i> Hinzufügen
@@ -11844,7 +11185,7 @@ window.showMediaModal = function(itemId, isEvents) {
         addPhotoBtn.addEventListener('click', () => {
             if (photos.length >= 3) {
                 showToast({
-                    title: "Bilder-Limit erreicht ðŸ“·",
+                    title: "Bilder-Limit erreicht 📷",
                     message: "Es sind maximal 3 Bilder erlaubt."
                 });
                 return;
@@ -11871,7 +11212,7 @@ window.showMediaModal = function(itemId, isEvents) {
         addVideoBtn.addEventListener('click', () => {
             if (videos.length >= 1) {
                 showToast({
-                    title: "Video-Limit erreicht ðŸŽ¬",
+                    title: "Video-Limit erreicht 🎬",
                     message: "Es ist maximal 1 Video erlaubt."
                 });
                 return;
@@ -11926,7 +11267,7 @@ window.showMediaModal = function(itemId, isEvents) {
         }
 
         showToast({
-            title: "Medien aktualisiert ðŸ“¸",
+            title: "Medien aktualisiert 📸",
             message: "Deine Fotos und Videos wurden erfolgreich gespeichert."
         });
         
