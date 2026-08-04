@@ -10572,6 +10572,22 @@ function renderPostbox(container) {
     renderView();
 }
 
+function formatTruncatedList(listArray, themeColor, itemId, uniqueType) {
+    if (!listArray || listArray.length === 0) return 'Keine Angabe';
+    
+    if (listArray.length <= 3) {
+        return listArray.join(', ');
+    }
+    
+    const visiblePart = listArray.slice(0, 3).join(', ');
+    const hiddenPart = ', ' + listArray.slice(3).join(', ');
+    const hiddenId = `more-${uniqueType}-${itemId}`;
+    
+    return `
+        <span>${visiblePart}</span><span id="${hiddenId}" style="display: none;">${hiddenPart}</span><span onclick="event.stopPropagation(); this.style.display='none'; document.getElementById('${hiddenId}').style.display='inline';" style="color: ${themeColor}; font-weight: 800; cursor: pointer; margin-left: 0.35rem; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.15); width: 18px; height: 18px; border-radius: 50%; font-size: 0.75rem; vertical-align: middle;" title="Mehr anzeigen">+</span>
+    `;
+}
+
 function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
     if (!items || items.length === 0) {
         return `
@@ -10613,8 +10629,11 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
             { title: 'Unplugged Live Session', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' }
         ];
 
-        const genresList = (item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic'])).join(', ');
-        const instrumentsList = (item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre'])).join(', ');
+        const genresArr = item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic']);
+        const instrumentsArr = item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre']);
+        const techArr = Array.isArray(item.technik) 
+            ? item.technik 
+            : (typeof item.technik === 'string' && item.technik.trim() !== '' ? item.technik.split(',').map(s => s.trim()) : []);
         
         // Date formatting (German)
         let dateDisplay = isEvents ? formatEventDateWithTime(item) : formatMusicianAvailabilityHelper(item);
@@ -10777,14 +10796,14 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         `}
 
                         <!-- 4. Genres -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-music" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${genresList}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-music" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedList(genresArr, themeColor, item.id, 'genres')}</span>
                         </div>
                         <!-- 5. Instrumente -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${instrumentsList}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedList(instrumentsArr, themeColor, item.id, 'instruments')}</span>
                         </div>
 
                         <!-- 6. Spieldauer -->
@@ -10799,9 +10818,9 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
                         
                         <!-- 8. Technik -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-microchip" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${(item.technik && item.technik.length > 0) ? (Array.isArray(item.technik) ? item.technik.join(', ') : item.technik) : 'Technik ist noch unklar'}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-microchip" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedList(techArr, themeColor, item.id, 'tech') : 'Technik ist noch unklar'}</span>
                         </div>
                     </div>
                 </div>
