@@ -10046,6 +10046,7 @@ function initGigConnActApp() {
 
     document.addEventListener('user-state-changed', () => {
         if (typeof updateNavbar === 'function') updateNavbar();
+        if (typeof handleRouting === 'function') handleRouting();
         runMatchingMonitor();
     });
 
