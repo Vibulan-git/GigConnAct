@@ -1749,6 +1749,10 @@ class StateManager {
         this.notify();
     }
 
+    isUnlocked(targetId) {
+        return !!this.currentUser;
+    }
+
     subscribe(callback) {
         this.listeners.push(callback);
         return () => {
@@ -3984,8 +3988,8 @@ function renderMarket(container, type, onNavigate) {
                 </button>
 
                 <!-- 5. Ergebnisse als Zahl -->
-                <div id="market-results-count" style="font-family: var(--font-heading); font-size: 0.85rem; font-weight: 800; color: ${isEvents ? '#2563eb' : '#7c3aed'}; text-align: center; flex-shrink: 0; letter-spacing: 0.5px; margin: 0; white-space: nowrap;">
-                    (${items.length})
+                <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: ${isEvents ? '#2563eb' : '#a855f7'}; text-align: center; flex-shrink: 0; letter-spacing: 0.5px; margin: 0 0.5rem; padding: 0.2rem 0.5rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; min-width: 32px; white-space: nowrap;">
+                    ${items.length}
                 </div>
 
                 <!-- 6. Profil-Auswahl -->
@@ -4615,7 +4619,7 @@ function renderMarket(container, type, onNavigate) {
         if (grid) grid.innerHTML = renderMarketGridHTML(list, isEvents);
         
         const countEl = container.querySelector('#market-results-count');
-        if (countEl) countEl.textContent = `(${list.length})`;
+        if (countEl) countEl.textContent = list.length;
         
         console.log("applyAllFiltersAndSort finished. Output items count:", list.length, "IDs:", list.map(item => item.id).join(', '));
     }
@@ -6437,27 +6441,27 @@ function renderMyMusicianItem(m, isActive) {
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Typ: ${m.type}</span>
+                            <span>${m.type}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-euro-sign" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Gage: ${budgetDisplay}</span>
+                            <span>${budgetDisplay}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-tag" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Genres: ${genresList}</span>
+                            <span>${genresList}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Spieldauer: ${durationDisplay}</span>
+                            <span>${durationDisplay}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Verfügbarkeit: ${availDaysStr}</span>
+                            <span>${availDaysStr}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Technik: ${techDisplayStr}</span>
+                            <span>${techDisplayStr}</span>
                         </div>
                     </div>
                 </div>
@@ -9383,7 +9387,7 @@ function renderFeedbackModal(wrapper, onSuccessCallback) {
         <div class="modal-content" style="max-width: 500px; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-lg);">
             <div class="modal-header" style="padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border-glass); display: flex; justify-content: space-between; align-items: center;">
                 <h3 style="margin: 0; font-size: 1.3rem; font-family: var(--font-heading); display: flex; align-items: center; gap: 0.6rem; color: var(--text-main);">
-                    <i class="fa-solid fa-comment-dots" style="color: ${isMusician ? '#3b82f6' : '#a855f7'};"></i> Feedback senden
+                    <i class="fa-solid fa-comment-dots" style="color: ${isMusician ? '#a855f7' : '#3b82f6'};"></i> Feedback senden
                 </h3>
                 <button class="close-modal-btn" id="btn-close-modal" style="background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; padding: 0; line-height: 1;">&times;</button>
             </div>
@@ -9407,7 +9411,7 @@ function renderFeedbackModal(wrapper, onSuccessCallback) {
                     </div>
                     
                     <div style="display: flex; gap: 0.8rem; margin-top: 0.5rem; width: 100%;">
-                        <button type="submit" class="btn btn-submit-feedback ${isMusician ? 'feedback-blue-btn' : 'feedback-purple-btn'}" id="btn-submit-feedback" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 42px; border-radius: var(--radius-sm); border: none; font-weight: 600;">
+                        <button type="submit" class="btn btn-submit-feedback ${isMusician ? 'feedback-purple-btn' : 'feedback-blue-btn'}" id="btn-submit-feedback" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 42px; border-radius: var(--radius-sm); border: none; font-weight: 600;">
                             <i class="fa-solid fa-paper-plane"></i> Feedback absenden
                         </button>
                         <button type="button" class="btn btn-glass" id="btn-mailto-fallback" title="Über eigenes E-Mail-Programm senden" style="display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; flex-shrink: 0; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); color: var(--text-main); cursor: pointer; transition: all 0.2s;">
