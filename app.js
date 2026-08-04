@@ -8506,6 +8506,15 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             if (f) f.classList.add('hidden');
         });
         if (activeForm) activeForm.classList.remove('hidden');
+
+        const googleContainer = document.getElementById('google-login-container');
+        if (googleContainer) {
+            if (activeForm === magicForm) {
+                googleContainer.style.display = 'block';
+            } else {
+                googleContainer.style.display = 'none';
+            }
+        }
     }
 
     if (magicTab) {
