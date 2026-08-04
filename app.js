@@ -1768,7 +1768,7 @@ class StateManager {
     }
 
     toggleFavorite(id) {
-        if (!this.currentUser) return;
+        if (!this.currentUser) return false;
         let favs = this.currentUser.favorites || [];
         const idx = favs.indexOf(id);
         if (idx === -1) {
@@ -1779,6 +1779,7 @@ class StateManager {
         this.currentUser.favorites = favs;
         db.collection('users').doc(this.currentUser.id).update({ favorites: favs })
             .catch(err => console.error("toggleFavorite failed:", err));
+        return true;
     }
 
     isFavorite(id) {
@@ -5213,6 +5214,8 @@ window.revealMarketContact = function(itemId, type, value, clickedBtn) {
         
         let contentHtml = '';
         if (type === 'chat') {
+            container.style.background = 'transparent';
+            container.style.padding = '0';
             const parts = value.split('|');
             const recId = parts[0];
             const recName = parts[1] || '';
@@ -5222,15 +5225,17 @@ window.revealMarketContact = function(itemId, type, value, clickedBtn) {
                 <div style="display: flex; align-items: center; justify-content: center; padding: 0.2rem 0;">
                     <button class="btn btn-primary" 
                             onclick="event.stopPropagation(); window.initiateMarketContact('${recId}', '${recName.replace(/'/g, "\\'")}', '${evId}')" 
-                            style="background: #ffffff; color: #0f172a; border: 1px solid #ffffff; font-weight: 800; padding: 0.5rem 1.5rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;"
+                            style="background: #ffffff; color: #0f172a; border: 1px solid #ffffff; font-weight: 800; padding: 0.5rem 1.5rem; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;"
                             onmouseover="this.style.background='rgba(255,255,255,0.9)'; this.style.transform='translateY(-1px)';"
                             onmouseout="this.style.background='#ffffff'; this.style.transform='translateY(0)';"
                             title="Chat im Postfach öffnen">
-                        <i class="fa-solid fa-comments"></i> Nachricht schreiben
+                        Nachricht schreiben
                     </button>
                 </div>
             `;
         } else {
+            container.style.background = 'rgba(255,255,255,0.15)';
+            container.style.padding = '0.55rem';
             contentHtml = `
                 <div style="display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap;">
                     <span style="font-weight: 600; color: #ffffff; font-size: 0.9rem; user-select: all;">${value}</span>
@@ -5990,10 +5995,10 @@ function renderOrganizerEventItem(e, isActive) {
                 </div>
 
                 <!-- Slide Navigation Arrows -->
-                <button onclick="event.stopPropagation(); window.slideComboGallery('${e.id}', -1)" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(124, 58, 237, 0.8); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                <button onclick="event.stopPropagation(); window.slideComboGallery('${e.id}', -1)" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(100, 116, 139, 0.65); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                     <i class="fa-solid fa-chevron-left" style="font-size: 0.8rem;"></i>
                 </button>
-                <button onclick="event.stopPropagation(); window.slideComboGallery('${e.id}', 1)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(124, 58, 237, 0.8); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                <button onclick="event.stopPropagation(); window.slideComboGallery('${e.id}', 1)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(100, 116, 139, 0.65); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                     <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem;"></i>
                 </button>
             </div>
@@ -6417,10 +6422,10 @@ function renderMyMusicianItem(m, isActive) {
                 </div>
 
                 <!-- Slide Navigation Arrows -->
-                <button onclick="event.stopPropagation(); window.slideComboGallery('${m.id}', -1)" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(37, 99, 235, 0.8); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                <button onclick="event.stopPropagation(); window.slideComboGallery('${m.id}', -1)" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(100, 116, 139, 0.65); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                     <i class="fa-solid fa-chevron-left" style="font-size: 0.8rem;"></i>
                 </button>
-                <button onclick="event.stopPropagation(); window.slideComboGallery('${m.id}', 1)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(37, 99, 235, 0.8); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                <button onclick="event.stopPropagation(); window.slideComboGallery('${m.id}', 1)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(100, 116, 139, 0.65); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                     <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem;"></i>
                 </button>
             </div>
@@ -10703,10 +10708,10 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     </div>
 
                     <!-- Slide Navigation Arrows -->
-                    <button onclick="event.stopPropagation(); window.slideComboGallery('${item.id}', -1)" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: ${isEvents ? 'rgba(124, 58, 237, 0.8)' : 'rgba(37, 99, 235, 0.8)'}; border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                    <button onclick="event.stopPropagation(); window.slideComboGallery('${item.id}', -1)" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(100, 116, 139, 0.65); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                         <i class="fa-solid fa-chevron-left" style="font-size: 0.9rem;"></i>
                     </button>
-                    <button onclick="event.stopPropagation(); window.slideComboGallery('${item.id}', 1)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: ${isEvents ? 'rgba(124, 58, 237, 0.8)' : 'rgba(37, 99, 235, 0.8)'}; border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
+                    <button onclick="event.stopPropagation(); window.slideComboGallery('${item.id}', 1)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(100, 116, 139, 0.65); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                         <i class="fa-solid fa-chevron-right" style="font-size: 0.9rem;"></i>
                     </button>
                 </div>
