@@ -7926,6 +7926,24 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     </button>
                 </form>
 
+                <div id="google-login-container" style="margin-top: 1rem;">
+                    <div style="display: flex; align-items: center; text-align: center; margin: 1rem 0; color: var(--text-muted); font-size: 0.8rem;">
+                        <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.15);"></div>
+                        <span style="padding: 0 0.75rem; color: var(--text-muted); font-weight: 500;">oder</span>
+                        <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.15);"></div>
+                    </div>
+
+                    <button id="btn-google-login" class="btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.65rem; background: #ffffff !important; color: #1f2937 !important; border: 1px solid #d1d5db !important; font-weight: 700 !important; padding: 0.65rem !important; border-radius: 8px !important; cursor: pointer !important; transition: background 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;">
+                        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
+                            <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.24h2.9c1.7-1.57 2.69-3.88 2.69-6.57z" fill="#4285F4"/>
+                            <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.24c-.8.54-1.83.86-3.06.86-2.35 0-4.35-1.59-5.06-3.73H.96v2.3C2.44 15.98 5.48 18 9 18z" fill="#34A853"/>
+                            <path d="M3.94 10.71c-.18-.54-.28-1.12-.28-1.71s.1-1.17.28-1.71V4.99H.96A8.99 8.99 0 000 9c0 1.49.36 2.92.96 4.2l2.98-2.3a5.35 5.35 0 01-.29-1.19z" fill="#FBBC05"/>
+                            <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.05C13.47.62 11.43 0 9 0 5.48 0 2.44 2.02.96 4.99l2.98 2.3C4.65 5.17 6.65 3.58 9 3.58z" fill="#EA4335"/>
+                        </svg>
+                        Mit Google anmelden
+                    </button>
+                </div>
+
                 <form id="auth-register-form" class="hidden">
                     <div class="role-picker-container" style="margin-bottom: 1.5rem;">
                         <div class="role-picker">
@@ -9443,6 +9461,103 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
     window.updateRegMediaPreview('musician');
     window.updateRegMediaPreview('organizer');
+
+    const googleBtn = document.getElementById('btn-google-login');
+    if (googleBtn) {
+        googleBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                googleBtn.disabled = true;
+                googleBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verbindung mit Google...';
+                
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+                
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (!userDoc.exists) {
+                    const displayName = user.displayName || 'Google-User';
+                    const nameParts = displayName.split(' ');
+                    const firstName = nameParts[0] || 'Google';
+                    const lastName = nameParts.slice(1).join(' ') || 'User';
+                    const profileId = "mus_" + user.uid;
+
+                    const newUser = {
+                        id: user.uid,
+                        role: 'musician',
+                        firstName: firstName,
+                        lastName: lastName,
+                        company: 'Privatperson',
+                        phone: '+49 170 1234567',
+                        email: user.email,
+                        favorites: [],
+                        credits: 5,
+                        profileId: profileId,
+                        createdAt: new Date().toISOString()
+                    };
+
+                    const newMusician = {
+                        id: profileId,
+                        creatorId: user.uid,
+                        name: displayName,
+                        bluffName: "Akustik-Solo-Künstler",
+                        type: "Solo",
+                        location: "München",
+                        locations: ["München"],
+                        radius: 100,
+                        genres: ["Pop", "Rock"],
+                        instruments: ["Gesang", "Akustikgitarre"],
+                        minDuration: 1,
+                        maxDuration: 3,
+                        minBudget: 150,
+                        maxBudget: 1000,
+                        eventTypes: ["Geburtstag", "Sommerfest"],
+                        availability: {
+                            friday: { available: true, startTime: '18:00', endTime: '23:59' },
+                            saturday: { available: true, startTime: '00:01', endTime: '23:59' }
+                        },
+                        minPublikum: 0,
+                        maxPublikum: 500,
+                        technik: ["Technik vorhanden"],
+                        bio: "Professionelle Live-Musik für unvergessliche Momente.",
+                        photos: ['https://picsum.photos/id/453/400/300'],
+                        videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
+                    };
+
+                    await db.collection('users').doc(user.uid).set(newUser);
+                    await db.collection('musicians').doc(profileId).set(newMusician);
+                }
+
+                closeModal();
+                showToast({
+                    title: "Erfolgreich angemeldet!",
+                    message: `Willkommen zurück, ${user.displayName || user.email}!`
+                });
+                
+                if (typeof onSuccessCallback === 'function') {
+                    onSuccessCallback();
+                } else {
+                    handleRouting();
+                }
+            } catch (err) {
+                console.error("Google Login Error:", err);
+                showToast({
+                    title: "Google-Anmeldung fehlgeschlagen",
+                    message: err.message || "Es gab ein Problem bei der Anmeldung."
+                });
+                googleBtn.disabled = false;
+                googleBtn.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
+                        <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.24h2.9c1.7-1.57 2.69-3.88 2.69-6.57z" fill="#4285F4"/>
+                        <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.24c-.8.54-1.83.86-3.06.86-2.35 0-4.35-1.59-5.06-3.73H.96v2.3C2.44 15.98 5.48 18 9 18z" fill="#34A853"/>
+                        <path d="M3.94 10.71c-.18-.54-.28-1.12-.28-1.71s.1-1.17.28-1.71V4.99H.96A8.99 8.99 0 000 9c0 1.49.36 2.92.96 4.2l2.98-2.3a5.35 5.35 0 01-.29-1.19z" fill="#FBBC05"/>
+                        <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.05C13.47.62 11.43 0 9 0 5.48 0 2.44 2.02.96 4.99l2.98 2.3C4.65 5.17 6.65 3.58 9 3.58z" fill="#EA4335"/>
+                    </svg>
+                    Mit Google anmelden
+                `;
+            }
+        });
+    }
 }
 
 function renderVerificationModal(wrapper, onSuccessCallback) {
