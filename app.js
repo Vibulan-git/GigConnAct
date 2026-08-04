@@ -5306,11 +5306,11 @@ window.revealMarketContact = function(itemId, type, value, clickedBtn) {
                             data-rec-name="${recName}"
                             data-ev-id="${evId}"
                             onclick="event.stopPropagation(); window.handleChatButtonClick(this)" 
-                            style="background: #ffffff !important; color: #0f172a !important; border: 1px solid #ffffff !important; font-weight: 800 !important; padding: 0.5rem 1.5rem !important; border-radius: 8px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; font-size: 0.85rem !important; cursor: pointer !important; transition: all 0.2s !important; box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;"
-                            onmouseover="this.style.background='rgba(255,255,255,0.9) !important'; this.style.transform='translateY(-1px)';"
-                            onmouseout="this.style.background='#ffffff !important'; this.style.transform='translateY(0)';"
+                            style="background: transparent !important; color: #ffffff !important; border: none !important; font-weight: 800 !important; padding: 0.5rem 1rem !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 0.5rem !important; font-size: 0.88rem !important; cursor: pointer !important; transition: all 0.2s !important; outline: none !important; box-shadow: none !important;"
+                            onmouseover="this.style.opacity='0.85';"
+                            onmouseout="this.style.opacity='1';"
                             title="Chat im Postfach öffnen">
-                        Nachricht schreiben
+                        Nachricht schreiben <i class="fa-solid fa-comments" style="font-size: 1rem; color: #ffffff;"></i>
                     </button>
                 </div>
             `;
@@ -6122,7 +6122,7 @@ function renderOrganizerEventItem(e, isActive) {
                         </div>
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Technik: ${techArr.length > 0 ? formatTruncatedList(techArr, themeColor, e.id, 'tech') : 'nach Vereinbarung'}</span>
+                            <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedList(techArr, themeColor, e.id, 'tech') : 'nach Vereinbarung'}</span>
                         </div>
                     </div>
                 </div>
@@ -6551,7 +6551,7 @@ function renderMyMusicianItem(m, isActive) {
                         </div>
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Technik: ${techArr.length > 0 ? formatTruncatedList(techArr, themeColor, m.id, 'tech') : 'nach Vereinbarung'}</span>
+                            <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedList(techArr, themeColor, m.id, 'tech') : 'nach Vereinbarung'}</span>
                         </div>
                     </div>
                 </div>
@@ -10010,16 +10010,19 @@ function initGigConnActApp() {
     if (logoLink) {
         logoLink.addEventListener('click', (e) => {
             e.preventDefault();
+            let targetHash = '#/';
             if (state && state.currentUser) {
                 if (state.currentUser.role === 'musician') {
-                    window.location.hash = '#/events';
+                    targetHash = '#/events';
                 } else if (state.currentUser.role === 'organizer') {
-                    window.location.hash = '#/musicians';
-                } else {
-                    window.location.hash = '#/';
+                    targetHash = '#/musicians';
                 }
+            }
+            
+            if (window.location.hash === targetHash) {
+                handleRouting();
             } else {
-                window.location.hash = '#/';
+                window.location.hash = targetHash;
             }
         });
     }
@@ -10581,12 +10584,33 @@ function renderPostbox(container) {
 function formatTruncatedList(listArray, themeColor, itemId, uniqueType) {
     if (!listArray || listArray.length === 0) return 'Keine Angabe';
     
-    if (listArray.length <= 3) {
-        return listArray.join(', ');
+    const fullJoined = listArray.join(', ');
+    
+    // If the total string is short and there are few items, just return it.
+    if (listArray.length <= 2 && fullJoined.length <= 32) {
+        return fullJoined;
     }
     
-    const visiblePart = listArray.slice(0, 3).join(', ');
-    const hiddenPart = ', ' + listArray.slice(3).join(', ');
+    // Otherwise, decide how many items fit within 32 characters in the first line.
+    let visibleCount = 1;
+    let currentLength = listArray[0].length;
+    for (let i = 1; i < listArray.length; i++) {
+        const nextLength = currentLength + 2 + listArray[i].length;
+        if (nextLength <= 32 && i < 2) {
+            currentLength = nextLength;
+            visibleCount = i + 1;
+        } else {
+            break;
+        }
+    }
+    
+    // If all items fit, just return the full list.
+    if (visibleCount >= listArray.length) {
+        return fullJoined;
+    }
+    
+    const visiblePart = listArray.slice(0, visibleCount).join(', ');
+    const hiddenPart = ', ' + listArray.slice(visibleCount).join(', ');
     const hiddenId = `more-${uniqueType}-${itemId}`;
     
     return `
