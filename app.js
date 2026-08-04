@@ -1973,6 +1973,13 @@ class StateManager {
                 return { success: false, message: "Diese E-Mail-Adresse wird bereits verwendet." };
             }
 
+            const actionCodeSettings = {
+                url: window.location.origin + window.location.pathname,
+                handleCodeInApp: true
+            };
+            await auth.sendSignInLinkToEmail(payload.email, actionCodeSettings);
+
+            window.localStorage.setItem('emailForSignIn', payload.email);
             window.localStorage.setItem('GigConnAct_pending_registration', JSON.stringify(payload));
             return { success: true };
         } catch (err) {
@@ -1990,6 +1997,13 @@ class StateManager {
             const snapshot = await db.collection('users').where('email', '==', email).get();
             const isExisting = emailExistsLocal || !snapshot.empty;
             
+            const actionCodeSettings = {
+                url: window.location.origin + window.location.pathname,
+                handleCodeInApp: true
+            };
+            await auth.sendSignInLinkToEmail(email, actionCodeSettings);
+
+            window.localStorage.setItem('emailForSignIn', email);
             return { success: true, isNewUser: !isExisting };
         } catch (err) {
             console.error("loginPasswordless failed:", err);
@@ -8295,67 +8309,6 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 return;
             }
 
-            let mockEmailHtml = '';
-
-            if (!res.isNewUser) {
-                // Existing user
-                if (typeof window.addMockEmail === 'function') {
-                    window.addMockEmail(
-                        "Dein Anmeldelink für GigConnAct",
-                        "GigConnAct <no-reply@gigconnact.de>",
-                        `Hallo,\n\nklicke auf den Link unten, um dich direkt anzumelden:\n\n[Jetzt anmelden]`
-                    );
-                }
-
-                mockEmailHtml = `
-                    <div style="background: rgba(124, 58, 237, 0.08); border: 1.5px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 1.25rem; margin-top: 1rem; text-align: left;">
-                        <h4 style="margin: 0 0 0.5rem; font-family: var(--font-heading); color: #a855f7; display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem;">
-                            <i class="fa-solid fa-envelope-open-text"></i> Posteingang (Simulation)
-                        </h4>
-                        <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">
-                            <strong>Betreff:</strong> Dein Anmeldelink für GigConnAct
-                        </p>
-                        <p style="font-size: 0.82rem; margin-bottom: 1rem; line-height: 1.4; color: var(--text-main);">
-                            Hallo!<br><br>
-                            Klicke auf den Button unten, um dich direkt bei deinem Account anzumelden (Simulator-Abkürzung):
-                        </p>
-                        <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="login" style="width: 100%; background: #7c3aed; font-weight: 800; border: none; padding: 0.7rem; border-radius: 8px;">Jetzt anmelden</button>
-                    </div>
-                `;
-            } else {
-                // New user
-                if (typeof window.addMockEmail === 'function') {
-                    window.addMockEmail(
-                        "Registrierung abschließen bei GigConnAct",
-                        "GigConnAct <no-reply@gigconnact.de>",
-                        `Hallo,\n\ndiese E-Mail-Adresse ist neu bei uns. Wähle aus, wie du dich registrieren und anmelden möchtest.`
-                    );
-                }
-
-                mockEmailHtml = `
-                    <div style="background: rgba(124, 58, 237, 0.08); border: 1.5px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 1.25rem; margin-top: 1rem; text-align: left;">
-                        <h4 style="margin: 0 0 0.5rem; font-family: var(--font-heading); color: #a855f7; display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem;">
-                            <i class="fa-solid fa-envelope-open-text"></i> Posteingang (Simulation)
-                        </h4>
-                        <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">
-                            <strong>Betreff:</strong> Registrierung abschließen bei GigConnAct
-                        </p>
-                        <p style="font-size: 0.82rem; margin-bottom: 1rem; line-height: 1.4; color: var(--text-main);">
-                            Hallo!<br><br>
-                            Diese E-Mail-Adresse ist neu bei uns. Wähle aus, wie du dich registrieren und anmelden möchtest:
-                        </p>
-                        <div style="display: flex; gap: 0.75rem;">
-                            <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="register-mus" style="flex: 1; background: #7c3aed; border: none; font-weight: 700; font-size: 0.78rem; padding: 0.6rem;">
-                                <i class="fa-solid fa-guitar"></i> Als Musiker
-                            </button>
-                            <button type="button" class="btn btn-primary btn-magic-action" data-email="${email}" data-action="register-org" style="flex: 1; background: #2563eb; border: none; font-weight: 700; font-size: 0.78rem; padding: 0.6rem;">
-                                <i class="fa-solid fa-calendar-days"></i> Als Veranstalter
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }
-
             if (successContainer) {
                 successContainer.innerHTML = `
                     <div style="text-align: center; color: var(--color-green); font-size: 1.8rem; margin-bottom: 0.5rem;">
@@ -8363,34 +8316,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     </div>
                     <h4 style="text-align: center; margin: 0 0 0.5rem; font-family: var(--font-heading); color: var(--text-main);">Anmeldelink gesendet!</h4>
                     <p style="text-align: center; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.4;">
-                        Wir haben einen sicheren Link an <strong>${email}</strong> gesendet.
+                        Wir haben einen sicheren Link an <strong>${email}</strong> gesendet.<br><br>
+                        Bitte überprüfe dein E-Mail-Postfach (und deinen Spam-Ordner) und klicke auf den Bestätigungslink in der E-Mail, um dich anzumelden.
                     </p>
-                    ${mockEmailHtml}
                 `;
                 successContainer.style.display = 'block';
-
-                successContainer.querySelectorAll('.btn-magic-action').forEach(actionBtn => {
-                    actionBtn.addEventListener('click', async (ev) => {
-                        const action = ev.currentTarget.getAttribute('data-action');
-                        const userEmail = ev.currentTarget.getAttribute('data-email');
-                        let loginRes;
-
-                        if (action === 'login') {
-                            loginRes = await state.loginAsDemoUser(userEmail);
-                        } else if (action === 'register-mus') {
-                            loginRes = await state.registerOnTheFly(userEmail, 'musician');
-                        } else if (action === 'register-org') {
-                            loginRes = await state.registerOnTheFly(userEmail, 'organizer');
-                        }
-
-                        if (loginRes && loginRes.success) {
-                            closeModal();
-                            document.dispatchEvent(new CustomEvent('user-state-changed'));
-                            if (onSuccessCallback) onSuccessCallback();
-                            else navigateAfterLogin();
-                        }
-                    });
-                });
             }
         });
     }
@@ -9256,32 +9186,18 @@ function renderVerificationModal(wrapper, onSuccessCallback) {
             <div class="modal-body" style="padding-top:0;">
                 <p style="margin-bottom:1.5rem; line-height: 1.5; color: var(--text-muted);">
                     Wir haben eine E-Mail zur Registrierung an <strong>${pendingUser.email || 'deine E-Mail'}</strong> gesendet.<br><br>
-                    Für diese Demo kannst du die Registrierung direkt hier durch Klick auf den Bestätigungslink abschließen.
+                    Bitte überprüfe dein E-Mail-Postfach (und deinen Spam-Ordner) und klicke auf den Bestätigungslink in der E-Mail, um die Registrierung abzuschließen.
                 </p>
-                <div style="background:rgba(0,242,254,0.03); border: 1px dashed rgba(0,242,254,0.3); border-radius:var(--radius-md); padding:1rem; margin-bottom: 2rem;">
-                    <div style="font-size: 0.75rem; text-transform: uppercase; color:var(--color-cyan); font-weight:700; margin-bottom: 0.5rem;">Simulierte E-Mail-Nachricht</div>
-                    <p style="font-size:0.85rem; margin-bottom:1rem;">Hi ${pendingUser.firstName || 'Musiker'}, bitte klicke unten, um dein GigConnAct Konto zu aktivieren.</p>
-                    <button class="btn btn-primary btn-sm" id="btn-mock-email-confirm">
-                        E-Mail bestätigen
+                <div style="margin-top: 2rem;">
+                    <button class="btn btn-secondary btn-sm" id="btn-close-verification-modal">
+                        Schließen
                     </button>
                 </div>
             </div>
         </div>
     `;
 
-    document.getElementById('btn-mock-email-confirm').addEventListener('click', async () => {
-        const res = await state.confirmPendingRegistration();
-        if (res.success) {
-            closeModal();
-            showToast({
-                title: "Registrierung abgeschlossen! 🎉",
-                message: "Dein Profil ist nun aktiv. Willkommen bei GigConnAct!"
-            });
-            document.dispatchEvent(new CustomEvent('user-state-changed'));
-            if (onSuccessCallback) onSuccessCallback();
-            else navigateAfterLogin();
-        }
-    });
+    document.getElementById('btn-close-verification-modal').addEventListener('click', closeModal);
 }
 
 
