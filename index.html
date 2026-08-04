@@ -1,10 +1,15 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <!-- Global Error Catcher -->
     <script>
         window.onerror = function(message, source, lineno, colno, error) {
+            // Ignore extension or third-party script errors (where source is undefined or not from our domains)
+            if (!source || (source.indexOf('gigconnact.de') === -1 && source.indexOf('app.js') === -1 && source.indexOf('localhost') === -1 && source.indexOf('127.0.0.1') === -1)) {
+                console.warn("Ignored cross-domain/extension error:", message, "Source:", source);
+                return false; 
+            }
             var div = document.createElement('div');
             div.style.position = 'fixed';
             div.style.top = '0';
