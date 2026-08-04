@@ -1641,6 +1641,19 @@ class StateManager {
         this.notify();
     }
 
+    getUnreadCount() {
+        if (!this.currentUser) return 0;
+        const matchesCount = this.getUnreadMatches().length;
+        const chatsList = this.chats || [];
+        const currentUserId = this.currentUser.id;
+        const unreadChats = chatsList.filter(c => 
+            c.participants && 
+            c.participants.includes(currentUserId) && 
+            !(this.readChats || []).includes(c.id)
+        ).length;
+        return matchesCount + unreadChats;
+    }
+
     subscribe(callback) {
         this.listeners.push(callback);
         return () => {
