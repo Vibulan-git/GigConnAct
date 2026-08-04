@@ -1836,6 +1836,58 @@ class StateManager {
         return { success: true, chatId: newId };
     }
 
+    async sendMessage(recipientId, text, eventId) {
+        if (!this.currentUser) return { success: false, message: "Bitte melde dich an." };
+        const senderId = this.currentUser.role === 'musician' 
+            ? (this.activeMusicianId || this.currentUser.profileId) 
+            : (this.activeEventId || this.currentUser.id);
+        
+        let chat = this.chats.find(c => 
+            c.participants.includes(senderId) && c.participants.includes(recipientId)
+        );
+
+        const newId = chat ? chat.id : "chat_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+        
+        const newMessage = {
+            senderId: senderId,
+            text: text,
+            timestamp: new Date().toISOString()
+        };
+
+        if (!chat) {
+            chat = {
+                id: newId,
+                participants: [senderId, recipientId],
+                messages: [newMessage],
+                updatedAt: new Date().toISOString(),
+                initiatorId: senderId
+            };
+            if (eventId) chat.eventId = eventId;
+            try {
+                await db.collection('chats').doc(newId).set(chat);
+            } catch (err) {
+                console.error("sendMessage failed to create chat:", err);
+            }
+        } else {
+            const updatedMessages = [...(chat.messages || []), newMessage];
+            try {
+                await db.collection('chats').doc(newId).update({
+                    messages: updatedMessages,
+                    updatedAt: new Date().toISOString()
+                });
+            } catch (err) {
+                console.error("sendMessage failed to update chat:", err);
+            }
+        }
+
+        if (!this.readChats.includes(newId)) {
+            this.readChats.push(newId);
+            this.notify();
+        }
+
+        return { success: true, chatId: newId };
+    }
+
     async addSystemNotification(recipientId, text) {
         let chat = this.chats.find(c => c.participants.includes(recipientId) && c.participants.includes("system"));
         const newId = chat ? chat.id : "chat_sys_" + Math.random().toString(36).substr(2, 9);
@@ -5368,7 +5420,7 @@ function renderProfilePage(container) {
                     </div>` : ''}
 
                     <div style="display: flex; justify-content: center;">
-                        <button type="submit" class="btn btn-primary" style="margin:0; background: ${themeBtnBg}; border-color: ${themeBtnBorder};">
+                        <button type="submit" class="btn btn-primary btn-sm" style="margin:0; background: ${themeBtnBg}; border-color: ${themeBtnBorder};">
                             <i class="fa-solid fa-floppy-disk"></i> Änderungen speichern
                         </button>
                     </div>
@@ -5400,7 +5452,7 @@ function renderProfilePage(container) {
                             <i class="fa-solid fa-arrow-rotate-right"></i> Abo reaktivieren
                         </button>
                     ` : `
-                        <button class="btn btn-glass" id="btn-cancel-subscription" style="margin:0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05);">
+                        <button class="btn btn-glass btn-sm" id="btn-cancel-subscription" style="margin:0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05);">
                             <i class="fa-solid fa-ban"></i> Abo kündigen
                         </button>
                     `}
@@ -5492,7 +5544,7 @@ function renderProfilePage(container) {
                     </div>
 
                     <div style="display: flex; justify-content: flex-end;">
-                        <button class="btn btn-primary" id="btn-save-subscription-change" style="margin:0; background: #7c3aed; border-color: #7c3aed;">
+                        <button class="btn btn-primary btn-sm" id="btn-save-subscription-change" style="margin:0; background: #7c3aed; border-color: #7c3aed;">
                             <i class="fa-solid fa-circle-arrow-right"></i> Tarifwechsel bestätigen
                         </button>
                     </div>
@@ -6878,9 +6930,11 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         <div id="modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 1.5rem; background: var(--color-purple); border-color: var(--color-purple);">
-                        ${isEdit ? 'Änderungen speichern' : 'Profil erstellen'}
-                    </button>
+                    <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
+                        <button type="submit" class="btn btn-primary btn-sm" style="margin:0; background: var(--color-purple); border-color: var(--color-purple);">
+                            ${isEdit ? 'Änderungen speichern' : 'Profil erstellen'}
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -7345,9 +7399,11 @@ function showEventModal(eventObj = null, isDuplication = false) {
                         <div id="event-modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 1.5rem; background: #2563eb; border-color: #2563eb;">
-                        ${isEdit ? 'Änderungen speichern' : 'Event ausschreiben'}
-                    </button>
+                    <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
+                        <button type="submit" class="btn btn-primary btn-sm" style="margin:0; background: #2563eb; border-color: #2563eb;">
+                            ${isEdit ? 'Änderungen speichern' : 'Event ausschreiben'}
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
