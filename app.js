@@ -1753,6 +1753,14 @@ class StateManager {
         return !!this.currentUser;
     }
 
+    markChatAsRead(chatId) {
+        if (!this.readChats) this.readChats = [];
+        if (!this.readChats.includes(chatId)) {
+            this.readChats.push(chatId);
+            this.notify();
+        }
+    }
+
     subscribe(callback) {
         this.listeners.push(callback);
         return () => {
@@ -5212,10 +5220,11 @@ window.revealMarketContact = function(itemId, type, value, clickedBtn) {
             clickedBtn.classList.add('active');
         }
         
+        container.style.background = 'rgba(255,255,255,0.15)';
+        container.style.padding = '0.55rem';
+        
         let contentHtml = '';
         if (type === 'chat') {
-            container.style.background = 'transparent';
-            container.style.padding = '0';
             const parts = value.split('|');
             const recId = parts[0];
             const recName = parts[1] || '';
@@ -5234,8 +5243,6 @@ window.revealMarketContact = function(itemId, type, value, clickedBtn) {
                 </div>
             `;
         } else {
-            container.style.background = 'rgba(255,255,255,0.15)';
-            container.style.padding = '0.55rem';
             contentHtml = `
                 <div style="display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap;">
                     <span style="font-weight: 600; color: #ffffff; font-size: 0.9rem; user-select: all;">${value}</span>
