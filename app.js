@@ -6031,7 +6031,7 @@ function renderOrganizerEventItem(e, isActive) {
 
     const videoSources = e.videos && e.videos.length > 0 ? e.videos : [];
 
-    const genresList = (e.genres || (e.genre ? [e.genre] : ['Pop', 'Rock'])).join(', ');
+    const genresArr = e.genres && e.genres.length > 0 ? e.genres : (e.genre ? [e.genre] : ['Pop', 'Rock']);
     const instrumentsList = (e.instruments || (e.category ? [e.category] : ['Gesang', 'Gitarre'])).join(', ');
 
     let formattedDate = new Date(e.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -6115,6 +6115,10 @@ function renderOrganizerEventItem(e, isActive) {
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-tag" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>Typ: ${e.type}</span>
+                        </div>
+                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                            <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Musikgenres: ${formatTruncatedList(genresArr, themeColor, e.id, 'genres')}</span>
                         </div>
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
@@ -6534,7 +6538,7 @@ function renderMyMusicianItem(m, isActive) {
                             <span>${budgetDisplay}</span>
                         </div>
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-tag" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                            <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${formatTruncatedList(genresArr, themeColor, m.id, 'genres')}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
@@ -10096,7 +10100,7 @@ function renderPostbox(container) {
     }
 
     const stateChangeListener = () => {
-        if (!document.body.contains(container)) {
+        if (window.location.hash !== '#/postbox' || !document.body.contains(container)) {
             document.removeEventListener('user-state-changed', stateChangeListener);
             return;
         }
@@ -10586,7 +10590,7 @@ function formatTruncatedList(listArray, themeColor, itemId, uniqueType) {
     const hiddenId = `more-${uniqueType}-${itemId}`;
     
     return `
-        <span>${visiblePart}</span><span id="${hiddenId}" style="display: none;">${hiddenPart}</span><span onclick="event.stopPropagation(); this.style.display='none'; document.getElementById('${hiddenId}').style.display='inline';" style="color: ${themeColor}; font-weight: 900; cursor: pointer; margin-left: 0.45rem; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.22); width: 22px; height: 22px; border-radius: 50%; font-size: 1rem; vertical-align: middle; line-height: 1; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.22)'" title="Mehr anzeigen">+</span>
+        <span>${visiblePart}</span><span id="${hiddenId}" style="display: none;">${hiddenPart}</span><span onclick="event.stopPropagation(); this.style.display='none'; document.getElementById('${hiddenId}').style.display='inline';" style="color: ${themeColor}; font-weight: 900; cursor: pointer; margin-left: 0.5rem; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.25); width: 26px; height: 26px; border-radius: 50%; font-size: 1.15rem; vertical-align: middle; line-height: 1; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.25)'" title="Mehr anzeigen">+</span>
     `;
 }
 
