@@ -7913,6 +7913,24 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             </div>
 
             <div class="modal-body">
+                <div id="google-login-container" style="margin-bottom: 1.5rem;">
+                    <button id="btn-google-login" class="btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.65rem; background: #ffffff !important; color: #1f2937 !important; border: 1px solid #d1d5db !important; font-weight: 700 !important; padding: 0.65rem !important; border-radius: 8px !important; cursor: pointer !important; transition: background 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;">
+                        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
+                            <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.24h2.9c1.7-1.57 2.69-3.88 2.69-6.57z" fill="#4285F4"/>
+                            <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.24c-.8.54-1.83.86-3.06.86-2.35 0-4.35-1.59-5.06-3.73H.96v2.3C2.44 15.98 5.48 18 9 18z" fill="#34A853"/>
+                            <path d="M3.94 10.71c-.18-.54-.28-1.12-.28-1.71s.1-1.17.28-1.71V4.99H.96A8.99 8.99 0 000 9c0 1.49.36 2.92.96 4.2l2.98-2.3a5.35 5.35 0 01-.29-1.19z" fill="#FBBC05"/>
+                            <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.05C13.47.62 11.43 0 9 0 5.48 0 2.44 2.02.96 4.99l2.98 2.3C4.65 5.17 6.65 3.58 9 3.58z" fill="#EA4335"/>
+                        </svg>
+                        Mit Google anmelden
+                    </button>
+                    
+                    <div style="display: flex; align-items: center; text-align: center; margin: 1rem 0 0.5rem; color: var(--text-muted); font-size: 0.8rem;">
+                        <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.15);"></div>
+                        <span style="padding: 0 0.75rem; color: var(--text-muted); font-weight: 500;">oder</span>
+                        <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.15);"></div>
+                    </div>
+                </div>
+
                 <form id="auth-magic-form">
                     <div class="form-group">
                         <label>E-Mail-Adresse</label>
@@ -7925,24 +7943,6 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         Anmeldelink senden
                     </button>
                 </form>
-
-                <div id="google-login-container" style="margin-top: 1rem;">
-                    <div style="display: flex; align-items: center; text-align: center; margin: 1rem 0; color: var(--text-muted); font-size: 0.8rem;">
-                        <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.15);"></div>
-                        <span style="padding: 0 0.75rem; color: var(--text-muted); font-weight: 500;">oder</span>
-                        <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.15);"></div>
-                    </div>
-
-                    <button id="btn-google-login" class="btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.65rem; background: #ffffff !important; color: #1f2937 !important; border: 1px solid #d1d5db !important; font-weight: 700 !important; padding: 0.65rem !important; border-radius: 8px !important; cursor: pointer !important; transition: background 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;">
-                        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
-                            <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.24h2.9c1.7-1.57 2.69-3.88 2.69-6.57z" fill="#4285F4"/>
-                            <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.24c-.8.54-1.83.86-3.06.86-2.35 0-4.35-1.59-5.06-3.73H.96v2.3C2.44 15.98 5.48 18 9 18z" fill="#34A853"/>
-                            <path d="M3.94 10.71c-.18-.54-.28-1.12-.28-1.71s.1-1.17.28-1.71V4.99H.96A8.99 8.99 0 000 9c0 1.49.36 2.92.96 4.2l2.98-2.3a5.35 5.35 0 01-.29-1.19z" fill="#FBBC05"/>
-                            <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.05C13.47.62 11.43 0 9 0 5.48 0 2.44 2.02.96 4.99l2.98 2.3C4.65 5.17 6.65 3.58 9 3.58z" fill="#EA4335"/>
-                        </svg>
-                        Mit Google anmelden
-                    </button>
-                </div>
 
                 <form id="auth-register-form" class="hidden">
                     <div class="role-picker-container" style="margin-bottom: 1.5rem;">
@@ -8512,6 +8512,16 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         magicTab.addEventListener('click', () => {
             setActiveTab(magicTab);
             showForm(magicForm);
+            window.googleRegistrationUser = null;
+            if (registerForm && registerForm.elements.email) {
+                registerForm.elements.email.value = '';
+                registerForm.elements.email.disabled = false;
+                registerForm.elements.email.style.background = '';
+                registerForm.elements.email.style.cursor = '';
+            }
+            if (registerForm && registerForm.elements.fullName) {
+                registerForm.elements.fullName.value = '';
+            }
             document.getElementById('magic-success-container').style.display = 'none';
             document.getElementById('magic-success-container').innerHTML = '';
             document.getElementById('magic-error-msg').style.display = 'none';
@@ -9449,6 +9459,112 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             payload.videos = window.registrationMedia.organizer.videos;
         }
 
+        if (window.googleRegistrationUser) {
+            try {
+                const user = window.googleRegistrationUser;
+                const profileId = payload.role === 'musician' ? 'mus_' + user.uid : 'event_' + user.uid;
+
+                const newUser = {
+                    id: user.uid,
+                    role: payload.role,
+                    firstName: firstName,
+                    lastName: lastName,
+                    company: payload.company,
+                    phone: payload.phone,
+                    hidePhone: payload.hidePhone,
+                    email: user.email,
+                    favorites: [],
+                    credits: 5,
+                    profileId: payload.role === 'musician' ? profileId : null,
+                    createdAt: new Date().toISOString()
+                };
+
+                if (payload.role === 'musician') {
+                    const newMusician = {
+                        id: profileId,
+                        creatorId: user.uid,
+                        name: payload.bandName,
+                        bluffName: `Anonyme/r ${payload.musicianType} (${payload.genres[0] || 'Musik'})`,
+                        type: payload.musicianType,
+                        location: payload.locations ? payload.locations.join(', ') : 'München',
+                        locations: payload.locations || ['München'],
+                        radius: parseInt(payload.radius) || 50,
+                        genres: payload.genres,
+                        instruments: payload.instruments,
+                        minDuration: parseFloat(payload.minDuration) || 1,
+                        maxDuration: parseFloat(payload.maxDuration) || 3,
+                        minBudget: parseFloat(payload.minBudget) || 150,
+                        maxBudget: parseFloat(payload.maxBudget) || 1000,
+                        eventTypes: payload.eventTypes,
+                        availability: payload.availability,
+                        minPublikum: parseInt(payload.minPublikum) || 0,
+                        maxPublikum: parseInt(payload.maxPublikum) || 500,
+                        technik: payload.technik,
+                        bio: payload.description,
+                        photos: payload.photos,
+                        videos: payload.videos
+                    };
+                    await db.collection('users').doc(user.uid).set(newUser);
+                    await db.collection('musicians').doc(profileId).set(newMusician);
+                } else {
+                    const newEvent = {
+                        id: 'event_' + user.uid,
+                        creatorId: user.uid,
+                        name: payload.eventName,
+                        type: payload.orgEventTypes ? payload.orgEventTypes.join(', ') : 'Event',
+                        location: payload.orgLocations ? payload.orgLocations.join(', ') : 'München',
+                        locations: payload.orgLocations || ['München'],
+                        date: payload.eventDates[0] || new Date().toISOString().split('T')[0],
+                        dates: payload.eventDates,
+                        eventStartTime: payload.eventStartTime,
+                        eventEndTime: payload.eventEndTime,
+                        genres: payload.orgGenres,
+                        instruments: payload.orgInstruments,
+                        minDuration: parseFloat(payload.orgMinDuration) || 1,
+                        maxDuration: parseFloat(payload.orgMaxDuration) || 3,
+                        minPublikum: parseInt(payload.orgMinPublikum) || 0,
+                        maxPublikum: parseInt(payload.orgMaxPublikum) || 500,
+                        technik: payload.technik,
+                        budget: parseFloat(payload.orgMinBudget) || 200,
+                        budgetMax: parseFloat(payload.orgMaxBudget) || 1500,
+                        description: payload.orgDescription,
+                        photos: payload.photos,
+                        videos: payload.videos,
+                        isActive: true,
+                        isCanceled: false
+                    };
+                    await db.collection('users').doc(user.uid).set(newUser);
+                    await db.collection('events').doc(newEvent.id).set(newEvent);
+                }
+
+                window.googleRegistrationUser = null;
+                
+                // Re-enable email in case modal is re-opened later
+                if (registerForm && registerForm.elements.email) {
+                    registerForm.elements.email.disabled = false;
+                    registerForm.elements.email.style.background = '';
+                    registerForm.elements.email.style.cursor = '';
+                }
+
+                closeModal();
+                showToast({
+                    title: "Registrierung abgeschlossen!",
+                    message: `Willkommen bei GigConnAct, ${newUser.firstName}!`
+                });
+                
+                if (typeof onSuccessCallback === 'function') {
+                    onSuccessCallback();
+                } else {
+                    handleRouting();
+                }
+            } catch (err) {
+                console.error("Google user profile setup failed:", err);
+                errDiv.textContent = "Google-Registrierung fehlgeschlagen: " + err.message;
+                errDiv.style.display = 'block';
+            }
+            return;
+        }
+
         const res = await state.registerPasswordless(payload);
         if (res.success) {
             closeModal();
@@ -9476,56 +9592,45 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 if (!userDoc.exists) {
-                    const displayName = user.displayName || 'Google-User';
-                    const nameParts = displayName.split(' ');
-                    const firstName = nameParts[0] || 'Google';
-                    const lastName = nameParts.slice(1).join(' ') || 'User';
-                    const profileId = "mus_" + user.uid;
+                    // NEUER BENUTZER: Nicht direkt einloggen!
+                    // Wir merken uns das Google User Objekt
+                    window.googleRegistrationUser = user;
 
-                    const newUser = {
-                        id: user.uid,
-                        role: 'musician',
-                        firstName: firstName,
-                        lastName: lastName,
-                        company: 'Privatperson',
-                        phone: '+49 170 1234567',
-                        email: user.email,
-                        favorites: [],
-                        credits: 5,
-                        profileId: profileId,
-                        createdAt: new Date().toISOString()
-                    };
+                    // E-Mail-Feld in der Registrierung ausfüllen und sperren
+                    if (registerForm && registerForm.elements.email) {
+                        registerForm.elements.email.value = user.email || '';
+                        registerForm.elements.email.disabled = true;
+                        registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
+                        registerForm.elements.email.style.cursor = 'not-allowed';
+                    }
 
-                    const newMusician = {
-                        id: profileId,
-                        creatorId: user.uid,
-                        name: displayName,
-                        bluffName: "Akustik-Solo-Künstler",
-                        type: "Solo",
-                        location: "München",
-                        locations: ["München"],
-                        radius: 100,
-                        genres: ["Pop", "Rock"],
-                        instruments: ["Gesang", "Akustikgitarre"],
-                        minDuration: 1,
-                        maxDuration: 3,
-                        minBudget: 150,
-                        maxBudget: 1000,
-                        eventTypes: ["Geburtstag", "Sommerfest"],
-                        availability: {
-                            friday: { available: true, startTime: '18:00', endTime: '23:59' },
-                            saturday: { available: true, startTime: '00:01', endTime: '23:59' }
-                        },
-                        minPublikum: 0,
-                        maxPublikum: 500,
-                        technik: ["Technik vorhanden"],
-                        bio: "Professionelle Live-Musik für unvergessliche Momente.",
-                        photos: ['https://picsum.photos/id/453/400/300'],
-                        videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
-                    };
+                    // Vor- und Nachname ausfüllen, falls vorhanden
+                    if (registerForm && registerForm.elements.fullName && user.displayName) {
+                        registerForm.elements.fullName.value = user.displayName;
+                    }
 
-                    await db.collection('users').doc(user.uid).set(newUser);
-                    await db.collection('musicians').doc(profileId).set(newMusician);
+                    // Den "Registrieren"-Tab aktivieren
+                    const registerTabBtn = document.getElementById('tab-register-btn');
+                    if (registerTabBtn) {
+                        registerTabBtn.click();
+                    }
+
+                    showToast({
+                        title: "Google-Konto verknüpft!",
+                        message: "Bitte vervollständige deine Angaben, um die Registrierung abzuschließen."
+                    });
+                    
+                    googleBtn.disabled = false;
+                    googleBtn.innerHTML = `
+                        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
+                            <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.24h2.9c1.7-1.57 2.69-3.88 2.69-6.57z" fill="#4285F4"/>
+                            <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.24c-.8.54-1.83.86-3.06.86-2.35 0-4.35-1.59-5.06-3.73H.96v2.3C2.44 15.98 5.48 18 9 18z" fill="#34A853"/>
+                            <path d="M3.94 10.71c-.18-.54-.28-1.12-.28-1.71s.1-1.17.28-1.71V4.99H.96A8.99 8.99 0 000 9c0 1.49.36 2.92.96 4.2l2.98-2.3a5.35 5.35 0 01-.29-1.19z" fill="#FBBC05"/>
+                            <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.05C13.47.62 11.43 0 9 0 5.48 0 2.44 2.02.96 4.99l2.98 2.3C4.65 5.17 6.65 3.58 9 3.58z" fill="#EA4335"/>
+                        </svg>
+                        Mit Google anmelden
+                    `;
+                    return;
                 }
 
                 closeModal();
