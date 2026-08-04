@@ -7847,8 +7847,6 @@ function showModal(type, onSuccessCallback) {
         renderPremiumModal(modalWrapper, onSuccessCallback);
     } else if (type === 'verification') {
         renderVerificationModal(modalWrapper, onSuccessCallback);
-    } else if (type === 'feedback') {
-        renderFeedbackModal(modalWrapper, onSuccessCallback);
     }
     
     initAllLocationAutocompletes();
@@ -9446,87 +9444,7 @@ function renderVerificationModal(wrapper, onSuccessCallback) {
 }
 
 
-function renderFeedbackModal(wrapper, onSuccessCallback) {
-    if (!state.currentUser) return;
-    const u = state.currentUser;
-    const isMusician = u.role === 'musician';
-    
-    wrapper.innerHTML = `
-        <div class="modal-content" style="max-width: 500px; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-lg);">
-            <div class="modal-header" style="padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border-glass); display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="margin: 0; font-size: 1.3rem; font-family: var(--font-heading); display: flex; align-items: center; gap: 0.6rem; color: var(--text-main);">
-                    <i class="fa-solid fa-comment-dots" style="color: ${isMusician ? '#a855f7' : '#3b82f6'};"></i> Feedback senden
-                </h3>
-                <button class="close-modal-btn" id="btn-close-modal" style="background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; padding: 0; line-height: 1;">&times;</button>
-            </div>
-            <div class="modal-body" style="padding: 1.5rem;">
-                <form id="feedback-form" style="display: flex; flex-direction: column; gap: 1.2rem;">
-                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
-                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--text-main);">Absender</label>
-                        <input type="text" class="input-field" value="${u.firstName} ${u.lastName} (${u.email})" disabled style="background: rgba(255,255,255,0.03) !important; opacity: 0.75; cursor: not-allowed; width: 100%; box-sizing: border-box; color: var(--text-muted) !important;">
-                    </div>
-                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
-                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--text-main);">Empfänger</label>
-                        <input type="email" class="input-field" value="info@gigconnact.de" disabled style="background: rgba(255,255,255,0.03) !important; opacity: 0.75; cursor: not-allowed; width: 100%; box-sizing: border-box; color: var(--text-muted) !important;">
-                    </div>
-                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
-                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--text-main);">Betreff</label>
-                        <input type="text" id="feedback-subject" class="input-field" placeholder="Z. B. Verbesserungsvorschlag, Frage, Lob..." required style="width: 100%; box-sizing: border-box;">
-                    </div>
-                    <div class="form-group" style="display: flex; flex-direction: column; gap: 0.4rem;">
-                        <label style="font-weight: 600; font-size: 0.85rem; color: var(--text-main);">Deine Nachricht</label>
-                        <textarea id="feedback-message" class="input-field" rows="5" placeholder="Beschreibe dein Anliegen..." required style="width: 100%; box-sizing: border-box; resize: vertical; min-height: 120px;"></textarea>
-                    </div>
-                    
-                    <div style="display: flex; gap: 0.8rem; margin-top: 0.5rem; width: 100%;">
-                        <button type="submit" class="btn btn-submit-feedback ${isMusician ? 'feedback-purple-btn' : 'feedback-blue-btn'}" id="btn-submit-feedback" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 42px; border-radius: var(--radius-sm); border: none; font-weight: 600;">
-                            <i class="fa-solid fa-paper-plane"></i> Feedback absenden
-                        </button>
-                        <button type="button" class="btn btn-glass" id="btn-mailto-fallback" title="Über eigenes E-Mail-Programm senden" style="display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; flex-shrink: 0; background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); color: var(--text-main); cursor: pointer; transition: all 0.2s;">
-                            <i class="fa-solid fa-envelope-open-text" style="font-size: 1.1rem;"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    `;
 
-    document.getElementById('btn-close-modal').addEventListener('click', closeModal);
-
-    const feedbackForm = document.getElementById('feedback-form');
-    feedbackForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const subject = document.getElementById('feedback-subject').value.trim();
-        const message = document.getElementById('feedback-message').value.trim();
-        
-        // Disable buttons and show loading state
-        const submitBtn = document.getElementById('btn-submit-feedback');
-        const mailtoBtn = document.getElementById('btn-mailto-fallback');
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Wird gesendet...';
-        }
-        if (mailtoBtn) mailtoBtn.disabled = true;
-
-        setTimeout(() => {
-            closeModal();
-            showToast({
-                title: "Feedback gesendet! ✉️",
-                message: "Vielen Dank! Deine Nachricht wurde erfolgreich an info@gigconnact.de übermittelt."
-            });
-            if (onSuccessCallback) onSuccessCallback();
-        }, 1000);
-    });
-
-    const mailtoBtn = document.getElementById('btn-mailto-fallback');
-    mailtoBtn.addEventListener('click', () => {
-        const subject = document.getElementById('feedback-subject').value.trim() || 'Feedback an GigConnAct';
-        const message = document.getElementById('feedback-message').value.trim() || 'Hallo GigConnAct Team,';
-        
-        const mailtoUrl = `mailto:info@gigconnact.de?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
-        window.location.href = mailtoUrl;
-    });
-}
 
 function renderPremiumModal(wrapper, onSuccessCallback) {
     wrapper.innerHTML = `
@@ -9931,9 +9849,6 @@ function updateNavbar(forceLanding) {
                         
                         <a href="#/profile" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile"><i class="fa-solid fa-user-gear"></i><span>Profil bearbeiten</span></a>
                         
-                        <!-- Feedback Button (Moved from Header to Dropdown under Profil bearbeiten) -->
-                        <a href="javascript:void(0)" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'}" id="dropdown-btn-feedback"><i class="fa-solid fa-comment-dots"></i><span>Feedback senden</span></a>
-                        
                         <div class="profile-dropdown-divider"></div>
                         <a href="javascript:void(0)" class="profile-dropdown-item logout-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'}" id="dropdown-btn-logout"><i class="fa-solid fa-right-from-bracket"></i><span>Abmelden</span></a>
                     </div>
@@ -9952,14 +9867,7 @@ function updateNavbar(forceLanding) {
             });
         }
 
-        // Toggle feedback modal logic
-        const feedbackBtn = document.getElementById('dropdown-btn-feedback');
-        if (feedbackBtn) {
-            feedbackBtn.addEventListener('click', () => {
-                menu.classList.remove('show');
-                showModal('feedback');
-            });
-        }
+
 
         // Dropdown internal link navigation handles closing menu
         const profileLink = document.getElementById('dropdown-link-profile');
