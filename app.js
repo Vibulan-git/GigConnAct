@@ -1661,6 +1661,88 @@ class StateManager {
         ).sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     }
 
+    addEvent(eventData) {
+        if (!this.currentUser) return { success: false };
+        const id = 'evt_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+        const newEvent = {
+            id: id,
+            creatorId: this.currentUser.id,
+            createdAt: new Date().toISOString(),
+            isActive: true,
+            ...eventData
+        };
+        db.collection('events').doc(id).set(newEvent)
+            .catch(err => console.error("addEvent Firestore write failed:", err));
+        return { success: true };
+    }
+
+    updateEvent(eventId, updatedData) {
+        db.collection('events').doc(eventId).update(updatedData)
+            .catch(err => console.error("updateEvent Firestore write failed:", err));
+        return { success: true };
+    }
+
+    deleteEvent(eventId) {
+        db.collection('events').doc(eventId).delete()
+            .catch(err => console.error("deleteEvent Firestore write failed:", err));
+        return { success: true };
+    }
+
+    toggleEventActive(eventId) {
+        const event = this.events.find(e => e.id === eventId);
+        if (event) {
+            const nextActive = event.isActive === false ? true : false;
+            db.collection('events').doc(eventId).update({ isActive: nextActive })
+                .catch(err => console.error("toggleEventActive Firestore write failed:", err));
+            event.isActive = nextActive;
+            return { success: true, isActive: nextActive };
+        }
+        return { success: false };
+    }
+
+    addMusician(musicianData) {
+        if (!this.currentUser) return { success: false };
+        const id = 'mus_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+        const newMusician = {
+            id: id,
+            creatorId: this.currentUser.id,
+            createdAt: new Date().toISOString(),
+            photos: [],
+            videos: [],
+            audio: [],
+            socialLinks: { spotify: "", youtube: "", instagram: "" },
+            isActive: true,
+            ...musicianData
+        };
+        db.collection('musicians').doc(id).set(newMusician)
+            .catch(err => console.error("addMusician Firestore write failed:", err));
+        return { success: true };
+    }
+
+    updateMusician(musicianId, updatedData) {
+        db.collection('musicians').doc(musicianId).update(updatedData)
+            .catch(err => console.error("updateMusician Firestore write failed:", err));
+        return { success: true };
+    }
+
+    deleteMusician(musicianId) {
+        db.collection('musicians').doc(musicianId).delete()
+            .catch(err => console.error("deleteMusician Firestore write failed:", err));
+        return { success: true };
+    }
+
+    toggleMusicianActive(musicianId) {
+        const musician = this.musicians.find(m => m.id === musicianId);
+        if (musician) {
+            const nextActive = musician.isActive === false ? true : false;
+            db.collection('musicians').doc(musicianId).update({ isActive: nextActive })
+                .catch(err => console.error("toggleMusicianActive Firestore write failed:", err));
+            musician.isActive = nextActive;
+            return { success: true, isActive: nextActive };
+        }
+        return { success: false };
+    }
+
     subscribe(callback) {
         this.listeners.push(callback);
         return () => {
@@ -3479,6 +3561,50 @@ function getFuzzyScore(query, target) {
     }
     
     return 0;
+}
+
+function initDualSlider(containerId, minInputId, maxInputId, trackId, displayId, unit, isPrice, parentElement = document) {
+    const container = parentElement.querySelector('#' + containerId) || document.getElementById(containerId);
+    if (!container) return;
+    const minInput = parentElement.querySelector('#' + minInputId) || document.getElementById(minInputId);
+    const maxInput = parentElement.querySelector('#' + maxInputId) || document.getElementById(maxInputId);
+    const track = parentElement.querySelector('#' + trackId) || document.getElementById(trackId);
+    const display = parentElement.querySelector('#' + displayId) || document.getElementById(displayId);
+
+    function updateSlider() {
+        let minVal = parseFloat(minInput.value);
+        let maxVal = parseFloat(maxInput.value);
+
+        if (minVal > maxVal) {
+            const temp = minVal;
+            minVal = maxVal;
+            maxVal = temp;
+        }
+
+        const percentMin = ((minVal - minInput.min) / (minInput.max - minInput.min)) * 100;
+        const percentMax = ((maxVal - minInput.min) / (maxInput.max - minInput.min)) * 100;
+
+        if (track) {
+            track.style.left = percentMin + '%';
+            track.style.width = (percentMax - percentMin) + '%';
+        }
+
+        if (display) {
+            if (isPrice) {
+                if (minVal === 0 && maxVal === 5000) {
+                    display.textContent = "unbegrenzt";
+                } else {
+                    display.textContent = `${minVal} € - ${maxVal} €`;
+                }
+            } else {
+                display.textContent = `${minVal} - ${maxVal} ${unit}`;
+            }
+        }
+    }
+
+    minInput.addEventListener('input', updateSlider);
+    maxInput.addEventListener('input', updateSlider);
+    updateSlider();
 }
 
 function setupLocationAutocomplete(input, onSelect) {
