@@ -5204,7 +5204,13 @@ window.openItemDetailModal = function(id, isEvents) {
                                 </div>
                                 <div><i class="fa-solid fa-envelope" style="color: ${roleColor}; margin-right: 0.5rem;"></i> Mail: <strong>${item.email || 'kontakt@gigconnact.de'}</strong></div>
                             </div>
-                            <button class="btn btn-primary" onclick="document.getElementById('modal-item-detail').remove(); window.initiateMarketContact('${isEvents ? item.creatorId : item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}', '${isEvents ? item.id : ''}')" style="background: ${isEvents ? '#2563eb' : '#7c3aed'}; border-color: ${isEvents ? '#2563eb' : '#7c3aed'}; font-weight: 800; padding: 0.8rem 2rem; border-radius: 10px; display: inline-flex; align-items: center; gap: 0.6rem; margin-top: 0.5rem;">
+                            <button class="btn btn-primary" 
+                                    data-rec-id="${isEvents ? item.creatorId : item.id}" 
+                                    data-rec-name="${item.name || item.title || ''}" 
+                                    data-ev-id="${isEvents ? item.id : ''}"
+                                    data-close-modal="true"
+                                    onclick="event.stopPropagation(); window.handleChatButtonClick(this)" 
+                                    style="background: ${isEvents ? '#2563eb' : '#7c3aed'}; border-color: ${isEvents ? '#2563eb' : '#7c3aed'}; font-weight: 800; padding: 0.8rem 2rem; border-radius: 10px; display: inline-flex; align-items: center; gap: 0.6rem; margin-top: 0.5rem;">
                                 <i class="fa-solid fa-comment"></i> Nachricht senden
                             </button>
                         ` : `
@@ -5225,6 +5231,17 @@ window.openItemDetailModal = function(id, isEvents) {
     `;
 
     document.body.insertAdjacentHTML('beforeend', modalHTML);
+};
+
+window.handleChatButtonClick = function(btn) {
+    if (btn.getAttribute('data-close-modal') === 'true') {
+        const detailModal = document.getElementById('modal-item-detail');
+        if (detailModal) detailModal.remove();
+    }
+    const recId = btn.getAttribute('data-rec-id');
+    const recName = btn.getAttribute('data-rec-name');
+    const evId = btn.getAttribute('data-ev-id');
+    window.initiateMarketContact(recId, recName, evId);
 };
 
 window.initiateMarketContact = async function(targetId, targetName, eventId) {
@@ -5284,11 +5301,14 @@ window.revealMarketContact = function(itemId, type, value, clickedBtn) {
             
             contentHtml = `
                 <div style="display: flex; align-items: center; justify-content: center; padding: 0.2rem 0;">
-                    <button class="btn btn-primary" 
-                            onclick="event.stopPropagation(); window.initiateMarketContact('${recId}', '${recName.replace(/'/g, "\\'")}', '${evId}')" 
-                            style="background: #ffffff; color: #0f172a; border: 1px solid #ffffff; font-weight: 800; padding: 0.5rem 1.5rem; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;"
-                            onmouseover="this.style.background='rgba(255,255,255,0.9)'; this.style.transform='translateY(-1px)';"
-                            onmouseout="this.style.background='#ffffff'; this.style.transform='translateY(0)';"
+                    <button class="btn" 
+                            data-rec-id="${recId}"
+                            data-rec-name="${recName}"
+                            data-ev-id="${evId}"
+                            onclick="event.stopPropagation(); window.handleChatButtonClick(this)" 
+                            style="background: #ffffff !important; color: #0f172a !important; border: 1px solid #ffffff !important; font-weight: 800 !important; padding: 0.5rem 1.5rem !important; border-radius: 8px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; font-size: 0.85rem !important; cursor: pointer !important; transition: all 0.2s !important; box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;"
+                            onmouseover="this.style.background='rgba(255,255,255,0.9) !important'; this.style.transform='translateY(-1px)';"
+                            onmouseout="this.style.background='#ffffff !important'; this.style.transform='translateY(0)';"
                             title="Chat im Postfach öffnen">
                         Nachricht schreiben
                     </button>
@@ -10057,8 +10077,6 @@ function renderPostbox(container) {
 
     const currentUserId = activeProfileId;
 
-    // Fetch user chats
-    const chats = state.getChatsForUser(currentUserId);
     let activeTab = window.postboxActiveTab || 'all'; // 'all' | 'received' | 'sent' | 'system'
     let activeChatId = window.postboxActiveChatId !== undefined ? window.postboxActiveChatId : null;
 
@@ -10075,7 +10093,24 @@ function renderPostbox(container) {
         `;
     }
 
+    const stateChangeListener = () => {
+        if (!document.body.contains(container)) {
+            document.removeEventListener('user-state-changed', stateChangeListener);
+            return;
+        }
+        renderPostbox(container);
+    };
+
+    if (container.cleanupPostboxListener) {
+        container.cleanupPostboxListener();
+    }
+    document.addEventListener('user-state-changed', stateChangeListener);
+    container.cleanupPostboxListener = () => {
+        document.removeEventListener('user-state-changed', stateChangeListener);
+    };
+
     const renderView = () => {
+        const chats = state.getChatsForUser(currentUserId);
         window.postboxActiveTab = activeTab;
         window.postboxActiveChatId = activeChatId;
 
