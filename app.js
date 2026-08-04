@@ -1725,6 +1725,18 @@ class StateManager {
         return { success: true };
     }
 
+    async addMusicianApplication(musicianId, eventId) {
+        if (!musicianId || !eventId) return { success: false };
+        const musician = this.musicians.find(m => m.id === musicianId);
+        if (!musician) return { success: false };
+        const apps = musician.applications ? [...musician.applications] : [];
+        if (!apps.some(a => a.eventId === eventId)) {
+            apps.push({ eventId: eventId, status: 'contacted' });
+            return this.updateMusician(musicianId, { applications: apps });
+        }
+        return { success: true };
+    }
+
     deleteMusician(musicianId) {
         db.collection('musicians').doc(musicianId).delete()
             .catch(err => console.error("deleteMusician Firestore write failed:", err));
@@ -5300,18 +5312,17 @@ window.revealMarketContact = function(itemId, type, value, clickedBtn) {
             const evId = parts[2] || '';
             
             contentHtml = `
-                <div style="display: flex; align-items: center; justify-content: center; padding: 0.2rem 0;">
-                    <button class="btn" 
-                            data-rec-id="${recId}"
-                            data-rec-name="${recName}"
-                            data-ev-id="${evId}"
-                            onclick="event.stopPropagation(); window.handleChatButtonClick(this)" 
-                            style="background: transparent !important; color: #ffffff !important; border: none !important; font-weight: 800 !important; padding: 0.5rem 1rem !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 0.5rem !important; font-size: 0.88rem !important; cursor: pointer !important; transition: all 0.2s !important; outline: none !important; box-shadow: none !important;"
-                            onmouseover="this.style.opacity='0.85';"
-                            onmouseout="this.style.opacity='1';"
-                            title="Chat im Postfach öffnen">
+                <div style="display: flex; align-items: center; justify-content: center;">
+                    <span onclick="event.stopPropagation(); window.handleChatButtonClick(this)" 
+                          data-rec-id="${recId}"
+                          data-rec-name="${recName}"
+                          data-ev-id="${evId}"
+                          style="font-weight: 800; color: #ffffff; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: opacity 0.2s;"
+                          onmouseover="this.style.opacity='0.85';"
+                          onmouseout="this.style.opacity='1';"
+                          title="Chat im Postfach öffnen">
                         Nachricht schreiben <i class="fa-solid fa-comments" style="font-size: 1rem; color: #ffffff;"></i>
-                    </button>
+                    </span>
                 </div>
             `;
         } else {
