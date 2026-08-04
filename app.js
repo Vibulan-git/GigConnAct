@@ -1960,6 +1960,8 @@ class StateManager {
             console.error("registerOnTheFly failed:", err);
             return { success: false, message: err.message };
         }
+    }
+
     async registerPasswordless(payload) {
         try {
             const emailLower = payload.email.toLowerCase();
