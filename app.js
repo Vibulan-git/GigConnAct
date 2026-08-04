@@ -1654,6 +1654,13 @@ class StateManager {
         return matchesCount + unreadChats;
     }
 
+    getChatsForUser(userId) {
+        if (!this.chats) return [];
+        return this.chats.filter(c => 
+            c.participants && c.participants.includes(userId)
+        ).sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    }
+
     subscribe(callback) {
         this.listeners.push(callback);
         return () => {
@@ -2010,6 +2017,10 @@ class StateManager {
             const snapshot = await db.collection('users').where('email', '==', email).get();
             const isExisting = emailExistsLocal || !snapshot.empty;
             
+            if (!isExisting) {
+                return { success: false, message: "Diese E-Mail-Adresse ist nicht registriert. Bitte erstelle zuerst ein Konto unter 'Registrieren'." };
+            }
+
             const actionCodeSettings = {
                 url: window.location.origin + window.location.pathname,
                 handleCodeInApp: true
@@ -2017,7 +2028,7 @@ class StateManager {
             await auth.sendSignInLinkToEmail(email, actionCodeSettings);
 
             window.localStorage.setItem('emailForSignIn', email);
-            return { success: true, isNewUser: !isExisting };
+            return { success: true, isNewUser: false };
         } catch (err) {
             console.error("loginPasswordless failed:", err);
             return { success: false, message: err.message || "Fehler beim Generieren des Anmeldelinks." };
