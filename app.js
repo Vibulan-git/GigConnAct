@@ -1,4 +1,4 @@
-﻿// Firebase Configuration
+// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyCuGm5JDhKwFILPrgxz3iQftTBUFGpb8qo",
     authDomain: "gigconnact.firebaseapp.com",
@@ -1959,6 +1959,39 @@ class StateManager {
         } catch (err) {
             console.error("registerOnTheFly failed:", err);
             return { success: false, message: err.message };
+        }
+    async registerPasswordless(payload) {
+        try {
+            const emailLower = payload.email.toLowerCase();
+            const emailExistsLocal = this.musicians.some(m => m.email && m.email.toLowerCase() === emailLower) || 
+                                     this.events.some(e => e.email && e.email.toLowerCase() === emailLower);
+            
+            const snapshot = await db.collection('users').where('email', '==', payload.email).get();
+            if (emailExistsLocal || !snapshot.empty) {
+                return { success: false, message: "Diese E-Mail-Adresse wird bereits verwendet." };
+            }
+
+            window.localStorage.setItem('GigConnAct_pending_registration', JSON.stringify(payload));
+            return { success: true };
+        } catch (err) {
+            console.error("registerPasswordless failed:", err);
+            return { success: false, message: err.message || "Registrierung fehlgeschlagen." };
+        }
+    }
+
+    async loginPasswordless(email) {
+        try {
+            const emailLower = email.toLowerCase();
+            const emailExistsLocal = this.musicians.some(m => m.email && m.email.toLowerCase() === emailLower) || 
+                                     this.events.some(e => e.email && e.email.toLowerCase() === emailLower);
+            
+            const snapshot = await db.collection('users').where('email', '==', email).get();
+            const isExisting = emailExistsLocal || !snapshot.empty;
+            
+            return { success: true, isNewUser: !isExisting };
+        } catch (err) {
+            console.error("loginPasswordless failed:", err);
+            return { success: false, message: err.message || "Fehler beim Generieren des Anmeldelinks." };
         }
     }
 
