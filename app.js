@@ -10859,6 +10859,9 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
     }
 
     const themeColor = isEvents ? '#7c3aed' : '#2563eb';
+    const footerGradient = isEvents 
+        ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' 
+        : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)';
 
     return items.map(item => {
         const isUnlocked = state ? ((typeof state.isUnlocked === 'function') ? state.isUnlocked(item.id) : (state.unlockedContacts && state.unlockedContacts.includes(item.id))) : false;
@@ -11086,7 +11089,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
 
                 ${isUnlocked ? `
                     <!-- Solid Colored Unlocked Contact Footer Box -->
-                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 1rem 1.3rem; background: ${themeColor}; color: #ffffff; display: flex; flex-direction: column; gap: 0.8rem; border-radius: 0 0 18px 18px;">
+                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 1rem 1.3rem; background: ${footerGradient}; color: #ffffff; display: flex; flex-direction: column; gap: 0.8rem; border-radius: 0 0 18px 18px;">
                         <!-- Row of circular action buttons -->
                         <div style="display: flex; align-items: center; justify-content: center; gap: 1.2rem;">
                             <!-- Organizer Type Button -->
