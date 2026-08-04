@@ -3700,23 +3700,40 @@ function setupLocationAutocomplete(input, onSelect) {
             
             const matchedCity = popularGermanCities.find(c => c.toLowerCase() === val.toLowerCase());
             if (matchedCity) {
-                input.value = matchedCity;
                 input.dataset.lastValidVal = matchedCity;
-                if (!onSelect) {
+                if (onSelect) {
+                    onSelect(matchedCity);
+                    input.value = '';
+                } else {
+                    input.value = matchedCity;
                     input.dispatchEvent(new Event('input', { bubbles: true }));
                     input.dispatchEvent(new Event('change', { bubbles: true }));
                 }
             } else {
-                if (onSelect) {
-                    input.value = '';
+                const firstItem = suggestionsContainer.querySelector('.autocomplete-suggestion');
+                if (firstItem && !suggestionsContainer.classList.contains('hidden')) {
+                    const firstVal = firstItem.getAttribute('data-val');
+                    input.dataset.lastValidVal = firstVal;
+                    if (onSelect) {
+                        onSelect(firstVal);
+                        input.value = '';
+                    } else {
+                        input.value = firstVal;
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                        input.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
                 } else {
-                    input.value = input.dataset.lastValidVal || '';
-                    input.dispatchEvent(new Event('input', { bubbles: true }));
-                    input.dispatchEvent(new Event('change', { bubbles: true }));
-                    showToast({
-                        title: "Ort ungültig",
-                        message: "Bitte wähle einen Ort aus den Vorschlägen aus."
-                    });
+                    if (onSelect) {
+                        input.value = '';
+                    } else {
+                        input.value = input.dataset.lastValidVal || '';
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                        input.dispatchEvent(new Event('change', { bubbles: true }));
+                        showToast({
+                            title: "Ort ungültig",
+                            message: "Bitte wähle einen Ort aus den Vorschlägen aus."
+                        });
+                    }
                 }
             }
             suggestionsContainer.classList.add('hidden');
