@@ -1743,6 +1743,12 @@ class StateManager {
         return { success: false };
     }
 
+    logout() {
+        auth.signOut().catch(err => console.error("Firebase signOut failed:", err));
+        this.currentUser = null;
+        this.notify();
+    }
+
     subscribe(callback) {
         this.listeners.push(callback);
         return () => {
