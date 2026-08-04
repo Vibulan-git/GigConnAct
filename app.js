@@ -6045,7 +6045,10 @@ function renderOrganizerEventItem(e, isActive) {
 
     let budgetDisplay = e.budget ? `${e.budget} €` : 'Auf Anfrage';
     let durationDisplay = e.spieldauer ? `${e.spieldauer} Stunden` : '2 - 4 Stunden';
-    let techDisplayStr = e.technik || 'Technik nach Vereinbarung';
+    
+    const techArr = Array.isArray(e.technik) 
+        ? e.technik 
+        : (typeof e.technik === 'string' && e.technik.trim() !== '' ? e.technik.split(',').map(s => s.trim()) : []);
 
     const description = e.description || 'Wir suchen eine professionelle musikalische Begleitung für unser anstehendes Event mit fantastischer Stimmung.';
 
@@ -6113,9 +6116,9 @@ function renderOrganizerEventItem(e, isActive) {
                             <i class="fa-solid fa-tag" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>Typ: ${e.type}</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Technik: ${techDisplayStr}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                            <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Technik: ${techArr.length > 0 ? formatTruncatedList(techArr, themeColor, e.id, 'tech') : 'nach Vereinbarung'}</span>
                         </div>
                     </div>
                 </div>
@@ -6410,7 +6413,7 @@ function renderMyMusicianItem(m, isActive) {
         { title: 'Unplugged Live Session', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' }
     ];
 
-    const genresList = (m.genres || []).join(', ') || 'Pop, Rock';
+    const genresArr = m.genres && m.genres.length > 0 ? m.genres : ['Pop', 'Rock'];
     const instrumentsList = (m.instruments || []).join(', ') || (m.type === 'DJ' ? 'DJ-Controller' : 'Gesang, Gitarre');
 
     let durationDisplay = '';
@@ -6439,10 +6442,9 @@ function renderMyMusicianItem(m, isActive) {
         budgetDisplay = 'Auf Anfrage';
     }
 
-    let techDisplayStr = 'Technik nach Vereinbarung';
-    if (Array.isArray(m.technik) && m.technik.length > 0) {
-        techDisplayStr = m.technik.join(', ');
-    }
+    const techArr = Array.isArray(m.technik) 
+        ? m.technik 
+        : (typeof m.technik === 'string' && m.technik.trim() !== '' ? m.technik.split(',').map(s => s.trim()) : []);
 
     const description = m.description || m.bio || 'Professionelle Live-Musik für unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.';
 
@@ -6531,9 +6533,9 @@ function renderMyMusicianItem(m, isActive) {
                             <i class="fa-solid fa-euro-sign" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>${budgetDisplay}</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-tag" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${genresList}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                            <i class="fa-solid fa-tag" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedList(genresArr, themeColor, m.id, 'genres')}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
@@ -6543,9 +6545,9 @@ function renderMyMusicianItem(m, isActive) {
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>${availDaysStr}</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${techDisplayStr}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                            <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Technik: ${techArr.length > 0 ? formatTruncatedList(techArr, themeColor, m.id, 'tech') : 'nach Vereinbarung'}</span>
                         </div>
                     </div>
                 </div>
@@ -10584,7 +10586,7 @@ function formatTruncatedList(listArray, themeColor, itemId, uniqueType) {
     const hiddenId = `more-${uniqueType}-${itemId}`;
     
     return `
-        <span>${visiblePart}</span><span id="${hiddenId}" style="display: none;">${hiddenPart}</span><span onclick="event.stopPropagation(); this.style.display='none'; document.getElementById('${hiddenId}').style.display='inline';" style="color: ${themeColor}; font-weight: 800; cursor: pointer; margin-left: 0.35rem; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.15); width: 18px; height: 18px; border-radius: 50%; font-size: 0.75rem; vertical-align: middle;" title="Mehr anzeigen">+</span>
+        <span>${visiblePart}</span><span id="${hiddenId}" style="display: none;">${hiddenPart}</span><span onclick="event.stopPropagation(); this.style.display='none'; document.getElementById('${hiddenId}').style.display='inline';" style="color: ${themeColor}; font-weight: 900; cursor: pointer; margin-left: 0.45rem; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.22); width: 22px; height: 22px; border-radius: 50%; font-size: 1rem; vertical-align: middle; line-height: 1; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.22)'" title="Mehr anzeigen">+</span>
     `;
 }
 
