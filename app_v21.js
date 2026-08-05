@@ -2996,7 +2996,12 @@ function renderLandingPage(container, onNavigate) {
                         Wir vermitteln Live-Musik.
                     </h1>
                     <p style="font-size: clamp(0.78rem, 2.2vw, 1.25rem); color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.5; max-width: 800px; margin: 0 auto; text-shadow: 0 2px 10px rgba(0,0,0,0.7);">
-                       <!-- 2. SECTION 1: Musiker-Profile -->
+                        Hochzeiten, Geburtstage, Firmenfeiern & Co.<br>GigConnAct verbindet Musiker und Veranstalter.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 2. SECTION 1: Musiker-Profile -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 3rem 1.5rem 0;">
                 
                 <!-- Headline: Musiker-Markt -->
