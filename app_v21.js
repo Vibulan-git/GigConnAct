@@ -3001,8 +3001,19 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 2. SECTION 1: Musiker-Profile Marquee -->
-            <div style="max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem 0;">
+            <!-- 2. SECTION 1: Musiker-Profile -->
+            <div style="max-width: 1400px; margin: 0 auto; padding: 3rem 1.5rem 0;">
+                
+                <!-- Headline: Musiker-Markt -->
+                <div style="text-align: center; margin-bottom: 2.2rem; padding: 0 1rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.8vw, 2.5rem); font-weight: 800; color: #0f172a; margin: 0 0 0.5rem; line-height: 1.2; letter-spacing: -0.5px;">
+                        Sänger, Solokünstler, Bands, DJs & Co.
+                    </h2>
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.4rem, 2.8vw, 1.9rem); font-weight: 800; color: #2563eb; line-height: 1.2; letter-spacing: -0.3px;">
+                        Der Musiker-Markt für Veranstalter!
+                    </div>
+                </div>
+
                 <div class="logo-marquee-wrapper theme-musicians-marquee" style="margin-bottom: 2.2rem;">
                     <div class="logo-marquee-track">
                         <!-- First Copy of 10 Band Logos -->
@@ -3086,8 +3097,19 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 3. SECTION 2: Event-Profile Marquee -->
-            <div style="max-width: 1400px; margin: 0 auto; padding: 0.5rem 1.5rem 0;">
+            <!-- 3. SECTION 2: Event-Profile -->
+            <div style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1.5rem 0;">
+                
+                <!-- Headline: Event-Markt -->
+                <div style="text-align: center; margin-bottom: 2.2rem; padding: 0 1rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.8vw, 2.5rem); font-weight: 800; color: #0f172a; margin: 0 0 0.5rem; line-height: 1.2; letter-spacing: -0.5px;">
+                        Hochzeiten, Geburtstage, Firmenfeiern, Stadtfeste & Co.
+                    </h2>
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.4rem, 2.8vw, 1.9rem); font-weight: 800; color: #7c3aed; line-height: 1.2; letter-spacing: -0.3px;">
+                        Der Event-Markt für Musiker
+                    </div>
+                </div>
+
                 <div class="logo-marquee-wrapper theme-events-marquee" style="margin-bottom: 2.2rem;">
                     <div class="logo-marquee-track">
                         <!-- First Copy of 10 Event/Venue/Club Logos -->
