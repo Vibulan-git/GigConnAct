@@ -2694,6 +2694,7 @@ body {
 
 .carousel-track {
     display: flex;
+    width: max-content;
     transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     gap: 2rem;
     padding: 0.5rem 0;
@@ -2780,7 +2781,7 @@ body {
 .carousel-track {
     display: flex;
     flex-wrap: nowrap;
-    width: 100%;
+    width: max-content;
     transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     gap: 2rem;
     padding: 0.5rem 0;
@@ -4243,21 +4244,17 @@ input[type="range"].input-field {
 }
 .btn-homepage-market.theme-musician {
     background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-    box-shadow: 0 0 15px rgba(124, 58, 237, 0.5), 0 4px 20px rgba(124, 58, 237, 0.3);
-    animation: purpleGlowPulse 3s infinite alternate;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
 }
 .btn-homepage-market.theme-musician:hover {
-    box-shadow: 0 0 25px rgba(124, 58, 237, 0.8), 0 6px 30px rgba(124, 58, 237, 0.6) !important;
-    animation: none;
+    box-shadow: 0 6px 18px rgba(124, 58, 237, 0.35) !important;
 }
 .btn-homepage-market.theme-organizer {
     background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.7), 0 4px 25px rgba(59, 130, 246, 0.45);
-    animation: blueGlowPulse 3s infinite alternate;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 .btn-homepage-market.theme-organizer:hover {
-    box-shadow: 0 0 30px rgba(59, 130, 246, 0.95), 0 6px 35px rgba(59, 130, 246, 0.75) !important;
-    animation: none;
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35) !important;
 }
 
 @keyframes purpleGlowPulse {

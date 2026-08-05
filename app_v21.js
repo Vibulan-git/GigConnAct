@@ -3266,9 +3266,14 @@ function renderLandingPage(container, onNavigate) {
 
             <!-- 3.5. EVENT TYPES SECTION -->
             <div style="max-width: 1400px; margin: 5rem auto 3rem; padding: 0 1.5rem; text-align: center;">
-                <h2 style="font-family: var(--font-heading); font-size: clamp(1.6rem, 3.2vw, 2.5rem); font-weight: 900; color: var(--text-main); margin: 0 0 2.5rem; line-height: 1.2;">
-                    Live-Musik für jedes Event
-                </h2>
+                <div style="text-align: center; margin-bottom: 2.5rem; padding: 0 1rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; color: #7c3aed; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
+                        Live-Musik
+                    </h2>
+                    <div style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
+                        für jedes Event.
+                    </div>
+                </div>
                 
                 <!-- Horizontal row of event type cards -->
                 <div class="event-types-grid" style="display: flex; gap: 1.2rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1.5rem;">
@@ -3332,13 +3337,13 @@ function renderLandingPage(container, onNavigate) {
                     <div class="benefit-split-card card-musician">
                         <div>
                             <!-- Header badge -->
-                            <div style="background: rgba(124, 58, 237, 0.1); color: #7c3aed; border-radius: 20px; padding: 0.4rem 0.9rem; font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1.2rem; text-transform: uppercase;">
+                            <div style="background: rgba(124, 58, 237, 0.1); color: #7c3aed; border-radius: 20px; padding: 0.45rem 1rem; font-size: 0.88rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1.2rem; text-transform: uppercase;">
                                 <i class="fa-solid fa-guitar"></i> Für Musiker
                             </div>
                             
                             <!-- Title and Illustration Row -->
                             <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem;">
-                                <h3 style="font-family: var(--font-heading); font-size: clamp(1.4rem, 2.5vw, 1.95rem); font-weight: 900; color: var(--text-main); margin: 0; line-height: 1.25; text-align: left;">
+                                <h3 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.2vw, 2.4rem); font-weight: 900; color: var(--text-main); margin: 0; line-height: 1.25; text-align: left;">
                                     <span style="color: #7c3aed;">Mehr Gigs.</span><br>Mehr Einnahmen.
                                 </h3>
                                 <!-- Illustration: guitar + music notes -->
@@ -3469,13 +3474,13 @@ function renderLandingPage(container, onNavigate) {
                     <div class="benefit-split-card card-organizer">
                         <div>
                             <!-- Header badge -->
-                            <div style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-radius: 20px; padding: 0.4rem 0.9rem; font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1.2rem; text-transform: uppercase;">
+                            <div style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-radius: 20px; padding: 0.45rem 1rem; font-size: 0.88rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1.2rem; text-transform: uppercase;">
                                 <i class="fa-solid fa-building"></i> Für Veranstalter
                             </div>
                             
                             <!-- Title and Illustration Row -->
                             <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem;">
-                                <h3 style="font-family: var(--font-heading); font-size: clamp(1.4rem, 2.5vw, 1.95rem); font-weight: 900; color: var(--text-main); margin: 0; line-height: 1.25; text-align: left;">
+                                <h3 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.2vw, 2.4rem); font-weight: 900; color: var(--text-main); margin: 0; line-height: 1.25; text-align: left;">
                                     <span style="color: #0f172a;">Dein Event.</span><br><span style="color: #2563eb;">Dein Act.</span>
                                 </h3>
                                 <!-- Illustration: calendar -->
@@ -11165,7 +11170,7 @@ function formatTruncatedList(listArray, themeColor, itemId, uniqueType) {
     const hiddenId = `more-${uniqueType}-${itemId}`;
     
     return `
-        <span>${visiblePart}</span><span id="${hiddenId}" style="display: none;">${hiddenPart}</span><span onclick="event.stopPropagation(); this.style.display='none'; document.getElementById('${hiddenId}').style.display='inline';" style="color: ${themeColor}; font-weight: 900; cursor: pointer; margin-left: 0.5rem; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.25); width: 26px; height: 26px; border-radius: 50%; font-size: 1.15rem; vertical-align: middle; line-height: 1; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.25)'" title="Mehr anzeigen">+</span>
+        <span>${visiblePart}</span><span id="${hiddenId}" style="display: none;">${hiddenPart}</span><span onclick="event.stopPropagation(); window.toggleTruncatedList(this, '${hiddenId}')" style="color: ${themeColor}; font-weight: 900; cursor: pointer; margin-left: 0.5rem; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.25); width: 26px; height: 26px; border-radius: 50%; font-size: 1.15rem; vertical-align: middle; line-height: 1; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.25)'" title="Mehr anzeigen">+</span>
     `;
 }
 
@@ -11594,6 +11599,21 @@ window.toggleCategoriesRow = function(type) {
     } else {
         row2.style.display = 'none';
         btn.innerHTML = `+ <span style="letter-spacing: 1px;">...</span>`;
+    }
+};
+
+window.toggleTruncatedList = function(element, hiddenId) {
+    const hiddenSpan = document.getElementById(hiddenId);
+    if (!hiddenSpan) return;
+    const isHidden = hiddenSpan.style.display === 'none';
+    if (isHidden) {
+        hiddenSpan.style.display = 'inline';
+        element.innerHTML = '−';
+        element.setAttribute('title', 'Weniger anzeigen');
+    } else {
+        hiddenSpan.style.display = 'none';
+        element.innerHTML = '+';
+        element.setAttribute('title', 'Mehr anzeigen');
     }
 };
 
