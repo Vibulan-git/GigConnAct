@@ -1737,6 +1737,46 @@ class StateManager {
         return { success: true };
     }
 
+    async acceptMusicianRequest(musicianId, eventId) {
+        if (!musicianId || !eventId) return { success: false };
+        const interestId = `int_${musicianId}_${eventId}`;
+        const interestRef = db.collection('interests').doc(interestId);
+        const doc = await interestRef.get();
+        if (doc.exists) {
+            await interestRef.update({ organizerInterested: true, organizerNoInterest: false });
+        } else {
+            await interestRef.set({
+                id: interestId,
+                eventId: eventId,
+                musicianId: musicianId,
+                musicianInterested: true,
+                organizerInterested: true,
+                organizerNoInterest: false
+            });
+        }
+        return { success: true };
+    }
+
+    async declineMusicianRequest(musicianId, eventId) {
+        if (!musicianId || !eventId) return { success: false };
+        const interestId = `int_${musicianId}_${eventId}`;
+        const interestRef = db.collection('interests').doc(interestId);
+        const doc = await interestRef.get();
+        if (doc.exists) {
+            await interestRef.update({ organizerNoInterest: true });
+        } else {
+            await interestRef.set({
+                id: interestId,
+                eventId: eventId,
+                musicianId: musicianId,
+                musicianInterested: true,
+                organizerInterested: false,
+                organizerNoInterest: true
+            });
+        }
+        return { success: true };
+    }
+
     deleteMusician(musicianId) {
         db.collection('musicians').doc(musicianId).delete()
             .catch(err => console.error("deleteMusician Firestore write failed:", err));
@@ -10395,7 +10435,8 @@ function renderPostbox(container) {
                 return;
             }
 
-            const firstMsg = chat.messages[0];
+            const msgs = chat.messages || [];
+            const firstMsg = msgs[0];
             const isFirstMsgFromMe = firstMsg ? (firstMsg.senderId === currentUserId) : (chat.initiatorId === currentUserId);
 
             if (isFirstMsgFromMe) {
@@ -10502,7 +10543,8 @@ function renderPostbox(container) {
                                 }
                             }
 
-                            const lastMsg = c.messages[c.messages.length - 1];
+                            const msgs = c.messages || [];
+                            const lastMsg = msgs[msgs.length - 1];
                             const isUnread = !state.readChats?.includes(c.id);
 
                             // Determine type and colors for specific feedback backgrounds and thick borders
@@ -10510,7 +10552,7 @@ function renderPostbox(container) {
                             if (isSys) {
                                 itemType = 'system';
                             } else {
-                                const firstMsg = c.messages[0];
+                                const firstMsg = msgs[0];
                                 const isFirstMsgFromMe = firstMsg ? (firstMsg.senderId === currentUserId) : (c.initiatorId === currentUserId);
                                 if (!isFirstMsgFromMe) {
                                     itemType = 'received';
@@ -10540,11 +10582,12 @@ function renderPostbox(container) {
                             let lockEventId = c.eventId;
                             let lockMusicianId = counterpartyId;
 
+                            const threadMsgs = c.messages || [];
                             if (!isMusician && !isSys) {
                                 const interest = state.interests?.find(i => i.musicianId === lockMusicianId && (lockEventId ? i.eventId === lockEventId : true));
                                 const isPerfect = interest && interest.musicianInterested && interest.organizerInterested;
                                 const isDeclined = interest && interest.organizerNoInterest;
-                                const firstMsg = c.messages[0];
+                                const firstMsg = threadMsgs[0];
                                 const isFirstMsgFromMe = firstMsg ? (firstMsg.senderId === currentUserId) : (c.initiatorId === currentUserId);
                                 if (!isPerfect && !isDeclined && !isFirstMsgFromMe) {
                                     isAccordionLock = true;
@@ -10555,12 +10598,12 @@ function renderPostbox(container) {
                                 <div class="mobile-chat-accordion" style="margin-top: 0.8rem; border-top: 1px solid var(--border-glass); padding-top: 0.8rem; text-align: left; width: 100%;">
                                     <!-- Chat Messages Body -->
                                     <div class="chat-messages-container" style="max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem; padding: 0.5rem 0.2rem;">
-                                        ${c.messages.length === 0 ? `
+                                        ${threadMsgs.length === 0 ? `
                                             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-align: center; padding: 1.5rem 1rem;">
                                                 <i class="fa-regular fa-paper-plane" style="font-size: 1.8rem; color: var(--border-glass); margin-bottom: 0.6rem;"></i>
                                                 <p style="font-size: 0.78rem; margin: 0; line-height: 1.3;">Keine Nachrichten vorhanden. Schreibe eine Nachricht, um das Gespräch zu beginnen!</p>
                                             </div>
-                                        ` : c.messages.map(m => {
+                                        ` : threadMsgs.map(m => {
                                             const isMe = m.senderId === currentUserId;
                                             return `
                                                 <div style="display: flex; justify-content: ${isMe ? 'flex-end' : 'flex-start'};">
@@ -10677,12 +10720,12 @@ function renderPostbox(container) {
 
                             <!-- Chat Messages Body -->
                             <div class="chat-messages-container" style="flex: 1; padding: 1.2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem;">
-                                ${activeChat.messages.length === 0 ? `
+                                ${(activeChat.messages || []).length === 0 ? `
                                     <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); text-align: center; padding: 2rem;">
                                         <i class="fa-regular fa-paper-plane" style="font-size: 2.5rem; color: var(--border-glass); margin-bottom: 0.8rem;"></i>
                                         <p style="font-size: 0.85rem; margin: 0;">Keine Nachrichten vorhanden. Schreibe eine Nachricht, um das Gespräch zu beginnen!</p>
                                     </div>
-                                ` : activeChat.messages.map(m => {
+                                ` : (activeChat.messages || []).map(m => {
                                     const isMe = m.senderId === currentUserId;
                                     return `
                                         <div style="display: flex; justify-content: ${isMe ? 'flex-end' : 'flex-start'};">
