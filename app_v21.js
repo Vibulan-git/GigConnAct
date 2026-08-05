@@ -3360,14 +3360,14 @@ function renderLandingPage(container, onNavigate) {
                                 <!-- Item 1 -->
                                 <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-unlock-keyhole" style="color: #7c3aed; font-size: 1rem;"></i>
+                                        <i class="fa-solid fa-comments" style="color: #7c3aed; font-size: 1rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
-                                            Kostenloser Zugang zu Events
+                                            Direkter Kontakt zu Veranstaltern
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Hochzeiten, Geburtstage, Firmenfeiern, Kirmes, Gartenpartys etc.
+                                            Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach
                                         </div>
                                     </div>
                                 </div>
@@ -3390,21 +3390,6 @@ function renderLandingPage(container, onNavigate) {
                                 <!-- Item 3 -->
                                 <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-comments" style="color: #7c3aed; font-size: 1rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
-                                            Direkter Kontakt zu Veranstaltern
-                                        </div>
-                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Item 4 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
                                         <i class="fa-solid fa-envelope" style="color: #7c3aed; font-size: 1rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
@@ -3417,7 +3402,7 @@ function renderLandingPage(container, onNavigate) {
                                     </div>
                                 </div>
 
-                                <!-- Item 5 -->
+                                <!-- Item 4 -->
                                 <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
                                         <i class="fa-solid fa-star" style="color: #7c3aed; font-size: 1rem;"></i>
@@ -3432,7 +3417,7 @@ function renderLandingPage(container, onNavigate) {
                                     </div>
                                 </div>
 
-                                <!-- Item 6 -->
+                                <!-- Item 5 -->
                                 <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
                                         <i class="fa-solid fa-bolt" style="color: #7c3aed; font-size: 1rem;"></i>
@@ -3447,7 +3432,7 @@ function renderLandingPage(container, onNavigate) {
                                     </div>
                                 </div>
 
-                                <!-- Item 7 -->
+                                <!-- Item 6 -->
                                 <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 60px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
                                         <i class="fa-solid fa-shield-halved" style="color: #7c3aed; font-size: 1rem;"></i>
@@ -3497,14 +3482,14 @@ function renderLandingPage(container, onNavigate) {
                                 <!-- Item 1 -->
                                 <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                                        <i class="fa-solid fa-unlock-keyhole" style="color: #2563eb; font-size: 1rem;"></i>
+                                        <i class="fa-solid fa-comments" style="color: #2563eb; font-size: 1rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
-                                            Kostenloser Zugang zu Musikern
+                                            Direkter Kontakt zu Musikern
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Coverbands, Bands, DJs, Duos, Trios, Gitarristen, Sänger etc.
+                                            Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach
                                         </div>
                                     </div>
                                 </div>
@@ -3527,21 +3512,6 @@ function renderLandingPage(container, onNavigate) {
                                 <!-- Item 3 -->
                                 <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                                        <i class="fa-solid fa-comments" style="color: #2563eb; font-size: 1rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
-                                            Direkter Kontakt zu Musikern
-                                        </div>
-                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Item 4 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
                                         <i class="fa-solid fa-envelope" style="color: #2563eb; font-size: 1rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
@@ -3554,7 +3524,7 @@ function renderLandingPage(container, onNavigate) {
                                     </div>
                                 </div>
 
-                                <!-- Item 5 -->
+                                <!-- Item 4 -->
                                 <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
                                         <i class="fa-solid fa-star" style="color: #2563eb; font-size: 1rem;"></i>
@@ -3569,7 +3539,7 @@ function renderLandingPage(container, onNavigate) {
                                     </div>
                                 </div>
 
-                                <!-- Item 6 -->
+                                <!-- Item 5 -->
                                 <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
                                         <i class="fa-solid fa-bolt" style="color: #2563eb; font-size: 1rem;"></i>
@@ -3584,7 +3554,7 @@ function renderLandingPage(container, onNavigate) {
                                     </div>
                                 </div>
 
-                                <!-- Item 7 -->
+                                <!-- Item 6 -->
                                 <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 60px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
                                         <i class="fa-solid fa-shield-halved" style="color: #2563eb; font-size: 1rem;"></i>
