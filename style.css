@@ -1849,16 +1849,16 @@ body {
 }
 
 .profile-avatar-btn {
-    width: 50px;
-    height: 50px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border: 1px solid var(--border-glass);
+    border: 1.5px solid var(--border-glass) !important;
     transition: all var(--transition-fast);
-    font-size: 1.5rem;
+    font-size: 1.05rem !important;
 }
 
 /* Musicians: Profile avatar button is blue */
@@ -3942,17 +3942,17 @@ html {
 
 .btn-reset-round {
     padding: 0 !important;
-    font-size: 0.95rem;
+    font-size: 1.05rem !important;
     font-weight: 700;
     border-radius: 50% !important;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 42px !important;
+    height: 42px !important;
     background: rgba(255, 255, 255, 0.15) !important;
-    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
     color: #ffffff !important;
     line-height: 1;
     transition: background 0.2s, transform 0.1s;
@@ -3973,13 +3973,13 @@ html {
         display: flex !important;
         align-items: center;
         justify-content: center;
-        width: 32px;
-        height: 32px;
+        width: 42px !important;
+        height: 42px !important;
         border-radius: 50%;
         background: rgba(255, 255, 255, 0.12) !important;
-        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
         color: #ffffff !important;
-        font-size: 1.1rem !important;
+        font-size: 1.05rem !important;
         cursor: pointer;
         transition: background 0.2s, color 0.2s;
     }

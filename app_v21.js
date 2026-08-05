@@ -4292,20 +4292,20 @@ function renderMarket(container, type, onNavigate) {
             <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 1.5rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0.6rem; -webkit-overflow-scrolling: touch;">
                 
                 <!-- 1. Filter -->
-                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border-radius: 50%; flex-shrink: 0;">
-                    <i class="fa-solid fa-sliders" style="font-size: 0.95rem; margin: 0;"></i>
+                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; flex-shrink: 0;">
+                    <i class="fa-solid fa-sliders" style="font-size: 1.05rem; margin: 0;"></i>
                 </button>
  
 
 
                 <!-- 3. Stern (Nur Top-Matches anzeigen) -->
-                <button class="market-control-toggle" id="btn-toggle-market-top-matches" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Top-Matches anzeigen">
-                    <i class="fa-solid fa-star" style="font-size: 0.95rem; margin: 0;"></i>
+                <button class="market-control-toggle" id="btn-toggle-market-top-matches" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Top-Matches anzeigen">
+                    <i class="fa-solid fa-star" style="font-size: 1.05rem; margin: 0;"></i>
                 </button>
 
                 <!-- 4. Herz (Nur Favoriten anzeigen) -->
-                <button class="market-control-toggle" id="btn-toggle-market-favorites" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Favoriten anzeigen">
-                    <i class="fa-solid fa-heart" style="font-size: 0.95rem; margin: 0;"></i>
+                <button class="market-control-toggle" id="btn-toggle-market-favorites" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Favoriten anzeigen">
+                    <i class="fa-solid fa-heart" style="font-size: 1.05rem; margin: 0;"></i>
                 </button>
 
                 <!-- 5. Ergebnisse als Zahl + Label pushed to the right -->
@@ -4333,8 +4333,8 @@ function renderMarket(container, type, onNavigate) {
                         <!-- Center: Sort and Reset -->
                         <div style="display: flex; align-items: center; gap: 1.2rem; justify-content: center; flex: 1;">
                             <!-- 2. Sortierung inside Filter Sidebar Header -->
-                            <div class="market-sort-container-round" style="width: 32px !important; height: 32px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 50% !important; flex-shrink: 0; position: relative; margin: 0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='transparent'">
-                                <i class="fa-solid fa-arrow-down-wide-short" style="color: #ffffff; font-size: 0.9rem; pointer-events: none;"></i>
+                            <div class="market-sort-container-round" style="width: 42px !important; height: 42px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 50% !important; flex-shrink: 0; position: relative; margin: 0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='transparent'">
+                                <i class="fa-solid fa-arrow-down-wide-short" style="color: #ffffff; font-size: 1.05rem; pointer-events: none;"></i>
                                 <select id="sort-select" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; margin: 0; z-index: 5;">
                                     <option value="match">Match-Faktor absteigend</option>
                                     <option value="newest">Neueste zuerst</option>
@@ -4344,14 +4344,14 @@ function renderMarket(container, type, onNavigate) {
                                 </select>
                             </div>
                             
-                            <button id="btn-reset-filters" class="btn-reset-round" title="Filter zurücksetzen" style="margin: 0; width: 32px; height: 32px;">
+                            <button id="btn-reset-filters" class="btn-reset-round" title="Filter zurücksetzen" style="margin: 0; width: 42px; height: 42px;">
                                 <i class="fa-solid fa-rotate-left"></i>
                             </button>
                         </div>
                         
                         <!-- Right: Mobile Close Button -->
                         <div style="flex: 1; display: flex; justify-content: flex-end;">
-                            <button id="btn-close-filters-m" class="btn-close-filters-m" style="margin: 0; width: 32px; height: 32px;">
+                            <button id="btn-close-filters-m" class="btn-close-filters-m" style="margin: 0; width: 42px; height: 42px;">
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
                         </div>
