@@ -107,7 +107,7 @@
                           <feComposite in="SourceGraphic" in2="blur" operator="over" />
                         </filter>
                       </defs>
-                      <g class="spinning-disco-ball">
+                      <g>
                           <circle cx="50" cy="50" r="40" fill="url(#sphereGradNav)" />
                           <!-- Grid arcs -->
                           <path d="M 10 50 A 40 40 0 0 0 90 50 A 40 40 0 0 0 10 50" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
@@ -125,10 +125,10 @@
                           <path d="M 50 10 A 20 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
                           <path d="M 50 10 A 10 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
                       </g>
-                      <!-- Sparkles -->
-                      <g class="sparkle-1" transform="translate(22, 25)" filter="url(#glowNav)"><polygon points="0,-8 2,-2 8,0 2,2 0,8 -2,2 -8,0 -2,-2" fill="#ffffff" /></g>
-                      <g class="sparkle-2" transform="translate(75, 30)" filter="url(#glowNav)"><polygon points="0,-6 1.5,-1.5 6,0 1.5,1.5 0,6 -1.5,1.5 -6,0 -1.5,-1.5" fill="#ffffff" /></g>
-                      <g class="sparkle-3" transform="translate(68, 68)" filter="url(#glowNav)"><polygon points="0,-7 1.8,-1.8 7,0 1.8,1.8 0,7 -1.8,1.8 -7,0 -1.8,-1.8" fill="#ffffff" /></g>
+                      <!-- Sparkles (Static) -->
+                      <g transform="translate(22, 25)" filter="url(#glowNav)"><polygon points="0,-8 2,-2 8,0 2,2 0,8 -2,2 -8,0 -2,-2" fill="#ffffff" /></g>
+                      <g transform="translate(75, 30)" filter="url(#glowNav)"><polygon points="0,-6 1.5,-1.5 6,0 1.5,1.5 0,6 -1.5,1.5 -6,0 -1.5,-1.5" fill="#ffffff" /></g>
+                      <g transform="translate(68, 68)" filter="url(#glowNav)"><polygon points="0,-7 1.8,-1.8 7,0 1.8,1.8 0,7 -1.8,1.8 -7,0 -1.8,-1.8" fill="#ffffff" /></g>
                     </svg>
                     <div class="logo-title-nav" style="font-family: var(--font-heading); font-size: 1.45rem; font-weight: 800; display: flex; letter-spacing: -0.5px; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; white-space: nowrap; line-height: 1.35; padding: 0.15rem 0; overflow: visible;">
                         GigConnAct
@@ -145,13 +145,8 @@
             <p>&copy; 2026 GigConnAct. Alle Rechte vorbehalten.</p>
         </footer>
     </div>
-    <script>
-        if (sessionStorage.getItem('GigConnAct_splash_shown_v6')) {
-            const spl = document.getElementById('disco-splash');
-            if (spl) spl.remove();
-        }
-    </script>
-    <script src="app_v21.js?v=20260805_36"></script>
+
+    <script src="app_v21.js?v=20260805_37"></script>
 
 </body>
 </html>
