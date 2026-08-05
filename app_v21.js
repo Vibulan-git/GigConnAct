@@ -2942,10 +2942,10 @@ function renderLandingPage(container, onNavigate) {
             <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 22vh 1.5rem 9rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
                 
                 <!-- Seamless Dual Background Videos (Scaled to crop out Capcut watermark and cross-fade) -->
-                <video id="hero-bg-video-1" autoplay muted playsinline style="position: absolute; top: -12%; left: -12%; width: 124%; height: 124%; object-fit: cover; z-index: 2; opacity: 1; transition: opacity 1.5s ease-in-out;">
+                <video id="hero-bg-video-1" autoplay muted playsinline preload="auto" style="position: absolute; top: -12%; left: -12%; width: 124%; height: 124%; object-fit: cover; z-index: 2; opacity: 1; transition: opacity 1.5s ease-in-out;">
                     <source src="hochzeit.mp4" type="video/mp4">
                 </video>
-                <video id="hero-bg-video-2" muted playsinline style="position: absolute; top: -12%; left: -12%; width: 124%; height: 124%; object-fit: cover; z-index: 1; opacity: 0; transition: opacity 1.5s ease-in-out;">
+                <video id="hero-bg-video-2" muted playsinline preload="auto" style="position: absolute; top: -12%; left: -12%; width: 124%; height: 124%; object-fit: cover; z-index: 1; opacity: 0; transition: opacity 1.5s ease-in-out;">
                 </video>
 
                 <!-- Dark overlay gradient -->
@@ -10819,18 +10819,33 @@ function renderPostbox(container) {
                                                 <p style="font-size: 0.78rem; margin: 0; line-height: 1.3;">Keine Nachrichten vorhanden. Schreibe eine Nachricht, um das Gespräch zu beginnen!</p>
                                             </div>
                                         ` : threadMsgs.map(m => {
-                                            const isMe = m.senderId === currentUserId;
-                                            return `
-                                                <div style="display: flex; justify-content: ${isMe ? 'flex-end' : 'flex-start'};">
-                                                    <div style="max-width: 85%; padding: 0.55rem 0.75rem; border-radius: 12px; font-size: 0.78rem; line-height: 1.35; ${isMe ? 'background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #fff; border-bottom-right-radius: 2px;' : 'background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border-glass); border-bottom-left-radius: 2px;'}">
-                                                        <div>${m.text}</div>
-                                                        <div style="font-size: 0.6rem; opacity: 0.7; text-align: right; margin-top: 0.25rem;">
-                                                            ${new Date(m.timestamp).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            `;
-                                        }).join('')}
+                                             const isMe = m.senderId === currentUserId;
+                                             const isSysMsg = m.senderId === 'system';
+                                             const senderRole = isMe
+                                                 ? (state.currentUser ? state.currentUser.role : 'musician')
+                                                 : ((state.currentUser && state.currentUser.role === 'musician') ? 'organizer' : 'musician');
+                                             
+                                             let bubbleStyle = '';
+                                             if (isSysMsg) {
+                                                 bubbleStyle = 'background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border-glass);';
+                                             } else if (senderRole === 'musician') {
+                                                 bubbleStyle = 'background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff;';
+                                             } else {
+                                                 bubbleStyle = 'background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: #ffffff;';
+                                             }
+                                             const radiusStyle = isMe ? 'border-bottom-right-radius: 2px;' : 'border-bottom-left-radius: 2px;';
+
+                                             return `
+                                                 <div style="display: flex; justify-content: ${isMe ? 'flex-end' : 'flex-start'};">
+                                                     <div style="max-width: 85%; padding: 0.55rem 0.75rem; border-radius: 12px; font-size: 0.78rem; line-height: 1.35; ${bubbleStyle} ${radiusStyle}">
+                                                         <div>${m.text}</div>
+                                                         <div style="font-size: 0.6rem; opacity: 0.7; text-align: right; margin-top: 0.25rem;">
+                                                             ${new Date(m.timestamp).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                                                         </div>
+                                                     </div>
+                                                 </div>
+                                             `;
+                                         }).join('')}
                                     </div>
 
                                     <!-- Lock Questionnaire or Message Input Footer -->
@@ -10942,9 +10957,24 @@ function renderPostbox(container) {
                                     </div>
                                 ` : (activeChat.messages || []).map(m => {
                                     const isMe = m.senderId === currentUserId;
+                                    const isSysMsg = m.senderId === 'system';
+                                    const senderRole = isMe
+                                        ? (state.currentUser ? state.currentUser.role : 'musician')
+                                        : ((state.currentUser && state.currentUser.role === 'musician') ? 'organizer' : 'musician');
+                                    
+                                    let bubbleStyle = '';
+                                    if (isSysMsg) {
+                                        bubbleStyle = 'background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border-glass);';
+                                    } else if (senderRole === 'musician') {
+                                        bubbleStyle = 'background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff;';
+                                    } else {
+                                        bubbleStyle = 'background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: #ffffff;';
+                                    }
+                                    const radiusStyle = isMe ? 'border-bottom-right-radius: 2px;' : 'border-bottom-left-radius: 2px;';
+
                                     return `
                                         <div style="display: flex; justify-content: ${isMe ? 'flex-end' : 'flex-start'};">
-                                            <div style="max-width: 75%; padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.85rem; line-height: 1.4; ${isMe ? 'background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #fff; border-bottom-right-radius: 2px;' : 'background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border-glass); border-bottom-left-radius: 2px;'}">
+                                            <div style="max-width: 75%; padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.85rem; line-height: 1.4; ${bubbleStyle} ${radiusStyle}">
                                                 <div>${m.text}</div>
                                                 <div style="font-size: 0.65rem; opacity: 0.7; text-align: right; margin-top: 0.3rem;">
                                                     ${new Date(m.timestamp).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
