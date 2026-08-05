@@ -10080,43 +10080,51 @@ function updateNavbar(forceLanding) {
             : (window.location.hash === '#/musicians' || window.location.hash.startsWith('#/musicians'));
         const isPostboxActive = window.location.hash === '#/postbox' || window.location.hash.startsWith('#/postbox');
 
-        const marketIconHtml = `
-            <a href="${marketLink}" class="nav-icon-btn ${isMusician ? 'btn-purple' : 'btn-blue'} ${isMarketActive ? 'active' : ''}" title="${marketTitle}">
-                <i class="fa-solid ${marketIcon}"></i>
-            </a>
-        `;
-        
-        const postboxIconHtml = `
-            <a href="#/postbox" class="nav-icon-btn ${isMusician ? 'btn-purple' : 'btn-blue'} ${isPostboxActive ? 'active' : ''}" title="Postfach" style="position: relative;">
-                <i class="fa-solid fa-envelope"></i>
-                ${unreadCount > 0 ? `
-                    <span style="position: absolute; top: -4px; right: -4px; background: var(--color-red); color: white; font-size: 0.65rem; font-weight: 800; min-width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--bg-card); padding: 0 2px; box-sizing: border-box; line-height: 1;">
-                        ${unreadCount}
-                    </span>
-                ` : ''}
-            </a>
-        `;
-
         authArea.innerHTML = `
             <div style="display:flex; align-items:center; gap:0.6rem;">
                 ${creditsBadgeHtml}
-                ${marketIconHtml}
-                ${postboxIconHtml}
                 
                 <div class="profile-dropdown-container">
-                    <button class="profile-avatar-btn ${isMusician ? 'profile-avatar-purple' : 'profile-avatar-blue'} ${isProfileActive ? 'active' : ''}" id="btn-profile-dropdown" aria-label="Benutzermenü">
+                    <button class="profile-avatar-btn ${isMusician ? 'profile-avatar-purple' : 'profile-avatar-blue'} ${isProfileActive ? 'active' : ''}" id="btn-profile-dropdown" aria-label="Benutzermenü" style="position: relative;">
                         <i class="fa-regular fa-circle-user"></i>
+                        ${unreadCount > 0 ? `
+                            <span style="position: absolute; top: -2px; right: -2px; background: var(--color-red); width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--bg-card); display: block;"></span>
+                        ` : ''}
                     </button>
                     <div class="profile-dropdown-menu" id="profile-dropdown-menu">
+                        <!-- Event-Markt / Musiker-Markt Link -->
+                        <a href="${marketLink}" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isMarketActive ? 'active' : ''}" id="dropdown-link-market">
+                            <i class="fa-solid ${marketIcon}"></i>
+                            <span>${marketTitle}</span>
+                        </a>
 
+                        <!-- Postfach Link -->
+                        <a href="#/postbox" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isPostboxActive ? 'active' : ''}" id="dropdown-link-postbox" style="position: relative;">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span>Postfach</span>
+                            ${unreadCount > 0 ? `
+                                <span style="margin-left: auto; background: var(--color-red); color: white; font-size: 0.65rem; font-weight: 800; min-width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0 2px; box-sizing: border-box; line-height: 1;">
+                                    ${unreadCount}
+                                </span>
+                            ` : ''}
+                        </a>
                         
                         <!-- Meine Musiker / Meine Events Link -->
-                        <a href="${isMusician ? '#/my-musicians' : '#/my-events'}" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${window.location.hash === (isMusician ? '#/my-musicians' : '#/my-events') ? 'active' : ''}" id="dropdown-link-my-tab"><i class="fa-solid ${isMusician ? 'fa-guitar' : 'fa-calendar-check'}"></i><span>${isMusician ? 'Meine Musiker' : 'Meine Events'}</span></a>
+                        <a href="${isMusician ? '#/my-musicians' : '#/my-events'}" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${window.location.hash === (isMusician ? '#/my-musicians' : '#/my-events') ? 'active' : ''}" id="dropdown-link-my-tab">
+                            <i class="fa-solid ${isMusician ? 'fa-guitar' : 'fa-calendar-check'}"></i>
+                            <span>${isMusician ? 'Meine Musiker' : 'Meine Events'}</span>
+                        </a>
                         
-                        <a href="#/profile" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile"><i class="fa-solid fa-user-gear"></i><span>Profil bearbeiten</span></a>
+                        <a href="#/profile" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile">
+                            <i class="fa-solid fa-user-gear"></i>
+                            <span>Profil bearbeiten</span>
+                        </a>
                         
                         <div class="profile-dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="profile-dropdown-item logout-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'}" id="dropdown-btn-logout"><i class="fa-solid fa-right-from-bracket"></i><span>Abmelden</span></a>
+                        <a href="javascript:void(0)" class="profile-dropdown-item logout-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'}" id="dropdown-btn-logout">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Abmelden</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -10133,9 +10141,21 @@ function updateNavbar(forceLanding) {
             });
         }
 
-
-
         // Dropdown internal link navigation handles closing menu
+        const marketLinkBtn = document.getElementById('dropdown-link-market');
+        if (marketLinkBtn) {
+            marketLinkBtn.addEventListener('click', () => {
+                menu.classList.remove('show');
+            });
+        }
+
+        const postboxLinkBtn = document.getElementById('dropdown-link-postbox');
+        if (postboxLinkBtn) {
+            postboxLinkBtn.addEventListener('click', () => {
+                menu.classList.remove('show');
+            });
+        }
+
         const profileLink = document.getElementById('dropdown-link-profile');
         if (profileLink) {
             profileLink.addEventListener('click', () => {
