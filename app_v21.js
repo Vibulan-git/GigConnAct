@@ -8165,16 +8165,22 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             </div>
 
             <div class="modal-body">
-                <div id="google-login-container" style="margin-bottom: 1.5rem;">
-                    <button id="btn-google-login" class="btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.65rem; background: #ffffff !important; color: #1f2937 !important; border: 1px solid #d1d5db !important; font-weight: 700 !important; padding: 0.65rem !important; border-radius: 8px !important; cursor: pointer !important; transition: background 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;">
-                        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
-                            <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.24h2.9c1.7-1.57 2.69-3.88 2.69-6.57z" fill="#4285F4"/>
-                            <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.24c-.8.54-1.83.86-3.06.86-2.35 0-4.35-1.59-5.06-3.73H.96v2.3C2.44 15.98 5.48 18 9 18z" fill="#34A853"/>
-                            <path d="M3.94 10.71c-.18-.54-.28-1.12-.28-1.71s.1-1.17.28-1.71V4.99H.96A8.99 8.99 0 000 9c0 1.49.36 2.92.96 4.2l2.98-2.3a5.35 5.35 0 01-.29-1.19z" fill="#FBBC05"/>
-                            <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.05C13.47.62 11.43 0 9 0 5.48 0 2.44 2.02.96 4.99l2.98 2.3C4.65 5.17 6.65 3.58 9 3.58z" fill="#EA4335"/>
-                        </svg>
-                        Mit Google anmelden
-                    </button>
+                <div id="social-login-container" style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; gap: 0.75rem; width: 100%;">
+                        <button id="btn-google-login" class="btn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: #ffffff !important; color: #1f2937 !important; border: 1px solid #d1d5db !important; font-weight: 700 !important; padding: 0.65rem 0.2rem !important; border-radius: 8px !important; cursor: pointer !important; transition: background 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; font-size: 0.85rem !important; white-space: nowrap;">
+                            <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0; pointer-events: none;">
+                                <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.24h2.9c1.7-1.57 2.69-3.88 2.69-6.57z" fill="#4285F4"/>
+                                <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.24c-.8.54-1.83.86-3.06.86-2.35 0-4.35-1.59-5.06-3.73H.96v2.3C2.44 15.98 5.48 18 9 18z" fill="#34A853"/>
+                                <path d="M3.94 10.71c-.18-.54-.28-1.12-.28-1.71s.1-1.17.28-1.71V4.99H.96A8.99 8.99 0 000 9c0 1.49.36 2.92.96 4.2l2.98-2.3a5.35 5.35 0 01-.29-1.19z" fill="#FBBC05"/>
+                                <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.05C13.47.62 11.43 0 9 0 5.48 0 2.44 2.02.96 4.99l2.98 2.3C4.65 5.17 6.65 3.58 9 3.58z" fill="#EA4335"/>
+                            </svg>
+                            Google
+                        </button>
+                        <button id="btn-facebook-login" class="btn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: #1877f2 !important; color: #ffffff !important; border: 1px solid #1877f2 !important; font-weight: 700 !important; padding: 0.65rem 0.2rem !important; border-radius: 8px !important; cursor: pointer !important; transition: background 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important; font-size: 0.85rem !important; white-space: nowrap;">
+                            <i class="fa-brands fa-facebook" style="font-size: 1.15rem; color: #ffffff; flex-shrink: 0; pointer-events: none;"></i>
+                            Facebook
+                        </button>
+                    </div>
                     
                     <div style="display: flex; align-items: center; text-align: center; margin: 1rem 0 0.5rem; color: var(--text-muted); font-size: 0.8rem;">
                         <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.15);"></div>
@@ -9901,6 +9907,72 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     googleBtn.innerHTML = originalHtml;
                     showToast({
                         title: "Google-Anmeldung fehlgeschlagen",
+                        message: err.message || "Es gab ein Problem bei der Anmeldung."
+                    });
+                });
+        });
+    }
+
+    const facebookBtn = document.getElementById('btn-facebook-login');
+    if (facebookBtn) {
+        facebookBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const provider = new firebase.auth.FacebookAuthProvider();
+            
+            facebookBtn.disabled = true;
+            const originalHtml = facebookBtn.innerHTML;
+            facebookBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> FB-Anmeldung...';
+            
+            auth.signInWithPopup(provider)
+                .then(async (result) => {
+                    facebookBtn.disabled = false;
+                    facebookBtn.innerHTML = originalHtml;
+                    
+                    if (result && result.user) {
+                        const user = result.user;
+                        console.log("Facebook popup sign-in successful:", user.email);
+                        
+                        const userDoc = await db.collection('users').doc(user.uid).get();
+                        if (!userDoc.exists) {
+                            // NEW USER: Redirect to register page!
+                            window.googleRegistrationUser = user;
+                            closeModal();
+                            showModal('auth');
+                            const registerForm = document.getElementById('auth-register-form');
+                            if (registerForm) {
+                                if (registerForm.elements.email) {
+                                    registerForm.elements.email.value = user.email || '';
+                                    registerForm.elements.email.disabled = true;
+                                    registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
+                                    registerForm.elements.email.style.cursor = 'not-allowed';
+                                }
+                                if (registerForm.elements.fullName && user.displayName) {
+                                    registerForm.elements.fullName.value = user.displayName;
+                                }
+                            }
+                            const registerTabBtn = document.getElementById('tab-register-btn');
+                            if (registerTabBtn) registerTabBtn.click();
+                            
+                            showToast({
+                                title: "Facebook-Konto verknüpft!",
+                                message: "Bitte vervollständige deine Angaben, um die Registrierung abzuschließen."
+                            });
+                        } else {
+                            // EXISTING USER: Logged in!
+                            closeModal();
+                            showToast({
+                                title: "Erfolgreich angemeldet!",
+                                message: `Willkommen zurück, ${user.displayName || user.email || 'User'}!`
+                            });
+                        }
+                    }
+                })
+                .catch((err) => {
+                    console.error("Facebook Popup Error:", err);
+                    facebookBtn.disabled = false;
+                    facebookBtn.innerHTML = originalHtml;
+                    showToast({
+                        title: "Facebook-Anmeldung fehlgeschlagen",
                         message: err.message || "Es gab ein Problem bei der Anmeldung."
                     });
                 });
