@@ -4157,9 +4157,6 @@ function renderMarket(container, type, onNavigate) {
                 <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: ${isEvents ? '#2563eb' : '#a855f7'}; text-align: center; flex-shrink: 0; letter-spacing: 0.5px; margin: 0 0.5rem; padding: 0.2rem 0.5rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; min-width: 32px; white-space: nowrap;">
                     ${items.length}
                 </div>
-
-                <!-- 6. Profil-Auswahl -->
-                ${profileSelectorHtml}
             </div>
 
             <!-- Main Layout: Left Sticky Sidebar Filters + Center Content -->
@@ -4167,12 +4164,14 @@ function renderMarket(container, type, onNavigate) {
                 
                 <!-- Left Sidebar Filters (Responsive Wrapper) -->
                 <div id="market-filters-wrapper" class="market-filter-card">
-                    <div class="filter-header-sticky" style="display: flex; align-items: center; justify-content: space-between; width: calc(100% - 1.2rem) !important;">
-                        <span class="filter-header-title">
+                    <div class="filter-header-sticky" style="display: flex; align-items: center; position: relative; width: calc(100% - 1.2rem) !important;">
+                        <!-- Left: Title -->
+                        <span class="filter-header-title" style="flex: 1; text-align: left;">
                             <i class="fa-solid fa-sliders"></i> Filter
                         </span>
                         
-                        <div style="display: flex; align-items: center; gap: 0.4rem; margin-left: auto;">
+                        <!-- Center: Sort and Reset -->
+                        <div style="display: flex; align-items: center; gap: 1.2rem; justify-content: center; flex: 1;">
                             <!-- 2. Sortierung inside Filter Sidebar Header -->
                             <div class="market-sort-container-round" style="width: 32px !important; height: 32px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 50% !important; flex-shrink: 0; position: relative; margin: 0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='transparent'">
                                 <i class="fa-solid fa-arrow-down-wide-short" style="color: #ffffff; font-size: 0.9rem; pointer-events: none;"></i>
@@ -4188,7 +4187,10 @@ function renderMarket(container, type, onNavigate) {
                             <button id="btn-reset-filters" class="btn-reset-round" title="Filter zurücksetzen" style="margin: 0; width: 32px; height: 32px;">
                                 <i class="fa-solid fa-rotate-left"></i>
                             </button>
-                            
+                        </div>
+                        
+                        <!-- Right: Mobile Close Button -->
+                        <div style="flex: 1; display: flex; justify-content: flex-end;">
                             <button id="btn-close-filters-m" class="btn-close-filters-m" style="margin: 0; width: 32px; height: 32px;">
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
@@ -10130,9 +10132,35 @@ function updateNavbar(forceLanding) {
             : (window.location.hash === '#/musicians' || window.location.hash.startsWith('#/musicians'));
         const isPostboxActive = window.location.hash === '#/postbox' || window.location.hash.startsWith('#/postbox');
 
+        // Fetch user profiles to generate persistent profile switcher in header
+        let userProfiles = [];
+        let activeProfileId = '';
+        if (isMusician) {
+            userProfiles = state.musicians.filter(m => m.creatorId === u.id);
+            activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || '');
+            if (activeProfileId) state.activeMusicianId = activeProfileId;
+        } else {
+            userProfiles = state.events.filter(e => e.creatorId === u.id);
+            activeProfileId = state.activeEventId || (userProfiles[0]?.id || '');
+            if (activeProfileId) state.activeEventId = activeProfileId;
+        }
+
+        let profileSelectorHtml = '';
+        if (userProfiles.length > 0) {
+            const options = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''}>${p.name || p.contactName || p.title || 'Profil'}</option>`).join('');
+            profileSelectorHtml = `
+                <div class="profile-switcher-wrapper" style="display: flex; align-items: center; gap: 0.25rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: 20px; padding: 0.2rem 0.5rem; margin: 0; max-width: 140px; height: 32px; box-sizing: border-box; flex-shrink: 0; font-family: var(--font-heading);">
+                    <i class="${isMusician ? 'fa-solid fa-guitar' : 'fa-solid fa-calendar-day'}" style="color: ${isMusician ? 'var(--color-purple)' : 'var(--color-cyan)'}; font-size: 0.75rem; flex-shrink: 0;"></i>
+                    <select id="navbar-profile-select" style="width: 100%; height: 24px; padding: 0 0.15rem; font-size: 0.7rem; margin: 0; border: none; background: transparent; cursor: pointer; color: var(--text-main); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; outline: none; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
+                        ${options}
+                    </select>
+                </div>
+            `;
+        }
+
         authArea.innerHTML = `
             <div style="display:flex; align-items:center; gap:0.6rem;">
-                ${creditsBadgeHtml}
+                ${profileSelectorHtml}
                 
                 <div class="profile-dropdown-container">
                     <button class="profile-avatar-btn ${isMusician ? 'profile-avatar-purple' : 'profile-avatar-blue'} ${isProfileActive ? 'active' : ''}" id="btn-profile-dropdown" aria-label="Benutzermenü" style="position: relative;">
@@ -10226,6 +10254,19 @@ function updateNavbar(forceLanding) {
                 menu.classList.remove('show');
                 state.logout();
                 window.location.hash = '#/';
+            });
+        }
+
+        const navbarProfileSelect = document.getElementById('navbar-profile-select');
+        if (navbarProfileSelect) {
+            navbarProfileSelect.addEventListener('change', function() {
+                const val = this.value;
+                if (isMusician) {
+                    state.activeMusicianId = val;
+                } else {
+                    state.activeEventId = val;
+                }
+                state.notify();
             });
         }
     } else {
@@ -10400,17 +10441,6 @@ function renderPostbox(container) {
     let activeChatId = window.postboxActiveChatId !== undefined ? window.postboxActiveChatId : null;
 
     let profileSelectorHtml = '';
-    if (userProfiles.length > 0) {
-        const options = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''}>${p.name || p.contactName || p.title || 'Profil'}</option>`).join('');
-        profileSelectorHtml = `
-            <div style="margin-bottom: 0.8rem; display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.2rem;">
-                <label style="font-size: 0.65rem; font-weight: 800; color: ${isMusician ? 'var(--color-purple)' : 'var(--color-cyan)'}; text-transform: uppercase; letter-spacing: 0.5px;">Aktives Profil:</label>
-                <select id="postbox-profile-select" class="input-field" style="width: 100%; padding: 0.4rem 0.8rem; font-size: 0.8rem; height: 34px; margin: 0; font-weight: 700; border: 1px solid var(--border-glass); border-radius: 8px; background: rgba(255,255,255,0.02); color: var(--text-main);">
-                    ${options}
-                </select>
-            </div>
-        `;
-    }
 
     const stateChangeListener = () => {
         if (window.location.hash !== '#/postbox' || !document.body.contains(container)) {
