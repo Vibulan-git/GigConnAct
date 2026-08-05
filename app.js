@@ -9710,10 +9710,6 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 }
             } catch (err) {
                 console.error("Google Login Error:", err);
-                showToast({
-                    title: "Google-Anmeldung fehlgeschlagen",
-                    message: err.message || "Es gab ein Problem bei der Anmeldung."
-                });
                 googleBtn.disabled = false;
                 googleBtn.innerHTML = `
                     <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
@@ -9724,6 +9720,23 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     </svg>
                     Mit Google anmelden
                 `;
+                
+                if (err.code === 'auth/popup-closed-by-user') {
+                    console.log("Google Login Popup cancelled by user.");
+                    return;
+                }
+                if (err.code === 'auth/popup-blocked') {
+                    showToast({
+                        title: "Popup blockiert",
+                        message: "Bitte erlaube Popups für diese Website in deinen Browsereinstellungen, um dich mit Google anzumelden."
+                    });
+                    return;
+                }
+
+                showToast({
+                    title: "Google-Anmeldung fehlgeschlagen",
+                    message: err.message || "Es gab ein Problem bei der Anmeldung."
+                });
             }
         });
     }
