@@ -4216,9 +4216,9 @@ function renderMarket(container, type, onNavigate) {
                     <i class="fa-solid fa-heart" style="font-size: 0.95rem; margin: 0;"></i>
                 </button>
 
-                <!-- 5. Ergebnisse als Zahl + Label -->
-                <div style="display: flex; align-items: center; gap: 0.4rem; margin: 0 0.2rem; flex-shrink: 0;">
-                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; white-space: nowrap; letter-spacing: -0.3px; line-height: 1.1; width: 120px; display: inline-block; overflow: hidden; text-overflow: ellipsis; vertical-align: middle;">
+                <!-- 5. Ergebnisse als Zahl + Label pushed to the right -->
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-left: auto; flex-shrink: 0; padding-left: 0.5rem; margin-right: 0.2rem;">
+                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; white-space: nowrap; letter-spacing: -0.3px; line-height: 1.1; vertical-align: middle;">
                         ${isEvents ? 'Event-Markt' : 'Musiker-Markt'}
                     </span>
                     <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: ${isEvents ? '#2563eb' : '#a855f7'}; text-align: center; padding: 0.2rem 0.55rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; min-width: 32px; white-space: nowrap; margin: 0; line-height: 1.2;">
@@ -5491,6 +5491,8 @@ window.revealMarketContact = function(itemId, type, value, clickedBtn) {
         
         container.style.background = 'rgba(255,255,255,0.15)';
         container.style.padding = '0.55rem';
+        container.style.width = '100%';
+        container.style.boxSizing = 'border-box';
         
         let contentHtml = '';
         if (type === 'chat') {
@@ -11347,7 +11349,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
 
                         <!-- Reveal panel for contact data -->
-                        <div id="contact-reveal-${item.id}" style="display: none; text-align: center; font-size: 0.82rem; padding: 0.55rem; background: rgba(255,255,255,0.15); border-radius: 8px; animation: fadeIn 0.2s; word-break: break-all;"></div>
+                        <div id="contact-reveal-${item.id}" style="display: none; width: 100%; box-sizing: border-box; text-align: center; font-size: 0.82rem; padding: 0.55rem; background: rgba(255,255,255,0.15); border-radius: 8px; animation: fadeIn 0.2s; word-break: break-all;"></div>
                     </div>
                 ` : `
                     <!-- 4. Aktions-Button: "Kontaktdaten freischalten" -->
