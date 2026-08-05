@@ -3071,11 +3071,6 @@ function renderLandingPage(container, onNavigate) {
                     </div>
                 </div>
 
-                <!-- Homepage Headline: Musiker-Markt -->
-                <h2 style="font-family: var(--font-heading); font-size: clamp(1.3rem, 2.6vw, 1.85rem); font-weight: 800; color: #ffffff; text-align: center; margin: 2rem 0 1.5rem; line-height: 1.25; letter-spacing: -0.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); padding: 0 1rem;">
-                    Sänger, Solokünstler, Bands, DJs & Co. <span style="background: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">- Der Musiker-Markt für Veranstalter!</span>
-                </h2>
-
                 <div class="carousel-container">
                     <div class="carousel-viewport">
                         <div class="carousel-track theme-organizer" id="carousel-track-musicians">
@@ -3160,11 +3155,6 @@ function renderLandingPage(container, onNavigate) {
                         </div>
                     </div>
                 </div>
-
-                <!-- Homepage Headline: Event-Markt -->
-                <h2 style="font-family: var(--font-heading); font-size: clamp(1.3rem, 2.6vw, 1.85rem); font-weight: 800; color: #ffffff; text-align: center; margin: 2rem 0 1.5rem; line-height: 1.25; letter-spacing: -0.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); padding: 0 1rem;">
-                    Hochzeiten, Geburtstage, Firmenfeiern, Stadtfeste & Co. <span style="background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">- Der Event-Markt für Musiker</span>
-                </h2>
 
                 <div class="carousel-container">
                     <div class="carousel-viewport">
