@@ -945,6 +945,7 @@ class StateManager {
             await this.loadStateFromFirestore();
             this.setupAuthListener();
             this.handleSignInWithEmailLink();
+            await this.handleGoogleRedirectResult();
         } catch (e) {
             console.error("Firebase init failed, falling back to mock localStorage:", e);
             this.loadState();
@@ -1279,6 +1280,59 @@ class StateManager {
                     message: "Der Link ist ungültig oder abgelaufen."
                 });
             }
+        }
+    }
+
+    async handleGoogleRedirectResult() {
+        try {
+            const result = await auth.getRedirectResult();
+            if (result && result.user) {
+                const user = result.user;
+                console.log("Google redirect sign-in successful:", user.email);
+                
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (!userDoc.exists) {
+                    // NEW USER: Redirect to register page!
+                    window.googleRegistrationUser = user;
+                    
+                    // Switch to register tab and prefill
+                    setTimeout(() => {
+                        showAuthModal();
+                        const registerForm = document.getElementById('auth-register-form');
+                        if (registerForm) {
+                            if (registerForm.elements.email) {
+                                registerForm.elements.email.value = user.email || '';
+                                registerForm.elements.email.disabled = true;
+                                registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
+                                registerForm.elements.email.style.cursor = 'not-allowed';
+                            }
+                            if (registerForm.elements.fullName && user.displayName) {
+                                registerForm.elements.fullName.value = user.displayName;
+                            }
+                        }
+                        const registerTabBtn = document.getElementById('tab-register-btn');
+                        if (registerTabBtn) registerTabBtn.click();
+                        
+                        showToast({
+                            title: "Google-Konto verknüpft!",
+                            message: "Bitte vervollständige deine Angaben, um die Registrierung abzuschließen."
+                        });
+                    }, 500);
+                } else {
+                    // EXISTING USER: Logged in!
+                    showToast({
+                        title: "Erfolgreich angemeldet!",
+                        message: `Willkommen zurück, ${user.displayName || user.email}!`
+                    });
+                    handleRouting();
+                }
+            }
+        } catch (err) {
+            console.error("Google Redirect Result Error:", err);
+            showToast({
+                title: "Google-Anmeldung fehlgeschlagen",
+                message: err.message || "Es gab ein Problem bei der Anmeldung."
+            });
         }
     }
 
@@ -9657,69 +9711,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             e.preventDefault();
             const provider = new firebase.auth.GoogleAuthProvider();
             try {
-                // Call signInWithPopup immediately to preserve the synchronous user gesture context
-                const result = await auth.signInWithPopup(provider);
-                
                 googleBtn.disabled = true;
-                googleBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verbindung mit Google...';
-                const user = result.user;
-                
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                if (!userDoc.exists) {
-                    // NEUER BENUTZER: Nicht direkt einloggen!
-                    // Wir merken uns das Google User Objekt
-                    window.googleRegistrationUser = user;
-
-                    // E-Mail-Feld in der Registrierung ausfüllen und sperren
-                    if (registerForm && registerForm.elements.email) {
-                        registerForm.elements.email.value = user.email || '';
-                        registerForm.elements.email.disabled = true;
-                        registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
-                        registerForm.elements.email.style.cursor = 'not-allowed';
-                    }
-
-                    // Vor- und Nachname ausfüllen, falls vorhanden
-                    if (registerForm && registerForm.elements.fullName && user.displayName) {
-                        registerForm.elements.fullName.value = user.displayName;
-                    }
-
-                    // Den "Registrieren"-Tab aktivieren
-                    const registerTabBtn = document.getElementById('tab-register-btn');
-                    if (registerTabBtn) {
-                        registerTabBtn.click();
-                    }
-
-                    showToast({
-                        title: "Google-Konto verknüpft!",
-                        message: "Bitte vervollständige deine Angaben, um die Registrierung abzuschließen."
-                    });
-                    
-                    googleBtn.disabled = false;
-                    googleBtn.innerHTML = `
-                        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
-                            <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84c-.21 1.12-.84 2.07-1.79 2.7v2.24h2.9c1.7-1.57 2.69-3.88 2.69-6.57z" fill="#4285F4"/>
-                            <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.24c-.8.54-1.83.86-3.06.86-2.35 0-4.35-1.59-5.06-3.73H.96v2.3C2.44 15.98 5.48 18 9 18z" fill="#34A853"/>
-                            <path d="M3.94 10.71c-.18-.54-.28-1.12-.28-1.71s.1-1.17.28-1.71V4.99H.96A8.99 8.99 0 000 9c0 1.49.36 2.92.96 4.2l2.98-2.3a5.35 5.35 0 01-.29-1.19z" fill="#FBBC05"/>
-                            <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.05C13.47.62 11.43 0 9 0 5.48 0 2.44 2.02.96 4.99l2.98 2.3C4.65 5.17 6.65 3.58 9 3.58z" fill="#EA4335"/>
-                        </svg>
-                        Mit Google anmelden
-                    `;
-                    return;
-                }
-
-                closeModal();
-                showToast({
-                    title: "Erfolgreich angemeldet!",
-                    message: `Willkommen zurück, ${user.displayName || user.email}!`
-                });
-                
-                if (typeof onSuccessCallback === 'function') {
-                    onSuccessCallback();
-                } else {
-                    handleRouting();
-                }
+                googleBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zu Google...';
+                await auth.signInWithRedirect(provider);
             } catch (err) {
-                console.error("Google Login Error:", err);
+                console.error("Google Redirect Error:", err);
                 googleBtn.disabled = false;
                 googleBtn.innerHTML = `
                     <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
@@ -9730,16 +9726,6 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     </svg>
                     Mit Google anmelden
                 `;
-                
-                if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/popup-blocked') {
-                    console.log("Google Login Popup cancelled or blocked.");
-                    showToast({
-                        title: "Verbindung abgebrochen",
-                        message: "Falls sich kein Fenster geöffnet hat, erlaube bitte Popups für diese Seite in den Browsereinstellungen deines Handys."
-                    });
-                    return;
-                }
-
                 showToast({
                     title: "Google-Anmeldung fehlgeschlagen",
                     message: err.message || "Es gab ein Problem bei der Anmeldung."
