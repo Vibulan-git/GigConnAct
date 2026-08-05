@@ -3010,34 +3010,23 @@ function renderLandingPage(container, onNavigate) {
                         Der Event-Markt.
                     </h2>
                     <div style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
-                        Für Musiker.
+                        Musiker suchen Gigs.
                     </div>
                 </div>
 
                 <!-- Subtitle: Category Icons -->
-                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 2.2rem; gap: 0.6rem;">
-                    <!-- Row 1 -->
-                    <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569;">
-                        <span><i class="fa-solid fa-heart" style="color: #7c3aed; margin-right: 0.35rem;"></i> Hochzeit</span>
-                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                        <span><i class="fa-solid fa-cake-candles" style="color: #7c3aed; margin-right: 0.35rem;"></i> Geburtstag</span>
-                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                        <span><i class="fa-solid fa-music" style="color: #7c3aed; margin-right: 0.35rem;"></i> Festival</span>
-                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                        <span><i class="fa-solid fa-building" style="color: #7c3aed; margin-right: 0.35rem;"></i> Firmenfeier</span>
-                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                        <span id="btn-toggle-categories-events" onclick="toggleCategoriesRow('events')" style="color: #7c3aed; font-weight: 900; cursor: pointer; user-select: none; padding: 0 0.3rem; display: inline-flex; align-items: center; font-size: 1.25rem; letter-spacing: 1px;">...</span>
-                    </div>
-                    <!-- Row 2 (Collapsible) -->
-                    <div id="row2-categories-events" style="display: none; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; animation: modalFadeIn 0.3s ease;">
-                        <span><i class="fa-solid fa-beer-mug-empty" style="color: #7c3aed; margin-right: 0.35rem;"></i> Vereinsfest</span>
-                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                        <span><i class="fa-solid fa-house-chimney-user" style="color: #7c3aed; margin-right: 0.35rem;"></i> Privatfeier</span>
-                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                        <span><i class="fa-solid fa-umbrella-beach" style="color: #7c3aed; margin-right: 0.35rem;"></i> Gartenparty</span>
-                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                        <span><i class="fa-solid fa-city" style="color: #7c3aed; margin-right: 0.35rem;"></i> Kirmes</span>
-                    </div>
+                <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; margin-bottom: 2.2rem;">
+                    <span><i class="fa-solid fa-heart" style="color: #7c3aed; margin-right: 0.35rem;"></i> Hochzeit</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-cake-candles" style="color: #7c3aed; margin-right: 0.35rem;"></i> Geburtstag</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-music" style="color: #7c3aed; margin-right: 0.35rem;"></i> Festival</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-building" style="color: #7c3aed; margin-right: 0.35rem;"></i> Firmenfeier</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-city" style="color: #7c3aed; margin-right: 0.35rem;"></i> Kirmes</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span style="color: #7c3aed; font-weight: 900; letter-spacing: 1px;">...</span>
                 </div>
 
                 <!-- Carousel: Events -->
@@ -3139,34 +3128,23 @@ function renderLandingPage(container, onNavigate) {
                         Der Musiker-Markt.
                     </h2>
                     <div style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
-                        Für Veranstalter.
+                        Veranstalter suchen Acts.
                     </div>
                 </div>
 
                 <!-- Subtitle: Category Icons -->
-                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 2.2rem; gap: 0.6rem;">
-                    <!-- Row 1 -->
-                    <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569;">
-                        <span><i class="fa-solid fa-microphone" style="color: #2563eb; margin-right: 0.35rem;"></i> Sänger</span>
-                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                        <span><i class="fa-solid fa-users" style="color: #2563eb; margin-right: 0.35rem;"></i> Bands</span>
-                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                        <span><i class="fa-solid fa-headphones" style="color: #2563eb; margin-right: 0.35rem;"></i> DJs</span>
-                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                        <span><i class="fa-solid fa-guitar" style="color: #2563eb; margin-right: 0.35rem;"></i> Solokünstler</span>
-                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                        <span id="btn-toggle-categories-musicians" onclick="toggleCategoriesRow('musicians')" style="color: #2563eb; font-weight: 900; cursor: pointer; user-select: none; padding: 0 0.3rem; display: inline-flex; align-items: center; font-size: 1.25rem; letter-spacing: 1px;">...</span>
-                    </div>
-                    <!-- Row 2 (Collapsible) -->
-                    <div id="row2-categories-musicians" style="display: none; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; animation: modalFadeIn 0.3s ease;">
-                        <span><i class="fa-solid fa-user-tie" style="color: #2563eb; margin-right: 0.35rem;"></i> Alleinunterhalter</span>
-                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                        <span><i class="fa-solid fa-drum" style="color: #2563eb; margin-right: 0.35rem;"></i> Trio</span>
-                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                        <span><i class="fa-solid fa-music" style="color: #2563eb; margin-right: 0.35rem;"></i> Ensemble</span>
-                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                        <span><i class="fa-solid fa-users-line" style="color: #2563eb; margin-right: 0.35rem;"></i> Chor</span>
-                    </div>
+                <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; margin-bottom: 2.2rem;">
+                    <span><i class="fa-solid fa-microphone" style="color: #2563eb; margin-right: 0.35rem;"></i> Sänger</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-users" style="color: #2563eb; margin-right: 0.35rem;"></i> Bands</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-headphones" style="color: #2563eb; margin-right: 0.35rem;"></i> DJs</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-guitar" style="color: #2563eb; margin-right: 0.35rem;"></i> Solokünstler</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-user-group" style="color: #2563eb; margin-right: 0.35rem;"></i> Duo</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span style="color: #2563eb; font-weight: 900; letter-spacing: 1px;">...</span>
                 </div>
 
                 <!-- Carousel: Musiker -->
@@ -3323,11 +3301,10 @@ function renderLandingPage(container, onNavigate) {
                     </div>
 
                     <!-- Card 7: Non-clickable ... dots -->
-                    <div class="event-type-card card-purple" style="opacity: 0.6; cursor: default;">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(124, 58, 237, 0.05); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(167, 139, 250, 0.25);">
-                            <i class="fa-solid fa-ellipsis" style="color: #7c3aed; font-size: 1.6rem;"></i>
+                    <div class="event-type-card card-purple" style="cursor: default; display: flex; flex-direction: column; align-items: center; justify-content: center; border: none; background: transparent; box-shadow: none;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(124, 58, 237, 0.05); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(167, 139, 250, 0.2);">
+                            <span style="font-size: 1.8rem; font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; line-height: 1; letter-spacing: 1px; display: inline-block;">...</span>
                         </div>
-                        <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-muted); line-height: 1.2;">...</span>
                     </div>
 
                 </div>
@@ -3347,7 +3324,7 @@ function renderLandingPage(container, onNavigate) {
                             
                             <!-- Title and Illustration Row -->
                             <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem;">
-                                <h3 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.2vw, 2.4rem); font-weight: 900; color: var(--text-main); margin: 0; line-height: 1.25; text-align: left;">
+                                <h3 style="font-family: var(--font-heading); font-size: clamp(1.5rem, 2.8vw, 2.0rem); font-weight: 900; color: var(--text-main); margin: 0; line-height: 1.25; text-align: left;">
                                     <span style="color: #7c3aed;">Mehr Gigs.</span><br><span style="white-space: nowrap;">Mehr Einnahmen.</span>
                                 </h3>
                                 <!-- Illustration: guitar + music notes -->
@@ -3484,7 +3461,7 @@ function renderLandingPage(container, onNavigate) {
                             
                             <!-- Title and Illustration Row -->
                             <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem;">
-                                <h3 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.2vw, 2.4rem); font-weight: 900; color: var(--text-main); margin: 0; line-height: 1.25; text-align: left;">
+                                <h3 style="font-family: var(--font-heading); font-size: clamp(1.5rem, 2.8vw, 2.0rem); font-weight: 900; color: var(--text-main); margin: 0; line-height: 1.25; text-align: left;">
                                     <span style="color: #0f172a;">Dein Event.</span><br><span style="color: #2563eb;">Dein Act.</span>
                                 </h3>
                                 <!-- Illustration: calendar -->
@@ -3614,10 +3591,10 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- Founder Title: Airbnb für Live-Musik -->
+            <!-- Founder Title: „Airbnb für Live-Musik“ -->
             <div style="max-width: 900px; margin: 6rem auto -4rem; padding: 0 1.5rem; text-align: center;">
                 <h2 style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
-                    Airbnb für Live-Musik
+                    „Airbnb für Live-Musik“
                 </h2>
             </div>
 
