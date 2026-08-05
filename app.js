@@ -10167,11 +10167,11 @@ function updateNavbar(forceLanding) {
 
         let profileSelectorHtml = '';
         if (userProfiles.length > 0) {
-            const options = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''}>${p.name || p.contactName || p.title || 'Profil'}</option>`).join('');
+            const options = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''} style="background: #ffffff; color: #1e293b;">${p.name || p.contactName || p.title || 'Profil'}</option>`).join('');
             profileSelectorHtml = `
-                <div class="profile-switcher-wrapper" style="display: flex; align-items: center; gap: 0.25rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: 20px; padding: 0.2rem 0.5rem; margin: 0; max-width: 140px; height: 32px; box-sizing: border-box; flex-shrink: 0; font-family: var(--font-heading);">
+                <div class="profile-switcher-wrapper" style="display: flex; align-items: center; gap: 0.25rem; background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.08); border-radius: 20px; padding: 0.2rem 0.5rem; margin: 0; max-width: 140px; height: 32px; box-sizing: border-box; flex-shrink: 0; font-family: var(--font-heading);">
                     <i class="${isMusician ? 'fa-solid fa-guitar' : 'fa-solid fa-calendar-day'}" style="color: ${isMusician ? 'var(--color-purple)' : 'var(--color-cyan)'}; font-size: 0.75rem; flex-shrink: 0;"></i>
-                    <select id="navbar-profile-select" style="width: 100%; height: 24px; padding: 0 0.15rem; font-size: 0.7rem; margin: 0; border: none; background: transparent; cursor: pointer; color: var(--text-main); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; outline: none; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
+                    <select id="navbar-profile-select" style="width: 100%; height: 24px; padding: 0 0.15rem; font-size: 0.7rem; margin: 0; border: none; background: transparent; cursor: pointer; color: #1e293b; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; outline: none; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
                         ${options}
                     </select>
                 </div>
