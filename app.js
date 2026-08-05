@@ -4133,7 +4133,7 @@ function renderMarket(container, type, onNavigate) {
         <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1rem 5rem; box-sizing: border-box;">
             
             <!-- Controls Row: Filter, Sortierung, Stern, Herz, Ergebnisse, Profil-Auswahl in linear order -->
-            <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0.6rem; -webkit-overflow-scrolling: touch;">
+            <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 1.5rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0.6rem; -webkit-overflow-scrolling: touch;">
                 
                 <!-- 1. Filter -->
                 <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border-radius: 50%; flex-shrink: 0;">
@@ -4153,11 +4153,11 @@ function renderMarket(container, type, onNavigate) {
                 </button>
 
                 <!-- 5. Ergebnisse als Zahl + Label -->
-                <div style="display: flex; align-items: center; gap: 0.8rem; margin: 0 0.5rem; flex-shrink: 0;">
-                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: #ffffff; white-space: nowrap; letter-spacing: -0.5px; line-height: 1.1;">
+                <div style="display: flex; align-items: center; gap: 0.4rem; margin: 0 0.2rem; flex-shrink: 0;">
+                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; white-space: nowrap; letter-spacing: -0.3px; line-height: 1.1; width: 120px; display: inline-block; overflow: hidden; text-overflow: ellipsis; vertical-align: middle;">
                         ${isEvents ? 'Event-Markt' : 'Musiker-Markt'}
                     </span>
-                    <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 900; color: ${isEvents ? '#2563eb' : '#a855f7'}; text-align: center; padding: 0.25rem 0.6rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; min-width: 32px; white-space: nowrap; margin: 0; line-height: 1.2;">
+                    <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: ${isEvents ? '#2563eb' : '#a855f7'}; text-align: center; padding: 0.2rem 0.55rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; min-width: 32px; white-space: nowrap; margin: 0; line-height: 1.2;">
                         ${items.length}
                     </div>
                 </div>
