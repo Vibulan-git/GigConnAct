@@ -2937,7 +2937,7 @@ function renderLandingPage(container, onNavigate) {
                 <!-- 1/3: Large Logo -->
                 <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0 0.8rem; box-sizing: border-box;">
                     <!-- Large SVG Disco Ball -->
-                    <svg viewBox="0 0 100 100" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); flex-shrink: 0;">
+                    <svg class="animate-hero-logo" viewBox="0 0 100 100" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); flex-shrink: 0;">
                       <defs>
                         <radialGradient id="sphereGradLarge" cx="35%" cy="35%" r="65%">
                           <stop offset="0%" stop-color="#ffffff" />
@@ -2970,8 +2970,8 @@ function renderLandingPage(container, onNavigate) {
                       <g transform="translate(22, 25)" filter="url(#glowLarge)"><polygon points="0,-8 2,-2 8,0 2,2 0,8 -2,2 -8,0 -2,-2" fill="#ffffff" /></g>
                       <g transform="translate(75, 30)" filter="url(#glowLarge)"><polygon points="0,-6 1.5,-1.5 6,0 1.5,1.5 0,6 -1.5,1.5 -6,0 -1.5,-1.5" fill="#ffffff" /></g>
                       <g transform="translate(68, 68)" filter="url(#glowLarge)"><polygon points="0,-7 1.8,-1.8 7,0 1.8,1.8 0,7 -1.8,1.8 -7,0 -1.8,-1.8" fill="#ffffff" /></g>
-                    </svg>
-                    <div style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.2rem); font-weight: 900; letter-spacing: -1.5px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                      </svg>
+                    <div class="animate-hero-text" style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.2rem); font-weight: 900; letter-spacing: -1.5px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                         GigConnAct
                     </div>
                 </div>
@@ -3006,15 +3006,31 @@ function renderLandingPage(container, onNavigate) {
                 
                 <!-- Headline: Musiker-Markt -->
                 <div style="text-align: center; margin-bottom: 2.2rem; padding: 0 1rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.8vw, 2.5rem); font-weight: 800; color: #0f172a; margin: 0 0 0.5rem; line-height: 1.2; letter-spacing: -0.5px;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.8vw, 2.5rem); font-weight: 800; color: #7c3aed; margin: 0 0 0.5rem; line-height: 1.2; letter-spacing: -0.5px;">
                         Sänger, Solokünstler, Bands, DJs & Co.
                     </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.4rem, 2.8vw, 1.9rem); font-weight: 800; color: #2563eb; line-height: 1.2; letter-spacing: -0.3px;">
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.8vw, 2.5rem); font-weight: 800; color: #2563eb; line-height: 1.2; letter-spacing: -0.3px;">
                         Der Musiker-Markt für Veranstalter!
                     </div>
                 </div>
 
-                <div class="logo-marquee-wrapper theme-musicians-marquee" style="margin-bottom: 2.2rem;">
+                <!-- Carousel: Musiker -->
+                <div class="carousel-container" style="margin-bottom: 2.2rem;">
+                    <div class="carousel-viewport">
+                        <div class="carousel-track theme-organizer" id="carousel-track-musicians">
+                            ${renderMarketGridHTML(state.musicians.slice(0, 9), false, true)}
+                        </div>
+                    </div>
+                    <button class="carousel-btn prev-btn btn-musicians" onclick="slideCarousel('musicians', -1)">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-btn next-btn btn-musicians" onclick="slideCarousel('musicians', 1)">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Marquee: Band-Logos -->
+                <div class="logo-marquee-wrapper theme-musicians-marquee" style="margin-bottom: 3.5rem;">
                     <div class="logo-marquee-track">
                         <!-- First Copy of 10 Band Logos -->
                         <div class="partner-logo-badge">
@@ -3081,20 +3097,6 @@ function renderLandingPage(container, onNavigate) {
                         </div>
                     </div>
                 </div>
-
-                <div class="carousel-container">
-                    <div class="carousel-viewport">
-                        <div class="carousel-track theme-organizer" id="carousel-track-musicians">
-                            ${renderMarketGridHTML(state.musicians.slice(0, 9), false, true)}
-                        </div>
-                    </div>
-                    <button class="carousel-btn prev-btn btn-musicians" onclick="slideCarousel('musicians', -1)">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-                    <button class="carousel-btn next-btn btn-musicians" onclick="slideCarousel('musicians', 1)">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
-                </div>
             </div>
 
             <!-- 3. SECTION 2: Event-Profile -->
@@ -3103,14 +3105,30 @@ function renderLandingPage(container, onNavigate) {
                 <!-- Headline: Event-Markt -->
                 <div style="text-align: center; margin-bottom: 2.2rem; padding: 0 1rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.8vw, 2.5rem); font-weight: 800; color: #0f172a; margin: 0 0 0.5rem; line-height: 1.2; letter-spacing: -0.5px;">
-                        Hochzeiten, Geburtstage, Firmenfeiern, Stadtfeste & Co.
+                        Hochzeiten, Geburtstage,<br>Firmenfeiern, Stadtfeste & Co.
                     </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.4rem, 2.8vw, 1.9rem); font-weight: 800; color: #7c3aed; line-height: 1.2; letter-spacing: -0.3px;">
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.8vw, 2.5rem); font-weight: 800; color: #7c3aed; line-height: 1.2; letter-spacing: -0.3px;">
                         Der Event-Markt für Musiker
                     </div>
                 </div>
 
-                <div class="logo-marquee-wrapper theme-events-marquee" style="margin-bottom: 2.2rem;">
+                <!-- Carousel: Events -->
+                <div class="carousel-container" style="margin-bottom: 2.2rem;">
+                    <div class="carousel-viewport">
+                        <div class="carousel-track theme-musician" id="carousel-track-events">
+                            ${renderMarketGridHTML(state.events.slice(0, 9), true, true)}
+                        </div>
+                    </div>
+                    <button class="carousel-btn prev-btn btn-events" onclick="slideCarousel('events', -1)">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-btn next-btn btn-events" onclick="slideCarousel('events', 1)">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Marquee: Event-Logos -->
+                <div class="logo-marquee-wrapper theme-events-marquee" style="margin-bottom: 3.5rem;">
                     <div class="logo-marquee-track">
                         <!-- First Copy of 10 Event/Venue/Club Logos -->
                         <div class="partner-logo-badge">
@@ -3176,20 +3194,6 @@ function renderLandingPage(container, onNavigate) {
                             <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><polygon points="8,10 16,10 12,24" fill="#ec4899" /><polygon points="16,10 24,10 20,24" fill="#3b82f6" /><polygon points="24,10 32,10 28,24" fill="#eab308" /><line x1="6" y1="10" x2="34" y2="10" stroke="#ffffff" stroke-width="1.5" /><text x="40" y="26" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#ffffff">Stadtfest</text></svg>
                         </div>
                     </div>
-                </div>
-
-                <div class="carousel-container">
-                    <div class="carousel-viewport">
-                        <div class="carousel-track theme-musician" id="carousel-track-events">
-                            ${renderMarketGridHTML(state.events.slice(0, 9), true, true)}
-                        </div>
-                    </div>
-                    <button class="carousel-btn prev-btn btn-events" onclick="slideCarousel('events', -1)">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-                    <button class="carousel-btn next-btn btn-events" onclick="slideCarousel('events', 1)">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
                 </div>
             </div>
 
