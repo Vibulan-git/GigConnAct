@@ -3005,28 +3005,44 @@ function renderLandingPage(container, onNavigate) {
             <div style="max-width: 1400px; margin: 0 auto; padding: 3rem 1.5rem 0;">
                 
                 <!-- Headline: Musiker-Markt -->
-                <div style="text-align: center; margin-bottom: 2.2rem; padding: 0 1rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.8vw, 2.5rem); font-weight: 800; color: #7c3aed; margin: 0 0 0.5rem; line-height: 1.2; letter-spacing: -0.5px;">
-                        Sänger, Solokünstler, Bands, DJs & Co.
+                <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
+                        Der Musiker-Markt.
                     </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.8vw, 2.5rem); font-weight: 800; color: #2563eb; line-height: 1.2; letter-spacing: -0.3px;">
-                        Der Musiker-Markt für Veranstalter!
+                    <div style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
+                        Für Veranstalter.
                     </div>
                 </div>
 
+                <!-- Subtitle: Category Icons -->
+                <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; margin-bottom: 2.2rem;">
+                    <span><i class="fa-solid fa-microphone" style="color: #7c3aed; margin-right: 0.35rem;"></i> Sänger</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-users" style="color: #2563eb; margin-right: 0.35rem;"></i> Bands</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-headphones" style="color: #7c3aed; margin-right: 0.35rem;"></i> DJs</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-star" style="color: #2563eb; margin-right: 0.35rem;"></i> Solokünstler</span>
+                </div>
+
                 <!-- Carousel: Musiker -->
-                <div class="carousel-container" style="margin-bottom: 2.2rem;">
+                <div class="carousel-container" style="margin-bottom: 1.5rem;">
                     <div class="carousel-viewport">
                         <div class="carousel-track theme-organizer" id="carousel-track-musicians">
                             ${renderMarketGridHTML(state.musicians.slice(0, 9), false, true)}
                         </div>
                     </div>
-                    <button class="carousel-btn prev-btn btn-musicians" onclick="slideCarousel('musicians', -1)">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-                    <button class="carousel-btn next-btn btn-musicians" onclick="slideCarousel('musicians', 1)">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
+                </div>
+
+                <!-- Pagination Dots: Musiker -->
+                <div class="carousel-dots-container" style="margin-bottom: 2.2rem;">
+                    <div class="carousel-dots" id="carousel-dots-musicians">
+                        <span class="carousel-dot active" onclick="jumpToCarouselSlide('musicians', 0)"></span>
+                        <span class="carousel-dot" onclick="jumpToCarouselSlide('musicians', 1)"></span>
+                        <span class="carousel-dot" onclick="jumpToCarouselSlide('musicians', 2)"></span>
+                        <span class="carousel-dot" onclick="jumpToCarouselSlide('musicians', 3)"></span>
+                        <span class="carousel-dot" onclick="jumpToCarouselSlide('musicians', 4)"></span>
+                    </div>
                 </div>
 
                 <!-- Marquee: Band-Logos -->
@@ -3103,28 +3119,44 @@ function renderLandingPage(container, onNavigate) {
             <div style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1.5rem 0;">
                 
                 <!-- Headline: Event-Markt -->
-                <div style="text-align: center; margin-bottom: 2.2rem; padding: 0 1rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.8vw, 2.5rem); font-weight: 800; color: #0f172a; margin: 0 0 0.5rem; line-height: 1.2; letter-spacing: -0.5px;">
-                        Hochzeiten, Geburtstage,<br>Firmenfeiern, Stadtfeste & Co.
+                <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
+                        Der Event-Markt.
                     </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.8vw, 2.5rem); font-weight: 800; color: #7c3aed; line-height: 1.2; letter-spacing: -0.3px;">
-                        Der Event-Markt für Musiker
+                    <div style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
+                        Für Musiker.
                     </div>
                 </div>
 
+                <!-- Subtitle: Category Icons -->
+                <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; margin-bottom: 2.2rem;">
+                    <span><i class="fa-solid fa-heart" style="color: #7c3aed; margin-right: 0.35rem;"></i> Hochzeiten</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-cake-candles" style="color: #2563eb; margin-right: 0.35rem;"></i> Geburtstage</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-building" style="color: #7c3aed; margin-right: 0.35rem;"></i> Firmenfeiern</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-guitar" style="color: #2563eb; margin-right: 0.35rem;"></i> Stadtfeste & Co.</span>
+                </div>
+
                 <!-- Carousel: Events -->
-                <div class="carousel-container" style="margin-bottom: 2.2rem;">
+                <div class="carousel-container" style="margin-bottom: 1.5rem;">
                     <div class="carousel-viewport">
                         <div class="carousel-track theme-musician" id="carousel-track-events">
                             ${renderMarketGridHTML(state.events.slice(0, 9), true, true)}
                         </div>
                     </div>
-                    <button class="carousel-btn prev-btn btn-events" onclick="slideCarousel('events', -1)">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-                    <button class="carousel-btn next-btn btn-events" onclick="slideCarousel('events', 1)">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
+                </div>
+
+                <!-- Pagination Dots: Events -->
+                <div class="carousel-dots-container" style="margin-bottom: 2.2rem;">
+                    <div class="carousel-dots" id="carousel-dots-events">
+                        <span class="carousel-dot active" onclick="jumpToCarouselSlide('events', 0)"></span>
+                        <span class="carousel-dot" onclick="jumpToCarouselSlide('events', 1)"></span>
+                        <span class="carousel-dot" onclick="jumpToCarouselSlide('events', 2)"></span>
+                        <span class="carousel-dot" onclick="jumpToCarouselSlide('events', 3)"></span>
+                        <span class="carousel-dot" onclick="jumpToCarouselSlide('events', 4)"></span>
+                    </div>
                 </div>
 
                 <!-- Marquee: Event-Logos -->
@@ -3662,6 +3694,10 @@ function renderLandingPage(container, onNavigate) {
         initCarouselTouch('events');
         initCarouselTouch('benefits-musician');
         initCarouselTouch('benefits-organizer');
+    }
+    if (typeof updateCarouselDots === 'function') {
+        updateCarouselDots('musicians', 0);
+        updateCarouselDots('events', 0);
     }
 
     // Video cycling logic (Seamless swap & cross-fade, avoiding Capcut outro)
@@ -11461,6 +11497,55 @@ window.slideCarousel = function(type, direction) {
     const translateAmount = newIndex * (cardWidth + gap);
     
     track.style.transform = `translateX(-${translateAmount}px)`;
+    
+    // Auto-update dots
+    if (maxIndex > 0) {
+        const dotIndex = Math.round((newIndex / maxIndex) * 4);
+        window.updateCarouselDots(type, dotIndex);
+    }
+};
+
+window.jumpToCarouselSlide = function(type, dotIndex) {
+    const track = document.getElementById(`carousel-track-${type}`);
+    if (!track) return;
+    const cards = track.querySelectorAll('.market-tile-card');
+    const totalCards = cards.length;
+    if (totalCards === 0) return;
+    
+    let visibleCards = 3;
+    if (window.innerWidth <= 600) {
+        visibleCards = 1;
+    } else if (window.innerWidth <= 900) {
+        visibleCards = 2;
+    }
+    const maxIndex = totalCards - visibleCards;
+    if (maxIndex <= 0) return;
+    
+    let targetIndex = Math.round((dotIndex / 4) * maxIndex);
+    if (targetIndex > maxIndex) targetIndex = maxIndex;
+    if (targetIndex < 0) targetIndex = 0;
+    
+    window.carouselPositions[type] = targetIndex;
+    
+    const cardWidth = cards[0].getBoundingClientRect().width;
+    const gap = visibleCards === 1 ? 0 : 32;
+    const translateAmount = targetIndex * (cardWidth + gap);
+    track.style.transform = `translateX(-${translateAmount}px)`;
+    
+    window.updateCarouselDots(type, dotIndex);
+};
+
+window.updateCarouselDots = function(type, dotIndex) {
+    const dotsContainer = document.getElementById(`carousel-dots-${type}`);
+    if (!dotsContainer) return;
+    const dots = dotsContainer.querySelectorAll('.carousel-dot');
+    dots.forEach((dot, idx) => {
+        if (idx === dotIndex) {
+            dot.classList.add('active');
+        } else {
+            dot.classList.remove('active');
+        }
+    });
 };
 
 window.initCarouselTouch = function(type) {
