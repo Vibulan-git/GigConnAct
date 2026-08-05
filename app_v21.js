@@ -2954,7 +2954,7 @@ function renderLandingPage(container, onNavigate) {
                 <!-- 1/3: Large Logo -->
                 <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0 0.8rem; box-sizing: border-box;">
                     <!-- Large SVG Disco Ball -->
-                    <svg id="hero-logo-svg" class="animate-hero-logo" viewBox="0 0 100 100" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); flex-shrink: 0; overflow: visible; opacity: 0; transition: opacity 0.3s;">
+                    <svg id="hero-logo-svg" viewBox="0 0 100 100" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); flex-shrink: 0; overflow: visible; opacity: 0;">
                       <defs>
                         <radialGradient id="sphereGradLarge" cx="35%" cy="35%" r="65%">
                           <stop offset="0%" stop-color="#ffffff" />
@@ -3029,7 +3029,7 @@ function renderLandingPage(container, onNavigate) {
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
                         Der Event-Markt.
                     </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.4rem, 4.2vw, 3rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
                         Musiker suchen Gigs.
                     </div>
                 </div>
@@ -3147,7 +3147,7 @@ function renderLandingPage(container, onNavigate) {
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
                         Der Musiker-Markt.
                     </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.4rem, 4.2vw, 3rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
                         Veranstalter suchen Acts.
                     </div>
                 </div>
@@ -3321,10 +3321,11 @@ function renderLandingPage(container, onNavigate) {
                     </div>
 
                     <!-- Card 7: Non-clickable ... dots -->
-                    <div class="event-type-card card-purple" style="cursor: default; display: flex; flex-direction: column; align-items: center; justify-content: center; border: none; background: transparent; box-shadow: none;">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(124, 58, 237, 0.05); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(167, 139, 250, 0.2);">
-                            <span style="font-size: 1.8rem; font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; line-height: 1; letter-spacing: 1px; display: inline-block;">...</span>
+                    <div class="event-type-card card-purple" style="cursor: default;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                            <span style="font-size: 1.8rem; font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; line-height: 1; letter-spacing: 1px; display: inline-block; padding-bottom: 8px;">...</span>
                         </div>
+                        <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Und Co.</span>
                     </div>
 
                 </div>
@@ -3717,6 +3718,9 @@ function renderLandingPage(container, onNavigate) {
     const splash = document.getElementById('disco-splash');
     const heroLogo = document.getElementById('hero-logo-svg');
     if (splash && heroLogo) {
+        heroLogo.style.opacity = '0';
+        heroLogo.classList.remove('animate-hero-logo');
+
         setTimeout(() => {
             const splashBall = document.getElementById('splash-ball-container');
             if (splashBall && heroLogo && splash) {
@@ -3739,13 +3743,21 @@ function renderLandingPage(container, onNavigate) {
                 
                 setTimeout(() => {
                     heroLogo.style.opacity = '1';
-                    splash.remove();
+                    heroLogo.classList.add('animate-hero-logo');
+                    
+                    // Smoothly fade out the splash screen overlay before removing it
+                    splash.style.transition = 'opacity 0.4s ease-out';
+                    splash.style.opacity = '0';
+                    setTimeout(() => {
+                        splash.remove();
+                    }, 400);
                 }, 1200);
             }
         }, 1800);
     } else {
         if (heroLogo) {
             heroLogo.style.opacity = '1';
+            heroLogo.classList.add('animate-hero-logo');
         }
     }
 
