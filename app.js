@@ -9996,7 +9996,12 @@ function navigate(page) {
         mainContainer.classList.remove('page-landing');
     }
 
-    window.scrollTo(0, 0);
+    // Only scroll to top if the page has actually changed, preventing viewport jumping
+    if (window.currentActivePage !== page) {
+        window.scrollTo(0, 0);
+        window.currentActivePage = page;
+    }
+
     updateNavbar(page === '');
     document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
 
@@ -10457,21 +10462,9 @@ function renderPostbox(container) {
 
     let profileSelectorHtml = '';
 
-    const stateChangeListener = () => {
-        if (window.location.hash !== '#/postbox' || !document.body.contains(container)) {
-            document.removeEventListener('user-state-changed', stateChangeListener);
-            return;
-        }
-        renderPostbox(container);
-    };
-
     if (container.cleanupPostboxListener) {
         container.cleanupPostboxListener();
     }
-    document.addEventListener('user-state-changed', stateChangeListener);
-    container.cleanupPostboxListener = () => {
-        document.removeEventListener('user-state-changed', stateChangeListener);
-    };
 
     const renderView = () => {
         const chats = state.getChatsForUser(currentUserId);
@@ -10892,22 +10885,20 @@ function renderPostbox(container) {
                 const counterpartyId = activeChat.participants.find(id => id !== currentUserId) || activeChat.participants[0];
                 await state.sendMessage(counterpartyId, text, activeChat.eventId);
                 input.value = '';
-                renderView();
             });
         }
 
         // Send message form handler (Mobile Accordion)
         container.querySelectorAll('.chat-send-form-mobile').forEach(form => {
-            form.addEventListener('submit', (e) => {
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const input = form.querySelector('.chat-message-input-mobile');
                 const text = input.value.trim();
                 if (!text || !activeChat) return;
 
                 const counterpartyId = activeChat.participants.find(id => id !== currentUserId) || activeChat.participants[0];
-                state.sendMessage(counterpartyId, text, activeChat.eventId);
+                await state.sendMessage(counterpartyId, text, activeChat.eventId);
                 input.value = '';
-                renderView();
             });
         });
 
