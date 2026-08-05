@@ -4913,7 +4913,8 @@ input[type="range"].input-field {
 }
 
 .spinning-disco-ball {
-    transform-origin: 50px 50px;
+    transform-origin: center;
+    transform-box: fill-box;
     animation: spinDiscoNav 12s linear infinite;
 }
 
@@ -4923,16 +4924,19 @@ input[type="range"].input-field {
 }
 
 .sparkle-1 {
-    transform-origin: 22px 25px;
+    transform-origin: center;
+    transform-box: fill-box;
     animation: glistenSparkle 2s ease-in-out infinite;
 }
 
 .sparkle-2 {
-    transform-origin: 75px 30px;
+    transform-origin: center;
+    transform-box: fill-box;
     animation: glistenSparkle 1.5s ease-in-out infinite;
 }
 
 .sparkle-3 {
-    transform-origin: 68px 68px;
+    transform-origin: center;
+    transform-box: fill-box;
     animation: glistenSparkle 2.5s ease-in-out infinite;
 }

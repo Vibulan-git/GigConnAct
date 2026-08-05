@@ -2986,9 +2986,9 @@ function renderLandingPage(container, onNavigate) {
                           <path d="M 50 10 A 10 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
                       </g>
                       <!-- Sparkles -->
-                      <g class="sparkle-1" transform="translate(22, 25)" filter="url(#glowLarge)"><polygon points="0,-8 2,-2 8,0 2,2 0,8 -2,2 -8,0 -2,-2" fill="#ffffff" /></g>
-                      <g class="sparkle-2" transform="translate(75, 30)" filter="url(#glowLarge)"><polygon points="0,-6 1.5,-1.5 6,0 1.5,1.5 0,6 -1.5,1.5 -6,0 -1.5,-1.5" fill="#ffffff" /></g>
-                      <g class="sparkle-3" transform="translate(68, 68)" filter="url(#glowLarge)"><polygon points="0,-7 1.8,-1.8 7,0 1.8,1.8 0,7 -1.8,1.8 -7,0 -1.8,-1.8" fill="#ffffff" /></g>
+                      <g transform="translate(22, 25)" filter="url(#glowLarge)"><polygon class="sparkle-1" points="0,-8 2,-2 8,0 2,2 0,8 -2,2 -8,0 -2,-2" fill="#ffffff" /></g>
+                      <g transform="translate(75, 30)" filter="url(#glowLarge)"><polygon class="sparkle-2" points="0,-6 1.5,-1.5 6,0 1.5,1.5 0,6 -1.5,1.5 -6,0 -1.5,-1.5" fill="#ffffff" /></g>
+                      <g transform="translate(68, 68)" filter="url(#glowLarge)"><polygon class="sparkle-3" points="0,-7 1.8,-1.8 7,0 1.8,1.8 0,7 -1.8,1.8 -7,0 -1.8,-1.8" fill="#ffffff" /></g>
                     </svg>
                     <div class="animate-hero-text" style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.2rem); font-weight: 900; letter-spacing: -1.5px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                         GigConnAct
@@ -3028,7 +3028,7 @@ function renderLandingPage(container, onNavigate) {
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
                         Der Event-Markt.
                     </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.4rem, 4.2vw, 3rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.6rem, 4.8vw, 3.4rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
                         Musiker suchen Gigs.
                     </div>
                 </div>
@@ -3146,7 +3146,7 @@ function renderLandingPage(container, onNavigate) {
                     <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
                         Der Musiker-Markt.
                     </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.4rem, 4.2vw, 3rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.6rem, 4.8vw, 3.4rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
                         Veranstalter suchen Acts.
                     </div>
                 </div>
@@ -10145,6 +10145,17 @@ window.navigateAfterLogin = navigateAfterLogin;
 function navigate(page) {
     const mainContainer = document.getElementById('app-main');
     if (!mainContainer) return;
+
+    // Optimize redundant rendering: exit early if page hasn't changed and user session is identical
+    const currentUserId = (state && state.currentUser) ? state.currentUser.id : null;
+    const currentUserRole = (state && state.currentUser) ? state.currentUser.role : null;
+    if (window.currentActivePage === page && 
+        window.lastUserSessionId === currentUserId && 
+        window.lastUserRole === currentUserRole) {
+        return;
+    }
+    window.lastUserSessionId = currentUserId;
+    window.lastUserRole = currentUserRole;
 
     if (page === '') {
         mainContainer.classList.add('page-landing');
