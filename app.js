@@ -4078,17 +4078,7 @@ function renderMarket(container, type, onNavigate) {
                     <i class="fa-solid fa-sliders" style="font-size: 0.95rem; margin: 0;"></i>
                 </button>
  
-                <!-- 2. Sortierung -->
-                <div class="market-sort-container-round" style="width: 36px !important; height: 36px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 50% !important; flex-shrink: 0; position: relative; margin: 0;">
-                    <i class="fa-solid fa-arrow-down-wide-short" style="color: ${isEvents ? '#2563eb' : '#7c3aed'}; font-size: 0.95rem; pointer-events: none;"></i>
-                    <select id="sort-select" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; margin: 0; z-index: 5;">
-                        <option value="match">Match-Faktor absteigend</option>
-                        <option value="newest">Neueste zuerst</option>
-                        <option value="price">Günstig zuerst</option>
-                        <option value="distance">Nächste zuerst</option>
-                        <option value="name">Name (A-Z)</option>
-                    </select>
-                </div>
+
 
                 <!-- 3. Stern (Nur Top-Matches anzeigen) -->
                 <button class="market-control-toggle" id="btn-toggle-market-top-matches" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Top-Matches anzeigen">
@@ -4114,18 +4104,32 @@ function renderMarket(container, type, onNavigate) {
                 
                 <!-- Left Sidebar Filters (Responsive Wrapper) -->
                 <div id="market-filters-wrapper" class="market-filter-card">
-                    <div class="filter-header-sticky">
+                    <div class="filter-header-sticky" style="display: flex; align-items: center; justify-content: space-between; width: calc(100% - 1.2rem) !important;">
                         <span class="filter-header-title">
                             <i class="fa-solid fa-sliders"></i> Filter
                         </span>
                         
-                        <button id="btn-reset-filters" class="btn-reset-round" title="Filter zurücksetzen">
-                            <i class="fa-solid fa-rotate-left"></i>
-                        </button>
-                        
-                        <button id="btn-close-filters-m" class="btn-close-filters-m">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                        <div style="display: flex; align-items: center; gap: 0.4rem; margin-left: auto;">
+                            <!-- 2. Sortierung inside Filter Sidebar Header -->
+                            <div class="market-sort-container-round" style="width: 32px !important; height: 32px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 50% !important; flex-shrink: 0; position: relative; margin: 0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='transparent'">
+                                <i class="fa-solid fa-arrow-down-wide-short" style="color: #ffffff; font-size: 0.9rem; pointer-events: none;"></i>
+                                <select id="sort-select" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; margin: 0; z-index: 5;">
+                                    <option value="match">Match-Faktor absteigend</option>
+                                    <option value="newest">Neueste zuerst</option>
+                                    <option value="price">Günstig zuerst</option>
+                                    <option value="distance">Nächste zuerst</option>
+                                    <option value="name">Name (A-Z)</option>
+                                </select>
+                            </div>
+                            
+                            <button id="btn-reset-filters" class="btn-reset-round" title="Filter zurücksetzen" style="margin: 0; width: 32px; height: 32px;">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                            
+                            <button id="btn-close-filters-m" class="btn-close-filters-m" style="margin: 0; width: 32px; height: 32px;">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
                     </div>
                     
                     ${isEvents ? `
