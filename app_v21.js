@@ -286,6 +286,23 @@ window.unlockListing = function(targetId, targetName) {
     }
 };
 
+window.normalizeCityName = function(city) {
+    if (!city) return '';
+    let normalized = city.trim();
+    if (normalized.toLowerCase() === 'köln') return 'Köln';
+    if (normalized.toLowerCase() === 'münchen') return 'München';
+    if (normalized.toLowerCase() === 'nürnberg') return 'Nürnberg';
+    if (normalized.toLowerCase() === 'düsseldorf') return 'Düsseldorf';
+    return normalized.split(', ').map(word => {
+        const lw = word.toLowerCase();
+        if (lw === 'köln') return 'Köln';
+        if (lw === 'münchen') return 'München';
+        if (lw === 'nürnberg') return 'Nürnberg';
+        if (lw === 'düsseldorf') return 'Düsseldorf';
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    }).join(', ');
+};
+
 // ==========================================
 // 1. MOCK DATA & CONSTANTS
 // ==========================================
@@ -3029,7 +3046,7 @@ function renderLandingPage(container, onNavigate) {
                     <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
                     <span><i class="fa-solid fa-city" style="color: #7c3aed; margin-right: 0.35rem;"></i> Kirmes</span>
                     <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span style="color: #7c3aed; font-weight: 900; letter-spacing: 1px;">...</span>
+                    <span style="color: #7c3aed; font-weight: 900; font-size: 1.6rem; letter-spacing: 2px; line-height: 1; vertical-align: middle; display: inline-flex; align-items: center; padding-bottom: 5px;">...</span>
                 </div>
 
                 <!-- Carousel: Events -->
@@ -3147,7 +3164,7 @@ function renderLandingPage(container, onNavigate) {
                     <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
                     <span><i class="fa-solid fa-user-group" style="color: #2563eb; margin-right: 0.35rem;"></i> Duo</span>
                     <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span style="color: #2563eb; font-weight: 900; letter-spacing: 1px;">...</span>
+                    <span style="color: #2563eb; font-weight: 900; font-size: 1.6rem; letter-spacing: 2px; line-height: 1; vertical-align: middle; display: inline-flex; align-items: center; padding-bottom: 5px;">...</span>
                 </div>
 
                 <!-- Carousel: Musiker -->
@@ -6430,7 +6447,7 @@ function renderOrganizerEventItem(e, isActive) {
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${e.location}</span>
+                            <span>${window.normalizeCityName(e.location)}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-calendar" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
@@ -6652,7 +6669,7 @@ function renderMusicianInsightsPanel(m) {
                         <h5 style="margin:0 0 0.15rem; font-size:0.9rem; font-weight:700; color:var(--text-main);">${event.name}</h5>
                         <div style="font-size:0.75rem; color:var(--text-muted); display:flex; gap:0.8rem; flex-wrap:wrap;">
                             <span><i class="fa-solid fa-calendar text-purple"></i> ${new Date(event.date).toLocaleDateString('de-DE')}</span>
-                            <span><i class="fa-solid fa-map-marker-alt text-purple"></i> ${event.location}</span>
+                            <span><i class="fa-solid fa-map-marker-alt text-purple"></i> ${window.normalizeCityName(event.location)}</span>
                             <span><i class="fa-solid fa-euro-sign text-purple"></i> ${(() => {
                                 const minB = event.minBudget !== undefined ? event.minBudget : event.budget;
                                 const maxB = event.maxBudget;
@@ -6859,7 +6876,7 @@ function renderMyMusicianItem(m, isActive) {
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${m.location}</span>
+                            <span>${window.normalizeCityName(m.location)}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
@@ -11199,7 +11216,7 @@ function formatTruncatedList(listArray, themeColor, itemId, uniqueType) {
     const hiddenId = `more-${uniqueType}-${itemId}`;
     
     return `
-        <span>${visiblePart}</span><span id="${hiddenId}" style="display: none;">${hiddenPart}</span><span onclick="event.stopPropagation(); window.toggleTruncatedList(this, '${hiddenId}')" style="color: ${themeColor}; font-weight: 900; cursor: pointer; margin-left: 0.5rem; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.25); width: 26px; height: 26px; border-radius: 50%; font-size: 1.15rem; vertical-align: middle; line-height: 1; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.25)'" title="Mehr anzeigen">+</span>
+        <span>${visiblePart}</span><span id="${hiddenId}" style="display: none;">${hiddenPart}</span><span onclick="event.stopPropagation(); window.toggleTruncatedList(this, '${hiddenId}')" style="color: ${themeColor}; font-weight: 900; cursor: pointer; margin-left: 0.5rem; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.25); width: 26px; height: 26px; border-radius: 50%; font-size: 1.15rem; vertical-align: middle; line-height: 1; transition: all 0.2s; padding-bottom: 2px; box-sizing: border-box;" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.25)'" title="Mehr anzeigen">+</span>
     `;
 }
 
@@ -11386,7 +11403,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <!-- 1. Ort -->
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${item.location || 'Deutschlandweit'}</span>
+                            <span>${window.normalizeCityName(item.location || 'Deutschlandweit')}</span>
                         </div>
                         
                         ${isEvents ? `
