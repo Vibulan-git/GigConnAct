@@ -1706,7 +1706,6 @@ class StateManager {
 
     getUnreadCount() {
         if (!this.currentUser) return 0;
-        const matchesCount = this.getUnreadMatches().length;
         const chatsList = this.chats || [];
         const currentUserId = this.currentUser.id;
         const unreadChats = chatsList.filter(c => 
@@ -1714,7 +1713,7 @@ class StateManager {
             c.participants.includes(currentUserId) && 
             !(this.readChats || []).includes(c.id)
         ).length;
-        return matchesCount + unreadChats;
+        return unreadChats;
     }
 
     getChatsForUser(userId) {
@@ -4154,13 +4153,13 @@ function renderMarket(container, type, onNavigate) {
                 </button>
 
                 <!-- 5. Ergebnisse als Zahl + Label -->
-                <div style="display: flex; align-items: center; gap: 0.45rem; margin: 0 0.5rem; flex-shrink: 0;">
-                    <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: ${isEvents ? '#2563eb' : '#a855f7'}; text-align: center; padding: 0.2rem 0.5rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; min-width: 32px; white-space: nowrap; margin: 0;">
-                        ${items.length}
-                    </div>
-                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; color: var(--text-main); white-space: nowrap;">
+                <div style="display: flex; align-items: center; gap: 0.8rem; margin: 0 0.5rem; flex-shrink: 0;">
+                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: #ffffff; white-space: nowrap; letter-spacing: -0.5px; line-height: 1.1;">
                         ${isEvents ? 'Event-Markt' : 'Musiker-Markt'}
                     </span>
+                    <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 900; color: ${isEvents ? '#2563eb' : '#a855f7'}; text-align: center; padding: 0.25rem 0.6rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; min-width: 32px; white-space: nowrap; margin: 0; line-height: 1.2;">
+                        ${items.length}
+                    </div>
                 </div>
             </div>
 
