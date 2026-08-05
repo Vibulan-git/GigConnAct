@@ -3001,8 +3001,124 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 2. SECTION 1: Musiker-Profile -->
+            <!-- 2. SECTION 2: Event-Profile -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 3rem 1.5rem 0;">
+                
+                <!-- Headline: Event-Markt -->
+                <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
+                        Der Event-Markt.
+                    </h2>
+                    <div style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
+                        Für Musiker.
+                    </div>
+                </div>
+
+                <!-- Subtitle: Category Icons -->
+                <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; margin-bottom: 2.2rem;">
+                    <span><i class="fa-solid fa-heart" style="color: #7c3aed; margin-right: 0.35rem;"></i> Hochzeit</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-cake-candles" style="color: #7c3aed; margin-right: 0.35rem;"></i> Geburtstag</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-music" style="color: #7c3aed; margin-right: 0.35rem;"></i> Festival</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-building" style="color: #7c3aed; margin-right: 0.35rem;"></i> Firmenfeier</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-guitar" style="color: #7c3aed; margin-right: 0.35rem;"></i> Stadtfest</span>
+                </div>
+
+                <!-- Carousel: Events -->
+                <div class="carousel-container" style="margin-bottom: 1.5rem;">
+                    <div class="carousel-viewport">
+                        <div class="carousel-track theme-musician" id="carousel-track-events">
+                            ${renderMarketGridHTML(state.events.slice(0, 9), true, true)}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination Dots: Events -->
+                <div class="carousel-dots-container" style="margin-bottom: 2.2rem;">
+                    <div class="carousel-dots" id="carousel-dots-events">
+                        <span class="carousel-dot active" onclick="jumpToCarouselSlide('events', 0)"></span>
+                        <span class="carousel-dot" onclick="jumpToCarouselSlide('events', 1)"></span>
+                        <span class="carousel-dot" onclick="jumpToCarouselSlide('events', 2)"></span>
+                        <span class="carousel-dot" onclick="jumpToCarouselSlide('events', 3)"></span>
+                        <span class="carousel-dot" onclick="jumpToCarouselSlide('events', 4)"></span>
+                    </div>
+                </div>
+
+                <!-- Marquee: Event-Logos -->
+                <div class="logo-marquee-wrapper theme-events-marquee" style="margin-bottom: 3.5rem;">
+                    <div class="logo-marquee-track">
+                        <!-- First Copy of 10 Event/Venue/Club Logos -->
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M8,32 L8,18 L12,18 L12,22 L16,22 L16,18 L20,18 L20,22 L24,22 L24,18 L28,18 L28,32 Z" fill="#94a3b8" /><path d="M14,32 L14,26 L22,26 L22,32 Z" fill="#1e293b" /><polygon points="18,10 24,15 12,15" fill="#f43f5e" /><text x="35" y="27" font-family="'Georgia', serif" font-size="14" font-weight="bold" fill="#ffffff" letter-spacing="0.5">SCHLOSSBERG</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 165 45" width="165" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-royal-1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fbbf24" /><stop offset="100%" stop-color="#f59e0b" /></linearGradient></defs><path d="M10,28 L13,15 L18,20 L23,12 L28,20 L33,15 L36,28 Z" fill="url(#grad-royal-1)" /><circle cx="23" cy="8" r="2" fill="url(#grad-royal-1)" /><text x="45" y="26" font-family="'Times New Roman', serif" font-size="18" font-weight="bold" fill="url(#grad-royal-1)" letter-spacing="1.5">ROYAL</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,10 L32,10 L32,25 C32,35 21,40 21,40 C21,40 10,35 10,25 Z" fill="#1d4ed8" stroke="#ffffff" stroke-width="1.5" /><path d="M15,10 L18,10 L18,31 C16,29 15,27 15,25 Z" fill="#ffffff" /><path d="M24,10 L27,10 L27,31 C25,29 24,27 24,25 Z" fill="#ffffff" /><text x="40" y="26" font-family="'Arial Black', Impact, sans-serif" font-size="15" fill="#ffffff" letter-spacing="-0.5">SV KICKERS</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,35 L28,35 L22,12 L16,12 Z" fill="#f97316" /><line x1="20" y1="12" x2="35" y2="5" stroke="#f97316" stroke-width="2" /><line x1="32" y1="6" x2="32" y2="18" stroke="#64748b" stroke-width="1" /><text x="42" y="27" font-family="'Impact', 'Arial Black', sans-serif" font-size="17" fill="#ffffff" letter-spacing="0.5">WERFT</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="14" fill="none" stroke="#10b981" stroke-width="3" /><circle cx="22" cy="22" r="8" fill="none" stroke="#f59e0b" stroke-width="3" /><circle cx="22" cy="22" r="2" fill="#ef4444" /><text x="44" y="26" font-family="sans-serif" font-size="15" font-weight="800" fill="#10b981" letter-spacing="0.5">KULTUR<tspan fill="#f59e0b">V.</tspan></text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><polygon points="22,8 34,22 22,36 10,22" fill="none" stroke="#fbbf24" stroke-width="2" /><polygon points="22,13 30,22 22,31 14,22" fill="#fbbf24" /><text x="44" y="26" font-family="'Courier New', Courier, monospace" font-size="16" font-weight="bold" fill="#ffffff" letter-spacing="2">GALA-PRO</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="16" fill="#047857" /><path d="M17,20 Q22,12 27,20 M19,25 Q22,18 25,25" fill="none" stroke="#fbbf24" stroke-width="2" /><text x="46" y="26" font-family="'Georgia', serif" font-size="15" font-weight="bold" fill="#fbbf24">Biergarten</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="10" width="8" height="25" fill="#3b82f6" /><rect x="18" y="15" width="8" height="20" fill="#3b82f6" opacity="0.8" /><rect x="28" y="20" width="8" height="15" fill="#3b82f6" opacity="0.6" /><text x="42" y="27" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#ffffff" letter-spacing="1">MESSE<tspan fill="#3b82f6">W</tspan></text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M12,12 C12,18 16,22 20,22 L20,32 L15,32 L15,34 L25,34 L25,32 L20,32 L20,22 C24,22 28,18 28,12 Z" fill="none" stroke="#84cc16" stroke-width="1.5" /><circle cx="20" cy="10" r="4" fill="#fbbf24" /><text x="36" y="26" font-family="Georgia, serif" font-size="16" fill="#84cc16">Sonnenhang</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><polygon points="8,10 16,10 12,24" fill="#ec4899" /><polygon points="16,10 24,10 20,24" fill="#3b82f6" /><polygon points="24,10 32,10 28,24" fill="#eab308" /><line x1="6" y1="10" x2="34" y2="10" stroke="#ffffff" stroke-width="1.5" /><text x="40" y="26" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#ffffff">Stadtfest</text></svg>
+                        </div>
+                        
+                        <!-- Second Copy of 10 Event/Venue/Club Logos (for seamless looping) -->
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M8,32 L8,18 L12,18 L12,22 L16,22 L16,18 L20,18 L20,22 L24,22 L24,18 L28,18 L28,32 Z" fill="#94a3b8" /><path d="M14,32 L14,26 L22,26 L22,32 Z" fill="#1e293b" /><polygon points="18,10 24,15 12,15" fill="#f43f5e" /><text x="35" y="27" font-family="'Georgia', serif" font-size="14" font-weight="bold" fill="#ffffff" letter-spacing="0.5">SCHLOSSBERG</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 165 45" width="165" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-royal-2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fbbf24" /><stop offset="100%" stop-color="#f59e0b" /></linearGradient></defs><path d="M10,28 L13,15 L18,20 L23,12 L28,20 L33,15 L36,28 Z" fill="url(#grad-royal-2)" /><circle cx="23" cy="8" r="2" fill="url(#grad-royal-2)" /><text x="45" y="26" font-family="'Times New Roman', serif" font-size="18" font-weight="bold" fill="url(#grad-royal-2)" letter-spacing="1.5">ROYAL</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,10 L32,10 L32,25 C32,35 21,40 21,40 C21,40 10,35 10,25 Z" fill="#1d4ed8" stroke="#ffffff" stroke-width="1.5" /><path d="M15,10 L18,10 L18,31 C16,29 15,27 15,25 Z" fill="#ffffff" /><path d="M24,10 L27,10 L27,31 C25,29 24,27 24,25 Z" fill="#ffffff" /><text x="40" y="26" font-family="'Arial Black', Impact, sans-serif" font-size="15" fill="#ffffff" letter-spacing="-0.5">SV KICKERS</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,35 L28,35 L22,12 L16,12 Z" fill="#f97316" /><line x1="20" y1="12" x2="35" y2="5" stroke="#f97316" stroke-width="2" /><line x1="32" y1="6" x2="32" y2="18" stroke="#64748b" stroke-width="1" /><text x="42" y="27" font-family="'Impact', 'Arial Black', sans-serif" font-size="17" fill="#ffffff" letter-spacing="0.5">WERFT</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="14" fill="none" stroke="#10b981" stroke-width="3" /><circle cx="22" cy="22" r="8" fill="none" stroke="#f59e0b" stroke-width="3" /><circle cx="22" cy="22" r="2" fill="#ef4444" /><text x="44" y="26" font-family="sans-serif" font-size="15" font-weight="800" fill="#10b981" letter-spacing="0.5">KULTUR<tspan fill="#f59e0b">V.</tspan></text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><polygon points="22,8 34,22 22,36 10,22" fill="none" stroke="#fbbf24" stroke-width="2" /><polygon points="22,13 30,22 22,31 14,22" fill="#fbbf24" /><text x="44" y="26" font-family="'Courier New', Courier, monospace" font-size="16" font-weight="bold" fill="#ffffff" letter-spacing="2">GALA-PRO</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="16" fill="#047857" /><path d="M17,20 Q22,12 27,20 M19,25 Q22,18 25,25" fill="none" stroke="#fbbf24" stroke-width="2" /><text x="46" y="26" font-family="'Georgia', serif" font-size="15" font-weight="bold" fill="#fbbf24">Biergarten</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="10" width="8" height="25" fill="#3b82f6" /><rect x="18" y="15" width="8" height="20" fill="#3b82f6" opacity="0.8" /><rect x="28" y="20" width="8" height="15" fill="#3b82f6" opacity="0.6" /><text x="42" y="27" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#ffffff" letter-spacing="1">MESSE<tspan fill="#3b82f6">W</tspan></text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M12,12 C12,18 16,22 20,22 L20,32 L15,32 L15,34 L25,34 L25,32 L20,32 L20,22 C24,22 28,18 28,12 Z" fill="none" stroke="#84cc16" stroke-width="1.5" /><circle cx="20" cy="10" r="4" fill="#fbbf24" /><text x="36" y="26" font-family="Georgia, serif" font-size="16" fill="#84cc16">Sonnenhang</text></svg>
+                        </div>
+                        <div class="partner-logo-badge">
+                            <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><polygon points="8,10 16,10 12,24" fill="#ec4899" /><polygon points="16,10 24,10 20,24" fill="#3b82f6" /><polygon points="24,10 32,10 28,24" fill="#eab308" /><line x1="6" y1="10" x2="34" y2="10" stroke="#ffffff" stroke-width="1.5" /><text x="40" y="26" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#ffffff">Stadtfest</text></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. SECTION 1: Musiker-Profile -->
+            <div style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1.5rem 0;">
                 
                 <!-- Headline: Musiker-Markt -->
                 <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
@@ -3016,13 +3132,17 @@ function renderLandingPage(container, onNavigate) {
 
                 <!-- Subtitle: Category Icons -->
                 <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; margin-bottom: 2.2rem;">
-                    <span><i class="fa-solid fa-microphone" style="color: #7c3aed; margin-right: 0.35rem;"></i> Sänger</span>
+                    <span><i class="fa-solid fa-microphone" style="color: #2563eb; margin-right: 0.35rem;"></i> Sänger</span>
                     <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
                     <span><i class="fa-solid fa-users" style="color: #2563eb; margin-right: 0.35rem;"></i> Bands</span>
                     <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span><i class="fa-solid fa-headphones" style="color: #7c3aed; margin-right: 0.35rem;"></i> DJs</span>
+                    <span><i class="fa-solid fa-headphones" style="color: #2563eb; margin-right: 0.35rem;"></i> DJs</span>
                     <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span><i class="fa-solid fa-star" style="color: #2563eb; margin-right: 0.35rem;"></i> Solokünstler</span>
+                    <span><i class="fa-solid fa-guitar" style="color: #2563eb; margin-right: 0.35rem;"></i> Solokünstler</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span><i class="fa-solid fa-user-group" style="color: #2563eb; margin-right: 0.35rem;"></i> Duo</span>
+                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                    <span>...</span>
                 </div>
 
                 <!-- Carousel: Musiker -->
@@ -3115,119 +3235,6 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 3. SECTION 2: Event-Profile -->
-            <div style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1.5rem 0;">
-                
-                <!-- Headline: Event-Markt -->
-                <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
-                        Der Event-Markt.
-                    </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
-                        Für Musiker.
-                    </div>
-                </div>
-
-                <!-- Subtitle: Category Icons -->
-                <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; margin-bottom: 2.2rem;">
-                    <span><i class="fa-solid fa-heart" style="color: #7c3aed; margin-right: 0.35rem;"></i> Hochzeiten</span>
-                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span><i class="fa-solid fa-cake-candles" style="color: #2563eb; margin-right: 0.35rem;"></i> Geburtstage</span>
-                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span><i class="fa-solid fa-building" style="color: #7c3aed; margin-right: 0.35rem;"></i> Firmenfeiern</span>
-                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span><i class="fa-solid fa-guitar" style="color: #2563eb; margin-right: 0.35rem;"></i> Stadtfeste & Co.</span>
-                </div>
-
-                <!-- Carousel: Events -->
-                <div class="carousel-container" style="margin-bottom: 1.5rem;">
-                    <div class="carousel-viewport">
-                        <div class="carousel-track theme-musician" id="carousel-track-events">
-                            ${renderMarketGridHTML(state.events.slice(0, 9), true, true)}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Pagination Dots: Events -->
-                <div class="carousel-dots-container" style="margin-bottom: 2.2rem;">
-                    <div class="carousel-dots" id="carousel-dots-events">
-                        <span class="carousel-dot active" onclick="jumpToCarouselSlide('events', 0)"></span>
-                        <span class="carousel-dot" onclick="jumpToCarouselSlide('events', 1)"></span>
-                        <span class="carousel-dot" onclick="jumpToCarouselSlide('events', 2)"></span>
-                        <span class="carousel-dot" onclick="jumpToCarouselSlide('events', 3)"></span>
-                        <span class="carousel-dot" onclick="jumpToCarouselSlide('events', 4)"></span>
-                    </div>
-                </div>
-
-                <!-- Marquee: Event-Logos -->
-                <div class="logo-marquee-wrapper theme-events-marquee" style="margin-bottom: 3.5rem;">
-                    <div class="logo-marquee-track">
-                        <!-- First Copy of 10 Event/Venue/Club Logos -->
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M8,32 L8,18 L12,18 L12,22 L16,22 L16,18 L20,18 L20,22 L24,22 L24,18 L28,18 L28,32 Z" fill="#94a3b8" /><path d="M14,32 L14,26 L22,26 L22,32 Z" fill="#1e293b" /><polygon points="18,10 24,15 12,15" fill="#f43f5e" /><text x="35" y="27" font-family="'Georgia', serif" font-size="14" font-weight="bold" fill="#ffffff" letter-spacing="0.5">SCHLOSSBERG</text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 165 45" width="165" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-royal-1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fbbf24" /><stop offset="100%" stop-color="#f59e0b" /></linearGradient></defs><path d="M10,28 L13,15 L18,20 L23,12 L28,20 L33,15 L36,28 Z" fill="url(#grad-royal-1)" /><circle cx="23" cy="8" r="2" fill="url(#grad-royal-1)" /><text x="45" y="26" font-family="'Times New Roman', serif" font-size="18" font-weight="bold" fill="url(#grad-royal-1)" letter-spacing="1.5">ROYAL</text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,10 L32,10 L32,25 C32,35 21,40 21,40 C21,40 10,35 10,25 Z" fill="#1d4ed8" stroke="#ffffff" stroke-width="1.5" /><path d="M15,10 L18,10 L18,31 C16,29 15,27 15,25 Z" fill="#ffffff" /><path d="M24,10 L27,10 L27,31 C25,29 24,27 24,25 Z" fill="#ffffff" /><text x="40" y="26" font-family="'Arial Black', Impact, sans-serif" font-size="15" fill="#ffffff" letter-spacing="-0.5">SV KICKERS</text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,35 L28,35 L22,12 L16,12 Z" fill="#f97316" /><line x1="20" y1="12" x2="35" y2="5" stroke="#f97316" stroke-width="2" /><line x1="32" y1="6" x2="32" y2="18" stroke="#64748b" stroke-width="1" /><text x="42" y="27" font-family="'Impact', 'Arial Black', sans-serif" font-size="17" fill="#ffffff" letter-spacing="0.5">WERFT</text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="14" fill="none" stroke="#10b981" stroke-width="3" /><circle cx="22" cy="22" r="8" fill="none" stroke="#f59e0b" stroke-width="3" /><circle cx="22" cy="22" r="2" fill="#ef4444" /><text x="44" y="26" font-family="sans-serif" font-size="15" font-weight="800" fill="#10b981" letter-spacing="0.5">KULTUR<tspan fill="#f59e0b">V.</tspan></text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><polygon points="22,8 34,22 22,36 10,22" fill="none" stroke="#fbbf24" stroke-width="2" /><polygon points="22,13 30,22 22,31 14,22" fill="#fbbf24" /><text x="44" y="26" font-family="'Courier New', Courier, monospace" font-size="16" font-weight="bold" fill="#ffffff" letter-spacing="2">GALA-PRO</text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="16" fill="#047857" /><path d="M17,20 Q22,12 27,20 M19,25 Q22,18 25,25" fill="none" stroke="#fbbf24" stroke-width="2" /><text x="46" y="26" font-family="'Georgia', serif" font-size="15" font-weight="bold" fill="#fbbf24">Biergarten</text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="10" width="8" height="25" fill="#3b82f6" /><rect x="18" y="15" width="8" height="20" fill="#3b82f6" opacity="0.8" /><rect x="28" y="20" width="8" height="15" fill="#3b82f6" opacity="0.6" /><text x="42" y="27" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#ffffff" letter-spacing="1">MESSE<tspan fill="#3b82f6">W</tspan></text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M12,12 C12,18 16,22 20,22 L20,32 L15,32 L15,34 L25,34 L25,32 L20,32 L20,22 C24,22 28,18 28,12 Z" fill="none" stroke="#84cc16" stroke-width="1.5" /><circle cx="20" cy="10" r="4" fill="#fbbf24" /><text x="36" y="26" font-family="Georgia, serif" font-size="16" fill="#84cc16">Sonnenhang</text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><polygon points="8,10 16,10 12,24" fill="#ec4899" /><polygon points="16,10 24,10 20,24" fill="#3b82f6" /><polygon points="24,10 32,10 28,24" fill="#eab308" /><line x1="6" y1="10" x2="34" y2="10" stroke="#ffffff" stroke-width="1.5" /><text x="40" y="26" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#ffffff">Stadtfest</text></svg>
-                        </div>
-                        
-                        <!-- Second Copy of 10 Event/Venue/Club Logos (for seamless looping) -->
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M8,32 L8,18 L12,18 L12,22 L16,22 L16,18 L20,18 L20,22 L24,22 L24,18 L28,18 L28,32 Z" fill="#94a3b8" /><path d="M14,32 L14,26 L22,26 L22,32 Z" fill="#1e293b" /><polygon points="18,10 24,15 12,15" fill="#f43f5e" /><text x="35" y="27" font-family="'Georgia', serif" font-size="14" font-weight="bold" fill="#ffffff" letter-spacing="0.5">SCHLOSSBERG</text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 165 45" width="165" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-royal-2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fbbf24" /><stop offset="100%" stop-color="#f59e0b" /></linearGradient></defs><path d="M10,28 L13,15 L18,20 L23,12 L28,20 L33,15 L36,28 Z" fill="url(#grad-royal-2)" /><circle cx="23" cy="8" r="2" fill="url(#grad-royal-2)" /><text x="45" y="26" font-family="'Times New Roman', serif" font-size="18" font-weight="bold" fill="url(#grad-royal-2)" letter-spacing="1.5">ROYAL</text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,10 L32,10 L32,25 C32,35 21,40 21,40 C21,40 10,35 10,25 Z" fill="#1d4ed8" stroke="#ffffff" stroke-width="1.5" /><path d="M15,10 L18,10 L18,31 C16,29 15,27 15,25 Z" fill="#ffffff" /><path d="M24,10 L27,10 L27,31 C25,29 24,27 24,25 Z" fill="#ffffff" /><text x="40" y="26" font-family="'Arial Black', Impact, sans-serif" font-size="15" fill="#ffffff" letter-spacing="-0.5">SV KICKERS</text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,35 L28,35 L22,12 L16,12 Z" fill="#f97316" /><line x1="20" y1="12" x2="35" y2="5" stroke="#f97316" stroke-width="2" /><line x1="32" y1="6" x2="32" y2="18" stroke="#64748b" stroke-width="1" /><text x="42" y="27" font-family="'Impact', 'Arial Black', sans-serif" font-size="17" fill="#ffffff" letter-spacing="0.5">WERFT</text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="14" fill="none" stroke="#10b981" stroke-width="3" /><circle cx="22" cy="22" r="8" fill="none" stroke="#f59e0b" stroke-width="3" /><circle cx="22" cy="22" r="2" fill="#ef4444" /><text x="44" y="26" font-family="sans-serif" font-size="15" font-weight="800" fill="#10b981" letter-spacing="0.5">KULTUR<tspan fill="#f59e0b">V.</tspan></text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><polygon points="22,8 34,22 22,36 10,22" fill="none" stroke="#fbbf24" stroke-width="2" /><polygon points="22,13 30,22 22,31 14,22" fill="#fbbf24" /><text x="44" y="26" font-family="'Courier New', Courier, monospace" font-size="16" font-weight="bold" fill="#ffffff" letter-spacing="2">GALA-PRO</text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="16" fill="#047857" /><path d="M17,20 Q22,12 27,20 M19,25 Q22,18 25,25" fill="none" stroke="#fbbf24" stroke-width="2" /><text x="46" y="26" font-family="'Georgia', serif" font-size="15" font-weight="bold" fill="#fbbf24">Biergarten</text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="10" width="8" height="25" fill="#3b82f6" /><rect x="18" y="15" width="8" height="20" fill="#3b82f6" opacity="0.8" /><rect x="28" y="20" width="8" height="15" fill="#3b82f6" opacity="0.6" /><text x="42" y="27" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#ffffff" letter-spacing="1">MESSE<tspan fill="#3b82f6">W</tspan></text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M12,12 C12,18 16,22 20,22 L20,32 L15,32 L15,34 L25,34 L25,32 L20,32 L20,22 C24,22 28,18 28,12 Z" fill="none" stroke="#84cc16" stroke-width="1.5" /><circle cx="20" cy="10" r="4" fill="#fbbf24" /><text x="36" y="26" font-family="Georgia, serif" font-size="16" fill="#84cc16">Sonnenhang</text></svg>
-                        </div>
-                        <div class="partner-logo-badge">
-                            <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><polygon points="8,10 16,10 12,24" fill="#ec4899" /><polygon points="16,10 24,10 20,24" fill="#3b82f6" /><polygon points="24,10 32,10 28,24" fill="#eab308" /><line x1="6" y1="10" x2="34" y2="10" stroke="#ffffff" stroke-width="1.5" /><text x="40" y="26" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#ffffff">Stadtfest</text></svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- 3.5. EVENT TYPES SECTION -->
             <div style="max-width: 1400px; margin: 5rem auto 3rem; padding: 0 1.5rem; text-align: center;">
