@@ -4897,14 +4897,14 @@ input[type="range"].input-field {
 }
 
 #carousel-dots-musicians .carousel-dot.active {
-    background: #7c3aed !important;
+    background: #2563eb !important;
     width: 10px;
     height: 10px;
     transform: scale(1.1);
 }
 
 #carousel-dots-events .carousel-dot.active {
-    background: #2563eb !important;
+    background: #7c3aed !important;
     width: 10px;
     height: 10px;
     transform: scale(1.1);

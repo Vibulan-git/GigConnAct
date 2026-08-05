@@ -3015,16 +3015,31 @@ function renderLandingPage(container, onNavigate) {
                 </div>
 
                 <!-- Subtitle: Category Icons -->
-                <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; margin-bottom: 2.2rem;">
-                    <span><i class="fa-solid fa-heart" style="color: #7c3aed; margin-right: 0.35rem;"></i> Hochzeit</span>
-                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span><i class="fa-solid fa-cake-candles" style="color: #7c3aed; margin-right: 0.35rem;"></i> Geburtstag</span>
-                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span><i class="fa-solid fa-music" style="color: #7c3aed; margin-right: 0.35rem;"></i> Festival</span>
-                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span><i class="fa-solid fa-building" style="color: #7c3aed; margin-right: 0.35rem;"></i> Firmenfeier</span>
-                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span><i class="fa-solid fa-guitar" style="color: #7c3aed; margin-right: 0.35rem;"></i> Stadtfest</span>
+                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 2.2rem; gap: 0.6rem;">
+                    <!-- Row 1 -->
+                    <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569;">
+                        <span><i class="fa-solid fa-heart" style="color: #7c3aed; margin-right: 0.35rem;"></i> Hochzeit</span>
+                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                        <span><i class="fa-solid fa-cake-candles" style="color: #7c3aed; margin-right: 0.35rem;"></i> Geburtstag</span>
+                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                        <span><i class="fa-solid fa-music" style="color: #7c3aed; margin-right: 0.35rem;"></i> Festival</span>
+                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                        <span><i class="fa-solid fa-building" style="color: #7c3aed; margin-right: 0.35rem;"></i> Firmenfeier</span>
+                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                        <span><i class="fa-solid fa-guitar" style="color: #7c3aed; margin-right: 0.35rem;"></i> Stadtfest</span>
+                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                        <span id="btn-toggle-categories-events" onclick="toggleCategoriesRow('events')" style="color: #7c3aed; font-weight: 900; cursor: pointer; user-select: none; padding: 0 0.3rem; display: inline-flex; align-items: center; gap: 0.2rem;">+ <span style="letter-spacing: 1px;">...</span></span>
+                    </div>
+                    <!-- Row 2 (Collapsible) -->
+                    <div id="row2-categories-events" style="display: none; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; animation: modalFadeIn 0.3s ease;">
+                        <span><i class="fa-solid fa-beer-mug-empty" style="color: #7c3aed; margin-right: 0.35rem;"></i> Vereinsfest</span>
+                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                        <span><i class="fa-solid fa-house-chimney-user" style="color: #7c3aed; margin-right: 0.35rem;"></i> Privatfeier</span>
+                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                        <span><i class="fa-solid fa-umbrella-beach" style="color: #7c3aed; margin-right: 0.35rem;"></i> Gartenparty</span>
+                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                        <span><i class="fa-solid fa-city" style="color: #7c3aed; margin-right: 0.35rem;"></i> Kirmes</span>
+                    </div>
                 </div>
 
                 <!-- Carousel: Events -->
@@ -3131,18 +3146,31 @@ function renderLandingPage(container, onNavigate) {
                 </div>
 
                 <!-- Subtitle: Category Icons -->
-                <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; margin-bottom: 2.2rem;">
-                    <span><i class="fa-solid fa-microphone" style="color: #2563eb; margin-right: 0.35rem;"></i> Sänger</span>
-                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span><i class="fa-solid fa-users" style="color: #2563eb; margin-right: 0.35rem;"></i> Bands</span>
-                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span><i class="fa-solid fa-headphones" style="color: #2563eb; margin-right: 0.35rem;"></i> DJs</span>
-                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span><i class="fa-solid fa-guitar" style="color: #2563eb; margin-right: 0.35rem;"></i> Solokünstler</span>
-                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span><i class="fa-solid fa-user-group" style="color: #2563eb; margin-right: 0.35rem;"></i> Duo</span>
-                    <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span>...</span>
+                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 2.2rem; gap: 0.6rem;">
+                    <!-- Row 1 -->
+                    <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569;">
+                        <span><i class="fa-solid fa-microphone" style="color: #2563eb; margin-right: 0.35rem;"></i> Sänger</span>
+                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                        <span><i class="fa-solid fa-users" style="color: #2563eb; margin-right: 0.35rem;"></i> Bands</span>
+                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                        <span><i class="fa-solid fa-headphones" style="color: #2563eb; margin-right: 0.35rem;"></i> DJs</span>
+                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                        <span><i class="fa-solid fa-guitar" style="color: #2563eb; margin-right: 0.35rem;"></i> Solokünstler</span>
+                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                        <span><i class="fa-solid fa-user-group" style="color: #2563eb; margin-right: 0.35rem;"></i> Duo</span>
+                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                        <span id="btn-toggle-categories-musicians" onclick="toggleCategoriesRow('musicians')" style="color: #2563eb; font-weight: 900; cursor: pointer; user-select: none; padding: 0 0.3rem; display: inline-flex; align-items: center; gap: 0.2rem;">+ <span style="letter-spacing: 1px;">...</span></span>
+                    </div>
+                    <!-- Row 2 (Collapsible) -->
+                    <div id="row2-categories-musicians" style="display: none; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; animation: modalFadeIn 0.3s ease;">
+                        <span><i class="fa-solid fa-user-tie" style="color: #2563eb; margin-right: 0.35rem;"></i> Alleinunterhalter</span>
+                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                        <span><i class="fa-solid fa-drum" style="color: #2563eb; margin-right: 0.35rem;"></i> Trio</span>
+                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                        <span><i class="fa-solid fa-music" style="color: #2563eb; margin-right: 0.35rem;"></i> Ensemble</span>
+                        <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
+                        <span><i class="fa-solid fa-users-line" style="color: #2563eb; margin-right: 0.35rem;"></i> Chor</span>
+                    </div>
                 </div>
 
                 <!-- Carousel: Musiker -->
@@ -3448,7 +3476,7 @@ function renderLandingPage(container, onNavigate) {
                             <!-- Title and Illustration Row -->
                             <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem;">
                                 <h3 style="font-family: var(--font-heading); font-size: clamp(1.4rem, 2.5vw, 1.95rem); font-weight: 900; color: var(--text-main); margin: 0; line-height: 1.25; text-align: left;">
-                                    <span style="color: #7c3aed;">Dein Event.</span><br><span style="color: #2563eb;">Dein Act.</span>
+                                    <span style="color: #0f172a;">Dein Event.</span><br><span style="color: #2563eb;">Dein Act.</span>
                                 </h3>
                                 <!-- Illustration: calendar -->
                                 <div style="width: 76px; height: 76px; background: rgba(37, 99, 235, 0.08); border-radius: 18px; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0;">
@@ -11555,16 +11583,47 @@ window.updateCarouselDots = function(type, dotIndex) {
     });
 };
 
+window.toggleCategoriesRow = function(type) {
+    const row2 = document.getElementById(`row2-categories-${type}`);
+    const btn = document.getElementById(`btn-toggle-categories-${type}`);
+    if (!row2 || !btn) return;
+    const isHidden = row2.style.display === 'none' || row2.style.display === '';
+    if (isHidden) {
+        row2.style.display = 'flex';
+        btn.innerHTML = `- <span style="letter-spacing: 1px;">...</span>`;
+    } else {
+        row2.style.display = 'none';
+        btn.innerHTML = `+ <span style="letter-spacing: 1px;">...</span>`;
+    }
+};
+
 window.initCarouselTouch = function(type) {
     const track = document.getElementById(`carousel-track-${type}`);
     if (!track) return;
     let startX = 0;
+    let startY = 0;
     let isSwiping = false;
     
     track.addEventListener('touchstart', (e) => {
         startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
         isSwiping = true;
     }, { passive: true });
+    
+    track.addEventListener('touchmove', (e) => {
+        if (!isSwiping) return;
+        const currentX = e.touches[0].clientX;
+        const currentY = e.touches[0].clientY;
+        const diffX = startX - currentX;
+        const diffY = startY - currentY;
+        
+        // If moving horizontally more than vertically, prevent vertical page scroll
+        if (Math.abs(diffX) > Math.abs(diffY)) {
+            if (e.cancelable) {
+                e.preventDefault();
+            }
+        }
+    }, { passive: false });
     
     track.addEventListener('touchend', (e) => {
         if (!isSwiping) return;
