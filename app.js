@@ -954,18 +954,27 @@ class StateManager {
     async loadStateFromFirestore() {
         // 1. Seed database if empty
         const musSnapshot = await db.collection('musicians').limit(1).get();
-        if (musSnapshot.empty) {
-            console.log("Firestore 'musicians' is empty. Seeding initial data...");
+        const evtSnapshot = await db.collection('events').limit(1).get();
+        
+        if (musSnapshot.empty || evtSnapshot.empty) {
+            console.log("Firestore collection(s) empty. Seeding initial data...");
             this.loadState();
             
-            const seedMus = this.musicians.map(m => db.collection('musicians').doc(m.id).set(m));
-            await Promise.all(seedMus);
+            if (musSnapshot.empty) {
+                const seedMus = this.musicians.map(m => db.collection('musicians').doc(m.id).set(m));
+                await Promise.all(seedMus);
+            }
             
-            const seedEvt = this.events.map(e => db.collection('events').doc(e.id).set(e));
-            await Promise.all(seedEvt);
+            if (evtSnapshot.empty) {
+                const seedEvt = this.events.map(e => db.collection('events').doc(e.id).set(e));
+                await Promise.all(seedEvt);
+            }
 
-            const seedChats = this.chats.map(c => db.collection('chats').doc(c.id).set(c));
-            await Promise.all(seedChats);
+            const chatsSnapshot = await db.collection('chats').limit(1).get();
+            if (chatsSnapshot.empty) {
+                const seedChats = this.chats.map(c => db.collection('chats').doc(c.id).set(c));
+                await Promise.all(seedChats);
+            }
             
             console.log("Database seeded successfully!");
             this.notify();
@@ -9646,12 +9655,13 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     if (googleBtn) {
         googleBtn.addEventListener('click', async (e) => {
             e.preventDefault();
+            const provider = new firebase.auth.GoogleAuthProvider();
             try {
+                // Call signInWithPopup immediately to preserve the synchronous user gesture context
+                const result = await auth.signInWithPopup(provider);
+                
                 googleBtn.disabled = true;
                 googleBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verbindung mit Google...';
-                
-                const provider = new firebase.auth.GoogleAuthProvider();
-                const result = await auth.signInWithPopup(provider);
                 const user = result.user;
                 
                 const userDoc = await db.collection('users').doc(user.uid).get();
@@ -9721,14 +9731,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     Mit Google anmelden
                 `;
                 
-                if (err.code === 'auth/popup-closed-by-user') {
-                    console.log("Google Login Popup cancelled by user.");
-                    return;
-                }
-                if (err.code === 'auth/popup-blocked') {
+                if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/popup-blocked') {
+                    console.log("Google Login Popup cancelled or blocked.");
                     showToast({
-                        title: "Popup blockiert",
-                        message: "Bitte erlaube Popups für diese Website in deinen Browsereinstellungen, um dich mit Google anzumelden."
+                        title: "Verbindung abgebrochen",
+                        message: "Falls sich kein Fenster geöffnet hat, erlaube bitte Popups für diese Seite in den Browsereinstellungen deines Handys."
                     });
                     return;
                 }
