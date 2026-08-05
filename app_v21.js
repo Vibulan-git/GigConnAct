@@ -2937,7 +2937,7 @@ function renderLandingPage(container, onNavigate) {
                 <!-- 1/3: Large Logo -->
                 <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0 0.8rem; box-sizing: border-box;">
                     <!-- Large SVG Disco Ball -->
-                    <svg class="animate-hero-logo" viewBox="0 0 100 100" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); flex-shrink: 0; overflow: visible;">
+                    <svg id="hero-logo-svg" class="animate-hero-logo" viewBox="0 0 100 100" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); flex-shrink: 0; overflow: visible; opacity: 0; transition: opacity 0.3s;">
                       <defs>
                         <radialGradient id="sphereGradLarge" cx="35%" cy="35%" r="65%">
                           <stop offset="0%" stop-color="#ffffff" />
@@ -3009,10 +3009,10 @@ function renderLandingPage(container, onNavigate) {
                 
                 <!-- Headline: Event-Markt -->
                 <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.4rem, 4.5vw, 3.2rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
                         Der Event-Markt.
                     </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.4rem, 4.5vw, 3.2rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
                         Musiker suchen Gigs.
                     </div>
                 </div>
@@ -3127,10 +3127,10 @@ function renderLandingPage(container, onNavigate) {
                 
                 <!-- Headline: Musiker-Markt -->
                 <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.4rem, 4.5vw, 3.2rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
                         Der Musiker-Markt.
                     </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.4rem, 4.5vw, 3.2rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
                         Veranstalter suchen Acts.
                     </div>
                 </div>
@@ -3596,7 +3596,7 @@ function renderLandingPage(container, onNavigate) {
 
             <!-- Founder Title: „Airbnb für Live-Musik“ -->
             <div style="max-width: 900px; margin: 6rem auto -4rem; padding: 0 1.5rem; text-align: center;">
-                <h2 style="font-family: var(--font-heading); font-size: clamp(1.4rem, 4.5vw, 3.2rem); font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
+                <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
                     „Airbnb für Live-Musik“
                 </h2>
             </div>
@@ -3695,6 +3695,42 @@ function renderLandingPage(container, onNavigate) {
 
         </div>
     `;
+
+    // Trigger splash flight animation targeting the center hero logo
+    const splash = document.getElementById('disco-splash');
+    const heroLogo = document.getElementById('hero-logo-svg');
+    if (splash && heroLogo) {
+        setTimeout(() => {
+            const splashBall = document.getElementById('splash-ball-container');
+            if (splashBall && heroLogo && splash) {
+                const destRect = heroLogo.getBoundingClientRect();
+                const sourceX = window.innerWidth / 2;
+                const sourceY = window.innerHeight / 2;
+                
+                const destX = destRect.left + destRect.width / 2;
+                const destY = destRect.top + destRect.height / 2;
+                
+                const deltaX = destX - sourceX;
+                const deltaY = destY - sourceY;
+                const scale = destRect.width / 32; // 32px is splash ball base size
+                
+                splashBall.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scale})`;
+                splash.style.backgroundColor = 'transparent';
+                splash.style.pointerEvents = 'none';
+                
+                sessionStorage.setItem('GigConnAct_splash_shown_v6', 'true');
+                
+                setTimeout(() => {
+                    heroLogo.style.opacity = '1';
+                    splash.remove();
+                }, 1200);
+            }
+        }, 1800);
+    } else {
+        if (heroLogo) {
+            heroLogo.style.opacity = '1';
+        }
+    }
 
     document.getElementById('btn-hero-musician')?.addEventListener('click', () => {
         onNavigate('events');

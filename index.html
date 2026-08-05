@@ -39,7 +39,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=20260805_09">
+    <link rel="stylesheet" href="style.css?v=20260805_10">
     
     <!-- Firebase CDN SDKs (Compat Version) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -94,7 +94,7 @@
             <div class="header-container">
                 <a href="#" class="logo-area" id="logo-link" style="display: flex; align-items: center; gap: 0.6rem; text-decoration: none;">
                     <!-- SVG Disco Ball -->
-                    <svg id="logo-svg-nav" viewBox="0 0 100 100" style="width: 32px; height: 32px; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(124,58,237,0.15)); opacity: 0; transition: opacity 0.3s; overflow: visible;">
+                    <svg id="logo-svg-nav" viewBox="0 0 100 100" style="width: 32px; height: 32px; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(124,58,237,0.15)); overflow: visible;">
                       <defs>
                         <radialGradient id="sphereGradNav" cx="35%" cy="35%" r="65%">
                           <stop offset="0%" stop-color="#ffffff" />
@@ -146,47 +146,12 @@
         </footer>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const isSplashShown = sessionStorage.getItem('GigConnAct_splash_shown_v5');
-            const splash = document.getElementById('disco-splash');
-            const navLogo = document.getElementById('logo-svg-nav');
-            
-            if (isSplashShown) {
-                if (splash) splash.remove();
-                if (navLogo) navLogo.style.opacity = '1';
-                return;
-            }
-            
-            sessionStorage.setItem('GigConnAct_splash_shown_v5', 'true');
-            
-            // After a delay, trigger flight animation
-            setTimeout(() => {
-                if (navLogo && splash) {
-                    const splashBall = document.getElementById('splash-ball-container');
-                    const destRect = navLogo.getBoundingClientRect();
-                    const sourceX = window.innerWidth / 2;
-                    const sourceY = window.innerHeight / 2;
-                    
-                    const destX = destRect.left + destRect.width / 2;
-                    const destY = destRect.top + destRect.height / 2;
-                    
-                    const deltaX = destX - sourceX;
-                    const deltaY = destY - sourceY;
-                    const scale = destRect.width / 32; // 32px is standard size
-                    
-                    splashBall.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scale})`;
-                    splash.style.backgroundColor = 'transparent';
-                    splash.style.pointerEvents = 'none';
-                    
-                    setTimeout(() => {
-                        navLogo.style.opacity = '1';
-                        splash.remove();
-                    }, 1200);
-                }
-            }, 1800);
-        });
+        if (sessionStorage.getItem('GigConnAct_splash_shown_v6')) {
+            const spl = document.getElementById('disco-splash');
+            if (spl) spl.remove();
+        }
     </script>
-    <script src="app_v21.js?v=20260805_32"></script>
+    <script src="app_v21.js?v=20260805_33"></script>
 
 </body>
 </html>
