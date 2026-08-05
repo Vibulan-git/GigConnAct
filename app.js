@@ -1031,8 +1031,72 @@ class StateManager {
                         this.notify();
                     } else {
                         console.warn("Logged in user has no document in Firestore 'users' collection.");
+                        // Failsafe: Automatically open registration modal for user to complete registration!
+                        window.googleRegistrationUser = firebaseUser;
+                        setTimeout(() => {
+                            showModal('auth');
+                            const registerForm = document.getElementById('auth-register-form');
+                            if (registerForm) {
+                                if (registerForm.elements.email) {
+                                    registerForm.elements.email.value = firebaseUser.email || '';
+                                    registerForm.elements.email.disabled = true;
+                                    registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
+                                    registerForm.elements.email.style.cursor = 'not-allowed';
+                                }
+                                if (registerForm.elements.fullName && firebaseUser.displayName) {
+                                    registerForm.elements.fullName.value = firebaseUser.displayName;
+                                }
+                            }
+                            const registerTabBtn = document.getElementById('tab-register-btn');
+                            if (registerTabBtn) registerTabBtn.click();
+                            
+                            showToast({
+                                title: "Registrierung abschließen",
+                                message: "Bitte vervollständige deine Angaben, um deinen Account zu erstellen."
+                            });
+                        }, 500);
                     }
-                }, err => console.error("User doc snapshot error:", err));
+                }, async (err) => {
+                    console.error("User doc snapshot error, falling back to HTTP get():", err);
+                    try {
+                        const doc = await userDocRef.get();
+                        if (doc.exists) {
+                            this.currentUser = doc.data();
+                            if (this.currentUser.role === 'musician') {
+                                this.activeMusicianId = this.currentUser.profileId || null;
+                            } else if (this.currentUser.role === 'organizer') {
+                                this.activeEventId = this.activeEventId && this.events.some(e => e.id === this.activeEventId)
+                                    ? this.activeEventId
+                                    : (this.events.find(e => e.creatorId === this.currentUser.id)?.id || null);
+                            }
+                            this.notify();
+                        } else {
+                            console.warn("Logged in user has no document in Firestore 'users' collection (HTTP fallback).");
+                            window.googleRegistrationUser = firebaseUser;
+                            showModal('auth');
+                            const registerForm = document.getElementById('auth-register-form');
+                            if (registerForm) {
+                                if (registerForm.elements.email) {
+                                    registerForm.elements.email.value = firebaseUser.email || '';
+                                    registerForm.elements.email.disabled = true;
+                                    registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
+                                    registerForm.elements.email.style.cursor = 'not-allowed';
+                                }
+                                if (registerForm.elements.fullName && firebaseUser.displayName) {
+                                    registerForm.elements.fullName.value = firebaseUser.displayName;
+                                }
+                            }
+                            const registerTabBtn = document.getElementById('tab-register-btn');
+                            if (registerTabBtn) registerTabBtn.click();
+                        }
+                    } catch (getErr) {
+                        console.error("User doc fallback get() failed:", getErr);
+                        showToast({
+                            title: "Datenbank-Verbindungsfehler",
+                            message: "Das Profil konnte nicht geladen werden. Bitte prüfe deine Internetverbindung."
+                        });
+                    }
+                });
             } else {
                 console.log("No Firebase user logged in.");
                 this.currentUser = null;
@@ -1297,7 +1361,7 @@ class StateManager {
                     
                     // Switch to register tab and prefill
                     setTimeout(() => {
-                        showAuthModal();
+                        showModal('auth');
                         const registerForm = document.getElementById('auth-register-form');
                         if (registerForm) {
                             if (registerForm.elements.email) {
