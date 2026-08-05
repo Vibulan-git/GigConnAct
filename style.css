@@ -3940,15 +3940,16 @@ html {
     color: #ffffff !important;
 }
 
-.btn-reset-round {
+.btn-reset-round,
+.filter-header-sticky .market-sort-container-round {
     padding: 0 !important;
     font-size: 1.05rem !important;
     font-weight: 700;
     border-radius: 50% !important;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     width: 42px !important;
     height: 42px !important;
     background: rgba(255, 255, 255, 0.15) !important;
@@ -3959,7 +3960,8 @@ html {
     transform: translateX(-12px) !important; /* Shifted a tick to the left! */
 }
 
-.btn-reset-round:hover {
+.btn-reset-round:hover,
+.filter-header-sticky .market-sort-container-round:hover {
     background: rgba(255, 255, 255, 0.25) !important;
     transform: translateX(-12px) scale(1.05) !important;
 }

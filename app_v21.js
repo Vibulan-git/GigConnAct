@@ -3025,10 +3025,10 @@ function renderLandingPage(container, onNavigate) {
                 
                 <!-- Headline: Event-Markt -->
                 <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
                         Der Event-Markt.
                     </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.6rem, 4.8vw, 3.4rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.8rem, 5.2vw, 3.8rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
                         Musiker suchen Gigs.
                     </div>
                 </div>
@@ -3143,10 +3143,10 @@ function renderLandingPage(container, onNavigate) {
                 
                 <!-- Headline: Musiker-Markt -->
                 <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
                         Der Musiker-Markt.
                     </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.6rem, 4.8vw, 3.4rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.8rem, 5.2vw, 3.8rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
                         Veranstalter suchen Acts.
                     </div>
                 </div>
@@ -4251,8 +4251,8 @@ function renderMarket(container, type, onNavigate) {
             <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 1.5rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0.6rem; -webkit-overflow-scrolling: touch;">
                 
                 <!-- 1. Filter -->
-                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; flex-shrink: 0;">
-                    <i class="fa-solid fa-sliders" style="font-size: 1.05rem; margin: 0;"></i>
+                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0; display: flex; align-items: center; justify-content: center; height: 42px; padding: 0 1.1rem; border-radius: 21px; flex-shrink: 0; font-family: var(--font-heading); font-weight: 800; font-size: 0.95rem;">
+                    Filter
                 </button>
  
 
@@ -4285,14 +4285,14 @@ function renderMarket(container, type, onNavigate) {
                 <div id="market-filters-wrapper" class="market-filter-card">
                     <div class="filter-header-sticky" style="display: flex; align-items: center; position: relative; width: calc(100% - 1.2rem) !important;">
                         <!-- Left: Title -->
-                        <span class="filter-header-title" style="flex: 1; text-align: left;">
-                            <i class="fa-solid fa-sliders"></i> Filter
+                        <span class="filter-header-title" style="flex: 1; text-align: left; font-family: var(--font-heading); font-weight: 900; font-size: 1.1rem; letter-spacing: -0.3px;">
+                            Filter
                         </span>
                         
                         <!-- Center: Sort and Reset -->
                         <div style="display: flex; align-items: center; gap: 1.2rem; justify-content: center; flex: 1;">
                             <!-- 2. Sortierung inside Filter Sidebar Header -->
-                            <div class="market-sort-container-round" style="width: 42px !important; height: 42px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 50% !important; flex-shrink: 0; position: relative; margin: 0; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='transparent'">
+                            <div class="market-sort-container-round" style="width: 42px !important; height: 42px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 50% !important; flex-shrink: 0; position: relative; margin: 0; cursor: pointer; transition: all 0.2s;">
                                 <i class="fa-solid fa-arrow-down-wide-short" style="color: #ffffff; font-size: 1.05rem; pointer-events: none;"></i>
                                 <select id="sort-select" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; margin: 0; z-index: 5;">
                                     <option value="match">Match-Faktor absteigend</option>
@@ -4600,7 +4600,7 @@ function renderMarket(container, type, onNavigate) {
         overlay?.classList.toggle('open', isOpen);
         this.innerHTML = isOpen 
             ? `<i class="fa-solid fa-xmark" style="font-size: 1.1rem; margin: 0;"></i>` 
-            : `<i class="fa-solid fa-sliders" style="font-size: 1.1rem; margin: 0;"></i>`;
+            : `Filter`;
     });
 
     const closeBtnM = container.querySelector('#btn-close-filters-m');
@@ -4609,7 +4609,7 @@ function renderMarket(container, type, onNavigate) {
         overlay?.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {
-            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" style="font-size: 1.1rem; margin: 0;"></i>`;
+            toggleBtn.innerHTML = `Filter`;
         }
     });
 
@@ -4618,7 +4618,7 @@ function renderMarket(container, type, onNavigate) {
         overlay.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {
-            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" style="font-size: 1.1rem; margin: 0;"></i>`;
+            toggleBtn.innerHTML = `Filter`;
         }
     });
 
