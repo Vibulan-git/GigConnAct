@@ -1646,7 +1646,7 @@ class StateManager {
             let matchedIds = [];
             try {
                 const storedMatchesRaw = localStorage.getItem(matchesKey);
-                matchedIds = storedMatchesRaw ? JSON.parse(matchedIds) : [];
+                matchedIds = storedMatchesRaw ? JSON.parse(storedMatchesRaw) : [];
             } catch(e){}
             
             const currentDayMatches = [...matchedIds];
@@ -1658,9 +1658,9 @@ class StateManager {
                     
                     let score = 0;
                     if (this.currentUser.role === 'musician') {
-                        score = calculateMatchScore(myProf, cand);
+                        score = calculateMatch(myProf, cand, 'musician').score;
                     } else {
-                        score = calculateMatchScore(cand, myProf);
+                        score = calculateMatch(cand, myProf, 'organizer').score;
                     }
                     
                     if (score >= 40) {
@@ -4153,9 +4153,14 @@ function renderMarket(container, type, onNavigate) {
                     <i class="fa-solid fa-heart" style="font-size: 0.95rem; margin: 0;"></i>
                 </button>
 
-                <!-- 5. Ergebnisse als Zahl -->
-                <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: ${isEvents ? '#2563eb' : '#a855f7'}; text-align: center; flex-shrink: 0; letter-spacing: 0.5px; margin: 0 0.5rem; padding: 0.2rem 0.5rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; min-width: 32px; white-space: nowrap;">
-                    ${items.length}
+                <!-- 5. Ergebnisse als Zahl + Label -->
+                <div style="display: flex; align-items: center; gap: 0.45rem; margin: 0 0.5rem; flex-shrink: 0;">
+                    <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: ${isEvents ? '#2563eb' : '#a855f7'}; text-align: center; padding: 0.2rem 0.5rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; min-width: 32px; white-space: nowrap; margin: 0;">
+                        ${items.length}
+                    </div>
+                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; color: var(--text-main); white-space: nowrap;">
+                        ${isEvents ? 'Event-Markt' : 'Musiker-Markt'}
+                    </span>
                 </div>
             </div>
 
@@ -4802,6 +4807,17 @@ function renderMarket(container, type, onNavigate) {
         
         const countEl = container.querySelector('#market-results-count');
         if (countEl) countEl.textContent = list.length;
+        
+        const labelEl = container.querySelector('#market-title-label');
+        if (labelEl) {
+            if (showOnlyTopMatches) {
+                labelEl.textContent = 'Top-Vorschläge';
+            } else if (showOnlyFavorites) {
+                labelEl.textContent = 'Favoriten';
+            } else {
+                labelEl.textContent = isEvents ? 'Event-Markt' : 'Musiker-Markt';
+            }
+        }
         
         console.log("applyAllFiltersAndSort finished. Output items count:", list.length, "IDs:", list.map(item => item.id).join(', '));
     }
