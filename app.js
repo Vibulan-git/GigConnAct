@@ -1348,9 +1348,11 @@ class StateManager {
     }
 
     async handleGoogleRedirectResult() {
+        const isPendingGoogle = localStorage.getItem('GigConnAct_pending_google_login') === 'true';
         try {
             const result = await auth.getRedirectResult();
             if (result && result.user) {
+                localStorage.removeItem('GigConnAct_pending_google_login');
                 const user = result.user;
                 console.log("Google redirect sign-in successful:", user.email);
                 
@@ -1390,12 +1392,30 @@ class StateManager {
                     });
                     handleRouting();
                 }
+            } else {
+                // If getRedirectResult resolved to null but we had a pending Google redirect login:
+                if (isPendingGoogle) {
+                    setTimeout(() => {
+                        if (!auth.currentUser) {
+                            localStorage.removeItem('GigConnAct_pending_google_login');
+                            showToast({
+                                title: "Google-Login blockiert? ⚠️",
+                                message: "Safari/iOS blockiert Google-Redirects auf Custom Domains (www.gigconnact.de). Bitte logge dich über die passwortlose E-Mail-Anmeldung ein, oder benutze direkt unsere Firebase-Domain: https://gigconnact.firebaseapp.com/",
+                                duration: 15000
+                            });
+                        } else {
+                            localStorage.removeItem('GigConnAct_pending_google_login');
+                        }
+                    }, 2500);
+                }
             }
         } catch (err) {
+            localStorage.removeItem('GigConnAct_pending_google_login');
             console.error("Google Redirect Result Error:", err);
             showToast({
-                title: "Google-Anmeldung fehlgeschlagen",
-                message: err.message || "Es gab ein Problem bei der Anmeldung."
+                title: "Google-Anmeldung fehlgeschlagen ⚠️",
+                message: (err.message || "") + " Tipp: Nutze die passwortlose E-Mail-Anmeldung, falls Google-Login blockiert wird.",
+                duration: 10000
             });
         }
     }
@@ -9794,6 +9814,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             try {
                 googleBtn.disabled = true;
                 googleBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zu Google...';
+                localStorage.setItem('GigConnAct_pending_google_login', 'true');
                 await auth.signInWithRedirect(provider);
             } catch (err) {
                 console.error("Google Redirect Error:", err);
