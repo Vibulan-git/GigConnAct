@@ -3646,6 +3646,7 @@ function renderLandingPage(container, onNavigate) {
     `;
 
     // Ensure hero logo is active and visible
+    const heroLogo = document.getElementById('hero-logo-svg');
     if (heroLogo) {
         heroLogo.style.opacity = '1';
         heroLogo.classList.add('animate-hero-logo');
