@@ -2996,14 +2996,36 @@ function renderLandingPage(container, onNavigate) {
                         Wir vermitteln Live-Musik.
                     </h1>
                     <p style="font-size: clamp(0.78rem, 2.2vw, 1.25rem); color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.5; max-width: 800px; margin: 0 auto; text-shadow: 0 2px 10px rgba(0,0,0,0.7);">
-                        Hochzeiten, Geburtstage, Firmenfeiern & Co.<br>GigConnAct verbindet Musiker und Veranstalter.
-                    </p>
+                       <!-- 2. SECTION 1: Musiker-Profile -->
+            <div style="max-width: 1400px; margin: 0 auto; padding: 3rem 1.5rem 0;">
+                
+                <!-- Headline: Musiker-Markt -->
+                <div style="text-align: center; margin-bottom: 2.2rem; padding: 0 1rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.8vw, 2.5rem); font-weight: 800; color: #0f172a; margin: 0 0 0.5rem; line-height: 1.2; letter-spacing: -0.5px;">
+                        Sänger, Solokünstler, Bands, DJs & Co.
+                    </h2>
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.4rem, 2.8vw, 1.9rem); font-weight: 800; color: #2563eb; line-height: 1.2; letter-spacing: -0.3px;">
+                        Der Musiker-Markt für Veranstalter!
+                    </div>
                 </div>
-            </div>
 
-            <!-- 2. SECTION 1: Musiker-Profile Marquee -->
-            <div style="max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem 0;">
-                <div class="logo-marquee-wrapper theme-musicians-marquee" style="margin-bottom: 2.2rem;">
+                <!-- Carousel: Musiker -->
+                <div class="carousel-container" style="margin-bottom: 2.5rem;">
+                    <div class="carousel-viewport">
+                        <div class="carousel-track theme-organizer" id="carousel-track-musicians">
+                            ${renderMarketGridHTML(state.musicians.slice(0, 9), false, true)}
+                        </div>
+                    </div>
+                    <button class="carousel-btn prev-btn btn-musicians" onclick="slideCarousel('musicians', -1)">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-btn next-btn btn-musicians" onclick="slideCarousel('musicians', 1)">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- Marquee: Band-Logos -->
+                <div class="logo-marquee-wrapper theme-musicians-marquee" style="margin-bottom: 3.5rem;">
                     <div class="logo-marquee-track">
                         <!-- First Copy of 10 Band Logos -->
                         <div class="partner-logo-badge">
@@ -3070,30 +3092,38 @@ function renderLandingPage(container, onNavigate) {
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Homepage Headline: Musiker-Markt -->
-                <h2 style="font-family: var(--font-heading); font-size: clamp(1.3rem, 2.6vw, 1.85rem); font-weight: 800; color: #ffffff; text-align: center; margin: 2rem 0 1.5rem; line-height: 1.25; letter-spacing: -0.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); padding: 0 1rem;">
-                    Sänger, Solokünstler, Bands, DJs & Co. <span style="background: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">- Der Musiker-Markt für Veranstalter!</span>
-                </h2>
+            <!-- 3. SECTION 2: Event-Profile -->
+            <div style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1.5rem 0;">
+                
+                <!-- Headline: Event-Markt -->
+                <div style="text-align: center; margin-bottom: 2.2rem; padding: 0 1rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 3.8vw, 2.5rem); font-weight: 800; color: #0f172a; margin: 0 0 0.5rem; line-height: 1.2; letter-spacing: -0.5px;">
+                        Hochzeiten, Geburtstage, Firmenfeiern, Stadtfeste & Co.
+                    </h2>
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.4rem, 2.8vw, 1.9rem); font-weight: 800; color: #7c3aed; line-height: 1.2; letter-spacing: -0.3px;">
+                        Der Event-Markt für Musiker
+                    </div>
+                </div>
 
-                <div class="carousel-container">
+                <!-- Carousel: Events -->
+                <div class="carousel-container" style="margin-bottom: 2.5rem;">
                     <div class="carousel-viewport">
-                        <div class="carousel-track theme-organizer" id="carousel-track-musicians">
-                            ${renderMarketGridHTML(state.musicians.slice(0, 9), false, true)}
+                        <div class="carousel-track theme-musician" id="carousel-track-events">
+                            ${renderMarketGridHTML(state.events.slice(0, 9), true, true)}
                         </div>
                     </div>
-                    <button class="carousel-btn prev-btn btn-musicians" onclick="slideCarousel('musicians', -1)">
+                    <button class="carousel-btn prev-btn btn-events" onclick="slideCarousel('events', -1)">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
-                    <button class="carousel-btn next-btn btn-musicians" onclick="slideCarousel('musicians', 1)">
+                    <button class="carousel-btn next-btn btn-events" onclick="slideCarousel('events', 1)">
                         <i class="fa-solid fa-chevron-right"></i>
                     </button>
                 </div>
-            </div>
 
-            <!-- 3. SECTION 2: Event-Profile Marquee -->
-            <div style="max-width: 1400px; margin: 0 auto; padding: 0.5rem 1.5rem 0;">
-                <div class="logo-marquee-wrapper theme-events-marquee" style="margin-bottom: 2.2rem;">
+                <!-- Marquee: Event-Logos -->
+                <div class="logo-marquee-wrapper theme-events-marquee" style="margin-bottom: 3.5rem;">
                     <div class="logo-marquee-track">
                         <!-- First Copy of 10 Event/Venue/Club Logos -->
                         <div class="partner-logo-badge">
@@ -3159,25 +3189,6 @@ function renderLandingPage(container, onNavigate) {
                             <svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><polygon points="8,10 16,10 12,24" fill="#ec4899" /><polygon points="16,10 24,10 20,24" fill="#3b82f6" /><polygon points="24,10 32,10 28,24" fill="#eab308" /><line x1="6" y1="10" x2="34" y2="10" stroke="#ffffff" stroke-width="1.5" /><text x="40" y="26" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#ffffff">Stadtfest</text></svg>
                         </div>
                     </div>
-                </div>
-
-                <!-- Homepage Headline: Event-Markt -->
-                <h2 style="font-family: var(--font-heading); font-size: clamp(1.3rem, 2.6vw, 1.85rem); font-weight: 800; color: #ffffff; text-align: center; margin: 2rem 0 1.5rem; line-height: 1.25; letter-spacing: -0.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); padding: 0 1rem;">
-                    Hochzeiten, Geburtstage, Firmenfeiern, Stadtfeste & Co. <span style="background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">- Der Event-Markt für Musiker</span>
-                </h2>
-
-                <div class="carousel-container">
-                    <div class="carousel-viewport">
-                        <div class="carousel-track theme-musician" id="carousel-track-events">
-                            ${renderMarketGridHTML(state.events.slice(0, 9), true, true)}
-                        </div>
-                    </div>
-                    <button class="carousel-btn prev-btn btn-events" onclick="slideCarousel('events', -1)">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-                    <button class="carousel-btn next-btn btn-events" onclick="slideCarousel('events', 1)">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
                 </div>
             </div>
 

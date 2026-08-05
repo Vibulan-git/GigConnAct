@@ -2222,8 +2222,8 @@ body {
  * Clean Human-Crafted Platform Styles (Less AI/Glow)
  * ------------------------------------------------------------- */
 body {
-    background-image: none !important;
-    background-color: #f1f5f9 !important;
+    background-image: linear-gradient(135deg, #faf5ff 0%, #eff6ff 100%) !important;
+    background-attachment: fixed !important;
 }
 
 .btn-primary {
