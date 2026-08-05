@@ -2954,7 +2954,7 @@ function renderLandingPage(container, onNavigate) {
                 <!-- 1/3: Large Logo -->
                 <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0 0.8rem; box-sizing: border-box;">
                     <!-- Large SVG Disco Ball -->
-                    <svg id="hero-logo-svg" viewBox="0 0 100 100" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); flex-shrink: 0; overflow: visible; opacity: 0;">
+                    <svg id="hero-logo-svg" class="animate-hero-logo" viewBox="0 0 100 100" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); flex-shrink: 0; overflow: visible; opacity: 1;">
                       <defs>
                         <radialGradient id="sphereGradLarge" cx="35%" cy="35%" r="65%">
                           <stop offset="0%" stop-color="#ffffff" />
@@ -2989,8 +2989,7 @@ function renderLandingPage(container, onNavigate) {
                       <g class="sparkle-1" transform="translate(22, 25)" filter="url(#glowLarge)"><polygon points="0,-8 2,-2 8,0 2,2 0,8 -2,2 -8,0 -2,-2" fill="#ffffff" /></g>
                       <g class="sparkle-2" transform="translate(75, 30)" filter="url(#glowLarge)"><polygon points="0,-6 1.5,-1.5 6,0 1.5,1.5 0,6 -1.5,1.5 -6,0 -1.5,-1.5" fill="#ffffff" /></g>
                       <g class="sparkle-3" transform="translate(68, 68)" filter="url(#glowLarge)"><polygon points="0,-7 1.8,-1.8 7,0 1.8,1.8 0,7 -1.8,1.8 -7,0 -1.8,-1.8" fill="#ffffff" /></g>
-                    </svg>g transform="translate(68, 68)" filter="url(#glowLarge)"><polygon points="0,-7 1.8,-1.8 7,0 1.8,1.8 0,7 -1.8,1.8 -7,0 -1.8,-1.8" fill="#ffffff" /></g>
-                      </svg>
+                    </svg>
                     <div class="animate-hero-text" style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.2rem); font-weight: 900; letter-spacing: -1.5px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                         GigConnAct
                     </div>
@@ -2998,12 +2997,12 @@ function renderLandingPage(container, onNavigate) {
 
                 <!-- 2/3: CTA Buttons -->
                 <div class="hero-cta-buttons" style="position: relative; z-index: 3; margin: 0; gap: 2rem;">
-                    <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: none; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                    <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
                         <i class="fa-solid fa-guitar" style="font-size: 3.2rem;"></i>
                         <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Musiker</span>
                         <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Ich suche Gigs</span>
                     </button>
-                    <button class="btn" id="btn-hero-organizer" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: none; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                    <button class="btn" id="btn-hero-organizer" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
                         <i class="fa-solid fa-calendar-check" style="font-size: 3.2rem;"></i>
                         <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Veranstalter</span>
                         <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Ich suche Acts</span>
@@ -3156,9 +3155,9 @@ function renderLandingPage(container, onNavigate) {
                 <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; margin-bottom: 2.2rem;">
                     <span><i class="fa-solid fa-microphone" style="color: #2563eb; margin-right: 0.35rem;"></i> Sänger</span>
                     <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span><i class="fa-solid fa-users" style="color: #2563eb; margin-right: 0.35rem;"></i> Bands</span>
+                    <span><i class="fa-solid fa-users" style="color: #2563eb; margin-right: 0.35rem;"></i> Band</span>
                     <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
-                    <span><i class="fa-solid fa-headphones" style="color: #2563eb; margin-right: 0.35rem;"></i> DJs</span>
+                    <span><i class="fa-solid fa-headphones" style="color: #2563eb; margin-right: 0.35rem;"></i> DJ</span>
                     <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
                     <span><i class="fa-solid fa-guitar" style="color: #2563eb; margin-right: 0.35rem;"></i> Solokünstler</span>
                     <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
@@ -3416,10 +3415,10 @@ function renderLandingPage(container, onNavigate) {
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
-                                            Keine Provisionskosten
+                                            Preiswertes Abo-Modell
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Preiswertes Abo-Modell (jederzeit kündbar)
+                                            (jederzeit kündbar - auch in der Testphase)
                                         </div>
                                     </div>
                                 </div>
@@ -3646,51 +3645,10 @@ function renderLandingPage(container, onNavigate) {
         </div>
     `;
 
-    // Trigger splash flight animation targeting the center hero logo
-    const splash = document.getElementById('disco-splash');
-    const heroLogo = document.getElementById('hero-logo-svg');
-    if (splash && heroLogo) {
-        heroLogo.style.opacity = '0';
-        heroLogo.classList.remove('animate-hero-logo');
-
-        setTimeout(() => {
-            const splashBall = document.getElementById('splash-ball-container');
-            if (splashBall && heroLogo && splash) {
-                const destRect = heroLogo.getBoundingClientRect();
-                const sourceX = window.innerWidth / 2;
-                const sourceY = window.innerHeight / 2;
-                
-                const destX = destRect.left + destRect.width / 2;
-                const destY = destRect.top + destRect.height / 2;
-                
-                const deltaX = destX - sourceX;
-                const deltaY = destY - sourceY;
-                const scale = destRect.width / 32; // 32px is splash ball base size
-                
-                splashBall.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scale})`;
-                splash.style.backgroundColor = 'transparent';
-                splash.style.pointerEvents = 'none';
-                
-                sessionStorage.setItem('GigConnAct_splash_shown_v6', 'true');
-                
-                setTimeout(() => {
-                    heroLogo.style.opacity = '1';
-                    heroLogo.classList.add('animate-hero-logo');
-                    
-                    // Smoothly fade out the splash screen overlay before removing it
-                    splash.style.transition = 'opacity 0.4s ease-out';
-                    splash.style.opacity = '0';
-                    setTimeout(() => {
-                        splash.remove();
-                    }, 400);
-                }, 1200);
-            }
-        }, 1800);
-    } else {
-        if (heroLogo) {
-            heroLogo.style.opacity = '1';
-            heroLogo.classList.add('animate-hero-logo');
-        }
+    // Ensure hero logo is active and visible
+    if (heroLogo) {
+        heroLogo.style.opacity = '1';
+        heroLogo.classList.add('animate-hero-logo');
     }
 
     document.getElementById('btn-hero-musician')?.addEventListener('click', () => {
