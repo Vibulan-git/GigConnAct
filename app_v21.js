@@ -5720,7 +5720,7 @@ function renderProfilePage(container) {
                             ${planInfo.details}
                         </div>
                         <div style="font-size: 0.75rem; font-weight: 700; margin-top: 0.5rem; color: ${u.subscriptionCancelled ? 'var(--color-red)' : '#10b981'};">
-                            Status: ${u.subscriptionCancelled ? 'Gekündigt (Aktiv bis zum Ende des Abrechnungszeitraums)' : 'Aktiv (Automatische Verlängerung)'}
+                            Status: ${u.subscriptionCancelled ? `Gekündigt (Aktiv bis zum ${u.subscriptionEndDate || 'Ende des Abrechnungszeitraums'})` : 'Aktiv (Automatische Verlängerung)'}
                         </div>
                     </div>
                     
@@ -5918,21 +5918,38 @@ function renderProfilePage(container) {
         const reactivateBtn = document.getElementById('btn-reactivate-subscription');
 
         if (cancelBtn) {
-            cancelBtn.addEventListener('click', () => {
+            cancelBtn.addEventListener('click', async () => {
                 if (confirm("Möchtest du dein Abonnement wirklich zum nächstmöglichen Zeitpunkt kündigen? Du verlierst damit nach Ablauf des Zeitraums den direkten Kontaktzugang zu Veranstaltern.")) {
                     u.subscriptionCancelled = true;
+                    
+                    const end = new Date();
+                    end.setDate(end.getDate() + 30);
+                    const endStr = end.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    u.subscriptionEndDate = endStr;
                     
                     const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
                     const idx = registeredUsers.findIndex(usr => usr.id === u.id);
                     if (idx !== -1) {
                         registeredUsers[idx].subscriptionCancelled = true;
+                        registeredUsers[idx].subscriptionEndDate = endStr;
                         localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                    }
+                    
+                    if (typeof db !== 'undefined' && u.id) {
+                        try {
+                            await db.collection('users').doc(u.id).update({
+                                subscriptionCancelled: true,
+                                subscriptionEndDate: endStr
+                            });
+                        } catch (err) {
+                            console.error("Firestore user sub cancel update error:", err);
+                        }
                     }
                     
                     state.saveState();
                     showToast({
                         title: "Abo gekündigt ℹ",
-                        message: "Dein Abonnement wurde gekündigt. Du hast bis zum Ende des aktuellen Zeitraums vollen Zugriff."
+                        message: `Dein Abonnement wurde gekündigt. Du hast bis zum ${endStr} vollen Zugriff.`
                     });
                     renderProfilePage(container);
                     updateNavbar();
@@ -5941,14 +5958,27 @@ function renderProfilePage(container) {
         }
 
         if (reactivateBtn) {
-            reactivateBtn.addEventListener('click', () => {
+            reactivateBtn.addEventListener('click', async () => {
                 u.subscriptionCancelled = false;
+                delete u.subscriptionEndDate;
                 
                 const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
                 const idx = registeredUsers.findIndex(usr => usr.id === u.id);
                 if (idx !== -1) {
                     registeredUsers[idx].subscriptionCancelled = false;
+                    delete registeredUsers[idx].subscriptionEndDate;
                     localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                }
+                
+                if (typeof db !== 'undefined' && u.id) {
+                    try {
+                        await db.collection('users').doc(u.id).update({
+                            subscriptionCancelled: false,
+                            subscriptionEndDate: firebase.firestore.FieldValue.delete()
+                        });
+                    } catch (err) {
+                        console.error("Firestore user sub reactivate update error:", err);
+                    }
                 }
                 
                 state.saveState();
@@ -6026,6 +6056,7 @@ function renderProfilePage(container) {
                 u.subscriptionPlan = selectedPlan;
                 u.isPremium = true;
                 u.subscriptionCancelled = false;
+                delete u.subscriptionEndDate;
 
                 const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
                 const idx = registeredUsers.findIndex(usr => usr.id === u.id);
@@ -6033,7 +6064,21 @@ function renderProfilePage(container) {
                     registeredUsers[idx].subscriptionPlan = selectedPlan;
                     registeredUsers[idx].isPremium = true;
                     registeredUsers[idx].subscriptionCancelled = false;
+                    delete registeredUsers[idx].subscriptionEndDate;
                     localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                }
+
+                if (typeof db !== 'undefined' && u.id) {
+                    try {
+                        await db.collection('users').doc(u.id).update({
+                            subscriptionPlan: selectedPlan,
+                            isPremium: true,
+                            subscriptionCancelled: false,
+                            subscriptionEndDate: firebase.firestore.FieldValue.delete()
+                        });
+                    } catch (err) {
+                        console.error("Firestore user sub save update error:", err);
+                    }
                 }
 
                 state.saveState();
