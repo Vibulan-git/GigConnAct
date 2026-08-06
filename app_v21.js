@@ -951,7 +951,12 @@ class StateManager {
         this.musicians = [];
         this.events = [];
         this.chats = [];
-        this.readChats = [];
+        try {
+            const storedRead = localStorage.getItem('GigConnAct_read_chats');
+            this.readChats = storedRead ? JSON.parse(storedRead) : [];
+        } catch (e) {
+            this.readChats = [];
+        }
         this.interests = [];
         this.favorites = [];
         this.initFirebaseData();
@@ -11045,6 +11050,7 @@ function renderPostbox(container) {
                     activeChatId = null;
                 } else {
                     activeChatId = clickedChatId;
+                    state.markChatAsRead(clickedChatId); // Force mark as read immediately on click!
                 }
                 renderView();
             });
