@@ -3954,7 +3954,9 @@ html {
 }
 
 .btn-reset-round,
-.filter-header-sticky .market-sort-container-round {
+.filter-header-sticky .market-sort-container-round,
+.theme-musician .filter-header-sticky .market-sort-container-round,
+.theme-organizer .filter-header-sticky .market-sort-container-round {
     padding: 0 !important;
     font-size: 1.05rem !important;
     font-weight: 700;
@@ -3974,7 +3976,9 @@ html {
 }
 
 .btn-reset-round:hover,
-.filter-header-sticky .market-sort-container-round:hover {
+.filter-header-sticky .market-sort-container-round:hover,
+.theme-musician .filter-header-sticky .market-sort-container-round:hover,
+.theme-organizer .filter-header-sticky .market-sort-container-round:hover {
     background: rgba(255, 255, 255, 0.25) !important;
     transform: translateX(-12px) scale(1.05) !important;
 }

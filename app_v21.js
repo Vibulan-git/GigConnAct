@@ -4251,8 +4251,8 @@ function renderMarket(container, type, onNavigate) {
             <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 1.5rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0.6rem; -webkit-overflow-scrolling: touch;">
                 
                 <!-- 1. Filter -->
-                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0; display: flex; align-items: center; justify-content: center; height: 42px; padding: 0 1.1rem; border-radius: 21px; flex-shrink: 0; font-family: var(--font-heading); font-weight: 800; font-size: 0.95rem;">
-                    Filter
+                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; flex-shrink: 0; cursor: pointer;" title="Filter öffnen">
+                    <i class="fa-solid fa-sliders" style="font-size: 1.05rem; margin: 0;"></i>
                 </button>
  
 
@@ -4600,7 +4600,7 @@ function renderMarket(container, type, onNavigate) {
         overlay?.classList.toggle('open', isOpen);
         this.innerHTML = isOpen 
             ? `<i class="fa-solid fa-xmark" style="font-size: 1.1rem; margin: 0;"></i>` 
-            : `Filter`;
+            : `<i class="fa-solid fa-sliders" style="font-size: 1.05rem; margin: 0;"></i>`;
     });
 
     const closeBtnM = container.querySelector('#btn-close-filters-m');
@@ -4609,7 +4609,7 @@ function renderMarket(container, type, onNavigate) {
         overlay?.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {
-            toggleBtn.innerHTML = `Filter`;
+            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" style="font-size: 1.05rem; margin: 0;"></i>`;
         }
     });
 
@@ -4618,7 +4618,7 @@ function renderMarket(container, type, onNavigate) {
         overlay.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {
-            toggleBtn.innerHTML = `Filter`;
+            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" style="font-size: 1.05rem; margin: 0;"></i>`;
         }
     });
 
