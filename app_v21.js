@@ -1,4 +1,4 @@
-// Firebase Configuration
+﻿// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyCuGm5JDhKwFILPrgxz3iQftTBUFGpb8qo",
     authDomain: "gigconnact.firebaseapp.com",
@@ -4288,14 +4288,14 @@ function renderMarket(container, type, onNavigate) {
                 
                 <!-- Left Sidebar Filters (Responsive Wrapper) -->
                 <div id="market-filters-wrapper" class="market-filter-card">
-                    <div class="filter-header-sticky" style="display: flex; align-items: center; position: relative; width: calc(100% - 1.2rem) !important;">
+                    <div class="filter-header-sticky" style="display: flex; align-items: center; justify-content: space-between; position: relative; width: calc(100% - 1.2rem) !important;">
                         <!-- Left: Title -->
-                        <span class="filter-header-title" style="flex: 1; text-align: left; font-family: var(--font-heading); font-weight: 900; font-size: 1.1rem; letter-spacing: -0.3px;">
+                        <span class="filter-header-title" style="font-family: var(--font-heading); font-weight: 900; font-size: 1.1rem; letter-spacing: -0.3px; margin-right: auto;">
                             Filter
                         </span>
                         
-                        <!-- Center: Sort and Reset -->
-                        <div style="display: flex; align-items: center; gap: 1.2rem; justify-content: center; flex: 1;">
+                        <!-- Right: Sort and Reset -->
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <!-- 2. Sortierung inside Filter Sidebar Header -->
                             <div class="market-sort-container-round" style="width: 42px !important; height: 42px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 50% !important; flex-shrink: 0; position: relative; margin: 0; cursor: pointer; transition: all 0.2s;">
                                 <i class="fa-solid fa-arrow-down-wide-short" style="color: #ffffff; font-size: 1.05rem; pointer-events: none;"></i>
@@ -4313,8 +4313,8 @@ function renderMarket(container, type, onNavigate) {
                             </button>
                         </div>
                         
-                        <!-- Right: Mobile Close Button -->
-                        <div style="flex: 1; display: flex; justify-content: flex-end;">
+                                                <!-- Right: Mobile Close Button -->
+                        <div class="filter-header-close-wrapper" style="flex: 1; display: flex; justify-content: flex-end;">
                             <button id="btn-close-filters-m" class="btn-close-filters-m" style="margin: 0; width: 42px; height: 42px;">
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
@@ -6047,7 +6047,7 @@ function renderProfilePage(container) {
 
         const saveSubBtn = document.getElementById('btn-save-subscription-change');
         if (saveSubBtn) {
-            saveSubBtn.addEventListener('click', () => {
+            saveSubBtn.addEventListener('click', async () => {
                 if (selectedPlan === 'premium' && !isPromoApplied) {
                     showToast({ title: "Gutscheincode erforderlich", message: "Bitte gib einen gültigen Instagram-Code ein, um den Premium-Tarif freizuschalten.", type: "error" });
                     return;
@@ -7200,7 +7200,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <div class="slider-value-display">
-                            <label>Wunschgröße Publikum</label>
+                            <label>Publikum (Anzahl)</label>
                             <span id="val-publikum">${musicianObj?.minPublikum || 0} - ${musicianObj?.maxPublikum || 500}+</span>
                         </div>
                         <div class="dual-range-slider" id="slider-publikum-container">
@@ -7643,7 +7643,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
                     <div class="form-group" style="margin-top: 1rem;">
                         <div class="slider-value-display">
-                            <label>Spieldauer (Spielzeit)</label>
+                            <label>Spieldauer (Std.)</label>
                             <span id="val-org-spieldauer">${eventObj?.minDuration || 0.5} - ${eventObj?.maxDuration || 2.0} Std.</span>
                         </div>
                         <div class="dual-range-slider" id="slider-org-spieldauer-container">
@@ -7656,7 +7656,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <div class="slider-value-display">
-                            <label>Besucheranzahl</label>
+                            <label>GÃ¤ste (Anzahl)</label>
                             <span id="val-org-publikum">${eventObj?.minPublikum || 0} - ${eventObj?.maxPublikum || 500}+</span>
                         </div>
                         <div class="dual-range-slider" id="slider-org-publikum-container">
@@ -7669,7 +7669,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <div class="slider-value-display">
-                            <label>Gage / Budget Spanne</label>
+                            <label>Budget (â‚¬)</label>
                             <span id="val-org-gage">${eventObj?.minBudget || eventObj?.budget || 0} - ${eventObj?.maxBudget || eventObj?.budget || 5000}+ €</span>
                         </div>
                         <div class="dual-range-slider" id="slider-org-gage-container">
@@ -8288,9 +8288,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             <input type="hidden" name="musLocation" id="input-mus-locations" value="">
                         </div>
 
-                        <div class="form-group">
+                                                <div class="form-group">
                             <div class="slider-value-display">
-                                <label>Maximaler Umkreis</label>
+                                <label>Maximaler Umkreis (km)</label>
                                 <span id="val-radius">50 km</span>
                             </div>
                             <input type="range" name="radius" min="0" max="500" step="50" value="50" class="input-field" style="padding:0; height:auto; accent-color:#a855f7;">
@@ -8322,7 +8322,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group">
                             <div class="slider-value-display">
-                                <label>Spieldauer</label>
+                                                                <label>Spieldauer (Std.)</label>
                                 <span id="val-spieldauer">0,5 - 2,0 Std.</span>
                             </div>
                             <div class="dual-range-slider" id="slider-spieldauer-container">
@@ -8335,8 +8335,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group">
                             <div class="slider-value-display">
-                                <label>Gage</label>
-                                <span id="val-gage">0 - 5.000+ €</span>
+                                                                <label>Gage (â‚¬)</label>
+                                <span id="val-gage">0 - 5.000+ â‚¬</span>
                             </div>
                             <div class="dual-range-slider" id="slider-gage-container">
                                 <div class="dual-range-track"></div>
@@ -8385,7 +8385,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group">
                             <div class="slider-value-display">
-                                <label>Wunschgröße Publikum</label>
+                                <label>Publikum (Anzahl)</label>
                                 <span id="val-publikum">0 - 500+</span>
                             </div>
                             <div class="dual-range-slider" id="slider-publikum-container">
@@ -8488,17 +8488,17 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             </div>
                         </div>
 
-                        <div class="form-group">
+                                                <div class="form-group">
                             <label>Standard-Uhrzeit</label>
                             <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem;">
-                                <div style="flex: 1; min-width: 100px;">
-                                    <span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.3rem;">Startzeit</span>
-                                    <input type="time" name="eventStartTime" class="input-field" value="18:00" style="margin: 0; width: 100%; height:42px; min-width: 90px;">
-                                </div>
-                                <div style="flex: 1; min-width: 100px;">
-                                    <span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.3rem;">Endzeit</span>
-                                    <input type="time" name="eventEndTime" class="input-field" value="22:00" style="margin: 0; width: 100%; height:42px; min-width: 90px;">
-                                </div>
+                                <div style="width: 120px; flex-shrink: 0;">
+                                     <span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.3rem;">Startzeit</span>
+                                     <input type="time" name="eventStartTime" class="input-field" value="18:00" style="margin: 0; width: 120px; height:42px;">
+                                 </div>
+                                 <div style="width: 120px; flex-shrink: 0;">
+                                     <span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.3rem;">Endzeit</span>
+                                     <input type="time" name="eventEndTime" class="input-field" value="22:00" style="margin: 0; width: 120px; height:42px;">
+                                 </div>
                             </div>
                         </div>
 
@@ -8535,7 +8535,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group" style="margin-top: 1rem;">
                             <div class="slider-value-display">
-                                <label>Spieldauer (Spielzeit)</label>
+                                <label>Spieldauer (Std.)</label>
                                 <span id="val-org-spieldauer">0,5 - 2,0 Std.</span>
                             </div>
                             <div class="dual-range-slider" id="slider-org-spieldauer-container">
@@ -8548,7 +8548,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group">
                             <div class="slider-value-display">
-                                <label>Besucheranzahl</label>
+                                <label>GÃ¤ste (Anzahl)</label>
                                 <span id="val-org-publikum">0 - 500+</span>
                             </div>
                             <div class="dual-range-slider" id="slider-org-publikum-container">
@@ -8561,7 +8561,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group">
                             <div class="slider-value-display">
-                                <label>Gage / Budget Spanne</label>
+                                <label>Budget (â‚¬)</label>
                                 <span id="val-org-gage">0 - 5.000+ €</span>
                             </div>
                             <div class="dual-range-slider" id="slider-org-gage-container">
@@ -11385,7 +11385,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     
                     <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favorit Herz -->
                     <div style="margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
-                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; flex: 1;">
+                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; flex: 1; height: 3.0rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;" title="${bandName}">
                             ${bandName}
                         </h3>
                         <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">

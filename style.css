@@ -1,4 +1,4 @@
-/* -------------------------------------------------------------
+﻿/* -------------------------------------------------------------
  * GigMatch - Premium CSS Stylesheet
  * Brand: Obsidian dark background, Glassmorphism, Neon highlights
  * ------------------------------------------------------------- */
@@ -3972,7 +3972,7 @@ html {
     color: #ffffff !important;
     line-height: 1;
     transition: background 0.2s, transform 0.1s;
-    transform: translateX(-12px) !important; /* Shifted a tick to the left! */
+    transform: none !important; /* Shifting removed to prevent overlapping "Filter" text! */
 }
 
 .btn-reset-round:hover,
@@ -3980,7 +3980,7 @@ html {
 .theme-musician .filter-header-sticky .market-sort-container-round:hover,
 .theme-organizer .filter-header-sticky .market-sort-container-round:hover {
     background: rgba(255, 255, 255, 0.25) !important;
-    transform: translateX(-12px) scale(1.05) !important;
+    transform: scale(1.05) !important;
 }
 
 .btn-close-filters-m {
@@ -4958,4 +4958,34 @@ input[type="range"].input-field {
     transform-origin: center;
     transform-box: fill-box;
     animation: glistenSparkle 2.5s ease-in-out infinite;
-}
+}
+
+/* Sidebar filter header alignment and spacing overrides for desktop vs mobile */
+.filter-header-title {
+    flex: 0 0 auto !important;
+}
+
+.filter-header-controls {
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+    margin-right: 0 !important;
+}
+
+.filter-header-close-wrapper {
+    display: none !important;
+}
+
+@media (max-width: 900px) {
+    .filter-header-title {
+        flex: 1 !important;
+    }
+    .filter-header-controls {
+        flex: 1 !important;
+        margin-left: 0 !important;
+        justify-content: center !important;
+    }
+    .filter-header-close-wrapper {
+        display: flex !important;
+        flex: 1 !important;
+    }
+}
