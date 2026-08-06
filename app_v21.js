@@ -6444,7 +6444,7 @@ function renderMyEvents(container) {
                             <p>Keine aktiven Ausschreibungen vorhanden.</p>
                         </div>
                     ` : `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
                             ${activeEvents.map(e => renderOrganizerEventItem(e, true)).join('')}
                         </div>
                     `}
@@ -6469,7 +6469,7 @@ function renderMyEvents(container) {
                             <p>Keine deaktivierten oder beendeten Events.</p>
                         </div>
                     ` : `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem;">
                             ${deactivatedEvents.map(e => renderOrganizerEventItem(e, false)).join('')}
                         </div>
                     `}
@@ -6854,7 +6854,7 @@ function renderMyMusicians(container) {
                             <p>Keine aktiven Profile vorhanden.</p>
                         </div>
                     ` : `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
                             ${activeMusicians.map(m => renderMyMusicianItem(m, true)).join('')}
                         </div>
                     `}
@@ -6879,7 +6879,7 @@ function renderMyMusicians(container) {
                             <p>Keine pausierten oder inaktiven Profile.</p>
                         </div>
                     ` : `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem;">
                             ${deactivatedMusicians.map(m => renderMyMusicianItem(m, false)).join('')}
                         </div>
                     `}
