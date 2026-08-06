@@ -3415,10 +3415,10 @@ function renderLandingPage(container, onNavigate) {
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
-                                            Preiswertes Abo-Modell
+                                            Keine Provisionskosten
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            (jederzeit kündbar - auch in der Testphase)
+                                            Preiswertes Abo-Modell (jederzeit kündbar - auch in der Testphase)
                                         </div>
                                     </div>
                                 </div>
@@ -10146,16 +10146,23 @@ function navigate(page) {
     const mainContainer = document.getElementById('app-main');
     if (!mainContainer) return;
 
-    // Optimize redundant rendering: exit early if page hasn't changed and user session is identical
+    // Optimize redundant rendering: exit early if page hasn't changed, user session is identical, and collection counts are identical
     const currentUserId = (state && state.currentUser) ? state.currentUser.id : null;
     const currentUserRole = (state && state.currentUser) ? state.currentUser.role : null;
+    const currentMusiciansCount = (state && state.musicians) ? state.musicians.length : 0;
+    const currentEventsCount = (state && state.events) ? state.events.length : 0;
+
     if (window.currentActivePage === page && 
         window.lastUserSessionId === currentUserId && 
-        window.lastUserRole === currentUserRole) {
+        window.lastUserRole === currentUserRole &&
+        window.lastMusiciansCount === currentMusiciansCount &&
+        window.lastEventsCount === currentEventsCount) {
         return;
     }
     window.lastUserSessionId = currentUserId;
     window.lastUserRole = currentUserRole;
+    window.lastMusiciansCount = currentMusiciansCount;
+    window.lastEventsCount = currentEventsCount;
 
     if (page === '') {
         mainContainer.classList.add('page-landing');
@@ -11866,7 +11873,7 @@ function validateAndProcessPhoto(file, callback) {
         const img = new Image();
         img.onload = () => {
             const canvas = document.createElement('canvas');
-            const maxDim = 300;
+            const maxDim = 1000;
             let w = img.width;
             let h = img.height;
             if (w > h) {
@@ -11884,7 +11891,7 @@ function validateAndProcessPhoto(file, callback) {
             canvas.height = h;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, w, h);
-            callback(canvas.toDataURL('image/jpeg', 0.8));
+            callback(canvas.toDataURL('image/jpeg', 0.75));
         };
         img.src = e.target.result;
     };
