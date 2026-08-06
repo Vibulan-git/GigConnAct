@@ -3028,7 +3028,7 @@ function renderLandingPage(container, onNavigate) {
                     <h2 style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
                         Der Event-Markt.
                     </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.8rem, 5.2vw, 3.8rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.25rem, 5.2vw, 3.8rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
                         Musiker suchen Gigs.
                     </div>
                 </div>
@@ -3146,7 +3146,7 @@ function renderLandingPage(container, onNavigate) {
                     <h2 style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
                         Der Musiker-Markt.
                     </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.8rem, 5.2vw, 3.8rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.25rem, 5.2vw, 3.8rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
                         Veranstalter suchen Acts.
                     </div>
                 </div>
@@ -10152,7 +10152,8 @@ function navigate(page) {
     const currentMusiciansCount = (state && state.musicians) ? state.musicians.length : 0;
     const currentEventsCount = (state && state.events) ? state.events.length : 0;
 
-    if (window.currentActivePage === page && 
+    if (page !== '' && 
+        window.currentActivePage === page && 
         window.lastUserSessionId === currentUserId && 
         window.lastUserRole === currentUserRole &&
         window.lastMusiciansCount === currentMusiciansCount &&
