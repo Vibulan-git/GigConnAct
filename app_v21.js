@@ -4465,13 +4465,13 @@ function renderMarket(container, type, onNavigate) {
                             
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; ">Event-Typ</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-event-type-grid')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; ">Event-Typ</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-event-type-grid')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle abwählen</a>
     </div>
     <div class="checkbox-tag-grid" id="filter-event-type-grid">
                                     ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterEventTypes" value="${t}">
+                                            <input type="checkbox" name="filterEventTypes" value="${t}" checked>
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -4479,7 +4479,7 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Datum / Kalender</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Datum / Kalender</label>
                                 <div class="filter-calendar-widget" id="filter-calendar-widget">
                                     <div class="filter-calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                         <button type="button" class="btn-cal-prev" id="btn-filter-cal-prev" style="background: none; border: none; cursor: pointer; color: #64748b; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-chevron-left"></i></button>
@@ -4495,19 +4495,19 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Ort / PLZ</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Ort / PLZ</label>
                                 <input type="text" id="filter-location" placeholder="z.B. Köln, Berlin..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; ">Genres</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-genres-grid')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; ">Genres</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-genres-grid')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle abwählen</a>
     </div>
     <div class="checkbox-tag-grid" id="filter-genres-grid">
                                     ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterGenres" value="${g}">
+                                            <input type="checkbox" name="filterGenres" value="${g}" checked>
                                             <span>${g}</span>
                                         </label>
                                     `).join('')}
@@ -4516,13 +4516,13 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; ">Instrumente</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-instruments-grid')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; ">Instrumente</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-instruments-grid')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle abwählen</a>
     </div>
     <div class="checkbox-tag-grid" id="filter-instruments-grid">
                                     ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/CajÃ³n', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterInstruments" value="${ins}">
+                                            <input type="checkbox" name="filterInstruments" value="${ins}" checked>
                                             <span>${ins}</span>
                                         </label>
                                     `).join('')}
@@ -4531,8 +4531,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Spieldauer (Std.)</label>
-                                    <span id="val-filter-duration" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0,5 - 10,0 Std.</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Spieldauer (Std.)</label>
+                                    <span id="val-filter-duration" style="font-size: 0.85rem; font-weight: 700; color: #7c3aed;">0,5 - 10,0 Std.</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-duration-container">
                                     <div class="dual-range-track"></div>
@@ -4544,8 +4544,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Budget (€)</label>
-                                    <span id="val-filter-budget" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0 - 5.000+ €</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Budget (€)</label>
+                                    <span id="val-filter-budget" style="font-size: 0.85rem; font-weight: 700; color: #7c3aed;">0 - 5.000+ €</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-budget-container">
                                     <div class="dual-range-track"></div>
@@ -4557,8 +4557,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
-                                    <span id="val-filter-publikum" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0 - 500+</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
+                                    <span id="val-filter-publikum" style="font-size: 0.85rem; font-weight: 700; color: #7c3aed;">0 - 500+</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-publikum-container">
                                     <div class="dual-range-track"></div>
@@ -4569,11 +4569,11 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Technik</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Technik</label>
                                 <div class="checkbox-tag-grid" id="filter-technik-grid">
                                     ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterTechnik" value="${t}">
+                                            <input type="checkbox" name="filterTechnik" value="${t}" checked>
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -4582,7 +4582,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK (WEISSES EINGABEFELD) -->
                             <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Suchbegriffe</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Suchbegriffe</label>
                                 <input type="text" id="filter-keyword" placeholder="z.B. Hochzeit, Sax, Rock..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
@@ -4593,13 +4593,13 @@ function renderMarket(container, type, onNavigate) {
                             
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; ">Musiker-Typ</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-musician-type-grid')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; ">Musiker-Typ</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-musician-type-grid')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle abwählen</a>
     </div>
     <div class="checkbox-tag-grid" id="filter-musician-type-grid">
                                     ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterMusicianTypes" value="${t}">
+                                            <input type="checkbox" name="filterMusicianTypes" value="${t}" checked>
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -4607,7 +4607,7 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Datum / Kalender</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Datum / Kalender</label>
                                 <div class="filter-calendar-widget" id="filter-calendar-widget">
                                     <div class="filter-calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                         <button type="button" class="btn-cal-prev" id="btn-filter-cal-prev" style="background: none; border: none; cursor: pointer; color: #64748b; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-chevron-left"></i></button>
@@ -4623,27 +4623,27 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Ort</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Ort</label>
                                 <input type="text" id="filter-location-m" placeholder="z.B. München, Köln..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Maximaler Umkreis</label>
-                                    <span id="val-filter-radius-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">500 km</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Maximaler Umkreis</label>
+                                    <span id="val-filter-radius-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">500 km</span>
                                 </div>
                                 <input type="range" class="form-input" id="input-filter-radius-m" min="0" max="500" step="50" value="500" style="width: 100%; accent-color: #2563eb;">
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; ">Genres</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-genres-grid-m')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; ">Genres</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-genres-grid-m')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle abwählen</a>
     </div>
     <div class="checkbox-tag-grid" id="filter-genres-grid-m">
                                     ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterGenresM" value="${g}">
+                                            <input type="checkbox" name="filterGenresM" value="${g}" checked>
                                             <span>${g}</span>
                                         </label>
                                     `).join('')}
@@ -4652,13 +4652,13 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; ">Instrumente</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-instruments-grid-m')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; ">Instrumente</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-instruments-grid-m')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle abwählen</a>
     </div>
     <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
                                     ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/CajÃ³n', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterInstrumentsM" value="${ins}">
+                                            <input type="checkbox" name="filterInstrumentsM" value="${ins}" checked>
                                             <span>${ins}</span>
                                         </label>
                                     `).join('')}
@@ -4667,8 +4667,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Spieldauer (Std.)</label>
-                                    <span id="val-filter-duration-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0,5 - 10,0 Std.</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Spieldauer (Std.)</label>
+                                    <span id="val-filter-duration-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">0,5 - 10,0 Std.</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-duration-m-container">
                                     <div class="dual-range-track"></div>
@@ -4680,8 +4680,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Gage (€)</label>
-                                    <span id="val-filter-gage-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0 - 5.000+ €</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Gage (€)</label>
+                                    <span id="val-filter-gage-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">0 - 5.000+ €</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-gage-m-container">
                                     <div class="dual-range-track"></div>
@@ -4693,8 +4693,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
-                                    <span id="val-filter-publikum-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0 - 500+</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
+                                    <span id="val-filter-publikum-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">0 - 500+</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-publikum-m-container">
                                     <div class="dual-range-track"></div>
@@ -4706,13 +4706,13 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; ">Bevorzugte Event-Typen</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-event-types-grid-m')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; ">Event-Typen</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-event-types-grid-m')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle abwählen</a>
     </div>
     <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
                                     ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterEventTypesM" value="${evt}">
+                                            <input type="checkbox" name="filterEventTypesM" value="${evt}" checked>
                                             <span>${evt}</span>
                                         </label>
                                     `).join('')}
@@ -4720,11 +4720,11 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Technik</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Technik</label>
                                 <div class="checkbox-tag-grid" id="filter-technik-grid-m">
                                     ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterTechnikM" value="${t}">
+                                            <input type="checkbox" name="filterTechnikM" value="${t}" checked>
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -4733,7 +4733,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK (WEISSES EINGABEFELD) -->
                             <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Suchbegriffe</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Suchbegriffe</label>
                                 <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
@@ -5050,7 +5050,7 @@ function renderMarket(container, type, onNavigate) {
             }
         }
 
-        // 11. Bevorzugte Event-Typen Filter (for Musiker-Markt only)
+        // 11. Event-Typen Filter (for Musiker-Markt only)
         if (!isEvents) {
             const selEvtTypes = getCheckedValues('filter-event-types-grid-m');
             if (selEvtTypes.length > 0) {
@@ -5575,6 +5575,15 @@ window.openItemDetailModal = function(id, isEvents) {
                                 ${instruments.map(inst => `<span style="background: ${isEvents ? 'rgba(124, 58, 237, 0.15)' : 'rgba(37, 99, 235, 0.15)'}; padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.78rem; color: ${roleColor}; font-weight: 700;">${inst}</span>`).join('')}
                             </div>
                         </div>
+
+                        ${isEvents ? `
+                        <div>
+                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Musiker-Typen</span>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.3rem;">
+                                ${(item.musicianTypes || []).map(t => `<span style="background: rgba(37, 99, 235, 0.15); padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.78rem; color: #2563eb; font-weight: 700;">${t}</span>`).join('') || '<span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic;">Keine Angabe</span>'}
+                            </div>
+                        </div>
+                        ` : ''}
 
                         <div>
                             <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">${isEvents ? 'Veranstaltungsdatum' : 'Verfügbarkeiten'}</span>
@@ -7328,7 +7337,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Bevorzugte Event-Typen (Mehrfachauswahl)</label>
+        <label style="margin: 0 !important;">Event-Typen (Mehrfachauswahl)</label>
         <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-event-types')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
     </div>
     <div class="checkbox-tag-grid" id="grid-event-types">
@@ -7819,7 +7828,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Bevorzugte Musiker-Typen (Mehrfachauswahl)</label>
+        <label style="margin: 0 !important;">Musiker-Typen (Mehrfachauswahl)</label>
         <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-musician-types')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
     </div>
     <div class="checkbox-tag-grid" id="grid-org-musician-types">
@@ -8549,7 +8558,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Bevorzugte Event-Typen</label>
+        <label style="margin: 0 !important;">Event-Typen</label>
         <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-event-types')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
     </div>
     <div class="checkbox-tag-grid" id="grid-event-types">
@@ -8745,7 +8754,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Bevorzugte Musiker-Typen</label>
+        <label style="margin: 0 !important;">Musiker-Typen</label>
         <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-musician-types')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
     </div>
     <div class="checkbox-tag-grid" id="grid-org-musician-types">
@@ -9873,7 +9882,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             }
             const checkedMusicianTypes = registerForm.querySelectorAll('input[name="orgMusicianTypes"]:checked');
             if (checkedMusicianTypes.length === 0) {
-                errDiv.textContent = 'Bitte wähle mindestens einen bevorzugten Musiker-Typen aus.';
+                errDiv.textContent = 'Bitte wähle mindestens einen Musiker-Typen aus.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
