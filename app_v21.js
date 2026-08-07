@@ -37,7 +37,7 @@ document.addEventListener('change', (e) => {
     if (e.target && e.target.type === 'checkbox') {
         const grid = e.target.closest('.checkbox-tag-grid');
         if (grid && grid.id) {
-            const toggleLink = document.querySelector(`[onclick*="'\n${grid.id}'"]`) || document.querySelector(`[onclick*="'${grid.id}'"]`);
+            const toggleLink = document.querySelector(`[onclick*="'${grid.id}'"]`);
             if (toggleLink) {
                 const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
                 const allChecked = Array.from(checkboxes).every(cb => cb.checked);
