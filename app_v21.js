@@ -3243,43 +3243,8 @@ function renderHeroTabContent(isMusician) {
 
                 <!-- 1/3: Large Logo -->
                 <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0 0.8rem; box-sizing: border-box;">
-                    <!-- Large SVG Disco Ball -->
-                    <svg id="hero-logo-svg" class="animate-hero-logo" viewBox="0 0 100 100" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); flex-shrink: 0; overflow: visible; opacity: 1;">
-                      <defs>
-                        <radialGradient id="sphereGradLarge" cx="35%" cy="35%" r="65%">
-                          <stop offset="0%" stop-color="#ffffff" />
-                          <stop offset="40%" stop-color="#a78bfa" />
-                          <stop offset="75%" stop-color="#6d28d9" />
-                          <stop offset="100%" stop-color="#1e40af" />
-                        </radialGradient>
-                        <filter id="glowLarge" x="-30%" y="-30%" width="160%" height="160%">
-                          <feGaussianBlur stdDeviation="2.5" result="blur" />
-                          <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                        </filter>
-                      </defs>
-                      <g class="spinning-disco-ball">
-                          <circle cx="50" cy="50" r="40" fill="url(#sphereGradLarge)" />
-                          <!-- Grid arcs -->
-                          <path d="M 10 50 A 40 40 0 0 0 90 50 A 40 40 0 0 0 10 50" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
-                          <path d="M 11.5 40 A 40 30 0 0 0 88.5 40" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 15 30 A 40 20 0 0 0 85 30" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 21.8 20 A 40 10 0 0 0 78.2 20" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 11.5 60 A 40 30 0 0 1 88.5 60" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 15 70 A 40 20 0 0 1 85 70" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 21.8 80 A 40 10 0 0 1 78.2 80" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 50 10 A 40 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
-                          <path d="M 50 10 A 30 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 50 10 A 20 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 50 10 A 10 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 50 10 A 30 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 50 10 A 20 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 50 10 A 10 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                      </g>
-                      <!-- Sparkles -->
-                      <g transform="translate(22, 25)" filter="url(#glowLarge)"><polygon class="sparkle-1" points="0,-8 2,-2 8,0 2,2 0,8 -2,2 -8,0 -2,-2" fill="#ffffff" /></g>
-                      <g transform="translate(75, 30)" filter="url(#glowLarge)"><polygon class="sparkle-2" points="0,-6 1.5,-1.5 6,0 1.5,1.5 0,6 -1.5,1.5 -6,0 -1.5,-1.5" fill="#ffffff" /></g>
-                      <g transform="translate(68, 68)" filter="url(#glowLarge)"><polygon class="sparkle-3" points="0,-7 1.8,-1.8 7,0 1.8,1.8 0,7 -1.8,1.8 -7,0 -1.8,-1.8" fill="#ffffff" /></g>
-                    </svg>
+                    <!-- Large Image Disco Ball -->
+                    <img src="discoball.jpg" id="hero-logo-img" class="animate-hero-logo spinning-disco-ball" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); border-radius: 50%; object-fit: cover; flex-shrink: 0; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); transform-origin: center;">
                     <div class="animate-hero-text" style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.2rem); font-weight: 900; letter-spacing: -1.5px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                         GigConnAct
                     </div>
