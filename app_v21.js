@@ -33,6 +33,16 @@ window.toggleSelectAll = function(linkEl, gridId) {
 };
 
 // Helper function to generate clean slugs for SEO URLs
+function getDeviceId() {
+    let devId = localStorage.getItem('gigconnact_device_id');
+    if (!devId) {
+        devId = 'dev_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+        localStorage.setItem('gigconnact_device_id', devId);
+    }
+    return devId;
+}
+window.getDeviceId = getDeviceId;
+
 function generateSlug(text) {
     if (!text) return '';
     return text.toString().toLowerCase()
@@ -1268,7 +1278,26 @@ class StateManager {
                 
                 userDocRef.onSnapshot(async (doc) => {
                     if (doc.exists) {
-                        this.currentUser = doc.data();
+                        const userData = doc.data();
+                        const deviceId = getDeviceId();
+                        const activeDevices = userData.devices || [];
+                        
+                        if (!activeDevices.includes(deviceId)) {
+                            if (activeDevices.length >= 3) {
+                                showToast({
+                                    title: "Gerätelimit erreicht 🚫",
+                                    message: "Dieses Konto ist bereits auf 3 Geräten aktiv. Bitte melde dich auf einem anderen Gerät ab."
+                                });
+                                alert("Limit erreicht: Dieses Konto ist bereits auf der maximalen Anzahl von 3 Geräten aktiv. Bitte melde dich auf einem anderen Gerät ab.");
+                                auth.signOut();
+                                return;
+                            } else {
+                                await userDocRef.update({
+                                    devices: firebase.firestore.FieldValue.arrayUnion(deviceId)
+                                }).catch(err => console.error("Error adding device:", err));
+                            }
+                        }
+                        this.currentUser = userData;
                         if (this.currentUser.role === 'musician') {
                             this.activeMusicianId = this.currentUser.profileId || null;
                         } else if (this.currentUser.role === 'organizer') {
@@ -1309,7 +1338,26 @@ class StateManager {
                     try {
                         const doc = await userDocRef.get();
                         if (doc.exists) {
-                            this.currentUser = doc.data();
+                            const userData = doc.data();
+                            const deviceId = getDeviceId();
+                            const activeDevices = userData.devices || [];
+                            
+                            if (!activeDevices.includes(deviceId)) {
+                                if (activeDevices.length >= 3) {
+                                    showToast({
+                                        title: "Gerätelimit erreicht 🚫",
+                                        message: "Dieses Konto ist bereits auf 3 Geräten aktiv. Bitte melde dich auf einem anderen Gerät ab."
+                                    });
+                                    alert("Limit erreicht: Dieses Konto ist bereits auf der maximalen Anzahl von 3 Geräten aktiv. Bitte melde dich auf einem anderen Gerät ab.");
+                                    auth.signOut();
+                                    return;
+                                } else {
+                                    await userDocRef.update({
+                                        devices: firebase.firestore.FieldValue.arrayUnion(deviceId)
+                                    }).catch(err => console.error("Error adding device:", err));
+                                }
+                            }
+                            this.currentUser = userData;
                             if (this.currentUser.role === 'musician') {
                                 this.activeMusicianId = this.currentUser.profileId || null;
                             } else if (this.currentUser.role === 'organizer') {
@@ -1400,7 +1448,8 @@ class StateManager {
                             successfulGigs: 0,
                             contactRequests: 0,
                             favorites: [],
-                            interests: []
+                            interests: [],
+                            devices: [getDeviceId()]
                         };
 
                         await db.collection('users').doc(user.uid).set(newUser);
@@ -1505,7 +1554,8 @@ class StateManager {
                             successfulGigs: 0,
                             contactRequests: 0,
                             favorites: [],
-                            interests: []
+                            interests: [],
+                            devices: [getDeviceId()]
                         };
 
                         await db.collection('users').doc(user.uid).set(newUser);
@@ -2037,6 +2087,15 @@ class StateManager {
 
     addEvent(eventData) {
         if (!this.currentUser) return { success: false };
+        const myEvents = this.events.filter(e => e.creatorId === this.currentUser.id);
+        if (myEvents.length >= 50) {
+            showToast({
+                title: "Limit erreicht 🚫",
+                message: "In einem Veranstalter-Account dürfen maximal 50 Event-Profile erstellt werden."
+            });
+            alert("Limit erreicht: In einem Veranstalter-Account dürfen maximal 50 Event-Profile erstellt werden.");
+            return { success: false, limitReached: true };
+        }
         const id = 'evt_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
         const newEvent = {
             id: id,
@@ -2076,6 +2135,15 @@ class StateManager {
 
     addMusician(musicianData) {
         if (!this.currentUser) return { success: false };
+        const myMusicians = this.musicians.filter(m => m.creatorId === this.currentUser.id);
+        if (myMusicians.length >= 5) {
+            showToast({
+                title: "Limit erreicht 🚫",
+                message: "In einem Musiker-Account dürfen maximal 5 Musiker-Profile erstellt werden."
+            });
+            alert("Limit erreicht: In einem Musiker-Account dürfen maximal 5 Musiker-Profile erstellt werden.");
+            return { success: false, limitReached: true };
+        }
         const id = 'mus_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
         const newMusician = {
             id: id,
@@ -2169,7 +2237,15 @@ class StateManager {
         return { success: false };
     }
 
-    logout() {
+    async logout() {
+        if (this.currentUser) {
+            const devId = localStorage.getItem('gigconnact_device_id');
+            if (devId) {
+                await db.collection('users').doc(this.currentUser.id).update({
+                    devices: firebase.firestore.FieldValue.arrayRemove(devId)
+                }).catch(err => console.error("Firebase logout device remove failed:", err));
+            }
+        }
         auth.signOut().catch(err => console.error("Firebase signOut failed:", err));
         this.currentUser = null;
         this.notify();
@@ -6888,7 +6964,17 @@ function renderMyEvents(container) {
 
     const createBtn = document.getElementById('btn-create-event-modal');
     if (createBtn) {
-        createBtn.addEventListener('click', () => showEventModal(null));
+        createBtn.addEventListener('click', () => {
+            if (state.events.filter(e => e.creatorId === state.currentUser.id).length >= 50) {
+                showToast({
+                    title: "Limit erreicht 🚫",
+                    message: "In einem Veranstalter-Account dürfen maximal 50 Event-Profile erstellt werden."
+                });
+                alert("Limit erreicht: In einem Veranstalter-Account dürfen maximal 50 Event-Profile erstellt werden.");
+                return;
+            }
+            showEventModal(null);
+        });
     }
 
     container.querySelectorAll('.btn-pause-my-event').forEach(btn => {
@@ -6907,6 +6993,14 @@ function renderMyEvents(container) {
 
     container.querySelectorAll('.btn-duplicate-my-event').forEach(btn => {
         btn.addEventListener('click', () => {
+            if (state.events.filter(e => e.creatorId === state.currentUser.id).length >= 50) {
+                showToast({
+                    title: "Limit erreicht 🚫",
+                    message: "In einem Veranstalter-Account dürfen maximal 50 Event-Profile erstellt werden."
+                });
+                alert("Limit erreicht: In einem Veranstalter-Account dürfen maximal 50 Event-Profile erstellt werden.");
+                return;
+            }
             const id = btn.getAttribute('data-id');
             const event = state.events.find(e => e.id === id);
             if (event) {
@@ -7298,7 +7392,17 @@ function renderMyMusicians(container) {
 
     const createBtn = document.getElementById('btn-create-musician-modal');
     if (createBtn) {
-        createBtn.addEventListener('click', () => showMusicianModal(null));
+        createBtn.addEventListener('click', () => {
+            if (state.musicians.filter(m => m.creatorId === state.currentUser.id).length >= 5) {
+                showToast({
+                    title: "Limit erreicht 🚫",
+                    message: "In einem Musiker-Account dürfen maximal 5 Musiker-Profile erstellt werden."
+                });
+                alert("Limit erreicht: In einem Musiker-Account dürfen maximal 5 Musiker-Profile erstellt werden.");
+                return;
+            }
+            showMusicianModal(null);
+        });
     }
 
     container.querySelectorAll('.btn-pause-my-musician').forEach(btn => {
@@ -7317,6 +7421,14 @@ function renderMyMusicians(container) {
 
     container.querySelectorAll('.btn-duplicate-my-musician').forEach(btn => {
         btn.addEventListener('click', () => {
+            if (state.musicians.filter(m => m.creatorId === state.currentUser.id).length >= 5) {
+                showToast({
+                    title: "Limit erreicht 🚫",
+                    message: "In einem Musiker-Account dürfen maximal 5 Musiker-Profile erstellt werden."
+                });
+                alert("Limit erreicht: In einem Musiker-Account dürfen maximal 5 Musiker-Profile erstellt werden.");
+                return;
+            }
             const id = btn.getAttribute('data-id');
             const musician = state.musicians.find(m => m.id === id);
             if (musician) {
