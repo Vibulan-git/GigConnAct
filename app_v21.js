@@ -2811,41 +2811,9 @@ function renderHeroTabContent(isMusician) {
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zu Events</h4>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zum Event-Markt</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Hochzeiten, Geburtstage, Firmenfeiern, Kirmes, Gartenpartys etc.</p>
-                </div>
-
-                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
-                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Passende Events</h4>
-                    </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Event-Art, Entfernung, Gage, VerfÜgbarkeit etc.</p>
-                </div>
-
-                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
-                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Direkter Kontakt zu Veranstaltern</h4>
-                    </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
-                </div>
-
-                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
-                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
-                    </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Veranstalter senden – sondern auch erhalten</p>
-                </div>
-
-                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
-                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÄge</h4>
-                    </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Automatische Empfehlungen von GigConnAct zu Events</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Hochzeiten, Geburtstage, Firmenfeiern, Stadtfeste etc.</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
@@ -2859,9 +2827,33 @@ function renderHeroTabContent(isMusician) {
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Direkter Kontakt zu Veranstaltern</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
+                </div>
+
+                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Passende Events</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Event-Art, Entfernung, Gage, Verfügbarkeit etc.</p>
+                </div>
+
+                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Top-Vorschläge</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Automatische Empfehlungen von GigConnAct zu Events</p>
+                </div>
+
+                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Preiswertes Abo-Modell (jederzeit kÜndbar)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Preiswertes Abo-Modell (jederzeit kündbar - auch in der Testphase)</p>
                 </div>
 
             </div>
@@ -3347,60 +3339,35 @@ function renderLandingPage(container, onNavigate) {
                             </div>
 
                             <!-- List stack -->
-                            <div style="display: flex; flex-direction: column; gap: 1.1rem; width: 100%;">
+                            <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
                                 
                                 <!-- Item 1 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-comments" style="color: #7c3aed; font-size: 1rem;"></i>
+                                        <i class="fa-solid fa-store" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
-                                            Direkter Kontakt zu Veranstaltern
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
+                                            Kostenloser Zugang zum Event-Markt
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach
+                                            Hochzeiten, Geburtstage, Firmenfeiern, Stadtfeste etc.
                                         </div>
                                     </div>
+                                </div>
+
+                                <!-- Arrow 1 -->
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 2 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-sliders" style="color: #7c3aed; font-size: 1rem;"></i>
+                                        <i class="fa-solid fa-bolt" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
-                                            Passende Events
-                                        </div>
-                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Event-Art, Entfernung, Gage, Verfügbarkeit etc.
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Item 3 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-star" style="color: #7c3aed; font-size: 1rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
-                                            Top-Vorschläge
-                                        </div>
-                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Automatische Empfehlungen von GigConnAct zu Events
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Item 4 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-bolt" style="color: #7c3aed; font-size: 1rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
                                             Schnelle Anmeldung
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
@@ -3409,13 +3376,78 @@ function renderLandingPage(container, onNavigate) {
                                     </div>
                                 </div>
 
-                                <!-- Item 5 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 60px;">
+                                <!-- Arrow 2 -->
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-arrow-down"></i>
+                                </div>
+
+                                <!-- Item 3 -->
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-shield-halved" style="color: #7c3aed; font-size: 1rem;"></i>
+                                        <i class="fa-solid fa-comments" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
+                                            Direkter Kontakt zu Veranstaltern
+                                        </div>
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
+                                            Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Arrow 3 -->
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-arrow-down"></i>
+                                </div>
+
+                                <!-- Item 4 -->
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                        <i class="fa-solid fa-sliders" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
+                                            Passende Events
+                                        </div>
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
+                                            Event-Art, Entfernung, Gage, Verfügbarkeit etc.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Arrow 4 -->
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-arrow-down"></i>
+                                </div>
+
+                                <!-- Item 5 -->
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                        <i class="fa-solid fa-star" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
+                                            Top-Vorschläge
+                                        </div>
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
+                                            Automatische Empfehlungen von GigConnAct zu Events
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Arrow 5 -->
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-arrow-down"></i>
+                                </div>
+
+                                <!-- Item 6 -->
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 52px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                        <i class="fa-solid fa-percent" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
                                             Keine Provisionskosten
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
@@ -3426,8 +3458,8 @@ function renderLandingPage(container, onNavigate) {
 
                             </div>
                         </div>
-
-                        <div style="margin-top: 2rem; text-align: center; width: 100%;">
+                    </div>
+                    <div style="margin-top: 2rem; text-align: center; width: 100%;">
                             <button id="btn-benefits-to-events" class="btn-homepage-market theme-musician" style="width: 100%; box-sizing: border-box;">
                                 Hier geht's zum Event-Markt <i class="fa-solid fa-arrow-right"></i>
                             </button>
