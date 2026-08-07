@@ -3340,10 +3340,10 @@ function renderLandingPage(container, onNavigate) {
                             </div>
 
                             <!-- List stack -->
-                            <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
+                            <div style="display: flex; flex-direction: column; gap: 0.8rem; width: 100%;">
                                 
                                 <!-- Item 1 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
                                         <i class="fa-solid fa-store" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
@@ -3358,12 +3358,12 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Arrow 1 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(124, 58, 237, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
                                     <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 2 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
                                         <i class="fa-solid fa-bolt" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
@@ -3378,12 +3378,12 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Arrow 2 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(124, 58, 237, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
                                     <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 3 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
                                         <i class="fa-solid fa-comments" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
@@ -3398,12 +3398,12 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Arrow 3 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(124, 58, 237, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
                                     <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 4 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
                                         <i class="fa-solid fa-sliders" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
@@ -3418,12 +3418,12 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Arrow 4 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(124, 58, 237, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
                                     <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 5 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
                                         <i class="fa-solid fa-star" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
@@ -3438,12 +3438,12 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Arrow 5 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(124, 58, 237, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
                                     <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 6 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 52px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
                                     <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
                                         <i class="fa-solid fa-percent" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
@@ -3457,13 +3457,14 @@ function renderLandingPage(container, onNavigate) {
                                     </div>
                                 </div>
 
+                                <!-- Button: Hier geht's zum Event-Markt -->
+                                <div style="margin-top: 1.5rem; text-align: center; width: 100%;">
+                                    <button id="btn-benefits-to-events" class="btn-homepage-market theme-musician" style="width: 100%; box-sizing: border-box; margin: 0;">
+                                        Hier geht's zum Event-Markt <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </div>
+
                             </div>
-                        </div>
-                    </div>
-                    <div style="margin-top: 2rem; text-align: center; width: 100%;">
-                            <button id="btn-benefits-to-events" class="btn-homepage-market theme-musician" style="width: 100%; box-sizing: border-box;">
-                                Hier geht's zum Event-Markt <i class="fa-solid fa-arrow-right"></i>
-                            </button>
                         </div>
                     </div>
 
@@ -3487,56 +3488,56 @@ function renderLandingPage(container, onNavigate) {
                             </div>
 
                             <!-- List stack -->
-                            <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
+                            <div style="display: flex; flex-direction: column; gap: 0.8rem; width: 100%;">
                                 
                                 <!-- Item 1 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-store" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                        <i class="fa-solid fa-users" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
-                                            Kostenloser Zugang zum Event-Markt
+                                            Kostenloser Zugang zu Musikern
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Hochzeiten, Geburtstage, Firmenfeiern, Stadtfeste etc.
+                                            Coverbands, Bands, DJs, Duos, Trios, Gitarristen, Sänger etc.
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Arrow 1 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(37, 99, 235, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
                                     <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 2 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-bolt" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                        <i class="fa-solid fa-sliders" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
-                                            Schnelle Anmeldung
+                                            Passende Musiker
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Anlegen des Musiker-Profils ohne Passwort
+                                            Musiker-Typ, Budget, Genre, Spieldauer etc.
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Arrow 2 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(37, 99, 235, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
                                     <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 3 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-comments" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                        <i class="fa-solid fa-comments" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
-                                            Direkter Kontakt zu Veranstaltern
+                                            Direkter Kontakt
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
                                             Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach
@@ -3545,79 +3546,76 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Arrow 3 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(37, 99, 235, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
                                     <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 4 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-sliders" style="color: #7c3aed; font-size: 1.0rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
-                                            Passende Events
-                                        </div>
-                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Event-Art, Entfernung, Gage, Verfügbarkeit etc.
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Arrow 4 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </div>
-
-                                <!-- Item 5 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-star" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                        <i class="fa-solid fa-star" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
                                             Top-Vorschläge
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Automatische Empfehlungen von GigConnAct zu Events
+                                            Automatische Empfehlungen von GigConnAct zu Musikern
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Arrow 4 -->
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(37, 99, 235, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-arrow-down"></i>
+                                </div>
+
+                                <!-- Item 5 -->
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                        <i class="fa-solid fa-bolt" style="color: #2563eb; font-size: 1.0rem;"></i>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
+                                            Schnelle Anmeldung
+                                        </div>
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
+                                            Anlegen des Veranstalter-Profils ohne Passwort
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Arrow 5 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(37, 99, 235, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
                                     <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 6 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 52px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-percent" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                        <i class="fa-solid fa-percent" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
                                             Keine Provisionskosten
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Preiswertes Abo-Modell (jederzeit kündbar - auch in der Testphase)
+                                            Oder andere versteckte Kosten
                                         </div>
                                     </div>
+                                </div>
+
+                                <!-- Button: Hier geht's zum Musiker-Markt -->
+                                <div style="margin-top: 1.5rem; text-align: center; width: 100%;">
+                                    <button id="btn-benefits-to-musicians" class="btn-homepage-market theme-organizer" style="width: 100%; box-sizing: border-box; margin: 0;">
+                                        Hier geht's zum Musiker-Markt <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
                                 </div>
 
                             </div>
                         </div>
                     </div>
-                    <div style="margin-top: 2rem; text-align: center; width: 100%;">
-                            <button id="btn-benefits-to-musicians" class="btn-homepage-market theme-organizer" style="width: 100%; box-sizing: border-box;">
-                                Hier geht's zum Musiker-Markt <i class="fa-solid fa-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- Founder Title: „Airbnb für Live-Musik“ -->
+<!-- Founder Title: „Airbnb für Live-Musik“ -->
             <div style="max-width: 900px; margin: 6rem auto -4rem; padding: 0 1.5rem; text-align: center;">
                 <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
                     „Airbnb für Live-Musik“
