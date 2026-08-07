@@ -3030,11 +3030,9 @@ function renderLandingPage(container, onNavigate) {
                 
                 <!-- Headline: Event-Markt -->
                 <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
-                        Der Event-Markt.
-                    </h2>
+                    <h2 onclick="showMarketplace(true)" style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px; cursor: pointer;" onmouseover="this.style.color='#7c3aed'" onmouseout="this.style.color='#0f172a'">Event-Markt für Musiker</h2>
                     <div style="font-family: var(--font-heading); font-size: clamp(1.25rem, 5.2vw, 3.8rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
-                        Musiker suchen Gigs.
+                        Gigs suchen und finden
                     </div>
                 </div>
 
@@ -3148,11 +3146,9 @@ function renderLandingPage(container, onNavigate) {
                 
                 <!-- Headline: Musiker-Markt -->
                 <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
-                        Der Musiker-Markt.
-                    </h2>
+                    <h2 onclick="showMarketplace(false)" style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px; cursor: pointer;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#0f172a'">Musiker-Markt für Veranstalter</h2>
                     <div style="font-family: var(--font-heading); font-size: clamp(1.25rem, 5.2vw, 3.8rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
-                        Veranstalter suchen Acts.
+                        Acts suchen und finden
                     </div>
                 </div>
 
