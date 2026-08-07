@@ -2811,25 +2811,9 @@ function renderHeroTabContent(isMusician) {
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zum Event-Markt</h4>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Hochzeiten, Geburtstage, Firmenfeiern, Stadtfeste etc.</p>
-                </div>
-
-                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
-                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Schnelle Anmeldung</h4>
-                    </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Anlegen des Musiker-Profils ohne Passwort</p>
-                </div>
-
-                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
-                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
-                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Direkter Kontakt zu Veranstaltern</h4>
-                    </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Zum Event-Markt (Hochzeiten, Feiern, Festival ...)</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
@@ -2837,15 +2821,15 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Passende Events</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Event-Art, Entfernung, Gage, Verfügbarkeit etc.</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Durch Filter-Logik (Event-Typ, Entfernung, Gage ...)</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Top-Vorschläge</h4>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Schnelle Anmeldung</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Automatische Empfehlungen von GigConnAct zu Events</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Inkl. Anlegen eines Musiker-Profils (Ohne Passwort)</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
@@ -2853,7 +2837,23 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Preiswertes Abo-Modell (jederzeit kündbar - auch in der Testphase)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Preiswertes Abo-Modell (Jederzeit kündbar - auch in der Testphase)</p>
+                </div>
+
+                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Top-Vorschläge</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Durch Matching-Logik (Automatische Event-Empfehlungen)</p>
+                </div>
+
+                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Direkter Kontakt</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Zu Veranstaltern der Events (Telefon, Mail, Nachricht ...)</p>
                 </div>
 
             </div>
@@ -3343,16 +3343,19 @@ function renderLandingPage(container, onNavigate) {
                             <div style="display: flex; flex-direction: column; gap: 0.8rem; width: 100%;">
                                 
                                 <!-- Item 1 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-store" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); font-family: var(--font-heading); font-weight: 800; color: #7c3aed; font-size: 1.05rem;">
+                                        01
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
-                                            Kostenloser Zugang zum Event-Markt
+                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
+                                            Kostenloser Zugang
                                         </div>
-                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Hochzeiten, Geburtstage, Firmenfeiern, Stadtfeste etc.
+                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
+                                            Zum Event-Markt
+                                        </div>
+                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
+                                            Hochzeiten, Feiern, Festival ...
                                         </div>
                                     </div>
                                 </div>
@@ -3363,16 +3366,19 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Item 2 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-bolt" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); font-family: var(--font-heading); font-weight: 800; color: #7c3aed; font-size: 1.05rem;">
+                                        02
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
-                                            Schnelle Anmeldung
+                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
+                                            Passende Events
                                         </div>
-                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Anlegen des Musiker-Profils ohne Passwort
+                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
+                                            Durch Filter-Logik
+                                        </div>
+                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
+                                            Event-Typ, Entfernung, Gage ...
                                         </div>
                                     </div>
                                 </div>
@@ -3383,16 +3389,19 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Item 3 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-comments" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); font-family: var(--font-heading); font-weight: 800; color: #7c3aed; font-size: 1.05rem;">
+                                        03
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
-                                            Direkter Kontakt zu Veranstaltern
+                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
+                                            Schnelle Anmeldung
                                         </div>
-                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach
+                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
+                                            Inkl. Anlegen eines Musiker-Profils
+                                        </div>
+                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
+                                            Ohne Passwort
                                         </div>
                                     </div>
                                 </div>
@@ -3403,16 +3412,19 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Item 4 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-sliders" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); font-family: var(--font-heading); font-weight: 800; color: #7c3aed; font-size: 1.05rem;">
+                                        04
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
-                                            Passende Events
+                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
+                                            Keine Provisionskosten
                                         </div>
-                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Event-Art, Entfernung, Gage, Verfügbarkeit etc.
+                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
+                                            Preiswertes Abo-Modell
+                                        </div>
+                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
+                                            Jederzeit kündbar - auch in der Testphase
                                         </div>
                                     </div>
                                 </div>
@@ -3423,16 +3435,19 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Item 5 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-star" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); font-family: var(--font-heading); font-weight: 800; color: #7c3aed; font-size: 1.05rem;">
+                                        05
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
+                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
                                             Top-Vorschläge
                                         </div>
-                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Automatische Empfehlungen von GigConnAct zu Events
+                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
+                                            Durch Matching-Logik
+                                        </div>
+                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
+                                            Automatische Event-Empfehlungen
                                         </div>
                                     </div>
                                 </div>
@@ -3443,16 +3458,19 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Item 6 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 48px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-percent" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); font-family: var(--font-heading); font-weight: 800; color: #7c3aed; font-size: 1.05rem;">
+                                        06
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
-                                            Keine Provisionskosten
+                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
+                                            Direkter Kontakt
                                         </div>
-                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Preiswertes Abo-Modell (jederzeit kündbar - auch in der Testphase)
+                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
+                                            Zu Veranstaltern der Events
+                                        </div>
+                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
+                                            Telefon, Mail, Nachricht ...
                                         </div>
                                     </div>
                                 </div>
