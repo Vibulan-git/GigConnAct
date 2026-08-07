@@ -3022,11 +3022,11 @@ function renderLandingPage(container, onNavigate) {
             <div style="max-width: 1400px; margin: 0 auto; padding: 3rem 1.5rem 0;">
                 
                 <!-- Headline: Event-Markt -->
-                <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
-                    <h2 onclick="window.onNavigate('events')" style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px; cursor: pointer;" onmouseover="this.style.color='#7c3aed'" onmouseout="this.style.color='#0f172a'">Event-Markt für Musiker</h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.25rem, 5.2vw, 3.8rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
-                        Gigs suchen und finden
-                    </div>
+                <div style="text-align: center; margin-bottom: 2.0rem; padding: 0 1rem;">
+                    <h2 onclick="window.onNavigate('events')" style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5.8vw, 4.2rem); font-weight: 900; color: #0f172a; margin: 0; line-height: 1.15; letter-spacing: -1.5px; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#7c3aed'; this.querySelector('.arrow-icon').style.transform='translateX(6px)';" onmouseout="this.style.color='#0f172a'; this.querySelector('.arrow-icon').style.transform='translateX(0)';">
+                        Der Event-Markt<br>
+                        <span style="color: #7c3aed; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;">Für Musiker<i class="fa-solid fa-arrow-right-long arrow-icon" style="font-size: 0.55em; transition: transform 0.2s; vertical-align: middle;"></i></span>
+                    </h2>
                 </div>
 
                 <!-- Subtitle: Category Icons -->
@@ -3138,11 +3138,11 @@ function renderLandingPage(container, onNavigate) {
             <div style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1.5rem 0;">
                 
                 <!-- Headline: Musiker-Markt -->
-                <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
-                    <h2 onclick="window.onNavigate('musicians')" style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px; cursor: pointer;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#0f172a'">Musiker-Markt für Veranstalter</h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.25rem, 5.2vw, 3.8rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
-                        Acts suchen und finden
-                    </div>
+                <div style="text-align: center; margin-bottom: 2.0rem; padding: 0 1rem;">
+                    <h2 onclick="window.onNavigate('musicians')" style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5.8vw, 4.2rem); font-weight: 900; color: #0f172a; margin: 0; line-height: 1.15; letter-spacing: -1.5px; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'; this.querySelector('.arrow-icon').style.transform='translateX(6px)';" onmouseout="this.style.color='#0f172a'; this.querySelector('.arrow-icon').style.transform='translateX(0)';">
+                        Der Musiker-Markt<br>
+                        <span style="color: #2563eb; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;">Für Veranstalter<i class="fa-solid fa-arrow-right-long arrow-icon" style="font-size: 0.55em; transition: transform 0.2s; vertical-align: middle;"></i></span>
+                    </h2>
                 </div>
 
                 <!-- Subtitle: Category Icons -->
