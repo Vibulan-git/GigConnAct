@@ -16,6 +16,37 @@ const auth = firebase.auth();
 
 var state = null;
 
+// Global helper to select/deselect all checkboxes in a grid
+window.toggleSelectAll = function(linkEl, gridId) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
+    if (checkboxes.length === 0) return;
+
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    checkboxes.forEach(cb => {
+        cb.checked = !allChecked;
+        cb.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    
+    linkEl.textContent = !allChecked ? 'alle abwählen' : 'alle auswählen';
+};
+
+// Global event listener to keep toggle links in sync
+document.addEventListener('change', (e) => {
+    if (e.target && e.target.type === 'checkbox') {
+        const grid = e.target.closest('.checkbox-tag-grid');
+        if (grid && grid.id) {
+            const toggleLink = document.querySelector(`[onclick*="'\n${grid.id}'"]`) || document.querySelector(`[onclick*="'${grid.id}'"]`);
+            if (toggleLink) {
+                const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
+                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                toggleLink.textContent = allChecked ? 'alle abwählen' : 'alle auswählen';
+            }
+        }
+    }
+});
+
 const mockPhotoUrls = [
     'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80',
@@ -2813,7 +2844,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">01 Kostenloser Zugang</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Zum Event-Markt (Hochzeiten, Feiern, Festival ...)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Zum Event-Markt (Hochzeiten, Feiern, Festival etc.)</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
@@ -2821,7 +2852,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">02 Passende Events</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Durch Filter-Logik (Event-Typ, Entfernung, Gage ...)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Durch Filter-Logik (Event-Typ, Entfernung, Gage etc.)</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
@@ -2853,7 +2884,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">06 Direkter Kontakt</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Zu Veranstaltern der Events (Name, Telefon, Mail, Nachricht ...)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Zu Veranstaltern der Events (Name, Telefon, Mail, Nachricht etc.)</p>
                 </div>
 
             </div>
@@ -2867,7 +2898,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
                         <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">01 Kostenloser Zugang</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Zu Musikern (Coverbands, Bands, DJs, Duos, Trios ...)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Zu Musikern (Bands, DJs, Sänger, Duos etc.)</p>
                 </div>
 
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
@@ -2883,7 +2914,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
                         <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">03 Direkter Kontakt</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Zu Musikern (Name, Telefon, Mail, Nachricht ...)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Zu Musikern (Name, Telefon, Mail, Nachricht etc.)</p>
                 </div>
 
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
@@ -3038,7 +3069,7 @@ function renderHeroTabContent(isMusician) {
                 <div class="carousel-container" style="margin-bottom: 1.5rem;">
                     <div class="carousel-viewport">
                         <div class="carousel-track theme-musician" id="carousel-track-events">
-                            ${renderMarketGridHTML(state.events.slice(0, 9), true, true)}
+                            ${renderMarketGridHTML(state.events.filter(e => isEventActive(e)).slice(0, 9), true, true)}
                         </div>
                     </div>
                 </div>
@@ -3154,7 +3185,7 @@ function renderHeroTabContent(isMusician) {
                 <div class="carousel-container" style="margin-bottom: 1.5rem;">
                     <div class="carousel-viewport">
                         <div class="carousel-track theme-organizer" id="carousel-track-musicians">
-                            ${renderMarketGridHTML(state.musicians.slice(0, 9), false, true)}
+                            ${renderMarketGridHTML(state.musicians.filter(m => m.isActive !== false).slice(0, 9), false, true)}
                         </div>
                     </div>
                 </div>
@@ -3333,8 +3364,8 @@ function renderHeroTabContent(isMusician) {
                             <div style="display: flex; flex-direction: column; gap: 0.8rem; width: 100%;">
                                 
                                 <!-- Item 1 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
                                         <i class="fa-solid fa-store" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -3345,7 +3376,7 @@ function renderHeroTabContent(isMusician) {
                                             Zum Event-Markt
                                         </div>
                                         <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Hochzeiten, Feiern, Festival ...
+                                            Hochzeiten, Feiern, Festival etc.
                                         </div>
                                     </div>
                                 </div>
@@ -3356,8 +3387,8 @@ function renderHeroTabContent(isMusician) {
                                 </div>
 
                                 <!-- Item 2 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
                                         <i class="fa-solid fa-sliders" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -3368,7 +3399,7 @@ function renderHeroTabContent(isMusician) {
                                             Durch Filter-Logik
                                         </div>
                                         <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Event-Typ, Entfernung, Gage ...
+                                            Event-Typ, Entfernung, Gage etc.
                                         </div>
                                     </div>
                                 </div>
@@ -3379,8 +3410,8 @@ function renderHeroTabContent(isMusician) {
                                 </div>
 
                                 <!-- Item 3 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
                                         <i class="fa-solid fa-bolt" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -3402,8 +3433,8 @@ function renderHeroTabContent(isMusician) {
                                 </div>
 
                                 <!-- Item 4 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
                                         <i class="fa-solid fa-percent" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -3425,8 +3456,8 @@ function renderHeroTabContent(isMusician) {
                                 </div>
 
                                 <!-- Item 5 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
                                         <i class="fa-solid fa-star" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -3448,8 +3479,8 @@ function renderHeroTabContent(isMusician) {
                                 </div>
 
                                 <!-- Item 6 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
                                         <i class="fa-solid fa-comments" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -3460,7 +3491,7 @@ function renderHeroTabContent(isMusician) {
                                             Zu Veranstaltern der Events
                                         </div>
                                         <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Name, Telefon, Mail, Nachricht ...
+                                            Name, Telefon, Mail, Nachricht etc.
                                         </div>
                                     </div>
                                 </div>
@@ -3499,8 +3530,8 @@ function renderHeroTabContent(isMusician) {
                             <div style="display: flex; flex-direction: column; gap: 0.8rem; width: 100%;">
                                 
                                 <!-- Item 1 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
                                         <i class="fa-solid fa-users" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -3511,7 +3542,7 @@ function renderHeroTabContent(isMusician) {
                                             Zu Musikern
                                         </div>
                                         <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Coverbands, Bands, DJs, Duos, Trios, Gitarristen, Sänger etc.
+                                            Bands, DJs, Sänger, Duos etc.
                                         </div>
                                     </div>
                                 </div>
@@ -3522,8 +3553,8 @@ function renderHeroTabContent(isMusician) {
                                 </div>
 
                                 <!-- Item 2 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
                                         <i class="fa-solid fa-sliders" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -3545,8 +3576,8 @@ function renderHeroTabContent(isMusician) {
                                 </div>
 
                                 <!-- Item 3 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
                                         <i class="fa-solid fa-comments" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -3557,7 +3588,7 @@ function renderHeroTabContent(isMusician) {
                                             Zu Musikern
                                         </div>
                                         <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Name, Telefon, Mail, Nachricht ...
+                                            Name, Telefon, Mail, Nachricht etc.
                                         </div>
                                     </div>
                                 </div>
@@ -3568,8 +3599,8 @@ function renderHeroTabContent(isMusician) {
                                 </div>
 
                                 <!-- Item 4 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
                                         <i class="fa-solid fa-star" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -3591,8 +3622,8 @@ function renderHeroTabContent(isMusician) {
                                 </div>
 
                                 <!-- Item 5 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
                                         <i class="fa-solid fa-bolt" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -3614,8 +3645,8 @@ function renderHeroTabContent(isMusician) {
                                 </div>
 
                                 <!-- Item 6 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
                                         <i class="fa-solid fa-percent" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -3641,6 +3672,8 @@ function renderHeroTabContent(isMusician) {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
 <!-- Founder Title: „Airbnb für Live-Musik“ -->
             <div style="max-width: 900px; margin: 6rem auto -4rem; padding: 0 1.5rem; text-align: center;">
                 <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
@@ -4316,7 +4349,10 @@ function renderMarket(container, type, onNavigate) {
     const isEvents = type === 'events';
     const title = isEvents ? 'Event-Markt für Musiker' : 'Musiker-Markt für Veranstalter';
 
-    const items = isEvents ? state.events : state.musicians;
+    const rawItems = isEvents ? state.events : state.musicians;
+    const items = isEvents 
+        ? rawItems.filter(e => isEventActive(e))
+        : rawItems.filter(m => m.isActive !== false);
     
     let selectedFilterDates = [];
     let currentFilterCalDate = new Date(2026, 6, 1); // July 2026
@@ -4428,8 +4464,11 @@ function renderMarket(container, type, onNavigate) {
                         <div style="display: flex; flex-direction: column; gap: 0.8rem; padding: 1rem;">
                             
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Event-Typ</label>
-                                <div class="checkbox-tag-grid" id="filter-event-type-grid">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; ">Event-Typ</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-event-type-grid')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="filter-event-type-grid">
                                     ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterEventTypes" value="${t}">
@@ -4461,8 +4500,11 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Genres</label>
-                                <div class="checkbox-tag-grid" id="filter-genres-grid">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; ">Genres</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-genres-grid')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="filter-genres-grid">
                                     ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterGenres" value="${g}">
@@ -4473,8 +4515,11 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Instrumente</label>
-                                <div class="checkbox-tag-grid" id="filter-instruments-grid">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; ">Instrumente</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-instruments-grid')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="filter-instruments-grid">
                                     ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/CajÃ³n', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterInstruments" value="${ins}">
@@ -4547,8 +4592,11 @@ function renderMarket(container, type, onNavigate) {
                         <div style="display: flex; flex-direction: column; gap: 0.8rem; padding: 1rem;">
                             
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Musiker-Typ</label>
-                                <div class="checkbox-tag-grid" id="filter-musician-type-grid">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; ">Musiker-Typ</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-musician-type-grid')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="filter-musician-type-grid">
                                     ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterMusicianTypes" value="${t}">
@@ -4588,8 +4636,11 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Genres</label>
-                                <div class="checkbox-tag-grid" id="filter-genres-grid-m">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; ">Genres</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-genres-grid-m')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="filter-genres-grid-m">
                                     ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterGenresM" value="${g}">
@@ -4600,8 +4651,11 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Instrumente</label>
-                                <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; ">Instrumente</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-instruments-grid-m')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
                                     ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/CajÃ³n', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterInstrumentsM" value="${ins}">
@@ -4651,8 +4705,11 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Bevorzugte Event-Typen</label>
-                                <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; ">Bevorzugte Event-Typen</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-event-types-grid-m')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
                                     ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterEventTypesM" value="${evt}">
@@ -6212,13 +6269,13 @@ function renderMatchesPage(container) {
         
         let profiles = [];
         if (isMusician) {
-            profiles = state.musicians.filter(m => m.creatorId === u.id);
+            profiles = state.musicians.filter(m => m.creatorId === u.id && m.isActive !== false);
         } else {
-            profiles = state.events.filter(e => e.creatorId === u.id);
+            profiles = state.events.filter(e => e.creatorId === u.id && isEventActive(e));
         }
         
         let selectedId = isMusician ? state.activeMusicianId : state.activeEventId;
-        if (!selectedId && profiles.length > 0) {
+        if ((!selectedId || !profiles.some(p => p.id === selectedId)) && profiles.length > 0) {
             selectedId = profiles[0].id;
             if (isMusician) state.activeMusicianId = selectedId;
             else state.activeEventId = selectedId;
@@ -7177,8 +7234,11 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Künstler-Typ (Mehrfachauswahl)</label>
-                        <div class="checkbox-tag-grid" id="grid-musician-types">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important;">Künstler-Typ (Mehrfachauswahl)</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-musician-types')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="grid-musician-types">
                             ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => {
                                 const isChecked = currentTypes.includes(t);
                                 return `
@@ -7205,8 +7265,11 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Genres (Mehrfachauswahl)</label>
-                        <div class="checkbox-tag-grid" id="grid-genres">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important;">Genres (Mehrfachauswahl)</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-genres')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="grid-genres">
                             ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
                                 const isChecked = musicianObj?.genres?.includes(g);
                                 return `
@@ -7220,8 +7283,11 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Instrumente (Mehrfachauswahl)</label>
-                        <div class="checkbox-tag-grid" id="grid-instruments">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important;">Instrumente (Mehrfachauswahl)</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-instruments')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="grid-instruments">
                             ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/CajÃ³n', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
                                 const isChecked = musicianObj?.instruments?.includes(ins);
                                 return `
@@ -7261,8 +7327,11 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Bevorzugte Event-Typen (Mehrfachauswahl)</label>
-                        <div class="checkbox-tag-grid" id="grid-event-types">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important;">Bevorzugte Event-Typen (Mehrfachauswahl)</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-event-types')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="grid-event-types">
                             ${['Geburtstag', 'Hochzeit - Trauung', 'Hochzeit - Sektempfang', 'Hochzeit - Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => {
                                 const isChecked = musicianObj?.eventTypes?.includes(evt);
                                 return `
@@ -7655,8 +7724,11 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Event-Typ (Mehrfachauswahl)</label>
-                        <div class="checkbox-tag-grid" id="grid-org-event-types">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important;">Event-Typ (Mehrfachauswahl)</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-event-types')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="grid-org-event-types">
                             ${['Geburtstag', 'Hochzeit - Trauung', 'Hochzeit - Sektempfang', 'Hochzeit - Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => {
                                 const isChecked = currentTypes.includes(t);
                                 return `
@@ -7710,8 +7782,11 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Genres (Mehrfachauswahl)</label>
-                        <div class="checkbox-tag-grid" id="grid-org-genres">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important;">Genres (Mehrfachauswahl)</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-genres')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="grid-org-genres">
                             ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
                                 const isChecked = eventObj?.genres?.includes(g);
                                 return `
@@ -7725,14 +7800,35 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Instrumente (Mehrfachauswahl)</label>
-                        <div class="checkbox-tag-grid" id="grid-org-instruments">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important;">Instrumente (Mehrfachauswahl)</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-instruments')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="grid-org-instruments">
                             ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
                                 const isChecked = eventObj?.instruments?.includes(ins);
                                 return `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgInstruments" value="${ins}" ${isChecked ? 'checked' : ''}>
                                         <span>${ins}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important;">Bevorzugte Musiker-Typen (Mehrfachauswahl)</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-musician-types')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="grid-org-musician-types">
+                            ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => {
+                                const isChecked = eventObj?.musicianTypes?.includes(t);
+                                return `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="orgMusicianTypes" value="${t}" ${isChecked ? 'checked' : ''}>
+                                        <span>${t}</span>
                                     </label>
                                 `;
                             }).join('')}
@@ -8105,6 +8201,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
             budget: parseFloat(formData.get('orgMaxBudget')) || 5000,
             genres: Array.from(form.querySelectorAll('input[name="orgGenres"]:checked')).map(el => el.value),
             instruments: Array.from(form.querySelectorAll('input[name="orgInstruments"]:checked')).map(el => el.value),
+            musicianTypes: Array.from(form.querySelectorAll('input[name="orgMusicianTypes"]:checked')).map(el => el.value),
             technik: Array.from(form.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value).length > 0
                 ? Array.from(form.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value)
                 : ["Technik ist noch unklar"],
@@ -8365,8 +8462,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
 
                         <div class="form-group">
-                            <label>Musiker-Typ</label>
-                            <div class="checkbox-tag-grid" id="grid-musician-types">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important;">Musiker-Typ</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-musician-types')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="grid-musician-types">
                                 ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="musicianTypes" value="${t}">
@@ -8392,8 +8492,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
 
                         <div class="form-group">
-                            <label>Genres</label>
-                            <div class="checkbox-tag-grid" id="grid-genres">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important;">Genres</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-genres')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="grid-genres">
                                 ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="genres" value="${g}">
@@ -8404,8 +8507,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
 
                         <div class="form-group">
-                            <label>Instrumente</label>
-                            <div class="checkbox-tag-grid" id="grid-instruments">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important;">Instrumente</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-instruments')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="grid-instruments">
                                 ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="instruments" value="${ins}">
@@ -8442,8 +8548,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
 
                         <div class="form-group">
-                            <label>Bevorzugte Event-Typen</label>
-                            <div class="checkbox-tag-grid" id="grid-event-types">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important;">Bevorzugte Event-Typen</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-event-types')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="grid-event-types">
                                 ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="eventTypes" value="${evt}">
@@ -8547,8 +8656,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
 
                         <div class="form-group">
-                            <label>Event-Typ</label>
-                            <div class="checkbox-tag-grid" id="grid-org-event-types">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important;">Event-Typ</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-event-types')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="grid-org-event-types">
                                 ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgEventTypes" value="${t}">
@@ -8602,8 +8714,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
 
                         <div class="form-group">
-                            <label>Genres</label>
-                            <div class="checkbox-tag-grid" id="grid-org-genres">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important;">Genres</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-genres')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="grid-org-genres">
                                 ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgGenres" value="${g}">
@@ -8614,12 +8729,30 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
 
                         <div class="form-group">
-                            <label>Instrumente</label>
-                            <div class="checkbox-tag-grid" id="grid-org-instruments">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important;">Instrumente</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-instruments')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="grid-org-instruments">
                                 ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgInstruments" value="${ins}">
                                         <span>${ins}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="margin: 0 !important;">Bevorzugte Musiker-Typen</label>
+        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-musician-types')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
+    </div>
+    <div class="checkbox-tag-grid" id="grid-org-musician-types">
+                                ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
+                                    <label class="tag-pill-checkbox">
+                                        <input type="checkbox" name="orgMusicianTypes" value="${t}">
+                                        <span>${t}</span>
                                     </label>
                                 `).join('')}
                             </div>
@@ -9738,6 +9871,13 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
+            const checkedMusicianTypes = registerForm.querySelectorAll('input[name="orgMusicianTypes"]:checked');
+            if (checkedMusicianTypes.length === 0) {
+                errDiv.textContent = 'Bitte wähle mindestens einen bevorzugten Musiker-Typen aus.';
+                errDiv.style.display = 'block';
+                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
             const checkedTechnik = registerForm.querySelectorAll('input[name="orgTechnik"]:checked');
             if (checkedTechnik.length === 0) {
                 errDiv.textContent = 'Bitte wähle mindestens eine Technik-Option aus.';
@@ -9844,6 +9984,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             payload.orgLocations = selectedOrgLocations;
             payload.orgGenres = Array.from(registerForm.querySelectorAll('input[name="orgGenres"]:checked')).map(el => el.value);
             payload.orgInstruments = Array.from(registerForm.querySelectorAll('input[name="orgInstruments"]:checked')).map(el => el.value);
+            payload.orgMusicianTypes = Array.from(registerForm.querySelectorAll('input[name="orgMusicianTypes"]:checked')).map(el => el.value);
             payload.orgMinDuration = registerForm.querySelector('input[name="orgMinDuration"]').value;
             payload.orgMaxDuration = registerForm.querySelector('input[name="orgMaxDuration"]').value;
             payload.orgMinPublikum = registerForm.querySelector('input[name="orgMinPublikum"]').value;
@@ -9919,6 +10060,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         eventEndTime: payload.eventEndTime,
                         genres: payload.orgGenres,
                         instruments: payload.orgInstruments,
+                        musicianTypes: payload.orgMusicianTypes,
                         minDuration: parseFloat(payload.orgMinDuration) || 1,
                         maxDuration: parseFloat(payload.orgMaxDuration) || 3,
                         minPublikum: parseInt(payload.orgMinPublikum) || 0,
