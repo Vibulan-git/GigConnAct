@@ -1,4 +1,4 @@
-﻿// Firebase Configuration
+// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyCuGm5JDhKwFILPrgxz3iQftTBUFGpb8qo",
     authDomain: "gigconnact.firebaseapp.com",
@@ -4355,7 +4355,7 @@ function renderMarket(container, type, onNavigate) {
         : rawItems.filter(m => m.isActive !== false);
     
     let selectedFilterDates = [];
-    let currentFilterCalDate = new Date(2026, 6, 1); // July 2026
+    let currentFilterCalDate = new Date();
     let showOnlyTopMatches = false;
     let showOnlyFavorites = false;
 
@@ -7930,7 +7930,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
     document.getElementById('btn-close-event-modal').addEventListener('click', closeModal);
 
     // Initialize Calendar Widget
-    let currentCalDate = new Date(2026, 6, 1); // July 2026
+    let currentCalDate = eventObj && eventObj.date ? new Date(eventObj.date) : new Date();
     const calendarMonthYear = document.getElementById('modal-org-calendar-month-year');
     const calendarDaysGrid = document.getElementById('modal-org-calendar-days-grid');
     const calendarPrevBtn = document.getElementById('modal-btn-cal-prev');
@@ -9403,7 +9403,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     const inputEventDates = document.getElementById('input-event-dates');
     const selectedDatesPreview = document.getElementById('org-selected-dates-preview');
 
-    let currentCalDate = new Date(2026, 6, 1); // July 2026 as standard start for this application
+    let currentCalDate = new Date();
 
     function renderOrganizerCalendar() {
         if (!calendarDaysGrid || !calendarMonthYear) return;
