@@ -3706,9 +3706,18 @@ function renderLandingPage(container, onNavigate) {
     const v2 = container.querySelector('#hero-bg-video-2');
 
     if (v1 && v2) {
-        // Preload next video in v2 immediately
-        v2.src = heroVideos[1];
-        v2.load();
+        // Optimization: Defer preloading the next video in v2 until v1 has started playing.
+        // This ensures 100% of bandwidth goes to loading the first background video quickly!
+        const preloadNextVideo = () => {
+            if (!v2.src || v2.src === '' || v2.src === window.location.href) {
+                v2.src = heroVideos[1];
+                v2.load();
+            }
+            v1.removeEventListener('playing', preloadNextVideo);
+        };
+        v1.addEventListener('playing', preloadNextVideo);
+        // Fallback: If playing doesn't trigger, preload after 5 seconds
+        setTimeout(preloadNextVideo, 5000);
 
         const transitionDuration = 1500; // 1.5s fade transition
         let isTransitioning = false;
@@ -7707,14 +7716,14 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                             <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
-                            <button type="button" id="btn-event-modal-add-photo" class="btn" style="margin:0; padding:0; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(124, 58, 237, 0.4); color:#7c3aed; background: rgba(124, 58, 237, 0.05); cursor: pointer;"><i class="fa-solid fa-plus"></i></button>
+                            <button type="button" id="btn-event-modal-add-photo" class="btn" style="margin:0; padding:0; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(37, 99, 235, 0.4); color:#2563eb; background: rgba(37, 99, 235, 0.05); cursor: pointer;"><i class="fa-solid fa-plus"></i></button>
                         </div>
                         <div id="event-modal-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                             <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
-                            <button type="button" id="btn-event-modal-add-video" class="btn" style="margin:0; padding:0; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(168, 85, 247, 0.4); color:#a855f7; background: rgba(168, 85, 247, 0.05); cursor: pointer;"><i class="fa-solid fa-plus"></i></button>
+                            <button type="button" id="btn-event-modal-add-video" class="btn" style="margin:0; padding:0; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(37, 99, 235, 0.4); color:#2563eb; background: rgba(37, 99, 235, 0.05); cursor: pointer;"><i class="fa-solid fa-plus"></i></button>
                         </div>
                         <div id="event-modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
@@ -8593,14 +8602,14 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                                 <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
-                                <button type="button" onclick="window.addRegMedia('organizer', 'photo')" class="btn" style="margin:0; padding:0; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(124, 58, 237, 0.4); color:#7c3aed; background: rgba(124, 58, 237, 0.05); cursor: pointer;"><i class="fa-solid fa-plus"></i></button>
+                                <button type="button" onclick="window.addRegMedia('organizer', 'photo')" class="btn" style="margin:0; padding:0; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(37, 99, 235, 0.4); color:#2563eb; background: rgba(37, 99, 235, 0.05); cursor: pointer;"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div id="reg-organizer-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                                 <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
-                                <button type="button" onclick="window.addRegMedia('organizer', 'video')" class="btn" style="margin:0; padding:0; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(168, 85, 247, 0.4); color:#a855f7; background: rgba(168, 85, 247, 0.05); cursor: pointer;"><i class="fa-solid fa-plus"></i></button>
+                                <button type="button" onclick="window.addRegMedia('organizer', 'video')" class="btn" style="margin:0; padding:0; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(37, 99, 235, 0.4); color:#2563eb; background: rgba(37, 99, 235, 0.05); cursor: pointer;"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div id="reg-organizer-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
