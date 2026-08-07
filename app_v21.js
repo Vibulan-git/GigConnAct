@@ -32,6 +32,201 @@ window.toggleSelectAll = function(linkEl, gridId) {
     linkEl.textContent = !allChecked ? 'alle abwählen' : 'alle auswählen';
 };
 
+// Helper function to generate clean slugs for SEO URLs
+function generateSlug(text) {
+    if (!text) return '';
+    return text.toString().toLowerCase()
+        .replace(/ä/g, 'ae')
+        .replace(/ö/g, 'oe')
+        .replace(/ü/g, 'ue')
+        .replace(/ß/g, 'ss')
+        .replace(/[^a-z0-9 -]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+window.generateSlug = generateSlug;
+
+// Parse location pathname into clean structured routing state
+function parseRequestPath() {
+    const path = window.location.pathname.toLowerCase().replace(/^\/|\/$/g, '');
+    if (!path) {
+        return { page: 'landing' };
+    }
+    
+    const parts = path.split('/');
+    
+    // A. Events Routing
+    if (parts[0] === 'events') {
+        if (parts.length === 1) {
+            return { page: 'events' };
+        }
+        const slug = parts[1];
+        const event = (state && state.events || []).find(e => generateSlug(e.title) === slug || generateSlug(e.title + '-' + e.location) === slug);
+        if (event) {
+            return { page: 'events', itemId: event.id, view: 'detail' };
+        }
+        return { page: 'events', city: slug };
+    }
+    
+    // B. Musicians Routing
+    if (parts[0] === 'musiker' || parts[0] === 'musicians') {
+        if (parts.length === 1) {
+            return { page: 'musicians' };
+        }
+        
+        // Pattern: /musiker/koeln/hochzeit (city + event type)
+        if (parts.length === 3) {
+            return { page: 'musicians', city: parts[1], eventType: parts[2] };
+        }
+        
+        const segment = parts[1];
+        const musician = (state && state.musicians || []).find(m => generateSlug(m.name) === segment);
+        if (musician) {
+            return { page: 'musicians', itemId: musician.id, view: 'detail' };
+        }
+        
+        // Pattern: /musiker/coverband-koeln (musician type + city)
+        const knownMusicianTypes = ['band', 'coverband', 'solo', 'solokuenstler', 'duo', 'trio', 'dj', 'saenger', 'ensemble', 'chor', 'orchester', 'alleinunterhalter'];
+        for (const type of knownMusicianTypes) {
+            if (segment.startsWith(type + '-')) {
+                const city = segment.substring(type.length + 1);
+                return { page: 'musicians', musicianType: type, city: city };
+            }
+        }
+        
+        // Otherwise treat as city filter
+        return { page: 'musicians', city: segment };
+    }
+    
+    const standardPages = ['matches', 'dashboard', 'my-musicians', 'my-events', 'postbox', 'credits', 'profile'];
+    if (standardPages.includes(parts[0])) {
+        return { page: parts[0] };
+    }
+    
+    return { page: 'landing' };
+}
+window.parseRequestPath = parseRequestPath;
+
+// Auto-fill filters from URL params and trigger market update
+function applyUrlFilters(route) {
+    const isEvents = route.page === 'events';
+    
+    if (route.city) {
+        const locInput = document.getElementById(isEvents ? 'filter-location' : 'filter-location-m');
+        if (locInput) {
+            const capitalizedCity = route.city.charAt(0).toUpperCase() + route.city.slice(1);
+            locInput.value = capitalizedCity;
+            locInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }
+    
+    if (route.musicianType && !isEvents) {
+        const cleanType = route.musicianType.toLowerCase();
+        const typeMapping = {
+            'saenger': 'Sänger',
+            'solokuenstler': 'Solokünstler',
+            'duo': 'Duo',
+            'trio': 'Trio',
+            'band': 'Band',
+            'coverband': 'Coverband',
+            'big-band': 'Big Band',
+            'ensemble': 'Ensemble',
+            'chor': 'Chor',
+            'orchester': 'Orchester',
+            'dj': 'DJ',
+            'alleinunterhalter': 'Alleinunterhalter',
+            'showkuenstler-taenzer': 'Showkünstler/Tänzer',
+            'sonstige': 'Sonstige'
+        };
+        const mappedType = typeMapping[cleanType] || cleanType;
+        const grid = document.getElementById('filter-musician-type-grid');
+        if (grid) {
+            const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = cb.value.toLowerCase() === mappedType.toLowerCase();
+                cb.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        }
+    }
+    
+    if (route.eventType) {
+        const cleanEvtType = route.eventType.toLowerCase();
+        const grid = document.getElementById('filter-event-types-grid-m');
+        if (grid) {
+            const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                const cbSlug = generateSlug(cb.value);
+                cb.checked = cbSlug.includes(cleanEvtType) || cleanEvtType.includes(cbSlug);
+                cb.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+        }
+    }
+    
+    // Trigger change event to apply filters
+    const changeEvent = new Event('change', { bubbles: true });
+    document.dispatchEvent(changeEvent);
+}
+
+// Update Page Title and Meta Description for SEO
+function updateSEOMeta(pageType, detailItem) {
+    let title = 'GigConnAct - Event-Markt für Musiker & Veranstalter';
+    let desc = 'Der provisionsfreie Event-Markt für Musiker und Veranstalter. Direktvermittlung ohne Zwischenhändler und ohne versteckte Kosten.';
+    
+    if (pageType === 'musicians') {
+        if (detailItem) {
+            title = `${detailItem.name} | Musiker auf GigConnAct`;
+            desc = `Profil von Musiker ${detailItem.name}. Genres: ${(detailItem.genres || []).join(', ')}. Instrumente: ${(detailItem.instruments || []).join(', ')}. Jetzt kontaktieren!`;
+        } else {
+            title = 'Musiker buchen & engagieren | GigConnAct Musiker-Markt';
+            desc = 'Finde passende Musiker, Bands, DJs und Solokünstler für dein Event. Direkter Kontakt ohne Provisionsgebühren.';
+        }
+    } else if (pageType === 'events') {
+        if (detailItem) {
+            title = `${detailItem.title} in ${detailItem.location || 'Deutschland'} | GigConnAct Gigs`;
+            desc = `Musiker-Job: ${detailItem.title} in ${detailItem.location}. Anlass: ${detailItem.eventType || 'Event'}. Jetzt bewerben und Gig sichern!`;
+        } else {
+            title = 'Gigs & Auftritte finden | GigConnAct Event-Markt';
+            desc = 'Finde passende Gigs und Auftrittsmöglichkeiten für Musiker, Bands und DJs. Direkte Bewerbung beim Veranstalter.';
+        }
+    }
+    
+    document.title = title;
+    
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+        metaDesc = document.createElement('meta');
+        metaDesc.name = 'description';
+        document.head.appendChild(metaDesc);
+    }
+    metaDesc.content = desc;
+}
+window.updateSEOMeta = updateSEOMeta;
+
+// Close Detail Modal and restore parent path
+window.closeItemDetailModal = function() {
+    const modal = document.getElementById('modal-item-detail');
+    if (modal) modal.remove();
+    
+    const activePage = window.currentActivePage || 'landing';
+    let parentPath = '/';
+    if (activePage === 'musicians') parentPath = '/musiker';
+    else if (activePage === 'events') parentPath = '/events';
+    
+    if (window.location.pathname !== parentPath) {
+        history.pushState(null, '', parentPath);
+        updateSEOMeta(activePage);
+    }
+};
+
+// Global route navigate wrapper
+window.navigateToRoute = function(path) {
+    if (window.location.pathname !== path) {
+        history.pushState(null, '', path);
+    }
+    window.handleRouting();
+};
+
 // Global event listener to keep toggle links in sync
 document.addEventListener('change', (e) => {
     if (e.target && e.target.type === 'checkbox') {
@@ -300,10 +495,10 @@ window.unlockListing = function(targetId, targetName) {
                     message: `Du hast die Kontaktdaten von ${targetName} erfolgreich freigeschaltet.`
                 });
                 updateNavbar();
-                const currentHash = window.location.hash;
-                if ((currentHash.includes('events') || currentHash.includes('musicians')) && typeof window.marketApplyFilters === 'function') {
+                const currentPath = window.location.pathname;
+                if ((currentPath.includes('events') || currentPath.includes('musiker')) && typeof window.marketApplyFilters === 'function') {
                     window.marketApplyFilters();
-                } else if (currentHash.includes('matches') && typeof window.matchesUpdate === 'function') {
+                } else if (currentPath.includes('matches') && typeof window.matchesUpdate === 'function') {
                     window.matchesUpdate();
                 } else {
                     window.handleRouting();
@@ -5496,7 +5691,7 @@ window.openItemDetailModal = function(id, isEvents) {
             <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 20px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); position: relative;">
                 
                 <!-- Close Button -->
-                <button onclick="document.getElementById('modal-item-detail').remove();" style="position: absolute; top: 15px; right: 15px; z-index: 10; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <button onclick="window.closeItemDetailModal();" style="position: absolute; top: 15px; right: 15px; z-index: 10; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
 
@@ -5644,7 +5839,7 @@ window.openItemDetailModal = function(id, isEvents) {
                             <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">
                                 Kontaktdaten (Telefonnummer & E-Mail-Adresse) sind im geschützten Modus verborgen. Registriere dich oder melde dich an, um direkt zu kommunizieren.
                             </p>
-                            <button class="btn btn-primary" onclick="document.getElementById('modal-item-detail').remove(); showModal('auth');" style="background: ${isEvents ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'}; border-color: ${isEvents ? '#1e40af' : '#7c3aed'}; font-weight: 800; padding: 0.9rem 2rem; font-size: 1rem; border-radius: 12px; display: inline-flex; align-items: center; gap: 0.6rem; box-shadow: ${isEvents ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'};">
+                            <button class="btn btn-primary" onclick="window.closeItemDetailModal(); showModal('auth');" style="background: ${isEvents ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'}; border-color: ${isEvents ? '#1e40af' : '#7c3aed'}; font-weight: 800; padding: 0.9rem 2rem; font-size: 1rem; border-radius: 12px; display: inline-flex; align-items: center; gap: 0.6rem; box-shadow: ${isEvents ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'};">
                                 <i class="fa-solid fa-sign-in-alt"></i> Kontaktdaten freischalten
                             </button>
                         `}
@@ -6264,7 +6459,7 @@ function renderProfilePage(container) {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             state.logout();
-            window.location.hash = '#/';
+            window.navigateToRoute('/');
         });
     }
 }
@@ -10329,7 +10524,7 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
             const currentHash = window.location.hash;
             if ((currentHash.includes('events') || currentHash.includes('musicians')) && typeof window.marketApplyFilters === 'function') {
                 window.marketApplyFilters();
-            } else if (currentHash.includes('matches') && typeof window.matchesUpdate === 'function') {
+            } else if (currentPath.includes('matches') && typeof window.matchesUpdate === 'function') {
                 window.matchesUpdate();
             } else {
                 window.handleRouting();
@@ -10342,7 +10537,7 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
             
             if (targetUnlockId) {
                 // Determine target name
-                const isEventMarket = (window.location.hash || '').includes('events');
+                const isEventMarket = window.location.pathname.includes('events');
                 const targetEvent = state.events.find(ev => ev.id === targetUnlockId);
                 const targetMusician = state.musicians.find(m => m.id === targetUnlockId);
                 const targetName = targetEvent ? targetEvent.name : (targetMusician ? targetMusician.name : "Inserat");
@@ -10469,16 +10664,23 @@ function navigate(page) {
     updateNavbar(page === '');
     document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
 
+    let targetPath = '/';
+    if (page === 'events') targetPath = '/events';
+    else if (page === 'musicians') targetPath = '/musiker';
+    else if (page !== '') targetPath = '/' + page;
+    
+    if (window.location.pathname !== targetPath) {
+        history.pushState(null, '', targetPath);
+    }
+
     switch (page) {
         case 'events':
             renderMarket(mainContainer, 'events', navigate);
             setActiveLink('link-events');
-            window.location.hash = '#/events';
             break;
         case 'musicians':
             renderMarket(mainContainer, 'musicians', navigate);
             setActiveLink('link-musicians');
-            window.location.hash = '#/musicians';
             break;
         case 'matches':
         case 'top-matches':
@@ -10489,7 +10691,6 @@ function navigate(page) {
                 state.clearUnreadMatches();
                 renderMatchesPage(mainContainer);
                 setActiveLink('link-matches');
-                window.location.hash = '#/matches';
             }
             break;
         case 'dashboard':
@@ -10499,11 +10700,9 @@ function navigate(page) {
             } else if (state.currentUser.role === 'organizer') {
                 renderMyEvents(mainContainer);
                 setActiveLink('link-dashboard');
-                window.location.hash = '#/dashboard';
             } else {
                 renderMyMusicians(mainContainer);
                 setActiveLink('link-dashboard');
-                window.location.hash = '#/dashboard';
             }
             break;
         case 'my-musicians':
@@ -10513,7 +10712,6 @@ function navigate(page) {
             } else {
                 renderMyMusicians(mainContainer);
                 setActiveLink('link-my-musicians');
-                window.location.hash = '#/my-musicians';
             }
             break;
         case 'my-events':
@@ -10523,7 +10721,6 @@ function navigate(page) {
             } else {
                 renderMyEvents(mainContainer);
                 setActiveLink('link-my-events');
-                window.location.hash = '#/my-events';
             }
             break;
         case 'postbox':
@@ -10533,7 +10730,6 @@ function navigate(page) {
             } else {
                 renderPostbox(mainContainer);
                 setActiveLink('link-postbox');
-                window.location.hash = '#/postbox';
             }
             break;
         case 'credits':
@@ -10543,7 +10739,6 @@ function navigate(page) {
             } else {
                 renderCreditsPage(mainContainer);
                 setActiveLink('link-credits');
-                window.location.hash = '#/credits';
             }
             break;
         case 'profile':
@@ -10552,14 +10747,10 @@ function navigate(page) {
                 showModal('auth');
             } else {
                 renderProfilePage(mainContainer);
-                window.location.hash = '#/profile';
             }
             break;
         default:
             renderLandingPage(mainContainer, navigate);
-            if (window.location.hash && window.location.hash !== '#/' && window.location.hash !== '#') {
-                history.replaceState(null, '', '#/');
-            }
             break;
     }
 }
@@ -10577,7 +10768,7 @@ function updateNavbar(forceLanding) {
     const u = state.currentUser;
     const isLanding = forceLanding !== undefined 
         ? forceLanding 
-        : (!window.location.hash || window.location.hash === '#/' || window.location.hash === '#');
+        : (!window.location.pathname || window.location.pathname === '/' || window.location.pathname === '');
 
     const header = document.querySelector('.app-header');
     if (header) {
@@ -10604,17 +10795,17 @@ function updateNavbar(forceLanding) {
         const unreadCount = state.getUnreadCount();
 
         let creditsBadgeHtml = '';
-        const isProfileActive = window.location.hash === '#/profile';
+        const isProfileActive = window.location.pathname === '/profile';
 
         const isMusician = u.role === 'musician';
         const marketIcon = isMusician ? 'fa-calendar-days' : 'fa-guitar';
-        const marketLink = isMusician ? '#/events' : '#/musicians';
+        const marketLink = isMusician ? '/events' : '/musiker';
         const marketTitle = isMusician ? 'Event-Markt' : 'Musiker-Markt';
         
         const isMarketActive = isMusician 
-            ? (window.location.hash === '#/events' || window.location.hash.startsWith('#/events'))
-            : (window.location.hash === '#/musicians' || window.location.hash.startsWith('#/musicians'));
-        const isPostboxActive = window.location.hash === '#/postbox' || window.location.hash.startsWith('#/postbox');
+            ? (window.location.pathname === '/events' || window.location.pathname.startsWith('/events'))
+            : (window.location.pathname === '/musiker' || window.location.pathname.startsWith('/musiker'));
+        const isPostboxActive = window.location.pathname === '/postbox' || window.location.pathname.startsWith('/postbox');
 
         // Fetch user profiles to generate persistent profile switcher in header
         let userProfiles = [];
@@ -10661,7 +10852,7 @@ function updateNavbar(forceLanding) {
                         </a>
 
                         <!-- Postfach Link -->
-                        <a href="#/postbox" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isPostboxActive ? 'active' : ''}" id="dropdown-link-postbox" style="position: relative;">
+                        <a href="/postbox" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isPostboxActive ? 'active' : ''}" id="dropdown-link-postbox" style="position: relative;">
                             <i class="fa-solid fa-envelope"></i>
                             <span>Postfach</span>
                             ${unreadCount > 0 ? `
@@ -10672,12 +10863,12 @@ function updateNavbar(forceLanding) {
                         </a>
                         
                         <!-- Meine Musiker / Meine Events Link -->
-                        <a href="${isMusician ? '#/my-musicians' : '#/my-events'}" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${window.location.hash === (isMusician ? '#/my-musicians' : '#/my-events') ? 'active' : ''}" id="dropdown-link-my-tab">
+                        <a href="${isMusician ? '/my-musicians' : '/my-events'}" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${window.location.pathname === (isMusician ? '/my-musicians' : '/my-events') ? 'active' : ''}" id="dropdown-link-my-tab">
                             <i class="fa-solid ${isMusician ? 'fa-guitar' : 'fa-calendar-check'}"></i>
                             <span>${isMusician ? 'Meine Musiker' : 'Meine Events'}</span>
                         </a>
                         
-                        <a href="#/profile" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile">
+                        <a href="/profile" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile">
                             <i class="fa-solid fa-user-gear"></i>
                             <span>Profil bearbeiten</span>
                         </a>
@@ -10737,7 +10928,7 @@ function updateNavbar(forceLanding) {
             logoutBtn.addEventListener('click', () => {
                 menu.classList.remove('show');
                 state.logout();
-                window.location.hash = '#/';
+                window.navigateToRoute('/');
             });
         }
 
@@ -10771,21 +10962,43 @@ function updateNavbar(forceLanding) {
 }
 
 function handleRouting() {
-    const hash = window.location.hash;
-    let page = hash.replace('#/', '');
-    if (page === 'top-matches') page = 'matches';
+    // legacy hash url fallback redirect
+    if (window.location.hash && window.location.hash.startsWith('#/')) {
+        const path = window.location.hash.substring(2);
+        history.replaceState(null, '', '/' + path);
+    }
     
-    // Redirect logged-in users away from the landing page
-    if (state && state.currentUser && state.currentUser.id && (page === '' || page === '/')) {
-        if (state.currentUser.role === 'musician') {
-            navigate('events');
-        } else {
-            navigate('musicians');
-        }
+    const parsed = parseRequestPath();
+    console.log("Parsed path:", parsed);
+    
+    if (state && state.currentUser && state.currentUser.id && (parsed.page === 'landing' || parsed.page === '')) {
+        const redirectPage = state.currentUser.role === 'musician' ? 'events' : 'musicians';
+        navigate(redirectPage);
         return;
     }
     
-    navigate(page);
+    if (parsed.page === 'landing') {
+        navigate('');
+    } else {
+        navigate(parsed.page);
+    }
+    
+    // Open detail modal if requested
+    if (parsed.view === 'detail' && parsed.itemId) {
+        setTimeout(() => {
+            openItemDetailModal(parsed.itemId, parsed.page === 'events');
+        }, 100);
+    }
+    
+    // Apply filters if present
+    if (parsed.city || parsed.musicianType || parsed.eventType) {
+        setTimeout(() => {
+            applyUrlFilters(parsed);
+        }, 150);
+    }
+    
+    const activeItem = parsed.itemId ? (parsed.page === 'events' ? state.events : state.musicians).find(x => x.id === parsed.itemId) : null;
+    updateSEOMeta(parsed.page, activeItem);
 }
 
 // Global scope initialization
@@ -10837,7 +11050,25 @@ function initGigConnActApp() {
     });
 
     if (typeof updateNavbar === 'function') updateNavbar();
-    window.addEventListener('hashchange', handleRouting);
+    window.addEventListener('popstate', handleRouting);
+    
+    // Global link click interceptor for SPA path routing
+    document.addEventListener('click', (e) => {
+        const anchor = e.target.closest('a');
+        if (anchor && anchor.href && anchor.getAttribute('target') !== '_blank') {
+            try {
+                const url = new URL(anchor.href);
+                if (url.origin === window.location.origin) {
+                    if (!anchor.hasAttribute('download') && !anchor.href.includes('javascript:') && !anchor.href.includes('mailto:') && !anchor.href.includes('tel:')) {
+                        e.preventDefault();
+                        window.navigateToRoute(url.pathname);
+                    }
+                }
+            } catch (err) {
+                // Ignore parsing errors for relative urls
+            }
+        }
+    });
     if (typeof handleRouting === 'function') handleRouting();
     if (typeof initAllLocationAutocompletes === 'function') initAllLocationAutocompletes();
 
@@ -10845,20 +11076,15 @@ function initGigConnActApp() {
     if (logoLink) {
         logoLink.addEventListener('click', (e) => {
             e.preventDefault();
-            let targetHash = '#/';
+            let targetPath = '/';
             if (state && state.currentUser) {
                 if (state.currentUser.role === 'musician') {
-                    targetHash = '#/events';
+                    targetPath = '/events';
                 } else if (state.currentUser.role === 'organizer') {
-                    targetHash = '#/musicians';
+                    targetPath = '/musiker';
                 }
             }
-            
-            if (window.location.hash === targetHash) {
-                handleRouting();
-            } else {
-                window.location.hash = targetHash;
-            }
+            window.navigateToRoute(targetPath);
         });
     }
 
@@ -10873,7 +11099,7 @@ function initGigConnActApp() {
                 message: "Die Anwendung wird neu geladen..."
             });
             setTimeout(() => {
-                window.location.hash = '#/';
+                window.navigateToRoute('/');
                 window.location.reload();
             }, 1000);
         });
@@ -11620,7 +11846,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 </div>
 
                 <!-- Tile Body Content -->
-                <div class="tile-body-content" style="padding: 1.2rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
+                <a href="/${isEvents ? 'events' : 'musiker'}/${generateSlug(item.name || item.title)}" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; flex: 1;">
+                    <div class="tile-body-content" style="padding: 1.2rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
                     
                     <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favorit Herz -->
                     <div style="margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
@@ -11701,6 +11928,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
                     </div>
                 </div>
+                </a>
 
                 ${isUnlocked ? `
                     <!-- Solid Colored Unlocked Contact Footer Box -->
