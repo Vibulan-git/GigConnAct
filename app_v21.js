@@ -2924,6 +2924,7 @@ function renderHeroTabContent(isMusician) {
 }
 
 function renderLandingPage(container, onNavigate) {
+    window.onNavigate = onNavigate;
     const isUserLoggedIn = !!state.currentUser;
 
     const bottomCtaButtonHtml = isUserLoggedIn 
@@ -3022,7 +3023,7 @@ function renderLandingPage(container, onNavigate) {
                 
                 <!-- Headline: Event-Markt -->
                 <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
-                    <h2 onclick="showMarketplace(true)" style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px; cursor: pointer;" onmouseover="this.style.color='#7c3aed'" onmouseout="this.style.color='#0f172a'">Event-Markt für Musiker</h2>
+                    <h2 onclick="window.onNavigate('events')" style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px; cursor: pointer;" onmouseover="this.style.color='#7c3aed'" onmouseout="this.style.color='#0f172a'">Event-Markt für Musiker</h2>
                     <div style="font-family: var(--font-heading); font-size: clamp(1.25rem, 5.2vw, 3.8rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
                         Gigs suchen und finden
                     </div>
@@ -3138,7 +3139,7 @@ function renderLandingPage(container, onNavigate) {
                 
                 <!-- Headline: Musiker-Markt -->
                 <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
-                    <h2 onclick="showMarketplace(false)" style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px; cursor: pointer;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#0f172a'">Musiker-Markt für Veranstalter</h2>
+                    <h2 onclick="window.onNavigate('musicians')" style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px; cursor: pointer;" onmouseover="this.style.color='#2563eb'" onmouseout="this.style.color='#0f172a'">Musiker-Markt für Veranstalter</h2>
                     <div style="font-family: var(--font-heading); font-size: clamp(1.25rem, 5.2vw, 3.8rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
                         Acts suchen und finden
                     </div>
@@ -3486,16 +3487,56 @@ function renderLandingPage(container, onNavigate) {
                             </div>
 
                             <!-- List stack -->
-                            <div style="display: flex; flex-direction: column; gap: 1.1rem; width: 100%;">
+                            <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
                                 
                                 <!-- Item 1 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                                        <i class="fa-solid fa-comments" style="color: #2563eb; font-size: 1rem;"></i>
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                        <i class="fa-solid fa-store" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
-                                            Direkter Kontakt zu Musikern
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
+                                            Kostenloser Zugang zum Event-Markt
+                                        </div>
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
+                                            Hochzeiten, Geburtstage, Firmenfeiern, Stadtfeste etc.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Arrow 1 -->
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-arrow-down"></i>
+                                </div>
+
+                                <!-- Item 2 -->
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                        <i class="fa-solid fa-bolt" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
+                                            Schnelle Anmeldung
+                                        </div>
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
+                                            Anlegen des Musiker-Profils ohne Passwort
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Arrow 2 -->
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-arrow-down"></i>
+                                </div>
+
+                                <!-- Item 3 -->
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                        <i class="fa-solid fa-comments" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
+                                            Direkter Kontakt zu Veranstaltern
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
                                             Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach
@@ -3503,70 +3544,70 @@ function renderLandingPage(container, onNavigate) {
                                     </div>
                                 </div>
 
-                                <!-- Item 2 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                                        <i class="fa-solid fa-sliders" style="color: #2563eb; font-size: 1rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
-                                            Passende Musiker
-                                        </div>
-                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Musiker-Typ, Budget, Genre, Spieldauer etc.
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Item 3 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                                        <i class="fa-solid fa-star" style="color: #2563eb; font-size: 1rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
-                                            Top-Vorschläge
-                                        </div>
-                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Automatische Empfehlungen von GigConnAct zu Musikern
-                                        </div>
-                                    </div>
+                                <!-- Arrow 3 -->
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 4 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                                        <i class="fa-solid fa-bolt" style="color: #2563eb; font-size: 1rem;"></i>
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                        <i class="fa-solid fa-sliders" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
-                                            Schnelle Anmeldung
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
+                                            Passende Events
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Anlegen des Veranstalter-Profils ohne Passwort
+                                            Event-Art, Entfernung, Gage, Verfügbarkeit etc.
                                         </div>
                                     </div>
                                 </div>
 
+                                <!-- Arrow 4 -->
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-arrow-down"></i>
+                                </div>
+
                                 <!-- Item 5 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 60px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                                        <i class="fa-solid fa-shield-halved" style="color: #2563eb; font-size: 1rem;"></i>
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 52px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                        <i class="fa-solid fa-star" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
+                                            Top-Vorschläge
+                                        </div>
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
+                                            Automatische Empfehlungen von GigConnAct zu Events
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Arrow 5 -->
+                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.65rem 0; color: rgba(124, 58, 237, 0.4); font-size: 0.8rem; height: 12px; flex-shrink: 0;">
+                                    <i class="fa-solid fa-arrow-down"></i>
+                                </div>
+
+                                <!-- Item 6 -->
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 52px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                        <i class="fa-solid fa-percent" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main);">
                                             Keine Provisionskosten
                                         </div>
                                         <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
-                                            Oder andere versteckte Kosten
+                                            Preiswertes Abo-Modell (jederzeit kündbar - auch in der Testphase)
                                         </div>
                                     </div>
                                 </div>
 
                             </div>
                         </div>
-
-                        <div style="margin-top: 2rem; text-align: center; width: 100%;">
+                    </div>
+                    <div style="margin-top: 2rem; text-align: center; width: 100%;">
                             <button id="btn-benefits-to-musicians" class="btn-homepage-market theme-organizer" style="width: 100%; box-sizing: border-box;">
                                 Hier geht's zum Musiker-Markt <i class="fa-solid fa-arrow-right"></i>
                             </button>
