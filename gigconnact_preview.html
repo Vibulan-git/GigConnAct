@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -3304,8 +3304,8 @@ body {
 }
 
 /* Make all criteria labels inside the registration form purple and bold */
-#auth-register-form .form-group label:not(.tag-pill-checkbox),
-#auth-register-form .slider-value-display label {
+#auth-register-form .form-group label:not(.tag-pill-checkbox),#musician-editor-form .form-group label:not(.tag-pill-checkbox),
+#auth-register-form .slider-value-display label,#musician-editor-form .slider-value-display label {
     color: var(--color-purple) !important;
     font-weight: 800 !important;
 }
@@ -3361,7 +3361,7 @@ body {
 }
 
 /* Card layout for criteria form groups inside the registration form */
-#auth-register-form .form-group {
+#auth-register-form .form-group,#musician-editor-form .form-group {
     background: rgba(255, 255, 255, 0.015);
     border: 1px solid rgba(168, 85, 247, 0.15); /* Subtle purple border */
     border-radius: 12px;
@@ -3371,33 +3371,33 @@ body {
     transition: all 0.3s ease;
 }
 
-#auth-register-form .form-group:focus-within {
+#auth-register-form .form-group:focus-within,#musician-editor-form .form-group:focus-within {
     border-color: rgba(168, 85, 247, 0.45);
     box-shadow: 0 4px 18px rgba(168, 85, 247, 0.2);
 }
 
 /* Organizer Active Theme styling overrides */
-#auth-register-form.role-organizer-active .form-group {
+#auth-register-form.role-organizer-active .form-group,#event-editor-form .form-group {
     border-color: rgba(96, 165, 250, 0.15); /* blue border */
 }
 
-#auth-register-form.role-organizer-active .form-group:focus-within {
+#auth-register-form.role-organizer-active .form-group:focus-within,#event-editor-form .form-group:focus-within {
     border-color: rgba(96, 165, 250, 0.45);
     box-shadow: 0 4px 18px rgba(96, 165, 250, 0.2);
 }
 
-#auth-register-form.role-organizer-active .form-group label:not(.tag-pill-checkbox),
-#auth-register-form.role-organizer-active .slider-value-display label {
+#auth-register-form.role-organizer-active .form-group label:not(.tag-pill-checkbox),#event-editor-form .form-group label:not(.tag-pill-checkbox),
+#auth-register-form.role-organizer-active .slider-value-display label,#event-editor-form .slider-value-display label {
     color: #2563eb !important; /* dunkelblau text instead of light blue */
 }
 
 /* Make slider labels color follow active mode */
-#auth-register-form.role-organizer-active .slider-value-display span {
+#auth-register-form.role-organizer-active .slider-value-display span,#event-editor-form .slider-value-display span {
     color: #2563eb !important;
 }
 
 /* Checkboxes in organizer grid should match blue color on active */
-#auth-register-form.role-organizer-active .tag-pill-checkbox.active {
+#auth-register-form.role-organizer-active .tag-pill-checkbox.active,#event-editor-form .tag-pill-checkbox.active {
     background: rgba(37, 99, 235, 0.15) !important;
     border-color: #2563eb !important;
     color: #2563eb !important; /* dark blue text */
@@ -3405,7 +3405,7 @@ body {
     box-shadow: 0 0 10px rgba(37, 99, 235, 0.35) !important;
 }
 
-#auth-register-form.role-organizer-active .tag-pill-checkbox:hover {
+#auth-register-form.role-organizer-active .tag-pill-checkbox:hover,#event-editor-form .tag-pill-checkbox:hover {
     border-color: rgba(37, 99, 235, 0.5) !important;
 }
 
@@ -3426,16 +3426,16 @@ body {
 }
 
 /* Double slider tracks in organizer active mode */
-#auth-register-form.role-organizer-active .dual-slider-track-highlight {
+#auth-register-form.role-organizer-active .dual-slider-track-highlight,#event-editor-form .dual-slider-track-highlight {
     background: #60a5fa !important;
 }
 
-#auth-register-form.role-organizer-active input[type="range"]::-webkit-slider-thumb {
+#auth-register-form.role-organizer-active input[type="range"]::-webkit-slider-thumb,#event-editor-form input[type="range"]::-webkit-slider-thumb {
     background: #60a5fa !important;
     box-shadow: 0 0 10px rgba(96, 165, 250, 0.5) !important;
 }
 
-#auth-register-form.role-organizer-active input[type="range"]::-moz-range-thumb {
+#auth-register-form.role-organizer-active input[type="range"]::-moz-range-thumb,#event-editor-form input[type="range"]::-moz-range-thumb {
     background: #60a5fa !important;
     box-shadow: 0 0 10px rgba(96, 165, 250, 0.5) !important;
 }
@@ -3443,7 +3443,7 @@ body {
 /* Organizer Input Focus Blue Highlight */
 #auth-register-form.role-organizer-active input[type="text"]:focus,
 #auth-register-form.role-organizer-active input[type="email"]:focus,
-#auth-register-form.role-organizer-active textarea:focus {
+#auth-register-form.role-organizer-active textarea:focus,#event-editor-form input[type="text"]:focus,#event-editor-form textarea:focus {
     border-color: #60a5fa !important;
     box-shadow: 0 0 10px rgba(96, 165, 250, 0.3) !important;
 }
@@ -4778,6 +4778,12 @@ input[type="range"].input-field {
 .market-contact-btn.active i {
     color: #0f172a !important;
 }
+/* Disable pointer cursor on laptop/desktop tile cards as detail modals are disabled */
+@media (min-width: 768px) {
+    .market-tile-card {
+        cursor: default !important;
+    }
+}
 </style>
 </head>
 <body>
@@ -4891,19 +4897,28 @@ window.updateRegMediaPreview = function(role) {
 };
 
 window.addRegMedia = function(role, type) {
-    const list = window.registrationMedia[role][type === 'photo' ? 'photos' : 'videos'];
-    const limit = type === 'photo' ? 3 : 1;
+    const listKey = type === 'photo' ? 'photos' : type === 'video' ? 'videos' : 'audios';
+    const list = window.registrationMedia[role][listKey];
+    const limit = type === 'photo' 
+        ? (role === 'musician' ? 10 : 3) 
+        : type === 'video' 
+            ? (role === 'musician' ? 3 : 1) 
+            : 3;
     if (list.length >= limit) {
         showToast({
-            title: type === 'photo' ? "Bilder-Limit erreicht 📷" : "Video-Limit erreicht 🎬",
-            message: type === 'photo' ? "Es sind maximal 3 Bilder erlaubt." : "Es ist maximal 1 Video erlaubt."
+            title: type === 'photo' ? "Fotos-Limit erreicht ðŸ“·" : type === 'video' ? "Video-Limit erreicht ðŸŽ¬" : "Audio-Limit erreicht ðŸŽµ",
+            message: type === 'photo' 
+                ? `Es sind maximal ${limit} Fotos erlaubt.` 
+                : type === 'video' 
+                    ? `Es sind maximal ${limit} Videos erlaubt.` 
+                    : `Es sind maximal ${limit} Audio-Dateien erlaubt.`
         });
         return;
     }
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     if (type === 'photo') {
-        fileInput.accept = 'image/png, image/jpeg, image/gif, image/webp';
+        fileInput.accept = 'image/png, image/jpeg, image/webp';
         fileInput.addEventListener('change', () => {
             if (fileInput.files.length > 0) {
                 validateAndProcessPhoto(fileInput.files[0], (dataUrl) => {
@@ -4912,12 +4927,22 @@ window.addRegMedia = function(role, type) {
                 });
             }
         });
-    } else {
-        fileInput.accept = 'video/mp4, video/quicktime, video/webm, video/ogg, video/x-matroska';
+    } else if (type === 'video') {
+        fileInput.accept = 'video/mp4, video/quicktime, video/webm';
         fileInput.addEventListener('change', () => {
             if (fileInput.files.length > 0) {
                 validateAndProcessVideo(fileInput.files[0], (videoUrl) => {
                     list.push(videoUrl);
+                    window.updateRegMediaPreview(role);
+                });
+            }
+        });
+    } else {
+        fileInput.accept = 'audio/mpeg, audio/mp3, audio/wav, audio/x-wav, audio/m4a, audio/x-m4a, audio/mp4';
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                validateAndProcessAudio(fileInput.files[0], (audioObj) => {
+                    list.push(audioObj);
                     window.updateRegMediaPreview(role);
                 });
             }
@@ -7539,9 +7564,9 @@ class StateManager {
         const musician = this.musicians.find(m => m.id === musicianId);
         if (!musician) return;
 
-        if (type === "photo" && musician.photos.length < 3) {
+        if (type === "photo" && musician.photos.length < (isEvents ? 3 : 10)) {
             musician.photos.push(fileUrl);
-        } else if (type === "video" && musician.videos.length < 1) {
+        } else if (type === "video" && musician.videos.length < (isEvents ? 1 : 3)) {
             musician.videos.push(fileUrl);
         } else if (type === "audio" && musician.audio.length < 3) {
             musician.audio.push(fileUrl);
@@ -10244,6 +10269,9 @@ function formatMusicianAvailabilityHelper(item) {
 
 // Global openItemDetailModal function that works for everyone in protected mode!
 window.openItemDetailModal = function(id, isEvents) {
+    if (window.innerWidth >= 768) {
+        return; // Do not open detail modal window on laptops/desktops
+    }
     const item = (isEvents ? state.events : state.musicians).find(x => x.id === id) || (isEvents ? state.events[0] : state.musicians[0]);
     if (!item) return;
 
@@ -12111,8 +12139,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         <div class="dual-range-slider" id="slider-publikum-container">
                             <div class="dual-range-track"></div>
                             <div class="dual-range-active-track" id="track-publikum"></div>
-                            <input type="range" id="input-publikum-min" min="0" max="500" step="50" value="${musicianObj?.minPublikum || 0}">
-                            <input type="range" id="input-publikum-max" min="0" max="500" step="50" value="${musicianObj?.maxPublikum || 500}">
+                            <input type="range" id="input-publikum-min" name="minPublikum" min="0" max="500" step="50" value="${musicianObj?.minPublikum || 0}">
+                            <input type="range" id="input-publikum-max" name="maxPublikum" min="0" max="500" step="50" value="${musicianObj?.maxPublikum || 500}">
                         </div>
                     </div>
 
@@ -12146,19 +12174,15 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </p>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
-                            <button type="button" id="btn-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(34, 197, 94, 0.3); color:#22c55e;">
-                                <i class="fa-solid fa-plus"></i> Foto hinzufügen
-                            </button>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Fotos (max. 10) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale GrÃ¶ÃŸe: 10 MB&#10;AuflÃ¶sung: mind. 1200 x 1200 px"></i></label>
+                            <button type="button" id="btn-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;"><i class="fa-solid fa-plus"></i></button>
                         </div>
                         <div id="modal-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
-                            <button type="button" id="btn-modal-add-video" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#a855f7;">
-                                <i class="fa-solid fa-plus"></i> Video hinzufügen
-                            </button>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale GrÃ¶ÃŸe: 500 MB&#10;Maximale LÃ¤nge: 5 Minuten&#10;AuflÃ¶sung: 720p - 1080p"></i></label>
+                            <button type="button" id="btn-modal-add-video" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;"><i class="fa-solid fa-plus"></i></button>
                         </div>
                         <div id="modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
@@ -12188,9 +12212,9 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     }
 
     // Dual sliders initialization
-    initDualSlider('slider-spieldauer-container', 'input-spieldauer-min', 'input-spieldauer-max', 'track-spieldauer', 'val-spieldauer', 'Std.', false);
+    initDualSlider('slider-spieldauer-container', 'input-spieldauer-min', 'input-spieldauer-max', 'track-spieldauer', 'val-spieldauer', 'Std.', false, modalWrapper);
     initDualSlider('slider-gage-container', 'input-gage-min', 'input-gage-max', 'track-gage', 'val-gage', '€', true);
-    initDualSlider('slider-publikum-container', 'input-publikum-min', 'input-publikum-max', 'track-publikum', 'val-publikum', 'Personen', false);
+    initDualSlider('slider-publikum-container', 'input-publikum-min', 'input-publikum-max', 'track-publikum', 'val-publikum', 'Personen', false, modalWrapper);
 
     // Weekday times enable/disable sync
     modalWrapper.querySelectorAll('input[name="availDays"]').forEach(chk => {
@@ -12268,16 +12292,16 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     if (addPhotoBtn) {
         addPhotoBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (localMedia.photos.length >= 3) {
+            if (localMedia.photos.length >= maxPhotos) {
                 showToast({
                     title: "Bilder-Limit erreicht 📷",
-                    message: "Es sind maximal 3 Bilder erlaubt."
+                    message: "Es sind maximal 3 Fotos erlaubt."
                 });
                 return;
             }
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
-            fileInput.accept = 'image/png, image/jpeg, image/gif, image/webp';
+            fileInput.accept = 'image/png, image/jpeg, image/webp';
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
@@ -12295,7 +12319,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     if (addVideoBtn) {
         addVideoBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (localMedia.videos.length >= 1) {
+            if (localMedia.videos.length >= maxVideos) {
                 showToast({
                     title: "Video-Limit erreicht 🎬",
                     message: "Es ist maximal 1 Video erlaubt."
@@ -12304,7 +12328,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             }
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
-            fileInput.accept = 'video/mp4, video/quicktime, video/webm, video/ogg, video/x-matroska';
+            fileInput.accept = 'video/mp4, video/quicktime, video/webm';
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
@@ -12613,719 +12637,16 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </p>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
-                            <button type="button" id="btn-event-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(34, 197, 94, 0.3); color:#22c55e;">
-                                <i class="fa-solid fa-plus"></i> Foto hinzufügen
-                            </button>
-                        </div>
-                        <div id="event-modal-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 1.2rem;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
-                            <button type="button" id="btn-event-modal-add-video" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#a855f7;">
-                                <i class="fa-solid fa-plus"></i> Video hinzufügen
-                            </button>
-                        </div>
-                        <div id="event-modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 1.5rem; background: var(--color-purple); border-color: var(--color-purple);">
-                        ${isEdit ? 'Änderungen speichern' : 'Event ausschreiben'}
-                    </button>
-                </form>
-            </div>
-        </div>
-    `;
-
-    document.getElementById('btn-close-event-modal').addEventListener('click', closeModal);
-
-    // Initialize Calendar Widget
-    let currentCalDate = new Date(2026, 6, 1); // July 2026
-    const calendarMonthYear = document.getElementById('modal-org-calendar-month-year');
-    const calendarDaysGrid = document.getElementById('modal-org-calendar-days-grid');
-    const calendarPrevBtn = document.getElementById('modal-btn-cal-prev');
-    const calendarNextBtn = document.getElementById('modal-btn-cal-next');
-
-    const renderOrganizerCalendar = () => {
-        if (!calendarDaysGrid || !calendarMonthYear) return;
-        const year = currentCalDate.getFullYear();
-        const month = currentCalDate.getMonth();
-        const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
-        calendarMonthYear.textContent = `${monthNames[month]} ${year}`;
-
-        const firstDayIndex = new Date(year, month, 1).getDay();
-        const adjustedFirstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
-        const totalDays = new Date(year, month + 1, 0).getDate();
-
-        let daysHtml = '';
-        for (let i = 0; i < adjustedFirstDayIndex; i++) {
-            daysHtml += `<div class="org-cal-day empty"></div>`;
-        }
-        for (let day = 1; day <= totalDays; day++) {
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const isSelected = selectedEventDates.includes(dateStr);
-            daysHtml += `<div class="org-cal-day ${isSelected ? 'selected' : ''}" data-date="${dateStr}">${day}</div>`;
-        }
-        calendarDaysGrid.innerHTML = daysHtml;
-
-        calendarDaysGrid.querySelectorAll('.org-cal-day:not(.empty)').forEach(cell => {
-            cell.addEventListener('click', (e) => {
-                const dateVal = e.currentTarget.getAttribute('data-date');
-                const idx = selectedEventDates.indexOf(dateVal);
-                if (idx > -1) {
-                    selectedEventDates.splice(idx, 1);
-                } else {
-                    selectedEventDates.push(dateVal);
-                }
-                renderOrganizerCalendar();
-                updateDatesPreview();
-            });
-        });
-    };
-
-    const updateDatesPreview = () => {
-        const inputEventDates = document.getElementById('modal-input-event-dates');
-        const selectedDatesPreview = document.getElementById('modal-org-selected-dates-preview');
-        if (inputEventDates) {
-            inputEventDates.value = selectedEventDates.length > 0 ? JSON.stringify(selectedEventDates) : '';
-        }
-        if (selectedDatesPreview) {
-            if (selectedEventDates.length === 0) {
-                selectedDatesPreview.textContent = "Keine Termine ausgewählt";
-                selectedDatesPreview.style.color = '#60a5fa';
-            } else {
-                const sorted = [...selectedEventDates].sort();
-                const formatted = sorted.map(d => {
-                    const parts = d.split('-');
-                    return `${parts[2]}.${parts[1]}.${parts[0]}`;
-                });
-                selectedDatesPreview.textContent = `Ausgewählt: ${formatted.join(', ')}`;
-                selectedDatesPreview.style.color = '#34d399';
-            }
-        }
-    };
-
-    if (calendarPrevBtn) {
-        calendarPrevBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            currentCalDate.setMonth(currentCalDate.getMonth() - 1);
-            renderOrganizerCalendar();
-        });
-    }
-    if (calendarNextBtn) {
-        calendarNextBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            currentCalDate.setMonth(currentCalDate.getMonth() + 1);
-            renderOrganizerCalendar();
-        });
-    }
-
-    renderOrganizerCalendar();
-    updateDatesPreview();
-
-    // Locations setup
-    const orgLocationInput = document.getElementById('modal-input-org-location-search');
-    const orgLocationContainer = document.getElementById('modal-org-selected-locations-container');
-    const orgLocationHidden = document.getElementById('modal-input-org-locations');
-
-    const renderOrgLocations = () => {
-        if (!orgLocationContainer) return;
-        orgLocationContainer.innerHTML = selectedOrgLocations.map((loc, idx) => `
-            <span class="tag" style="background: rgba(96, 165, 250, 0.15) !important; border: 1.5px solid #60a5fa !important; color: #60a5fa !important; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.75rem;">
-                ${loc}
-                <i class="fa-solid fa-xmark remove-location-btn" data-index="${idx}" style="cursor: pointer; font-size: 0.75rem;"></i>
-            </span>
-        `).join('');
-
-        if (orgLocationHidden) {
-            orgLocationHidden.value = selectedOrgLocations.length > 0 ? JSON.stringify(selectedOrgLocations) : '';
-        }
-
-        orgLocationContainer.querySelectorAll('.remove-location-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const idx = parseInt(e.currentTarget.getAttribute('data-index'));
-                selectedOrgLocations.splice(idx, 1);
-                renderOrgLocations();
-            });
-        });
-    };
-
-    const addLocation = (locText) => {
-        const val = locText.trim();
-        if (!val) return;
-        if (!selectedOrgLocations.includes(val)) {
-            selectedOrgLocations.push(val);
-            renderOrgLocations();
-        }
-        if (orgLocationInput) orgLocationInput.value = '';
-    };
-
-    if (orgLocationInput) {
-        setupLocationAutocomplete(orgLocationInput, addLocation);
-    }
-
-    renderOrgLocations();
-
-    // Dual sliders initialization
-    initDualSlider('slider-org-spieldauer-container', 'input-org-spieldauer-min', 'input-org-spieldauer-max', 'track-org-spieldauer', 'val-org-spieldauer', 'Std.', false);
-    initDualSlider('slider-org-publikum-container', 'input-org-publikum-min', 'input-org-publikum-max', 'track-org-publikum', 'val-org-publikum', 'Personen', false);
-    initDualSlider('slider-org-gage-container', 'input-org-gage-min', 'input-org-gage-max', 'track-org-gage', 'val-org-gage', '€', true);
-
-    // Sync active class on tag checkboxes
-    modalWrapper.querySelectorAll('.tag-pill-checkbox input').forEach(input => {
-        if (input.checked) {
-            input.parentElement.classList.add('active');
-        } else {
-            input.parentElement.classList.remove('active');
-        }
-        input.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                e.target.parentElement.classList.add('active');
-            } else {
-                e.target.parentElement.classList.remove('active');
-            }
-        });
-    });
-
-    // Modal local media previews and actions for event
-    const updateLocalEventMediaPreview = () => {
-        const photosContainer = document.getElementById('event-modal-photos-preview');
-        const videosContainer = document.getElementById('event-modal-videos-preview');
-        if (!photosContainer || !videosContainer) return;
-
-        photosContainer.innerHTML = localMedia.photos.length === 0
-            ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Bilder hinzugefügt</span>`
-            : localMedia.photos.map((p, idx) => `
-                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
-                    <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
-                    <button type="button" class="btn-delete-event-modal-photo" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
-                </div>
-            `).join('');
-
-        videosContainer.innerHTML = localMedia.videos.length === 0
-            ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Videos hinzugefügt</span>`
-            : localMedia.videos.map((v, idx) => `
-                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;" title="${v.title || (typeof v === 'string' ? v : 'Video')}">
-                    <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.1rem;"></i>
-                    <button type="button" class="btn-delete-event-modal-video" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
-                </div>
-            `).join('');
-
-        // Bind delete listeners
-        photosContainer.querySelectorAll('.btn-delete-event-modal-photo').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const idx = parseInt(btn.getAttribute('data-idx'));
-                localMedia.photos.splice(idx, 1);
-                updateLocalEventMediaPreview();
-            });
-        });
-
-        videosContainer.querySelectorAll('.btn-delete-event-modal-video').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const idx = parseInt(btn.getAttribute('data-idx'));
-                localMedia.videos.splice(idx, 1);
-                updateLocalEventMediaPreview();
-            });
-        });
-    };
-
-    const addEventPhotoBtn = document.getElementById('btn-event-modal-add-photo');
-    if (addEventPhotoBtn) {
-        addEventPhotoBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (localMedia.photos.length >= 3) {
-                showToast({
-                    title: "Bilder-Limit erreicht 📷",
-                    message: "Es sind maximal 3 Bilder erlaubt."
-                });
-                return;
-            }
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = 'image/png, image/jpeg, image/gif, image/webp';
-            fileInput.style.display = 'none';
-            fileInput.addEventListener('change', () => {
-                if (fileInput.files.length > 0) {
-                    validateAndProcessPhoto(fileInput.files[0], (dataUrl) => {
-                        localMedia.photos.push(dataUrl);
-                        updateLocalEventMediaPreview();
-                    });
-                }
-            });
-            fileInput.click();
-        });
-    }
-
-    const addEventVideoBtn = document.getElementById('btn-event-modal-add-video');
-    if (addEventVideoBtn) {
-        addEventVideoBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (localMedia.videos.length >= 1) {
-                showToast({
-                    title: "Video-Limit erreicht 🎬",
-                    message: "Es ist maximal 1 Video erlaubt."
-                });
-                return;
-            }
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = 'video/mp4, video/quicktime, video/webm, video/ogg, video/x-matroska';
-            fileInput.style.display = 'none';
-            fileInput.addEventListener('change', () => {
-                if (fileInput.files.length > 0) {
-                    validateAndProcessVideo(fileInput.files[0], (videoUrl) => {
-                        localMedia.videos.push(videoUrl);
-                        updateLocalEventMediaPreview();
-                    });
-                }
-            });
-            fileInput.click();
-        });
-    }
-
-    updateLocalEventMediaPreview();
-
-    const form = document.getElementById('event-editor-form');
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const formData = new FormData(form);
-
-        const data = {
-            name: formData.get('eventName'),
-            type: Array.from(form.querySelectorAll('input[name="orgEventTypes"]:checked')).map(el => el.value).join(', ') || 'Sonstige',
-            location: selectedOrgLocations.join(', ') || 'München',
-            locations: selectedOrgLocations,
-            date: selectedEventDates[0] || new Date().toISOString().split('T')[0],
-            dates: selectedEventDates,
-            eventStartTime: formData.get('eventStartTime') || '18:00',
-            eventEndTime: formData.get('eventEndTime') || '22:00',
-            minDuration: parseFloat(formData.get('orgMinDuration')) || 0.5,
-            maxDuration: parseFloat(formData.get('orgMaxDuration')) || 2.0,
-            spieldauer: parseFloat(formData.get('orgMaxDuration')) || 2.0,
-            minPublikum: parseInt(formData.get('orgMinPublikum')) || 0,
-            maxPublikum: parseInt(formData.get('orgMaxPublikum')) || 500,
-            minBudget: parseFloat(formData.get('orgMinBudget')) || 0,
-            maxBudget: parseFloat(formData.get('orgMaxBudget')) || 5000,
-            budget: parseFloat(formData.get('orgMaxBudget')) || 5000,
-            genres: Array.from(form.querySelectorAll('input[name="orgGenres"]:checked')).map(el => el.value),
-            instruments: Array.from(form.querySelectorAll('input[name="orgInstruments"]:checked')).map(el => el.value),
-            technik: Array.from(form.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value).length > 0
-                ? Array.from(form.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value)
-                : ["Technik ist noch unklar"],
-            description: formData.get('orgDescription'),
-            photos: localMedia.photos,
-            videos: localMedia.videos,
-            contactName: `${state.currentUser.firstName} ${state.currentUser.lastName}`,
-            phone: state.currentUser.phone,
-            email: state.currentUser.email
-        };
-
-        if (isEdit) {
-            state.updateEvent(eventObj.id, data);
-            showToast({
-                title: "Event aktualisiert!",
-                message: `Das Event "${data.name}" wurde erfolgreich gespeichert.`
-            });
-        } else {
-            state.addEvent(data);
-            showToast({
-                title: "Event erstellt! 🎉",
-                message: `Das Event "${data.name}" wurde erfolgreich veröffentlicht.`
-            });
-        }
-
-        closeModal();
-        const mainContainer = document.getElementById('app-main');
-        renderMyEvents(mainContainer);
-    });
-}
-
-function validateEmailAddress(email) {
-    const emailTrimmed = email.trim().toLowerCase();
-    
-    // 1. Structural validation using a robust regex
-    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!regex.test(emailTrimmed)) {
-        return { isValid: false, message: "Bitte gib eine gültige E-Mail-Adresse ein." };
-    }
-    
-    // 2. Levenshtein-based typo detection
-    const parts = emailTrimmed.split('@');
-    if (parts.length === 2) {
-        const domain = parts[1];
-        const commonEmailDomains = [
-            "gmail.com", "googlemail.com",
-            "hotmail.com", "hotmail.de",
-            "outlook.com", "outlook.de",
-            "gmx.de", "gmx.net", "gmx.at", "gmx.ch",
-            "web.de",
-            "yahoo.com", "yahoo.de",
-            "t-online.de",
-            "aol.com", "aol.de",
-            "icloud.com"
-        ];
-
-        // If it's a common domain but has a specific typo
-        if (commonEmailDomains.includes(domain)) {
-            return { isValid: true };
-        }
-
-        // Check Levenshtein distance to find typos
-        for (const common of commonEmailDomains) {
-            const dist = getLevenshteinDistance(domain, common);
-            
-            // Check if distance is 1 or 2, or if domain contains a common provider name with extra letters (e.g. hotmailx.com)
-            const isTypo = (dist >= 1 && dist <= 2) || 
-                           (domain.includes('hotmail') && domain !== 'hotmail.com' && domain !== 'hotmail.de') ||
-                           (domain.includes('gmail') && domain !== 'gmail.com' && domain !== 'googlemail.com') ||
-                           (domain.includes('gmx') && domain !== 'gmx.de' && domain !== 'gmx.net' && domain !== 'gmx.at' && domain !== 'gmx.ch') ||
-                           (domain.includes('web.de') && domain !== 'web.de') ||
-                           (domain.includes('outlook') && domain !== 'outlook.com' && domain !== 'outlook.de');
-
-            if (isTypo) {
-                return { 
-                    isValid: false, 
-                    message: `Tippfehler in E-Mail-Domain erkannt. Meintest du @${common}?` 
-                };
-            }
-        }
-    }
-    return { isValid: true };
-}
-
-function getLevenshteinDistance(a, b) {
-    const matrix = [];
-    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
-    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
-    for (let i = 1; i <= b.length; i++) {
-        for (let j = 1; j <= a.length; j++) {
-            if (b.charAt(i - 1) === a.charAt(j - 1)) {
-                matrix[i][j] = matrix[i - 1][j - 1];
-            } else {
-                matrix[i][j] = Math.min(
-                    matrix[i - 1][j - 1] + 1, // substitution
-                    matrix[i][j - 1] + 1,     // insertion
-                    matrix[i - 1][j] + 1      // deletion
-                );
-            }
-        }
-    }
-    return matrix[b.length][a.length];
-}
-
-function formatAvailability(availability) {
-    if (!availability) return "Keine Angabe";
-    if (Array.isArray(availability)) {
-        const mapping = {
-            "Monday": "Mo", "Tuesday": "Di", "Wednesday": "Mi", 
-            "Thursday": "Do", "Friday": "Fr", "Saturday": "Sa", "Sunday": "So"
-        };
-        const mapped = availability.map(d => mapping[d] || d);
-        return `Verfügbar: ${mapped.slice(0, 4).join(', ')}${mapped.length > 4 ? '...' : ''}`;
-    }
-    if (typeof availability === 'object') {
-        if (availability.monday || availability.tuesday || availability.friday || availability.saturday || availability.sunday) {
-            const dayMap = {
-                'monday': 'Mo', 'tuesday': 'Di', 'wednesday': 'Mi', 'thursday': 'Do',
-                'friday': 'Fr', 'saturday': 'Sa', 'sunday': 'So'
-            };
-            const availableDays = [];
-            Object.keys(dayMap).forEach(day => {
-                if (availability[day] && availability[day].available) {
-                    availableDays.push(dayMap[day]);
-                }
-            });
-            if (availableDays.length === 0) return "Nicht verfügbar";
-            return `Verfügbar: ${availableDays.join(', ')}`;
-        }
-        
-        const { defaultState, modifiedDates } = availability;
-        if (defaultState === 'all-selected') {
-            if (!modifiedDates || modifiedDates.length === 0) {
-                return "Verfügbar: Flexibel (Jederzeit)";
-            }
-            return "Verfügbar: Flexibel (außer einzelne Tage)";
-        } else {
-            if (!modifiedDates || modifiedDates.length === 0) {
-                return "Verfügbar: Keine Termine";
-            }
-            const sortedDates = [...modifiedDates].sort((a, b) => new Date(a) - new Date(b));
-            const formatted = sortedDates.slice(0, 2).map(d => {
-                const parts = d.split('-');
-                return `${parts[2]}.${parts[1]}.`;
-            });
-            return `Verfügbar: ${formatted.join(', ')}${sortedDates.length > 2 ? '...' : ''} (${sortedDates.length} Tage)`;
-        }
-    }
-    return "Keine Angabe";
-}
-
-// Modal Controllers
-function showModal(type, onSuccessCallback) {
-    const modalWrapper = document.getElementById('modal-container');
-    if (!modalWrapper) return;
-
-    modalWrapper.classList.remove('hidden');
-
-    if (type === 'auth') {
-        renderAuthModal(modalWrapper, onSuccessCallback);
-    } else if (type === 'premium') {
-        renderPremiumModal(modalWrapper, onSuccessCallback);
-    } else if (type === 'verification') {
-        renderVerificationModal(modalWrapper, onSuccessCallback);
-    } else if (type === 'feedback') {
-        renderFeedbackModal(modalWrapper, onSuccessCallback);
-    }
-    
-    initAllLocationAutocompletes();
-}
-
-function closeModal() {
-    const modalWrapper = document.getElementById('modal-container');
-    if (modalWrapper) {
-        modalWrapper.classList.add('hidden');
-        modalWrapper.innerHTML = '';
-    }
-}
-
-function renderAuthModal(wrapper, onSuccessCallback) {
-    window.registrationMedia = {
-        musician: {
-            photos: ['https://picsum.photos/id/453/400/300'],
-            videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
-        },
-        organizer: {
-            photos: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'],
-            videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
-        }
-    };
-    wrapper.innerHTML = `
-        <div class="modal-content">
-            <div class="modal-header" style="flex-direction: column; padding: 1.5rem 2rem 1.2rem;">
-                <h3 style="line-height: 1.2; text-align: center; margin: 0; font-family: var(--font-heading); width: 100%;">
-                    <span style="display: block; font-size: 0.95rem; font-weight: 700; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; color: #475569;">Anmelden/Registrieren</span>
-                    <span style="display: block; font-size: 1.45rem; font-weight: 900; color: #000000; margin-top: 0.25rem; letter-spacing: 0.5px;">ohne Passwort</span>
-                </h3>
-                <button class="close-modal-btn" id="btn-close-modal">&times;</button>
-            </div>
-            
-            <div class="auth-tabs">
-                <button class="auth-tab-btn active" id="tab-magic-btn">Anmelden</button>
-                <button class="auth-tab-btn" id="tab-register-btn">Registrieren</button>
-            </div>
-
-            <div class="modal-body">
-                <form id="auth-magic-form">
-                    <div class="form-group">
-                        <label>E-Mail-Adresse</label>
-                        <input type="email" name="email" class="input-field" placeholder="deine@mail.de" required>
-                        <p style="font-size:0.7rem; color:var(--text-muted); margin-top: 0.3rem;">Gib deine E-Mail-Adresse ein, um einen Anmeldelink zu erhalten. Demo-E-Mails: contact@neonbeats.de oder julia.michael.wedding2026@gmail.com</p>
-                    </div>
-                    <div id="magic-error-msg" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
-                    <div id="magic-success-container" style="display:none; margin-bottom: 1.5rem;"></div>
-                    <button type="submit" class="btn btn-primary" id="btn-send-magic" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: none;">
-                        Anmeldelink senden
-                    </button>
-                </form>
-
-                <form id="auth-register-form" class="hidden">
-                    <div class="role-picker-container" style="margin-bottom: 1.5rem;">
-                        <div class="role-picker">
-                            <div class="role-card active musician-role" id="role-picker-mus">
-                                <i class="fa-solid fa-guitar"></i>
-                                <h4>Musiker</h4>
-                                <p>Ich suche Gigs</p>
-                            </div>
-                            <div class="role-card organizer-role" id="role-picker-org">
-                                <i class="fa-solid fa-calendar-days"></i>
-                                <h4>Veranstalter</h4>
-                                <p>ich suche Acts</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="reg-fields-musician">
-                        
-                        <div class="form-group">
-                            <label>Musikername</label>
-                            <input type="text" name="bandName" class="input-field" maxlength="50" required placeholder="Name des Acts">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Musiker-Typ</label>
-                            <div class="checkbox-tag-grid" id="grid-musician-types">
-                                ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
-                                    <label class="tag-pill-checkbox">
-                                        <input type="checkbox" name="musicianTypes" value="${t}">
-                                        <span>${t}</span>
-                                    </label>
-                                `).join('')}
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Standort</label>
-                            <input type="text" id="input-mus-location-search" class="input-field" placeholder="Ort eingeben, z.B. München" autocomplete="off" style="width: 100%; margin-bottom: 0.5rem;">
-                            <div class="selected-locations-tags" id="mus-selected-locations-container" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.5rem;"></div>
-                            <input type="hidden" name="musLocation" id="input-mus-locations" value="">
-                        </div>
-
-                        <div class="form-group">
-                            <div class="slider-value-display">
-                                <label>Maximaler Umkreis</label>
-                                <span id="val-radius">50 km</span>
-                            </div>
-                            <input type="range" name="radius" min="0" max="500" step="50" value="50" class="input-field" style="padding:0; height:auto; accent-color:#a855f7;">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Genres</label>
-                            <div class="checkbox-tag-grid" id="grid-genres">
-                                ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
-                                    <label class="tag-pill-checkbox">
-                                        <input type="checkbox" name="genres" value="${g}">
-                                        <span>${g}</span>
-                                    </label>
-                                `).join('')}
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Instrumente</label>
-                            <div class="checkbox-tag-grid" id="grid-instruments">
-                                ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
-                                    <label class="tag-pill-checkbox">
-                                        <input type="checkbox" name="instruments" value="${ins}">
-                                        <span>${ins}</span>
-                                    </label>
-                                `).join('')}
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="slider-value-display">
-                                <label>Spieldauer</label>
-                                <span id="val-spieldauer">0,5 - 2,0 Std.</span>
-                            </div>
-                            <div class="dual-range-slider" id="slider-spieldauer-container">
-                                <div class="dual-range-track"></div>
-                                <div class="dual-range-active-track" id="track-spieldauer"></div>
-                                <input type="range" id="input-spieldauer-min" name="minDuration" min="0.5" max="10" step="0.5" value="0.5">
-                                <input type="range" id="input-spieldauer-max" name="maxDuration" min="0.5" max="10" step="0.5" value="2.0">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="slider-value-display">
-                                <label>Gage</label>
-                                <span id="val-gage">0 - 5.000+ €</span>
-                            </div>
-                            <div class="dual-range-slider" id="slider-gage-container">
-                                <div class="dual-range-track"></div>
-                                <div class="dual-range-active-track" id="track-gage"></div>
-                                <input type="range" id="input-gage-min" name="minBudget" min="0" max="5000" step="100" value="0">
-                                <input type="range" id="input-gage-max" name="maxBudget" min="0" max="5000" step="100" value="5000">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Bevorzugte Event-Typen</label>
-                            <div class="checkbox-tag-grid" id="grid-event-types">
-                                ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
-                                    <label class="tag-pill-checkbox">
-                                        <input type="checkbox" name="eventTypes" value="${evt}">
-                                        <span>${evt}</span>
-                                    </label>
-                                `).join('')}
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Verfügbarkeiten</label>
-                            <p style="font-size:0.7rem; color:var(--text-muted); margin-bottom: 0.5rem; line-height: 1.3;">
-                                Montag - Donnerstag ist standardmäßig von 18:00 – 23:59 Uhr, Freitag von 18:00 – 23:59 Uhr und Samstag/Sonntag von 00:01 – 23:59 Uhr voreingestellt. Nicht benötigte Tage abwählen.
-                            </p>
-                            <div class="availability-week-grid">
-                                ${[
-                                    { key: 'mo_do', label: 'Montag - Donnerstag', defActive: true, minTime: '18:00', maxTime: '23:59' },
-                                    { key: 'fr', label: 'Freitag', defActive: true, minTime: '18:00', maxTime: '23:59' },
-                                    { key: 'sa', label: 'Samstag', defActive: true, minTime: '00:01', maxTime: '23:59' },
-                                    { key: 'so', label: 'Sonntag', defActive: true, minTime: '00:01', maxTime: '23:59' }
-                                ].map(day => `
-                                    <div class="availability-day-row" data-day="${day.key}">
-                                        <div class="availability-day-info">
-                                            <input type="checkbox" name="availDays" value="${day.key}" id="chk-avail-${day.key}" checked>
-                                            <label for="chk-avail-${day.key}">${day.label}</label>
-                                        </div>
-                                        <div class="availability-day-times" id="times-container-${day.key}">
-                                            <span>von</span>
-                                            <input type="time" name="availStart_${day.key}" value="${day.minTime}">
-                                            <span>bis</span>
-                                            <input type="time" name="availEnd_${day.key}" value="${day.maxTime}">
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="slider-value-display">
-                                <label>Wunschgröße Publikum</label>
-                                <span id="val-publikum">0 - 500+</span>
-                            </div>
-                            <div class="dual-range-slider" id="slider-publikum-container">
-                                <div class="dual-range-track"></div>
-                                <div class="dual-range-active-track" id="track-publikum"></div>
-                                <input type="range" id="input-publikum-min" min="0" max="500" step="50" value="0">
-                                <input type="range" id="input-publikum-max" min="0" max="500" step="50" value="500">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Technik</label>
-                            <div class="checkbox-tag-grid" id="grid-technik">
-                                ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
-                                    <label class="tag-pill-checkbox">
-                                        <input type="checkbox" name="musTechnik" value="${t}">
-                                        <span>${t}</span>
-                                    </label>
-                                `).join('')}
-                            </div>
-                        </div>
-
-
-                        <div class="form-group">
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <label>Beschreibung</label>
-                                <span id="desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 200</span>
-                            </div>
-                            <textarea name="musDescription" id="textarea-mus-desc" class="input-field" rows="3" maxlength="200" placeholder="Erzähle kurz etwas über dich/eure Band..." required></textarea>
-                        </div>
-
-                        <!-- Media Section -->
-                        <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
-                        <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien (Foto & Video)</h4>
-                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
-                            Füge Fotos und Videos für dein Profil hinzu, um es attraktiver zu gestalten.
-                        </p>
-                        <div class="form-group" style="margin-bottom: 1.2rem;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
-                                <button type="button" onclick="window.addRegMedia('musician', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(34, 197, 94, 0.3); color:#22c55e;">
-                                    <i class="fa-solid fa-plus"></i> Foto hinzufügen
-                                </button>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Fotos (max. 10) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale GrÃ¶ÃŸe: 10 MB&#10;AuflÃ¶sung: mind. 1200 x 1200 px">
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale GrÃ¶ÃŸe: 10 MB&#10;AuflÃ¶sung: mind. 1200 x 1200 px"></i></label>
+                                <button type="button" onclick="window.addRegMedia('musician', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div id="reg-musician-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
-                                <button type="button" onclick="window.addRegMedia('musician', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#a855f7;">
-                                    <i class="fa-solid fa-plus"></i> Video hinzufügen
-                                </button>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale GrÃ¶ÃŸe: 500 MB&#10;Maximale LÃ¤nge: 5 Minuten&#10;AuflÃ¶sung: 720p - 1080p"></i></label>
+                                <button type="button" onclick="window.addRegMedia('musician', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div id="reg-musician-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
@@ -13490,19 +12811,15 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </p>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
-                                <button type="button" onclick="window.addRegMedia('organizer', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(34, 197, 94, 0.3); color:#22c55e;">
-                                    <i class="fa-solid fa-plus"></i> Foto hinzufügen
-                                </button>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">📷 Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale GrÃ¶ÃŸe: 10 MB&#10;AuflÃ¶sung: mind. 1200 x 1200 px"></i></label>
+                                <button type="button" onclick="window.addRegMedia('organizer', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div id="reg-organizer-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
-                                <button type="button" onclick="window.addRegMedia('organizer', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#a855f7;">
-                                    <i class="fa-solid fa-plus"></i> Video hinzufügen
-                                </button>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale GrÃ¶ÃŸe: 500 MB&#10;Maximale LÃ¤nge: 5 Minuten&#10;AuflÃ¶sung: 720p - 1080p"></i></label>
+                                <button type="button" onclick="window.addRegMedia('organizer', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div id="reg-organizer-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
@@ -14067,13 +13384,13 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         updateSlider();
     }
 
-    initDualSlider('slider-spieldauer-container', 'input-spieldauer-min', 'input-spieldauer-max', 'track-spieldauer', 'val-spieldauer', 'Std.', false);
+    initDualSlider('slider-spieldauer-container', 'input-spieldauer-min', 'input-spieldauer-max', 'track-spieldauer', 'val-spieldauer', 'Std.', false, modalWrapper);
     initDualSlider('slider-gage-container', 'input-gage-min', 'input-gage-max', 'track-gage', 'val-gage', '€', true);
-    initDualSlider('slider-publikum-container', 'input-publikum-min', 'input-publikum-max', 'track-publikum', 'val-publikum', 'Personen', false);
+    initDualSlider('slider-publikum-container', 'input-publikum-min', 'input-publikum-max', 'track-publikum', 'val-publikum', 'Personen', false, modalWrapper);
 
     // Initialize Organizer Dual Sliders
-    initDualSlider('slider-org-spieldauer-container', 'input-org-spieldauer-min', 'input-org-spieldauer-max', 'track-org-spieldauer', 'val-org-spieldauer', 'Std.', false);
-    initDualSlider('slider-org-publikum-container', 'input-org-publikum-min', 'input-org-publikum-max', 'track-org-publikum', 'val-org-publikum', 'Personen', false);
+    initDualSlider('slider-org-spieldauer-container', 'input-org-spieldauer-min', 'input-org-spieldauer-max', 'track-org-spieldauer', 'val-org-spieldauer', 'Std.', false, modalWrapper);
+    initDualSlider('slider-org-publikum-container', 'input-org-publikum-min', 'input-org-publikum-max', 'track-org-publikum', 'val-org-publikum', 'Personen', false, modalWrapper);
     initDualSlider('slider-org-gage-container', 'input-org-gage-min', 'input-org-gage-max', 'track-org-gage', 'val-org-gage', '€', true);
 
     // Organizer description char-counter logic
@@ -16493,15 +15810,262 @@ function initMockEmailWidget() {
     window.refreshMockEmailWidget();
 }
 
-function validateAndProcessPhoto(file, callback) {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    const maxSize = 5 * 1024 * 1024; // 5 MB
+function validateAndProcessAudio(file, callback) {
+    const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav', 'audio/m4a', 'audio/x-m4a', 'audio/mp4'];
+    const maxSize = 100 * 1024 * 1024; // 100 MB
 
-    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|m4a)$/i)) {
         showToast({
-            title: "Fehler beim Bildupload ❌",
-            message: "Ungültiges Dateiformat. Erlaubt sind JPG, JPEG, PNG, GIF und WEBP."
+            title: "Fehler beim Audioupload âŒ",
+            message: "UngÃ¼ltiges Dateiformat. Erlaubt sind MP3, WAV und M4A."
         });
+        return;
+    }
+
+    if (file.size > maxSize) {
+        showToast({
+            title: "Fehler beim Audioupload âŒ",
+            message: "Die Datei ist zu groÃŸ. Maximale GrÃ¶ÃŸe ist 100 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+        });
+        return;
+    }
+
+    const audioElement = document.createElement('audio');
+    audioElement.src = URL.createObjectURL(file);
+    audioElement.onloadedmetadata = function() {
+        URL.revokeObjectURL(audioElement.src);
+        const duration = audioElement.duration;
+        if (duration > 600) { // 10 minutes
+            showToast({
+                title: "Audio zu lang ðŸŽµ",
+                message: "Die Audio-Datei darf maximal 10 Minuten lang sein (deine Datei: " + Math.floor(duration / 60) + " Min. " + Math.round(duration % 60) + " Sek.)."
+            });
+            return;
+        }
+
+        const mockAudios = [
+            'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+            'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+            'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
+        ];
+        const randomMockUrl = mockAudios[Math.floor(Math.random() * mockAudios.length)];
+        const titleWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+
+        showToast({
+            title: "Audio validiert âœ…",
+            message: "Die Audio-Datei (" + file.name + ") wurde erfolgreich validiert."
+        });
+        callback({ title: titleWithoutExt, url: randomMockUrl });
+    };
+    audioElement.onerror = function() {
+        showToast({
+            title: "Fehler beim Audioupload âŒ",
+            message: "Die Audio-Datei konnte nicht geladen oder analysiert werden."
+        });
+    };
+}
+
+function validateAndProcessPhoto(file, callback) {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    const maxSize = 10 * 1024 * 1024; // 10 MB
+
+    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(jpg|jpeg|png|webp)$/i)) {
+        showToast({
+            title: "Fehler beim Fotoupload âŒ",
+            message: "UngÃ¼ltiges Dateiformat. Erlaubt sind JPG, JPEG, PNG und WebP."
+        });
+        return;
+    }
+
+    if (file.size > maxSize) {
+        showToast({
+            title: "Fehler beim Fotoupload âŒ",
+            message: "Die Datei ist zu groÃŸ. Maximale GrÃ¶ÃŸe ist 10 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+        });
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+            if (Math.max(img.width, img.height) < 1200) {
+                showToast({
+                    title: "AuflÃ¶sung zu gering ðŸ“·",
+                    message: "Das Foto muss eine AuflÃ¶sung von mindestens 1200 px auf der lÃ¤ngeren Seite haben."
+                });
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            const maxDim = 3000;
+            let w = img.width;
+            let h = img.height;
+            if (w > h) {
+                if (w > maxDim) {
+                    h = Math.round((h * maxDim) / w);
+                    w = maxDim;
+                }
+            } else {
+                if (h > maxDim) {
+                    w = Math.round((w * maxDim) / h);
+                    h = maxDim;
+                }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            callback(canvas.toDataURL('image/jpeg', 0.85)); // slightly higher quality
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+        return;
+    }
+
+    if (file.size > maxSize) {
+        showToast({
+            title: "Fehler beim Fotoupload âŒ",
+            message: "Die Datei ist zu groÃŸ. Maximale GrÃ¶ÃŸe ist 10 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+        });
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+            if (Math.max(img.width, img.height) < 1200) {
+                showToast({
+                    title: "AuflÃ¶sung zu gering ðŸ“·",
+                    message: "Das Foto muss eine AuflÃ¶sung von mindestens 1200 px auf der lÃ¤ngeren Seite haben."
+                });
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            const maxDim = 3000;
+            let w = img.width;
+            let h = img.height;
+            if (w > h) {
+                if (w > maxDim) {
+                    h = Math.round((h * maxDim) / w);
+                    w = maxDim;
+                }
+            } else {
+                if (h > maxDim) {
+                    w = Math.round((w * maxDim) / h);
+                    h = maxDim;
+                }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            callback(canvas.toDataURL('image/jpeg', 0.85)); // slightly higher quality
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+        return;
+    }
+
+    if (file.size > maxSize) {
+        showToast({
+            title: "Fehler beim Fotoupload âŒ",
+            message: "Die Datei ist zu groÃŸ. Maximale GrÃ¶ÃŸe ist 10 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+        });
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+            if (Math.max(img.width, img.height) < 1200) {
+                showToast({
+                    title: "AuflÃ¶sung zu gering ðŸ“·",
+                    message: "Das Foto muss eine AuflÃ¶sung von mindestens 1200 px auf der lÃ¤ngeren Seite haben."
+                });
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            const maxDim = 3000;
+            let w = img.width;
+            let h = img.height;
+            if (w > h) {
+                if (w > maxDim) {
+                    h = Math.round((h * maxDim) / w);
+                    w = maxDim;
+                }
+            } else {
+                if (h > maxDim) {
+                    w = Math.round((w * maxDim) / h);
+                    h = maxDim;
+                }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            callback(canvas.toDataURL('image/jpeg', 0.85)); // slightly higher quality
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+        return;
+    }
+
+    if (file.size > maxSize) {
+        showToast({
+            title: "Fehler beim Fotoupload âŒ",
+            message: "Die Datei ist zu groÃŸ. Maximale GrÃ¶ÃŸe ist 10 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+        });
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+            if (Math.max(img.width, img.height) < 1200) {
+                showToast({
+                    title: "AuflÃ¶sung zu gering ðŸ“·",
+                    message: "Das Foto muss eine AuflÃ¶sung von mindestens 1200 px auf der lÃ¤ngeren Seite haben."
+                });
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            const maxDim = 3000;
+            let w = img.width;
+            let h = img.height;
+            if (w > h) {
+                if (w > maxDim) {
+                    h = Math.round((h * maxDim) / w);
+                    w = maxDim;
+                }
+            } else {
+                if (h > maxDim) {
+                    w = Math.round((w * maxDim) / h);
+                    h = maxDim;
+                }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            callback(canvas.toDataURL('image/jpeg', 0.85)); // slightly higher quality
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+});
         return;
     }
 
@@ -16544,14 +16108,226 @@ function validateAndProcessPhoto(file, callback) {
 }
 
 function validateAndProcessVideo(file, callback) {
-    const allowedTypes = ['video/mp4', 'video/quicktime', 'video/webm', 'video/ogg', 'video/x-matroska'];
-    const maxSize = 20 * 1024 * 1024; // 20 MB
+    const allowedTypes = ['video/mp4', 'video/quicktime', 'video/webm'];
+    const maxSize = 500 * 1024 * 1024; // 500 MB
 
-    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(mp4|mov|webm|ogg|mkv)$/i)) {
+    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(mp4|mov|webm)$/i)) {
         showToast({
-            title: "Fehler beim Videoupload ❌",
-            message: "Ungültiges Dateiformat. Erlaubt sind MP4, MOV, WebM und OGG."
+            title: "Fehler beim Videoupload âŒ",
+            message: "UngÃ¼ltiges Dateiformat. Erlaubt sind MP4, MOV und WebM."
         });
+        return;
+    }
+
+    if (file.size > maxSize) {
+        showToast({
+            title: "Fehler beim Videoupload âŒ",
+            message: "Die Datei ist zu groÃŸ. Maximale GrÃ¶ÃŸe ist 500 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+        });
+        return;
+    }
+
+    const videoElement = document.createElement('video');
+    videoElement.preload = 'metadata';
+    videoElement.src = URL.createObjectURL(file);
+    videoElement.onloadedmetadata = function() {
+        URL.revokeObjectURL(videoElement.src);
+        
+        // 1. Length validation (max 5 minutes)
+        const duration = videoElement.duration;
+        if (duration > 300) {
+            showToast({
+                title: "Video zu lang ðŸŽ¥",
+                message: "Das Video darf maximal 5 Minuten lang sein (deine Datei: " + Math.floor(duration / 60) + " Min. " + Math.round(duration % 60) + " Sek.)."
+            });
+            return;
+        }
+
+        // 2. Resolution validation (min 720p, long side >= 1280px)
+        const width = videoElement.videoWidth;
+        const height = videoElement.videoHeight;
+        if (Math.max(width, height) < 1280) {
+            showToast({
+                title: "AuflÃ¶sung zu gering ðŸŽ¥",
+                message: "Das Video muss eine AuflÃ¶sung von mindestens 720p (z.B. 1280x720) haben."
+            });
+            return;
+        }
+
+        const mockVids = ['hochzeit.mp4', 'gartenparty.mp4', 'firmenfeier.mp4', 'konzert.mp4'];
+        const randomMockVid = mockVids[Math.floor(Math.random() * mockVids.length)];
+        showToast({
+            title: "Video validiert âœ…",
+            message: "Das Video (" + file.name + ") wurde erfolgreich auf AuflÃ¶sung und LÃ¤nge validiert."
+        });
+        callback(randomMockVid);
+    };
+    videoElement.onerror = function() {
+        showToast({
+            title: "Fehler beim Videoupload âŒ",
+            message: "Das Video konnte nicht geladen oder analysiert werden."
+        });
+    };
+});
+        return;
+    }
+
+    if (file.size > maxSize) {
+        showToast({
+            title: "Fehler beim Videoupload âŒ",
+            message: "Die Datei ist zu groÃŸ. Maximale GrÃ¶ÃŸe ist 500 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+        });
+        return;
+    }
+
+    const videoElement = document.createElement('video');
+    videoElement.preload = 'metadata';
+    videoElement.src = URL.createObjectURL(file);
+    videoElement.onloadedmetadata = function() {
+        URL.revokeObjectURL(videoElement.src);
+        
+        // 1. Length validation (max 5 minutes)
+        const duration = videoElement.duration;
+        if (duration > 300) {
+            showToast({
+                title: "Video zu lang ðŸŽ¥",
+                message: "Das Video darf maximal 5 Minuten lang sein (deine Datei: " + Math.floor(duration / 60) + " Min. " + Math.round(duration % 60) + " Sek.)."
+            });
+            return;
+        }
+
+        // 2. Resolution validation (min 720p, long side >= 1280px)
+        const width = videoElement.videoWidth;
+        const height = videoElement.videoHeight;
+        if (Math.max(width, height) < 1280) {
+            showToast({
+                title: "AuflÃ¶sung zu gering ðŸŽ¥",
+                message: "Das Video muss eine AuflÃ¶sung von mindestens 720p (z.B. 1280x720) haben."
+            });
+            return;
+        }
+
+        const mockVids = ['hochzeit.mp4', 'gartenparty.mp4', 'firmenfeier.mp4', 'konzert.mp4'];
+        const randomMockVid = mockVids[Math.floor(Math.random() * mockVids.length)];
+        showToast({
+            title: "Video validiert âœ…",
+            message: "Das Video (" + file.name + ") wurde erfolgreich auf AuflÃ¶sung und LÃ¤nge validiert."
+        });
+        callback(randomMockVid);
+    };
+    videoElement.onerror = function() {
+        showToast({
+            title: "Fehler beim Videoupload âŒ",
+            message: "Das Video konnte nicht geladen oder analysiert werden."
+        });
+    };
+});
+        return;
+    }
+
+    if (file.size > maxSize) {
+        showToast({
+            title: "Fehler beim Videoupload âŒ",
+            message: "Die Datei ist zu groÃŸ. Maximale GrÃ¶ÃŸe ist 500 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+        });
+        return;
+    }
+
+    const videoElement = document.createElement('video');
+    videoElement.preload = 'metadata';
+    videoElement.src = URL.createObjectURL(file);
+    videoElement.onloadedmetadata = function() {
+        URL.revokeObjectURL(videoElement.src);
+        
+        // 1. Length validation (max 5 minutes)
+        const duration = videoElement.duration;
+        if (duration > 300) {
+            showToast({
+                title: "Video zu lang ðŸŽ¥",
+                message: "Das Video darf maximal 5 Minuten lang sein (deine Datei: " + Math.floor(duration / 60) + " Min. " + Math.round(duration % 60) + " Sek.)."
+            });
+            return;
+        }
+
+        // 2. Resolution validation (min 720p, long side >= 1280px)
+        const width = videoElement.videoWidth;
+        const height = videoElement.videoHeight;
+        if (Math.max(width, height) < 1280) {
+            showToast({
+                title: "AuflÃ¶sung zu gering ðŸŽ¥",
+                message: "Das Video muss eine AuflÃ¶sung von mindestens 720p (z.B. 1280x720) haben."
+            });
+            return;
+        }
+
+        const mockVids = ['hochzeit.mp4', 'gartenparty.mp4', 'firmenfeier.mp4', 'konzert.mp4'];
+        const randomMockVid = mockVids[Math.floor(Math.random() * mockVids.length)];
+        showToast({
+            title: "Video validiert âœ…",
+            message: "Das Video (" + file.name + ") wurde erfolgreich auf AuflÃ¶sung und LÃ¤nge validiert."
+        });
+        callback(randomMockVid);
+    };
+    videoElement.onerror = function() {
+        showToast({
+            title: "Fehler beim Videoupload âŒ",
+            message: "Das Video konnte nicht geladen oder analysiert werden."
+        });
+    };
+});
+        return;
+    }
+
+    if (file.size > maxSize) {
+        showToast({
+            title: "Fehler beim Videoupload âŒ",
+            message: "Die Datei ist zu groÃŸ. Maximale GrÃ¶ÃŸe ist 500 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+        });
+        return;
+    }
+
+    const videoElement = document.createElement('video');
+    videoElement.preload = 'metadata';
+    videoElement.src = URL.createObjectURL(file);
+    videoElement.onloadedmetadata = function() {
+        URL.revokeObjectURL(videoElement.src);
+        
+        // 1. Length validation (max 5 minutes)
+        const duration = videoElement.duration;
+        if (duration > 300) {
+            showToast({
+                title: "Video zu lang ðŸŽ¥",
+                message: "Das Video darf maximal 5 Minuten lang sein (deine Datei: " + Math.floor(duration / 60) + " Min. " + Math.round(duration % 60) + " Sek.)."
+            });
+            return;
+        }
+
+        // 2. Resolution validation (min 720p, long side >= 1280px)
+        const width = videoElement.videoWidth;
+        const height = videoElement.videoHeight;
+        if (Math.max(width, height) < 1280) {
+            showToast({
+                title: "AuflÃ¶sung zu gering ðŸŽ¥",
+                message: "Das Video muss eine AuflÃ¶sung von mindestens 720p (z.B. 1280x720) haben."
+            });
+            return;
+        }
+
+        const mockVids = ['hochzeit.mp4', 'gartenparty.mp4', 'firmenfeier.mp4', 'konzert.mp4'];
+        const randomMockVid = mockVids[Math.floor(Math.random() * mockVids.length)];
+        showToast({
+            title: "Video validiert âœ…",
+            message: "Das Video (" + file.name + ") wurde erfolgreich auf AuflÃ¶sung und LÃ¤nge validiert."
+        });
+        callback(randomMockVid);
+    };
+    videoElement.onerror = function() {
+        showToast({
+            title: "Fehler beim Videoupload âŒ",
+            message: "Das Video konnte nicht geladen oder analysiert werden."
+        });
+    };
+});
         return;
     }
 
@@ -16612,10 +16388,8 @@ window.showMediaModal = function(itemId, isEvents) {
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
                         <span style="display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (${photos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></span>
-                        ${photos.length < 3 ? `
-                            <button id="btn-add-mock-photo" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: rgba(34, 197, 94, 0.3); color: #22c55e; display: flex; align-items: center; gap: 0.25rem;">
-                                <i class="fa-solid fa-plus"></i> Hinzufügen
-                            </button>
+                        ${photos.length < (isEvents ? 3 : 10) ? `
+                            <button id="btn-add-mock-photo" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: ${isEvents ? 'rgba(37, 99, 235, 0.3)' : 'rgba(124, 58, 237, 0.3)'}; color: ${isEvents ? '#2563eb' : '#7c3aed'}; display: flex; align-items: center; gap: 0.25rem;"><i class="fa-solid fa-plus"></i></button>
                         ` : ''}
                     </h4>
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
@@ -16631,11 +16405,9 @@ window.showMediaModal = function(itemId, isEvents) {
                 <!-- Section: Videos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (${videos.length}/1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></span>
-                        ${videos.length < 1 ? `
-                            <button id="btn-add-mock-video" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: rgba(124, 58, 237, 0.3); color: #a855f7; display: flex; align-items: center; gap: 0.25rem;">
-                                <i class="fa-solid fa-plus"></i> Hinzufügen
-                            </button>
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Videos (${videos.length}/${isEvents ? 1 : 3}) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale GrÃ¶ÃŸe: 500 MB&#10;Maximale LÃ¤nge: 5 Minuten&#10;AuflÃ¶sung: 720p - 1080p"></i></span>
+                        ${videos.length < (isEvents ? 1 : 3) ? `
+                            <button id="btn-add-mock-video" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: ${isEvents ? 'rgba(37, 99, 235, 0.3)' : 'rgba(124, 58, 237, 0.3)'}; color: ${isEvents ? '#2563eb' : '#7c3aed'}; display: flex; align-items: center; gap: 0.25rem;"><i class="fa-solid fa-plus"></i></button>
                         ` : ''}
                     </h4>
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
@@ -16643,7 +16415,7 @@ window.showMediaModal = function(itemId, isEvents) {
                             <span style="font-size: 0.78rem; color: var(--text-muted); font-style: italic;">Keine Videos hochgeladen</span>
                         ` : videos.map((v, idx) => `
                             <div style="position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-glass); background: #000; display:flex; align-items:center; justify-content:center;">
-                                <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.5rem;"></i>
+                                <i class="fa-solid fa-file-video" style="color: ${isEvents ? '#2563eb' : '#7c3aed'}; font-size: 1.5rem;"></i>
                                 <button class="btn-delete-video" data-idx="${idx}" style="position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.6rem;"><i class="fa-solid fa-times"></i></button>
                             </div>
                         `).join('')}
@@ -16653,7 +16425,7 @@ window.showMediaModal = function(itemId, isEvents) {
 
             <div style="padding: 1rem; border-top: 1px solid var(--border-glass); display: flex; justify-content: flex-end; gap: 0.5rem; background: rgba(255,255,255,0.01);">
                 <button id="btn-cancel-media" class="btn btn-glass btn-sm" style="margin:0;">Abbrechen</button>
-                <button id="btn-save-media" class="btn btn-primary btn-sm" style="margin:0;">Speichern</button>
+                <button id="btn-save-media" class="btn btn-primary btn-sm" style="margin:0; background: ${isEvents ? '#2563eb' : 'var(--color-purple)'}; border-color: ${isEvents ? '#2563eb' : 'var(--color-purple)'};">Speichern</button>
             </div>
         </div>
     `;
@@ -16667,16 +16439,16 @@ window.showMediaModal = function(itemId, isEvents) {
     const addPhotoBtn = document.getElementById('btn-add-mock-photo');
     if (addPhotoBtn) {
         addPhotoBtn.addEventListener('click', () => {
-            if (photos.length >= 3) {
+            if (photos.length >= maxPhotos) {
                 showToast({
                     title: "Bilder-Limit erreicht 📷",
-                    message: "Es sind maximal 3 Bilder erlaubt."
+                    message: "Es sind maximal 3 Fotos erlaubt."
                 });
                 return;
             }
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
-            fileInput.accept = 'image/png, image/jpeg, image/gif, image/webp';
+            fileInput.accept = 'image/png, image/jpeg, image/webp';
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
@@ -16694,7 +16466,7 @@ window.showMediaModal = function(itemId, isEvents) {
     const addVideoBtn = document.getElementById('btn-add-mock-video');
     if (addVideoBtn) {
         addVideoBtn.addEventListener('click', () => {
-            if (videos.length >= 1) {
+            if (videos.length >= maxVideos) {
                 showToast({
                     title: "Video-Limit erreicht 🎬",
                     message: "Es ist maximal 1 Video erlaubt."
@@ -16703,7 +16475,7 @@ window.showMediaModal = function(itemId, isEvents) {
             }
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
-            fileInput.accept = 'video/mp4, video/quicktime, video/webm, video/ogg, video/x-matroska';
+            fileInput.accept = 'video/mp4, video/quicktime, video/webm';
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {

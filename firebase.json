@@ -2,6 +2,11 @@
   "hosting": {
     "public": ".",
     "ignore": [
+      "node-portable/**",
+      "node-portable/**/*",
+      "**/node-portable/**",
+      "functions/**",
+      "functions",
       "firebase.json",
       "**/.*",
       "**/node_modules/**",
@@ -17,5 +22,8 @@
         "destination": "/index.html"
       }
     ]
+  },
+  "functions": {
+    "source": "functions"
   }
 }

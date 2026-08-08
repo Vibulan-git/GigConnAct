@@ -3280,7 +3280,9 @@ body {
 
 /* Make all criteria labels inside the registration form purple and bold */
 #auth-register-form .form-group label:not(.tag-pill-checkbox),
-#auth-register-form .slider-value-display label {
+#auth-register-form .slider-value-display label,
+#musician-editor-form .form-group label:not(.tag-pill-checkbox),
+#musician-editor-form .slider-value-display label {
     color: var(--color-purple) !important;
     font-weight: 800 !important;
 }
@@ -3336,7 +3338,8 @@ body {
 }
 
 /* Card layout for criteria form groups inside the registration form */
-#auth-register-form .form-group {
+#auth-register-form .form-group,
+#musician-editor-form .form-group {
     background: rgba(255, 255, 255, 0.015);
     border: 1px solid rgba(168, 85, 247, 0.15); /* Subtle purple border */
     border-radius: 12px;
@@ -3346,33 +3349,40 @@ body {
     transition: all 0.3s ease;
 }
 
-#auth-register-form .form-group:focus-within {
+#auth-register-form .form-group:focus-within,
+#musician-editor-form .form-group:focus-within {
     border-color: rgba(168, 85, 247, 0.45);
     box-shadow: 0 4px 18px rgba(168, 85, 247, 0.2);
 }
 
 /* Organizer Active Theme styling overrides */
-#auth-register-form.role-organizer-active .form-group {
+#auth-register-form.role-organizer-active .form-group,
+#event-editor-form .form-group {
     border-color: rgba(96, 165, 250, 0.15); /* blue border */
 }
 
-#auth-register-form.role-organizer-active .form-group:focus-within {
+#auth-register-form.role-organizer-active .form-group:focus-within,
+#event-editor-form .form-group:focus-within {
     border-color: rgba(96, 165, 250, 0.45);
     box-shadow: 0 4px 18px rgba(96, 165, 250, 0.2);
 }
 
 #auth-register-form.role-organizer-active .form-group label:not(.tag-pill-checkbox),
-#auth-register-form.role-organizer-active .slider-value-display label {
+#auth-register-form.role-organizer-active .slider-value-display label,
+#event-editor-form .form-group label:not(.tag-pill-checkbox),
+#event-editor-form .slider-value-display label {
     color: #2563eb !important; /* dunkelblau text instead of light blue */
 }
 
 /* Make slider labels color follow active mode */
-#auth-register-form.role-organizer-active .slider-value-display span {
+#auth-register-form.role-organizer-active .slider-value-display span,
+#event-editor-form .slider-value-display span {
     color: #2563eb !important;
 }
 
 /* Checkboxes in organizer grid should match blue color on active */
-#auth-register-form.role-organizer-active .tag-pill-checkbox.active {
+#auth-register-form.role-organizer-active .tag-pill-checkbox.active,
+#event-editor-form .tag-pill-checkbox.active {
     background: rgba(37, 99, 235, 0.15) !important;
     border-color: #2563eb !important;
     color: #2563eb !important; /* dark blue text */
@@ -3380,7 +3390,8 @@ body {
     box-shadow: 0 0 10px rgba(37, 99, 235, 0.35) !important;
 }
 
-#auth-register-form.role-organizer-active .tag-pill-checkbox:hover {
+#auth-register-form.role-organizer-active .tag-pill-checkbox:hover,
+#event-editor-form .tag-pill-checkbox:hover {
     border-color: rgba(37, 99, 235, 0.5) !important;
 }
 
@@ -3401,16 +3412,19 @@ body {
 }
 
 /* Double slider tracks in organizer active mode */
-#auth-register-form.role-organizer-active .dual-slider-track-highlight {
+#auth-register-form.role-organizer-active .dual-slider-track-highlight,
+#event-editor-form .dual-slider-track-highlight {
     background: #60a5fa !important;
 }
 
-#auth-register-form.role-organizer-active input[type="range"]::-webkit-slider-thumb {
+#auth-register-form.role-organizer-active input[type="range"]::-webkit-slider-thumb,
+#event-editor-form input[type="range"]::-webkit-slider-thumb {
     background: #60a5fa !important;
     box-shadow: 0 0 10px rgba(96, 165, 250, 0.5) !important;
 }
 
-#auth-register-form.role-organizer-active input[type="range"]::-moz-range-thumb {
+#auth-register-form.role-organizer-active input[type="range"]::-moz-range-thumb,
+#event-editor-form input[type="range"]::-moz-range-thumb {
     background: #60a5fa !important;
     box-shadow: 0 0 10px rgba(96, 165, 250, 0.5) !important;
 }
@@ -3418,7 +3432,9 @@ body {
 /* Organizer Input Focus Blue Highlight */
 #auth-register-form.role-organizer-active input[type="text"]:focus,
 #auth-register-form.role-organizer-active input[type="email"]:focus,
-#auth-register-form.role-organizer-active textarea:focus {
+#auth-register-form.role-organizer-active textarea:focus,
+#event-editor-form input[type="text"]:focus,
+#event-editor-form textarea:focus {
     border-color: #60a5fa !important;
     box-shadow: 0 0 10px rgba(96, 165, 250, 0.3) !important;
 }
@@ -4941,4 +4957,11 @@ input[type="range"].input-field {
     animation: sparkleAnim 3.5s ease-in-out infinite;
     animation-delay: 1.5s;
     transform-origin: 0px 0px;
+}
+
+/* Disable pointer cursor on laptop/desktop tile cards as detail modals are disabled */
+@media (min-width: 768px) {
+    .market-tile-card {
+        cursor: default !important;
+    }
 }
