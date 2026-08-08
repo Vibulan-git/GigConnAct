@@ -16,242 +16,6 @@ const auth = firebase.auth();
 
 var state = null;
 
-// Global helper to select/deselect all checkboxes in a grid
-window.toggleSelectAll = function(linkEl, gridId) {
-    const grid = document.getElementById(gridId);
-    if (!grid) return;
-    const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
-    if (checkboxes.length === 0) return;
-
-    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-    checkboxes.forEach(cb => {
-        cb.checked = !allChecked;
-        cb.dispatchEvent(new Event('change', { bubbles: true }));
-    });
-    
-    linkEl.textContent = !allChecked ? 'alle abwählen' : 'alle auswählen';
-};
-
-// Helper function to generate clean slugs for SEO URLs
-function getDeviceId() {
-    let devId = localStorage.getItem('gigconnact_device_id');
-    if (!devId) {
-        devId = 'dev_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
-        localStorage.setItem('gigconnact_device_id', devId);
-    }
-    return devId;
-}
-window.getDeviceId = getDeviceId;
-
-function generateSlug(text) {
-    if (!text) return '';
-    return text.toString().toLowerCase()
-        .replace(/ä/g, 'ae')
-        .replace(/ö/g, 'oe')
-        .replace(/ü/g, 'ue')
-        .replace(/ß/g, 'ss')
-        .replace(/[^a-z0-9 -]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-+|-+$/g, '');
-}
-window.generateSlug = generateSlug;
-
-// Parse location pathname into clean structured routing state
-function parseRequestPath() {
-    const path = window.location.pathname.toLowerCase().replace(/^\/|\/$/g, '');
-    if (!path) {
-        return { page: 'landing' };
-    }
-    
-    const parts = path.split('/');
-    
-    // A. Events Routing
-    if (parts[0] === 'events') {
-        if (parts.length === 1) {
-            return { page: 'events' };
-        }
-        const slug = parts[1];
-        const event = (state && state.events || []).find(e => generateSlug(e.title) === slug || generateSlug(e.title + '-' + e.location) === slug);
-        if (event) {
-            return { page: 'events', itemId: event.id, view: 'detail' };
-        }
-        return { page: 'events', city: slug };
-    }
-    
-    // B. Musicians Routing
-    if (parts[0] === 'musiker' || parts[0] === 'musicians') {
-        if (parts.length === 1) {
-            return { page: 'musicians' };
-        }
-        
-        // Pattern: /musiker/koeln/hochzeit (city + event type)
-        if (parts.length === 3) {
-            return { page: 'musicians', city: parts[1], eventType: parts[2] };
-        }
-        
-        const segment = parts[1];
-        const musician = (state && state.musicians || []).find(m => generateSlug(m.name) === segment);
-        if (musician) {
-            return { page: 'musicians', itemId: musician.id, view: 'detail' };
-        }
-        
-        // Pattern: /musiker/coverband-koeln (musician type + city)
-        const knownMusicianTypes = ['band', 'coverband', 'solo', 'solokuenstler', 'duo', 'trio', 'dj', 'saenger', 'ensemble', 'chor', 'orchester', 'alleinunterhalter'];
-        for (const type of knownMusicianTypes) {
-            if (segment.startsWith(type + '-')) {
-                const city = segment.substring(type.length + 1);
-                return { page: 'musicians', musicianType: type, city: city };
-            }
-        }
-        
-        // Otherwise treat as city filter
-        return { page: 'musicians', city: segment };
-    }
-    
-    const standardPages = ['matches', 'dashboard', 'my-musicians', 'my-events', 'postbox', 'credits', 'profile'];
-    if (standardPages.includes(parts[0])) {
-        return { page: parts[0] };
-    }
-    
-    return { page: 'landing' };
-}
-window.parseRequestPath = parseRequestPath;
-
-// Auto-fill filters from URL params and trigger market update
-function applyUrlFilters(route) {
-    const isEvents = route.page === 'events';
-    
-    if (route.city) {
-        const locInput = document.getElementById(isEvents ? 'filter-location' : 'filter-location-m');
-        if (locInput) {
-            const capitalizedCity = route.city.charAt(0).toUpperCase() + route.city.slice(1);
-            locInput.value = capitalizedCity;
-            locInput.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-    }
-    
-    if (route.musicianType && !isEvents) {
-        const cleanType = route.musicianType.toLowerCase();
-        const typeMapping = {
-            'saenger': 'Sänger',
-            'solokuenstler': 'Solokünstler',
-            'duo': 'Duo',
-            'trio': 'Trio',
-            'band': 'Band',
-            'coverband': 'Coverband',
-            'big-band': 'Big Band',
-            'ensemble': 'Ensemble',
-            'chor': 'Chor',
-            'orchester': 'Orchester',
-            'dj': 'DJ',
-            'alleinunterhalter': 'Alleinunterhalter',
-            'showkuenstler-taenzer': 'Showkünstler/Tänzer',
-            'sonstige': 'Sonstige'
-        };
-        const mappedType = typeMapping[cleanType] || cleanType;
-        const grid = document.getElementById('filter-musician-type-grid');
-        if (grid) {
-            const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(cb => {
-                cb.checked = cb.value.toLowerCase() === mappedType.toLowerCase();
-                cb.dispatchEvent(new Event('change', { bubbles: true }));
-            });
-        }
-    }
-    
-    if (route.eventType) {
-        const cleanEvtType = route.eventType.toLowerCase();
-        const grid = document.getElementById('filter-event-types-grid-m');
-        if (grid) {
-            const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(cb => {
-                const cbSlug = generateSlug(cb.value);
-                cb.checked = cbSlug.includes(cleanEvtType) || cleanEvtType.includes(cbSlug);
-                cb.dispatchEvent(new Event('change', { bubbles: true }));
-            });
-        }
-    }
-    
-    // Trigger change event to apply filters
-    const changeEvent = new Event('change', { bubbles: true });
-    document.dispatchEvent(changeEvent);
-}
-
-// Update Page Title and Meta Description for SEO
-function updateSEOMeta(pageType, detailItem) {
-    let title = 'GigConnAct - Event-Markt für Musiker & Veranstalter';
-    let desc = 'Der provisionsfreie Event-Markt für Musiker und Veranstalter. Direktvermittlung ohne Zwischenhändler und ohne versteckte Kosten.';
-    
-    if (pageType === 'musicians') {
-        if (detailItem) {
-            title = `${detailItem.name} | Musiker auf GigConnAct`;
-            desc = `Profil von Musiker ${detailItem.name}. Genres: ${(detailItem.genres || []).join(', ')}. Instrumente: ${(detailItem.instruments || []).join(', ')}. Jetzt kontaktieren!`;
-        } else {
-            title = 'Musiker buchen & engagieren | GigConnAct Musiker-Markt';
-            desc = 'Finde passende Musiker, Bands, DJs und Solokünstler für dein Event. Direkter Kontakt ohne Provisionsgebühren.';
-        }
-    } else if (pageType === 'events') {
-        if (detailItem) {
-            title = `${detailItem.title} in ${detailItem.location || 'Deutschland'} | GigConnAct Gigs`;
-            desc = `Musiker-Job: ${detailItem.title} in ${detailItem.location}. Anlass: ${detailItem.eventType || 'Event'}. Jetzt bewerben und Gig sichern!`;
-        } else {
-            title = 'Gigs & Auftritte finden | GigConnAct Event-Markt';
-            desc = 'Finde passende Gigs und Auftrittsmöglichkeiten für Musiker, Bands und DJs. Direkte Bewerbung beim Veranstalter.';
-        }
-    }
-    
-    document.title = title;
-    
-    let metaDesc = document.querySelector('meta[name="description"]');
-    if (!metaDesc) {
-        metaDesc = document.createElement('meta');
-        metaDesc.name = 'description';
-        document.head.appendChild(metaDesc);
-    }
-    metaDesc.content = desc;
-}
-window.updateSEOMeta = updateSEOMeta;
-
-// Close Detail Modal and restore parent path
-window.closeItemDetailModal = function() {
-    const modal = document.getElementById('modal-item-detail');
-    if (modal) modal.remove();
-    
-    const activePage = window.currentActivePage || 'landing';
-    let parentPath = '/';
-    if (activePage === 'musicians') parentPath = '/musiker';
-    else if (activePage === 'events') parentPath = '/events';
-    
-    if (window.location.pathname !== parentPath) {
-        history.pushState(null, '', parentPath);
-        updateSEOMeta(activePage);
-    }
-};
-
-// Global route navigate wrapper
-window.navigateToRoute = function(path) {
-    if (window.location.pathname !== path) {
-        history.pushState(null, '', path);
-    }
-    window.handleRouting();
-};
-
-// Global event listener to keep toggle links in sync
-document.addEventListener('change', (e) => {
-    if (e.target && e.target.type === 'checkbox') {
-        const grid = e.target.closest('.checkbox-tag-grid');
-        if (grid && grid.id) {
-            const toggleLink = document.querySelector(`[onclick*="'${grid.id}'"]`);
-            if (toggleLink) {
-                const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
-                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-                toggleLink.textContent = allChecked ? 'alle abwählen' : 'alle auswählen';
-            }
-        }
-    }
-});
-
 const mockPhotoUrls = [
     'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80',
@@ -269,48 +33,102 @@ const mockVideoSources = [
 window.registrationMedia = {
     musician: {
         photos: ['https://picsum.photos/id/453/400/300'],
-        videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
+        videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }],
+        audios: [{ title: 'Live Medley Demo', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' }]
     },
     organizer: {
         photos: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'],
-        videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
+        videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }],
+        audios: []
     }
 };
 
 window.updateRegMediaPreview = function(role) {
     const photosContainer = document.getElementById(`reg-${role}-photos-preview`);
     const videosContainer = document.getElementById(`reg-${role}-videos-preview`);
-    if (!photosContainer || !videosContainer) return;
+    const audiosContainer = document.getElementById(`reg-${role}-audios-preview`);
 
     const photos = window.registrationMedia[role].photos;
     const videos = window.registrationMedia[role].videos;
+    const audios = window.registrationMedia[role].audios || [];
 
-    photosContainer.innerHTML = photos.length === 0 
-        ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Bilder hinzugefügt</span>`
-        : photos.map((p, idx) => `
-            <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
-                <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
-                <button type="button" onclick="window.deleteRegMedia('${role}', 'photo', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
-            </div>
-        `).join('');
+    if (photosContainer) {
+        photosContainer.innerHTML = photos.length === 0 
+            ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Bilder hinzugefügt</span>`
+            : photos.map((p, idx) => `
+                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                    <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
+                    <button type="button" onclick="window.deleteRegMedia('${role}', 'photo', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                </div>
+            `).join('');
+    }
 
-    videosContainer.innerHTML = videos.length === 0
-        ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Videos hinzugefügt</span>`
-        : videos.map((v, idx) => `
-            <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;" title="${v.title}">
-                <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.1rem;"></i>
-                <button type="button" onclick="window.deleteRegMedia('${role}', 'video', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
-            </div>
-        `).join('');
+    if (videosContainer) {
+        videosContainer.innerHTML = videos.length === 0
+            ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Videos hinzugefügt</span>`
+            : videos.map((v, idx) => `
+                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;" title="${v.title}">
+                    <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.1rem;"></i>
+                    <button type="button" onclick="window.deleteRegMedia('${role}', 'video', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                </div>
+            `).join('');
+    }
+
+    if (audiosContainer) {
+        audiosContainer.innerHTML = audios.length === 0
+            ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Audios hinzugefügt</span>`
+            : audios.map((a, idx) => `
+                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #1e1b4b; display:flex; align-items:center; justify-content:center;" title="${a.title || 'Audio'}">
+                    <i class="fa-solid fa-music" style="color: #06b6d4; font-size: 1.1rem;"></i>
+                    <button type="button" onclick="window.deleteRegMedia('${role}', 'audio', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                </div>
+            `).join('');
+    }
 };
 
+function validateAndProcessAudio(file, callback) {
+    const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/m4a', 'audio/aac'];
+    const maxSize = 10 * 1024 * 1024; // 10 MB
+
+    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|ogg|m4a|aac)$/i)) {
+        showToast({
+            title: "Fehler beim Audioupload ❌",
+            message: "Ungültiges Dateiformat. Erlaubt sind MP3, WAV, OGG, M4A und AAC."
+        });
+        return;
+    }
+
+    if (file.size > maxSize) {
+        showToast({
+            title: "Fehler beim Audioupload ❌",
+            message: "Die Datei ist zu groß. Maximale Größe ist 10 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+        });
+        return;
+    }
+
+    const mockAudios = [
+        'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+        'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+        'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
+    ];
+    const randomMockUrl = mockAudios[Math.floor(Math.random() * mockAudios.length)];
+    const titleWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+
+    showToast({
+        title: "Audio validiert ✅",
+        message: "Die Audio-Datei (" + file.name + ") wurde erfolgreich validiert."
+    });
+    callback({ title: titleWithoutExt, url: randomMockUrl });
+}
+
 window.addRegMedia = function(role, type) {
-    const list = window.registrationMedia[role][type === 'photo' ? 'photos' : 'videos'];
-    const limit = type === 'photo' ? 3 : 1;
+    const listKey = type === 'photo' ? 'photos' : type === 'video' ? 'videos' : 'audios';
+    const list = window.registrationMedia[role][listKey];
+    const limit = type === 'photo' ? 5 : 3;
     if (list.length >= limit) {
         showToast({
-            title: type === 'photo' ? "Bilder-Limit erreicht 📷" : "Video-Limit erreicht 🎬",
-            message: type === 'photo' ? "Es sind maximal 3 Bilder erlaubt." : "Es ist maximal 1 Video erlaubt."
+            title: type === 'photo' ? "Bilder-Limit erreicht 📷" : type === 'video' ? "Video-Limit erreicht 🎬" : "Audio-Limit erreicht 🎵",
+            message: type === 'photo' ? "Es sind maximal 5 Bilder erlaubt." : type === 'video' ? "Es sind maximal 3 Videos erlaubt." : "Es sind maximal 3 Audio-Dateien erlaubt."
         });
         return;
     }
@@ -326,12 +144,22 @@ window.addRegMedia = function(role, type) {
                 });
             }
         });
-    } else {
+    } else if (type === 'video') {
         fileInput.accept = 'video/mp4, video/quicktime, video/webm, video/ogg, video/x-matroska';
         fileInput.addEventListener('change', () => {
             if (fileInput.files.length > 0) {
                 validateAndProcessVideo(fileInput.files[0], (videoUrl) => {
                     list.push(videoUrl);
+                    window.updateRegMediaPreview(role);
+                });
+            }
+        });
+    } else {
+        fileInput.accept = 'audio/mpeg, audio/wav, audio/ogg, audio/mp3, audio/m4a, audio/aac';
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                validateAndProcessAudio(fileInput.files[0], (audioObj) => {
+                    list.push(audioObj);
                     window.updateRegMediaPreview(role);
                 });
             }
@@ -342,7 +170,8 @@ window.addRegMedia = function(role, type) {
 };
 
 window.deleteRegMedia = function(role, type, idx) {
-    const list = window.registrationMedia[role][type === 'photo' ? 'photos' : 'videos'];
+    const listKey = type === 'photo' ? 'photos' : type === 'video' ? 'videos' : 'audios';
+    const list = window.registrationMedia[role][listKey];
     list.splice(idx, 1);
     window.updateRegMediaPreview(role);
 };
@@ -361,6 +190,7 @@ window.slideComboGallery = function(itemId, direction) {
         const activeSlide = s.children[cur];
         const isPhoto = activeSlide.querySelector('img');
         const isVideo = activeSlide.querySelector('video');
+        const isAudio = activeSlide.querySelector('audio');
         if (isPhoto) {
             let photoIdx = 1;
             for (let i = 0; i < cur; i++) {
@@ -370,7 +200,7 @@ window.slideComboGallery = function(itemId, direction) {
             for (let i = 0; i < slidesCount; i++) {
                 if (s.children[i].querySelector('img')) totalPhotos++;
             }
-            counter.innerText = '📷 ' + photoIdx + ' / ' + totalPhotos + ' Fotos';
+            counter.innerText = '📷 ' + photoIdx + ' / ' + totalPhotos;
         } else if (isVideo) {
             let videoIdx = 1;
             for (let i = 0; i < cur; i++) {
@@ -381,8 +211,18 @@ window.slideComboGallery = function(itemId, direction) {
                 if (s.children[i].querySelector('video')) totalVideos++;
             }
             counter.innerText = '🎬 Video ' + videoIdx + ' / ' + totalVideos;
+        } else if (isAudio) {
+            let audioIdx = 1;
+            for (let i = 0; i < cur; i++) {
+                if (s.children[i].querySelector('audio')) audioIdx++;
+            }
+            let totalAudios = 0;
+            for (let i = 0; i < slidesCount; i++) {
+                if (s.children[i].querySelector('audio')) totalAudios++;
+            }
+            counter.innerText = '🎵 Audio ' + audioIdx + ' / ' + totalAudios;
         } else {
-            counter.innerHTML = '📝 Beschreibung';
+            counter.innerHTML = '📝 Info';
         }
     }
 };
@@ -505,10 +345,10 @@ window.unlockListing = function(targetId, targetName) {
                     message: `Du hast die Kontaktdaten von ${targetName} erfolgreich freigeschaltet.`
                 });
                 updateNavbar();
-                const currentPath = window.location.pathname;
-                if ((currentPath.includes('events') || currentPath.includes('musiker')) && typeof window.marketApplyFilters === 'function') {
+                const currentHash = window.location.hash;
+                if ((currentHash.includes('events') || currentHash.includes('musicians')) && typeof window.marketApplyFilters === 'function') {
                     window.marketApplyFilters();
-                } else if (currentPath.includes('matches') && typeof window.matchesUpdate === 'function') {
+                } else if (currentHash.includes('matches') && typeof window.matchesUpdate === 'function') {
                     window.matchesUpdate();
                 } else {
                     window.handleRouting();
@@ -788,6 +628,370 @@ const initialMusicians = [
         videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
         audio: [],
         technik: ["Technik nicht vorhanden"]
+    },
+    {
+        id: "mus_7",
+        name: "The Munich Jazz Syndicate",
+        bluffName: "Klassisches Jazz- & Swing-Quintett",
+        type: "Band",
+        location: "München",
+        radius: 150,
+        genres: ["Jazz", "Blues", "Soul"],
+        instruments: ["Saxophon", "Klavier", "Kontrabass", "Schlagzeug", "Gesang"],
+        minDuration: 2,
+        maxDuration: 5,
+        minBudget: 1500,
+        maxBudget: 2800,
+        eventTypes: ["Firmenfeier", "Jubiläum", "Hochzeit – Party", "Festival"],
+        availability: ["Friday", "Saturday", "Sunday"],
+        description: "Bringen Sie das goldene Zeitalter des Jazz auf Ihr Event. Von sanfter Lounge-Hintergrundmusik zum Sektempfang bis hin zu treibenden Swing-Rhythmen, die Ihre Gäste auf die Tanzfläche locken. Professioneller Sound garantiert.",
+        contactName: "Marcus Huber",
+        phone: "+49 172 11223344",
+        hidePhone: true,
+        email: "info@munich-jazz-syndicate.de",
+        isPremium: true,
+        credits: 40,
+        socialLinks: { spotify: "https://spotify.com", youtube: "https://youtube.com", instagram: "https://instagram.com" },
+        photos: [
+            "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1507838153414-b4b713384a76?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=400&q=80"
+        ],
+        videos: [
+            { title: "Live at Munich Jazz Club", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" }
+        ],
+        audio: [
+            { title: "Fly Me To The Moon (Demo)", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+            { title: "Take Five (Instrumental)", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" }
+        ],
+        technik: ["Technik vorhanden"]
+    },
+    {
+        id: "mus_8",
+        name: "Lara & the Strings",
+        bluffName: "Modernes Akustik-Trio mit Cello",
+        type: "Trio",
+        location: "Berlin",
+        radius: 120,
+        genres: ["Pop", "Acoustic", "Charts"],
+        instruments: ["Gesang", "Akustikgitarre", "Violoncello"],
+        minDuration: 1.5,
+        maxDuration: 4,
+        minBudget: 950,
+        maxBudget: 1800,
+        eventTypes: ["Hochzeit - Trauung", "Firmenfeier", "Geburtstag", "Gartenparty"],
+        availability: ["Friday", "Saturday", "Sunday"],
+        description: "Durch die seltene Kombination aus kraftvollem Gesang, Akustikgitarre und warmen Celloklängen verleihen wir bekannten Pophits und Klassikern eine ganz persönliche Note. Ideal für Hochzeiten und gehobene Events.",
+        contactName: "Lara Meier",
+        phone: "+49 176 99887766",
+        hidePhone: true,
+        email: "lara.strings@gmx.de",
+        isPremium: true,
+        credits: 30,
+        socialLinks: { spotify: "", youtube: "", instagram: "https://instagram.com" },
+        photos: [
+            "https://images.unsplash.com/photo-1525417071002-5ee4e6bb44f7?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1487180142328-054b783fc471?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80"
+        ],
+        videos: [
+            { title: "Wedding Showreel 2025", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" }
+        ],
+        audio: [
+            { title: "Perfect - Acoustic Cover", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+            { title: "Chasing Cars - Cello Version", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" }
+        ],
+        technik: ["Technik vorhanden"]
+    },
+    {
+        id: "mus_9",
+        name: "Electric Violin Show",
+        bluffName: "Atemberaubende E-Violinen Performance",
+        type: "Solo",
+        location: "Frankfurt",
+        radius: 150,
+        genres: ["Electro", "Classic", "House"],
+        instruments: ["E-Violine", "Synthesizer"],
+        minDuration: 1,
+        maxDuration: 2.5,
+        minBudget: 700,
+        maxBudget: 1400,
+        eventTypes: ["Firmenfeier", "Festival", "Club-Show", "Produktpräsentation"],
+        availability: ["Thursday", "Friday", "Saturday"],
+        description: "Hochenergetische Fusion aus klassischer Geige und modernen elektronischen Beats. Die perfekte Show als packendes Opening, Highlight-Act zwischen Gängen oder pulsierender Live-Act neben dem DJ.",
+        contactName: "Elena Vlasova",
+        phone: "+49 151 44556677",
+        hidePhone: true,
+        email: "violin.electric@web.de",
+        isPremium: false,
+        credits: 25,
+        socialLinks: { spotify: "https://spotify.com", youtube: "https://youtube.com", instagram: "https://instagram.com" },
+        photos: [
+            "https://images.unsplash.com/photo-1507838153414-b4b713384a76?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=400&q=80"
+        ],
+        videos: [
+            { title: "Club Performance Live", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" }
+        ],
+        audio: [
+            { title: "Cyber Classical (Original Mix)", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
+        ],
+        technik: ["Technik vorhanden"]
+    },
+    {
+        id: "mus_10",
+        name: "DJane Melody (Vanessa)",
+        bluffName: "Premium DJane für Hochzeiten & Firmenevents",
+        type: "DJ",
+        location: "Hamburg",
+        radius: 200,
+        genres: ["Charts", "House", "Retro", "HipHop"],
+        instruments: ["Turntables", "Mischpult"],
+        minDuration: 4,
+        maxDuration: 10,
+        minBudget: 800,
+        maxBudget: 1600,
+        eventTypes: ["Hochzeit – Party", "Firmenfeier", "Geburtstag", "Club-Gig"],
+        availability: ["Friday", "Saturday", "Sunday"],
+        description: "Bester Club-Sound & feine Partyklassiker nahtlos gemixt. Mit feinem Gespür für die Tanzfläche und exzellenter Sound- und Lichtanlage verwandle ich Ihr Event in eine ausgelassene Party. Musikwünsche sind willkommen!",
+        contactName: "Vanessa König",
+        phone: "+49 173 55566677",
+        hidePhone: true,
+        email: "vanessa.melody@gmail.com",
+        isPremium: true,
+        credits: 50,
+        socialLinks: { spotify: "", youtube: "", instagram: "https://instagram.com" },
+        photos: [
+            "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=400&q=80"
+        ],
+        videos: [
+            { title: "Promo Mix Video 2025", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" }
+        ],
+        audio: [
+            { title: "Deep House Warmup Set", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
+            { title: "90s vs 2000s Party Mix", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" }
+        ],
+        technik: ["Technik vorhanden"]
+    },
+    {
+        id: "mus_11",
+        name: "The Rock N Rollers",
+        bluffName: "Hochenergetische 50s & 60s Rock'n'Roll Band",
+        type: "Band",
+        location: "Stuttgart",
+        radius: 150,
+        genres: ["Rock", "Retro", "Blues"],
+        instruments: ["Gesang", "E-Gitarre", "Kontrabass", "Schlagzeug", "Klavier"],
+        minDuration: 2,
+        maxDuration: 4.5,
+        minBudget: 1600,
+        maxBudget: 3200,
+        eventTypes: ["Firmenfeier", "Stadtfest", "Hochzeit – Party", "Geburtstag"],
+        availability: ["Friday", "Saturday"],
+        description: "Wir bringen den rohen, ehrlichen Groove der Ära von Elvis Presley, Chuck Berry und den Beatles auf Ihre Bühne. 100% tanzbar, handgemacht und mit authentischen Outfits. Eigene Ton- und Lichttechnik vorhanden.",
+        contactName: "Dieter Schulz",
+        phone: "+49 170 33344455",
+        hidePhone: true,
+        email: "booking@rocknrollers.de",
+        isPremium: false,
+        credits: 35,
+        socialLinks: { spotify: "https://spotify.com", youtube: "https://youtube.com", instagram: "https://instagram.com" },
+        photos: [
+            "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1487180142328-054b783fc471?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=400&q=80"
+        ],
+        videos: [
+            { title: "Live at Rockabilly Night", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" }
+        ],
+        audio: [
+            { title: "Johnny B. Goode (Cover)", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
+            { title: "Jailhouse Rock (Cover)", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" }
+        ],
+        technik: ["Technik vorhanden"]
+    },
+    {
+        id: "mus_12",
+        name: "Marc & Sophie Duo",
+        bluffName: "Gefühlvolles Akustik- & Gesangsduo",
+        type: "Duo",
+        location: "Köln",
+        radius: 100,
+        genres: ["Pop", "Charts", "Soul"],
+        instruments: ["Gesang", "Klavier", "Gitarre"],
+        minDuration: 1.5,
+        maxDuration: 4,
+        minBudget: 750,
+        maxBudget: 1350,
+        eventTypes: ["Hochzeit - Trauung", "Sektempfang", "Geburtstag", "Firmenfeier"],
+        availability: ["Saturday", "Sunday", "Friday"],
+        description: "Gänsehautmomente bei Ihrer Trauung oder elegante Unplugged-Hintergrundmusik für Ihr Firmenevent. Mit zweistimmigem Gesang und feiner instrumentaler Untermalung schaffen wir eine einzigartige Atmosphäre.",
+        contactName: "Sophie Wagner",
+        phone: "+49 162 44455566",
+        hidePhone: true,
+        email: "marc.sophie@gmx.net",
+        isPremium: true,
+        credits: 45,
+        socialLinks: { spotify: "", youtube: "https://youtube.com", instagram: "https://instagram.com" },
+        photos: [
+            "https://images.unsplash.com/photo-1525417071002-5ee4e6bb44f7?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=400&q=80"
+        ],
+        videos: [
+            { title: "Wedding Trauung Live", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" }
+        ],
+        audio: [
+            { title: "You Are The Reason (Live)", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" },
+            { title: "Hallelujah (Trauungs-Version)", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" }
+        ],
+        technik: ["Technik vorhanden"]
+    },
+    {
+        id: "mus_13",
+        name: "Brass Power Band",
+        bluffName: "Energetische Brass-, Funk- & Soul-Combo",
+        type: "Band",
+        location: "Hannover",
+        radius: 130,
+        genres: ["Funk", "Soul", "Pop"],
+        instruments: ["Trompete", "Posaune", "Saxophon", "Schlagzeug", "Bass"],
+        minDuration: 1.5,
+        maxDuration: 3,
+        minBudget: 1700,
+        maxBudget: 3000,
+        eventTypes: ["Stadtfest", "Festival", "Firmenfeier", "Hochzeit – Party"],
+        availability: ["Friday", "Saturday", "Sunday"],
+        description: "Fette Bläsersätze und ein unaufhaltsamer Groove! Wir interpretieren Funk-Klassiker sowie moderne Chart-Hits in mitreißenden Brass-Arrangements neu. Hoher Spaßfaktor und Tanzgarantie!",
+        contactName: "Christian Keller",
+        phone: "+49 179 88899900",
+        hidePhone: true,
+        email: "brass.power@outlook.com",
+        isPremium: false,
+        credits: 30,
+        socialLinks: { spotify: "", youtube: "", instagram: "https://instagram.com" },
+        photos: [
+            "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=400&q=80"
+        ],
+        videos: [
+            { title: "Live at Summer Brass Festival", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" }
+        ],
+        audio: [
+            { title: "Uptown Funk (Brass Cover)", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+            { title: "Septembers Horns (Instrumental)", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
+        ],
+        technik: ["Technik nicht vorhanden"]
+    },
+    {
+        id: "mus_14",
+        name: "Elena Petrov - Harfenklänge",
+        bluffName: "Virtuose Solo-Harfenistin",
+        type: "Solo",
+        location: "Dresden",
+        radius: 90,
+        genres: ["Klassik", "Folk", "Charts"],
+        instruments: ["Harfe"],
+        minDuration: 1,
+        maxDuration: 3,
+        minBudget: 480,
+        maxBudget: 900,
+        eventTypes: ["Hochzeit - Trauung", "Sektempfang", "Vernissage", "Hintergrundmusik"],
+        availability: ["Saturday", "Sunday"],
+        description: "Zauberhafte, elegante Klänge für ganz besondere Anlässe. Neben klassischen Meilensteinen spiele ich auch romantische Filmmusik (z.B. Amélie, Disney) und moderne Liebeslieder im verträumten Harfen-Stil.",
+        contactName: "Elena Petrov",
+        phone: "+49 157 55544433",
+        hidePhone: true,
+        email: "elena.harp@gmx.de",
+        isPremium: false,
+        credits: 20,
+        socialLinks: { spotify: "", youtube: "https://youtube.com", instagram: "" },
+        photos: [
+            "https://images.unsplash.com/photo-1507838153414-b4b713384a76?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=400&q=80"
+        ],
+        videos: [
+            { title: "Harfe Live Performance", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" }
+        ],
+        audio: [
+            { title: "Canon in D (Harp Cover)", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+            { title: "River Flows In You (Harp Version)", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
+        ],
+        technik: ["Technik nicht vorhanden"]
+    },
+    {
+        id: "mus_15",
+        name: "The Blues Project",
+        bluffName: "Grooviges Blues- & Soul-Trio",
+        type: "Trio",
+        location: "Hamburg",
+        radius: 110,
+        genres: ["Blues", "Rock", "Folk"],
+        instruments: ["E-Gitarre", "Bass", "Schlagzeug", "Mundharmonika"],
+        minDuration: 2,
+        maxDuration: 4.5,
+        minBudget: 1000,
+        maxBudget: 1900,
+        eventTypes: ["Bar/Kneipe/Club", "Firmenfeier", "Geburtstag", "Sommerfest"],
+        availability: ["Friday", "Saturday", "Thursday"],
+        description: "Handgemachter, rauer Blues mit einer Extraportion Soul. Von tiefen Delta-Blues-Klängen bis hin zu treibendem Chicago-Blues zum Tanzen. Eigene kleine PA-Anlage ist für Events bis 100 Personen vorhanden.",
+        contactName: "Thomas Korb",
+        phone: "+49 171 77766655",
+        hidePhone: true,
+        email: "booking@bluesproject.de",
+        isPremium: true,
+        credits: 35,
+        socialLinks: { spotify: "https://spotify.com", youtube: "", instagram: "https://instagram.com" },
+        photos: [
+            "https://images.unsplash.com/photo-1487180142328-054b783fc471?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=400&q=80"
+        ],
+        videos: [
+            { title: "Live at Hamburg Blues Night", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" }
+        ],
+        audio: [
+            { title: "Sweet Home Chicago (Cover)", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" }
+        ],
+        technik: ["Technik vorhanden"]
+    },
+    {
+        id: "mus_16",
+        name: "Folk & Beyond",
+        bluffName: "Kreatives Indie-Folk & Americana Duo",
+        type: "Duo",
+        location: "Berlin",
+        radius: 140,
+        genres: ["Folk", "Pop", "Country"],
+        instruments: ["Banjo", "Akustikgitarre", "Gesang", "Mandoline"],
+        minDuration: 1.5,
+        maxDuration: 4,
+        minBudget: 780,
+        maxBudget: 1300,
+        eventTypes: ["Hochzeit - Trauung", "Gartenparty", "Firmenfeier", "Festival"],
+        availability: ["Saturday", "Sunday", "Friday"],
+        description: "Mehrstimmiger Gesang kombiniert mit Banjo, Gitarre und Mandoline. Wir entführen Ihre Gäste in die weiten Welten des Folk-Pops und bringen mitreißende Rythmen auf Ihre Garten- oder Hochzeitsfeier.",
+        contactName: "Claas & Lisa",
+        phone: "+49 160 55566688",
+        hidePhone: true,
+        email: "folk.beyond@outlook.de",
+        isPremium: false,
+        credits: 25,
+        socialLinks: { spotify: "", youtube: "https://youtube.com", instagram: "https://instagram.com" },
+        photos: [
+            "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1487180142328-054b783fc471?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1525417071002-5ee4e6bb44f7?auto=format&fit=crop&w=400&q=80"
+        ],
+        videos: [
+            { title: "Unplugged Forest Session", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" }
+        ],
+        audio: [
+            { title: "Ho Hey (Folk Cover)", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
+            { title: "Wagon Wheel (Cover)", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" }
+        ],
+        technik: ["Technik vorhanden"]
     }
 ];
 
@@ -1278,26 +1482,7 @@ class StateManager {
                 
                 userDocRef.onSnapshot(async (doc) => {
                     if (doc.exists) {
-                        const userData = doc.data();
-                        const deviceId = getDeviceId();
-                        const activeDevices = userData.devices || [];
-                        
-                        if (!activeDevices.includes(deviceId)) {
-                            if (activeDevices.length >= 3) {
-                                showToast({
-                                    title: "Gerätelimit erreicht 🚫",
-                                    message: "Dieses Konto ist bereits auf 3 Geräten aktiv. Bitte melde dich auf einem anderen Gerät ab."
-                                });
-                                alert("Limit erreicht: Dieses Konto ist bereits auf der maximalen Anzahl von 3 Geräten aktiv. Bitte melde dich auf einem anderen Gerät ab.");
-                                auth.signOut();
-                                return;
-                            } else {
-                                await userDocRef.update({
-                                    devices: firebase.firestore.FieldValue.arrayUnion(deviceId)
-                                }).catch(err => console.error("Error adding device:", err));
-                            }
-                        }
-                        this.currentUser = userData;
+                        this.currentUser = doc.data();
                         if (this.currentUser.role === 'musician') {
                             this.activeMusicianId = this.currentUser.profileId || null;
                         } else if (this.currentUser.role === 'organizer') {
@@ -1338,26 +1523,7 @@ class StateManager {
                     try {
                         const doc = await userDocRef.get();
                         if (doc.exists) {
-                            const userData = doc.data();
-                            const deviceId = getDeviceId();
-                            const activeDevices = userData.devices || [];
-                            
-                            if (!activeDevices.includes(deviceId)) {
-                                if (activeDevices.length >= 3) {
-                                    showToast({
-                                        title: "Gerätelimit erreicht 🚫",
-                                        message: "Dieses Konto ist bereits auf 3 Geräten aktiv. Bitte melde dich auf einem anderen Gerät ab."
-                                    });
-                                    alert("Limit erreicht: Dieses Konto ist bereits auf der maximalen Anzahl von 3 Geräten aktiv. Bitte melde dich auf einem anderen Gerät ab.");
-                                    auth.signOut();
-                                    return;
-                                } else {
-                                    await userDocRef.update({
-                                        devices: firebase.firestore.FieldValue.arrayUnion(deviceId)
-                                    }).catch(err => console.error("Error adding device:", err));
-                                }
-                            }
-                            this.currentUser = userData;
+                            this.currentUser = doc.data();
                             if (this.currentUser.role === 'musician') {
                                 this.activeMusicianId = this.currentUser.profileId || null;
                             } else if (this.currentUser.role === 'organizer') {
@@ -1448,8 +1614,7 @@ class StateManager {
                             successfulGigs: 0,
                             contactRequests: 0,
                             favorites: [],
-                            interests: [],
-                            devices: [getDeviceId()]
+                            interests: []
                         };
 
                         await db.collection('users').doc(user.uid).set(newUser);
@@ -1554,8 +1719,7 @@ class StateManager {
                             successfulGigs: 0,
                             contactRequests: 0,
                             favorites: [],
-                            interests: [],
-                            devices: [getDeviceId()]
+                            interests: []
                         };
 
                         await db.collection('users').doc(user.uid).set(newUser);
@@ -2087,15 +2251,6 @@ class StateManager {
 
     addEvent(eventData) {
         if (!this.currentUser) return { success: false };
-        const myEvents = this.events.filter(e => e.creatorId === this.currentUser.id);
-        if (myEvents.length >= 50) {
-            showToast({
-                title: "Limit erreicht 🚫",
-                message: "In einem Veranstalter-Account dürfen maximal 50 Event-Profile erstellt werden."
-            });
-            alert("Limit erreicht: In einem Veranstalter-Account dürfen maximal 50 Event-Profile erstellt werden.");
-            return { success: false, limitReached: true };
-        }
         const id = 'evt_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
         const newEvent = {
             id: id,
@@ -2135,15 +2290,6 @@ class StateManager {
 
     addMusician(musicianData) {
         if (!this.currentUser) return { success: false };
-        const myMusicians = this.musicians.filter(m => m.creatorId === this.currentUser.id);
-        if (myMusicians.length >= 5) {
-            showToast({
-                title: "Limit erreicht 🚫",
-                message: "In einem Musiker-Account dürfen maximal 5 Musiker-Profile erstellt werden."
-            });
-            alert("Limit erreicht: In einem Musiker-Account dürfen maximal 5 Musiker-Profile erstellt werden.");
-            return { success: false, limitReached: true };
-        }
         const id = 'mus_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
         const newMusician = {
             id: id,
@@ -2237,15 +2383,7 @@ class StateManager {
         return { success: false };
     }
 
-    async logout() {
-        if (this.currentUser) {
-            const devId = localStorage.getItem('gigconnact_device_id');
-            if (devId) {
-                await db.collection('users').doc(this.currentUser.id).update({
-                    devices: firebase.firestore.FieldValue.arrayRemove(devId)
-                }).catch(err => console.error("Firebase logout device remove failed:", err));
-            }
-        }
+    logout() {
         auth.signOut().catch(err => console.error("Firebase signOut failed:", err));
         this.currentUser = null;
         this.notify();
@@ -3113,49 +3251,57 @@ function renderHeroTabContent(isMusician) {
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">01 Kostenloser Zugang</h4>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zu Events</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Zum Event-Markt (Hochzeiten, Feiern, Festival etc.)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Hochzeiten, Geburtstage, Firmenfeiern, Kirmes, Gartenpartys etc.</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">02 Passende Events</h4>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Passende Events</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Durch Filter-Logik (Event-Typ, Entfernung, Gage etc.)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Event-Art, Entfernung, Gage, VerfÜgbarkeit etc.</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">03 Schnelle Anmeldung</h4>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Direkter Kontakt zu Veranstaltern</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Anlegen eines Musiker-Profils (Ohne Passwort)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">04 Keine Provisionskosten</h4>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Preiswertes Abo-Modell (Jederzeit kündbar)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Veranstalter senden – sondern auch erhalten</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">05 Top-Vorschläge</h4>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÄge</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Durch Matching-Logik (Automatische Event-Empfehlungen)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Automatische Empfehlungen von GigConnAct zu Events</p>
                 </div>
 
                 <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
-                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">06 Direkter Kontakt</h4>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Schnelle Anmeldung</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Zu Veranstaltern der Events (Name, Telefon, Mail, Nachricht etc.)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Anlegen des Musiker-Profils ohne Passwort</p>
+                </div>
+
+                <div style="background: rgba(124, 58, 237, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Preiswertes Abo-Modell (jederzeit kÜndbar)</p>
                 </div>
 
             </div>
@@ -3167,57 +3313,82 @@ function renderHeroTabContent(isMusician) {
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
-                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">01 Kostenloser Zugang</h4>
+                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Kostenloser Zugang zu Musikern</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Zu Musikern (Bands, DJs, Sänger, Duos etc.)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Coverbands, Bands, DJs, Duos, Trios, Gitarristen, SÄnger etc.</p>
                 </div>
 
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
-                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">02 Passende Musiker</h4>
+                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Passende Musiker</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Durch Filter-Logik (Musiker-Typ, Budget, Genre, Spieldauer ...)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Musiker-Typ, Budget, Genre, Spieldauer etc.</p>
                 </div>
 
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
-                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">03 Direkter Kontakt</h4>
+                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Direkter Kontakt zu Musikern</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Zu Musikern (Name, Telefon, Mail, Nachricht etc.)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach</p>
                 </div>
 
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
-                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">04 Top-Vorschläge</h4>
+                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Interessante Anfragen</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Durch Matching-Logik (Automatische Empfehlungen von GigConnAct)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Nicht nur Anfragen an Musiker senden – sondern auch erhalten</p>
                 </div>
 
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
-                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">05 Schnelle Anmeldung</h4>
+                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Top-VorschlÄge</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Anlegen eines Veranstalter-Profils (Ohne Passwort)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Automatische Empfehlungen von GigConnAct zu Musikern</p>
                 </div>
 
                 <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
-                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">06 Keine Provisionskosten</h4>
+                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Schnelle Anmeldung</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Oder andere versteckte Kosten (Kostenlose Vermittlung für Veranstalter)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Anlegen des Veranstalter-Profils ohne Passwort</p>
+                </div>
+
+                <div style="background: rgba(37, 99, 235, 0.14); border: 1.5px solid rgba(96, 165, 250, 0.45); border-radius: 14px; padding: 1.25rem; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #38bdf8; font-size: 1.2rem;"></i>
+                        <h4 style="color: #38bdf8; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Oder andere versteckte Kosten</p>
                 </div>
 
             </div>
         `;
     }
-}function renderLandingPage(container, onNavigate) {
-    window.onNavigate = onNavigate;
+}
+
+function renderLandingPage(container, onNavigate) {
     const isUserLoggedIn = !!state.currentUser;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceFirstVisit = urlParams.get('firstvisit') === 'true' || urlParams.get('reset') === 'true';
+    if (forceFirstVisit) {
+        localStorage.removeItem('gigmatch_homepage_visited');
+    }
+
+    const hasVisited = localStorage.getItem('gigmatch_homepage_visited');
+    const isFirstVisit = !hasVisited;
+
+    const logoClass = isFirstVisit ? 'first-visit-disco' : 'animate-hero-logo';
+    const textClass = isFirstVisit ? 'animate-hero-text first-visit-text' : 'animate-hero-text';
+
+    if (isFirstVisit) {
+        localStorage.setItem('gigmatch_homepage_visited', 'true');
+    }
 
     const bottomCtaButtonHtml = isUserLoggedIn 
         ? `<button class="btn" id="btn-bottom-dashboard-trigger" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: 1.5px solid rgba(255,255,255,0.15); color: #ffffff; padding: 0.95rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 15px; box-shadow: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; white-space: nowrap;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
@@ -3243,9 +3414,44 @@ function renderHeroTabContent(isMusician) {
 
                 <!-- 1/3: Large Logo -->
                 <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0 0.8rem; box-sizing: border-box;">
-                    <!-- Large Image Disco Ball -->
-                    <img src="discoball.png" id="hero-logo-img" class="animate-hero-logo spinning-disco-ball" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); border-radius: 50%; object-fit: cover; flex-shrink: 0; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); transform-origin: center;">
-                    <div class="animate-hero-text" style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.2rem); font-weight: 900; letter-spacing: -1.5px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    <!-- Large SVG Disco Ball -->
+                    <svg id="hero-logo-svg" class="${logoClass}" viewBox="0 0 100 100" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); flex-shrink: 0; overflow: visible; opacity: 1;">
+                      <defs>
+                        <radialGradient id="sphereGradLarge" cx="35%" cy="35%" r="65%">
+                          <stop offset="0%" stop-color="#ffffff" />
+                          <stop offset="40%" stop-color="#a78bfa" />
+                          <stop offset="75%" stop-color="#6d28d9" />
+                          <stop offset="100%" stop-color="#1e40af" />
+                        </radialGradient>
+                        <filter id="glowLarge" x="-30%" y="-30%" width="160%" height="160%">
+                          <feGaussianBlur stdDeviation="2.5" result="blur" />
+                          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                      </defs>
+                      <g class="spinning-disco-ball">
+                          <circle cx="50" cy="50" r="40" fill="url(#sphereGradLarge)" />
+                          <!-- Grid arcs -->
+                          <path d="M 10 50 A 40 40 0 0 0 90 50 A 40 40 0 0 0 10 50" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
+                          <path d="M 11.5 40 A 40 30 0 0 0 88.5 40" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 15 30 A 40 20 0 0 0 85 30" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 21.8 20 A 40 10 0 0 0 78.2 20" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 11.5 60 A 40 30 0 0 1 88.5 60" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 15 70 A 40 20 0 0 1 85 70" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 21.8 80 A 40 10 0 0 1 78.2 80" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 50 10 A 40 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
+                          <path d="M 50 10 A 30 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 50 10 A 20 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 50 10 A 10 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 50 10 A 30 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 50 10 A 20 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                          <path d="M 50 10 A 10 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      </g>
+                      <!-- Sparkles -->
+                      <g transform="translate(22, 25)" filter="url(#glowLarge)"><polygon class="sparkle-1" points="0,-8 2,-2 8,0 2,2 0,8 -2,2 -8,0 -2,-2" fill="#ffffff" /></g>
+                      <g transform="translate(75, 30)" filter="url(#glowLarge)"><polygon class="sparkle-2" points="0,-6 1.5,-1.5 6,0 1.5,1.5 0,6 -1.5,1.5 -6,0 -1.5,-1.5" fill="#ffffff" /></g>
+                      <g transform="translate(68, 68)" filter="url(#glowLarge)"><polygon class="sparkle-3" points="0,-7 1.8,-1.8 7,0 1.8,1.8 0,7 -1.8,1.8 -7,0 -1.8,-1.8" fill="#ffffff" /></g>
+                    </svg>
+                    <div class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.2rem); font-weight: 900; letter-spacing: -1.5px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                         GigConnAct
                     </div>
                 </div>
@@ -3279,11 +3485,13 @@ function renderHeroTabContent(isMusician) {
             <div style="max-width: 1400px; margin: 0 auto; padding: 3rem 1.5rem 0;">
                 
                 <!-- Headline: Event-Markt -->
-                <div style="text-align: center; margin-bottom: 2.0rem; padding: 0 1rem;">
-                    <h2 onclick="window.onNavigate('events')" style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5.8vw, 4.2rem); font-weight: 900; color: #0f172a; margin: 0; line-height: 1.15; letter-spacing: -1.5px; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#7c3aed'; this.querySelector('.arrow-icon').style.transform='translateX(6px)';" onmouseout="this.style.color='#0f172a'; this.querySelector('.arrow-icon').style.transform='translateX(0)';">
-                        Der Event-Markt<br>
-                        <span style="color: #7c3aed; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;">Für Musiker<i class="fa-solid fa-arrow-right-long arrow-icon" style="font-size: 0.55em; transition: transform 0.2s; vertical-align: middle;"></i></span>
+                <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
+                        Der Event-Markt.
                     </h2>
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.25rem, 5.2vw, 3.8rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
+                        Musiker suchen Gigs.
+                    </div>
                 </div>
 
                 <!-- Subtitle: Category Icons -->
@@ -3305,7 +3513,7 @@ function renderHeroTabContent(isMusician) {
                 <div class="carousel-container" style="margin-bottom: 1.5rem;">
                     <div class="carousel-viewport">
                         <div class="carousel-track theme-musician" id="carousel-track-events">
-                            ${renderMarketGridHTML(state.events.filter(e => isEventActive(e)).slice(0, 9), true, true)}
+                            ${renderMarketGridHTML(state.events.slice(0, 9), true, true)}
                         </div>
                     </div>
                 </div>
@@ -3395,11 +3603,13 @@ function renderHeroTabContent(isMusician) {
             <div style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1.5rem 0;">
                 
                 <!-- Headline: Musiker-Markt -->
-                <div style="text-align: center; margin-bottom: 2.0rem; padding: 0 1rem;">
-                    <h2 onclick="window.onNavigate('musicians')" style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5.8vw, 4.2rem); font-weight: 900; color: #0f172a; margin: 0; line-height: 1.15; letter-spacing: -1.5px; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'; this.querySelector('.arrow-icon').style.transform='translateX(6px)';" onmouseout="this.style.color='#0f172a'; this.querySelector('.arrow-icon').style.transform='translateX(0)';">
-                        Der Musiker-Markt<br>
-                        <span style="color: #2563eb; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;">Für Veranstalter<i class="fa-solid fa-arrow-right-long arrow-icon" style="font-size: 0.55em; transition: transform 0.2s; vertical-align: middle;"></i></span>
+                <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
+                        Der Musiker-Markt.
                     </h2>
+                    <div style="font-family: var(--font-heading); font-size: clamp(1.25rem, 5.2vw, 3.8rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
+                        Veranstalter suchen Acts.
+                    </div>
                 </div>
 
                 <!-- Subtitle: Category Icons -->
@@ -3421,7 +3631,7 @@ function renderHeroTabContent(isMusician) {
                 <div class="carousel-container" style="margin-bottom: 1.5rem;">
                     <div class="carousel-viewport">
                         <div class="carousel-track theme-organizer" id="carousel-track-musicians">
-                            ${renderMarketGridHTML(state.musicians.filter(m => m.isActive !== false).slice(0, 9), false, true)}
+                            ${renderMarketGridHTML(state.musicians.slice(0, 9), false, true)}
                         </div>
                     </div>
                 </div>
@@ -3597,149 +3807,90 @@ function renderHeroTabContent(isMusician) {
                             </div>
 
                             <!-- List stack -->
-                            <div style="display: flex; flex-direction: column; gap: 0.8rem; width: 100%;">
+                            <div style="display: flex; flex-direction: column; gap: 1.1rem; width: 100%;">
                                 
                                 <!-- Item 1 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
-                                        <i class="fa-solid fa-store" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                        <i class="fa-solid fa-comments" style="color: #7c3aed; font-size: 1rem;"></i>
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
-                                            01 Kostenloser Zugang
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
+                                            Direkter Kontakt zu Veranstaltern
                                         </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Zum Event-Markt
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Hochzeiten, Feiern, Festival etc.
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
+                                            Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach
                                         </div>
                                     </div>
-                                </div>
-
-                                <!-- Arrow 1 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(124, 58, 237, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 2 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
-                                        <i class="fa-solid fa-sliders" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                        <i class="fa-solid fa-sliders" style="color: #7c3aed; font-size: 1rem;"></i>
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
-                                            02 Passende Events
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
+                                            Passende Events
                                         </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Durch Filter-Logik
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Event-Typ, Entfernung, Gage etc.
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
+                                            Event-Art, Entfernung, Gage, Verfügbarkeit etc.
                                         </div>
                                     </div>
-                                </div>
-
-                                <!-- Arrow 2 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(124, 58, 237, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 3 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
-                                        <i class="fa-solid fa-bolt" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                        <i class="fa-solid fa-star" style="color: #7c3aed; font-size: 1rem;"></i>
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
-                                            03 Schnelle Anmeldung
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
+                                            Top-Vorschläge
                                         </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Anlegen eines Musiker-Profils
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Ohne Passwort
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
+                                            Automatische Empfehlungen von GigConnAct zu Events
                                         </div>
                                     </div>
-                                </div>
-
-                                <!-- Arrow 3 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(124, 58, 237, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 4 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
-                                        <i class="fa-solid fa-percent" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                        <i class="fa-solid fa-bolt" style="color: #7c3aed; font-size: 1rem;"></i>
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
-                                            04 Keine Provisionskosten
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
+                                            Schnelle Anmeldung
                                         </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Preiswertes Abo-Modell
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Jederzeit kündbar
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
+                                            Anlegen des Musiker-Profils ohne Passwort
                                         </div>
                                     </div>
-                                </div>
-
-                                <!-- Arrow 4 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(124, 58, 237, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 5 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
-                                        <i class="fa-solid fa-star" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 60px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                        <i class="fa-solid fa-shield-halved" style="color: #7c3aed; font-size: 1rem;"></i>
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
-                                            05 Top-Vorschläge
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
+                                            Keine Provisionskosten
                                         </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Durch Matching-Logik
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Automatische Event-Empfehlungen
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
+                                            Preiswertes Abo-Modell (jederzeit kündbar - auch in der Testphase)
                                         </div>
                                     </div>
-                                </div>
-
-                                <!-- Arrow 5 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(124, 58, 237, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </div>
-
-                                <!-- Item 6 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
-                                        <i class="fa-solid fa-comments" style="color: #7c3aed; font-size: 1.0rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
-                                            06  Direkter Kontakt
-                                        </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Zu Veranstaltern der Events
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Name, Telefon, Mail, Nachricht etc.
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Button: Hier geht's zum Event-Markt -->
-                                <div style="margin-top: 1.5rem; text-align: center; width: 100%;">
-                                    <button id="btn-benefits-to-events" class="btn-homepage-market theme-musician" style="width: 100%; box-sizing: border-box; margin: 0;">
-                                        Hier geht's zum Event-Markt <i class="fa-solid fa-arrow-right"></i>
-                                    </button>
                                 </div>
 
                             </div>
+                        </div>
+
+                        <div style="margin-top: 2rem; text-align: center; width: 100%;">
+                            <button id="btn-benefits-to-events" class="btn-homepage-market theme-musician" style="width: 100%; box-sizing: border-box;">
+                                Hier geht's zum Event-Markt <i class="fa-solid fa-arrow-right"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -3763,154 +3914,97 @@ function renderHeroTabContent(isMusician) {
                             </div>
 
                             <!-- List stack -->
-                            <div style="display: flex; flex-direction: column; gap: 0.8rem; width: 100%;">
+                            <div style="display: flex; flex-direction: column; gap: 1.1rem; width: 100%;">
                                 
                                 <!-- Item 1 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
-                                        <i class="fa-solid fa-users" style="color: #2563eb; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                        <i class="fa-solid fa-comments" style="color: #2563eb; font-size: 1rem;"></i>
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #2563eb;">
-                                            01 Kostenloser Zugang
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
+                                            Direkter Kontakt zu Musikern
                                         </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Zu Musikern
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Bands, DJs, Sänger, Duos etc.
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
+                                            Telefonnummern, Mail-Adressen, Nachrichten im GigConnAct-Postfach
                                         </div>
                                     </div>
-                                </div>
-
-                                <!-- Arrow 1 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(37, 99, 235, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 2 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
-                                        <i class="fa-solid fa-sliders" style="color: #2563eb; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                        <i class="fa-solid fa-sliders" style="color: #2563eb; font-size: 1rem;"></i>
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #2563eb;">
-                                            02 Passende Musiker
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
+                                            Passende Musiker
                                         </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Durch Filter-Logik
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
                                             Musiker-Typ, Budget, Genre, Spieldauer etc.
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Arrow 2 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(37, 99, 235, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </div>
-
                                 <!-- Item 3 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
-                                        <i class="fa-solid fa-comments" style="color: #2563eb; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                        <i class="fa-solid fa-star" style="color: #2563eb; font-size: 1rem;"></i>
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #2563eb;">
-                                            03 Direkter Kontakt
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
+                                            Top-Vorschläge
                                         </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Zu Musikern
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Name, Telefon, Mail, Nachricht etc.
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
+                                            Automatische Empfehlungen von GigConnAct zu Musikern
                                         </div>
                                     </div>
-                                </div>
-
-                                <!-- Arrow 3 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(37, 99, 235, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 4 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
-                                        <i class="fa-solid fa-star" style="color: #2563eb; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(226, 232, 240, 0.4); min-height: 60px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                        <i class="fa-solid fa-bolt" style="color: #2563eb; font-size: 1rem;"></i>
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #2563eb;">
-                                            04 Top-Vorschläge
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
+                                            Schnelle Anmeldung
                                         </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Durch Matching-Logik
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Automatische Empfehlungen von GigConnAct
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
+                                            Anlegen des Veranstalter-Profils ohne Passwort
                                         </div>
                                     </div>
-                                </div>
-
-                                <!-- Arrow 4 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(37, 99, 235, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
                                 </div>
 
                                 <!-- Item 5 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
-                                        <i class="fa-solid fa-bolt" style="color: #2563eb; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 60px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
+                                        <i class="fa-solid fa-shield-halved" style="color: #2563eb; font-size: 1rem;"></i>
                                     </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #2563eb;">
-                                            05 Schnelle Anmeldung
+                                    <div style="display: flex; flex-direction: column; gap: 0.15rem; text-align: left;">
+                                        <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-main); display: flex; gap: 0.5rem; align-items: center;">
+                                            Keine Provisionskosten
                                         </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Anlegen eines Veranstalter-Profils
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Ohne Passwort
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Arrow 5 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(37, 99, 235, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </div>
-
-                                <!-- Item 6 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
-                                        <i class="fa-solid fa-percent" style="color: #2563eb; font-size: 1.0rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #2563eb;">
-                                            06 Keine Provisionskosten
-                                        </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
+                                        <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 500; line-height: 1.4;">
                                             Oder andere versteckte Kosten
                                         </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Kostenlose Vermittlung für Veranstalter
-                                        </div>
                                     </div>
-                                </div>
-
-                                <!-- Button: Hier geht's zum Musiker-Markt -->
-                                <div style="margin-top: 1.5rem; text-align: center; width: 100%;">
-                                    <button id="btn-benefits-to-musicians" class="btn-homepage-market theme-organizer" style="width: 100%; box-sizing: border-box; margin: 0;">
-                                        Hier geht's zum Musiker-Markt <i class="fa-solid fa-arrow-right"></i>
-                                    </button>
                                 </div>
 
                             </div>
                         </div>
+
+                        <div style="margin-top: 2rem; text-align: center; width: 100%;">
+                            <button id="btn-benefits-to-musicians" class="btn-homepage-market theme-organizer" style="width: 100%; box-sizing: border-box;">
+                                Hier geht's zum Musiker-Markt <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
                     </div>
+
                 </div>
             </div>
-<!-- Founder Title: „Airbnb für Live-Musik“ -->
+
+            <!-- Founder Title: „Airbnb für Live-Musik“ -->
             <div style="max-width: 900px; margin: 6rem auto -4rem; padding: 0 1.5rem; text-align: center;">
                 <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
                     „Airbnb für Live-Musik“
@@ -4016,7 +4110,6 @@ function renderHeroTabContent(isMusician) {
     const heroLogo = document.getElementById('hero-logo-svg');
     if (heroLogo) {
         heroLogo.style.opacity = '1';
-        heroLogo.classList.add('animate-hero-logo');
     }
 
     document.getElementById('btn-hero-musician')?.addEventListener('click', () => {
@@ -4068,18 +4161,9 @@ function renderHeroTabContent(isMusician) {
     const v2 = container.querySelector('#hero-bg-video-2');
 
     if (v1 && v2) {
-        // Optimization: Defer preloading the next video in v2 until v1 has started playing.
-        // This ensures 100% of bandwidth goes to loading the first background video quickly!
-        const preloadNextVideo = () => {
-            if (!v2.src || v2.src === '' || v2.src === window.location.href) {
-                v2.src = heroVideos[1];
-                v2.load();
-            }
-            v1.removeEventListener('playing', preloadNextVideo);
-        };
-        v1.addEventListener('playing', preloadNextVideo);
-        // Fallback: If playing doesn't trigger, preload after 5 seconds
-        setTimeout(preloadNextVideo, 5000);
+        // Preload next video in v2 immediately
+        v2.src = heroVideos[1];
+        v2.load();
 
         const transitionDuration = 1500; // 1.5s fade transition
         let isTransitioning = false;
@@ -4585,13 +4669,10 @@ function renderMarket(container, type, onNavigate) {
     const isEvents = type === 'events';
     const title = isEvents ? 'Event-Markt für Musiker' : 'Musiker-Markt für Veranstalter';
 
-    const rawItems = isEvents ? state.events : state.musicians;
-    const items = isEvents 
-        ? rawItems.filter(e => isEventActive(e))
-        : rawItems.filter(m => m.isActive !== false);
+    const items = isEvents ? state.events : state.musicians;
     
     let selectedFilterDates = [];
-    let currentFilterCalDate = new Date();
+    let currentFilterCalDate = new Date(2026, 6, 1); // July 2026
     let showOnlyTopMatches = false;
     let showOnlyFavorites = false;
 
@@ -4662,14 +4743,14 @@ function renderMarket(container, type, onNavigate) {
                 
                 <!-- Left Sidebar Filters (Responsive Wrapper) -->
                 <div id="market-filters-wrapper" class="market-filter-card">
-                    <div class="filter-header-sticky" style="display: flex; align-items: center; justify-content: space-between; position: relative; width: calc(100% - 1.2rem) !important;">
+                                        <div class="filter-header-sticky" style="display: flex; align-items: center; position: relative; width: calc(100% - 1.2rem) !important;">
                         <!-- Left: Title -->
-                        <span class="filter-header-title" style="font-family: var(--font-heading); font-weight: 900; font-size: 1.1rem; letter-spacing: -0.3px; margin-right: auto;">
+                        <span class="filter-header-title" style="flex: 1; text-align: left; font-family: var(--font-heading); font-weight: 900; font-size: 1.1rem; letter-spacing: -0.3px;">
                             Filter
                         </span>
                         
-                        <!-- Right: Sort and Reset -->
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        <!-- Center: Sort and Reset -->
+                        <div class="filter-header-controls" style="display: flex; align-items: center; gap: 1.2rem; justify-content: center; flex: 1;">
                             <!-- 2. Sortierung inside Filter Sidebar Header -->
                             <div class="market-sort-container-round" style="width: 42px !important; height: 42px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 50% !important; flex-shrink: 0; position: relative; margin: 0; cursor: pointer; transition: all 0.2s;">
                                 <i class="fa-solid fa-arrow-down-wide-short" style="color: #ffffff; font-size: 1.05rem; pointer-events: none;"></i>
@@ -4700,14 +4781,11 @@ function renderMarket(container, type, onNavigate) {
                         <div style="display: flex; flex-direction: column; gap: 0.8rem; padding: 1rem;">
                             
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; ">Event-Typ</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-event-type-grid')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle abwählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="filter-event-type-grid">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Event-Typ</label>
+                                <div class="checkbox-tag-grid" id="filter-event-type-grid">
                                     ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterEventTypes" value="${t}" checked>
+                                            <input type="checkbox" name="filterEventTypes" value="${t}">
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -4715,7 +4793,7 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Datum / Kalender</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Datum / Kalender</label>
                                 <div class="filter-calendar-widget" id="filter-calendar-widget">
                                     <div class="filter-calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                         <button type="button" class="btn-cal-prev" id="btn-filter-cal-prev" style="background: none; border: none; cursor: pointer; color: #64748b; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-chevron-left"></i></button>
@@ -4731,19 +4809,16 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Ort / PLZ</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Ort / PLZ</label>
                                 <input type="text" id="filter-location" placeholder="z.B. Köln, Berlin..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; ">Genres</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-genres-grid')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle abwählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="filter-genres-grid">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Genres</label>
+                                <div class="checkbox-tag-grid" id="filter-genres-grid">
                                     ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterGenres" value="${g}" checked>
+                                            <input type="checkbox" name="filterGenres" value="${g}">
                                             <span>${g}</span>
                                         </label>
                                     `).join('')}
@@ -4751,14 +4826,11 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; ">Instrumente</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-instruments-grid')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle abwählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="filter-instruments-grid">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Instrumente</label>
+                                <div class="checkbox-tag-grid" id="filter-instruments-grid">
                                     ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/CajÃ³n', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterInstruments" value="${ins}" checked>
+                                            <input type="checkbox" name="filterInstruments" value="${ins}">
                                             <span>${ins}</span>
                                         </label>
                                     `).join('')}
@@ -4767,8 +4839,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Spieldauer (Std.)</label>
-                                    <span id="val-filter-duration" style="font-size: 0.85rem; font-weight: 700; color: #7c3aed;">0,5 - 10,0 Std.</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Spieldauer (Std.)</label>
+                                    <span id="val-filter-duration" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0,5 - 10,0 Std.</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-duration-container">
                                     <div class="dual-range-track"></div>
@@ -4780,8 +4852,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Budget (€)</label>
-                                    <span id="val-filter-budget" style="font-size: 0.85rem; font-weight: 700; color: #7c3aed;">0 - 5.000+ €</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Budget (€)</label>
+                                    <span id="val-filter-budget" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0 - 5.000+ €</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-budget-container">
                                     <div class="dual-range-track"></div>
@@ -4793,8 +4865,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
-                                    <span id="val-filter-publikum" style="font-size: 0.85rem; font-weight: 700; color: #7c3aed;">0 - 500+</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
+                                    <span id="val-filter-publikum" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0 - 500+</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-publikum-container">
                                     <div class="dual-range-track"></div>
@@ -4805,11 +4877,11 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Technik</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Technik</label>
                                 <div class="checkbox-tag-grid" id="filter-technik-grid">
                                     ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterTechnik" value="${t}" checked>
+                                            <input type="checkbox" name="filterTechnik" value="${t}">
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -4818,7 +4890,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK (WEISSES EINGABEFELD) -->
                             <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Suchbegriffe</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Suchbegriffe</label>
                                 <input type="text" id="filter-keyword" placeholder="z.B. Hochzeit, Sax, Rock..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
@@ -4828,14 +4900,11 @@ function renderMarket(container, type, onNavigate) {
                         <div style="display: flex; flex-direction: column; gap: 0.8rem; padding: 1rem;">
                             
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; ">Musiker-Typ</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-musician-type-grid')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle abwählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="filter-musician-type-grid">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Musiker-Typ</label>
+                                <div class="checkbox-tag-grid" id="filter-musician-type-grid">
                                     ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterMusicianTypes" value="${t}" checked>
+                                            <input type="checkbox" name="filterMusicianTypes" value="${t}">
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -4843,7 +4912,7 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Datum / Kalender</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Datum / Kalender</label>
                                 <div class="filter-calendar-widget" id="filter-calendar-widget">
                                     <div class="filter-calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                         <button type="button" class="btn-cal-prev" id="btn-filter-cal-prev" style="background: none; border: none; cursor: pointer; color: #64748b; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-chevron-left"></i></button>
@@ -4859,27 +4928,24 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Ort</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Ort</label>
                                 <input type="text" id="filter-location-m" placeholder="z.B. München, Köln..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Maximaler Umkreis</label>
-                                    <span id="val-filter-radius-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">500 km</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Maximaler Umkreis</label>
+                                    <span id="val-filter-radius-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">500 km</span>
                                 </div>
                                 <input type="range" class="form-input" id="input-filter-radius-m" min="0" max="500" step="50" value="500" style="width: 100%; accent-color: #2563eb;">
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; ">Genres</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-genres-grid-m')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle abwählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="filter-genres-grid-m">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Genres</label>
+                                <div class="checkbox-tag-grid" id="filter-genres-grid-m">
                                     ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterGenresM" value="${g}" checked>
+                                            <input type="checkbox" name="filterGenresM" value="${g}">
                                             <span>${g}</span>
                                         </label>
                                     `).join('')}
@@ -4887,14 +4953,11 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; ">Instrumente</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-instruments-grid-m')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle abwählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Instrumente</label>
+                                <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
                                     ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/CajÃ³n', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterInstrumentsM" value="${ins}" checked>
+                                            <input type="checkbox" name="filterInstrumentsM" value="${ins}">
                                             <span>${ins}</span>
                                         </label>
                                     `).join('')}
@@ -4903,8 +4966,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Spieldauer (Std.)</label>
-                                    <span id="val-filter-duration-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">0,5 - 10,0 Std.</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Spieldauer (Std.)</label>
+                                    <span id="val-filter-duration-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0,5 - 10,0 Std.</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-duration-m-container">
                                     <div class="dual-range-track"></div>
@@ -4916,8 +4979,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Gage (€)</label>
-                                    <span id="val-filter-gage-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">0 - 5.000+ €</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Gage (€)</label>
+                                    <span id="val-filter-gage-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0 - 5.000+ €</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-gage-m-container">
                                     <div class="dual-range-track"></div>
@@ -4929,8 +4992,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
-                                    <span id="val-filter-publikum-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">0 - 500+</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
+                                    <span id="val-filter-publikum-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0 - 500+</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-publikum-m-container">
                                     <div class="dual-range-track"></div>
@@ -4941,14 +5004,11 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important; display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; ">Event-Typen</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'filter-event-types-grid-m')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle abwählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Bevorzugte Event-Typen</label>
+                                <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
                                     ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterEventTypesM" value="${evt}" checked>
+                                            <input type="checkbox" name="filterEventTypesM" value="${evt}">
                                             <span>${evt}</span>
                                         </label>
                                     `).join('')}
@@ -4956,11 +5016,11 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Technik</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Technik</label>
                                 <div class="checkbox-tag-grid" id="filter-technik-grid-m">
                                     ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterTechnikM" value="${t}" checked>
+                                            <input type="checkbox" name="filterTechnikM" value="${t}">
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -4969,7 +5029,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK (WEISSES EINGABEFELD) -->
                             <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Suchbegriffe</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Suchbegriffe</label>
                                 <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
@@ -5204,8 +5264,11 @@ function renderMarket(container, type, onNavigate) {
         }
 
         // 3. Genres Filter
-        const selGenres = isEvents ? getCheckedValues('filter-genres-grid') : getCheckedValues('filter-genres-grid-m');
-        if (selGenres.length > 0) {
+        const genresGridId = isEvents ? 'filter-genres-grid' : 'filter-genres-grid-m';
+        const genresGrid = container.querySelector('#' + genresGridId);
+        const genresInteracted = genresGrid && genresGrid.dataset.interacted === 'true';
+        const selGenres = getCheckedValues(genresGridId);
+        if (genresInteracted || selGenres.length > 0) {
             list = list.filter(item => {
                 const itemG = item.genres || [];
                 return selGenres.some(g => itemG.some(ig => ig.toLowerCase().includes(g.toLowerCase())));
@@ -5213,8 +5276,11 @@ function renderMarket(container, type, onNavigate) {
         }
 
         // 4. Instrumente Filter
-        const selInst = isEvents ? getCheckedValues('filter-instruments-grid') : getCheckedValues('filter-instruments-grid-m');
-        if (selInst.length > 0) {
+        const instGridId = isEvents ? 'filter-instruments-grid' : 'filter-instruments-grid-m';
+        const instGrid = container.querySelector('#' + instGridId);
+        const instInteracted = instGrid && instGrid.dataset.interacted === 'true';
+        const selInst = getCheckedValues(instGridId);
+        if (instInteracted || selInst.length > 0) {
             list = list.filter(item => {
                 const itemI = item.instruments || [];
                 return selInst.some(inst => itemI.some(i => i.toLowerCase().includes(inst.toLowerCase())));
@@ -5222,8 +5288,11 @@ function renderMarket(container, type, onNavigate) {
         }
 
         // 5. Musiker-Typ / Event-Typ
-        const selType = isEvents ? getCheckedValues('filter-event-type-grid') : getCheckedValues('filter-musician-type-grid');
-        if (selType.length > 0) {
+        const typeGridId = isEvents ? 'filter-event-type-grid' : 'filter-musician-type-grid';
+        const typeGrid = container.querySelector('#' + typeGridId);
+        const typeInteracted = typeGrid && typeGrid.dataset.interacted === 'true';
+        const selType = getCheckedValues(typeGridId);
+        if (typeInteracted || selType.length > 0) {
             list = list.filter(item => {
                 const val = (item.type || item.eventType || '');
                 return selType.some(t => val.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(val.toLowerCase()));
@@ -5231,8 +5300,11 @@ function renderMarket(container, type, onNavigate) {
         }
 
         // 6. Technik Filter
-        const selTechnik = isEvents ? getCheckedValues('filter-technik-grid') : getCheckedValues('filter-technik-grid-m');
-        if (selTechnik.length > 0) {
+        const techGridId = isEvents ? 'filter-technik-grid' : 'filter-technik-grid-m';
+        const techGrid = container.querySelector('#' + techGridId);
+        const techInteracted = techGrid && techGrid.dataset.interacted === 'true';
+        const selTechnik = getCheckedValues(techGridId);
+        if (techInteracted || selTechnik.length > 0) {
             list = list.filter(item => {
                 const rawVal = item.technik || item.equipment || '';
                 const itemTechArr = Array.isArray(rawVal) 
@@ -5286,7 +5358,7 @@ function renderMarket(container, type, onNavigate) {
             }
         }
 
-        // 11. Event-Typen Filter (for Musiker-Markt only)
+        // 11. Bevorzugte Event-Typen Filter (for Musiker-Markt only)
         if (!isEvents) {
             const selEvtTypes = getCheckedValues('filter-event-types-grid-m');
             if (selEvtTypes.length > 0) {
@@ -5441,6 +5513,10 @@ function renderMarket(container, type, onNavigate) {
         input.addEventListener('change', (e) => {
             if (e.target.type === 'checkbox') {
                 e.target.parentElement.classList.toggle('active', e.target.checked);
+                const grid = e.target.closest('.checkbox-tag-grid');
+                if (grid) {
+                    grid.dataset.interacted = "true";
+                }
             }
             applyAllFiltersAndSort();
         });
@@ -5474,6 +5550,9 @@ function renderMarket(container, type, onNavigate) {
         container.querySelectorAll('.tag-pill-checkbox input').forEach(el => {
             el.checked = false;
             el.parentElement.classList.remove('active');
+        });
+        container.querySelectorAll('.checkbox-tag-grid').forEach(grid => {
+            grid.removeAttribute('data-interacted');
         });
         
         const durationMin = container.querySelector('#input-filter-duration-min') || container.querySelector('#input-filter-duration-m-min');
@@ -5732,7 +5811,7 @@ window.openItemDetailModal = function(id, isEvents) {
             <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 20px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); position: relative;">
                 
                 <!-- Close Button -->
-                <button onclick="window.closeItemDetailModal();" style="position: absolute; top: 15px; right: 15px; z-index: 10; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                <button onclick="document.getElementById('modal-item-detail').remove();" style="position: absolute; top: 15px; right: 15px; z-index: 10; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
 
@@ -5812,15 +5891,6 @@ window.openItemDetailModal = function(id, isEvents) {
                             </div>
                         </div>
 
-                        ${isEvents ? `
-                        <div>
-                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Musiker-Typen</span>
-                            <div style="display: flex; flex-wrap: wrap; gap: 0.3rem;">
-                                ${(item.musicianTypes || []).map(t => `<span style="background: rgba(37, 99, 235, 0.15); padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.78rem; color: #2563eb; font-weight: 700;">${t}</span>`).join('') || '<span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic;">Keine Angabe</span>'}
-                            </div>
-                        </div>
-                        ` : ''}
-
                         <div>
                             <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">${isEvents ? 'Veranstaltungsdatum' : 'Verfügbarkeiten'}</span>
                             <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-calendar-days" style="color: ${roleColor};"></i> ${dateDisplay}</strong>
@@ -5880,7 +5950,7 @@ window.openItemDetailModal = function(id, isEvents) {
                             <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">
                                 Kontaktdaten (Telefonnummer & E-Mail-Adresse) sind im geschützten Modus verborgen. Registriere dich oder melde dich an, um direkt zu kommunizieren.
                             </p>
-                            <button class="btn btn-primary" onclick="window.closeItemDetailModal(); showModal('auth');" style="background: ${isEvents ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'}; border-color: ${isEvents ? '#1e40af' : '#7c3aed'}; font-weight: 800; padding: 0.9rem 2rem; font-size: 1rem; border-radius: 12px; display: inline-flex; align-items: center; gap: 0.6rem; box-shadow: ${isEvents ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'};">
+                            <button class="btn btn-primary" onclick="showModal('auth'); document.getElementById('modal-item-detail').remove();" style="background: ${isEvents ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'} !important; border-color: ${isEvents ? '#1e40af' : '#7c3aed'} !important; font-weight: 800; padding: 0.9rem 2rem; font-size: 1rem; border-radius: 12px; display: inline-flex; align-items: center; gap: 0.6rem; box-shadow: ${isEvents ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'} !important;">
                                 <i class="fa-solid fa-sign-in-alt"></i> Kontaktdaten freischalten
                             </button>
                         `}
@@ -6500,7 +6570,7 @@ function renderProfilePage(container) {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             state.logout();
-            window.navigateToRoute('/');
+            window.location.hash = '#/';
         });
     }
 }
@@ -6514,13 +6584,13 @@ function renderMatchesPage(container) {
         
         let profiles = [];
         if (isMusician) {
-            profiles = state.musicians.filter(m => m.creatorId === u.id && m.isActive !== false);
+            profiles = state.musicians.filter(m => m.creatorId === u.id);
         } else {
-            profiles = state.events.filter(e => e.creatorId === u.id && isEventActive(e));
+            profiles = state.events.filter(e => e.creatorId === u.id);
         }
         
         let selectedId = isMusician ? state.activeMusicianId : state.activeEventId;
-        if ((!selectedId || !profiles.some(p => p.id === selectedId)) && profiles.length > 0) {
+        if (!selectedId && profiles.length > 0) {
             selectedId = profiles[0].id;
             if (isMusician) state.activeMusicianId = selectedId;
             else state.activeEventId = selectedId;
@@ -6733,7 +6803,7 @@ function renderOrganizerEventItem(e, isActive) {
         e.profilePic || (e.type && (e.type.toLowerCase().includes('hochzeit') || e.type.toLowerCase().includes('wedding')) ? 'https://picsum.photos/id/111/300/300' : 'https://picsum.photos/id/1025/300/300'),
         'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80',
         'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80'
-    ]).slice(0, 3);
+    ]).slice(0, 5);
 
     const videoSources = e.videos && e.videos.length > 0 ? e.videos : [];
 
@@ -6763,8 +6833,11 @@ function renderOrganizerEventItem(e, isActive) {
     return `
         <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'};">
             
-            <!-- 1. Combined Galerie: 3 Fotos (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
+            <!-- 1. Combined Galerie: Photos (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
             <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 210px; background: #0f172a; overflow: hidden;">
+                <span class="tile-gallery-counter" style="position: absolute; bottom: 12px; left: 12px; z-index: 4; font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.75); padding: 0.25rem 0.5rem; border-radius: 6px; backdrop-filter: blur(4px); pointer-events: none; border: 1px solid rgba(255,255,255,0.1);">
+                    📷 1 / ${photos.length}
+                </span>
                 
                 <div id="combo-slider-${e.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
                     <!-- Slides 1-3: Fotos -->
@@ -6929,17 +7002,7 @@ function renderMyEvents(container) {
 
     const createBtn = document.getElementById('btn-create-event-modal');
     if (createBtn) {
-        createBtn.addEventListener('click', () => {
-            if (state.events.filter(e => e.creatorId === state.currentUser.id).length >= 50) {
-                showToast({
-                    title: "Limit erreicht 🚫",
-                    message: "In einem Veranstalter-Account dürfen maximal 50 Event-Profile erstellt werden."
-                });
-                alert("Limit erreicht: In einem Veranstalter-Account dürfen maximal 50 Event-Profile erstellt werden.");
-                return;
-            }
-            showEventModal(null);
-        });
+        createBtn.addEventListener('click', () => showEventModal(null));
     }
 
     container.querySelectorAll('.btn-pause-my-event').forEach(btn => {
@@ -6958,14 +7021,6 @@ function renderMyEvents(container) {
 
     container.querySelectorAll('.btn-duplicate-my-event').forEach(btn => {
         btn.addEventListener('click', () => {
-            if (state.events.filter(e => e.creatorId === state.currentUser.id).length >= 50) {
-                showToast({
-                    title: "Limit erreicht 🚫",
-                    message: "In einem Veranstalter-Account dürfen maximal 50 Event-Profile erstellt werden."
-                });
-                alert("Limit erreicht: In einem Veranstalter-Account dürfen maximal 50 Event-Profile erstellt werden.");
-                return;
-            }
             const id = btn.getAttribute('data-id');
             const event = state.events.find(e => e.id === id);
             if (event) {
@@ -7129,16 +7184,21 @@ function renderMusicianInsightsPanel(m) {
 }
 
 function renderMyMusicianItem(m, isActive) {
-    const photos = (m.photos || [
-        m.profilePic || (m.type === 'DJ' ? 'https://picsum.photos/id/653/300/300' : m.type === 'Solo' ? 'https://picsum.photos/id/325/300/300' : 'https://picsum.photos/id/453/300/300'),
-        'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80'
-    ]).slice(0, 3);
+    const photos = (m.photos && m.photos.length > 0)
+        ? m.photos.slice(0, 5)
+        : [
+            m.profilePic || (m.type === 'DJ' ? 'https://picsum.photos/id/653/300/300' : m.type === 'Solo' ? 'https://picsum.photos/id/325/300/300' : 'https://picsum.photos/id/453/300/300'),
+            'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80'
+          ].slice(0, 5);
 
-    const videoSources = m.videos && m.videos.length > 0 ? m.videos : [
+    const videoSources = (m.videos && m.videos.length > 0) ? m.videos.slice(0, 3) : [
         { title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' },
-        { title: 'Auftritt Showreel & Trailer', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },
-        { title: 'Unplugged Live Session', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' }
+        { title: 'Auftritt Showreel & Trailer', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' }
+    ];
+
+    const audios = (m.audio && m.audio.length > 0) ? m.audio.slice(0, 3) : [
+        { title: 'Live Medley Demo', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' }
     ];
 
     const genresArr = m.genres && m.genres.length > 0 ? m.genres : ['Pop', 'Rock'];
@@ -7186,9 +7246,9 @@ function renderMyMusicianItem(m, isActive) {
         if (m.availability.tuesday?.available) activeDays.push('Di');
         if (m.availability.wednesday?.available) activeDays.push('Mi');
         if (m.availability.thursday?.available) activeDays.push('Do');
-        if (m.availability.friday?.available) activeDays.push('Fr');
-        if (m.availability.saturday?.available) activeDays.push('Sa');
-        if (m.availability.sunday?.available) activeDays.push('So');
+        if (m.availability.Friday?.available || m.availability.friday?.available) activeDays.push('Fr');
+        if (m.availability.Saturday?.available || m.availability.saturday?.available) activeDays.push('Sa');
+        if (m.availability.Sunday?.available || m.availability.sunday?.available) activeDays.push('So');
         if (activeDays.length > 0) {
             availDaysStr = activeDays.join(', ');
         }
@@ -7197,28 +7257,47 @@ function renderMyMusicianItem(m, isActive) {
     return `
         <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'};">
             
-            <!-- 1. Combined Galerie: 3 Fotos + 3 Videos direkt folgend (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
+            <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
             <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 210px; background: #0f172a; overflow: hidden;">
+                <span class="tile-gallery-counter" style="position: absolute; bottom: 12px; left: 12px; z-index: 4; font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.75); padding: 0.25rem 0.5rem; border-radius: 6px; backdrop-filter: blur(4px); pointer-events: none; border: 1px solid rgba(255,255,255,0.1);">
+                    📷 1 / ${photos.length}
+                </span>
                 
                 <div id="combo-slider-${m.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
                     
-                    <!-- Slides 1-3: Fotos -->
+                    <!-- Slides: Fotos -->
                     ${photos.map((img) => `
                         <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative;">
                             <img src="${img}" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
                     `).join('')}
 
-                    <!-- Slides 4-6: Nativ abspielbare HTML5 Videos -->
+                    <!-- Slides: Nativ abspielbare HTML5 Videos -->
                     ${videoSources.map((vid, vIdx) => `
                         <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #000; display: flex; align-items: center; justify-content: center;">
-                            <video controls preload="metadata" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <video controls preload="metadata" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
                                 <source src="${vid.url}" type="video/mp4">
-                                Dein Browser unterstÜtzt dieses Video nicht.
+                                Dein Browser unterstützt dieses Video nicht.
                             </video>
-                            <span style="position: absolute; top: 12px; left: 12px; z-index: 4; font-size: 0.72rem; font-weight: 800; color: #fff; background: rgba(239, 68, 68, 0.9); padding: 0.25rem 0.6rem; border-radius: 6px; backdrop-filter: blur(4px);">
+                            <span style="position: absolute; top: 12px; left: 12px; z-index: 4; font-size: 0.72rem; font-weight: 800; color: #fff; background: rgba(239, 68, 68, 0.9); padding: 0.25rem 0.65rem; border-radius: 6px; backdrop-filter: blur(4px);">
                                 🎬 Video #${vIdx + 1}: ${vid.title}
                             </span>
+                        </div>
+                    `).join('')}
+
+                    <!-- Slides: Nativ abspielbare HTML5 Audios -->
+                    ${audios.map((aud, aIdx) => `
+                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: linear-gradient(135deg, #1e1b4b 0%, #311042 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; box-sizing: border-box;">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(6, 182, 212, 0.15); display: flex; align-items: center; justify-content: center; margin-bottom: 0.8rem; box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); border: 1px solid rgba(6, 182, 212, 0.3);">
+                                <i class="fa-solid fa-music" style="color: #06b6d4; font-size: 1.4rem;"></i>
+                            </div>
+                            <span style="font-size: 0.82rem; font-weight: 700; color: #f8fafc; text-align: center; margin-bottom: 0.6rem; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
+                                Hörprobe: ${aud.title || 'Demo'}
+                            </span>
+                            <audio controls preload="metadata" style="width: 85%; height: 32px; outline: none; border-radius: 8px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));" onclick="event.stopPropagation();">
+                                <source src="${aud.url}" type="audio/mp3">
+                                Dein Browser unterstützt diesen Audioplayer nicht.
+                            </audio>
                         </div>
                     `).join('')}
 
@@ -7357,17 +7436,7 @@ function renderMyMusicians(container) {
 
     const createBtn = document.getElementById('btn-create-musician-modal');
     if (createBtn) {
-        createBtn.addEventListener('click', () => {
-            if (state.musicians.filter(m => m.creatorId === state.currentUser.id).length >= 5) {
-                showToast({
-                    title: "Limit erreicht 🚫",
-                    message: "In einem Musiker-Account dürfen maximal 5 Musiker-Profile erstellt werden."
-                });
-                alert("Limit erreicht: In einem Musiker-Account dürfen maximal 5 Musiker-Profile erstellt werden.");
-                return;
-            }
-            showMusicianModal(null);
-        });
+        createBtn.addEventListener('click', () => showMusicianModal(null));
     }
 
     container.querySelectorAll('.btn-pause-my-musician').forEach(btn => {
@@ -7386,14 +7455,6 @@ function renderMyMusicians(container) {
 
     container.querySelectorAll('.btn-duplicate-my-musician').forEach(btn => {
         btn.addEventListener('click', () => {
-            if (state.musicians.filter(m => m.creatorId === state.currentUser.id).length >= 5) {
-                showToast({
-                    title: "Limit erreicht 🚫",
-                    message: "In einem Musiker-Account dürfen maximal 5 Musiker-Profile erstellt werden."
-                });
-                alert("Limit erreicht: In einem Musiker-Account dürfen maximal 5 Musiker-Profile erstellt werden.");
-                return;
-            }
             const id = btn.getAttribute('data-id');
             const musician = state.musicians.find(m => m.id === id);
             if (musician) {
@@ -7446,7 +7507,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     let selectedBase64 = musicianObj?.profilePic || '';
     const localMedia = {
         photos: musicianObj?.photos ? [...musicianObj.photos] : [],
-        videos: musicianObj?.videos ? [...musicianObj.videos] : []
+        videos: musicianObj?.videos ? [...musicianObj.videos] : [],
+        audios: musicianObj?.audio ? [...musicianObj.audio] : []
     };
 
     // Extract current types
@@ -7515,11 +7577,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Künstler-Typ (Mehrfachauswahl)</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-musician-types')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="grid-musician-types">
+                        <label>Künstler-Typ (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-musician-types">
                             ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => {
                                 const isChecked = currentTypes.includes(t);
                                 return `
@@ -7546,11 +7605,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Genres (Mehrfachauswahl)</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-genres')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="grid-genres">
+                        <label>Genres (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-genres">
                             ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
                                 const isChecked = musicianObj?.genres?.includes(g);
                                 return `
@@ -7564,11 +7620,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Instrumente (Mehrfachauswahl)</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-instruments')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="grid-instruments">
+                        <label>Instrumente (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-instruments">
                             ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/CajÃ³n', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
                                 const isChecked = musicianObj?.instruments?.includes(ins);
                                 return `
@@ -7608,11 +7661,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Event-Typen (Mehrfachauswahl)</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-event-types')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="grid-event-types">
+                        <label>Bevorzugte Event-Typen (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-event-types">
                             ${['Geburtstag', 'Hochzeit - Trauung', 'Hochzeit - Sektempfang', 'Hochzeit - Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => {
                                 const isChecked = musicianObj?.eventTypes?.includes(evt);
                                 return `
@@ -7689,21 +7739,34 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
                     <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien</h4>
                     <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
-                        Füge Fotos und Videos für dein Profil hinzu, um es attraktiver zu gestalten.
+                        Füge Fotos, Videos und Hörproben (Audios) für dein Profil hinzu, um es attraktiver zu gestalten.
                     </p>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
-                            <button type="button" id="btn-modal-add-photo" class="btn" style="margin:0; padding:0; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(124, 58, 237, 0.4); color:#7c3aed; background: rgba(124, 58, 237, 0.05); cursor: pointer;"><i class="fa-solid fa-plus"></i></button>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Bilder (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
+                            <button type="button" id="btn-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
+                                <i class="fa-solid fa-plus"></i> Foto hinzufügen
+                            </button>
                         </div>
                         <div id="modal-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
-                            <button type="button" id="btn-modal-add-video" class="btn" style="margin:0; padding:0; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(168, 85, 247, 0.4); color:#a855f7; background: rgba(168, 85, 247, 0.05); cursor: pointer;"><i class="fa-solid fa-plus"></i></button>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
+                            <button type="button" id="btn-modal-add-video" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#a855f7;">
+                                <i class="fa-solid fa-plus"></i> Video hinzufügen
+                            </button>
                         </div>
                         <div id="modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV, OGG, M4A, AAC&#10;Maximale Größe: 10 MB"></i></label>
+                            <button type="button" id="btn-modal-add-audio" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#06b6d4;">
+                                <i class="fa-solid fa-plus"></i> Audio hinzufügen
+                            </button>
+                        </div>
+                        <div id="modal-audios-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
 
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
@@ -7769,6 +7832,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     const updateLocalMediaPreview = () => {
         const photosContainer = document.getElementById('modal-photos-preview');
         const videosContainer = document.getElementById('modal-videos-preview');
+        const audiosContainer = document.getElementById('modal-audios-preview');
         if (!photosContainer || !videosContainer) return;
 
         photosContainer.innerHTML = localMedia.photos.length === 0
@@ -7789,6 +7853,17 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                 </div>
             `).join('');
 
+        if (audiosContainer) {
+            audiosContainer.innerHTML = localMedia.audios.length === 0
+                ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Audios hinzugefügt</span>`
+                : localMedia.audios.map((a, idx) => `
+                    <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #1e1b4b; display:flex; align-items:center; justify-content:center;" title="${a.title || (typeof a === 'string' ? a : 'Audio')}">
+                        <i class="fa-solid fa-music" style="color: #06b6d4; font-size: 1.1rem;"></i>
+                        <button type="button" class="btn-delete-modal-audio" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                    </div>
+                `).join('');
+        }
+
         // Bind delete listeners
         photosContainer.querySelectorAll('.btn-delete-modal-photo').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -7807,16 +7882,27 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                 updateLocalMediaPreview();
             });
         });
+
+        if (audiosContainer) {
+            audiosContainer.querySelectorAll('.btn-delete-modal-audio').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const idx = parseInt(btn.getAttribute('data-idx'));
+                    localMedia.audios.splice(idx, 1);
+                    updateLocalMediaPreview();
+                });
+            });
+        }
     };
 
     const addPhotoBtn = document.getElementById('btn-modal-add-photo');
     if (addPhotoBtn) {
         addPhotoBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (localMedia.photos.length >= 3) {
+            if (localMedia.photos.length >= 5) {
                 showToast({
-                    title: "Bilder-Limit erreicht ??",
-                    message: "Es sind maximal 3 Bilder erlaubt."
+                    title: "Bilder-Limit erreicht 📷",
+                    message: "Es sind maximal 5 Bilder erlaubt."
                 });
                 return;
             }
@@ -7840,10 +7926,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     if (addVideoBtn) {
         addVideoBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (localMedia.videos.length >= 1) {
+            if (localMedia.videos.length >= 3) {
                 showToast({
-                    title: "Video-Limit erreicht ??",
-                    message: "Es ist maximal 1 Video erlaubt."
+                    title: "Video-Limit erreicht 🎬",
+                    message: "Es sind maximal 3 Videos erlaubt."
                 });
                 return;
             }
@@ -7855,6 +7941,33 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                 if (fileInput.files.length > 0) {
                     validateAndProcessVideo(fileInput.files[0], (videoUrl) => {
                         localMedia.videos.push(videoUrl);
+                        updateLocalMediaPreview();
+                    });
+                }
+            });
+            fileInput.click();
+        });
+    }
+
+    const addAudioBtn = document.getElementById('btn-modal-add-audio');
+    if (addAudioBtn) {
+        addAudioBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (localMedia.audios.length >= 3) {
+                showToast({
+                    title: "Audio-Limit erreicht 🎵",
+                    message: "Es sind maximal 3 Audio-Dateien erlaubt."
+                });
+                return;
+            }
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'audio/mpeg, audio/wav, audio/ogg, audio/mp3, audio/m4a, audio/aac';
+            fileInput.style.display = 'none';
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    validateAndProcessAudio(fileInput.files[0], (audioObj) => {
+                        localMedia.audios.push(audioObj);
                         updateLocalMediaPreview();
                     });
                 }
@@ -7929,6 +8042,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             profilePic: selectedBase64,
             photos: localMedia.photos,
             videos: localMedia.videos,
+            audio: localMedia.audios || [],
             contactName: `${state.currentUser.firstName} ${state.currentUser.lastName}`,
             phone: state.currentUser.phone,
             email: state.currentUser.email,
@@ -8005,11 +8119,8 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Event-Typ (Mehrfachauswahl)</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-event-types')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="grid-org-event-types">
+                        <label>Event-Typ (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-org-event-types">
                             ${['Geburtstag', 'Hochzeit - Trauung', 'Hochzeit - Sektempfang', 'Hochzeit - Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => {
                                 const isChecked = currentTypes.includes(t);
                                 return `
@@ -8063,11 +8174,8 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Genres (Mehrfachauswahl)</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-genres')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="grid-org-genres">
+                        <label>Genres (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-org-genres">
                             ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
                                 const isChecked = eventObj?.genres?.includes(g);
                                 return `
@@ -8081,35 +8189,14 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Instrumente (Mehrfachauswahl)</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-instruments')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="grid-org-instruments">
+                        <label>Instrumente (Mehrfachauswahl)</label>
+                        <div class="checkbox-tag-grid" id="grid-org-instruments">
                             ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
                                 const isChecked = eventObj?.instruments?.includes(ins);
                                 return `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgInstruments" value="${ins}" ${isChecked ? 'checked' : ''}>
                                         <span>${ins}</span>
-                                    </label>
-                                `;
-                            }).join('')}
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Musiker-Typen (Mehrfachauswahl)</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-musician-types')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="grid-org-musician-types">
-                            ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => {
-                                const isChecked = eventObj?.musicianTypes?.includes(t);
-                                return `
-                                    <label class="tag-pill-checkbox">
-                                        <input type="checkbox" name="orgMusicianTypes" value="${t}" ${isChecked ? 'checked' : ''}>
-                                        <span>${t}</span>
                                     </label>
                                 `;
                             }).join('')}
@@ -8131,7 +8218,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <div class="slider-value-display">
-                            <label>Gäste (Anzahl)</label>
+                            <label>GÃ¤ste (Anzahl)</label>
                             <span id="val-org-publikum">${eventObj?.minPublikum || 0} - ${eventObj?.maxPublikum || 500}+</span>
                         </div>
                         <div class="dual-range-slider" id="slider-org-publikum-container">
@@ -8144,7 +8231,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <div class="slider-value-display">
-                            <label>Budget (€)</label>
+                            <label>Budget (â‚¬)</label>
                             <span id="val-org-gage">${eventObj?.minBudget || eventObj?.budget || 0} - ${eventObj?.maxBudget || eventObj?.budget || 5000}+ €</span>
                         </div>
                         <div class="dual-range-slider" id="slider-org-gage-container">
@@ -8185,15 +8272,19 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </p>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
-                            <button type="button" id="btn-event-modal-add-photo" class="btn" style="margin:0; padding:0; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(37, 99, 235, 0.4); color:#2563eb; background: rgba(37, 99, 235, 0.05); cursor: pointer;"><i class="fa-solid fa-plus"></i></button>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Bilder (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
+                            <button type="button" id="btn-event-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
+                                <i class="fa-solid fa-plus"></i> Foto hinzufügen
+                            </button>
                         </div>
                         <div id="event-modal-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                             <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
-                            <button type="button" id="btn-event-modal-add-video" class="btn" style="margin:0; padding:0; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(37, 99, 235, 0.4); color:#2563eb; background: rgba(37, 99, 235, 0.05); cursor: pointer;"><i class="fa-solid fa-plus"></i></button>
+                            <button type="button" id="btn-event-modal-add-video" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#a855f7;">
+                                <i class="fa-solid fa-plus"></i> Video hinzufügen
+                            </button>
                         </div>
                         <div id="event-modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
@@ -8211,7 +8302,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
     document.getElementById('btn-close-event-modal').addEventListener('click', closeModal);
 
     // Initialize Calendar Widget
-    let currentCalDate = eventObj && eventObj.date ? new Date(eventObj.date) : new Date();
+    let currentCalDate = new Date(2026, 6, 1); // July 2026
     const calendarMonthYear = document.getElementById('modal-org-calendar-month-year');
     const calendarDaysGrid = document.getElementById('modal-org-calendar-days-grid');
     const calendarPrevBtn = document.getElementById('modal-btn-cal-prev');
@@ -8482,7 +8573,6 @@ function showEventModal(eventObj = null, isDuplication = false) {
             budget: parseFloat(formData.get('orgMaxBudget')) || 5000,
             genres: Array.from(form.querySelectorAll('input[name="orgGenres"]:checked')).map(el => el.value),
             instruments: Array.from(form.querySelectorAll('input[name="orgInstruments"]:checked')).map(el => el.value),
-            musicianTypes: Array.from(form.querySelectorAll('input[name="orgMusicianTypes"]:checked')).map(el => el.value),
             technik: Array.from(form.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value).length > 0
                 ? Array.from(form.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value)
                 : ["Technik ist noch unklar"],
@@ -8639,8 +8729,6 @@ function showModal(type, onSuccessCallback) {
     const modalWrapper = document.getElementById('modal-container');
     if (!modalWrapper) return;
 
-    modalWrapper.classList.remove('hidden');
-
     if (type === 'auth') {
         renderAuthModal(modalWrapper, onSuccessCallback);
     } else if (type === 'premium') {
@@ -8649,6 +8737,7 @@ function showModal(type, onSuccessCallback) {
         renderVerificationModal(modalWrapper, onSuccessCallback);
     }
     
+    modalWrapper.classList.remove('hidden');
     initAllLocationAutocompletes();
 }
 
@@ -8664,11 +8753,13 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     window.registrationMedia = {
         musician: {
             photos: ['https://picsum.photos/id/453/400/300'],
-            videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
+            videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }],
+            audios: []
         },
         organizer: {
             photos: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'],
-            videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
+            videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }],
+            audios: []
         }
     };
     wrapper.innerHTML = `
@@ -8709,7 +8800,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     <div class="form-group">
                         <label>E-Mail-Adresse</label>
                         <input type="email" name="email" class="input-field" placeholder="deine@mail.de" required>
-                        <p style="font-size:0.7rem; color:var(--text-muted); margin-top: 0.3rem;">Gib deine E-Mail-Adresse ein, um einen Anmeldelink zu erhalten. Demo-E-Mails: contact@neonbeats.de oder julia.michael.wedding2026@gmail.com</p>
+                        <p style="font-size:0.7rem; color:var(--text-muted); margin-top: 0.3rem;">Gib deine E-Mail-Adresse ein, um einen Anmeldelink zu erhalten.</p>
                     </div>
                     <div id="magic-error-msg" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
                     <div id="magic-success-container" style="display:none; margin-bottom: 1.5rem;"></div>
@@ -8735,7 +8826,6 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     </div>
 
                     <div id="reg-fields-musician">
-                        <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-top:1.5rem; margin-bottom:1.2rem; color:var(--text-main);"><i class="fa-solid fa-guitar"></i> Musiker-Daten</h4>
                         
                         <div class="form-group">
                             <label>Musikername</label>
@@ -8743,11 +8833,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
 
                         <div class="form-group">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Musiker-Typ</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-musician-types')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="grid-musician-types">
+                            <label>Musiker-Typ</label>
+                            <div class="checkbox-tag-grid" id="grid-musician-types">
                                 ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="musicianTypes" value="${t}">
@@ -8773,11 +8860,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
 
                         <div class="form-group">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Genres</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-genres')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="grid-genres">
+                            <label>Genres</label>
+                            <div class="checkbox-tag-grid" id="grid-genres">
                                 ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="genres" value="${g}">
@@ -8788,11 +8872,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
 
                         <div class="form-group">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Instrumente</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-instruments')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="grid-instruments">
+                            <label>Instrumente</label>
+                            <div class="checkbox-tag-grid" id="grid-instruments">
                                 ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="instruments" value="${ins}">
@@ -8817,8 +8898,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group">
                             <div class="slider-value-display">
-                                                                <label>Gage (€)</label>
-                                <span id="val-gage">0 - 5.000+ €</span>
+                                                                <label>Gage (â‚¬)</label>
+                                <span id="val-gage">0 - 5.000+ â‚¬</span>
                             </div>
                             <div class="dual-range-slider" id="slider-gage-container">
                                 <div class="dual-range-track"></div>
@@ -8829,11 +8910,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
 
                         <div class="form-group">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Event-Typen</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-event-types')" class="select-all-toggle-link" style="color: #7c3aed; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="grid-event-types">
+                            <label>Bevorzugte Event-Typen</label>
+                            <div class="checkbox-tag-grid" id="grid-event-types">
                                 ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="eventTypes" value="${evt}">
@@ -8906,21 +8984,34 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
                         <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien</h4>
                         <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
-                            Füge Fotos und Videos für dein Profil hinzu, um es attraktiver zu gestalten.
+                            Füge Fotos, Videos und Hörproben (Audios) für dein Profil hinzu, um es attraktiver zu gestalten.
                         </p>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
-                                <button type="button" onclick="window.addRegMedia('musician', 'photo')" class="btn" style="margin:0; padding:0; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(124, 58, 237, 0.4); color:#7c3aed; background: rgba(124, 58, 237, 0.05); cursor: pointer;"><i class="fa-solid fa-plus"></i></button>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Bilder (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
+                                <button type="button" onclick="window.addRegMedia('musician', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
+                                    <i class="fa-solid fa-plus"></i> Foto hinzufügen
+                                </button>
                             </div>
                             <div id="reg-musician-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
-                                <button type="button" onclick="window.addRegMedia('musician', 'video')" class="btn" style="margin:0; padding:0; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(168, 85, 247, 0.4); color:#a855f7; background: rgba(168, 85, 247, 0.05); cursor: pointer;"><i class="fa-solid fa-plus"></i></button>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
+                                <button type="button" onclick="window.addRegMedia('musician', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#a855f7;">
+                                    <i class="fa-solid fa-plus"></i> Video hinzufügen
+                                </button>
                             </div>
                             <div id="reg-musician-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.2rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV, OGG, M4A, AAC&#10;Maximale Größe: 10 MB"></i></label>
+                                <button type="button" onclick="window.addRegMedia('musician', 'audio')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#06b6d4;">
+                                    <i class="fa-solid fa-plus"></i> Audio hinzufügen
+                                </button>
+                            </div>
+                            <div id="reg-musician-audios-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
                         <div style="background: rgba(124, 58, 237, 0.05); border: 1px solid rgba(124, 58, 237, 0.15); padding: 0.8rem; border-radius: 8px; font-size:0.75rem; color: var(--text-main); margin-top:0.5rem; margin-bottom: 1.5rem; display: flex; gap: 0.5rem; align-items: flex-start;">
                             <i class="fa-solid fa-circle-info" style="color: #7c3aed; margin-top: 2px;"></i>
@@ -8929,7 +9020,6 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     </div>
 
                     <div id="reg-fields-organizer" class="hidden">
-                        <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-top:1.5rem; margin-bottom:1.2rem; color:var(--text-main);"><i class="fa-solid fa-calendar-check"></i> Event-Daten</h4>
                         
                         <div class="form-group">
                             <label>Eventname</label>
@@ -8937,11 +9027,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
 
                         <div class="form-group">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Event-Typ</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-event-types')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="grid-org-event-types">
+                            <label>Event-Typ</label>
+                            <div class="checkbox-tag-grid" id="grid-org-event-types">
                                 ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgEventTypes" value="${t}">
@@ -8995,11 +9082,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
 
                         <div class="form-group">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Genres</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-genres')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="grid-org-genres">
+                            <label>Genres</label>
+                            <div class="checkbox-tag-grid" id="grid-org-genres">
                                 ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgGenres" value="${g}">
@@ -9010,30 +9094,12 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
 
                         <div class="form-group">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Instrumente</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-instruments')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="grid-org-instruments">
+                            <label>Instrumente</label>
+                            <div class="checkbox-tag-grid" id="grid-org-instruments">
                                 ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgInstruments" value="${ins}">
                                         <span>${ins}</span>
-                                    </label>
-                                `).join('')}
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-        <label style="margin: 0 !important;">Musiker-Typen</label>
-        <a href="javascript:void(0)" onclick="window.toggleSelectAll(this, 'grid-org-musician-types')" class="select-all-toggle-link" style="color: #2563eb; font-size: 0.75rem; font-weight: 700; text-decoration: none;">alle auswählen</a>
-    </div>
-    <div class="checkbox-tag-grid" id="grid-org-musician-types">
-                                ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
-                                    <label class="tag-pill-checkbox">
-                                        <input type="checkbox" name="orgMusicianTypes" value="${t}">
-                                        <span>${t}</span>
                                     </label>
                                 `).join('')}
                             </div>
@@ -9054,7 +9120,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group">
                             <div class="slider-value-display">
-                                <label>Gäste (Anzahl)</label>
+                                <label>GÃ¤ste (Anzahl)</label>
                                 <span id="val-org-publikum">0 - 500+</span>
                             </div>
                             <div class="dual-range-slider" id="slider-org-publikum-container">
@@ -9067,7 +9133,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group">
                             <div class="slider-value-display">
-                                <label>Budget (€)</label>
+                                <label>Budget (â‚¬)</label>
                                 <span id="val-org-gage">0 - 5.000+ €</span>
                             </div>
                             <div class="dual-range-slider" id="slider-org-gage-container">
@@ -9108,15 +9174,19 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </p>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
-                                <button type="button" onclick="window.addRegMedia('organizer', 'photo')" class="btn" style="margin:0; padding:0; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(37, 99, 235, 0.4); color:#2563eb; background: rgba(37, 99, 235, 0.05); cursor: pointer;"><i class="fa-solid fa-plus"></i></button>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Bilder (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></label>
+                                <button type="button" onclick="window.addRegMedia('organizer', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
+                                    <i class="fa-solid fa-plus"></i> Foto hinzufügen
+                                </button>
                             </div>
                             <div id="reg-organizer-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                                 <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></label>
-                                <button type="button" onclick="window.addRegMedia('organizer', 'video')" class="btn" style="margin:0; padding:0; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(37, 99, 235, 0.4); color:#2563eb; background: rgba(37, 99, 235, 0.05); cursor: pointer;"><i class="fa-solid fa-plus"></i></button>
+                                <button type="button" onclick="window.addRegMedia('organizer', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#a855f7;">
+                                    <i class="fa-solid fa-plus"></i> Video hinzufügen
+                                </button>
                             </div>
                             <div id="reg-organizer-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
@@ -9365,11 +9435,13 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             window.registrationMedia = {
                 musician: {
                     photos: ['https://picsum.photos/id/453/400/300'],
-                    videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
+                    videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }],
+                    audios: []
                 },
                 organizer: {
                     photos: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'],
-                    videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }]
+                    videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }],
+                    audios: []
                 }
             };
             window.updateRegMediaPreview('musician');
@@ -9684,7 +9756,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     const inputEventDates = document.getElementById('input-event-dates');
     const selectedDatesPreview = document.getElementById('org-selected-dates-preview');
 
-    let currentCalDate = new Date();
+    let currentCalDate = new Date(2026, 6, 1); // July 2026 as standard start for this application
 
     function renderOrganizerCalendar() {
         if (!calendarDaysGrid || !calendarMonthYear) return;
@@ -10152,13 +10224,6 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
-            const checkedMusicianTypes = registerForm.querySelectorAll('input[name="orgMusicianTypes"]:checked');
-            if (checkedMusicianTypes.length === 0) {
-                errDiv.textContent = 'Bitte wähle mindestens einen Musiker-Typen aus.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                return;
-            }
             const checkedTechnik = registerForm.querySelectorAll('input[name="orgTechnik"]:checked');
             if (checkedTechnik.length === 0) {
                 errDiv.textContent = 'Bitte wähle mindestens eine Technik-Option aus.';
@@ -10256,6 +10321,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             payload.availability = availability;
             payload.photos = window.registrationMedia.musician.photos;
             payload.videos = window.registrationMedia.musician.videos;
+            payload.audios = window.registrationMedia.musician.audios || [];
         } else {
             payload.eventName = registerForm.elements.eventName.value.trim();
             payload.orgEventTypes = Array.from(registerForm.querySelectorAll('input[name="orgEventTypes"]:checked')).map(el => el.value);
@@ -10265,7 +10331,6 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             payload.orgLocations = selectedOrgLocations;
             payload.orgGenres = Array.from(registerForm.querySelectorAll('input[name="orgGenres"]:checked')).map(el => el.value);
             payload.orgInstruments = Array.from(registerForm.querySelectorAll('input[name="orgInstruments"]:checked')).map(el => el.value);
-            payload.orgMusicianTypes = Array.from(registerForm.querySelectorAll('input[name="orgMusicianTypes"]:checked')).map(el => el.value);
             payload.orgMinDuration = registerForm.querySelector('input[name="orgMinDuration"]').value;
             payload.orgMaxDuration = registerForm.querySelector('input[name="orgMaxDuration"]').value;
             payload.orgMinPublikum = registerForm.querySelector('input[name="orgMinPublikum"]').value;
@@ -10323,7 +10388,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         technik: payload.technik,
                         bio: payload.description,
                         photos: payload.photos,
-                        videos: payload.videos
+                        videos: payload.videos,
+                        audio: payload.audios
                     };
                     await db.collection('users').doc(user.uid).set(newUser);
                     await db.collection('musicians').doc(profileId).set(newMusician);
@@ -10341,7 +10407,6 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         eventEndTime: payload.eventEndTime,
                         genres: payload.orgGenres,
                         instruments: payload.orgInstruments,
-                        musicianTypes: payload.orgMusicianTypes,
                         minDuration: parseFloat(payload.orgMinDuration) || 1,
                         maxDuration: parseFloat(payload.orgMaxDuration) || 3,
                         minPublikum: parseInt(payload.orgMinPublikum) || 0,
@@ -10601,7 +10666,7 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
             const currentHash = window.location.hash;
             if ((currentHash.includes('events') || currentHash.includes('musicians')) && typeof window.marketApplyFilters === 'function') {
                 window.marketApplyFilters();
-            } else if (currentPath.includes('matches') && typeof window.matchesUpdate === 'function') {
+            } else if (currentHash.includes('matches') && typeof window.matchesUpdate === 'function') {
                 window.matchesUpdate();
             } else {
                 window.handleRouting();
@@ -10614,7 +10679,7 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
             
             if (targetUnlockId) {
                 // Determine target name
-                const isEventMarket = window.location.pathname.includes('events');
+                const isEventMarket = (window.location.hash || '').includes('events');
                 const targetEvent = state.events.find(ev => ev.id === targetUnlockId);
                 const targetMusician = state.musicians.find(m => m.id === targetUnlockId);
                 const targetName = targetEvent ? targetEvent.name : (targetMusician ? targetMusician.name : "Inserat");
@@ -10741,23 +10806,16 @@ function navigate(page) {
     updateNavbar(page === '');
     document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
 
-    let targetPath = '/';
-    if (page === 'events') targetPath = '/events';
-    else if (page === 'musicians') targetPath = '/musiker';
-    else if (page !== '') targetPath = '/' + page;
-    
-    if (window.location.pathname !== targetPath) {
-        history.pushState(null, '', targetPath);
-    }
-
     switch (page) {
         case 'events':
             renderMarket(mainContainer, 'events', navigate);
             setActiveLink('link-events');
+            window.location.hash = '#/events';
             break;
         case 'musicians':
             renderMarket(mainContainer, 'musicians', navigate);
             setActiveLink('link-musicians');
+            window.location.hash = '#/musicians';
             break;
         case 'matches':
         case 'top-matches':
@@ -10768,6 +10826,7 @@ function navigate(page) {
                 state.clearUnreadMatches();
                 renderMatchesPage(mainContainer);
                 setActiveLink('link-matches');
+                window.location.hash = '#/matches';
             }
             break;
         case 'dashboard':
@@ -10777,9 +10836,11 @@ function navigate(page) {
             } else if (state.currentUser.role === 'organizer') {
                 renderMyEvents(mainContainer);
                 setActiveLink('link-dashboard');
+                window.location.hash = '#/dashboard';
             } else {
                 renderMyMusicians(mainContainer);
                 setActiveLink('link-dashboard');
+                window.location.hash = '#/dashboard';
             }
             break;
         case 'my-musicians':
@@ -10789,6 +10850,7 @@ function navigate(page) {
             } else {
                 renderMyMusicians(mainContainer);
                 setActiveLink('link-my-musicians');
+                window.location.hash = '#/my-musicians';
             }
             break;
         case 'my-events':
@@ -10798,6 +10860,7 @@ function navigate(page) {
             } else {
                 renderMyEvents(mainContainer);
                 setActiveLink('link-my-events');
+                window.location.hash = '#/my-events';
             }
             break;
         case 'postbox':
@@ -10807,6 +10870,7 @@ function navigate(page) {
             } else {
                 renderPostbox(mainContainer);
                 setActiveLink('link-postbox');
+                window.location.hash = '#/postbox';
             }
             break;
         case 'credits':
@@ -10816,6 +10880,7 @@ function navigate(page) {
             } else {
                 renderCreditsPage(mainContainer);
                 setActiveLink('link-credits');
+                window.location.hash = '#/credits';
             }
             break;
         case 'profile':
@@ -10824,10 +10889,14 @@ function navigate(page) {
                 showModal('auth');
             } else {
                 renderProfilePage(mainContainer);
+                window.location.hash = '#/profile';
             }
             break;
         default:
             renderLandingPage(mainContainer, navigate);
+            if (window.location.hash && window.location.hash !== '#/' && window.location.hash !== '#') {
+                history.replaceState(null, '', '#/');
+            }
             break;
     }
 }
@@ -10845,7 +10914,7 @@ function updateNavbar(forceLanding) {
     const u = state.currentUser;
     const isLanding = forceLanding !== undefined 
         ? forceLanding 
-        : (!window.location.pathname || window.location.pathname === '/' || window.location.pathname === '');
+        : (!window.location.hash || window.location.hash === '#/' || window.location.hash === '#');
 
     const header = document.querySelector('.app-header');
     if (header) {
@@ -10872,17 +10941,17 @@ function updateNavbar(forceLanding) {
         const unreadCount = state.getUnreadCount();
 
         let creditsBadgeHtml = '';
-        const isProfileActive = window.location.pathname === '/profile';
+        const isProfileActive = window.location.hash === '#/profile';
 
         const isMusician = u.role === 'musician';
         const marketIcon = isMusician ? 'fa-calendar-days' : 'fa-guitar';
-        const marketLink = isMusician ? '/events' : '/musiker';
+        const marketLink = isMusician ? '#/events' : '#/musicians';
         const marketTitle = isMusician ? 'Event-Markt' : 'Musiker-Markt';
         
         const isMarketActive = isMusician 
-            ? (window.location.pathname === '/events' || window.location.pathname.startsWith('/events'))
-            : (window.location.pathname === '/musiker' || window.location.pathname.startsWith('/musiker'));
-        const isPostboxActive = window.location.pathname === '/postbox' || window.location.pathname.startsWith('/postbox');
+            ? (window.location.hash === '#/events' || window.location.hash.startsWith('#/events'))
+            : (window.location.hash === '#/musicians' || window.location.hash.startsWith('#/musicians'));
+        const isPostboxActive = window.location.hash === '#/postbox' || window.location.hash.startsWith('#/postbox');
 
         // Fetch user profiles to generate persistent profile switcher in header
         let userProfiles = [];
@@ -10929,7 +10998,7 @@ function updateNavbar(forceLanding) {
                         </a>
 
                         <!-- Postfach Link -->
-                        <a href="/postbox" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isPostboxActive ? 'active' : ''}" id="dropdown-link-postbox" style="position: relative;">
+                        <a href="#/postbox" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isPostboxActive ? 'active' : ''}" id="dropdown-link-postbox" style="position: relative;">
                             <i class="fa-solid fa-envelope"></i>
                             <span>Postfach</span>
                             ${unreadCount > 0 ? `
@@ -10940,12 +11009,12 @@ function updateNavbar(forceLanding) {
                         </a>
                         
                         <!-- Meine Musiker / Meine Events Link -->
-                        <a href="${isMusician ? '/my-musicians' : '/my-events'}" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${window.location.pathname === (isMusician ? '/my-musicians' : '/my-events') ? 'active' : ''}" id="dropdown-link-my-tab">
+                        <a href="${isMusician ? '#/my-musicians' : '#/my-events'}" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${window.location.hash === (isMusician ? '#/my-musicians' : '#/my-events') ? 'active' : ''}" id="dropdown-link-my-tab">
                             <i class="fa-solid ${isMusician ? 'fa-guitar' : 'fa-calendar-check'}"></i>
                             <span>${isMusician ? 'Meine Musiker' : 'Meine Events'}</span>
                         </a>
                         
-                        <a href="/profile" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile">
+                        <a href="#/profile" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile">
                             <i class="fa-solid fa-user-gear"></i>
                             <span>Profil bearbeiten</span>
                         </a>
@@ -11005,7 +11074,7 @@ function updateNavbar(forceLanding) {
             logoutBtn.addEventListener('click', () => {
                 menu.classList.remove('show');
                 state.logout();
-                window.navigateToRoute('/');
+                window.location.hash = '#/';
             });
         }
 
@@ -11039,43 +11108,21 @@ function updateNavbar(forceLanding) {
 }
 
 function handleRouting() {
-    // legacy hash url fallback redirect
-    if (window.location.hash && window.location.hash.startsWith('#/')) {
-        const path = window.location.hash.substring(2);
-        history.replaceState(null, '', '/' + path);
-    }
+    const hash = window.location.hash;
+    let page = hash.replace('#/', '');
+    if (page === 'top-matches') page = 'matches';
     
-    const parsed = parseRequestPath();
-    console.log("Parsed path:", parsed);
-    
-    if (state && state.currentUser && state.currentUser.id && (parsed.page === 'landing' || parsed.page === '')) {
-        const redirectPage = state.currentUser.role === 'musician' ? 'events' : 'musicians';
-        navigate(redirectPage);
+    // Redirect logged-in users away from the landing page
+    if (state && state.currentUser && state.currentUser.id && (page === '' || page === '/')) {
+        if (state.currentUser.role === 'musician') {
+            navigate('events');
+        } else {
+            navigate('musicians');
+        }
         return;
     }
     
-    if (parsed.page === 'landing') {
-        navigate('');
-    } else {
-        navigate(parsed.page);
-    }
-    
-    // Open detail modal if requested
-    if (parsed.view === 'detail' && parsed.itemId) {
-        setTimeout(() => {
-            openItemDetailModal(parsed.itemId, parsed.page === 'events');
-        }, 100);
-    }
-    
-    // Apply filters if present
-    if (parsed.city || parsed.musicianType || parsed.eventType) {
-        setTimeout(() => {
-            applyUrlFilters(parsed);
-        }, 150);
-    }
-    
-    const activeItem = parsed.itemId ? (parsed.page === 'events' ? state.events : state.musicians).find(x => x.id === parsed.itemId) : null;
-    updateSEOMeta(parsed.page, activeItem);
+    navigate(page);
 }
 
 // Global scope initialization
@@ -11127,25 +11174,7 @@ function initGigConnActApp() {
     });
 
     if (typeof updateNavbar === 'function') updateNavbar();
-    window.addEventListener('popstate', handleRouting);
-    
-    // Global link click interceptor for SPA path routing
-    document.addEventListener('click', (e) => {
-        const anchor = e.target.closest('a');
-        if (anchor && anchor.href && anchor.getAttribute('target') !== '_blank') {
-            try {
-                const url = new URL(anchor.href);
-                if (url.origin === window.location.origin) {
-                    if (!anchor.hasAttribute('download') && !anchor.href.includes('javascript:') && !anchor.href.includes('mailto:') && !anchor.href.includes('tel:')) {
-                        e.preventDefault();
-                        window.navigateToRoute(url.pathname);
-                    }
-                }
-            } catch (err) {
-                // Ignore parsing errors for relative urls
-            }
-        }
-    });
+    window.addEventListener('hashchange', handleRouting);
     if (typeof handleRouting === 'function') handleRouting();
     if (typeof initAllLocationAutocompletes === 'function') initAllLocationAutocompletes();
 
@@ -11153,15 +11182,20 @@ function initGigConnActApp() {
     if (logoLink) {
         logoLink.addEventListener('click', (e) => {
             e.preventDefault();
-            let targetPath = '/';
+            let targetHash = '#/';
             if (state && state.currentUser) {
                 if (state.currentUser.role === 'musician') {
-                    targetPath = '/events';
+                    targetHash = '#/events';
                 } else if (state.currentUser.role === 'organizer') {
-                    targetPath = '/musiker';
+                    targetHash = '#/musicians';
                 }
             }
-            window.navigateToRoute(targetPath);
+            
+            if (window.location.hash === targetHash) {
+                handleRouting();
+            } else {
+                window.location.hash = targetHash;
+            }
         });
     }
 
@@ -11176,7 +11210,7 @@ function initGigConnActApp() {
                 message: "Die Anwendung wird neu geladen..."
             });
             setTimeout(() => {
-                window.navigateToRoute('/');
+                window.location.hash = '#/';
                 window.location.reload();
             }, 1000);
         });
@@ -11783,7 +11817,31 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
 
     return items.map(item => {
         const isUnlocked = state ? ((typeof state.isUnlocked === 'function') ? state.isUnlocked(item.id) : (state.unlockedContacts && state.unlockedContacts.includes(item.id))) : false;
-        console.log("renderMarketGridHTML: item =", item.id, "isUnlocked =", isUnlocked, "state.currentUser =", state ? state.currentUser : null);
+        
+        // Up to 5 photos
+        const photos = (item.photos && item.photos.length > 0)
+            ? item.photos.slice(0, 5)
+            : [
+                item.image || (isEvents ? 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80' : 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80'),
+                'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80'
+              ].slice(0, 5);
+
+        // Up to 3 videos
+        const videos = (item.videos && item.videos.length > 0)
+            ? item.videos.slice(0, 3)
+            : (!isEvents ? [
+                { title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' },
+                { title: 'Auftritt Showreel & Trailer', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },
+                { title: 'Unplugged Live Session', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' }
+              ] : []);
+
+        // Up to 3 audios
+        const audios = (item.audio && item.audio.length > 0)
+            ? item.audio.slice(0, 3)
+            : (!isEvents ? [
+                { title: 'Live Medley Demo', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' }
+              ] : []);
         
         // Dynamically compute button styles based on page context and type
         const btnIsPurple = isEvents;
@@ -11794,20 +11852,6 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
         const btnBoxShadow = btnIsPurple 
             ? '0 4px 14px rgba(124, 58, 237, 0.35)' 
             : '0 4px 14px rgba(37, 99, 235, 0.35)';
-        
-        // 3 Fotos pro Musiker/Event
-        const photos = (item.photos || [
-            item.image || (isEvents ? 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80' : 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80'),
-            'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80'
-        ]).slice(0, 3);
-
-        // 3 Real Playable HTML5 Videos für Slides 4, 5, 6
-        const videoSources = [
-            { title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' },
-            { title: 'Auftritt Showreel & Trailer', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4' },
-            { title: 'Unplugged Live Session', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' }
-        ];
 
         const genresArr = item.genres || (item.genre ? [item.genre] : ['Pop', 'Cover', 'Acoustic']);
         const instrumentsArr = item.instruments || (item.category ? [item.category] : ['Gesang', 'Gitarre']);
@@ -11852,15 +11896,6 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
             budgetDisplay = '0 - 5.000 €';
         }
 
-        // Technology formatting
-        const techDisplay = item.technik;
-        let techDisplayStr = 'Technik ist noch unklar';
-        if (Array.isArray(techDisplay) && techDisplay.length > 0) {
-            techDisplayStr = techDisplay.join(', ');
-        } else if (typeof techDisplay === 'string' && techDisplay.trim() !== '') {
-            techDisplayStr = techDisplay;
-        }
-
         const description = item.description || item.bio || (isEvents 
             ? 'Wir suchen eine professionelle musikalische Begleitung für unser anstehendes Event mit fantastischer Stimmung.' 
             : 'Professionelle Live-Musik für unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.');
@@ -11868,34 +11903,55 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
         const bandName = item.name || item.title || '';
 
         return `
-            <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
+            <div class="market-tile-card" onclick="window.openItemDetailModal('${item.id}', ${isEvents})" style="cursor: pointer; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
                 
-                <!-- 1. Combined Galerie: 3 Fotos + 3 Videos direkt folgend (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
+                <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
                     ${item.matchScore >= 70 ? `
                         <span style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); color: #eab308; font-weight: 800; padding: 0.35rem 0.45rem; border-radius: 6px; border: 1px solid rgba(234, 179, 8, 0.4); backdrop-filter: blur(4px); z-index: 10; display: flex; align-items: center; justify-content: center; pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.6); box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
                             <i class="fa-solid fa-star" style="font-size: 1.15rem; margin: 0;"></i>
                         </span>
                     ` : ''}
+                    
+                    <span class="tile-gallery-counter" style="position: absolute; bottom: 12px; left: 12px; z-index: 4; font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.75); padding: 0.25rem 0.5rem; border-radius: 6px; backdrop-filter: blur(4px); pointer-events: none; border: 1px solid rgba(255,255,255,0.1);">
+                        📷 1 / ${photos.length}
+                    </span>
+
                     <div id="combo-slider-${item.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
                         
-                        <!-- Slides 1-3: Fotos -->
+                        <!-- Slides: Fotos -->
                         ${photos.map((img) => `
                             <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative;">
                                 <img src="${img}" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
                         `).join('')}
 
-                        <!-- Slides 4-6: Nativ abspielbare HTML5 Videos direkt im Anschluss an das 3. Foto -->
-                        ${!isEvents ? videoSources.map((vid, vIdx) => `
+                        <!-- Slides: Nativ abspielbare HTML5 Videos -->
+                        ${!isEvents ? videos.map((vid, vIdx) => `
                             <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #000; display: flex; align-items: center; justify-content: center;">
-                                <video controls preload="metadata" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: cover;">
+                                <video controls preload="metadata" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
                                     <source src="${vid.url}" type="video/mp4">
-                                    Dein Browser unterstÜtzt dieses Video nicht.
+                                    Dein Browser unterstützt dieses Video nicht.
                                 </video>
                                 <span style="position: absolute; top: 12px; left: 12px; z-index: 4; font-size: 0.72rem; font-weight: 800; color: #fff; background: rgba(239, 68, 68, 0.9); padding: 0.25rem 0.65rem; border-radius: 6px; backdrop-filter: blur(4px);">
                                     🎬 Video #${vIdx + 1}: ${vid.title}
                                 </span>
+                            </div>
+                        `).join('') : ''}
+
+                        <!-- Slides: Nativ abspielbare HTML5 Audios -->
+                        ${!isEvents ? audios.map((aud, aIdx) => `
+                            <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: linear-gradient(135deg, #1e1b4b 0%, #311042 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; box-sizing: border-box;">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(6, 182, 212, 0.15); display: flex; align-items: center; justify-content: center; margin-bottom: 0.8rem; box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); border: 1px solid rgba(6, 182, 212, 0.3);">
+                                    <i class="fa-solid fa-music" style="color: #06b6d4; font-size: 1.4rem;"></i>
+                                </div>
+                                <span style="font-size: 0.82rem; font-weight: 700; color: #f8fafc; text-align: center; margin-bottom: 0.6rem; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
+                                    Hörprobe: ${aud.title || 'Demo'}
+                                </span>
+                                <audio controls preload="metadata" style="width: 85%; height: 32px; outline: none; border-radius: 8px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));" onclick="event.stopPropagation();">
+                                    <source src="${aud.url}" type="audio/mp3">
+                                    Dein Browser unterstützt diesen Audioplayer nicht.
+                                </audio>
                             </div>
                         `).join('') : ''}
 
@@ -11907,12 +11963,6 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
                     </div>
 
-                    <!-- Match-Faktor Badge oben rechts (OHNE FLAMMEN-EMOJI / VORZEICHEN) -->
-                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 5px 12px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 50px;">
-                        <span style="font-size: 1.05rem; font-weight: 900;">${item.matchScore !== undefined ? item.matchScore : '96'}%</span>
-                        <span style="font-size: 0.5rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
-                    </div>
-
                     <!-- Slide Navigation Arrows -->
                     <button onclick="event.stopPropagation(); window.slideComboGallery('${item.id}', -1)" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(100, 116, 139, 0.65); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                         <i class="fa-solid fa-chevron-left" style="font-size: 0.9rem;"></i>
@@ -11920,15 +11970,20 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     <button onclick="event.stopPropagation(); window.slideComboGallery('${item.id}', 1)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(100, 116, 139, 0.65); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
                         <i class="fa-solid fa-chevron-right" style="font-size: 0.9rem;"></i>
                     </button>
+
+                    <!-- Match-Faktor Badge oben rechts -->
+                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 5px 12px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 50px;">
+                        <span style="font-size: 1.05rem; font-weight: 900;">${item.matchScore !== undefined ? item.matchScore : '96'}%</span>
+                        <span style="font-size: 0.5rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
+                    </div>
                 </div>
 
                 <!-- Tile Body Content -->
-                <a href="/${isEvents ? 'events' : 'musiker'}/${generateSlug(item.name || item.title)}" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; flex: 1;">
-                    <div class="tile-body-content" style="padding: 1.2rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
+                <div class="tile-body-content" style="padding: 1.2rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
                     
                     <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favorit Herz -->
-                    <div style="margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
-                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; flex: 1; height: 3.0rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;" title="${bandName}">
+                                        <div style="margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; flex: 1; height: 2.4em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">
                             ${bandName}
                         </h3>
                         <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
@@ -12005,7 +12060,6 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
                     </div>
                 </div>
-                </a>
 
                 ${isUnlocked ? `
                     <!-- Solid Colored Unlocked Contact Footer Box -->
@@ -12049,7 +12103,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 ` : `
                     <!-- 4. Aktions-Button: "Kontaktdaten freischalten" -->
                     <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); showModal('auth')" style="width: 100%; background: ${btnGradient}; border-color: ${btnBorderColor}; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow};">
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); showModal('auth')" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
                             <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
                         </button>
                     </div>
@@ -12548,6 +12602,7 @@ window.showMediaModal = function(itemId, isEvents) {
 
     const photos = item.photos || [item.profilePic || item.image || (isEvents ? 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80' : 'https://picsum.photos/id/453/300/300')];
     const videos = item.videos || [];
+    const audios = item.audio || [];
 
     modal.innerHTML = `
         <div class="modal-card" style="width: 450px; max-width: 90%; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px; box-shadow: var(--shadow-lg); overflow: hidden; display: flex; flex-direction: column; animation: modalFadeIn 0.3s ease;">
@@ -12562,8 +12617,8 @@ window.showMediaModal = function(itemId, isEvents) {
                 <!-- Section: Photos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (${photos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></span>
-                        ${photos.length < 3 ? `
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">📷 Bilder (${photos.length}/5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, GIF, WEBP&#10;Maximale Größe: 5 MB"></i></span>
+                        ${photos.length < 5 ? `
                             <button id="btn-add-mock-photo" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: rgba(34, 197, 94, 0.3); color: #22c55e; display: flex; align-items: center; gap: 0.25rem;">
                                 <i class="fa-solid fa-plus"></i> Hinzufügen
                             </button>
@@ -12582,8 +12637,8 @@ window.showMediaModal = function(itemId, isEvents) {
                 <!-- Section: Videos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Video (${videos.length}/1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></span>
-                        ${videos.length < 1 ? `
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Videos (${videos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM, OGG, MKV&#10;Maximale Größe: 20 MB"></i></span>
+                        ${videos.length < 3 ? `
                             <button id="btn-add-mock-video" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: rgba(124, 58, 237, 0.3); color: #a855f7; display: flex; align-items: center; gap: 0.25rem;">
                                 <i class="fa-solid fa-plus"></i> Hinzufügen
                             </button>
@@ -12600,6 +12655,30 @@ window.showMediaModal = function(itemId, isEvents) {
                         `).join('')}
                     </div>
                 </div>
+
+                <!-- Section: Audios -->
+                ${!isEvents ? `
+                <div>
+                    <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎵 Hörproben (${audios.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP3, WAV, OGG, M4A, AAC&#10;Maximale Größe: 10 MB"></i></span>
+                        ${audios.length < 3 ? `
+                            <button id="btn-add-mock-audio" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: rgba(6, 182, 212, 0.3); color: #06b6d4; display: flex; align-items: center; gap: 0.25rem;">
+                                <i class="fa-solid fa-plus"></i> Hinzufügen
+                            </button>
+                        ` : ''}
+                    </h4>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        ${audios.length === 0 ? `
+                            <span style="font-size: 0.78rem; color: var(--text-muted); font-style: italic;">Keine Hörproben hochgeladen</span>
+                        ` : audios.map((a, idx) => `
+                            <div style="position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-glass); background: #1e1b4b; display:flex; align-items:center; justify-content:center;" title="${a.title || 'Audio'}">
+                                <i class="fa-solid fa-music" style="color: #06b6d4; font-size: 1.5rem;"></i>
+                                <button class="btn-delete-audio" data-idx="${idx}" style="position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.6rem;"><i class="fa-solid fa-times"></i></button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
             </div>
 
             <div style="padding: 1rem; border-top: 1px solid var(--border-glass); display: flex; justify-content: flex-end; gap: 0.5rem; background: rgba(255,255,255,0.01);">
@@ -12618,10 +12697,10 @@ window.showMediaModal = function(itemId, isEvents) {
     const addPhotoBtn = document.getElementById('btn-add-mock-photo');
     if (addPhotoBtn) {
         addPhotoBtn.addEventListener('click', () => {
-            if (photos.length >= 3) {
+            if (photos.length >= 5) {
                 showToast({
                     title: "Bilder-Limit erreicht 📷",
-                    message: "Es sind maximal 3 Bilder erlaubt."
+                    message: "Es sind maximal 5 Bilder erlaubt."
                 });
                 return;
             }
@@ -12645,10 +12724,10 @@ window.showMediaModal = function(itemId, isEvents) {
     const addVideoBtn = document.getElementById('btn-add-mock-video');
     if (addVideoBtn) {
         addVideoBtn.addEventListener('click', () => {
-            if (videos.length >= 1) {
+            if (videos.length >= 3) {
                 showToast({
                     title: "Video-Limit erreicht 🎬",
-                    message: "Es ist maximal 1 Video erlaubt."
+                    message: "Es sind maximal 3 Videos erlaubt."
                 });
                 return;
             }
@@ -12660,6 +12739,33 @@ window.showMediaModal = function(itemId, isEvents) {
                 if (fileInput.files.length > 0) {
                     validateAndProcessVideo(fileInput.files[0], (videoUrl) => {
                         videos.push(videoUrl);
+                        close();
+                        window.showMediaModal(itemId, isEvents);
+                    });
+                }
+            });
+            fileInput.click();
+        });
+    }
+
+    const addAudioBtn = document.getElementById('btn-add-mock-audio');
+    if (addAudioBtn) {
+        addAudioBtn.addEventListener('click', () => {
+            if (audios.length >= 3) {
+                showToast({
+                    title: "Audio-Limit erreicht 🎵",
+                    message: "Es sind maximal 3 Audio-Dateien erlaubt."
+                });
+                return;
+            }
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'audio/mpeg, audio/wav, audio/ogg, audio/mp3, audio/m4a, audio/aac';
+            fileInput.style.display = 'none';
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    validateAndProcessAudio(fileInput.files[0], (audioObj) => {
+                        audios.push(audioObj);
                         close();
                         window.showMediaModal(itemId, isEvents);
                     });
@@ -12687,6 +12793,15 @@ window.showMediaModal = function(itemId, isEvents) {
         });
     });
 
+    modal.querySelectorAll('.btn-delete-audio').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const idx = parseInt(btn.getAttribute('data-idx'));
+            audios.splice(idx, 1);
+            close();
+            window.showMediaModal(itemId, isEvents);
+        });
+    });
+
     document.getElementById('btn-save-media').addEventListener('click', () => {
         item.photos = photos;
         if (photos.length > 0) {
@@ -12694,6 +12809,9 @@ window.showMediaModal = function(itemId, isEvents) {
             item.image = photos[0];
         }
         item.videos = videos;
+        if (!isEvents) {
+            item.audio = audios;
+        }
 
         if (isEvents) {
             localStorage.setItem('GigConnAct_events', JSON.stringify(state.events));
@@ -12703,7 +12821,7 @@ window.showMediaModal = function(itemId, isEvents) {
 
         showToast({
             title: "Medien aktualisiert 📸",
-            message: "Deine Fotos und Videos wurden erfolgreich gespeichert."
+            message: "Deine Fotos, Videos und Hörproben wurden erfolgreich gespeichert."
         });
         
         close();
