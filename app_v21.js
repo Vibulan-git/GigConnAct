@@ -11426,8 +11426,8 @@ function showCookieConsentBanner(preExistingSettings = null) {
 
     const consent = preExistingSettings || {
         essential: true,
-        analytics: false,
-        marketing: false
+        analytics: true,
+        marketing: true
     };
 
     const banner = document.createElement('div');
@@ -11438,16 +11438,16 @@ function showCookieConsentBanner(preExistingSettings = null) {
         right: 24px;
         left: 24px;
         max-width: 480px;
-        background: rgba(18, 18, 18, 0.85);
+        background: rgba(18, 18, 18, 0.95);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(124, 58, 237, 0.25);
+        border: 1px solid rgba(124, 58, 237, 0.35);
         border-radius: 16px;
         padding: 1.5rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
         z-index: 100000;
         font-family: var(--font-heading);
-        color: var(--text-main);
+        color: #ffffff;
         display: flex;
         flex-direction: column;
         gap: 1rem;
@@ -11486,10 +11486,10 @@ function showCookieConsentBanner(preExistingSettings = null) {
                 position: absolute;
                 cursor: pointer;
                 top: 0; left: 0; right: 0; bottom: 0;
-                background-color: rgba(255,255,255,0.1);
+                background-color: rgba(255,255,255,0.15);
                 transition: .3s;
                 border-radius: 20px;
-                border: 1px solid rgba(255,255,255,0.15);
+                border: 1px solid rgba(255,255,255,0.2);
             }
             .cookie-slider:before {
                 position: absolute;
@@ -11518,18 +11518,18 @@ function showCookieConsentBanner(preExistingSettings = null) {
 
     banner.innerHTML = `
         <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <i class="fa-solid fa-cookie-bite" style="font-size: 2rem; color: #7c3aed; filter: drop-shadow(0 0 8px rgba(124,58,237,0.3));"></i>
-            <h4 style="margin: 0; font-size: 1.1rem; font-weight: 800;">Wir verwenden Cookies 🍪</h4>
+            <i class="fa-solid fa-cookie-bite" style="font-size: 2rem; color: #a78bfa; filter: drop-shadow(0 0 8px rgba(124,58,237,0.4));"></i>
+            <h4 style="margin: 0; font-size: 1.1rem; font-weight: 800; color: #ffffff;">Wir verwenden Cookies 🍪</h4>
         </div>
-        <p style="margin: 0; font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;">
-            Um unsere Website optimal zu gestalten, Zugriffe zu analysieren und Werbung zu optimieren, nutzen wir Cookies. Du kannst entscheiden, welche Kategorien du erlaubst. Mehr Infos in unserer <a href="#/datenschutz" style="color: #7c3aed; text-decoration: underline;" onclick="document.getElementById('gigconnact-cookie-banner').remove();">Datenschutzerklärung</a>.
+        <p style="margin: 0; font-size: 0.78rem; color: rgba(255,255,255,0.8); line-height: 1.5;">
+            Um unsere Website optimal zu gestalten, Zugriffe zu analysieren und Werbung zu optimieren, nutzen wir Cookies. Du kannst entscheiden, welche Kategorien du erlaubst. Mehr Infos in unserer <a href="#/datenschutz" style="color: #a78bfa; text-decoration: underline;" onclick="document.getElementById('gigconnact-cookie-banner').remove();">Datenschutzerklärung</a>.
         </p>
 
-        <div style="display: flex; flex-direction: column; gap: 0.7rem; margin: 0.3rem 0; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.7rem;">
+        <div style="display: flex; flex-direction: column; gap: 0.7rem; margin: 0.3rem 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.7rem;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <strong style="font-size: 0.82rem; display: block;">Essenziell (Immer aktiv)</strong>
-                    <span style="font-size: 0.68rem; color: var(--text-muted);">Erforderlich für Login, Sicherheit und Basisfunktionen der App.</span>
+                    <strong style="font-size: 0.82rem; display: block; color: #ffffff;">Essenziell (Immer aktiv)</strong>
+                    <span style="font-size: 0.68rem; color: rgba(255,255,255,0.55);">Wird benötigt, um deine Cookie-Auswahl zu speichern. Für registrierte Nutzer zusätzlich für die sichere Anmeldung und Basisfunktionen der App.</span>
                 </div>
                 <label class="cookie-switch">
                     <input type="checkbox" checked disabled>
@@ -11538,8 +11538,8 @@ function showCookieConsentBanner(preExistingSettings = null) {
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <strong style="font-size: 0.82rem; display: block;">Statistiken (Google Analytics)</strong>
-                    <span style="font-size: 0.68rem; color: var(--text-muted);">Erlaubt uns, anonyme Daten zur Websitenutzung zu analysieren.</span>
+                    <strong style="font-size: 0.82rem; display: block; color: #ffffff;">Statistiken (Google Analytics)</strong>
+                    <span style="font-size: 0.68rem; color: rgba(255,255,255,0.55);">Erlaubt uns, anonyme Daten zur Websitenutzung zu analysieren.</span>
                 </div>
                 <label class="cookie-switch">
                     <input type="checkbox" id="cookie-opt-analytics" ${consent.analytics ? 'checked' : ''}>
@@ -11548,8 +11548,8 @@ function showCookieConsentBanner(preExistingSettings = null) {
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <strong style="font-size: 0.82rem; display: block;">Marketing (Google Ads)</strong>
-                    <span style="font-size: 0.68rem; color: var(--text-muted);">Hilft uns, den Erfolg unserer Werbekampagnen zu messen.</span>
+                    <strong style="font-size: 0.82rem; display: block; color: #ffffff;">Marketing (Google Ads)</strong>
+                    <span style="font-size: 0.68rem; color: rgba(255,255,255,0.55);">Hilft uns, den Erfolg unserer Werbekampagnen zu messen.</span>
                 </div>
                 <label class="cookie-switch">
                     <input type="checkbox" id="cookie-opt-marketing" ${consent.marketing ? 'checked' : ''}>
@@ -11558,28 +11558,14 @@ function showCookieConsentBanner(preExistingSettings = null) {
             </div>
         </div>
 
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.3rem;">
-            <button class="btn btn-primary btn-sm" id="btn-cookie-accept-all" style="margin:0; flex: 1.2; min-width: 110px; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: none; font-weight: 700; font-size: 0.76rem; padding: 0.5rem;">
-                Alle erlauben
-            </button>
-            <button class="btn btn-glass btn-sm" id="btn-cookie-accept-essential" style="margin:0; flex: 1.2; min-width: 110px; color: #fff; border-color: rgba(255,255,255,0.15); font-size: 0.76rem; padding: 0.5rem;">
-                Nur essenzielle
-            </button>
-            <button class="btn btn-secondary btn-sm" id="btn-cookie-save-choice" style="margin:0; border-color: rgba(255,255,255,0.1); font-size: 0.76rem; background: rgba(255,255,255,0.05); color: #fff; padding: 0.5rem; min-width: 80px; flex: 0.8;">
+        <div style="display: flex; margin-top: 0.3rem;">
+            <button class="btn btn-primary btn-sm" id="btn-cookie-save-choice" style="margin:0; width: 100%; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: none; font-weight: 700; font-size: 0.82rem; padding: 0.6rem; color: #fff; border-radius: 8px; cursor: pointer; transition: opacity 0.2s;">
                 Speichern
             </button>
         </div>
     `;
 
     document.body.appendChild(banner);
-
-    document.getElementById('btn-cookie-accept-all').addEventListener('click', () => {
-        saveConsent({ essential: true, analytics: true, marketing: true });
-    });
-
-    document.getElementById('btn-cookie-accept-essential').addEventListener('click', () => {
-        saveConsent({ essential: true, analytics: false, marketing: false });
-    });
 
     document.getElementById('btn-cookie-save-choice').addEventListener('click', () => {
         const analytics = document.getElementById('cookie-opt-analytics').checked;
