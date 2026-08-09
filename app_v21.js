@@ -11347,6 +11347,7 @@ function navigate(page) {
                 navigate('');
                 showModal('auth');
             } else {
+                window.postboxJustOpened = true;
                 renderPostbox(mainContainer);
                 setActiveLink('link-postbox');
                 window.location.hash = '#/postbox';
@@ -11725,6 +11726,35 @@ function renderPostbox(container) {
     const u = state.currentUser;
     const isMusician = u.role === 'musician';
     let userProfiles = [];
+
+    // Auto-select profile & chat with unread messages when first opening the postbox
+    if (window.postboxJustOpened) {
+        window.postboxJustOpened = false;
+        if (state.chats && state.chats.length > 0) {
+            const unreadChats = state.chats.filter(c => state.isChatUnread(c));
+            if (unreadChats.length > 0) {
+                unreadChats.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+                const targetChat = unreadChats[0];
+                
+                if (isMusician) {
+                    const profiles = state.musicians.filter(m => m.creatorId === u.id);
+                    const matchingProfile = profiles.find(m => targetChat.participants.includes(m.id));
+                    if (matchingProfile) {
+                        state.activeMusicianId = matchingProfile.id;
+                        window.postboxActiveChatId = targetChat.id;
+                    }
+                } else {
+                    const userEvents = state.events.filter(e => e.creatorId === u.id);
+                    const matchingEvent = userEvents.find(e => targetChat.participants.includes(e.id));
+                    if (matchingEvent) {
+                        state.activeEventId = matchingEvent.id;
+                        window.postboxActiveChatId = targetChat.id;
+                    }
+                }
+            }
+        }
+    }
+
     let activeProfileId = '';
     if (isMusician) {
         userProfiles = state.musicians.filter(m => m.creatorId === u.id);
