@@ -13988,6 +13988,13 @@ function renderDatenschutzPage(container) {
                     Hierbei wird Ihre E-Mail-Adresse und ggf. Ihr Vorname an Resend übertragen. Die Verarbeitung erfolgt zur Erfüllung unserer vertraglichen Pflichten (Art. 6 Abs. 1 lit. b DSGVO) sowie zur Gewährleistung der Kommunikationsgeschwindigkeit. Die Übertragung in die USA wird durch Standardvertragsklauseln abgesichert.
                 </p>
 
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Zahlungsabwicklung (Stripe)</h3>
+                <p>
+                    Zur Abwicklung von kostenpflichtigen Abonnements nutzen wir den Zahlungsdienstleister <strong>Stripe</strong> (Stripe Payments Europe Ltd., 1 Grand Canal Street Lower, Grand Canal Dock, Dublin, Irland).
+                    Wenn Sie ein Abonnement abschließen, werden Ihre Zahlungsdaten (z. B. Name, E-Mail-Adresse, IBAN/BIC oder Kreditkarteninformationen) verschlüsselt an Stripe übertragen. Stripe verarbeitet diese Daten als eigenständiger datenschutzrechtlich Verantwortlicher, um Zahlungen einzuziehen und Betrug vorzubeugen.
+                    Die Weitergabe erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Zahlungsabwicklung zur Vertragserfüllung). Stripe übermittelt Daten teilweise auch an das Mutterunternehmen Stripe, Inc. in den USA. Diese Übertragungen sind durch die Standardvertragsklauseln der EU-Kommission und die Zertifizierung unter dem EU-US Data Privacy Framework abgesichert. Weitere Informationen finden Sie in der Datenschutzerklärung von Stripe unter <a href="https://stripe.com/de/privacy" target="_blank" rel="noopener noreferrer" style="color: var(--color-purple); text-decoration: underline;">https://stripe.com/de/privacy</a>.
+                </p>
+
                 <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Server-Log-Dateien & LocalStorage</h3>
                 <p>
                     Der Hoster der Website erhebt und speichert automatisch Informationen in sogenannten Server-Log-Dateien, die Ihr Browser automatisch an uns übermittelt (z. B. Browsertyp, Betriebssystem, Referrer URL, Uhrzeit). Diese Daten sind nicht bestimmten Personen zuzuordnen und werden nicht mit anderen Datenquellen zusammengeführt.
