@@ -181,7 +181,7 @@ window.addRegMedia = function(role, type) {
     const listKey = type === 'photo' ? 'photos' : type === 'video' ? 'videos' : 'audios';
     const list = window.registrationMedia[role][listKey];
     const limit = type === 'photo' 
-        ? (role === 'musician' ? 10 : 3) 
+        ? (role === 'musician' ? 5 : 3) 
         : type === 'video' 
             ? (role === 'musician' ? 3 : 1) 
             : 3;
@@ -12677,38 +12677,12 @@ function validateAndProcessVideo(file, callback) {
         return;
     }
 
-    const videoElement = document.createElement('video');
-    videoElement.preload = 'metadata';
-    videoElement.src = URL.createObjectURL(file);
-    videoElement.onloadedmetadata = async function() {
-        URL.revokeObjectURL(videoElement.src);
-        
-        // 1. Length validation (max 5 minutes)
-        const duration = videoElement.duration;
-        if (duration > 300) {
-            showToast({
-                title: "Video zu lang 🎥",
-                message: "Das Video darf maximal 5 Minuten lang sein (deine Datei: " + Math.floor(duration / 60) + " Min. " + Math.round(duration % 60) + " Sek.)."
-            });
-            return;
-        }
+    showToast({
+        title: "Video wird verarbeitet...",
+        message: "Bitte warten..."
+    });
 
-        // 2. Resolution validation (min 720p, long side >= 1280px)
-        const width = videoElement.videoWidth;
-        const height = videoElement.videoHeight;
-        if (Math.max(width, height) < 1280) {
-            showToast({
-                title: "Auflösung zu gering 🎥",
-                message: "Das Video muss eine Auflösung von mindestens 720p (z.B. 1280x720) haben."
-            });
-            return;
-        }
-
-        showToast({
-            title: "Video wird hochgeladen...",
-            message: "Bitte warten..."
-        });
-
+    (async () => {
         let url = null;
         if (typeof firebase !== 'undefined' && firebase.storage) {
             try {
@@ -12736,13 +12710,7 @@ function validateAndProcessVideo(file, callback) {
             });
         }
         callback(url);
-    };
-    videoElement.onerror = function() {
-        showToast({
-            title: "Fehler beim Videoupload ❌",
-            message: "Das Video konnte nicht geladen oder analysiert werden."
-        });
-    };
+    })();
 }
 
 window.showMediaModal = function(itemId, isEvents) {
@@ -12785,8 +12753,8 @@ window.showMediaModal = function(itemId, isEvents) {
                 <!-- Section: Photos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">📷 Fotos (${photos.length}/${isEvents ? 3 : 10}) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></span>
-                        ${photos.length < (isEvents ? 3 : 10) ? `
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">📷 Fotos (${photos.length}/${isEvents ? 3 : 5}) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></span>
+                        ${photos.length < (isEvents ? 3 : 5) ? `
                             <button id="btn-add-mock-photo" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: ${isEvents ? 'rgba(37, 99, 235, 0.3)' : 'rgba(124, 58, 237, 0.3)'}; color: ${isEvents ? '#2563eb' : '#7c3aed'}; display: flex; align-items: center; gap: 0.25rem;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -12865,7 +12833,7 @@ window.showMediaModal = function(itemId, isEvents) {
     const addPhotoBtn = document.getElementById('btn-add-mock-photo');
     if (addPhotoBtn) {
         addPhotoBtn.addEventListener('click', () => {
-            const maxPhotos = isEvents ? 3 : 10;
+            const maxPhotos = isEvents ? 3 : 5;
             if (photos.length >= maxPhotos) {
                 showToast({
                     title: "Fotos-Limit erreicht 📷",
