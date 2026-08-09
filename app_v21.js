@@ -11170,28 +11170,44 @@ function navigate(page) {
     const activeMusicianId = (state && state.activeMusicianId) ? state.activeMusicianId : null;
     const activeEventId = (state && state.activeEventId) ? state.activeEventId : null;
 
+    const maxChatTimestamp = (state && state.chats) 
+        ? Math.max(...state.chats.map(c => new Date(c.updatedAt || 0).getTime()), 0) 
+        : 0;
+
     console.log("[DEBUG] navigate called for page:", page, 
                 "currentActivePage:", window.currentActivePage, 
                 "lastActiveMusicianId:", window.lastActiveMusicianId, "activeMusicianId:", activeMusicianId,
-                "lastActiveEventId:", window.lastActiveEventId, "activeEventId:", activeEventId);
+                "lastActiveEventId:", window.lastActiveEventId, "activeEventId:", activeEventId,
+                "lastChatTimestamp:", window.lastChatTimestamp, "maxChatTimestamp:", maxChatTimestamp);
 
-    if (page !== '' && 
+    const isIdentical = page !== '' && 
         window.currentActivePage === page && 
         window.lastUserSessionId === currentUserId && 
         window.lastUserRole === currentUserRole &&
         window.lastMusiciansCount === currentMusiciansCount &&
         window.lastEventsCount === currentEventsCount &&
         window.lastActiveMusicianId === activeMusicianId &&
-        window.lastActiveEventId === activeEventId) {
-        console.log("[DEBUG] navigate exiting early (rendering skipped)");
-        return;
+        window.lastActiveEventId === activeEventId;
+
+    if (page === 'postbox') {
+        if (isIdentical && window.lastChatTimestamp === maxChatTimestamp) {
+            console.log("[DEBUG] navigate exiting early for postbox (chats unchanged)");
+            return;
+        }
+    } else {
+        if (isIdentical) {
+            console.log("[DEBUG] navigate exiting early (rendering skipped)");
+            return;
+        }
     }
+
     window.lastUserSessionId = currentUserId;
     window.lastUserRole = currentUserRole;
     window.lastMusiciansCount = currentMusiciansCount;
     window.lastEventsCount = currentEventsCount;
     window.lastActiveMusicianId = activeMusicianId;
     window.lastActiveEventId = activeEventId;
+    window.lastChatTimestamp = maxChatTimestamp;
 
     if (page === '') {
         mainContainer.classList.add('page-landing');
