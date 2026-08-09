@@ -30,12 +30,28 @@ async function sendEmail({ to, subject, html }) {
     }
 }
 
-// Helper to fetch user details (email and display name) by ID
+// Helper to fetch user details (email and display name) by ID (supports musician, event, or user ID)
 async function getUserDetails(id) {
     try {
         if (!id) return null;
-        // Strip 'mus_', 'event_', or 'evt_' prefixes to get the actual user doc ID
-        const userId = id.replace(/^(mus_|event_|evt_)/, '');
+        let userId = id;
+
+        if (id.startsWith('mus_')) {
+            const musDoc = await admin.firestore().collection('musicians').doc(id).get();
+            if (musDoc.exists) {
+                userId = musDoc.data().creatorId;
+            } else {
+                userId = id.replace(/^mus_/, '');
+            }
+        } else if (id.startsWith('evt_') || id.startsWith('event_')) {
+            const eventDoc = await admin.firestore().collection('events').doc(id).get();
+            if (eventDoc.exists) {
+                userId = eventDoc.data().creatorId;
+            } else {
+                userId = id.replace(/^(evt_|event_)/, '');
+            }
+        }
+
         const userDoc = await admin.firestore().collection('users').doc(userId).get();
         if (userDoc.exists) {
             const data = userDoc.data();
@@ -48,6 +64,28 @@ async function getUserDetails(id) {
         console.error("Failed to fetch user details:", e);
     }
     return null;
+}
+
+// Helper to resolve the display name for a participant ID (musician name, event name, or user name)
+async function getDisplayName(id) {
+    try {
+        if (!id) return 'Nutzer';
+        if (id.startsWith('mus_')) {
+            const musDoc = await admin.firestore().collection('musicians').doc(id).get();
+            if (musDoc.exists) return musDoc.data().name || 'Musiker';
+        } else if (id.startsWith('evt_') || id.startsWith('event_')) {
+            const eventDoc = await admin.firestore().collection('events').doc(id).get();
+            if (eventDoc.exists) return eventDoc.data().name || 'Veranstaltung';
+        }
+        const userDoc = await admin.firestore().collection('users').doc(id).get();
+        if (userDoc.exists) {
+            const data = userDoc.data();
+            return data.firstName && data.lastName ? `${data.firstName} ${data.lastName}` : (data.contactName || 'Nutzer');
+        }
+    } catch (e) {
+        console.error("Failed to fetch display name:", e);
+    }
+    return 'Nutzer';
 }
 
 // Helper to calculate estimated distance between two cities (mockup mapping matching frontend)
@@ -199,7 +237,7 @@ exports.onNewChatMessage = functions
         const latestMessage = messagesAfter[messagesAfter.length - 1];
 
         // Systemnachrichten ignorieren
-        if (!latestMessage.senderId || latestMessage.senderName === 'System') return null;
+        if (!latestMessage.senderId || latestMessage.senderName === 'System' || latestMessage.senderId === 'system') return null;
 
         // Empfänger ermitteln (die andere Partei im Chat)
         const recipientId = after.participants 
@@ -212,9 +250,11 @@ exports.onNewChatMessage = functions
             return null;
         }
 
-        const subject = `Neue Nachricht von ${latestMessage.senderName} 💬`;
+        const senderName = await getDisplayName(latestMessage.senderId);
+
+        const subject = `Neue Nachricht von ${senderName} 💬`;
         const html = getMessageEmailHtml({
-            senderName: latestMessage.senderName,
+            senderName: senderName,
             messageText: latestMessage.text
         });
 
