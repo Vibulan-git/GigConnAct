@@ -1550,7 +1550,9 @@ class StateManager {
                     if (doc.exists) {
                         this.currentUser = doc.data();
                         if (this.currentUser.role === 'musician') {
-                            this.activeMusicianId = this.currentUser.profileId || null;
+                            this.activeMusicianId = this.activeMusicianId && this.musicians.some(m => m.id === this.activeMusicianId)
+                                ? this.activeMusicianId
+                                : (this.musicians.find(m => m.creatorId === this.currentUser.id)?.id || this.currentUser.profileId || null);
                         } else if (this.currentUser.role === 'organizer') {
                             this.activeEventId = this.activeEventId && this.events.some(e => e.id === this.activeEventId)
                                 ? this.activeEventId
@@ -1591,7 +1593,9 @@ class StateManager {
                         if (doc.exists) {
                             this.currentUser = doc.data();
                             if (this.currentUser.role === 'musician') {
-                                this.activeMusicianId = this.currentUser.profileId || null;
+                                this.activeMusicianId = this.activeMusicianId && this.musicians.some(m => m.id === this.activeMusicianId)
+                                    ? this.activeMusicianId
+                                    : (this.musicians.find(m => m.creatorId === this.currentUser.id)?.id || this.currentUser.profileId || null);
                             } else if (this.currentUser.role === 'organizer') {
                                 this.activeEventId = this.activeEventId && this.events.some(e => e.id === this.activeEventId)
                                     ? this.activeEventId
@@ -2186,7 +2190,9 @@ class StateManager {
 
         if (this.currentUser) {
             if (this.currentUser.role === 'musician') {
-                this.activeMusicianId = this.activeMusicianId || this.currentUser.profileId || (this.musicians.find(m => m.creatorId === this.currentUser.id)?.id || null);
+                this.activeMusicianId = this.activeMusicianId && this.musicians.some(m => m.id === this.activeMusicianId)
+                    ? this.activeMusicianId
+                    : (this.musicians.find(m => m.creatorId === this.currentUser.id)?.id || this.currentUser.profileId || null);
             } else if (this.currentUser.role === 'organizer') {
                 this.activeEventId = this.activeEventId && this.events.some(e => e.id === this.activeEventId)
                     ? this.activeEventId
@@ -2672,7 +2678,9 @@ class StateManager {
         if (!snapshot.empty) {
             this.currentUser = snapshot.docs[0].data();
             if (this.currentUser.role === 'musician') {
-                this.activeMusicianId = this.currentUser.profileId || null;
+                this.activeMusicianId = this.activeMusicianId && this.musicians.some(m => m.id === this.activeMusicianId)
+                    ? this.activeMusicianId
+                    : (this.musicians.find(m => m.creatorId === this.currentUser.id)?.id || this.currentUser.profileId || null);
             } else {
                 this.activeEventId = this.events.find(e => e.creatorId === this.currentUser.id)?.id || null;
             }
