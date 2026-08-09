@@ -4367,14 +4367,14 @@ function renderLandingPage(container, onNavigate) {
                         </div>
                     </div>
                     <!-- Impressum Info -->
-                    <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
-                        <div style="display: flex; gap: 1rem; margin-bottom: 0.2rem;">
+                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.5rem; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
+                        <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 0.2rem;">
                             <a href="#/impressum" style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; text-decoration: none;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-main)';">Impressum</a>
                             <span style="color: rgba(255,255,255,0.15);">&bull;</span>
                             <a href="#/datenschutz" style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; text-decoration: none;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-main)';">Datenschutz</a>
                         </div>
                         <span>GigConnAct &bull; Montanusstraße 49 &bull; 51065 Köln</span>
-                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
                             <span>Tel: <a href="tel:+4915788703998" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">+49 15788703998</a></span>
                             <span>E-Mail: <a href="mailto:info@gigconnact.de" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">info@gigconnact.de</a></span>
                             <span>OS-Plattform: <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); font-weight: 600; text-decoration: underline;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">ec.europa.eu/consumers/odr</a></span>
@@ -13531,10 +13531,6 @@ function renderImpressumPage(container) {
                 <p>
                     Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
                 </p>
-                
-                <div style="margin-top: 3rem; padding: 1rem; background: rgba(124, 58, 237, 0.1); border-radius: 8px; border: 1px dashed var(--color-purple); font-size: 0.85rem; color: var(--text-muted);">
-                    <strong>💡 Administrator-Hinweis:</strong> Du kannst diesen Text jederzeit in der Funktion <code>renderImpressumPage</code> in der Datei <code>app_v21.js</code> anpassen oder deinen generierten Text von eRecht24 hier hineinkopieren.
-                </div>
             </div>
         </div>
     `;
@@ -13579,10 +13575,6 @@ function renderDatenschutzPage(container) {
                 <p>
                     Für den automatischen Versand von System-E-Mails (z. B. Login-Links, Match-Benachrichtigungen oder Chat-Mails) nutzen wir den Dienst **Resend**. Hierbei wird Ihre E-Mail-Adresse und ggf. Ihr Name zur Durchführung des E-Mail-Versands an Resend übertragen.
                 </p>
-
-                <div style="margin-top: 3rem; padding: 1rem; background: rgba(124, 58, 237, 0.1); border-radius: 8px; border: 1px dashed var(--color-purple); font-size: 0.85rem; color: var(--text-muted);">
-                    <strong>💡 Administrator-Hinweis:</strong> Du kannst diesen Text jederzeit in der Funktion <code>renderDatenschutzPage</code> in der Datei <code>app_v21.js</code> anpassen oder deinen generierten Datenschutz-Text von eRecht24 hier hineinkopieren.
-                </div>
             </div>
         </div>
     `;
