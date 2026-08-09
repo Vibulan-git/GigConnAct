@@ -4377,7 +4377,6 @@ function renderLandingPage(container, onNavigate) {
                         <div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
                             <span>Tel: <a href="tel:+4915788703998" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">+49 15788703998</a></span>
                             <span>E-Mail: <a href="mailto:info@gigconnact.de" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">info@gigconnact.de</a></span>
-                            <span>OS-Plattform: <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); font-weight: 600; text-decoration: underline;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">ec.europa.eu/consumers/odr</a></span>
                         </div>
                     </div>
                     <!-- Copyright -->
