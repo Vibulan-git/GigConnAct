@@ -2923,11 +2923,12 @@ class StateManager {
                 return { success: false, message: "Diese E-Mail-Adresse wird bereits verwendet." };
             }
 
-            const actionCodeSettings = {
-                url: window.location.origin + window.location.pathname,
-                handleCodeInApp: true
-            };
-            await auth.sendSignInLinkToEmail(payload.email, actionCodeSettings);
+            const sendCustomSignInEmail = firebase.app().functions('europe-west3').httpsCallable('sendCustomSignInEmail');
+            await sendCustomSignInEmail({
+                email: payload.email,
+                name: payload.firstName ? `${payload.firstName} ${payload.lastName}` : (payload.contactName || 'Nutzer'),
+                isNewUser: true
+            });
 
             window.localStorage.setItem('emailForSignIn', payload.email);
             window.localStorage.setItem('GigConnAct_pending_registration', JSON.stringify(payload));
@@ -2951,11 +2952,12 @@ class StateManager {
                 return { success: false, message: "Diese E-Mail-Adresse ist nicht registriert. Bitte erstelle zuerst ein Konto unter 'Registrieren'." };
             }
 
-            const actionCodeSettings = {
-                url: window.location.origin + window.location.pathname,
-                handleCodeInApp: true
-            };
-            await auth.sendSignInLinkToEmail(email, actionCodeSettings);
+            const sendCustomSignInEmail = firebase.app().functions('europe-west3').httpsCallable('sendCustomSignInEmail');
+            await sendCustomSignInEmail({
+                email: email,
+                name: 'Nutzer', // Will load actual name dynamically in backend
+                isNewUser: false
+            });
 
             window.localStorage.setItem('emailForSignIn', email);
             return { success: true, isNewUser: false };
@@ -11363,6 +11365,9 @@ function navigate(page) {
                 window.location.hash = '#/credits';
             }
             break;
+        case 'verify-email':
+            renderVerifyEmailPage(mainContainer);
+            break;
         case 'profile':
             if (!state.currentUser) {
                 navigate('');
@@ -11590,7 +11595,8 @@ function updateNavbar(forceLanding) {
 
 function handleRouting() {
     const hash = window.location.hash;
-    let page = hash.replace('#/', '');
+    let pageWithQuery = hash.replace('#/', '');
+    let page = pageWithQuery.split('?')[0];
     if (page === 'top-matches') page = 'matches';
     
     // Redirect logged-in users away from the landing page
@@ -13418,3 +13424,62 @@ window.showMediaModal = function(itemId, isEvents) {
         }
     });
 };
+
+async function renderVerifyEmailPage(container) {
+    container.innerHTML = `
+        <div class="market-container" style="max-width: 600px; margin: 4rem auto; padding: 3rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color); text-align: center; box-shadow: var(--shadow-lg);">
+            <div id="verify-loading" style="display: block;">
+                <div class="spinner" style="width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--color-purple); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1.5rem;"></div>
+                <h3 style="font-family: var(--font-heading); color: var(--text-main); margin-bottom: 0.5rem;">E-Mail-Adresse wird verifiziert...</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Bitte hab einen kurzen Moment Geduld.</p>
+            </div>
+            
+            <div id="verify-success" style="display: none;">
+                <div style="font-size: 4rem; color: var(--color-green); margin-bottom: 1.5rem;">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <h3 style="font-family: var(--font-heading); color: var(--text-main); margin-bottom: 1rem;">E-Mail erfolgreich verifiziert! 🎉</h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem; line-height: 1.5;">
+                    Vielen Dank! Deine E-Mail-Adresse wurde erfolgreich bestätigt. Du kannst dich jetzt einloggen und alle Funktionen von GigConnAct nutzen.
+                </p>
+                <button class="btn btn-primary" onclick="window.location.hash = '#/'; showModal('auth');" style="margin: 0 auto;">Jetzt anmelden</button>
+            </div>
+
+            <div id="verify-error" style="display: none;">
+                <div style="font-size: 4rem; color: var(--color-red); margin-bottom: 1.5rem;">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </div>
+                <h3 style="font-family: var(--font-heading); color: var(--text-main); margin-bottom: 1rem;">Verifizierung fehlgeschlagen ⚠️</h3>
+                <p id="verify-error-msg" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem; line-height: 1.5;">
+                    Der Verifizierungs-Code ist ungültig oder abgelaufen.
+                </p>
+                <button class="btn btn-secondary" onclick="window.location.hash = '#/';" style="margin: 0 auto;">Zur Startseite</button>
+            </div>
+        </div>
+    `;
+
+    // Parse parameters from query string
+    const hash = window.location.hash;
+    const queryString = hash.split('?')[1] || '';
+    const urlParams = new URLSearchParams(queryString);
+    const oobCode = urlParams.get('oobCode');
+
+    if (!oobCode) {
+        document.getElementById('verify-loading').style.display = 'none';
+        document.getElementById('verify-error').style.display = 'block';
+        document.getElementById('verify-error-msg').innerText = "Kein Verifizierungscode in der URL gefunden.";
+        return;
+    }
+
+    try {
+        await auth.applyActionCode(oobCode);
+        document.getElementById('verify-loading').style.display = 'none';
+        document.getElementById('verify-success').style.display = 'block';
+    } catch (err) {
+        console.error("verifyEmail failed:", err);
+        document.getElementById('verify-loading').style.display = 'none';
+        document.getElementById('verify-error').style.display = 'block';
+        document.getElementById('verify-error-msg').innerText = "Der Link ist ungültig, abgelaufen oder wurde bereits verwendet: " + err.message;
+    }
+}
+window.renderVerifyEmailPage = renderVerifyEmailPage;

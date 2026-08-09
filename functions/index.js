@@ -6,6 +6,9 @@ const { Resend } = require('resend');
 const getMessageEmailHtml = require('./templates/messageTemplate');
 const getTopMatchEmailHtml = require('./templates/topMatchTemplate');
 const getRadiusEventEmailHtml = require('./templates/radiusEventTemplate');
+const getVerificationEmailHtml = require('./templates/verificationTemplate');
+const getPasswordResetEmailHtml = require('./templates/passwordResetTemplate');
+const getSignInEmailHtml = require('./templates/signInTemplate');
 
 admin.initializeApp();
 
@@ -401,4 +404,120 @@ exports.dailyTopMatchesCheck = functions
         return null;
     });
 
-// Trigger redeploy to force hash update: 2026-08-09T13:10
+// ==========================================
+// REGEL 4: E-Mail Bestätigungslink generieren und senden
+// ==========================================
+exports.sendCustomVerificationEmail = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['RESEND_API_KEY'] })
+    .https.onCall(async (data, context) => {
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'Bitte melde dich an.');
+        }
+        
+        const email = context.auth.token.email || data.email;
+        if (!email) {
+            throw new functions.https.HttpsError('invalid-argument', 'Keine E-Mail-Adresse angegeben.');
+        }
+
+        try {
+            const user = await admin.auth().getUser(context.auth.uid);
+            const name = user.displayName || 'GigConnAct Nutzer';
+
+            const actionCodeSettings = {
+                url: 'https://www.gigconnact.de/#/verify-email',
+                handleCodeInApp: false
+            };
+
+            const link = await admin.auth().generateEmailVerificationLink(email, actionCodeSettings);
+            const html = getVerificationEmailHtml({ link, name });
+            await sendEmail({
+                to: email,
+                subject: 'Bestätige deine E-Mail-Adresse bei GigConnAct 📧',
+                html: html
+            });
+            return { success: true };
+        } catch (error) {
+            console.error("Failed to generate/send email verification link:", error);
+            throw new functions.https.HttpsError('internal', error.message);
+        }
+    });
+
+// ==========================================
+// REGEL 5: Passwort-Reset-Link generieren und senden
+// ==========================================
+exports.sendCustomPasswordResetEmail = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['RESEND_API_KEY'] })
+    .https.onCall(async (data, context) => {
+        const email = data.email;
+        if (!email) {
+            throw new functions.https.HttpsError('invalid-argument', 'Keine E-Mail-Adresse angegeben.');
+        }
+
+        try {
+            const user = await admin.auth().getUserByEmail(email);
+            const name = user.displayName || 'GigConnAct Nutzer';
+
+            const actionCodeSettings = {
+                url: 'https://www.gigconnact.de/#/login',
+                handleCodeInApp: false
+            };
+
+            const link = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
+            const html = getPasswordResetEmailHtml({ link, name });
+            await sendEmail({
+                to: email,
+                subject: 'Passwort zurücksetzen für GigConnAct 🔑',
+                html: html
+            });
+            return { success: true };
+        } catch (error) {
+            console.error("Failed to generate/send password reset link:", error);
+            if (error.code === 'auth/user-not-found') {
+                return { success: true, note: 'User not found' };
+            }
+            throw new functions.https.HttpsError('internal', error.message);
+        }
+    });
+
+// ==========================================
+// REGEL 6: Passwortlose Anmeldung / E-Mail Link generieren und senden
+// ==========================================
+exports.sendCustomSignInEmail = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['RESEND_API_KEY'] })
+    .https.onCall(async (data, context) => {
+        const email = data.email;
+        const name = data.name || 'GigConnAct Nutzer';
+        const isNewUser = data.isNewUser === true;
+
+        if (!email) {
+            throw new functions.https.HttpsError('invalid-argument', 'Keine E-Mail-Adresse angegeben.');
+        }
+
+        try {
+            const actionCodeSettings = {
+                url: 'https://www.gigconnact.de/',
+                handleCodeInApp: true
+            };
+
+            const link = await admin.auth().generateSignInWithEmailLink(email, actionCodeSettings);
+            const html = getSignInEmailHtml({ link, name, isNewUser });
+            
+            const subject = isNewUser 
+                ? 'Dein Registrierungs-Link für GigConnAct 🚀' 
+                : 'Dein Anmeldelink für GigConnAct 🔐';
+
+            await sendEmail({
+                to: email,
+                subject: subject,
+                html: html
+            });
+
+            return { success: true };
+        } catch (error) {
+            console.error("Failed to generate/send sign-in link:", error);
+            throw new functions.https.HttpsError('internal', error.message);
+        }
+    });
