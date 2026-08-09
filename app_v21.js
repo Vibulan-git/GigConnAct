@@ -181,9 +181,9 @@ window.addRegMedia = function(role, type) {
     const listKey = type === 'photo' ? 'photos' : type === 'video' ? 'videos' : 'audios';
     const list = window.registrationMedia[role][listKey];
     const limit = type === 'photo' 
-        ? (role === 'musician' ? 5 : 3) 
+        ? 5 
         : type === 'video' 
-            ? (role === 'musician' ? 3 : 1) 
+            ? 3 
             : 3;
     if (list.length >= limit) {
         showToast({
@@ -7807,7 +7807,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </p>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 10) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
                             <button type="button" id="btn-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -8145,7 +8145,8 @@ function showEventModal(eventObj = null, isDuplication = false) {
     const title = isEdit ? 'Event bearbeiten' : (isDuplication ? 'Event duplizieren' : 'Neues Event erstellen');
     const localMedia = {
         photos: eventObj?.photos ? [...eventObj.photos] : [],
-        videos: eventObj?.videos ? [...eventObj.videos] : []
+        videos: eventObj?.videos ? [...eventObj.videos] : [],
+        audios: eventObj?.audio ? [...eventObj.audio] : []
     };
 
     let selectedEventDates = [];
@@ -8347,11 +8348,11 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
                     <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien</h4>
                     <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
-                        Füge Fotos und Videos für dein Event hinzu, um es attraktiver zu gestalten.
+                        Füge Fotos, Videos und Hörproben (Audios) für dein Event hinzu, um es attraktiver zu gestalten.
                     </p>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
                             <button type="button" id="btn-event-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -8360,12 +8361,21 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </div>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 500 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></label>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 500 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></label>
                             <button type="button" id="btn-event-modal-add-video" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
                         </div>
                         <div id="event-modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 100 MB&#10;Maximale Länge: 10 Minuten"></i></label>
+                            <button type="button" id="btn-event-modal-add-audio" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                        <div id="event-modal-audios-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
 
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
@@ -8532,6 +8542,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
     const updateLocalEventMediaPreview = () => {
         const photosContainer = document.getElementById('event-modal-photos-preview');
         const videosContainer = document.getElementById('event-modal-videos-preview');
+        const audiosContainer = document.getElementById('event-modal-audios-preview');
         if (!photosContainer || !videosContainer) return;
 
         photosContainer.innerHTML = localMedia.photos.length === 0
@@ -8552,6 +8563,17 @@ function showEventModal(eventObj = null, isDuplication = false) {
                 </div>
             `).join('');
 
+        if (audiosContainer) {
+            audiosContainer.innerHTML = (localMedia.audios || []).length === 0
+                ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Audios hinzugefügt</span>`
+                : localMedia.audios.map((a, idx) => `
+                    <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #1e1b4b; display:flex; align-items:center; justify-content:center;" title="${a.title || (typeof a === 'string' ? a : 'Audio')}">
+                        <i class="fa-solid fa-music" style="color: #06b6d4; font-size: 1.1rem;"></i>
+                        <button type="button" class="btn-delete-event-modal-audio" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                    </div>
+                `).join('');
+        }
+
         // Bind delete listeners
         photosContainer.querySelectorAll('.btn-delete-event-modal-photo').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -8570,16 +8592,27 @@ function showEventModal(eventObj = null, isDuplication = false) {
                 updateLocalEventMediaPreview();
             });
         });
+
+        if (audiosContainer) {
+            audiosContainer.querySelectorAll('.btn-delete-event-modal-audio').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const idx = parseInt(btn.getAttribute('data-idx'));
+                    localMedia.audios.splice(idx, 1);
+                    updateLocalEventMediaPreview();
+                });
+            });
+        }
     };
 
     const addEventPhotoBtn = document.getElementById('btn-event-modal-add-photo');
     if (addEventPhotoBtn) {
         addEventPhotoBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (localMedia.photos.length >= 3) {
+            if (localMedia.photos.length >= 5) {
                 showToast({
-                    title: "Bilder-Limit erreicht ??",
-                    message: "Es sind maximal 3 Bilder erlaubt."
+                    title: "Bilder-Limit erreicht 📷",
+                    message: "Es sind maximal 5 Bilder erlaubt."
                 });
                 return;
             }
@@ -8603,10 +8636,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
     if (addEventVideoBtn) {
         addEventVideoBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (localMedia.videos.length >= 1) {
+            if (localMedia.videos.length >= 3) {
                 showToast({
-                    title: "Video-Limit erreicht ??",
-                    message: "Es ist maximal 1 Video erlaubt."
+                    title: "Video-Limit erreicht 🎬",
+                    message: "Es sind maximal 3 Videos erlaubt."
                 });
                 return;
             }
@@ -8618,6 +8651,34 @@ function showEventModal(eventObj = null, isDuplication = false) {
                 if (fileInput.files.length > 0) {
                     validateAndProcessVideo(fileInput.files[0], (videoUrl) => {
                         localMedia.videos.push(videoUrl);
+                        updateLocalEventMediaPreview();
+                    });
+                }
+            });
+            fileInput.click();
+        });
+    }
+
+    const addEventAudioBtn = document.getElementById('btn-event-modal-add-audio');
+    if (addEventAudioBtn) {
+        addEventAudioBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if ((localMedia.audios || []).length >= 3) {
+                showToast({
+                    title: "Audio-Limit erreicht 🎵",
+                    message: "Es sind maximal 3 Audio-Dateien erlaubt."
+                });
+                return;
+            }
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'audio/mpeg, audio/wav, audio/ogg, audio/mp3, audio/m4a, audio/aac';
+            fileInput.style.display = 'none';
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    validateAndProcessAudio(fileInput.files[0], (audioObj) => {
+                        if (!localMedia.audios) localMedia.audios = [];
+                        localMedia.audios.push(audioObj);
                         updateLocalEventMediaPreview();
                     });
                 }
@@ -8659,6 +8720,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
             description: formData.get('orgDescription'),
             photos: localMedia.photos,
             videos: localMedia.videos,
+            audio: localMedia.audios || [],
             contactName: `${state.currentUser.firstName} ${state.currentUser.lastName}`,
             phone: state.currentUser.phone,
             email: state.currentUser.email
@@ -9068,7 +9130,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </p>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 10) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
                                 <button type="button" onclick="window.addRegMedia('musician', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
@@ -9266,7 +9328,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </p>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
                                 <button type="button" onclick="window.addRegMedia('organizer', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
@@ -9275,12 +9337,21 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Video (max. 1) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 500 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></label>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 500 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></label>
                                 <button type="button" onclick="window.addRegMedia('organizer', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
                             </div>
                             <div id="reg-organizer-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.2rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 100 MB&#10;Maximale Länge: 10 Minuten"></i></label>
+                                <button type="button" onclick="window.addRegMedia('organizer', 'audio')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                            <div id="reg-organizer-audios-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
                         <div style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.15); padding: 0.8rem; border-radius: 8px; font-size:0.75rem; color: var(--text-main); margin-top:0.5rem; margin-bottom: 1.5rem; display: flex; gap: 0.5rem; align-items: flex-start;">
                             <i class="fa-solid fa-circle-info" style="color: #2563eb; margin-top: 2px;"></i>
@@ -10443,6 +10514,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             payload.orgDescription = registerForm.querySelector('textarea[name="orgDescription"]').value.trim();
             payload.photos = window.registrationMedia.organizer.photos;
             payload.videos = window.registrationMedia.organizer.videos;
+            payload.audios = window.registrationMedia.organizer.audios || [];
         }
 
         if (window.googleRegistrationUser) {
@@ -10518,6 +10590,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         description: payload.orgDescription,
                         photos: payload.photos,
                         videos: payload.videos,
+                        audio: payload.audios || [],
                         isActive: true,
                         isCanceled: false
                     };
@@ -12028,7 +12101,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         `).join('')}
 
                         <!-- Slides: Nativ abspielbare HTML5 Videos -->
-                        ${!isEvents ? videos.map((vid, vIdx) => `
+                        ${videos.map((vid, vIdx) => `
                             <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #000; display: flex; align-items: center; justify-content: center;">
                                 <video controls preload="metadata" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
                                     <source src="${vid.url}" type="video/mp4">
@@ -12041,7 +12114,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         `).join('') : ''}
 
                         <!-- Slides: Nativ abspielbare HTML5 Audios -->
-                        ${!isEvents ? audios.map((aud, aIdx) => `
+                        ${audios.map((aud, aIdx) => `
                             <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: linear-gradient(135deg, #1e1b4b 0%, #311042 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; box-sizing: border-box;">
                                 <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(6, 182, 212, 0.15); display: flex; align-items: center; justify-content: center; margin-bottom: 0.8rem; box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); border: 1px solid rgba(6, 182, 212, 0.3);">
                                     <i class="fa-solid fa-music" style="color: #06b6d4; font-size: 1.4rem;"></i>
