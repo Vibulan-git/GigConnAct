@@ -2927,7 +2927,8 @@ class StateManager {
             await sendCustomSignInEmail({
                 email: payload.email,
                 name: payload.firstName ? `${payload.firstName} ${payload.lastName}` : (payload.contactName || 'Nutzer'),
-                isNewUser: true
+                isNewUser: true,
+                role: payload.role
             });
 
             window.localStorage.setItem('emailForSignIn', payload.email);

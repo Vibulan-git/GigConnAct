@@ -422,7 +422,22 @@ exports.sendCustomVerificationEmail = functions
 
         try {
             const user = await admin.auth().getUser(context.auth.uid);
-            const name = user.displayName || 'GigConnAct Nutzer';
+            let name = user.displayName || 'GigConnAct Nutzer';
+            let role = 'musician';
+
+            // Query user role and name from Firestore
+            try {
+                const userDoc = await admin.firestore().collection('users').doc(context.auth.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    role = userData.role || role;
+                    name = userData.firstName && userData.lastName 
+                        ? `${userData.firstName} ${userData.lastName}` 
+                        : (userData.contactName || name);
+                }
+            } catch (err) {
+                console.error("Failed to query user doc for verification email:", err);
+            }
 
             const actionCodeSettings = {
                 url: 'https://www.gigconnact.de/#/verify-email',
@@ -430,7 +445,7 @@ exports.sendCustomVerificationEmail = functions
             };
 
             const link = await admin.auth().generateEmailVerificationLink(email, actionCodeSettings);
-            const html = getVerificationEmailHtml({ link, name });
+            const html = getVerificationEmailHtml({ link, name, role });
             await sendEmail({
                 to: email,
                 subject: 'Bestätige deine E-Mail-Adresse bei GigConnAct 📧',
@@ -457,7 +472,22 @@ exports.sendCustomPasswordResetEmail = functions
 
         try {
             const user = await admin.auth().getUserByEmail(email);
-            const name = user.displayName || 'GigConnAct Nutzer';
+            let name = user.displayName || 'GigConnAct Nutzer';
+            let role = 'musician';
+
+            // Query user role and name from Firestore
+            try {
+                const userSnapshot = await admin.firestore().collection('users').where('email', '==', email.toLowerCase()).get();
+                if (!userSnapshot.empty) {
+                    const userData = userSnapshot.docs[0].data();
+                    role = userData.role || role;
+                    name = userData.firstName && userData.lastName 
+                        ? `${userData.firstName} ${userData.lastName}` 
+                        : (userData.contactName || name);
+                }
+            } catch (err) {
+                console.error("Failed to query user doc for password reset email:", err);
+            }
 
             const actionCodeSettings = {
                 url: 'https://www.gigconnact.de/#/login',
@@ -465,7 +495,7 @@ exports.sendCustomPasswordResetEmail = functions
             };
 
             const link = await admin.auth().generatePasswordResetLink(email, actionCodeSettings);
-            const html = getPasswordResetEmailHtml({ link, name });
+            const html = getPasswordResetEmailHtml({ link, name, role });
             await sendEmail({
                 to: email,
                 subject: 'Passwort zurücksetzen für GigConnAct 🔑',
@@ -489,11 +519,28 @@ exports.sendCustomSignInEmail = functions
     .runWith({ secrets: ['RESEND_API_KEY'] })
     .https.onCall(async (data, context) => {
         const email = data.email;
-        const name = data.name || 'GigConnAct Nutzer';
+        let name = data.name || 'GigConnAct Nutzer';
         const isNewUser = data.isNewUser === true;
+        let role = data.role;
 
         if (!email) {
             throw new functions.https.HttpsError('invalid-argument', 'Keine E-Mail-Adresse angegeben.');
+        }
+
+        // Query user role and name from Firestore if existing user
+        if (email) {
+            try {
+                const userSnapshot = await admin.firestore().collection('users').where('email', '==', email.toLowerCase()).get();
+                if (!userSnapshot.empty) {
+                    const userData = userSnapshot.docs[0].data();
+                    role = userData.role || role;
+                    name = userData.firstName && userData.lastName 
+                        ? `${userData.firstName} ${userData.lastName}` 
+                        : (userData.contactName || name);
+                }
+            } catch (err) {
+                console.error("Failed to query user details for email:", err);
+            }
         }
 
         try {
@@ -503,7 +550,7 @@ exports.sendCustomSignInEmail = functions
             };
 
             const link = await admin.auth().generateSignInWithEmailLink(email, actionCodeSettings);
-            const html = getSignInEmailHtml({ link, name, isNewUser });
+            const html = getSignInEmailHtml({ link, name, isNewUser, role });
             
             const subject = isNewUser 
                 ? 'Dein Registrierungs-Link für GigConnAct 🚀' 
