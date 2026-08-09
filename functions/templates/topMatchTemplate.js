@@ -1,8 +1,10 @@
 /**
  * Template für die täglichen Top-Matches
- * Hier kannst du den Text und das Layout der E-Mail für die täglichen Match-Zusammenfassungen anpassen.
  */
 module.exports = function getTopMatchEmailHtml({ userName, role, matches }) {
+    const isOrganizer = role === 'organizer';
+    const brandColor = isOrganizer ? '#0ea5e9' : '#7c3aed';
+    
     const listHtml = matches.map(m => {
         const title = m.title || m.name || 'Unbekannt';
         const details = m.type || (m.instruments ? m.instruments.join(', ') : '');
@@ -37,7 +39,7 @@ module.exports = function getTopMatchEmailHtml({ userName, role, matches }) {
 
     return `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
-            <h2 style="color: #10b981; margin-top: 0; font-size: 1.5rem;">Deine täglichen Top-Matches 🌟</h2>
+            <h2 style="color: ${brandColor}; margin-top: 0; font-size: 1.5rem;">Deine täglichen Top-Matches 🌟</h2>
             <p>Hallo <strong>${userName}</strong>,</p>
             <p>wir haben neue Top-Matches der letzten 24 Stunden auf dem Markt für dich gefunden:</p>
             
@@ -46,7 +48,7 @@ module.exports = function getTopMatchEmailHtml({ userName, role, matches }) {
             </div>
             
             <p style="margin-top: 25px;">
-                <a href="https://gigconnact.de" style="background: #10b981; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Jetzt auf GigConnAct ansehen</a>
+                <a href="https://gigconnact.de" style="background: ${brandColor}; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Jetzt auf GigConnAct ansehen</a>
             </p>
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 15px;">
             <p style="font-size: 0.8rem; color: #a0aec0; text-align: center;">GigConnAct — Dein Live-Musik Marktplatz</p>

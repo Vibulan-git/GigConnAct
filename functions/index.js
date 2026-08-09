@@ -60,7 +60,8 @@ async function getUserDetails(id) {
             const data = userDoc.data();
             return {
                 email: data.email || null,
-                name: data.name || data.contactName || 'Nutzer'
+                name: data.name || data.contactName || 'Nutzer',
+                role: data.role || 'musician'
             };
         }
     } catch (e) {
@@ -258,7 +259,8 @@ exports.onNewChatMessage = functions
         const subject = `Neue Nachricht von ${senderName} 💬`;
         const html = getMessageEmailHtml({
             senderName: senderName,
-            messageText: latestMessage.text
+            messageText: latestMessage.text,
+            role: recipient.role
         });
 
         await sendEmail({ to: recipient.email, subject, html });
@@ -299,7 +301,8 @@ exports.onNewEventRadiusAlert = functions
                     const html = getRadiusEventEmailHtml({
                         musicianName: userDetails.name,
                         event: event,
-                        distance: distance
+                        distance: distance,
+                        role: 'musician'
                     });
                     return sendEmail({ to: userDetails.email, subject, html });
                 }

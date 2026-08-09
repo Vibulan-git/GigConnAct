@@ -1,8 +1,10 @@
 /**
  * Template für Events im Umkreis eines Musikers
- * Hier kannst du den Text und das Layout der E-Mail für neue Gigs in der Nähe anpassen.
  */
-module.exports = function getRadiusEventEmailHtml({ musicianName, event, distance }) {
+module.exports = function getRadiusEventEmailHtml({ musicianName, event, distance, role }) {
+    const isOrganizer = role === 'organizer';
+    const brandColor = isOrganizer ? '#0ea5e9' : '#7c3aed';
+    
     const title = event.title || event.name || 'Neuer Gig';
     const genres = (event.genres || []).join(', ') || 'Keine Genres angegeben';
     const budget = event.budget ? `${event.budget} €` : (event.minBudget ? `${event.minBudget} €` : 'Auf Anfrage');
@@ -10,7 +12,7 @@ module.exports = function getRadiusEventEmailHtml({ musicianName, event, distanc
 
     return `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
-            <h2 style="color: #2563eb; margin-top: 0; font-size: 1.5rem;">Neuer Gig in deiner Umgebung! 📍</h2>
+            <h2 style="color: ${brandColor}; margin-top: 0; font-size: 1.5rem;">Neuer Gig in deiner Umgebung! 📍</h2>
             <p>Hallo <strong>${musicianName}</strong>,</p>
             <p>ein neues Event wurde in deinem angegebenen Reise-Radius auf dem Markt veröffentlicht:</p>
             
@@ -37,7 +39,7 @@ module.exports = function getRadiusEventEmailHtml({ musicianName, event, distanc
             </div>
             
             <p style="margin-top: 25px;">
-                <a href="https://gigconnact.de" style="background: #2563eb; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Details ansehen & bewerben</a>
+                <a href="https://gigconnact.de" style="background: ${brandColor}; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Details ansehen & bewerben</a>
             </p>
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 15px;">
             <p style="font-size: 0.8rem; color: #a0aec0; text-align: center;">GigConnAct — Dein Live-Musik Marktplatz</p>
