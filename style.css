@@ -4959,9 +4959,12 @@ input[type="range"].input-field {
     transform-origin: 0px 0px;
 }
 
-/* Disable pointer cursor on laptop/desktop tile cards as detail modals are disabled */
-@media (min-width: 768px) {
-    .market-tile-card {
-        cursor: default !important;
-    }
+/* Disable pointer cursor on all tile cards as detail modals are disabled */
+.market-tile-card {
+    cursor: default !important;
+}
+
+/* Hide gallery counter / badge in the bottom-left of cards */
+.tile-gallery-counter {
+    display: none !important;
 }

@@ -108,7 +108,7 @@ function validateAndProcessAudio(file, callback) {
 
     const audioElement = document.createElement('audio');
     audioElement.src = URL.createObjectURL(file);
-    audioElement.onloadedmetadata = function() {
+    audioElement.onloadedmetadata = async function() {
         URL.revokeObjectURL(audioElement.src);
         const duration = audioElement.duration;
         if (duration > 600) { // 10 minutes
@@ -119,19 +119,55 @@ function validateAndProcessAudio(file, callback) {
             return;
         }
 
-        const mockAudios = [
-            'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-            'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-            'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
-        ];
-        const randomMockUrl = mockAudios[Math.floor(Math.random() * mockAudios.length)];
         const titleWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-
+        
         showToast({
-            title: "Audio validiert ✅",
-            message: "Die Audio-Datei (" + file.name + ") wurde erfolgreich validiert."
+            title: "Audio wird verarbeitet...",
+            message: "Bitte warten..."
         });
-        callback({ title: titleWithoutExt, url: randomMockUrl });
+
+        let url = null;
+        if (typeof firebase !== 'undefined' && firebase.storage) {
+            try {
+                const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anonymous';
+                const storageRef = firebase.storage().ref();
+                const fileRef = storageRef.child(`audios/${userId}/${Date.now()}_${file.name}`);
+                const snapshot = await fileRef.put(file);
+                url = await snapshot.ref.getDownloadURL();
+            } catch (storageError) {
+                console.warn("Firebase Storage failed, falling back to data/blob URL:", storageError);
+            }
+        }
+
+        if (!url) {
+            // Fallback: If under 1.5MB, convert to data URL (so it stores permanently in firestore)
+            if (file.size < 1.5 * 1024 * 1024) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    showToast({
+                        title: "Audio geladen ✅",
+                        message: "Lokale Kopie der Audio-Datei wurde geladen."
+                    });
+                    callback({ title: titleWithoutExt, url: e.target.result });
+                };
+                reader.readAsDataURL(file);
+                return;
+            } else {
+                // If it is larger, use Blob URL (will play in current session, but won't persist)
+                url = URL.createObjectURL(file);
+                showToast({
+                    title: "Audio geladen ⚠️",
+                    message: "Die Datei ist groß und Firebase Storage ist nicht aktiv. Nur in dieser Sitzung abspielbar."
+                });
+            }
+        } else {
+            showToast({
+                title: "Audio hochgeladen ✅",
+                message: "Die Audio-Datei wurde erfolgreich gespeichert."
+            });
+        }
+
+        callback({ title: titleWithoutExt, url: url });
     };
     audioElement.onerror = function() {
         showToast({
@@ -5777,9 +5813,7 @@ function formatMusicianAvailabilityHelper(item) {
 }
 
 window.openItemDetailModal = function(id, isEvents) {
-    if (window.innerWidth >= 768) {
-        return; // Do not open detail modal window on laptops/desktops/tablets
-    }
+    return; // Detail modal completely disabled on all devices
     const item = (isEvents ? state.events : state.musicians).find(x => x.id === id) || (isEvents ? state.events[0] : state.musicians[0]);
     if (!item) return;
 
@@ -11970,7 +12004,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
         const bandName = item.name || item.title || '';
 
         return `
-            <div class="market-tile-card" onclick="window.openItemDetailModal('${item.id}', ${isEvents})" style="cursor: pointer; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
+            <div class="market-tile-card" style="cursor: default; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
                 
                 <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
@@ -12646,7 +12680,7 @@ function validateAndProcessVideo(file, callback) {
     const videoElement = document.createElement('video');
     videoElement.preload = 'metadata';
     videoElement.src = URL.createObjectURL(file);
-    videoElement.onloadedmetadata = function() {
+    videoElement.onloadedmetadata = async function() {
         URL.revokeObjectURL(videoElement.src);
         
         // 1. Length validation (max 5 minutes)
@@ -12670,13 +12704,38 @@ function validateAndProcessVideo(file, callback) {
             return;
         }
 
-        const mockVids = ['hochzeit.mp4', 'gartenparty.mp4', 'firmenfeier.mp4', 'konzert.mp4'];
-        const randomMockVid = mockVids[Math.floor(Math.random() * mockVids.length)];
         showToast({
-            title: "Video validiert ✅",
-            message: "Das Video (" + file.name + ") wurde erfolgreich auf Auflösung und Länge validiert."
+            title: "Video wird hochgeladen...",
+            message: "Bitte warten..."
         });
-        callback(randomMockVid);
+
+        let url = null;
+        if (typeof firebase !== 'undefined' && firebase.storage) {
+            try {
+                const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anonymous';
+                const storageRef = firebase.storage().ref();
+                const fileRef = storageRef.child(`videos/${userId}/${Date.now()}_${file.name}`);
+                const snapshot = await fileRef.put(file);
+                url = await snapshot.ref.getDownloadURL();
+            } catch (storageError) {
+                console.warn("Firebase Storage failed, falling back to local object URL:", storageError);
+            }
+        }
+
+        if (!url) {
+            // Fallback: local Blob URL
+            url = URL.createObjectURL(file);
+            showToast({
+                title: "Video geladen ⚠️",
+                message: "Firebase Storage nicht aktiv. Video nur in dieser Sitzung abspielbar."
+            });
+        } else {
+            showToast({
+                title: "Video hochgeladen ✅",
+                message: "Das Video wurde erfolgreich hochgeladen."
+            });
+        }
+        callback(url);
     };
     videoElement.onerror = function() {
         showToast({
