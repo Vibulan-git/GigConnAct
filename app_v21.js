@@ -11529,7 +11529,7 @@ function showCookieConsentBanner(preExistingSettings = null) {
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
                     <strong style="font-size: 0.82rem; display: block; color: #ffffff;">📊 Statistiken (Google Analytics)</strong>
-                    <span style="font-size: 0.68rem; color: rgba(255,255,255,0.55); line-height: 1.4; display: block; margin-top: 0.15rem;">Hilft uns zu verstehen, wie Besucher GigConnAct nutzen und unsere Website zu verbessern.</span>
+                    <span style="font-size: 0.68rem; color: rgba(255,255,255,0.55); line-height: 1.4; display: block; margin-top: 0.15rem;">Helft uns zu verstehen, wie Besucher GigConnAct nutzen und unsere Website zu verbessern.</span>
                 </div>
                 <label class="cookie-switch">
                     <input type="checkbox" id="cookie-opt-analytics" ${consent.analytics ? 'checked' : ''}>
