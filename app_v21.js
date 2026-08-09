@@ -14193,16 +14193,29 @@ function renderDatenschutzPage(container) {
                 <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Recht auf Datenübertragbarkeit (Art. 20 DSGVO)</h3>
                 <p>
                     Sie haben das Recht, Daten, die wir auf Grundlage Ihrer Einwilligung oder in Erfüllung eines Vertrags automatisiert verarbeiten, an sich oder an einen Dritten in einem gängigen, maschinenlesbaren Format aushändigen zu lassen.
-                    Um dieses Recht auszuüben, können Sie uns formlos eine E-Mail an <a href="mailto:info@gigconnact.de" style="color: var(--color-purple); text-decoration: underline;">info@gigconnact.de</a> senden. Wir stellen Ihnen Ihre Daten dann innerhalb der gesetzlichen Frist von einem Monat in einem strukturierten, gängigen und maschinenlesbaren Format (z. B. als JSON-Datei) zur Verfügung.
-                </p>
-
-                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Auskunft, Löschung und Berichtigung (Art. 15, 16 und 17 DSGVO)</h3>
+                      <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem;">3. Datenerfassung und Sichtbarkeit auf unserer Plattform</h2>
                 <p>
-                    Sie haben im Rahmen der geltenden gesetzlichen Bestimmungen jederzeit das Recht auf unentgeltliche Auskunft über Ihre gespeicherten personenbezogenen Daten, deren Herkunft und Empfänger und den Zweck der Datenverarbeitung und ggf. ein Recht auf Berichtigung oder Löschung dieser Daten.
-                    Sie können Ihr Konto und alle hiermit verbundenen aktiven Vermittlungsinformationen jederzeit selbstständig in Ihrem <strong>Profil unter „Datenschutz & Kontoverwaltung“</strong> unwiderruflich löschen.
+                    Im Rahmen der Vermittlung von Musikern und Veranstaltern verarbeiten wir spezifische personenbezogene Daten. Diese Verarbeitung erfolgt zur Erfüllung unseres Vertrages bzw. zur Durchführung vorvertraglicher Maßnahmen (Art. 6 Abs. 1 lit. b DSGVO).
+                </p>
+                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Datenkategorien Musiker</h3>
+                <p>
+                    Bei der Registrierung und Profilgestaltung von Musikern erfassen und verarbeiten wir: Künstlername, E-Mail-Adresse, Telefonnummer (falls angegeben), Standort (Umkreis), Profilbild, Band- und Künstlerbeschreibung, Genres, Instrumente, Fotos, Videos, Audiodateien, Social-Media- & Spotify-Links, Gagenvorstellungen sowie Verfügbarkeiten.
+                </p>
+                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Datenkategorien Veranstalter</h3>
+                <p>
+                    Bei der Registrierung und Erstellung von Events von Veranstaltern erfassen und verarbeiten wir: Name/Firma, E-Mail-Adresse, Telefonnummer, Veranstaltungsort, Eventdaten (Datum, Uhrzeit, Budget, Spieldauer, gesuchtes Genre/Typ) sowie Chatnachrichten und Buchungsanfragen.
+                </p>
+                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Öffentliche Sichtbarkeit vs. Registrierte Nutzer (Matching-Konzept)</h3>
+                <p>
+                    Um den Datenschutz unserer Nutzer zu maximieren, gilt folgendes Sichtbarkeitskonzept:
+                    <ul style="padding-left: 1.5rem; margin-top: 0.5rem; line-height: 1.6;">
+                        <li><strong>Öffentlicher Bereich (nicht eingeloggt):</strong> Auf den öffentlichen Marktplätzen sind Musiker-Profile und Events ausschließlich <strong>anonymisiert</strong> sichtbar. Es werden keine Klarnamen, konkrete Kontaktdaten (E-Mail, Telefon) oder Links zu Social-Media-Profilen angezeigt.</li>
+                        <li><strong>Registrierte & eingeloggte Nutzer:</strong> Die vollständigen Kontaktdaten und Profile werden für die jeweils andere Partei erst dann sichtbar, wenn ein <strong>erfolgreiches Match (Übereinstimmung > 49 %)</strong> zustande kommt und eine Kontaktaufnahme über das Postfach initiiert wird.</li>
+                        <li><strong>Kommunikation (Postbox):</strong> Der Chatverlauf und ausgetauschte Nachrichten sind vertraulich und nur für die beiden am Match beteiligten Nutzer einsehbar.</li>
+                    </ul>
                 </p>
 
-                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem;">3. Datenerfassung auf dieser Website</h2>
+                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem;">4. Datenerfassung auf dieser Website (Technische Dienstleister)</h2>
                 
                 <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Registrierung und Login (Google Firebase Authentication)</h3>
                 <p>
@@ -14210,7 +14223,7 @@ function renderDatenschutzPage(container) {
                     Wenn Sie sich registrieren oder einloggen (z. B. via Google-Login oder passwortlosem Magic-Link), übermitteln wir Ihre E-Mail-Adresse und ggf. Ihren Namen an Google, um Ihre Identität zu verifizieren und Ihren Account bereitzustellen. Google Firebase verarbeitet Daten teilweise auch in den USA. Die Übertragung basiert auf den EU-Standardvertragsklauseln der Europäischen Kommission.
                 </p>
 
-                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Datenverarbeitung (Google Cloud Firestore & Cloud Storage)</h3>
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Datenverarbeitung & Dateispeicher (Google Cloud Firestore & Cloud Storage)</h3>
                 <p>
                     Sämtliche von Ihnen erstellten Profileinträge, hochgeladenen Medien (Fotos, Videos, Audio), Präferenzen, Chats und System-Benachrichtigungen werden in der NoSQL-Datenbank <strong>Firebase Cloud Firestore</strong> bzw. im <strong>Firebase Cloud Storage</strong> gespeichert.
                     Diese Speicherung ist technisch zwingend erforderlich, um das Matching zwischen Musiker und Veranstalter sowie das Postfach bereitzustellen (Vertragserfüllung gemäß Art. 6 Abs. 1 lit. b DSGVO).
@@ -14249,6 +14262,11 @@ function renderDatenschutzPage(container) {
                     Sofern Sie eingewilligt haben, nutzen wir das Online-Werbeprogramm <strong>Google Ads</strong> und das dazugehörige Conversion-Tracking der Google Ireland Limited.
                     Dabei wird von Google ein Cookie auf Ihrem Gerät gesetzt, wenn Sie über eine Google-Anzeige auf unsere Website gelangt sind. Dieses Cookie verliert nach 30 Tagen seine Gültigkeit und dient nicht der persönlichen Identifizierung, sondern hilft uns zu messen, wie viele Nutzer nach dem Klick auf eine Anzeige eine bestimmte Aktion (z. B. Registrierung) auf unserer Website durchgeführt haben.
                     Die Verarbeitung erfolgt auf Grundlage Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Ein Widerruf ist jederzeit über die Cookie-Einstellungen möglich. Die Datenübertragung in die USA ist durch Standardvertragsklauseln und das EU-US Data Privacy Framework abgesichert.
+                </p>
+
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Standortdienste & Captchas</h3>
+                <p>
+                    Zum Schutz Ihrer Privatsphäre werden auf unserer Website <strong>keine</strong> externen Kartendienste (wie Google Maps) oder Captcha-Dienste von Drittanbietern geladen. Die Standortauswahl und Adressvorschläge erfolgen vollständig lokal oder über die Standardfunktionen Ihres Browsers, sodass hierbei keine Daten an Drittanbieter übertragen werden.
                 </p>
 
                 <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Server-Log-Dateien & LocalStorage</h3>
