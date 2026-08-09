@@ -4953,6 +4953,8 @@ function renderMarket(container, type, onNavigate) {
                     <i class="fa-solid fa-heart" style="font-size: 1.05rem; margin: 0;"></i>
                 </button>
 
+                ${profileSelectorHtml}
+
                 <!-- 5. Ergebnisse als Zahl + Label pushed to the right -->
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-left: auto; flex-shrink: 0; padding-left: 0.5rem; margin-right: 0.2rem;">
                     <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; white-space: nowrap; letter-spacing: -0.3px; line-height: 1.1; vertical-align: middle;">
@@ -5320,8 +5322,7 @@ function renderMarket(container, type, onNavigate) {
                 } else {
                     state.activeEventId = val;
                 }
-                state.saveState();
-                applyAllFiltersAndSort();
+                state.notify();
             }
         });
     }
@@ -11122,24 +11123,30 @@ function navigate(page) {
     const mainContainer = document.getElementById('app-main');
     if (!mainContainer) return;
 
-    // Optimize redundant rendering: exit early if page hasn't changed, user session is identical, and collection counts are identical
+    // Optimize redundant rendering: exit early if page hasn't changed, user session is identical, collection counts are identical, and active profile is identical
     const currentUserId = (state && state.currentUser) ? state.currentUser.id : null;
     const currentUserRole = (state && state.currentUser) ? state.currentUser.role : null;
     const currentMusiciansCount = (state && state.musicians) ? state.musicians.length : 0;
     const currentEventsCount = (state && state.events) ? state.events.length : 0;
+    const activeMusicianId = (state && state.activeMusicianId) ? state.activeMusicianId : null;
+    const activeEventId = (state && state.activeEventId) ? state.activeEventId : null;
 
     if (page !== '' && 
         window.currentActivePage === page && 
         window.lastUserSessionId === currentUserId && 
         window.lastUserRole === currentUserRole &&
         window.lastMusiciansCount === currentMusiciansCount &&
-        window.lastEventsCount === currentEventsCount) {
+        window.lastEventsCount === currentEventsCount &&
+        window.lastActiveMusicianId === activeMusicianId &&
+        window.lastActiveEventId === activeEventId) {
         return;
     }
     window.lastUserSessionId = currentUserId;
     window.lastUserRole = currentUserRole;
     window.lastMusiciansCount = currentMusiciansCount;
     window.lastEventsCount = currentEventsCount;
+    window.lastActiveMusicianId = activeMusicianId;
+    window.lastActiveEventId = activeEventId;
 
     if (page === '') {
         mainContainer.classList.add('page-landing');
