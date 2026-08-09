@@ -2302,16 +2302,43 @@ class StateManager {
         this.notify();
     }
 
+    isChatUnread(chat) {
+        if (!this.currentUser) return false;
+        if (!chat) return false;
+        if ((this.readChats || []).includes(chat.id)) return false;
+
+        // Gather all participant IDs of the current user
+        const userParticipantIds = [this.currentUser.id];
+        if (this.currentUser.role === 'musician') {
+            const profiles = this.musicians.filter(m => m.creatorId === this.currentUser.id);
+            profiles.forEach(m => userParticipantIds.push(m.id));
+            if (this.currentUser.profileId) {
+                userParticipantIds.push(this.currentUser.profileId);
+            }
+        } else {
+            const userEvents = this.events.filter(e => e.creatorId === this.currentUser.id);
+            userEvents.forEach(e => userParticipantIds.push(e.id));
+        }
+
+        // Check if the current user is a participant
+        if (!chat.participants || !chat.participants.some(pid => userParticipantIds.includes(pid))) {
+            return false;
+        }
+
+        // Check if the last message was sent by someone else
+        if (chat.messages && chat.messages.length > 0) {
+            const lastMsg = chat.messages[chat.messages.length - 1];
+            if (userParticipantIds.includes(lastMsg.senderId)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     getUnreadCount() {
         if (!this.currentUser) return 0;
         const chatsList = this.chats || [];
-        const currentUserId = this.currentUser.id;
-        const unreadChats = chatsList.filter(c => 
-            c.participants && 
-            c.participants.includes(currentUserId) && 
-            !(this.readChats || []).includes(c.id)
-        ).length;
-        return unreadChats;
+        return chatsList.filter(c => this.isChatUnread(c)).length;
     }
 
     getChatsForUser(userId) {
@@ -11847,7 +11874,7 @@ function renderPostbox(container) {
 
                             const msgs = c.messages || [];
                             const lastMsg = msgs[msgs.length - 1];
-                            const isUnread = !state.readChats?.includes(c.id);
+                            const isUnread = state.isChatUnread(c);
 
                             // Determine type and colors for specific feedback backgrounds and thick borders
                             let itemType = 'sent';
