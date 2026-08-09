@@ -6644,6 +6644,24 @@ function renderProfilePage(container) {
             </div>
             ` : ''}
 
+            <!-- DSGVO Datenschutz & Kontoverwaltung Sektion -->
+            <div class="profile-section-card" style="margin-top: 1rem;">
+                <h3 style="color: ${themeColor}; margin-top: 0; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.6rem;">
+                    <i class="fa-solid fa-shield-halved ${themeClass}"></i> Datenschutz & Kontoverwaltung
+                </h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.2rem;">
+                    Hier kannst du deine Betroffenenrechte gemäß DSGVO ausüben. Du kannst alle über dich gespeicherten Daten exportieren oder dein Benutzerkonto und alle zugehörigen Daten unwiderruflich löschen.
+                </p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-secondary btn-sm" id="btn-export-userdata" style="margin: 0; display: flex; align-items: center; gap: 0.5rem; background: var(--grad-primary); border: none; color: #fff;">
+                        <i class="fa-solid fa-download"></i> Meine Daten exportieren
+                    </button>
+                    <button class="btn btn-glass btn-sm" id="btn-delete-useraccount" style="margin: 0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-trash-can"></i> Konto unwiderruflich löschen
+                    </button>
+                </div>
+            </div>
+
         </div>
     `;
 
@@ -6905,6 +6923,166 @@ function renderProfilePage(container) {
                 updateNavbar();
             });
         }
+    }
+
+    // DSGVO Daten-Export Listener
+    const exportBtn = document.getElementById('btn-export-userdata');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            try {
+                const u = state.currentUser;
+                if (!u) return;
+
+                const myMusicians = state.musicians.filter(m => m.creatorId === u.id || m.id === u.profileId);
+                const myEvents = state.events.filter(e => e.creatorId === u.id || e.id === u.profileId);
+
+                const myProfileIds = [u.id];
+                if (u.profileId) myProfileIds.push(u.profileId);
+                myMusicians.forEach(m => myProfileIds.push(m.id));
+                myEvents.forEach(e => myProfileIds.push(e.id));
+
+                const myChats = state.chats.filter(c => 
+                    c.participants.some(pId => myProfileIds.includes(pId))
+                );
+
+                const dataToExport = {
+                    exportDate: new Date().toISOString(),
+                    platform: "GigConnAct",
+                    userProfile: {
+                        id: u.id,
+                        role: u.role,
+                        firstName: u.firstName,
+                        lastName: u.lastName,
+                        email: u.email,
+                        phone: u.phone,
+                        hidePhone: u.hidePhone,
+                        company: u.company || null,
+                        organizerType: u.organizerType || null,
+                        isPremium: u.isPremium || false,
+                        subscriptionPlan: u.subscriptionPlan || null,
+                        subscriptionCancelled: u.subscriptionCancelled || false,
+                        subscriptionEndDate: u.subscriptionEndDate || null,
+                        createdAt: u.createdAt || null
+                    },
+                    myMusiciansListings: myMusicians,
+                    myEventsListings: myEvents,
+                    chats: myChats.map(c => ({
+                        chatId: c.id,
+                        participants: c.participants,
+                        updatedAt: c.updatedAt,
+                        messagesCount: c.messages ? c.messages.length : 0,
+                        messages: c.messages || []
+                    }))
+                };
+
+                const blob = new Blob([JSON.stringify(dataToExport, null, 4)], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `gigconnact-datentransfer-${u.firstName}-${u.lastName}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                showToast({
+                    title: "Datenexport erfolgreich 📂",
+                    message: "Deine personenbezogenen Daten wurden als JSON-Datei heruntergeladen."
+                });
+            } catch (err) {
+                console.error("Data export failed:", err);
+                showToast({
+                    title: "Fehler beim Export",
+                    message: "Deine Daten konnten nicht exportiert werden: " + err.message,
+                    type: "error"
+                });
+            }
+        });
+    }
+
+    // DSGVO Konto-Löschung Listener
+    const deleteBtn = document.getElementById('btn-delete-useraccount');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', async () => {
+            const u = state.currentUser;
+            if (!u) return;
+
+            const firstConfirm = confirm("ACHTUNG: Möchtest du dein GigConnAct-Konto wirklich unwiderruflich löschen?\n\nDies löscht alle deine Profildaten, Musiker- und Event-Angebote sowie deine Verknüpfungen. Dieser Schritt kann NICHT rückgängig gemacht werden.");
+            if (!firstConfirm) return;
+
+            const secondConfirm = confirm("Bist du dir absolut sicher? Alle deine Daten werden gelöscht und du wirst sofort abgemeldet.");
+            if (!secondConfirm) return;
+
+            try {
+                showToast({
+                    title: "Löschung läuft...",
+                    message: "Dein Konto wird gelöscht. Bitte warte einen Moment."
+                });
+
+                const myMusicians = state.musicians.filter(m => m.creatorId === u.id || m.id === u.profileId);
+                const myEvents = state.events.filter(e => e.creatorId === u.id || e.id === u.profileId);
+
+                // Delete musician profiles in Firestore
+                for (const m of myMusicians) {
+                    await db.collection('musicians').doc(m.id).delete();
+                }
+
+                // Delete event profiles in Firestore
+                for (const e of myEvents) {
+                    await db.collection('events').doc(e.id).delete();
+                }
+
+                // Delete user from users collection
+                await db.collection('users').doc(u.id).delete();
+
+                // Delete Authentication account
+                const firebaseUser = auth.currentUser;
+                if (firebaseUser) {
+                    await firebaseUser.delete();
+                }
+
+                // Clean local fallback users list
+                const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+                const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+                if (idx !== -1) {
+                    registeredUsers.splice(idx, 1);
+                    localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                }
+
+                // Clean local state & session storage/localStorage items
+                state.currentUser = null;
+                state.activeMusicianId = null;
+                state.activeEventId = null;
+                state.saveState();
+                localStorage.removeItem('GigConnAct_read_chats');
+
+                showToast({
+                    title: "Konto gelöscht ℹ",
+                    message: "Dein Konto wurde erfolgreich gelöscht."
+                });
+                
+                setTimeout(() => {
+                    window.location.hash = '#/';
+                    window.location.reload();
+                }, 1500);
+
+            } catch (err) {
+                console.error("Account deletion failed:", err);
+                if (err.code === 'auth/requires-recent-login') {
+                    showToast({
+                        title: "Reauthentifizierung erforderlich",
+                        message: "Aus Sicherheitsgründen musst du dich vor dem Löschen deines Kontos abmelden, wieder neu anmelden und es direkt erneut versuchen.",
+                        type: "error"
+                    });
+                } else {
+                    showToast({
+                        title: "Fehler beim Löschen",
+                        message: "Dein Konto konnte nicht gelöscht werden: " + err.message,
+                        type: "error"
+                    });
+                }
+            }
+        });
     }
 
     const logoutBtn = document.getElementById('btn-profile-logout');
@@ -9791,6 +9969,13 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </label>
                     </div>
 
+                    <div id="reg-privacy-consent-container" style="margin-top: 1.2rem; margin-bottom: 1.2rem;">
+                        <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.8rem; line-height: 1.4; color: var(--text-muted); cursor: pointer;">
+                            <input type="checkbox" name="privacyConsent" required style="width: auto; margin-top: 0.2rem; cursor: pointer; transform: scale(1.2);">
+                            <span>Ich habe die <a href="#/datenschutz" target="_blank" style="color: var(--color-purple); text-decoration: underline;">Datenschutzerklärung</a> gelesen und willige in die Verarbeitung meiner personenbezogenen Daten zum Zweck der Partnervermittlung ein.</span>
+                        </label>
+                    </div>
+
                     <div id="register-error-msg" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
                     <button type="submit" class="btn btn-secondary" style="width: 100%;">
                         Registrierung abschließen
@@ -10550,6 +10735,15 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const errDiv = document.getElementById('register-error-msg');
+        
+        const privacyConsent = registerForm.elements.privacyConsent?.checked;
+        if (!privacyConsent) {
+            errDiv.textContent = "Bitte bestätige, dass du die Datenschutzerklärung gelesen hast.";
+            errDiv.style.display = 'block';
+            errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
         const email = registerForm.elements.email.value.trim();
         
         const selectedPlan = document.getElementById('input-selected-plan')?.value || 'flex';
@@ -11916,6 +12110,9 @@ function renderPostbox(container) {
                                 } else if (counterOrg) {
                                     name = counterOrg.name || counterOrg.contactName || "Veranstalter";
                                     avatar = "https://picsum.photos/id/111/100/100";
+                                } else {
+                                    name = "Gelöschter Nutzer";
+                                    avatar = "https://picsum.photos/id/1025/100/100";
                                 }
                             }
 
@@ -12079,6 +12276,9 @@ function renderPostbox(container) {
                             } else if (counterOrg) {
                                 name = counterOrg.name || counterOrg.contactName || "Veranstalter";
                                 avatar = "https://picsum.photos/id/111/100/100";
+                            } else {
+                                name = "Gelöschter Nutzer";
+                                avatar = "https://picsum.photos/id/1025/100/100";
                             }
                         }
 
@@ -13543,36 +13743,87 @@ function renderDatenschutzPage(container) {
             <h1 style="font-family: var(--font-heading); color: var(--text-main); font-size: 2rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.75rem;">Datenschutzerklärung</h1>
             
             <div style="line-height: 1.8; color: var(--text-main); font-size: 0.95rem;">
-                <h2 style="font-size: 1.3rem; margin-top: 1.5rem; color: var(--text-main);">1. Datenschutz auf einen Blick</h2>
+                <h2 style="font-size: 1.3rem; margin-top: 1.5rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem;">1. Datenschutz auf einen Blick</h2>
                 <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Allgemeine Hinweise</h3>
                 <p>
                     Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.
                 </p>
+                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Datenerfassung auf unserer Website</h3>
+                <p>
+                    Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten können Sie dem Abschnitt „Verantwortliche Stelle“ entnehmen. Ihre Daten werden zum einen dadurch erhoben, dass Sie uns diese mitteilen (z. B. durch Registrierung). Andere Daten werden automatisch oder nach Ihrer Einwilligung beim Besuch der Website durch unsere IT-Systeme erfasst (z. B. IP-Adresse oder Browsertyp).
+                </p>
 
-                <h2 style="font-size: 1.3rem; margin-top: 1.5rem; color: var(--text-main);">2. Allgemeine Hinweise und Pflichtinformationen</h2>
+                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem;">2. Allgemeine Hinweise und Pflichtinformationen</h2>
                 <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Verantwortliche Stelle</h3>
                 <p>
                     Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:<br>
-                    Vibulan Sivanathan<br>
+                    <strong>Vibulan Sivanathan</strong><br>
                     Montanusstraße 49<br>
                     51065 Köln<br>
-                    E-Mail: info@gigconnact.de
+                    E-Mail: <a href="mailto:info@gigconnact.de" style="color: var(--color-purple); text-decoration: underline;">info@gigconnact.de</a><br>
+                    Telefon: +49 15788703998
+                </p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
+                    <em>Hinweis: Die verantwortliche Stelle ist die natürliche oder juristische Person, die allein oder gemeinsam mit anderen über die Zwecke und Mittel der Verarbeitung von personenbezogenen Daten entscheidet.</em>
                 </p>
 
-                <h2 style="font-size: 1.3rem; margin-top: 1.5rem; color: var(--text-main);">3. Datenerfassung auf dieser Website</h2>
-                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Registrierung und Login (Firebase Authentication)</h3>
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Speicherdauer</h3>
                 <p>
-                    Wir bieten Ihnen die Möglichkeit, sich auf unserer Website zu registrieren. Hierzu verwenden wir den Dienst **Firebase Authentication** von Google. Wenn Sie sich per passwortlosem Link oder Google-Login anmelden, werden Ihre E-Mail-Adresse sowie ggf. Ihr Name an Google-Server übermittelt und dort gespeichert, um die Authentifizierung zu ermöglichen.
+                    Soweit in dieser Datenschutzerklärung keine speziellere Speicherdauer genannt wurde, verbleiben Ihre personenbezogenen Daten bei uns, bis der Zweck für die Datenverarbeitung entfällt. Wenn Sie ein berechtigtes Löschbegehren geltend machen oder Ihre Einwilligung zur Datenverarbeitung widerrufen, werden Ihre Daten gelöscht, es sei denn, wir haben andere rechtlich zulässige Gründe für die Speicherung Ihrer personenbezogenen Daten (z. B. steuer- oder handelsrechtliche Aufbewahrungsfristen).
                 </p>
 
-                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Datenverarbeitung (Cloud Firestore)</h3>
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Rechtsgrundlagen der Datenverarbeitung auf dieser Website</h3>
                 <p>
-                    Alle von Ihnen eingegebenen Profildaten (z. B. Bandnamen, Gigs, Eventbeschreibungen, Präferenzen, Chats und Favoriten) werden in unserer NoSQL-Datenbank **Firebase Cloud Firestore** gespeichert. Diese Daten sind notwendig, um die Vermittlungsfunktionen der Plattform bereitzustellen.
+                    Sofern Sie in die Datenverarbeitung eingewilligt haben, verarbeiten wir Ihre personenbezogenen Daten auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO. Im Falle einer ausdrücklichen Einwilligung in die Übertragung personenbezogener Daten in Drittstaaten erfolgt die Verarbeitung zudem auf Grundlage von Art. 49 Abs. 1 lit. a DSGVO.
+                    Die Registrierung und die Datenverarbeitung zur Vermittlung (Matching) basiert auf Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung oder vorvertragliche Maßnahmen). Unser berechtigtes Interesse an der sicheren Bereitstellung der Plattform begründet sich auf Art. 6 Abs. 1 lit. f DSGVO.
                 </p>
 
-                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">E-Mail-Versand (Resend)</h3>
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Widerruf Ihrer Einwilligung zur Datenverarbeitung</h3>
                 <p>
-                    Für den automatischen Versand von System-E-Mails (z. B. Login-Links, Match-Benachrichtigungen oder Chat-Mails) nutzen wir den Dienst **Resend**. Hierbei wird Ihre E-Mail-Adresse und ggf. Ihr Name zur Durchführung des E-Mail-Versands an Resend übertragen.
+                    Viele Datenverarbeitungsvorgänge sind nur mit Ihrer ausdrücklichen Einwilligung möglich. Sie können eine bereits erteilte Einwilligung jederzeit widerrufen. Die Rechtmäßigkeit der bis zum Widerruf erfolgten Datenverarbeitung bleibt vom Widerruf unberührt.
+                </p>
+
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Recht auf Beschwerde bei der zuständigen Aufsichtsbehörde</h3>
+                <p>
+                    Im Falle von Verstößen gegen die DSGVO steht den Betroffenen ein Beschwerderecht bei einer Aufsichtsbehörde, insbesondere in dem Mitgliedstaat ihres gewöhnlichen Aufenthalts, ihres Arbeitsplatzes oder des Orts des mutmaßlichen Verstoßes zu. Das Beschwerderecht besteht unbeschadet anderweitiger verwaltungsrechtlicher oder gerichtlicher Rechtsbehelfe.
+                </p>
+
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Recht auf Datenübertragbarkeit (Art. 20 DSGVO)</h3>
+                <p>
+                    Sie haben das Recht, Daten, die wir auf Grundlage Ihrer Einwilligung oder in Erfüllung eines Vertrags automatisiert verarbeiten, an sich oder an einen Dritten in einem gängigen, maschinenlesbaren Format aushändigen zu lassen.
+                    Wir haben diesbezüglich eine Selbstbedienungs-Funktion für Sie eingerichtet: Sie können Ihre Daten jederzeit direkt in Ihrem <strong>Profil unter „Datenschutz & Kontoverwaltung“</strong> exportieren.
+                </p>
+
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Auskunft, Löschung und Berichtigung (Art. 15, 16 und 17 DSGVO)</h3>
+                <p>
+                    Sie haben im Rahmen der geltenden gesetzlichen Bestimmungen jederzeit das Recht auf unentgeltliche Auskunft über Ihre gespeicherten personenbezogenen Daten, deren Herkunft und Empfänger und den Zweck der Datenverarbeitung und ggf. ein Recht auf Berichtigung oder Löschung dieser Daten.
+                    Sie können Ihr Konto und alle hiermit verbundenen aktiven Vermittlungsinformationen jederzeit selbstständig in Ihrem <strong>Profil unter „Datenschutz & Kontoverwaltung“</strong> unwiderruflich löschen.
+                </p>
+
+                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem;">3. Datenerfassung auf dieser Website</h2>
+                
+                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Registrierung und Login (Google Firebase Authentication)</h3>
+                <p>
+                    Wir bieten Ihnen die Möglichkeit, sich auf unserer Website zu registrieren. Hierzu verwenden wir den Authentifizierungsdienst <strong>Firebase Authentication</strong> der Google Ireland Limited (Gordon House, Barrow Street, Dublin 4, Irland).
+                    Wenn Sie sich registrieren oder einloggen (z. B. via Google-Login oder passwortlosem Magic-Link), übermitteln wir Ihre E-Mail-Adresse und ggf. Ihren Namen an Google, um Ihre Identität zu verifizieren und Ihren Account bereitzustellen. Google Firebase verarbeitet Daten teilweise auch in den USA. Die Übertragung basiert auf den EU-Standardvertragsklauseln der Europäischen Kommission.
+                </p>
+
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Datenverarbeitung (Google Cloud Firestore & Cloud Storage)</h3>
+                <p>
+                    Sämtliche von Ihnen erstellten Profileinträge, hochgeladenen Medien (Fotos, Videos, Audio), Präferenzen, Chats und System-Benachrichtigungen werden in der NoSQL-Datenbank <strong>Firebase Cloud Firestore</strong> bzw. im <strong>Firebase Cloud Storage</strong> gespeichert.
+                    Diese Speicherung ist technisch zwingend erforderlich, um das Matching zwischen Musiker und Veranstalter sowie das Postfach bereitzustellen (Vertragserfüllung gemäß Art. 6 Abs. 1 lit. b DSGVO).
+                </p>
+
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">E-Mail-Versand (Resend)</h3>
+                <p>
+                    Für den automatisierten Versand von System-E-Mails (z. B. Login-Links, Match-Empfehlungen und Chat-Benachrichtigungen) nutzen wir den Dienst <strong>Resend</strong> (Resend Labs Inc., 2261 Market St #4079, San Francisco, CA 94114, USA).
+                    Hierbei wird Ihre E-Mail-Adresse und ggf. Ihr Vorname an Resend übertragen. Die Verarbeitung erfolgt zur Erfüllung unserer vertraglichen Pflichten (Art. 6 Abs. 1 lit. b DSGVO) sowie zur Gewährleistung der Kommunikationsgeschwindigkeit. Die Übertragung in die USA wird durch Standardvertragsklauseln abgesichert.
+                </p>
+
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Server-Log-Dateien & LocalStorage</h3>
+                <p>
+                    Der Hoster der Website erhebt und speichert automatisch Informationen in sogenannten Server-Log-Dateien, die Ihr Browser automatisch an uns übermittelt (z. B. Browsertyp, Betriebssystem, Referrer URL, Uhrzeit). Diese Daten sind nicht bestimmten Personen zuzuordnen und werden nicht mit anderen Datenquellen zusammengeführt.
+                    Zudem nutzt diese Website den <strong>LocalStorage</strong> Ihres Browsers, um Sitzungsschlüssel, unread-Zähler und im Offline-Modus Ihre lokalen Präferenzen sicher und temporär zu sichern. Dies ist zur fehlerfreien Bereitstellung der SPA-Funktionalitäten notwendig.
                 </p>
             </div>
         </div>
