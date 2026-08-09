@@ -6650,13 +6650,19 @@ function renderProfilePage(container) {
                     <i class="fa-solid fa-shield-halved ${themeClass}"></i> Datenschutz & Kontoverwaltung
                 </h3>
                 <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.2rem;">
-                    Hier kannst du deine Betroffenenrechte gemäß DSGVO ausüben. Du kannst dein Benutzerkonto und alle zugehörigen Daten unwiderruflich löschen. Wenn du Auskunft oder einen Export deiner personenbezogenen Daten wünschst, sende uns bitte eine formlose E-Mail an <a href="mailto:info@gigconnact.de" style="color: var(--color-purple); text-decoration: underline;">info@gigconnact.de</a>.
+                    Hier kannst du deine Betroffenenrechte gemäß DSGVO ausüben. Du kannst deine Cookie-Einstellungen anpassen, dein Benutzerkonto unwiderruflich löschen oder einen manuellen Datenexport anfordern.
                 </p>
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-secondary btn-sm" id="btn-cookie-settings-profile" onclick="window.showCookieSettings()" style="margin: 0; display: flex; align-items: center; gap: 0.5rem; background: var(--grad-primary); border: none; color: #fff;">
+                        <i class="fa-solid fa-cookie-bite"></i> Cookie-Einstellungen anpassen
+                    </button>
                     <button class="btn btn-glass btn-sm" id="btn-delete-useraccount" style="margin: 0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); display: flex; align-items: center; gap: 0.5rem;">
                         <i class="fa-solid fa-trash-can"></i> Konto unwiderruflich löschen
                     </button>
                 </div>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; margin-bottom: 0;">
+                    Für eine Auskunft oder einen Export deiner Daten sende bitte eine formlose E-Mail an <a href="mailto:info@gigconnact.de" style="color: var(--color-purple); text-decoration: underline;">info@gigconnact.de</a>.
+                </p>
             </div>
 
         </div>
@@ -11345,6 +11351,255 @@ function navigateAfterLogin() {
 }
 window.navigateAfterLogin = navigateAfterLogin;
 
+function checkCookieConsent() {
+    const raw = localStorage.getItem('GigConnAct_cookie_consent');
+    if (!raw) {
+        setTimeout(() => {
+            showCookieConsentBanner();
+        }, 1000);
+    } else {
+        try {
+            const consent = JSON.parse(raw);
+            loadTrackingScripts(consent);
+        } catch (err) {
+            console.error("Failed to parse cookie consent, resetting:", err);
+            localStorage.removeItem('GigConnAct_cookie_consent');
+            setTimeout(() => {
+                showCookieConsentBanner();
+            }, 1000);
+        }
+    }
+}
+window.checkCookieConsent = checkCookieConsent;
+
+function showCookieSettings() {
+    let preExisting = null;
+    const raw = localStorage.getItem('GigConnAct_cookie_consent');
+    if (raw) {
+        try {
+            preExisting = JSON.parse(raw);
+        } catch (e) {}
+    }
+    showCookieConsentBanner(preExisting);
+}
+window.showCookieSettings = showCookieSettings;
+
+function loadTrackingScripts(consent) {
+    if (!consent) return;
+    
+    const gaId = "G-XXXXXX"; 
+    const adsId = "AW-XXXXXX"; 
+    
+    const hasAnalytics = consent.analytics;
+    const hasMarketing = consent.marketing;
+    
+    if (hasAnalytics || hasMarketing) {
+        if (!document.getElementById('google-tag-manager-js')) {
+            const script = document.createElement('script');
+            script.id = 'google-tag-manager-js';
+            script.async = true;
+            const primaryId = hasAnalytics ? gaId : adsId;
+            script.src = `https://www.googletagmanager.com/gtag/js?id=${primaryId}`;
+            document.head.appendChild(script);
+            
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function() { window.dataLayer.push(arguments); };
+            window.gtag('js', new Date());
+        }
+        
+        if (hasAnalytics) {
+            window.gtag('config', gaId, { 'anonymize_ip': true });
+            console.log("[DEBUG] Google Analytics loaded (IP anonymized)");
+        }
+        
+        if (hasMarketing) {
+            window.gtag('config', adsId);
+            console.log("[DEBUG] Google Ads Conversion Tracking loaded");
+        }
+    }
+}
+window.loadTrackingScripts = loadTrackingScripts;
+
+function showCookieConsentBanner(preExistingSettings = null) {
+    const oldBanner = document.getElementById('gigconnact-cookie-banner');
+    if (oldBanner) oldBanner.remove();
+
+    const consent = preExistingSettings || {
+        essential: true,
+        analytics: false,
+        marketing: false
+    };
+
+    const banner = document.createElement('div');
+    banner.id = 'gigconnact-cookie-banner';
+    banner.style.cssText = `
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        left: 24px;
+        max-width: 480px;
+        background: rgba(18, 18, 18, 0.85);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(124, 58, 237, 0.25);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+        z-index: 100000;
+        font-family: var(--font-heading);
+        color: var(--text-main);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        animation: slideInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    `;
+
+    if (!document.getElementById('cookie-banner-styles')) {
+        const styleTag = document.createElement('style');
+        styleTag.id = 'cookie-banner-styles';
+        styleTag.innerHTML = `
+            @keyframes slideInUp {
+                from { transform: translateY(100px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            @media (max-width: 600px) {
+                #gigconnact-cookie-banner {
+                    bottom: 12px !important;
+                    right: 12px !important;
+                    left: 12px !important;
+                    max-width: none !important;
+                    padding: 1.2rem !important;
+                }
+            }
+            .cookie-switch {
+                position: relative;
+                display: inline-block;
+                width: 40px;
+                height: 20px;
+            }
+            .cookie-switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+            .cookie-slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background-color: rgba(255,255,255,0.1);
+                transition: .3s;
+                border-radius: 20px;
+                border: 1px solid rgba(255,255,255,0.15);
+            }
+            .cookie-slider:before {
+                position: absolute;
+                content: "";
+                height: 14px;
+                width: 14px;
+                left: 2px;
+                bottom: 2px;
+                background-color: white;
+                transition: .3s;
+                border-radius: 50%;
+            }
+            .cookie-switch input:checked + .cookie-slider {
+                background-color: #7c3aed;
+            }
+            .cookie-switch input:checked + .cookie-slider:before {
+                transform: translateX(20px);
+            }
+            .cookie-switch input:disabled + .cookie-slider {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+        `;
+        document.head.appendChild(styleTag);
+    }
+
+    banner.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <i class="fa-solid fa-cookie-bite" style="font-size: 2rem; color: #7c3aed; filter: drop-shadow(0 0 8px rgba(124,58,237,0.3));"></i>
+            <h4 style="margin: 0; font-size: 1.1rem; font-weight: 800;">Wir verwenden Cookies 🍪</h4>
+        </div>
+        <p style="margin: 0; font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;">
+            Um unsere Website optimal zu gestalten, Zugriffe zu analysieren und Werbung zu optimieren, nutzen wir Cookies. Du kannst entscheiden, welche Kategorien du erlaubst. Mehr Infos in unserer <a href="#/datenschutz" style="color: #7c3aed; text-decoration: underline;" onclick="document.getElementById('gigconnact-cookie-banner').remove();">Datenschutzerklärung</a>.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 0.7rem; margin: 0.3rem 0; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.7rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong style="font-size: 0.82rem; display: block;">Essenziell (Immer aktiv)</strong>
+                    <span style="font-size: 0.68rem; color: var(--text-muted);">Erforderlich für Login, Sicherheit und Basisfunktionen der App.</span>
+                </div>
+                <label class="cookie-switch">
+                    <input type="checkbox" checked disabled>
+                    <span class="cookie-slider"></span>
+                </label>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong style="font-size: 0.82rem; display: block;">Statistiken (Google Analytics)</strong>
+                    <span style="font-size: 0.68rem; color: var(--text-muted);">Erlaubt uns, anonyme Daten zur Websitenutzung zu analysieren.</span>
+                </div>
+                <label class="cookie-switch">
+                    <input type="checkbox" id="cookie-opt-analytics" ${consent.analytics ? 'checked' : ''}>
+                    <span class="cookie-slider"></span>
+                </label>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong style="font-size: 0.82rem; display: block;">Marketing (Google Ads)</strong>
+                    <span style="font-size: 0.68rem; color: var(--text-muted);">Hilft uns, den Erfolg unserer Werbekampagnen zu messen.</span>
+                </div>
+                <label class="cookie-switch">
+                    <input type="checkbox" id="cookie-opt-marketing" ${consent.marketing ? 'checked' : ''}>
+                    <span class="cookie-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.3rem;">
+            <button class="btn btn-primary btn-sm" id="btn-cookie-accept-all" style="margin:0; flex: 1.2; min-width: 110px; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: none; font-weight: 700; font-size: 0.76rem; padding: 0.5rem;">
+                Alle erlauben
+            </button>
+            <button class="btn btn-glass btn-sm" id="btn-cookie-accept-essential" style="margin:0; flex: 1.2; min-width: 110px; color: #fff; border-color: rgba(255,255,255,0.15); font-size: 0.76rem; padding: 0.5rem;">
+                Nur essenzielle
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btn-cookie-save-choice" style="margin:0; border-color: rgba(255,255,255,0.1); font-size: 0.76rem; background: rgba(255,255,255,0.05); color: #fff; padding: 0.5rem; min-width: 80px; flex: 0.8;">
+                Speichern
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(banner);
+
+    document.getElementById('btn-cookie-accept-all').addEventListener('click', () => {
+        saveConsent({ essential: true, analytics: true, marketing: true });
+    });
+
+    document.getElementById('btn-cookie-accept-essential').addEventListener('click', () => {
+        saveConsent({ essential: true, analytics: false, marketing: false });
+    });
+
+    document.getElementById('btn-cookie-save-choice').addEventListener('click', () => {
+        const analytics = document.getElementById('cookie-opt-analytics').checked;
+        const marketing = document.getElementById('cookie-opt-marketing').checked;
+        saveConsent({ essential: true, analytics, marketing });
+    });
+
+    function saveConsent(newConsent) {
+        newConsent.date = new Date().toISOString();
+        localStorage.setItem('GigConnAct_cookie_consent', JSON.stringify(newConsent));
+        banner.remove();
+        loadTrackingScripts(newConsent);
+        showToast({
+            title: "Einstellungen gespeichert 🍪",
+            message: "Deine Cookie-Auswahl wurde erfolgreich übernommen."
+        });
+    }
+}
+window.showCookieConsentBanner = showCookieConsentBanner;
+
 function isSubscriptionExpired(user) {
     if (!user) return false;
     if (user.role === 'organizer') return false;
@@ -12014,6 +12269,9 @@ window.navigateGallery = function(btn, direction) {
 };
 
 function initGigConnActApp() {
+    // Check cookie consent settings (GDPR)
+    if (typeof checkCookieConsent === 'function') checkCookieConsent();
+
     document.addEventListener('click', (e) => {
         const menu = document.getElementById('profile-dropdown-menu');
         const trigger = document.getElementById('btn-profile-dropdown');
@@ -13993,6 +14251,28 @@ function renderDatenschutzPage(container) {
                     Zur Abwicklung von kostenpflichtigen Abonnements nutzen wir den Zahlungsdienstleister <strong>Stripe</strong> (Stripe Payments Europe Ltd., 1 Grand Canal Street Lower, Grand Canal Dock, Dublin, Irland).
                     Wenn Sie ein Abonnement abschließen, werden Ihre Zahlungsdaten (z. B. Name, E-Mail-Adresse, IBAN/BIC oder Kreditkarteninformationen) verschlüsselt an Stripe übertragen. Stripe verarbeitet diese Daten als eigenständiger datenschutzrechtlich Verantwortlicher, um Zahlungen einzuziehen und Betrug vorzubeugen.
                     Die Weitergabe erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Zahlungsabwicklung zur Vertragserfüllung). Stripe übermittelt Daten teilweise auch an das Mutterunternehmen Stripe, Inc. in den USA. Diese Übertragungen sind durch die Standardvertragsklauseln der EU-Kommission und die Zertifizierung unter dem EU-US Data Privacy Framework abgesichert. Weitere Informationen finden Sie in der Datenschutzerklärung von Stripe unter <a href="https://stripe.com/de/privacy" target="_blank" rel="noopener noreferrer" style="color: var(--color-purple); text-decoration: underline;">https://stripe.com/de/privacy</a>.
+                </p>
+
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Cookies & Einwilligungs-Management (Cookie-Banner)</h3>
+                <p>
+                    Diese Website verwendet Cookies. Einige von ihnen sind technisch notwendig (z. B. für die Anmeldung und das Speichern Ihres Sitzungsstatus), während andere uns helfen, diese Website und Ihre Erfahrung zu verbessern (Statistiken und Marketing).
+                    Technisch nicht notwendige Cookies werden erst geladen, nachdem Sie Ihre ausdrückliche Einwilligung erteilt haben (Opt-In gemäß Art. 6 Abs. 1 lit. a DSGVO i. V. m. § 25 Abs. 1 TTDSG).
+                    Sie können Ihre Cookie-Einwilligungen jederzeit anpassen oder widerrufen, indem Sie auf folgenden Link klicken:
+                    <a href="javascript:void(0);" onclick="window.showCookieSettings();" style="color: var(--color-purple); text-decoration: underline; font-weight: bold;">Cookie-Einstellungen ändern</a>.
+                </p>
+
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Webanalyse (Google Analytics)</h3>
+                <p>
+                    Sofern Sie Ihre Einwilligung erteilt haben, nutzen wir auf dieser Website <strong>Google Analytics</strong>, einen Webanalysedienst der Google Ireland Limited (Gordon House, Barrow Street, Dublin 4, Irland).
+                    Google Analytics verwendet Cookies, die eine Analyse der Benutzung der Website durch Sie ermöglichen. Die durch das Cookie erzeugten Informationen über Ihre Benutzung dieser Website werden in der Regel an einen Server von Google in den USA übertragen und dort gespeichert. Wir nutzen Google Analytics ausschließlich mit aktivierter IP-Anonymisierung (IP-Masking), sodass Ihre IP-Adresse von Google innerhalb von Mitgliedstaaten der Europäischen Union oder in anderen Vertragsstaaten des Abkommens über den Europäischen Wirtschaftsraum zuvor gekürzt wird.
+                    Die Datenverarbeitung basiert auf Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Sie können diese Einwilligung jederzeit über die Cookie-Einstellungen widerrufen. Die Datenübertragung in die USA ist durch Standardvertragsklauseln der EU-Kommission und die Zertifizierung unter dem EU-US Data Privacy Framework abgesichert.
+                </p>
+
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Online-Werbung & Conversion-Tracking (Google Ads)</h3>
+                <p>
+                    Sofern Sie eingewilligt haben, nutzen wir das Online-Werbeprogramm <strong>Google Ads</strong> und das dazugehörige Conversion-Tracking der Google Ireland Limited.
+                    Dabei wird von Google ein Cookie auf Ihrem Gerät gesetzt, wenn Sie über eine Google-Anzeige auf unsere Website gelangt sind. Dieses Cookie verliert nach 30 Tagen seine Gültigkeit und dient nicht der persönlichen Identifizierung, sondern hilft uns zu messen, wie viele Nutzer nach dem Klick auf eine Anzeige eine bestimmte Aktion (z. B. Registrierung) auf unserer Website durchgeführt haben.
+                    Die Verarbeitung erfolgt auf Grundlage Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Ein Widerruf ist jederzeit über die Cookie-Einstellungen möglich. Die Datenübertragung in die USA ist durch Standardvertragsklauseln und das EU-US Data Privacy Framework abgesichert.
                 </p>
 
                 <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Server-Log-Dateien & LocalStorage</h3>
