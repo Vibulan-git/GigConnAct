@@ -2482,6 +2482,32 @@ class StateManager {
 
     notify() {
         console.log("[DEBUG] State notify() triggered. activeMusicianId:", this.activeMusicianId, "activeEventId:", this.activeEventId);
+        
+        // Dynamically correct activeMusicianId and activeEventId if collections are loaded and there's a mismatch
+        if (this.currentUser) {
+            if (this.currentUser.role === 'musician' && this.musicians && this.musicians.length > 0) {
+                const userProfiles = this.musicians.filter(m => m.creatorId === this.currentUser.id);
+                if (userProfiles.length > 0) {
+                    const isValid = userProfiles.some(m => m.id === this.activeMusicianId);
+                    if (!isValid) {
+                        console.log("[DEBUG] Correcting activeMusicianId from", this.activeMusicianId, "to", userProfiles[0].id);
+                        this.activeMusicianId = userProfiles[0].id;
+                        this.saveState();
+                    }
+                }
+            } else if (this.currentUser.role === 'organizer' && this.events && this.events.length > 0) {
+                const userEvents = this.events.filter(e => e.creatorId === this.currentUser.id);
+                if (userEvents.length > 0) {
+                    const isValid = userEvents.some(e => e.id === this.activeEventId);
+                    if (!isValid) {
+                        console.log("[DEBUG] Correcting activeEventId from", this.activeEventId, "to", userEvents[0].id);
+                        this.activeEventId = userEvents[0].id;
+                        this.saveState();
+                    }
+                }
+            }
+        }
+
         this.runDailyMatchCheck();
         this.saveState();
         this.listeners.forEach(callback => callback(this));
