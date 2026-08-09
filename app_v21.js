@@ -11528,18 +11528,8 @@ function showCookieConsentBanner(preExistingSettings = null) {
         <div style="display: flex; flex-direction: column; gap: 0.7rem; margin: 0.3rem 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.7rem;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <strong style="font-size: 0.82rem; display: block; color: #ffffff;">Essenziell (Immer aktiv)</strong>
-                    <span style="font-size: 0.68rem; color: rgba(255,255,255,0.55);">Wird benötigt, um deine Cookie-Auswahl zu speichern. Für registrierte Nutzer zusätzlich für die sichere Anmeldung und Basisfunktionen der App.</span>
-                </div>
-                <label class="cookie-switch">
-                    <input type="checkbox" checked disabled>
-                    <span class="cookie-slider"></span>
-                </label>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <strong style="font-size: 0.82rem; display: block; color: #ffffff;">Statistiken (Google Analytics)</strong>
-                    <span style="font-size: 0.68rem; color: rgba(255,255,255,0.55);">Erlaubt uns, anonyme Daten zur Websitenutzung zu analysieren.</span>
+                    <strong style="font-size: 0.82rem; display: block; color: #ffffff;">📊 Statistiken (Google Analytics)</strong>
+                    <span style="font-size: 0.68rem; color: rgba(255,255,255,0.55); line-height: 1.4; display: block; margin-top: 0.15rem;">Hilft uns zu verstehen, wie Besucher GigConnAct nutzen und unsere Website zu verbessern.</span>
                 </div>
                 <label class="cookie-switch">
                     <input type="checkbox" id="cookie-opt-analytics" ${consent.analytics ? 'checked' : ''}>
@@ -11548,8 +11538,8 @@ function showCookieConsentBanner(preExistingSettings = null) {
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <strong style="font-size: 0.82rem; display: block; color: #ffffff;">Marketing (Google Ads)</strong>
-                    <span style="font-size: 0.68rem; color: rgba(255,255,255,0.55);">Hilft uns, den Erfolg unserer Werbekampagnen zu messen.</span>
+                    <strong style="font-size: 0.82rem; display: block; color: #ffffff;">📣 Marketing (Google Ads)</strong>
+                    <span style="font-size: 0.68rem; color: rgba(255,255,255,0.55); line-height: 1.4; display: block; margin-top: 0.15rem;">Ermöglicht uns, die Wirksamkeit unserer Werbekampagnen zu messen und unsere Werbung zu optimieren.</span>
                 </div>
                 <label class="cookie-switch">
                     <input type="checkbox" id="cookie-opt-marketing" ${consent.marketing ? 'checked' : ''}>
