@@ -4552,6 +4552,42 @@ function initDualSlider(containerId, minInputId, maxInputId, trackId, displayId,
         }
     }
 
+    const handlePointerMove = (clientX) => {
+        const rect = container.getBoundingClientRect();
+        const mouseX = clientX - rect.left;
+        const width = rect.width;
+        
+        const minVal = parseFloat(minInput.value);
+        const maxVal = parseFloat(maxInput.value);
+        const minPercent = ((minVal - minInput.min) / (minInput.max - minInput.min));
+        const maxPercent = ((maxVal - minInput.min) / (maxInput.max - minInput.min));
+        
+        const minX = minPercent * width;
+        const maxX = maxPercent * width;
+        
+        const distMin = Math.abs(mouseX - minX);
+        const distMax = Math.abs(mouseX - maxX);
+        
+        if (distMin < distMax) {
+            minInput.style.pointerEvents = 'auto';
+            minInput.style.zIndex = '4';
+            maxInput.style.pointerEvents = 'none';
+            maxInput.style.zIndex = '3';
+        } else {
+            maxInput.style.pointerEvents = 'auto';
+            maxInput.style.zIndex = '4';
+            minInput.style.pointerEvents = 'none';
+            minInput.style.zIndex = '3';
+        }
+    };
+
+    container.addEventListener('mousemove', (e) => handlePointerMove(e.clientX));
+    container.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches[0]) {
+            handlePointerMove(e.touches[0].clientX);
+        }
+    }, { passive: true });
+
     minInput.addEventListener('input', updateSlider);
     maxInput.addEventListener('input', updateSlider);
     updateSlider();
