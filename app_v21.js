@@ -3042,8 +3042,11 @@ function getWeekdayFromDate(dateStr) {
 function calculateMatch(musician, event, searcherRole = 'musician') {
     // 1. Musiker-Typ (20 %)
     let typeScore = 0;
-    if (event.musicianTypes && event.musicianTypes.some(t => t.toLowerCase() === musician.type.toLowerCase())) {
-        typeScore = 20;
+    if (event.musicianTypes && musician.type) {
+        const musTypes = musician.type.split(',').map(s => s.trim().toLowerCase());
+        if (event.musicianTypes.some(t => musTypes.includes(t.toLowerCase()))) {
+            typeScore = 20;
+        }
     }
 
     // 2. Ort (10 %)
@@ -3116,7 +3119,10 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
     let eventTypeScore = 0;
     const musEventTypes = musician.eventTypes || [];
     const evType = event.type || event.eventType || '';
-    const evTypes = event.eventTypes || (evType ? [evType] : []);
+    let evTypes = event.eventTypes;
+    if (!evTypes) {
+        evTypes = evType ? evType.split(',').map(s => s.trim()) : [];
+    }
     if (evTypes.some(t => musEventTypes.some(mt => mt.toLowerCase() === t.toLowerCase()))) {
         eventTypeScore = 20;
     }
