@@ -6749,7 +6749,8 @@ function renderProfilePage(container) {
 
         if (cancelBtn) {
             cancelBtn.addEventListener('click', async () => {
-                if (confirm("Möchtest du dein Abonnement wirklich zum nächstmöglichen Zeitpunkt kündigen? Du verlierst damit nach Ablauf des Zeitraums den direkten Kontaktzugang zu Veranstaltern.")) {
+                const confirmMsg = "Möchtest du dein Abonnement wirklich zum nächstmöglichen Zeitpunkt kündigen? Du verlierst damit nach Ablauf des Zeitraums den direkten Zugang.\n\nHinweis: Dein Profil bleibt nach Ablauf inaktiv gespeichert, damit du es später einfach reaktivieren kannst. Du kannst dein Konto und alle Daten jederzeit dauerhaft über die Funktion 'Konto unwiderruflich löschen' entfernen.";
+                if (confirm(confirmMsg)) {
                     u.subscriptionCancelled = true;
                     
                     const end = new Date();
