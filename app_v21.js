@@ -14211,7 +14211,7 @@ function renderDatenschutzPage(container) {
                     <ul style="padding-left: 1.5rem; margin-top: 0.5rem; line-height: 1.6;">
                         <li><strong>Öffentlicher Bereich (nicht eingeloggt):</strong> Auf den öffentlichen Marktplätzen sind Musiker-Profile und Events ausschließlich <strong>anonymisiert</strong> sichtbar. Es werden keine Klarnamen oder konkrete Kontaktdaten (E-Mail, Telefon) angezeigt.</li>
                         <li><strong>Registrierte & eingeloggte Nutzer:</strong> Die vollständigen Profile und Kontaktdaten (Künstlername bzw. Name/Firma, E-Mail-Adresse, Telefonnummer) sind für alle registrierten und angemeldeten Nutzer auf der Plattform einsehbar, sobald sie über ein Benutzerkonto verfügen.</li>
-                        <li><strong>Kommunikation (Postbox):</strong> Die direkte Kontaktaufnahme und der Chatverlauf über das Postfach werden erst nach einem erfolgreichen Match (Übereinstimmung > 49 %) initiiert und sind vertraulich nur für die beiden beteiligten Nutzer einsehbar.</li>
+                        <li><strong>Kommunikation (Postbox):</strong> Die über das Postfach geführten Chatverläufe und Nachrichten sind vertraulich und nur für die jeweiligen beiden Kommunikationspartner einsehbar. Zur Unterstützung der Vermittlung wird den Nutzern lediglich ein berechneter Match-Score (Übereinstimmungsgrad) angezeigt.</li>
                     </ul>
                 </p>
 
