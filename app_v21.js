@@ -2549,6 +2549,13 @@ class StateManager {
             ? (this.activeMusicianId || this.currentUser.profileId) 
             : (this.activeEventId || this.currentUser.id);
         
+        if (!senderId) {
+            return { success: false, message: "Kein aktives Absender-Profil gefunden. Bitte wähle ein Profil aus." };
+        }
+        if (!recipientId) {
+            return { success: false, message: "Kein Empfänger für diesen Chat definiert." };
+        }
+
         let chat = this.chats.find(c => 
             c.participants.includes(senderId) && c.participants.includes(recipientId)
         );
@@ -2574,6 +2581,7 @@ class StateManager {
                 await db.collection('chats').doc(newId).set(chat);
             } catch (err) {
                 console.error("sendMessage failed to create chat:", err);
+                return { success: false, message: "Fehler beim Erstellen des Chats: " + err.message };
             }
         } else {
             const updatedMessages = [...(chat.messages || []), newMessage];
@@ -2584,6 +2592,7 @@ class StateManager {
                 });
             } catch (err) {
                 console.error("sendMessage failed to update chat:", err);
+                return { success: false, message: "Fehler beim Senden der Nachricht: " + err.message };
             }
         }
 
@@ -12109,8 +12118,15 @@ function renderPostbox(container) {
                 if (!text || !activeChat) return;
 
                 const counterpartyId = activeChat.participants.find(id => id !== currentUserId) || activeChat.participants[0];
-                await state.sendMessage(counterpartyId, text, activeChat.eventId);
-                input.value = '';
+                const res = await state.sendMessage(counterpartyId, text, activeChat.eventId);
+                if (res && !res.success) {
+                    showToast({
+                        title: "Fehler beim Senden ⚠️",
+                        message: res.message || "Nachricht konnte nicht gespeichert werden."
+                    });
+                } else {
+                    input.value = '';
+                }
             });
         }
 
@@ -12123,8 +12139,15 @@ function renderPostbox(container) {
                 if (!text || !activeChat) return;
 
                 const counterpartyId = activeChat.participants.find(id => id !== currentUserId) || activeChat.participants[0];
-                await state.sendMessage(counterpartyId, text, activeChat.eventId);
-                input.value = '';
+                const res = await state.sendMessage(counterpartyId, text, activeChat.eventId);
+                if (res && !res.success) {
+                    showToast({
+                        title: "Fehler beim Senden ⚠️",
+                        message: res.message || "Nachricht konnte nicht gespeichert werden."
+                    });
+                } else {
+                    input.value = '';
+                }
             });
         });
 
