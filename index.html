@@ -104,8 +104,12 @@
         <main class="app-main" id="app-main"></main>
         <div id="toast-container" class="toast-container"></div>
         <div id="modal-container" class="modal-overlay hidden"></div>
-        <footer class="app-footer">
-            <p>&copy; 2026 GigConnAct. Alle Rechte vorbehalten.</p>
+        <footer class="app-footer" style="display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap; padding: 1.5rem; border-top: 1px solid var(--border-color); font-size: 0.85rem; color: var(--text-muted);">
+            <span>&copy; 2026 GigConnAct. Alle Rechte vorbehalten.</span>
+            <span style="color: rgba(255,255,255,0.15);">&bull;</span>
+            <a href="#/impressum" style="color: var(--text-muted); text-decoration: none;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">Impressum</a>
+            <span style="color: rgba(255,255,255,0.15);">&bull;</span>
+            <a href="#/datenschutz" style="color: var(--text-muted); text-decoration: none;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">Datenschutz</a>
         </footer>
     </div>
 

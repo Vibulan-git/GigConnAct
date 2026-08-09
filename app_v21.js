@@ -4368,7 +4368,11 @@ function renderLandingPage(container, onNavigate) {
                     </div>
                     <!-- Impressum Info -->
                     <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
-                        <span style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; margin-bottom: 0.2rem;">Impressum</span>
+                        <div style="display: flex; gap: 1rem; margin-bottom: 0.2rem;">
+                            <a href="#/impressum" style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; text-decoration: none;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-main)';">Impressum</a>
+                            <span style="color: rgba(255,255,255,0.15);">&bull;</span>
+                            <a href="#/datenschutz" style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; text-decoration: none;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-main)';">Datenschutz</a>
+                        </div>
                         <span>GigConnAct &bull; Montanusstraße 49 &bull; 51065 Köln</span>
                         <div style="display: flex; flex-direction: column; gap: 0.25rem;">
                             <span>Tel: <a href="tel:+4915788703998" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">+49 15788703998</a></span>
@@ -11370,6 +11374,12 @@ function navigate(page) {
         case 'verify-email':
             renderVerifyEmailPage(mainContainer);
             break;
+        case 'impressum':
+            renderImpressumPage(mainContainer);
+            break;
+        case 'datenschutz':
+            renderDatenschutzPage(mainContainer);
+            break;
         case 'profile':
             if (!state.currentUser) {
                 navigate('');
@@ -13485,3 +13495,97 @@ async function renderVerifyEmailPage(container) {
     }
 }
 window.renderVerifyEmailPage = renderVerifyEmailPage;
+
+function renderImpressumPage(container) {
+    container.innerHTML = `
+        <div class="market-container" style="max-width: 800px; margin: 3rem auto; padding: 2.5rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg);">
+            <h1 style="font-family: var(--font-heading); color: var(--text-main); font-size: 2rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.75rem;">Impressum</h1>
+            
+            <div style="line-height: 1.8; color: var(--text-main); font-size: 0.95rem;">
+                <h3 style="margin-top: 1.5rem; color: var(--text-main);">Angaben gemäß § 5 DDG</h3>
+                <p>
+                    Vibulan Sivanathan<br>
+                    Montanusstraße 49<br>
+                    51065 Köln
+                </p>
+
+                <h3 style="margin-top: 1.5rem; color: var(--text-main);">Kontakt</h3>
+                <p>
+                    Telefon: +49 15788703998<br>
+                    E-Mail: info@gigconnact.de
+                </p>
+
+                <h3 style="margin-top: 1.5rem; color: var(--text-main);">Umsatzsteuer-Identifikationsnummer (USt-IdNr.)</h3>
+                <p style="color: var(--text-muted); font-style: italic;">
+                    [Hier nach der Gewerbeanmeldung deine USt-IdNr. eintragen, z. B. DE123456789]
+                </p>
+
+                <h3 style="margin-top: 1.5rem; color: var(--text-main);">EU-Streitschlichtung</h3>
+                <p>
+                    Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:<br>
+                    <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" style="color: var(--color-purple); text-decoration: underline;">https://ec.europa.eu/consumers/odr/</a>.<br>
+                    Unsere E-Mail-Adresse finden Sie oben im Impressum.
+                </p>
+
+                <h3 style="margin-top: 1.5rem; color: var(--text-main);">Verbraucherstreitbeilegung/Universalschlichtungsstelle</h3>
+                <p>
+                    Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
+                </p>
+                
+                <div style="margin-top: 3rem; padding: 1rem; background: rgba(124, 58, 237, 0.1); border-radius: 8px; border: 1px dashed var(--color-purple); font-size: 0.85rem; color: var(--text-muted);">
+                    <strong>💡 Administrator-Hinweis:</strong> Du kannst diesen Text jederzeit in der Funktion <code>renderImpressumPage</code> in der Datei <code>app_v21.js</code> anpassen oder deinen generierten Text von eRecht24 hier hineinkopieren.
+                </div>
+            </div>
+        </div>
+    `;
+    window.scrollTo(0, 0);
+}
+window.renderImpressumPage = renderImpressumPage;
+
+function renderDatenschutzPage(container) {
+    container.innerHTML = `
+        <div class="market-container" style="max-width: 800px; margin: 3rem auto; padding: 2.5rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg);">
+            <h1 style="font-family: var(--font-heading); color: var(--text-main); font-size: 2rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.75rem;">Datenschutzerklärung</h1>
+            
+            <div style="line-height: 1.8; color: var(--text-main); font-size: 0.95rem;">
+                <h2 style="font-size: 1.3rem; margin-top: 1.5rem; color: var(--text-main);">1. Datenschutz auf einen Blick</h2>
+                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Allgemeine Hinweise</h3>
+                <p>
+                    Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.
+                </p>
+
+                <h2 style="font-size: 1.3rem; margin-top: 1.5rem; color: var(--text-main);">2. Allgemeine Hinweise und Pflichtinformationen</h2>
+                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Verantwortliche Stelle</h3>
+                <p>
+                    Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:<br>
+                    Vibulan Sivanathan<br>
+                    Montanusstraße 49<br>
+                    51065 Köln<br>
+                    E-Mail: info@gigconnact.de
+                </p>
+
+                <h2 style="font-size: 1.3rem; margin-top: 1.5rem; color: var(--text-main);">3. Datenerfassung auf dieser Website</h2>
+                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Registrierung und Login (Firebase Authentication)</h3>
+                <p>
+                    Wir bieten Ihnen die Möglichkeit, sich auf unserer Website zu registrieren. Hierzu verwenden wir den Dienst **Firebase Authentication** von Google. Wenn Sie sich per passwortlosem Link oder Google-Login anmelden, werden Ihre E-Mail-Adresse sowie ggf. Ihr Name an Google-Server übermittelt und dort gespeichert, um die Authentifizierung zu ermöglichen.
+                </p>
+
+                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Datenverarbeitung (Cloud Firestore)</h3>
+                <p>
+                    Alle von Ihnen eingegebenen Profildaten (z. B. Bandnamen, Gigs, Eventbeschreibungen, Präferenzen, Chats und Favoriten) werden in unserer NoSQL-Datenbank **Firebase Cloud Firestore** gespeichert. Diese Daten sind notwendig, um die Vermittlungsfunktionen der Plattform bereitzustellen.
+                </p>
+
+                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">E-Mail-Versand (Resend)</h3>
+                <p>
+                    Für den automatischen Versand von System-E-Mails (z. B. Login-Links, Match-Benachrichtigungen oder Chat-Mails) nutzen wir den Dienst **Resend**. Hierbei wird Ihre E-Mail-Adresse und ggf. Ihr Name zur Durchführung des E-Mail-Versands an Resend übertragen.
+                </p>
+
+                <div style="margin-top: 3rem; padding: 1rem; background: rgba(124, 58, 237, 0.1); border-radius: 8px; border: 1px dashed var(--color-purple); font-size: 0.85rem; color: var(--text-muted);">
+                    <strong>💡 Administrator-Hinweis:</strong> Du kannst diesen Text jederzeit in der Funktion <code>renderDatenschutzPage</code> in der Datei <code>app_v21.js</code> anpassen oder deinen generierten Datenschutz-Text von eRecht24 hier hineinkopieren.
+                </div>
+            </div>
+        </div>
+    `;
+    window.scrollTo(0, 0);
+}
+window.renderDatenschutzPage = renderDatenschutzPage;
