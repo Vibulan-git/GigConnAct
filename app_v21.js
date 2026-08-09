@@ -6966,13 +6966,20 @@ function renderProfilePage(container) {
                     },
                     myMusiciansListings: myMusicians,
                     myEventsListings: myEvents,
-                    chats: myChats.map(c => ({
-                        chatId: c.id,
-                        participants: c.participants,
-                        updatedAt: c.updatedAt,
-                        messagesCount: c.messages ? c.messages.length : 0,
-                        messages: c.messages || []
-                    }))
+                    chats: myChats.map(c => {
+                        const myMessages = (c.messages || [])
+                            .filter(m => myProfileIds.includes(m.senderId))
+                            .map(m => ({
+                                text: m.text,
+                                timestamp: m.timestamp
+                            }));
+                        return {
+                            chatId: c.id,
+                            updatedAt: c.updatedAt,
+                            mySentMessagesCount: myMessages.length,
+                            mySentMessages: myMessages
+                        };
+                    })
                 };
 
                 const blob = new Blob([JSON.stringify(dataToExport, null, 4)], { type: "application/json" });
