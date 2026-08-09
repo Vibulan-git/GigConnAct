@@ -6650,12 +6650,9 @@ function renderProfilePage(container) {
                     <i class="fa-solid fa-shield-halved ${themeClass}"></i> Datenschutz & Kontoverwaltung
                 </h3>
                 <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.2rem;">
-                    Hier kannst du deine Betroffenenrechte gemäß DSGVO ausüben. Du kannst alle über dich gespeicherten Daten exportieren oder dein Benutzerkonto und alle zugehörigen Daten unwiderruflich löschen.
+                    Hier kannst du deine Betroffenenrechte gemäß DSGVO ausüben. Du kannst dein Benutzerkonto und alle zugehörigen Daten unwiderruflich löschen. Wenn du Auskunft oder einen Export deiner personenbezogenen Daten wünschst, sende uns bitte eine formlose E-Mail an <a href="mailto:info@gigconnact.de" style="color: var(--color-purple); text-decoration: underline;">info@gigconnact.de</a>.
                 </p>
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <button class="btn btn-secondary btn-sm" id="btn-export-userdata" style="margin: 0; display: flex; align-items: center; gap: 0.5rem; background: var(--grad-primary); border: none; color: #fff;">
-                        <i class="fa-solid fa-download"></i> Meine Daten exportieren
-                    </button>
                     <button class="btn btn-glass btn-sm" id="btn-delete-useraccount" style="margin: 0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); display: flex; align-items: center; gap: 0.5rem;">
                         <i class="fa-solid fa-trash-can"></i> Konto unwiderruflich löschen
                     </button>
@@ -6925,87 +6922,7 @@ function renderProfilePage(container) {
         }
     }
 
-    // DSGVO Daten-Export Listener
-    const exportBtn = document.getElementById('btn-export-userdata');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', () => {
-            try {
-                const u = state.currentUser;
-                if (!u) return;
-
-                const myMusicians = state.musicians.filter(m => m.creatorId === u.id || m.id === u.profileId);
-                const myEvents = state.events.filter(e => e.creatorId === u.id || e.id === u.profileId);
-
-                const myProfileIds = [u.id];
-                if (u.profileId) myProfileIds.push(u.profileId);
-                myMusicians.forEach(m => myProfileIds.push(m.id));
-                myEvents.forEach(e => myProfileIds.push(e.id));
-
-                const myChats = state.chats.filter(c => 
-                    c.participants.some(pId => myProfileIds.includes(pId))
-                );
-
-                const dataToExport = {
-                    exportDate: new Date().toISOString(),
-                    platform: "GigConnAct",
-                    userProfile: {
-                        id: u.id,
-                        role: u.role,
-                        firstName: u.firstName,
-                        lastName: u.lastName,
-                        email: u.email,
-                        phone: u.phone,
-                        hidePhone: u.hidePhone,
-                        company: u.company || null,
-                        organizerType: u.organizerType || null,
-                        isPremium: u.isPremium || false,
-                        subscriptionPlan: u.subscriptionPlan || null,
-                        subscriptionCancelled: u.subscriptionCancelled || false,
-                        subscriptionEndDate: u.subscriptionEndDate || null,
-                        createdAt: u.createdAt || null
-                    },
-                    myMusiciansListings: myMusicians,
-                    myEventsListings: myEvents,
-                    chats: myChats.map(c => {
-                        const myMessages = (c.messages || [])
-                            .filter(m => myProfileIds.includes(m.senderId))
-                            .map(m => ({
-                                text: m.text,
-                                timestamp: m.timestamp
-                            }));
-                        return {
-                            chatId: c.id,
-                            updatedAt: c.updatedAt,
-                            mySentMessagesCount: myMessages.length,
-                            mySentMessages: myMessages
-                        };
-                    })
-                };
-
-                const blob = new Blob([JSON.stringify(dataToExport, null, 4)], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `gigconnact-datentransfer-${u.firstName}-${u.lastName}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-
-                showToast({
-                    title: "Datenexport erfolgreich 📂",
-                    message: "Deine personenbezogenen Daten wurden als JSON-Datei heruntergeladen."
-                });
-            } catch (err) {
-                console.error("Data export failed:", err);
-                showToast({
-                    title: "Fehler beim Export",
-                    message: "Deine Daten konnten nicht exportiert werden: " + err.message,
-                    type: "error"
-                });
-            }
-        });
-    }
+    // DSGVO Daten-Export wird auf Anfrage per E-Mail abgewickelt
 
     // DSGVO Konto-Löschung Listener
     const deleteBtn = document.getElementById('btn-delete-useraccount');
@@ -13798,7 +13715,7 @@ function renderDatenschutzPage(container) {
                 <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Recht auf Datenübertragbarkeit (Art. 20 DSGVO)</h3>
                 <p>
                     Sie haben das Recht, Daten, die wir auf Grundlage Ihrer Einwilligung oder in Erfüllung eines Vertrags automatisiert verarbeiten, an sich oder an einen Dritten in einem gängigen, maschinenlesbaren Format aushändigen zu lassen.
-                    Wir haben diesbezüglich eine Selbstbedienungs-Funktion für Sie eingerichtet: Sie können Ihre Daten jederzeit direkt in Ihrem <strong>Profil unter „Datenschutz & Kontoverwaltung“</strong> exportieren.
+                    Um dieses Recht auszuüben, können Sie uns formlos eine E-Mail an <a href="mailto:info@gigconnact.de" style="color: var(--color-purple); text-decoration: underline;">info@gigconnact.de</a> senden. Wir stellen Ihnen Ihre Daten dann innerhalb der gesetzlichen Frist von einem Monat in einem strukturierten, gängigen und maschinenlesbaren Format (z. B. als JSON-Datei) zur Verfügung.
                 </p>
 
                 <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Auskunft, Löschung und Berichtigung (Art. 15, 16 und 17 DSGVO)</h3>
