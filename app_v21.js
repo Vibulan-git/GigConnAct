@@ -14199,19 +14199,19 @@ function renderDatenschutzPage(container) {
                 </p>
                 <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Datenkategorien Musiker</h3>
                 <p>
-                    Bei der Registrierung und Profilgestaltung von Musikern erfassen und verarbeiten wir: Künstlername, E-Mail-Adresse, Telefonnummer (falls angegeben), Standort (Umkreis), Profilbild, Band- und Künstlerbeschreibung, Genres, Instrumente, Fotos, Videos, Audiodateien, Social-Media- & Spotify-Links, Gagenvorstellungen sowie Verfügbarkeiten.
+                    Bei der Registrierung und Profilgestaltung von Musikern erfassen und verarbeiten wir: Künstlername, E-Mail-Adresse, Telefonnummer (falls angegeben), Standort (Umkreis), Profilbild, Band- und Künstlerbeschreibung, Genres, Instrumente, Fotos, Videos, Audiodateien, Gagenvorstellungen sowie Verfügbarkeiten.
                 </p>
                 <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Datenkategorien Veranstalter</h3>
                 <p>
-                    Bei der Registrierung und Erstellung von Events von Veranstaltern erfassen und verarbeiten wir: Name/Firma, E-Mail-Adresse, Telefonnummer, Veranstaltungsort, Eventdaten (Datum, Uhrzeit, Budget, Spieldauer, gesuchtes Genre/Typ) sowie Chatnachrichten und Buchungsanfragen.
+                    Bei der Registrierung und Erstellung von Events von Veranstaltern erfassen und verarbeiten wir: Name/Firma, E-Mail-Adresse, Telefonnummer, Veranstaltungsort, Eventdaten (Datum, Uhrzeit, Budget, Spieldauer, gesuchtes Genre/Typ) sowie Chatnachrichten.
                 </p>
-                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Öffentliche Sichtbarkeit vs. Registrierte Nutzer (Matching-Konzept)</h3>
+                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Öffentliche Sichtbarkeit vs. Registrierte Nutzer (Plattform-Zugang)</h3>
                 <p>
                     Um den Datenschutz unserer Nutzer zu maximieren, gilt folgendes Sichtbarkeitskonzept:
                     <ul style="padding-left: 1.5rem; margin-top: 0.5rem; line-height: 1.6;">
-                        <li><strong>Öffentlicher Bereich (nicht eingeloggt):</strong> Auf den öffentlichen Marktplätzen sind Musiker-Profile und Events ausschließlich <strong>anonymisiert</strong> sichtbar. Es werden keine Klarnamen, konkrete Kontaktdaten (E-Mail, Telefon) oder Links zu Social-Media-Profilen angezeigt.</li>
-                        <li><strong>Registrierte & eingeloggte Nutzer:</strong> Die vollständigen Kontaktdaten und Profile werden für die jeweils andere Partei erst dann sichtbar, wenn ein <strong>erfolgreiches Match (Übereinstimmung > 49 %)</strong> zustande kommt und eine Kontaktaufnahme über das Postfach initiiert wird.</li>
-                        <li><strong>Kommunikation (Postbox):</strong> Der Chatverlauf und ausgetauschte Nachrichten sind vertraulich und nur für die beiden am Match beteiligten Nutzer einsehbar.</li>
+                        <li><strong>Öffentlicher Bereich (nicht eingeloggt):</strong> Auf den öffentlichen Marktplätzen sind Musiker-Profile und Events ausschließlich <strong>anonymisiert</strong> sichtbar. Es werden keine Klarnamen oder konkrete Kontaktdaten (E-Mail, Telefon) angezeigt.</li>
+                        <li><strong>Registrierte & eingeloggte Nutzer:</strong> Die vollständigen Profile und Kontaktdaten (Künstlername bzw. Name/Firma, E-Mail-Adresse, Telefonnummer) sind für alle registrierten und angemeldeten Nutzer auf der Plattform einsehbar, sobald sie über ein Benutzerkonto verfügen.</li>
+                        <li><strong>Kommunikation (Postbox):</strong> Die direkte Kontaktaufnahme und der Chatverlauf über das Postfach werden erst nach einem erfolgreichen Match (Übereinstimmung > 49 %) initiiert und sind vertraulich nur für die beiden beteiligten Nutzer einsehbar.</li>
                     </ul>
                 </p>
 
@@ -14225,7 +14225,7 @@ function renderDatenschutzPage(container) {
 
                 <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Datenverarbeitung & Dateispeicher (Google Cloud Firestore & Cloud Storage)</h3>
                 <p>
-                    Sämtliche von Ihnen erstellten Profileinträge, hochgeladenen Medien (Fotos, Videos, Audio), Präferenzen, Chats und System-Benachrichtigungen werden in der NoSQL-Datenbank <strong>Firebase Cloud Firestore</strong> bzw. im <strong>Firebase Cloud Storage</strong> gespeichert.
+                    Sämtliche von Ihnen erstellten Profileinträge, hochgeladenen Medien (Fotos, Videos, Audio sowohl für Musiker als auch für Veranstalter), Präferenzen, Chats und System-Benachrichtigungen werden in der NoSQL-Datenbank <strong>Firebase Cloud Firestore</strong> bzw. im <strong>Firebase Cloud Storage</strong> gespeichert.
                     Diese Speicherung ist technisch zwingend erforderlich, um das Matching zwischen Musiker und Veranstalter sowie das Postfach bereitzustellen (Vertragserfüllung gemäß Art. 6 Abs. 1 lit. b DSGVO).
                 </p>
 
