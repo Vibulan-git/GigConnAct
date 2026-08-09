@@ -5011,6 +5011,46 @@ input[type="range"].input-field {
 .tile-gallery-counter {
     display: none !important;
 }
+
+/* Hero Logo Animations for subsequent visits */
+@keyframes heroLogoSpinIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3) rotate(-180deg);
+    }
+    60% {
+        transform: scale(1.1) rotate(20deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+@keyframes heroLogoTextReveal {
+    0% {
+        opacity: 0;
+        letter-spacing: -6px;
+        transform: translateY(8px);
+    }
+    60% {
+        opacity: 0.8;
+    }
+    100% {
+        opacity: 1;
+        letter-spacing: -1.5px;
+        transform: translateY(0);
+    }
+}
+
+.animate-hero-logo {
+    transform-origin: center;
+    animation: heroLogoSpinIn 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-hero-text {
+    animation: heroLogoTextReveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
 </style>
     
     <!-- Firebase CDN SDKs (Compat Version) -->
@@ -8518,6 +8558,7 @@ function renderHeroTabContent(isMusician) {
 }
 
 function renderLandingPage(container, onNavigate) {
+    window.onNavigate = onNavigate;
     const isUserLoggedIn = !!state.currentUser;
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -8546,7 +8587,7 @@ function renderLandingPage(container, onNavigate) {
         <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem; margin: 0; width: 100%;">
             
             <!-- 1. Fullscreen 100vh Hero Background Video Section -->
-            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 22vh 1.5rem 9rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 22vh 1.5rem 9rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); background-color: #0d0e12;">
                 
                 <!-- Seamless Dual Background Videos (Scaled to crop out Capcut watermark and cross-fade) -->
                 <video id="hero-bg-video-1" autoplay muted playsinline preload="auto" style="position: absolute; top: -12%; left: -12%; width: 124%; height: 124%; object-fit: cover; z-index: 2; opacity: 1; transition: opacity 1.5s ease-in-out;">
@@ -8601,8 +8642,7 @@ function renderLandingPage(container, onNavigate) {
                         GigConnAct
                     </div>
                 </div>
-
-                <!-- 2/3: CTA Buttons -->
+<!-- 2/3: CTA Buttons -->
                 <div class="hero-cta-buttons" style="position: relative; z-index: 3; margin: 0; gap: 2rem;">
                     <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
                         <i class="fa-solid fa-guitar" style="font-size: 3.2rem;"></i>
@@ -8631,13 +8671,11 @@ function renderLandingPage(container, onNavigate) {
             <div style="max-width: 1400px; margin: 0 auto; padding: 3rem 1.5rem 0;">
                 
                 <!-- Headline: Event-Markt -->
-                <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
-                        Der Event-Markt.
+                <div style="text-align: center; margin-bottom: 2.0rem; padding: 0 1rem;">
+                    <h2 onclick="window.onNavigate('events')" style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5.8vw, 4.2rem); font-weight: 900; color: #0f172a; margin: 0; line-height: 1.15; letter-spacing: -1.5px; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#7c3aed'; this.querySelector('.arrow-icon').style.transform='translateX(6px)';" onmouseout="this.style.color='#0f172a'; this.querySelector('.arrow-icon').style.transform='translateX(0)';">
+                        Der Event-Markt<br>
+                        <span style="color: #7c3aed; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;">Für Musiker<i class="fa-solid fa-arrow-right-long arrow-icon" style="font-size: 0.55em; transition: transform 0.2s; vertical-align: middle;"></i></span>
                     </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.25rem, 5.2vw, 3.8rem); font-weight: 900; color: #7c3aed; line-height: 1.15; letter-spacing: -1px;">
-                        Musiker suchen Gigs.
-                    </div>
                 </div>
 
                 <!-- Subtitle: Category Icons -->
@@ -8749,13 +8787,11 @@ function renderLandingPage(container, onNavigate) {
             <div style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1.5rem 0;">
                 
                 <!-- Headline: Musiker-Markt -->
-                <div style="text-align: center; margin-bottom: 1.5rem; padding: 0 1rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.5vw, 4.0rem); font-weight: 900; color: #0f172a; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
-                        Der Musiker-Markt.
+                <div style="text-align: center; margin-bottom: 2.0rem; padding: 0 1rem;">
+                    <h2 onclick="window.onNavigate('musicians')" style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5.8vw, 4.2rem); font-weight: 900; color: #0f172a; margin: 0; line-height: 1.15; letter-spacing: -1.5px; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'; this.querySelector('.arrow-icon').style.transform='translateX(6px)';" onmouseout="this.style.color='#0f172a'; this.querySelector('.arrow-icon').style.transform='translateX(0)';">
+                        Der Musiker-Markt<br>
+                        <span style="color: #2563eb; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;">Für Veranstalter<i class="fa-solid fa-arrow-right-long arrow-icon" style="font-size: 0.55em; transition: transform 0.2s; vertical-align: middle;"></i></span>
                     </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(1.25rem, 5.2vw, 3.8rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
-                        Veranstalter suchen Acts.
-                    </div>
                 </div>
 
                 <!-- Subtitle: Category Icons -->
@@ -8956,8 +8992,8 @@ function renderLandingPage(container, onNavigate) {
                             <div style="display: flex; flex-direction: column; gap: 0.8rem; width: 100%;">
                                 
                                 <!-- Item 1 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
                                         <i class="fa-solid fa-store" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -8968,7 +9004,7 @@ function renderLandingPage(container, onNavigate) {
                                             Zum Event-Markt
                                         </div>
                                         <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Hochzeiten, Feiern, Festival etc.
+                                            Hochzeiten, Feiern, Festival ...
                                         </div>
                                     </div>
                                 </div>
@@ -8979,19 +9015,19 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Item 2 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
                                         <i class="fa-solid fa-sliders" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
-                                            02 Filtern nach deinen Wünschen
+                                            02 Passende Events
                                         </div>
                                         <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Passgenaue Vermittlung
+                                            Durch Filter-Logik
                                         </div>
                                         <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Event-Art, Entfernung, Gage, Verfügbarkeit etc.
+                                            Event-Typ, Entfernung, Gage ...
                                         </div>
                                     </div>
                                 </div>
@@ -9002,19 +9038,19 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Item 3 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
-                                        <i class="fa-solid fa-id-card" style="color: #7c3aed; font-size: 1.0rem;"></i>
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
+                                        <i class="fa-solid fa-bolt" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
-                                            03 Aussagekräftige Profile
+                                            03 Schnelle Anmeldung
                                         </div>
                                         <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Präsentiere deine Band oder DJ-Set
+                                            Anlegen eines Musiker-Profils
                                         </div>
                                         <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Fotos, Videos und Hörproben direkt abspielbar
+                                            Ohne Passwort
                                         </div>
                                     </div>
                                 </div>
@@ -9025,8 +9061,8 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Item 4 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
                                         <i class="fa-solid fa-percent" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -9048,8 +9084,8 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Item 5 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
                                         <i class="fa-solid fa-star" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -9071,30 +9107,31 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Item 6 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35); margin-top: 2px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
                                         <i class="fa-solid fa-comments" style="color: #7c3aed; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
                                         <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
-                                            06 Direkter Kontakt
+                                            06  Direkter Kontakt
                                         </div>
                                         <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
                                             Zu Veranstaltern der Events
                                         </div>
                                         <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Name, Telefon, Mail, Nachricht etc.
+                                            Name, Telefon, Mail, Nachricht ...
                                         </div>
                                     </div>
                                 </div>
 
-                            </div>
-                        </div>
+                                <!-- Button: Hier geht's zum Event-Markt -->
+                                <div style="margin-top: 1.5rem; text-align: center; width: 100%;">
+                                    <button id="btn-benefits-to-events" class="btn-homepage-market theme-musician" style="width: 100%; box-sizing: border-box; margin: 0;">
+                                        Hier geht's zum Event-Markt <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </div>
 
-                        <div style="margin-top: 2rem; text-align: center; width: 100%;">
-                            <button id="btn-benefits-to-events" class="btn-homepage-market theme-musician" style="width: 100%; box-sizing: border-box;">
-                                Hier geht's zum Event-Markt <i class="fa-solid fa-arrow-right"></i>
-                            </button>
+                            </div>
                         </div>
                     </div>
 
@@ -9121,8 +9158,8 @@ function renderLandingPage(container, onNavigate) {
                             <div style="display: flex; flex-direction: column; gap: 0.8rem; width: 100%;">
                                 
                                 <!-- Item 1 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
                                         <i class="fa-solid fa-users" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -9133,7 +9170,7 @@ function renderLandingPage(container, onNavigate) {
                                             Zu Musikern
                                         </div>
                                         <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Bands, DJs, Sänger, Duos etc.
+                                            Coverbands, Bands, DJs, Duos, Trios, Gitarristen, Sänger etc.
                                         </div>
                                     </div>
                                 </div>
@@ -9144,8 +9181,8 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Item 2 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
                                         <i class="fa-solid fa-sliders" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -9167,8 +9204,8 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Item 3 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
                                         <i class="fa-solid fa-comments" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -9179,7 +9216,7 @@ function renderLandingPage(container, onNavigate) {
                                             Zu Musikern
                                         </div>
                                         <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Name, Telefon, Mail, Nachricht etc.
+                                            Name, Telefon, Mail, Nachricht ...
                                         </div>
                                     </div>
                                 </div>
@@ -9190,8 +9227,8 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Item 4 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
                                         <i class="fa-solid fa-star" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -9213,8 +9250,8 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Item 5 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
                                         <i class="fa-solid fa-bolt" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -9236,8 +9273,8 @@ function renderLandingPage(container, onNavigate) {
                                 </div>
 
                                 <!-- Item 6 -->
-                                <div style="display: flex; align-items: flex-start; gap: 1rem; min-height: 54px; padding-top: 0.15rem;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35); margin-top: 2px;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
                                         <i class="fa-solid fa-percent" style="color: #2563eb; font-size: 1.0rem;"></i>
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
@@ -9253,20 +9290,17 @@ function renderLandingPage(container, onNavigate) {
                                     </div>
                                 </div>
 
+                                <!-- Button: Hier geht's zum Musiker-Markt -->
+                                <div style="margin-top: 1.5rem; text-align: center; width: 100%;">
+                                    <button id="btn-benefits-to-musicians" class="btn-homepage-market theme-organizer" style="width: 100%; box-sizing: border-box; margin: 0;">
+                                        Hier geht's zum Musiker-Markt <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </div>
+
                             </div>
                         </div>
-
-                        <div style="margin-top: 2rem; text-align: center; width: 100%;">
-                            <button id="btn-benefits-to-musicians" class="btn-homepage-market theme-organizer" style="width: 100%; box-sizing: border-box;">
-                                Hier geht's zum Musiker-Markt <i class="fa-solid fa-arrow-right"></i>
-                            </button>
-                        </div>
                     </div>
-
-                </div>
-            </div>
-
-            <!-- Founder Title: „Airbnb für Live-Musik“ -->
+<!-- Founder Title: „Airbnb für Live-Musik“ -->
             <div style="max-width: 900px; margin: 6rem auto -4rem; padding: 0 1.5rem; text-align: center;">
                 <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
                     „Airbnb für Live-Musik“
@@ -9368,7 +9402,7 @@ function renderLandingPage(container, onNavigate) {
         </div>
     `;
 
-    // Ensure hero logo is active and visible
+        // Ensure hero logo is active and visible
     const heroLogo = document.getElementById('hero-logo-svg');
     if (heroLogo) {
         heroLogo.style.opacity = '1';
@@ -9423,9 +9457,18 @@ function renderLandingPage(container, onNavigate) {
     const v2 = container.querySelector('#hero-bg-video-2');
 
     if (v1 && v2) {
-        // Preload next video in v2 immediately
-        v2.src = heroVideos[1];
-        v2.load();
+        // Optimization: Defer preloading the next video in v2 until v1 has started playing.
+        // This ensures 100% of bandwidth goes to loading the first background video quickly!
+        const preloadNextVideo = () => {
+            if (!v2.src || v2.src === '' || v2.src === window.location.href) {
+                v2.src = heroVideos[1];
+                v2.load();
+            }
+            v1.removeEventListener('playing', preloadNextVideo);
+        };
+        v1.addEventListener('playing', preloadNextVideo);
+        // Fallback: If playing doesn't trigger, preload after 5 seconds
+        setTimeout(preloadNextVideo, 5000);
 
         const transitionDuration = 1500; // 1.5s fade transition
         let isTransitioning = false;
@@ -9436,41 +9479,37 @@ function renderLandingPage(container, onNavigate) {
 
             // Start playing the hidden player
             hiddenPlayer.play().then(() => {
-                const onPlaying = () => {
-                    hiddenPlayer.removeEventListener('playing', onPlaying);
+                // Monitor frames to ensure we only fade after a frame has actually rendered!
+                const startFadeWhenReady = () => {
+                    if (hiddenPlayer.currentTime > 0) {
+                        // Cross-fade opacity
+                        hiddenPlayer.style.opacity = '1';
+                        activePlayer.style.opacity = '0';
 
-                    // Cross-fade opacity
-                    hiddenPlayer.style.opacity = '1';
-                    activePlayer.style.opacity = '0';
+                        // After CSS transition finishes (1.5s)
+                        setTimeout(() => {
+                            // Swap z-indexes: hidden player becomes foreground
+                            hiddenPlayer.style.zIndex = '2';
+                            activePlayer.style.zIndex = '1';
 
-                    // After CSS transition finishes (1.5s)
-                    setTimeout(() => {
-                        // Swap z-indexes: hidden player becomes foreground
-                        hiddenPlayer.style.zIndex = '2';
-                        activePlayer.style.zIndex = '1';
+                            // Preload the next video in activePlayer (which is now in background/hidden)
+                            currentVideoIndex = (currentVideoIndex + 1) % heroVideos.length;
+                            const nextIndex = (currentVideoIndex + 1) % heroVideos.length;
 
-                        // Preload the next video in activePlayer (which is now in background/hidden)
-                        currentVideoIndex = (currentVideoIndex + 1) % heroVideos.length;
-                        const nextIndex = (currentVideoIndex + 1) % heroVideos.length;
+                            activePlayer.src = heroVideos[nextIndex];
+                            activePlayer.load();
 
-                        activePlayer.src = heroVideos[nextIndex];
-                        activePlayer.load();
+                            isTransitioning = false;
 
-                        isTransitioning = false;
-
-                        // Start monitoring the new active player
-                        monitorPlayer(hiddenPlayer, activePlayer);
-                    }, transitionDuration);
-                };
-
-                hiddenPlayer.addEventListener('playing', onPlaying);
-                
-                // Fallback if playing event is delayed
-                setTimeout(() => {
-                    if (isTransitioning && hiddenPlayer.style.opacity !== '1') {
-                        onPlaying();
+                            // Start monitoring the new active player
+                            monitorPlayer(hiddenPlayer, activePlayer);
+                        }, transitionDuration);
+                    } else {
+                        // Check again on next frame
+                        requestAnimationFrame(startFadeWhenReady);
                     }
-                }, 300);
+                };
+                requestAnimationFrame(startFadeWhenReady);
             }).catch(err => {
                 console.log("Play failed, fallback:", err);
                 isTransitioning = false;
@@ -9504,6 +9543,7 @@ function renderLandingPage(container, onNavigate) {
         monitorPlayer(v1, v2);
     }
 }
+
 
 function getSelectOptions(list, selectedValues = []) {
     return list.map(item => `

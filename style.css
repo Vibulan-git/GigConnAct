@@ -4968,3 +4968,43 @@ input[type="range"].input-field {
 .tile-gallery-counter {
     display: none !important;
 }
+
+/* Hero Logo Animations for subsequent visits */
+@keyframes heroLogoSpinIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3) rotate(-180deg);
+    }
+    60% {
+        transform: scale(1.1) rotate(20deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+@keyframes heroLogoTextReveal {
+    0% {
+        opacity: 0;
+        letter-spacing: -6px;
+        transform: translateY(8px);
+    }
+    60% {
+        opacity: 0.8;
+    }
+    100% {
+        opacity: 1;
+        letter-spacing: -1.5px;
+        transform: translateY(0);
+    }
+}
+
+.animate-hero-logo {
+    transform-origin: center;
+    animation: heroLogoSpinIn 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-hero-text {
+    animation: heroLogoTextReveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
