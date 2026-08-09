@@ -11344,9 +11344,251 @@ function navigateAfterLogin() {
 }
 window.navigateAfterLogin = navigateAfterLogin;
 
+function isSubscriptionExpired(user) {
+    if (!user) return false;
+    if (user.role === 'organizer') return false;
+    
+    if (user.subscriptionCancelled && user.subscriptionEndDate) {
+        const parts = user.subscriptionEndDate.split('.');
+        if (parts.length === 3) {
+            const endDate = new Date(parts[2], parts[1] - 1, parts[0], 23, 59, 59);
+            return endDate < new Date();
+        }
+    }
+    return false;
+}
+window.isSubscriptionExpired = isSubscriptionExpired;
+
+function renderSubscriptionExpiredPage(container) {
+    const u = state.currentUser;
+    if (!u) return;
+
+    const getPlanDetails = (planKey) => {
+        switch (planKey) {
+            case 'plus': return { title: 'Plus', priceText: '7,99 € / Monat', price: '7.99', details: '6 Monate Vertragslaufzeit, 1. Monat kostenlos' };
+            case 'pro': return { title: 'Pro', priceText: '5,99 € / Monat', price: '5.99', details: '12 Monate Vertragslaufzeit, 1. Monat kostenlos' };
+            case 'premium': return { title: 'Premium', priceText: '4,99 € / Monat', price: '4.99', details: '12 Monate Vertragslaufzeit, 3 Monate kostenlos' };
+            default: return { title: 'Flex', priceText: '9,99 € / Monat', price: '9.99', details: '1 Monat Vertragslaufzeit, 1. Monat kostenlos' };
+        }
+    };
+    
+    const activePlan = u.subscriptionPlan || 'flex';
+    let selectedPlan = activePlan;
+    const planInfo = getPlanDetails(selectedPlan);
+
+    container.innerHTML = `
+        <div class="market-container" style="max-width: 800px; margin: 3rem auto; padding: 2.5rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg); text-align: center;">
+            <i class="fa-solid fa-lock" style="font-size: 3.5rem; color: var(--color-purple); margin-bottom: 1.5rem; filter: drop-shadow(0 0 10px rgba(124, 58, 237, 0.3));"></i>
+            <h1 style="font-family: var(--font-heading); color: var(--text-main); font-size: 2rem; margin-bottom: 1rem;">Zugang abgelaufen 🔒</h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; max-width: 600px; margin: 0 auto 2rem;">
+                Dein Abonnement für GigConnAct ist inaktiv. Um deine Inserate wieder zu aktivieren und Kontakt zu Veranstaltern aufzunehmen, wähle bitte einen Tarif und reaktiviere dein Abonnement.
+            </p>
+
+            <div style="text-align: left; margin-bottom: 2rem;">
+                <h4 style="font-family: var(--font-heading); font-size: 1rem; margin-bottom: 1rem; color: var(--text-main); text-align: center;">Wähle deinen Tarif:</h4>
+                <div class="subscription-cards" style="margin-bottom: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem;">
+                    <div class="subscription-card ${selectedPlan === 'flex' ? 'active' : ''}" data-plan="flex" style="cursor: pointer; padding: 1rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: 12px; transition: 0.2s; text-align: center;">
+                        <h5 style="margin: 0 0 0.5rem; font-size: 0.9rem;">Flex</h5>
+                        <div style="font-size: 1.1rem; font-weight: 700; color: var(--color-purple);">9,99 €</div>
+                        <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.3;">1 Monat Laufzeit, jederzeit kündbar.</p>
+                    </div>
+                    <div class="subscription-card ${selectedPlan === 'plus' ? 'active' : ''}" data-plan="plus" style="cursor: pointer; padding: 1rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: 12px; transition: 0.2s; text-align: center;">
+                        <h5 style="margin: 0 0 0.5rem; font-size: 0.9rem;">Plus</h5>
+                        <div style="font-size: 1.1rem; font-weight: 700; color: var(--color-purple);">7,99 €</div>
+                        <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.3;">6 Monate Laufzeit, 1. Monat kostenlos.</p>
+                    </div>
+                    <div class="subscription-card ${selectedPlan === 'pro' ? 'active' : ''}" data-plan="pro" style="cursor: pointer; padding: 1rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: 12px; transition: 0.2s; text-align: center;">
+                        <h5 style="margin: 0 0 0.5rem; font-size: 0.9rem;">Pro</h5>
+                        <div style="font-size: 1.1rem; font-weight: 700; color: var(--color-purple);">5,99 €</div>
+                        <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.3;">12 Monate Laufzeit, 1. Monat kostenlos.</p>
+                    </div>
+                </div>
+
+                <div id="expired-promo-code-box" style="display: none; margin-bottom: 1.5rem; background: rgba(124, 58, 237, 0.05); border: 1px dashed var(--color-purple); padding: 1rem; border-radius: var(--radius-md);">
+                    <h5 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--color-purple);"><i class="fa-brands fa-instagram"></i> Story-Aktion Premium-Tarif</h5>
+                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem;">
+                        Gib deinen Gutscheincode ein, um den Premium-Tarif für 4,99 € freizuschalten:
+                    </p>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="expired-promo-code" class="input-field" placeholder="Gutscheincode" style="margin:0; text-transform: uppercase;">
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-expired-apply-promo" style="margin:0; font-size:0.75rem; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple);">Prüfen</button>
+                    </div>
+                    <div id="expired-promo-status-msg" style="font-size: 0.7rem; margin-top: 0.4rem; display: none;"></div>
+                </div>
+
+                <div class="sepa-panel" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                    <h5 style="margin:0 0 0.5rem; font-size:0.85rem; color:var(--text-main);"><i class="fa-solid fa-circle-info"></i> SEPA Lastschrift-Mandat</h5>
+                    <p style="margin:0; font-size:0.7rem; color:var(--text-muted); line-height:1.4;" id="expired-sepa-text">
+                        Ich ermächtige GigConnAct, Zahlungen für das Musiker-Abonnement (${planInfo.priceText}) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GigConnAct auf mein Konto gezogenen Lastschriften einzulösen.
+                    </p>
+                </div>
+                <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 2rem; cursor: pointer;">
+                    <input type="checkbox" id="expired-sepa-consent" required checked style="margin-top: 0.15rem; width: auto; transform: scale(1.1); cursor: pointer;">
+                    <span id="expired-sepa-checkbox-label">Ich stimme dem SEPA-Lastschriftmandat für das ${planInfo.priceText} Abo zu.</span>
+                </label>
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: center; align-items: center; flex-wrap: wrap;">
+                <button class="btn btn-primary" id="btn-reactivate-expired-sub" style="margin: 0; background: var(--grad-primary); border: none; padding: 0.75rem 2rem; font-weight: 700; min-width: 200px;">
+                    <i class="fa-solid fa-arrow-rotate-right"></i> Abo reaktivieren & bezahlen
+                </button>
+                <button class="btn btn-glass" id="btn-expired-logout" style="margin: 0; border-color: rgba(255,255,255,0.15); color: var(--text-muted);">
+                    <i class="fa-solid fa-right-from-bracket"></i> Abmelden
+                </button>
+            </div>
+        </div>
+    `;
+
+    const subCards = container.querySelectorAll('.subscription-card');
+    const promoBox = document.getElementById('expired-promo-code-box');
+    const sepaText = document.getElementById('expired-sepa-text');
+    const sepaLabel = document.getElementById('expired-sepa-checkbox-label');
+    let isPromoApplied = false;
+
+    const updateUIForPlan = (planKey) => {
+        const details = getPlanDetails(planKey);
+        sepaText.textContent = `Ich ermächtige GigConnAct, Zahlungen für das Musiker-Abonnement (${details.priceText}) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GigConnAct auf mein Konto gezogenen Lastschriften einzulösen.`;
+        sepaLabel.textContent = `Ich stimme dem SEPA-Lastschriftmandat für das ${details.priceText} Abo zu.`;
+    };
+
+    subCards.forEach(card => {
+        card.addEventListener('click', () => {
+            subCards.forEach(c => {
+                c.classList.remove('active');
+                c.style.borderColor = 'var(--border-glass)';
+                c.style.background = 'rgba(255,255,255,0.02)';
+            });
+            card.classList.add('active');
+            card.style.borderColor = 'var(--color-purple)';
+            card.style.background = 'rgba(124, 58, 237, 0.05)';
+            
+            selectedPlan = card.getAttribute('data-plan');
+            updateUIForPlan(selectedPlan);
+
+            if (selectedPlan === 'premium' && !isPromoApplied) {
+                promoBox.style.display = 'block';
+            } else {
+                promoBox.style.display = 'none';
+            }
+        });
+    });
+
+    const promoBtn = document.getElementById('btn-expired-apply-promo');
+    const promoInput = document.getElementById('expired-promo-code');
+    const promoStatus = document.getElementById('expired-promo-status-msg');
+
+    if (promoBtn && promoInput && promoStatus) {
+        promoBtn.addEventListener('click', () => {
+            const code = promoInput.value.trim().toUpperCase();
+            if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code)) {
+                isPromoApplied = true;
+                promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif (4,99 €) freigeschaltet.";
+                promoStatus.style.color = "#10b981";
+                promoStatus.style.display = "block";
+                promoInput.disabled = true;
+                promoBtn.disabled = true;
+                
+                selectedPlan = 'premium';
+                updateUIForPlan('premium');
+            } else {
+                isPromoApplied = false;
+                promoStatus.textContent = "❌ Ungültiger Gutscheincode.";
+                promoStatus.style.color = "#ef4444";
+                promoStatus.style.display = "block";
+            }
+        });
+    }
+
+    const reactivateBtn = document.getElementById('btn-reactivate-expired-sub');
+    if (reactivateBtn) {
+        reactivateBtn.addEventListener('click', async () => {
+            const sepaChecked = document.getElementById('expired-sepa-consent').checked;
+            if (!sepaChecked) {
+                showToast({ title: "Zustimmung erforderlich", message: "Bitte stimme dem SEPA-Lastschriftmandat zu.", type: "error" });
+                return;
+            }
+
+            if (selectedPlan === 'premium' && !isPromoApplied) {
+                showToast({ title: "Gutscheincode erforderlich", message: "Bitte gib einen gültigen Instagram-Code ein, um den Premium-Tarif freizuschalten.", type: "error" });
+                return;
+            }
+
+            try {
+                reactivateBtn.disabled = true;
+                reactivateBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Reaktivierung läuft...`;
+
+                u.subscriptionCancelled = false;
+                u.subscriptionPlan = selectedPlan;
+                u.isPremium = true;
+                delete u.subscriptionEndDate;
+
+                const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+                const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+                if (idx !== -1) {
+                    registeredUsers[idx].subscriptionCancelled = false;
+                    registeredUsers[idx].subscriptionPlan = selectedPlan;
+                    registeredUsers[idx].isPremium = true;
+                    delete registeredUsers[idx].subscriptionEndDate;
+                    localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                }
+
+                if (typeof db !== 'undefined' && u.id) {
+                    await db.collection('users').doc(u.id).update({
+                        subscriptionCancelled: false,
+                        subscriptionPlan: selectedPlan,
+                        isPremium: true,
+                        subscriptionEndDate: firebase.firestore.FieldValue.delete()
+                    });
+                }
+
+                state.currentUser = u;
+                state.saveState();
+
+                showToast({
+                    title: "Abonnement reaktiviert! 🎉",
+                    message: "Vielen Dank! Dein Zugang ist wieder aktiv."
+                });
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+
+            } catch (err) {
+                console.error("Reactivation failed:", err);
+                reactivateBtn.disabled = false;
+                reactivateBtn.innerHTML = `<i class="fa-solid fa-arrow-rotate-right"></i> Abo reaktivieren & bezahlen`;
+                showToast({ title: "Fehler", message: "Die Reaktivierung ist fehlgeschlagen: " + err.message, type: "error" });
+            }
+        });
+    }
+
+    const logoutBtn = document.getElementById('btn-expired-logout');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            state.logout();
+            window.location.hash = '#/';
+        });
+    }
+}
+window.renderSubscriptionExpiredPage = renderSubscriptionExpiredPage;
+
 function navigate(page) {
     const mainContainer = document.getElementById('app-main');
     if (!mainContainer) return;
+
+    // Check if subscription has expired (DSGVO Variant A)
+    if (state && state.currentUser && isSubscriptionExpired(state.currentUser)) {
+        if (page === 'impressum') {
+            renderImpressumPage(mainContainer);
+            return;
+        }
+        if (page === 'datenschutz') {
+            renderDatenschutzPage(mainContainer);
+            return;
+        }
+        renderSubscriptionExpiredPage(mainContainer);
+        return;
+    }
 
     // Optimize redundant rendering: exit early if page hasn't changed, user session is identical, collection counts are identical, and active profile is identical
     const currentUserId = (state && state.currentUser) ? state.currentUser.id : null;
@@ -13694,6 +13936,7 @@ function renderDatenschutzPage(container) {
                 <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Speicherdauer</h3>
                 <p>
                     Soweit in dieser Datenschutzerklärung keine speziellere Speicherdauer genannt wurde, verbleiben Ihre personenbezogenen Daten bei uns, bis der Zweck für die Datenverarbeitung entfällt. Wenn Sie ein berechtigtes Löschbegehren geltend machen oder Ihre Einwilligung zur Datenverarbeitung widerrufen, werden Ihre Daten gelöscht, es sei denn, wir haben andere rechtlich zulässige Gründe für die Speicherung Ihrer personenbezogenen Daten (z. B. steuer- oder handelsrechtliche Aufbewahrungsfristen).
+                    Gekündigte Profile verbleiben nach Ablauf des Abonnement-Zeitraums in einem inaktiven Zustand (inaktives Benutzerkonto), um dem Nutzer eine spätere Reaktivierung zu ermöglichen und den Missbrauch von kostenlosen Probephasen zu verhindern. Sie können Ihr Konto und alle hiermit verbundenen Daten jederzeit selbstständig über die Funktion „Konto löschen“ im Profilbereich unwiderruflich entfernen.
                 </p>
 
                 <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Rechtsgrundlagen der Datenverarbeitung auf dieser Website</h3>
