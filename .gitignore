@@ -5,3 +5,13 @@ firebase-tools-instant-win.exe
 firebase-debug.log
 ui-debug.log
 .firebaserc.local
+
+# Dependency directories
+node_modules/
+functions/node_modules/
+
+# Temp scripts
+verify_deployed.js
+check_de_domain.js
+query_match.js
+firepit-log.txt

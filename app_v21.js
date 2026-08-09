@@ -127,6 +127,7 @@ function validateAndProcessAudio(file, callback) {
         });
 
         let url = null;
+        let uploadErrorDetail = null;
         if (typeof firebase !== 'undefined' && firebase.storage) {
             try {
                 const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anonymous';
@@ -136,6 +137,7 @@ function validateAndProcessAudio(file, callback) {
                 url = await snapshot.ref.getDownloadURL();
             } catch (storageError) {
                 console.warn("Firebase Storage failed, falling back to data/blob URL:", storageError);
+                uploadErrorDetail = storageError.message || storageError;
             }
         }
 
@@ -157,7 +159,7 @@ function validateAndProcessAudio(file, callback) {
                 url = URL.createObjectURL(file);
                 showToast({
                     title: "Audio geladen ⚠️",
-                    message: "Die Datei ist groß und Firebase Storage ist nicht aktiv. Nur in dieser Sitzung abspielbar."
+                    message: "Firebase Storage fehlgeschlagen. Nur in dieser Sitzung abspielbar: " + (uploadErrorDetail || "Kein aktiver Storage-Dienst.")
                 });
             }
         } else {
@@ -6003,7 +6005,7 @@ window.openItemDetailModal = function(id, isEvents) {
                     <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,0.9) 0%, transparent 60%);"></div>
                     <div style="position: absolute; bottom: 20px; left: 25px; right: 25px;">
                         <span style="display: inline-block; padding: 0.3rem 0.8rem; border-radius: 20px; background: ${roleColor}; color: #fff; font-size: 0.8rem; font-weight: 800; margin-bottom: 0.5rem;">
-                            ${isEvents ? (item.eventType || 'Event') : (item.category || 'Musiker')}
+                            ${isEvents ? (item.eventType || 'Event') : (item.type || item.category || 'Musiker')}
                         </span>
                         <h2 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: #ffffff; margin: 0;">
                             ${item.name || item.title || ''}
@@ -6091,6 +6093,20 @@ window.openItemDetailModal = function(id, isEvents) {
                         <div>
                             <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">Technik</span>
                             <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-microchip" style="color: ${roleColor};"></i> ${(item.technik && item.technik.length > 0) ? (Array.isArray(item.technik) ? item.technik.join(', ') : item.technik) : 'Technik ist noch unklar'}</strong>
+                        </div>
+
+                        <div>
+                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">${isEvents ? 'Gesuchter Musiker-Typ' : 'Musiker-Typ'}</span>
+                            <strong style="font-size: 0.9rem; color: #fff;">
+                                <i class="fa-solid fa-guitar" style="color: ${roleColor};"></i> 
+                                ${isEvents 
+                                    ? ((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) 
+                                        ? item.musicianTypes.join(', ') 
+                                        : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' 
+                                            ? item.musicianTypes 
+                                            : (item.musicianType || 'Solo / Band')))
+                                    : (item.type || item.category || 'Solo / Band')}
+                            </strong>
                         </div>
                     </div>
 
@@ -12305,7 +12321,12 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                             <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
                             <span>${item.type || item.eventType || 'Event'}</span>
                         </div>
-                        <!-- 3. Datum -->
+                        <!-- 3. Gesuchter Musiker-Typ -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
+                            <span>Gesucht: ${(Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes.join(', ') : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band'))}</span>
+                        </div>
+                        <!-- 4. Datum -->
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
                             <span>${dateDisplay}</span>
@@ -12875,6 +12896,7 @@ function validateAndProcessVideo(file, callback) {
 
     (async () => {
         let url = null;
+        let uploadErrorDetail = null;
         if (typeof firebase !== 'undefined' && firebase.storage) {
             try {
                 const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anonymous';
@@ -12884,6 +12906,7 @@ function validateAndProcessVideo(file, callback) {
                 url = await snapshot.ref.getDownloadURL();
             } catch (storageError) {
                 console.warn("Firebase Storage failed, falling back to local object URL:", storageError);
+                uploadErrorDetail = storageError.message || storageError;
             }
         }
 
@@ -12892,7 +12915,7 @@ function validateAndProcessVideo(file, callback) {
             url = URL.createObjectURL(file);
             showToast({
                 title: "Video geladen ⚠️",
-                message: "Firebase Storage nicht aktiv. Video nur in dieser Sitzung abspielbar."
+                message: "Firebase Storage fehlgeschlagen. Video nur in dieser Sitzung abspielbar: " + (uploadErrorDetail || "Kein aktiver Storage-Dienst.")
             });
         } else {
             showToast({
@@ -13136,6 +13159,9 @@ window.showMediaModal = function(itemId, isEvents) {
         if (photos.length > 0) {
             item.profilePic = photos[0];
             item.image = photos[0];
+        } else {
+            item.profilePic = '';
+            item.image = '';
         }
         item.videos = videos;
         if (!isEvents) {
@@ -13143,8 +13169,21 @@ window.showMediaModal = function(itemId, isEvents) {
         }
 
         if (isEvents) {
+            state.updateEvent(item.id, {
+                photos: photos,
+                profilePic: item.profilePic,
+                image: item.image,
+                videos: videos
+            });
             localStorage.setItem('GigConnAct_events', JSON.stringify(state.events));
         } else {
+            state.updateMusician(item.id, {
+                photos: photos,
+                profilePic: item.profilePic,
+                image: item.image,
+                videos: videos,
+                audio: audios
+            });
             localStorage.setItem('GigConnAct_musicians', JSON.stringify(state.musicians));
         }
 
