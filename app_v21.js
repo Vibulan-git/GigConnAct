@@ -4178,6 +4178,8 @@ function renderLandingPage(container, onNavigate) {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
 <!-- Founder Title: „Airbnb für Live-Musik“ -->
             <div style="max-width: 900px; margin: 6rem auto -4rem; padding: 0 1.5rem; text-align: center;">
                 <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
