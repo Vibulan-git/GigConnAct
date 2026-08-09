@@ -71,14 +71,22 @@ function getEstimatedDistance(city1, city2) {
 
 // Helper to calculate match score matching frontend calculateMatch logic
 function calculateMatch(musician, event, searcherRole = 'musician') {
+    if (!musician || !event) return 0;
+
     // 1. Musiker-Typ (20 %)
     let typeScore = 0;
-    const eventTypes = event.musicianTypes || [];
-    if (musician.type) {
-        const musTypes = musician.type.split(',').map(s => s.trim().toLowerCase());
-        if (eventTypes.some(t => musTypes.includes(t.toLowerCase()))) {
-            typeScore = 20;
-        }
+    const eventTypesRaw = event.musicianTypes || [];
+    const eventTypes = Array.isArray(eventTypesRaw) 
+        ? eventTypesRaw.map(t => String(t).trim().toLowerCase())
+        : (typeof eventTypesRaw === 'string' ? eventTypesRaw.split(',').map(t => t.trim().toLowerCase()) : []);
+
+    const musTypesRaw = musician.type || musician.musicianTypes || '';
+    const musTypes = Array.isArray(musTypesRaw)
+        ? musTypesRaw.map(t => String(t).trim().toLowerCase())
+        : (typeof musTypesRaw === 'string' ? musTypesRaw.split(',').map(t => t.trim().toLowerCase()) : []);
+
+    if (eventTypes.some(t => musTypes.includes(t))) {
+        typeScore = 20;
     }
 
     // 2. Ort (10 %)
@@ -100,7 +108,7 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
     const evGenres = event.genres || [];
     const musGenres = musician.genres || [];
     if (evGenres.length > 0) {
-        const commonGenres = evGenres.filter(g => musGenres.some(mg => mg.toLowerCase() === g.toLowerCase()));
+        const commonGenres = evGenres.filter(g => musGenres.some(mg => String(mg).toLowerCase() === String(g).toLowerCase()));
         genresScore = (commonGenres.length / evGenres.length) * 20;
     }
 
@@ -109,7 +117,7 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
     const evInst = event.instruments || [];
     const musInst = musician.instruments || [];
     if (evInst.length > 0) {
-        const commonInst = evInst.filter(i => musInst.some(mi => mi.toLowerCase() === i.toLowerCase()));
+        const commonInst = evInst.filter(i => musInst.some(mi => String(mi).toLowerCase() === String(i).toLowerCase()));
         instScore = (commonInst.length / evInst.length) * 5;
     }
 
@@ -141,13 +149,24 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
 
     // 7. Event-Typ (20 %)
     let eventTypeScore = 0;
-    const musEventTypes = musician.eventTypes || [];
+    const musEventTypesRaw = musician.eventTypes || [];
+    const musEventTypes = Array.isArray(musEventTypesRaw)
+        ? musEventTypesRaw.map(t => String(t).trim().toLowerCase())
+        : (typeof musEventTypesRaw === 'string' ? musEventTypesRaw.split(',').map(t => t.trim().toLowerCase()) : []);
+
     const evType = event.type || event.eventType || '';
     let evTypes = event.eventTypes;
     if (!evTypes) {
-        evTypes = evType ? evType.split(',').map(s => s.trim()) : [];
+        evTypes = Array.isArray(evType)
+            ? evType.map(t => String(t).trim().toLowerCase())
+            : (typeof evType === 'string' ? evType.split(',').map(s => s.trim().toLowerCase()) : []);
+    } else {
+        evTypes = Array.isArray(evTypes)
+            ? evTypes.map(t => String(t).trim().toLowerCase())
+            : (typeof evTypes === 'string' ? evTypes.split(',').map(s => s.trim().toLowerCase()) : []);
     }
-    if (evTypes.some(t => musEventTypes.some(mt => mt.toLowerCase() === t.toLowerCase()))) {
+
+    if (evTypes.some(t => musEventTypes.includes(t.toLowerCase()))) {
         eventTypeScore = 20;
     }
 
