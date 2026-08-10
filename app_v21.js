@@ -3125,6 +3125,27 @@ function getWeekdayFromDate(dateStr) {
     return weekdays[date.getDay()];
 }
 
+function expandList(arr) {
+    if (!arr) return [];
+    const sourceArr = Array.isArray(arr) ? arr : [arr];
+    let result = [];
+    sourceArr.forEach(item => {
+        const s = String(item).trim();
+        const sLower = s.toLowerCase();
+        if (sLower === 'klavier/piano') {
+            result.push('klavier');
+        } else if (sLower === 'percussion/cajón' || sLower === 'percussion/cajon' || sLower === 'cajon') {
+            result.push('percussion');
+        } else if (sLower === 'r&b/soul') {
+            result.push('r&b');
+            result.push('soul');
+        } else {
+            result.push(sLower);
+        }
+    });
+    return result;
+}
+
 function calculateMatch(musician, event, searcherRole = 'musician') {
     if (!musician || !event) {
         return { score: 0, breakdown: {}, matchedCount: 0 };
@@ -3162,19 +3183,19 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
 
     // 3. Genres (20 %)
     let genresScore = 0;
-    const evGenres = event.genres || [];
-    const musGenres = musician.genres || [];
+    const evGenres = expandList(event.genres);
+    const musGenres = expandList(musician.genres);
     if (evGenres.length > 0) {
-        const commonGenres = evGenres.filter(g => musGenres.some(mg => String(mg).toLowerCase() === String(g).toLowerCase()));
+        const commonGenres = evGenres.filter(g => musGenres.includes(g));
         genresScore = (commonGenres.length / evGenres.length) * 20;
     }
 
     // 4. Instrumente (5 %)
     let instScore = 0;
-    const evInst = event.instruments || [];
-    const musInst = musician.instruments || [];
+    const evInst = expandList(event.instruments);
+    const musInst = expandList(musician.instruments);
     if (evInst.length > 0) {
-        const commonInst = evInst.filter(i => musInst.some(mi => String(mi).toLowerCase() === String(i).toLowerCase()));
+        const commonInst = evInst.filter(i => musInst.includes(i));
         instScore = (commonInst.length / evInst.length) * 5;
     }
 
@@ -5141,7 +5162,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Genres</label>
                                 <div class="checkbox-tag-grid" id="filter-genres-grid">
-                                    ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
+                                    ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterGenres" value="${g}">
                                             <span>${g}</span>
@@ -5153,7 +5174,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Instrumente</label>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid">
-                                    ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                    ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterInstruments" value="${ins}">
                                             <span>${ins}</span>
@@ -5268,7 +5289,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Genres</label>
                                 <div class="checkbox-tag-grid" id="filter-genres-grid-m">
-                                    ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
+                                    ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterGenresM" value="${g}">
                                             <span>${g}</span>
@@ -5280,7 +5301,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Instrumente</label>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
-                                    ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                    ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterInstrumentsM" value="${ins}">
                                             <span>${ins}</span>
@@ -7346,14 +7367,6 @@ function renderOrganizerEventItem(e, isActive) {
                             <span>${formattedDate}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Spieldauer: ${durationDisplay}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-euro-sign" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Budget: ${budgetDisplay}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-tag" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>Typ: ${e.type}</span>
                         </div>
@@ -7361,9 +7374,17 @@ function renderOrganizerEventItem(e, isActive) {
                             <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">Musikgenres: ${formatTruncatedValue(genresArr, themeColor, e.id, 'genres')}</span>
                         </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Spieldauer: ${durationDisplay}</span>
+                        </div>
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, e.id, 'tech') : 'nach Vereinbarung'}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-euro-sign" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Budget: ${budgetDisplay}</span>
                         </div>
                     </div>
                 </div>
@@ -7799,8 +7820,8 @@ function renderMyMusicianItem(m, isActive) {
                             <span>${m.type}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-euro-sign" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${budgetDisplay}</span>
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>${availDaysStr}</span>
                         </div>
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
@@ -7810,13 +7831,13 @@ function renderMyMusicianItem(m, isActive) {
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>${durationDisplay}</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${availDaysStr}</span>
-                        </div>
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, m.id, 'tech') : 'nach Vereinbarung'}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-euro-sign" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>${budgetDisplay}</span>
                         </div>
                     </div>
                 </div>
@@ -8075,7 +8096,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                             <span onclick="window.toggleSelectAll('grid-genres', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-genres">
-                            ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
+                            ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
                                 const isChecked = musicianObj?.genres?.includes(g);
                                 return `
                                     <label class="tag-pill-checkbox">
@@ -8093,7 +8114,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                             <span onclick="window.toggleSelectAll('grid-instruments', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-instruments">
-                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
+                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
                                 const isChecked = musicianObj?.instruments?.includes(ins);
                                 return `
                                     <label class="tag-pill-checkbox">
@@ -8676,7 +8697,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                             <span onclick="window.toggleSelectAll('grid-org-genres', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-genres">
-                            ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
+                            ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
                                 const isChecked = eventObj?.genres?.includes(g);
                                 return `
                                     <label class="tag-pill-checkbox">
@@ -8694,7 +8715,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                             <span onclick="window.toggleSelectAll('grid-org-instruments', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-instruments">
-                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
+                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
                                 const isChecked = eventObj?.instruments?.includes(ins);
                                 return `
                                     <label class="tag-pill-checkbox">
@@ -9418,7 +9439,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <div class="form-group">
                             <label>Genres</label>
                             <div class="checkbox-tag-grid" id="grid-genres">
-                                ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
+                                ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="genres" value="${g}">
                                         <span>${g}</span>
@@ -9430,7 +9451,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <div class="form-group">
                             <label>Instrumente</label>
                             <div class="checkbox-tag-grid" id="grid-instruments">
-                                ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="instruments" value="${ins}">
                                         <span>${ins}</span>
@@ -9652,7 +9673,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <div class="form-group">
                             <label>Genres</label>
                             <div class="checkbox-tag-grid" id="grid-org-genres">
-                                ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
+                                ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgGenres" value="${g}">
                                         <span>${g}</span>
@@ -9664,7 +9685,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <div class="form-group">
                             <label>Instrumente</label>
                             <div class="checkbox-tag-grid" id="grid-org-instruments">
-                                ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgInstruments" value="${ins}">
                                         <span>${ins}</span>
@@ -12928,11 +12949,20 @@ function renderPostbox(container) {
 function formatTruncatedValue(val, themeColor, itemId, uniqueType) {
     if (!val) return 'Keine Angabe';
     
+    const mapVal = (v) => {
+        const s = String(v).trim();
+        const sLower = s.toLowerCase();
+        if (sLower === 'klavier/piano') return 'Klavier';
+        if (sLower === 'percussion/cajón' || sLower === 'percussion/cajon' || sLower === 'cajon') return 'Percussion';
+        if (sLower === 'r&b/soul') return 'R&B, Soul';
+        return s;
+    };
+
     let fullText = '';
     if (Array.isArray(val)) {
-        fullText = val.join(', ');
+        fullText = val.map(mapVal).join(', ');
     } else {
-        fullText = String(val).trim();
+        fullText = mapVal(val);
     }
     
     if (fullText.length === 0) return 'Keine Angabe';
@@ -13173,20 +13203,20 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
                         
                         ${isEvents ? `
-                        <!-- 2. Event-Art (Event-Typ) -->
+                        <!-- 2. Datum -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'date')}</span>
+                        </div>
+                        <!-- 3. Event-Art (Event-Typ) -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${formatTruncatedValue(item.type || item.eventType || 'Event', themeColor, item.id, 'eventtype')}</span>
                         </div>
-                        <!-- 3. Gesuchter Musiker-Typ -->
+                        <!-- 4. Gesuchter Musiker-Typ -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">Gesucht: ${formatTruncatedValue((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band')), themeColor, item.id, 'musiciantype')}</span>
-                        </div>
-                        <!-- 4. Datum -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'date')}</span>
                         </div>
                         ` : `
                         <!-- 2. Musiker-Typ -->
@@ -13217,16 +13247,17 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
                             <span>${durationDisplay}</span>
                         </div>
-                        <!-- 7. Budget / Gage -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${budgetDisplay}</span>
-                        </div>
                         
-                        <!-- 8. Technik -->
+                        <!-- 7. Technik -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-microchip" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, item.id, 'tech') : 'Technik ist noch unklar'}</span>
+                        </div>
+
+                        <!-- 8. Budget / Gage (last) -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
+                            <span>${budgetDisplay}</span>
                         </div>
                     </div>
                 </div>

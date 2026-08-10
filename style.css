@@ -3583,6 +3583,8 @@ body {
     backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
     border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
     border-radius: 16px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
     gap: 1rem;
@@ -3814,10 +3816,10 @@ body {
         box-sizing: border-box !important;
     }
 
-    /* Make controls row compact to prevent side-by-side overflow */
     .market-controls-row {
         gap: 0.35rem !important;
         width: 100% !important;
+        max-width: 100% !important;
         box-sizing: border-box !important;
         flex-wrap: nowrap !important;
         padding: 0.4rem 0.5rem !important;
