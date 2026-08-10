@@ -12877,8 +12877,11 @@ function renderPostbox(container) {
                     <div style="padding: 1rem; border-bottom: 1px solid var(--border-glass); background: rgba(255,255,255,0.01);">
                         <h3 style="margin: 0 0 0.8rem; font-size: 1.15rem; font-family: var(--font-heading); display:flex; align-items:center; gap:0.5rem; color:var(--text-main); justify-content: space-between;">
                             <span style="display:flex; align-items:baseline; gap:0.4rem; flex-wrap: wrap;">
-                                <span style="display:flex; align-items:center; gap:0.5rem;"><i class="fa-solid fa-envelope ${isMusician ? 'text-purple' : 'text-cyan'}"></i> Postfach</span>
-                                <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(${receivedChats.length} erhalten / ${sentChats.length} gesendet)</span>
+                                <span style="display:flex; align-items:center; gap:0.5rem;">
+                                    <i class="fa-solid fa-envelope ${isMusician ? 'text-purple' : 'text-cyan'}"></i> 
+                                    Postfach 
+                                    <span style="font-size: 1.15rem; color: ${isMusician ? 'var(--color-purple)' : 'var(--color-cyan)'}; font-weight: 800; margin-left: 0.2rem;">(${currentCategoryChats.length})</span>
+                                </span>
                             </span>
                             <i class="fa-solid fa-sliders" id="btn-toggle-postbox-filters" style="color: ${window.postboxShowFilters ? (isMusician ? 'var(--color-purple)' : 'var(--color-cyan)') : 'var(--text-muted)'}; cursor: pointer; font-size: 1.05rem; transition: color 0.2s;" title="Filter ein-/ausblenden"></i>
                         </h3>
@@ -12887,13 +12890,13 @@ function renderPostbox(container) {
                         <!-- 3 Category Tabs (3 Columns) -->
                         <div id="postbox-filters-container" style="display: ${window.postboxShowFilters ? 'grid' : 'none'}; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;">
                             <button class="btn btn-sm ${activeTab === 'all' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="all" style="font-size: 0.72rem; padding: 0.4rem 0.1rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Alle Nachrichten">
-                                ðŸ“‚ Alle (${nonSystemChats.length})
+                                <i class="fa-solid fa-folder-open" style="margin-right: 4px;"></i> Alle
                             </button>
-                            <button class="btn btn-sm ${activeTab === 'received' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="received" style="font-size: 0.72rem; padding: 0.4rem 0.1rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(34, 197, 94, 0.35); color: #22c55e;" title="Empfangene Anfragen">
-                                ðŸ“¥ Empfangen (${receivedChats.length})
+                            <button class="btn btn-sm ${activeTab === 'received' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="received" style="font-size: 0.72rem; padding: 0.4rem 0.1rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(34, 197, 94, 0.35); color: ${activeTab === 'received' ? '#ffffff' : '#22c55e'};" title="Empfangene Anfragen">
+                                <i class="fa-solid fa-inbox" style="margin-right: 4px;"></i> Empfangen
                             </button>
-                            <button class="btn btn-sm ${activeTab === 'sent' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="sent" style="font-size: 0.72rem; padding: 0.4rem 0.1rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(239, 68, 68, 0.35); color: #ef4444;" title="Versendete Anfragen">
-                                ðŸ“¤ Versendet (${sentChats.length})
+                            <button class="btn btn-sm ${activeTab === 'sent' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="sent" style="font-size: 0.72rem; padding: 0.4rem 0.1rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(239, 68, 68, 0.35); color: ${activeTab === 'sent' ? '#ffffff' : '#ef4444'};" title="Versendete Anfragen">
+                                <i class="fa-solid fa-paper-plane" style="margin-right: 4px;"></i> Versendet
                             </button>
                         </div>
                     </div>
