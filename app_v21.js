@@ -240,6 +240,7 @@ window.deleteRegMedia = function(role, type, idx) {
     const list = window.registrationMedia[role][listKey];
     list.splice(idx, 1);
     window.updateRegMediaPreview(role);
+};
 window.toggleSelectAll = function(gridId, linkEl) {
     const grid = document.getElementById(gridId);
     if (!grid) return;
