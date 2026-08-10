@@ -5140,10 +5140,10 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 1rem 5rem; box-sizing: border-box;">
             
-            <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 1.5rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0px; -webkit-overflow-scrolling: touch;">
+            <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.75rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0px; -webkit-overflow-scrolling: touch;">
                 
                 <!-- 1. Ergebnisse als Zahl + Label at the very left -->
-                <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; padding-right: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.7rem; flex-shrink: 0; padding-right: 0.5rem; padding-left: 0.25rem;">
                     <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; text-align: center; padding: 0.2rem 0.55rem; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; min-width: 32px; white-space: nowrap; margin: 0; line-height: 1.2;">
                         ${items.length}
                     </div>
