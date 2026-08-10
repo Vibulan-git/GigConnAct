@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -2643,7 +2643,8 @@ body {
 .market-layout-container {
     display: grid;
     grid-template-columns: 280px 1fr;
-    gap: 2rem;
+    column-gap: 3rem;
+    row-gap: 2rem;
     align-items: start;
 }
 
@@ -3735,13 +3736,13 @@ body {
 
 /* Force dark text and theme-based headings inside the white filter card globally */
 .theme-organizer .market-filter-card label {
-    color: #1e3a8a !important; /* Dunkelblau / Dark navy blue */
+    color: #2563eb !important; /* Dunkelblau / Dark navy blue */
     font-weight: 900 !important;
     display: block;
     font-size: 0.85rem;
 }
 .theme-musician .market-filter-card label {
-    color: #5b21b6 !important; /* Dunkellila / Dark purple */
+    color: #7c3aed !important; /* Dunkellila / Dark purple */
     font-weight: 900 !important;
     display: block;
     font-size: 0.85rem;
@@ -3757,10 +3758,10 @@ body {
 
 /* Specific slider value display spans in theme colors */
 .theme-organizer .market-filter-card .slider-value-display span {
-    color: #1e3a8a !important;
+    color: #2563eb !important;
 }
 .theme-musician .market-filter-card .slider-value-display span {
-    color: #5b21b6 !important;
+    color: #7c3aed !important;
 }
 
 /* Keep tag pills looking great on white background globally (White inactive background) */
@@ -4887,7 +4888,7 @@ input[type="range"].input-field {
 }
 .subscription-card.active .btn-sub-select:hover {
     background: #5b21b6 !important;
-    border-color: #5b21b6 !important;
+    border-color: #7c3aed !important;
     box-shadow: 0 4px 12px rgba(109, 40, 217, 0.35) !important;
 }
 
@@ -7575,8 +7576,55 @@ class StateManager {
         this.notify();
     }
 
-    isUnlocked(targetId) {
-        return !!this.currentUser;
+        isUnlocked(targetId) {
+        if (!this.currentUser) return false;
+        
+        // Find if this is the user's own profile or event
+        const isOwn = (this.musicians || []).some(m => m.id === targetId && m.creatorId === this.currentUser.id) ||
+                      (this.events || []).some(e => e.id === targetId && e.creatorId === this.currentUser.id) ||
+                      this.currentUser.profileId === targetId;
+        if (isOwn) return true;
+        
+        // If organizer, unlimited unlock
+        if (this.currentUser.role === 'organizer') return true;
+        
+        // Otherwise check unlocked list
+        const unlockedList = this.currentUser.unlockedContacts || [];
+        return unlockedList.includes(targetId);
+    }
+
+    async unlockContact(targetId) {
+        if (!this.currentUser) return { success: false };
+        if (this.isUnlocked(targetId)) return { success: true };
+        
+        if (this.currentUser.role === 'musician') {
+            const credits = this.currentUser.credits || 0;
+            if (credits < 1) return { success: false, message: "Nicht genÃ¼gend Credits." };
+            
+            this.currentUser.credits = credits - 1;
+            if (!this.currentUser.unlockedContacts) this.currentUser.unlockedContacts = [];
+            this.currentUser.unlockedContacts.push(targetId);
+            
+            // Save to Firestore & local storage
+            db.collection('users').doc(this.currentUser.id).update({
+                credits: this.currentUser.credits,
+                unlockedContacts: this.currentUser.unlockedContacts
+            }).catch(err => console.error("unlockContact Firestore update failed:", err));
+            
+            // Sync local storage
+            const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+            const idx = registeredUsers.findIndex(usr => usr.id === this.currentUser.id);
+            if (idx !== -1) {
+                registeredUsers[idx].credits = this.currentUser.credits;
+                registeredUsers[idx].unlockedContacts = this.currentUser.unlockedContacts;
+                localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+            }
+            localStorage.setItem('GigConnAct_current_user', JSON.stringify(this.currentUser));
+            
+            this.notify();
+            return { success: true };
+        }
+        return { success: false };
     }
 
     markChatAsRead(chatId) {
@@ -10085,11 +10133,17 @@ function renderMarket(container, type, onNavigate) {
                         <div style="display: flex; flex-direction: column; gap: 0.8rem; padding: 1rem;">
                             
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Event-Typ</label>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                    <label style="font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Event-Typ</label>
+                                    <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">Alle</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                    </div>
+                                </div>
                                 <div class="checkbox-tag-grid" id="filter-event-type-grid">
                                     ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterEventTypes" value="${t}">
+                                            <input type="checkbox" name="filterEventTypes" value="${t}" checked checked>
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -10097,7 +10151,7 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Datum / Kalender</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Datum / Kalender</label>
                                 <div class="filter-calendar-widget" id="filter-calendar-widget">
                                     <div class="filter-calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                         <button type="button" class="btn-cal-prev" id="btn-filter-cal-prev" style="background: none; border: none; cursor: pointer; color: #64748b; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-chevron-left"></i></button>
@@ -10113,16 +10167,22 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Ort / PLZ</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Ort / PLZ</label>
                                 <input type="text" id="filter-location" placeholder="z.B. Köln, Berlin..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Genres</label>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                    <label style="font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Genres</label>
+                                    <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">Alle</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                    </div>
+                                </div>
                                 <div class="checkbox-tag-grid" id="filter-genres-grid">
                                     ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterGenres" value="${g}">
+                                            <input type="checkbox" name="filterGenres" value="${g}" checked>
                                             <span>${g}</span>
                                         </label>
                                     `).join('')}
@@ -10130,11 +10190,17 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Instrumente</label>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                    <label style="font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Instrumente</label>
+                                    <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">Alle</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                    </div>
+                                </div>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid">
                                     ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/CajÃ³n', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterInstruments" value="${ins}">
+                                            <input type="checkbox" name="filterInstruments" value="${ins}" checked>
                                             <span>${ins}</span>
                                         </label>
                                     `).join('')}
@@ -10143,8 +10209,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Spieldauer (Std.)</label>
-                                    <span id="val-filter-duration" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0,5 - 10,0 Std.</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Spieldauer (Std.)</label>
+                                    <span id="val-filter-duration" style="font-size: 0.85rem; font-weight: 700; color: #7c3aed;">0,5 - 10,0 Std.</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-duration-container">
                                     <div class="dual-range-track"></div>
@@ -10156,8 +10222,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Budget (€)</label>
-                                    <span id="val-filter-budget" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0 - 5.000+ €</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Budget (€)</label>
+                                    <span id="val-filter-budget" style="font-size: 0.85rem; font-weight: 700; color: #7c3aed;">0 - 5.000+ €</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-budget-container">
                                     <div class="dual-range-track"></div>
@@ -10169,8 +10235,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
-                                    <span id="val-filter-publikum" style="font-size: 0.85rem; font-weight: 700; color: #5b21b6;">0 - 500+</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
+                                    <span id="val-filter-publikum" style="font-size: 0.85rem; font-weight: 700; color: #7c3aed;">0 - 500+</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-publikum-container">
                                     <div class="dual-range-track"></div>
@@ -10181,11 +10247,17 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Technik</label>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                    <label style="font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Technik</label>
+                                    <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">Alle</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                    </div>
+                                </div>
                                 <div class="checkbox-tag-grid" id="filter-technik-grid">
                                     ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterTechnik" value="${t}">
+                                            <input type="checkbox" name="filterTechnik" value="${t}" checked>
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -10194,7 +10266,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK (WEISSES EINGABEFELD) -->
                             <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Suchbegriffe</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Suchbegriffe</label>
                                 <input type="text" id="filter-keyword" placeholder="z.B. Hochzeit, Sax, Rock..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
@@ -10204,11 +10276,17 @@ function renderMarket(container, type, onNavigate) {
                         <div style="display: flex; flex-direction: column; gap: 0.8rem; padding: 1rem;">
                             
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Musiker-Typ</label>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                    <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Musiker-Typ</label>
+                                    <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">Alle</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                    </div>
+                                </div>
                                 <div class="checkbox-tag-grid" id="filter-musician-type-grid">
                                     ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterMusicianTypes" value="${t}">
+                                            <input type="checkbox" name="filterMusicianTypes" value="${t}" checked>
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -10216,7 +10294,7 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Datum / Kalender</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Datum / Kalender</label>
                                 <div class="filter-calendar-widget" id="filter-calendar-widget">
                                     <div class="filter-calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                         <button type="button" class="btn-cal-prev" id="btn-filter-cal-prev" style="background: none; border: none; cursor: pointer; color: #64748b; padding: 0.2rem 0.5rem;"><i class="fa-solid fa-chevron-left"></i></button>
@@ -10232,24 +10310,30 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Ort</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Ort</label>
                                 <input type="text" id="filter-location-m" placeholder="z.B. München, Köln..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Maximaler Umkreis</label>
-                                    <span id="val-filter-radius-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">500 km</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Maximaler Umkreis</label>
+                                    <span id="val-filter-radius-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">500 km</span>
                                 </div>
                                 <input type="range" class="form-input" id="input-filter-radius-m" min="0" max="500" step="50" value="500" style="width: 100%; accent-color: #2563eb;">
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Genres</label>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                    <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Genres</label>
+                                    <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">Alle</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                    </div>
+                                </div>
                                 <div class="checkbox-tag-grid" id="filter-genres-grid-m">
                                     ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterGenresM" value="${g}">
+                                            <input type="checkbox" name="filterGenresM" value="${g}" checked>
                                             <span>${g}</span>
                                         </label>
                                     `).join('')}
@@ -10257,11 +10341,17 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Instrumente</label>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                    <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Instrumente</label>
+                                    <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">Alle</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                    </div>
+                                </div>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
                                     ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/CajÃ³n', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterInstrumentsM" value="${ins}">
+                                            <input type="checkbox" name="filterInstrumentsM" value="${ins}" checked>
                                             <span>${ins}</span>
                                         </label>
                                     `).join('')}
@@ -10270,8 +10360,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Spieldauer (Std.)</label>
-                                    <span id="val-filter-duration-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0,5 - 10,0 Std.</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Spieldauer (Std.)</label>
+                                    <span id="val-filter-duration-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">0,5 - 10,0 Std.</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-duration-m-container">
                                     <div class="dual-range-track"></div>
@@ -10283,8 +10373,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Gage (€)</label>
-                                    <span id="val-filter-gage-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0 - 5.000+ €</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Gage (€)</label>
+                                    <span id="val-filter-gage-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">0 - 5.000+ €</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-gage-m-container">
                                     <div class="dual-range-track"></div>
@@ -10296,8 +10386,8 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
-                                    <span id="val-filter-publikum-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0 - 500+</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
+                                    <span id="val-filter-publikum-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">0 - 500+</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-publikum-m-container">
                                     <div class="dual-range-track"></div>
@@ -10308,11 +10398,17 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Bevorzugte Event-Typen</label>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                    <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Bevorzugte Event-Typen</label>
+                                    <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">Alle</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                    </div>
+                                </div>
                                 <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
                                     ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterEventTypesM" value="${evt}">
+                                            <input type="checkbox" name="filterEventTypesM" value="${evt}" checked>
                                             <span>${evt}</span>
                                         </label>
                                     `).join('')}
@@ -10320,11 +10416,17 @@ function renderMarket(container, type, onNavigate) {
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Technik</label>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                    <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Technik</label>
+                                    <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">Alle</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                    </div>
+                                </div>
                                 <div class="checkbox-tag-grid" id="filter-technik-grid-m">
                                     ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterTechnikM" value="${t}">
+                                            <input type="checkbox" name="filterTechnikM" value="${t}" checked>
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -10333,7 +10435,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK (WEISSES EINGABEFELD) -->
                             <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Suchbegriffe</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Suchbegriffe</label>
                                 <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
@@ -11179,7 +11281,7 @@ window.openItemDetailModal = function(id, isEvents) {
                         </p>
                     </div>
 
-                    <!-- Key Data Grid: Genres, Instrumente, Spieldauer, Technik, Budget -->
+                                        <!-- Key Data Grid: Genres, Instrumente, Spieldauer, Technik, Budget -->
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); padding: 1.2rem; border-radius: 12px;">
                         <div>
                             <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.3rem;">Genres</span>
@@ -11196,13 +11298,35 @@ window.openItemDetailModal = function(id, isEvents) {
                         </div>
 
                         <div>
-                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">${isEvents ? 'Veranstaltungsdatum' : 'Verfügbarkeiten'}</span>
+                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">${isEvents ? 'Veranstaltungsdatum' : 'VerfÃ¼gbarkeiten'}</span>
                             <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-calendar-days" style="color: ${roleColor};"></i> ${dateDisplay}</strong>
+                        </div>
+
+                        <div>
+                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">${isEvents ? 'Bevorzugter Musiker-Typ' : 'Musiker-Typ'}</span>
+                            <strong style="font-size: 0.9rem; color: #fff;">
+                                <i class="fa-solid fa-guitar" style="color: ${roleColor};"></i> 
+                                ${isEvents 
+                                    ? ((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) 
+                                        ? item.musicianTypes.join(', ') 
+                                        : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' 
+                                            ? item.musicianTypes 
+                                            : (item.musicianType || 'Solo / Band')))
+                                    : (item.type || item.category || 'Solo / Band')}
+                            </strong>
                         </div>
 
                         <div>
                             <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">Spieldauer</span>
                             <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-clock" style="color: ${roleColor};"></i> ${durationDisplay}</strong>
+                        </div>
+
+                        <div>
+                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">${isEvents ? 'Anzahl der GÃ¤ste' : 'PublikumsgrÃ¶ÃŸe'}</span>
+                            <strong style="font-size: 0.9rem; color: #fff;">
+                                <i class="fa-solid fa-users" style="color: ${roleColor};"></i> 
+                                ${item.minPublikum !== undefined && item.maxPublikum !== undefined ? `${item.minPublikum} - ${item.maxPublikum}+` : (isEvents ? '50 - 150' : '0 - 500+')}
+                            </strong>
                         </div>
 
                         <div>
@@ -11418,7 +11542,7 @@ function renderProfilePage(container) {
     let selectedPlan = activePlan;
 
     container.innerHTML = `
-        <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem; max-width: 800px; margin: 0 auto; padding: 1rem 0;">
+        <div class="portal-layout ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="display:flex; flex-direction:column; gap:2rem; max-width: 800px; margin: 0 auto; padding: 1rem 0;">
             <div class="profile-section-card">
                 <h3 style="color: ${themeColor}; margin-top: 0; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.6rem;">
                     <i class="fa-solid fa-address-card ${themeClass}"></i> Persönliche Kontaktdaten
@@ -12257,9 +12381,9 @@ function renderMyEvents(container) {
     const successPercent = totalInterestsExpressedByMe > 0 ? Math.round((totalPerfectMatches / totalInterestsExpressedByMe) * 100) : 0;
 
     container.innerHTML = `
-        <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;"><!-- Active Events -->
-            <div class="profile-section-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom:0.8rem; flex-wrap: wrap; gap:1rem;">
+                <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;"><!-- Active Events -->
+            <div class="profile-section-card" style="padding-top: 1.2rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom: 1px solid var(--border-glass); padding-bottom:0.6rem; flex-wrap: wrap; gap:1rem;">
                     <h3 style="margin:0;"><i class="fa-solid fa-calendar-check text-cyan"></i> Aktive Events (${activeEvents.length})</h3>
                 </div>
                 
@@ -12690,10 +12814,10 @@ function renderMyMusicians(container) {
     const deactivatedMusicians = allMyMusicians.filter(m => m.isActive === false);
 
     container.innerHTML = `
-        <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;">
+                <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;">
             <!-- Active Musicians -->
-            <div class="profile-section-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom:0.8rem; flex-wrap: wrap; gap:1rem;">
+            <div class="profile-section-card" style="padding-top: 1.2rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom: 1px solid var(--border-glass); padding-bottom:0.6rem; flex-wrap: wrap; gap:1rem;">
                     <h3 style="margin:0; color:var(--color-purple);"><i class="fa-solid fa-guitar"></i> Aktive Musiker-Profile (${activeMusicians.length})</h3>
                 </div>
                 
@@ -16686,18 +16810,12 @@ function renderPostbox(container) {
         window.postboxActiveTab = activeTab;
         window.postboxActiveChatId = activeChatId;
 
-        // Categorize chats
+                // Categorize chats (filtering out system chats entirely as requested)
+        const nonSystemChats = chats.filter(c => !c.participants.includes('system'));
         const receivedChats = [];
         const sentChats = [];
-        const systemChats = [];
 
-        chats.forEach(chat => {
-            const isSys = chat.participants.includes('system');
-            if (isSys) {
-                systemChats.push(chat);
-                return;
-            }
-
+        nonSystemChats.forEach(chat => {
             const msgs = chat.messages || [];
             const firstMsg = msgs[0];
             const isFirstMsgFromMe = firstMsg ? (firstMsg.senderId === currentUserId) : (chat.initiatorId === currentUserId);
@@ -16710,10 +16828,10 @@ function renderPostbox(container) {
         });
 
         let currentCategoryChats = [];
-        if (activeTab === 'all') currentCategoryChats = chats;
+        if (activeTab === 'all') currentCategoryChats = nonSystemChats;
         else if (activeTab === 'received') currentCategoryChats = receivedChats;
         else if (activeTab === 'sent') currentCategoryChats = sentChats;
-        else if (activeTab === 'system') currentCategoryChats = systemChats;
+        else if (activeTab === 'system') currentCategoryChats = [];
 
         if (!currentCategoryChats.some(c => c.id === activeChatId) && currentCategoryChats.length > 0) {
             activeChatId = currentCategoryChats[0].id;
@@ -16752,29 +16870,27 @@ function renderPostbox(container) {
                 <!-- Left Sidebar: Categories & Chat Threads List -->
                 <div class="postbox-sidebar" style="width: 340px; flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); height: 100%;">
                     
-                    <!-- Postbox Header & Tabs -->
+                                        <!-- Postbox Header & Tabs -->
                     <div style="padding: 1rem; border-bottom: 1px solid var(--border-glass); background: rgba(255,255,255,0.01);">
                         <h3 style="margin: 0 0 0.8rem; font-size: 1.15rem; font-family: var(--font-heading); display:flex; align-items:center; gap:0.5rem; color:var(--text-main); justify-content: space-between;">
-                            <span style="display:flex; align-items:center; gap:0.5rem;">
-                                <i class="fa-solid fa-envelope ${isMusician ? 'text-purple' : 'text-cyan'}"></i> Postfach
+                            <span style="display:flex; align-items:baseline; gap:0.4rem; flex-wrap: wrap;">
+                                <span style="display:flex; align-items:center; gap:0.5rem;"><i class="fa-solid fa-envelope ${isMusician ? 'text-purple' : 'text-cyan'}"></i> Postfach</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">(${receivedChats.length} erhalten / ${sentChats.length} gesendet)</span>
                             </span>
                             <i class="fa-solid fa-sliders" id="btn-toggle-postbox-filters" style="color: ${window.postboxShowFilters ? (isMusician ? 'var(--color-purple)' : 'var(--color-cyan)') : 'var(--text-muted)'}; cursor: pointer; font-size: 1.05rem; transition: color 0.2s;" title="Filter ein-/ausblenden"></i>
                         </h3>
                         
                         ${profileSelectorHtml}
-                        <!-- 4 Category Tabs (2x2 Grid) -->
-                        <div id="postbox-filters-container" style="display: ${window.postboxShowFilters ? 'grid' : 'none'}; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
-                            <button class="btn btn-sm ${activeTab === 'all' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="all" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Alle Nachrichten">
-                                📂 Alle (${chats.length})
+                        <!-- 3 Category Tabs (3 Columns) -->
+                        <div id="postbox-filters-container" style="display: ${window.postboxShowFilters ? 'grid' : 'none'}; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;">
+                            <button class="btn btn-sm ${activeTab === 'all' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="all" style="font-size: 0.72rem; padding: 0.4rem 0.1rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Alle Nachrichten">
+                                ðŸ“‚ Alle (${nonSystemChats.length})
                             </button>
-                            <button class="btn btn-sm ${activeTab === 'received' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="received" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(34, 197, 94, 0.35); color: #22c55e;" title="Empfangene Anfragen">
-                                📥 Empfangen (${receivedChats.length})
+                            <button class="btn btn-sm ${activeTab === 'received' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="received" style="font-size: 0.72rem; padding: 0.4rem 0.1rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(34, 197, 94, 0.35); color: #22c55e;" title="Empfangene Anfragen">
+                                ðŸ“¥ Empfangen (${receivedChats.length})
                             </button>
-                            <button class="btn btn-sm ${activeTab === 'sent' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="sent" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(239, 68, 68, 0.35); color: #ef4444;" title="Versendete Anfragen">
-                                📤 Versendet (${sentChats.length})
-                            </button>
-                            <button class="btn btn-sm ${activeTab === 'system' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="system" style="font-size: 0.72rem; padding: 0.4rem 0.2rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(234, 179, 8, 0.35); color: #eab308;" title="Benachrichtigungen">
-                                🔔 Info (${systemChats.length})
+                            <button class="btn btn-sm ${activeTab === 'sent' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="sent" style="font-size: 0.72rem; padding: 0.4rem 0.1rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(239, 68, 68, 0.35); color: #ef4444;" title="Versendete Anfragen">
+                                ðŸ“¤ Versendet (${sentChats.length})
                             </button>
                         </div>
                     </div>
@@ -17182,16 +17298,16 @@ function formatTruncatedList(listArray, themeColor, itemId, uniqueType) {
     const fullJoined = listArray.join(', ');
     
     // If the total string is short and there are few items, just return it.
-    if (listArray.length <= 2 && fullJoined.length <= 32) {
+    if (listArray.length <= 2 && fullJoined.length <= 26) {
         return fullJoined;
     }
     
-    // Otherwise, decide how many items fit within 32 characters in the first line.
+    // Otherwise, decide how many items fit within 26 characters in the first line.
     let visibleCount = 1;
     let currentLength = listArray[0].length;
     for (let i = 1; i < listArray.length; i++) {
         const nextLength = currentLength + 2 + listArray[i].length;
-        if (nextLength <= 32 && i < 2) {
+        if (nextLength <= 26 && i < 2) {
             currentLength = nextLength;
             visibleCount = i + 1;
         } else {
@@ -17321,11 +17437,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 
                 <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
-                    ${item.matchScore >= 70 ? `
-                        <span style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); color: #eab308; font-weight: 800; padding: 0.35rem 0.45rem; border-radius: 6px; border: 1px solid rgba(234, 179, 8, 0.4); backdrop-filter: blur(4px); z-index: 10; display: flex; align-items: center; justify-content: center; pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,0.6); box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
-                            <i class="fa-solid fa-star" style="font-size: 1.15rem; margin: 0;"></i>
-                        </span>
-                    ` : ''}
+                    
                     
                     <span class="tile-gallery-counter" style="position: absolute; bottom: 12px; left: 12px; z-index: 4; font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.75); padding: 0.25rem 0.5rem; border-radius: 6px; backdrop-filter: blur(4px); pointer-events: none; border: 1px solid rgba(255,255,255,0.1);">
                         📷 1 / ${photos.length}
@@ -17395,87 +17507,108 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 <!-- Tile Body Content -->
                 <div class="tile-body-content" style="padding: 1.2rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
                     
-                    <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favorit Herz -->
-                                        <div style="margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+                                        <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favorit Herz -->
+                    <div style="margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
                         <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; flex: 1; height: 2.4em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">
                             ${bandName}
                         </h3>
-                        <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
-                            ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? `
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444" width="22" height="22" style="display: block;">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                </svg>
-                            ` : `
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffffff" stroke="#ef4444" stroke-width="2" width="22" height="22" style="display: block;">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                </svg>
-                            `}
-                        </button>
+                        <div style="display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0;">
+                            ${item.matchScore >= 70 ? `
+                                <span title="Top Match" style="color: #eab308; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; cursor: default;">
+                                    <i class="fa-solid fa-star" style="font-size: 1.2rem;"></i>
+                                </span>
+                            ` : ''}
+                            <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufÃ¼gen/entfernen">
+                                ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? `
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444" width="22" height="22" style="display: block;">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                    </svg>
+                                ` : `
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffffff" stroke="#ef4444" stroke-width="2" width="22" height="22" style="display: block;">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                    </svg>
+                                `}
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- 2. Einspaltige Informationen mit Icons (Reihenfolge nach Benutzer-Anforderungen) -->
+                                        <!-- 2. Einspaltige Informationen mit Icons (Reihenfolge nach Benutzer-Anforderungen) -->
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.75rem;">
                         <!-- 1. Ort -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${window.normalizeCityName(item.location || 'Deutschlandweit')}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${window.normalizeCityName(item.location || 'Deutschlandweit')}</span>
                         </div>
                         
                         ${isEvents ? `
-                        <!-- 2. Event-Art (Event-Typ) -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${item.type || item.eventType || 'Event'}</span>
+                        <!-- 2. Datum -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${dateDisplay}</span>
                         </div>
-                        <!-- 3. Datum -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${dateDisplay}</span>
+                        <!-- 3. Event-Art (Event-Typ) -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${item.type || item.eventType || 'Event'}</span>
+                        </div>
+                        <!-- 4. Gesuchter Musiker-Typ -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Gesucht: ${formatTruncatedList((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : [item.musicianType || 'Solo / Band']), themeColor, item.id, 'musiciantype')}</span>
                         </div>
                         ` : `
-                        <!-- 2. Musiker-Typ -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${item.type || item.category || 'Solo / Band'}</span>
+                        <!-- 2. VerfÃ¼gbarkeit -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${dateDisplay}</span>
                         </div>
-                        <!-- 3. Verfügbarkeit -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${dateDisplay}</span>
+                        <!-- 3. Musiker-Typ -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${item.type || item.category || 'Solo / Band'}</span>
+                        </div>
+                        <!-- Bevorzugte Event-Typen -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Event-Typen (Gesucht): ${formatTruncatedList(item.eventTypes && item.eventTypes.length > 0 ? item.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, item.id, 'eventtypes')}</span>
                         </div>
                         `}
 
-                        <!-- 4. Genres -->
+                        <!-- 5. Genres -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-music" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${formatTruncatedList(genresArr, themeColor, item.id, 'genres')}</span>
                         </div>
-                        <!-- 5. Instrumente -->
+                        <!-- 6. Instrumente -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                            <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedList(instrumentsArr, themeColor, item.id, 'instruments')}</span>
+                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Instrumente: ${formatTruncatedList(instrumentsArr, themeColor, item.id, 'instruments')}</span>
                         </div>
 
-                        <!-- 6. Spieldauer -->
+                        <!-- 7. Spieldauer -->
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${durationDisplay}</span>
-                        </div>
-                        <!-- 7. Budget / Gage -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${budgetDisplay}</span>
+                            <span>Spielzeit: ${durationDisplay}</span>
                         </div>
                         
-                        <!-- 8. Technik -->
+                        <!-- 8. Publikum / GÃ¤ste -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-users" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
+                            <span>${isEvents ? 'GÃ¤steanzahl' : 'PublikumsgrÃ¶ÃŸe'}: ${item.minPublikum !== undefined && item.maxPublikum !== undefined ? `${item.minPublikum} - ${item.maxPublikum}+` : (isEvents ? '50 - 150' : '0 - 500+')}</span>
+                        </div>
+                        
+                        <!-- 9. Technik -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-microchip" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedList(techArr, themeColor, item.id, 'tech') : 'Technik ist noch unklar'}</span>
                         </div>
-                    </div>
-                </div>
 
-                ${isUnlocked ? `
+                        <!-- 10. Budget / Gage (last) -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
+                            <span>${isEvents ? 'Budget' : 'Gage'}: ${budgetDisplay}</span>
+                        </div>
+                    </div>${isUnlocked ? `
                     <!-- Solid Colored Unlocked Contact Footer Box -->
                     <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 1rem 1.3rem; background: ${footerGradient}; color: #ffffff; display: flex; flex-direction: column; gap: 0.8rem; border-radius: 0 0 18px 18px;">
                         <!-- Row of circular action buttons -->
@@ -17657,6 +17790,25 @@ window.toggleCategoriesRow = function(type) {
         row2.style.display = 'flex';
     } else {
         row2.style.display = 'none';
+    }
+};
+
+window.toggleAllFilterCheckboxes = function(element, checkAll) {
+    // Traverse up to find the card wrapping container
+    const section = element.closest('div[style*="background:"]');
+    if (!section) return;
+    const checkboxes = section.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(cb => {
+        cb.checked = checkAll;
+    });
+    // Mark the grid as interacted
+    const grid = section.querySelector('.checkbox-tag-grid');
+    if (grid) {
+        grid.dataset.interacted = 'true';
+    }
+    // Apply filters and sort
+    if (typeof window.marketApplyFilters === 'function') {
+        window.marketApplyFilters();
     }
 };
 

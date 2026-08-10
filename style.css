@@ -846,8 +846,16 @@ body {
     cursor: pointer;
 }
 
-.form-checkbox input[type="checkbox"] {
-    margin-top: 0.2rem;
+.form-checkbox input[type="checkbox"],
+#reg-privacy-consent-container input[type="checkbox"] {
+    -webkit-appearance: checkbox !important;
+    -moz-appearance: checkbox !important;
+    appearance: checkbox !important;
+    width: 18px !important;
+    height: 18px !important;
+    flex-shrink: 0 !important;
+    margin-top: 0.1rem !important;
+    cursor: pointer !important;
 }
 
 /* Authentication Tab Headers in Login modal */
@@ -885,9 +893,13 @@ body {
 }
 
 .role-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
     border-radius: 20px !important;
     padding: 1.5rem 1.25rem !important;
-    text-align: center;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     color: #ffffff !important;
@@ -2600,7 +2612,8 @@ body {
 .market-layout-container {
     display: grid;
     grid-template-columns: 280px 1fr;
-    gap: 2rem;
+    column-gap: 3rem;
+    row-gap: 2rem;
     align-items: start;
 }
 
@@ -3720,13 +3733,13 @@ body {
 
 /* Force dark text and theme-based headings inside the white filter card globally */
 .theme-organizer .market-filter-card label {
-    color: #1e3a8a !important; /* Dunkelblau / Dark navy blue */
+    color: #2563eb !important; /* Lighter blue */
     font-weight: 900 !important;
     display: block;
     font-size: 0.85rem;
 }
 .theme-musician .market-filter-card label {
-    color: #5b21b6 !important; /* Dunkellila / Dark purple */
+    color: #7c3aed !important; /* Lighter purple */
     font-weight: 900 !important;
     display: block;
     font-size: 0.85rem;
@@ -3742,10 +3755,10 @@ body {
 
 /* Specific slider value display spans in theme colors */
 .theme-organizer .market-filter-card .slider-value-display span {
-    color: #1e3a8a !important;
+    color: #2563eb !important;
 }
 .theme-musician .market-filter-card .slider-value-display span {
-    color: #5b21b6 !important;
+    color: #7c3aed !important;
 }
 
 /* Keep tag pills looking great on white background globally (White inactive background) */
