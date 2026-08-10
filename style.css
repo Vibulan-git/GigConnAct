@@ -3606,13 +3606,15 @@ body {
 }
 
 #market-title-label {
-    color: var(--text-main) !important;
+    color: #ffffff !important;
+    font-size: 1.15rem !important;
+    font-weight: 900 !important;
 }
 
 @media (max-width: 600px) {
     #market-title-label {
         display: inline-block !important;
-        font-size: 0.85rem !important;
+        font-size: 1.15rem !important;
     }
 }
 
@@ -3846,7 +3848,7 @@ body {
         max-width: 100% !important;
         box-sizing: border-box !important;
         flex-wrap: nowrap !important;
-        padding: 0.4rem 0.5rem !important;
+        padding: 0.4rem 0px !important;
     }
 
     .market-filter-mobile-toggle {

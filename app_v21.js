@@ -55,38 +55,65 @@ window.updateRegMediaPreview = function(role) {
     if (photosContainer) {
         photosContainer.innerHTML = photos.length === 0 
             ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Bilder hinzugefügt</span>`
-            : photos.map((p, idx) => `
-                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
-                    <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
-                    <button type="button" onclick="window.deleteRegMedia('${role}', 'photo', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
-                </div>
-            `).join('');
+            : photos.map((p, idx) => {
+                if (p === 'loading') {
+                    return `
+                        <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-circle-notch fa-spin" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        </div>
+                    `;
+                }
+                return `
+                    <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                        <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
+                        <button type="button" onclick="window.deleteRegMedia('${role}', 'photo', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                    </div>
+                `;
+            }).join('');
     }
 
     if (videosContainer) {
         videosContainer.innerHTML = videos.length === 0
             ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Videos hinzugefügt</span>`
-            : videos.map((v, idx) => `
-                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;" title="${v.title}">
-                    <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.1rem;"></i>
-                    <button type="button" onclick="window.deleteRegMedia('${role}', 'video', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
-                </div>
-            `).join('');
+            : videos.map((v, idx) => {
+                if (v.url === 'loading') {
+                    return `
+                        <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;" title="${v.title}">
+                            <i class="fa-solid fa-circle-notch fa-spin" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        </div>
+                    `;
+                }
+                return `
+                    <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;" title="${v.title}">
+                        <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.1rem;"></i>
+                        <button type="button" onclick="window.deleteRegMedia('${role}', 'video', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                    </div>
+                `;
+            }).join('');
     }
 
     if (audiosContainer) {
         audiosContainer.innerHTML = audios.length === 0
             ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Audios hinzugefügt</span>`
-            : audios.map((a, idx) => `
-                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #1e1b4b; display:flex; align-items:center; justify-content:center;" title="${a.title || 'Audio'}">
-                    <i class="fa-solid fa-music" style="color: #06b6d4; font-size: 1.1rem;"></i>
-                    <button type="button" onclick="window.deleteRegMedia('${role}', 'audio', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
-                </div>
-            `).join('');
+            : audios.map((a, idx) => {
+                if (a.url === 'loading') {
+                    return `
+                        <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;" title="${a.title}">
+                            <i class="fa-solid fa-circle-notch fa-spin" style="color: #06b6d4; font-size: 1.2rem;"></i>
+                        </div>
+                    `;
+                }
+                return `
+                    <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #1e1b4b; display:flex; align-items:center; justify-content:center;" title="${a.title || 'Audio'}">
+                        <i class="fa-solid fa-music" style="color: #06b6d4; font-size: 1.1rem;"></i>
+                        <button type="button" onclick="window.deleteRegMedia('${role}', 'audio', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                    </div>
+                `;
+            }).join('');
     }
 };
 
-function validateAndProcessAudio(file, callback) {
+function validateAndProcessAudio(file, callback, errorCallback) {
     const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav', 'audio/m4a', 'audio/x-m4a', 'audio/mp4'];
     const maxSize = 100 * 1024 * 1024; // 100 MB
 
@@ -95,6 +122,7 @@ function validateAndProcessAudio(file, callback) {
             title: "Fehler beim Audioupload ❌",
             message: "Ungültiges Dateiformat. Erlaubt sind MP3, WAV und M4A."
         });
+        if (errorCallback) errorCallback();
         return;
     }
 
@@ -103,6 +131,7 @@ function validateAndProcessAudio(file, callback) {
             title: "Fehler beim Audioupload ❌",
             message: "Die Datei ist zu groß. Maximale Größe ist 100 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
         });
+        if (errorCallback) errorCallback();
         return;
     }
 
@@ -116,6 +145,7 @@ function validateAndProcessAudio(file, callback) {
                 title: "Audio zu lang 🎵",
                 message: "Die Audio-Datei darf maximal 10 Minuten lang sein (deine Datei: " + Math.floor(duration / 60) + " Min. " + Math.round(duration % 60) + " Sek.)."
             });
+            if (errorCallback) errorCallback();
             return;
         }
 
@@ -200,35 +230,91 @@ window.addRegMedia = function(role, type) {
     }
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
+    fileInput.multiple = true;
+    
     if (type === 'photo') {
         fileInput.accept = 'image/png, image/jpeg, image/webp';
         fileInput.addEventListener('change', () => {
-            if (fileInput.files.length > 0) {
-                validateAndProcessPhoto(fileInput.files[0], (dataUrl) => {
-                    list.push(dataUrl);
-                    window.updateRegMediaPreview(role);
+            const files = Array.from(fileInput.files);
+            if (files.length === 0) return;
+            const remaining = limit - list.length;
+            if (remaining <= 0) return;
+            const toProcess = files.slice(0, remaining);
+            if (files.length > remaining) {
+                showToast({
+                    title: "Limit-Hinweis ⚠️",
+                    message: `Es wurden nur die ersten ${remaining} Fotos ausgewählt, um das Limit nicht zu überschreiten.`
                 });
             }
+            toProcess.forEach(file => {
+                const placeholderIdx = list.length;
+                list.push('loading');
+                window.updateRegMediaPreview(role);
+                validateAndProcessPhoto(file, (dataUrl) => {
+                    list[placeholderIdx] = dataUrl;
+                    window.updateRegMediaPreview(role);
+                }, () => {
+                    const idx = list.indexOf('loading');
+                    if (idx !== -1) list.splice(idx, 1);
+                    window.updateRegMediaPreview(role);
+                });
+            });
         });
     } else if (type === 'video') {
         fileInput.accept = 'video/mp4, video/quicktime, video/webm';
         fileInput.addEventListener('change', () => {
-            if (fileInput.files.length > 0) {
-                validateAndProcessVideo(fileInput.files[0], (videoUrl) => {
-                    list.push(videoUrl);
-                    window.updateRegMediaPreview(role);
+            const files = Array.from(fileInput.files);
+            if (files.length === 0) return;
+            const remaining = limit - list.length;
+            if (remaining <= 0) return;
+            const toProcess = files.slice(0, remaining);
+            if (files.length > remaining) {
+                showToast({
+                    title: "Limit-Hinweis ⚠️",
+                    message: `Es wurden nur die ersten ${remaining} Videos ausgewählt, um das Limit nicht zu überschreiten.`
                 });
             }
+            toProcess.forEach(file => {
+                const placeholderIdx = list.length;
+                list.push({ url: 'loading', title: file.name });
+                window.updateRegMediaPreview(role);
+                validateAndProcessVideo(file, (videoUrl) => {
+                    list[placeholderIdx] = { url: videoUrl, title: file.name };
+                    window.updateRegMediaPreview(role);
+                }, () => {
+                    const idx = list.findIndex(v => v.url === 'loading');
+                    if (idx !== -1) list.splice(idx, 1);
+                    window.updateRegMediaPreview(role);
+                });
+            });
         });
     } else {
         fileInput.accept = 'audio/mpeg, audio/mp3, audio/wav, audio/x-wav, audio/m4a, audio/x-m4a, audio/mp4';
         fileInput.addEventListener('change', () => {
-            if (fileInput.files.length > 0) {
-                validateAndProcessAudio(fileInput.files[0], (audioObj) => {
-                    list.push(audioObj);
-                    window.updateRegMediaPreview(role);
+            const files = Array.from(fileInput.files);
+            if (files.length === 0) return;
+            const remaining = limit - list.length;
+            if (remaining <= 0) return;
+            const toProcess = files.slice(0, remaining);
+            if (files.length > remaining) {
+                showToast({
+                    title: "Limit-Hinweis ⚠️",
+                    message: `Es wurden nur die ersten ${remaining} Audios ausgewählt, um das Limit nicht zu überschreiten.`
                 });
             }
+            toProcess.forEach(file => {
+                const placeholderIdx = list.length;
+                list.push({ url: 'loading', title: file.name });
+                window.updateRegMediaPreview(role);
+                validateAndProcessAudio(file, (audioObj) => {
+                    list[placeholderIdx] = audioObj;
+                    window.updateRegMediaPreview(role);
+                }, () => {
+                    const idx = list.findIndex(a => a.url === 'loading');
+                    if (idx !== -1) list.splice(idx, 1);
+                    window.updateRegMediaPreview(role);
+                });
+            });
         });
     }
     fileInput.style.display = 'none';
@@ -5120,7 +5206,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Ort / PLZ</label>
-                                <input type="text" id="filter-location" placeholder="z.B. Köln, Berlin..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                                <input type="text" id="filter-location" placeholder="z.B. Köln" class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
@@ -5239,7 +5325,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Ort</label>
-                                <input type="text" id="filter-location-m" placeholder="z.B. München, Köln..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                                <input type="text" id="filter-location-m" placeholder="z.B. München" class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
@@ -7794,11 +7880,11 @@ function renderMyMusicianItem(m, isActive) {
                         </div>
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Instrumente: ${instrumentsList}</span>
+                            <span style="flex: 1;">Instrumente: ${formatTruncatedValue(m.instruments && m.instruments.length > 0 ? m.instruments : ['Gesang', 'Gitarre'], themeColor, m.id, 'instruments')}</span>
                         </div>
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Event-Typen: ${eventTypesList}</span>
+                            <span style="flex: 1;">Event-Typen: ${formatTruncatedValue(m.eventTypes && m.eventTypes.length > 0 ? m.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, m.id, 'eventtypes')}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
@@ -8771,10 +8857,8 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Ort</label>
-                        <input type="text" id="modal-input-org-location-search" class="input-field" placeholder="Ort eingeben, z.B. München" autocomplete="off" style="width: 100%; margin-bottom: 0.5rem;">
-                        <div class="selected-locations-tags" id="modal-org-selected-locations-container" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.5rem;"></div>
-                        <input type="hidden" name="orgLocations" id="modal-input-org-locations" value="">
+                        <label>Ort (Stadt)</label>
+                        <input type="text" id="modal-input-org-location-search" class="input-field" value="${eventObj?.location || ''}" placeholder="z.B. München" autocomplete="off" style="width: 100%;">
                     </div>
 
                     <div class="form-group">
@@ -8997,46 +9081,9 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
     // Locations setup
     const orgLocationInput = document.getElementById('modal-input-org-location-search');
-    const orgLocationContainer = document.getElementById('modal-org-selected-locations-container');
-    const orgLocationHidden = document.getElementById('modal-input-org-locations');
-
-    const renderOrgLocations = () => {
-        if (!orgLocationContainer) return;
-        orgLocationContainer.innerHTML = selectedOrgLocations.map((loc, idx) => `
-            <span class="tag" style="background: rgba(96, 165, 250, 0.15) !important; border: 1.5px solid #60a5fa !important; color: #60a5fa !important; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.75rem;">
-                ${loc}
-                <i class="fa-solid fa-xmark remove-location-btn" data-index="${idx}" style="cursor: pointer; font-size: 0.75rem;"></i>
-            </span>
-        `).join('');
-
-        if (orgLocationHidden) {
-            orgLocationHidden.value = selectedOrgLocations.length > 0 ? JSON.stringify(selectedOrgLocations) : '';
-        }
-
-        orgLocationContainer.querySelectorAll('.remove-location-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const idx = parseInt(e.currentTarget.getAttribute('data-index'));
-                selectedOrgLocations.splice(idx, 1);
-                renderOrgLocations();
-            });
-        });
-    };
-
-    const addLocation = (locText) => {
-        const val = locText.trim();
-        if (!val) return;
-        if (!selectedOrgLocations.includes(val)) {
-            selectedOrgLocations.push(val);
-            renderOrgLocations();
-        }
-        if (orgLocationInput) orgLocationInput.value = '';
-    };
-
     if (orgLocationInput) {
-        setupLocationAutocomplete(orgLocationInput, addLocation);
+        setupLocationAutocomplete(orgLocationInput);
     }
-
-    renderOrgLocations();
 
     // Dual sliders initialization (scoped to modalWrapper to avoid duplicate ID issues)
     initDualSlider('slider-org-spieldauer-container', 'input-org-spieldauer-min', 'input-org-spieldauer-max', 'track-org-spieldauer', 'val-org-spieldauer', 'Std.', false, modalWrapper);
@@ -9218,8 +9265,8 @@ function showEventModal(eventObj = null, isDuplication = false) {
         const data = {
             name: formData.get('eventName'),
             type: Array.from(form.querySelectorAll('input[name="orgEventTypes"]:checked')).map(el => el.value).join(', ') || 'Sonstige',
-            location: selectedOrgLocations.join(', ') || 'München',
-            locations: selectedOrgLocations,
+            location: (orgLocationInput?.value || '').trim() || 'München',
+            locations: [(orgLocationInput?.value || '').trim() || 'München'],
             date: selectedEventDates[0] || new Date().toISOString().split('T')[0],
             dates: selectedEventDates,
             eventStartTime: formData.get('eventStartTime') || '18:00',
@@ -9508,10 +9555,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
 
                         <div class="form-group">
-                            <label>Standort</label>
-                            <input type="text" id="input-mus-location-search" class="input-field" placeholder="Ort eingeben, z.B. München" autocomplete="off" style="width: 100%; margin-bottom: 0.5rem;">
-                            <div class="selected-locations-tags" id="mus-selected-locations-container" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.5rem;"></div>
-                            <input type="hidden" name="musLocation" id="input-mus-locations" value="">
+                            <label>Standort (Stadt)</label>
+                            <input type="text" name="musLocation" id="input-mus-location-search" class="input-field" placeholder="z.B. München" autocomplete="off" style="width: 100%;">
                         </div>
 
                                                 <div class="form-group">
@@ -9749,10 +9794,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
 
                         <div class="form-group">
-                            <label>Ort</label>
-                            <input type="text" id="input-org-location-search" class="input-field" placeholder="Ort eingeben, z.B. München" autocomplete="off" style="width: 100%; margin-bottom: 0.5rem;">
-                            <div class="selected-locations-tags" id="org-selected-locations-container" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.5rem;"></div>
-                            <input type="hidden" name="orgLocations" id="input-org-locations" value="">
+                            <label>Veranstaltungsort (Stadt)</label>
+                            <input type="text" name="orgLocation" id="input-org-location-search" class="input-field" placeholder="z.B. München" autocomplete="off" style="width: 100%;">
                         </div>
 
                         <div class="form-group">
@@ -10204,9 +10247,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     const fieldsOrg = document.getElementById('reg-fields-organizer');
     let selectedRole = 'musician';
 
-    // State arrays for organizer locations and dates
-    let selectedOrgLocations = [];
-    let selectedMusLocations = [];
+    // State arrays for organizer dates
     let selectedEventDates = [];
 
     // Default class on form
@@ -10258,8 +10299,6 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         
         toggleRequired(fieldsMus, true);
         toggleRequired(fieldsOrg, false);
-        
-        renderMusLocations();
     });
 
     pickerOrg.addEventListener('click', () => {
@@ -10296,8 +10335,6 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
         // Render widgets on active state
         renderOrganizerCalendar();
-        renderOrgLocations();
-        renderMusLocations();
     });
 
     function toggleRequired(container, isRequired) {
@@ -10535,46 +10572,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
     // Organizer Location Handling
     const orgLocationInput = document.getElementById('input-org-location-search');
-    const orgLocationContainer = document.getElementById('org-selected-locations-container');
-    const orgLocationHidden = document.getElementById('input-org-locations');
-    const addLocationBtn = document.getElementById('btn-org-add-location');
-
-    function renderOrgLocations() {
-        if (!orgLocationContainer) return;
-        orgLocationContainer.innerHTML = selectedOrgLocations.map((loc, idx) => `
-            <span class="tag" style="background: rgba(96, 165, 250, 0.15) !important; border: 1.5px solid #60a5fa !important; color: #60a5fa !important; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.75rem;">
-                ${loc}
-                <i class="fa-solid fa-xmark remove-location-btn" data-index="${idx}" style="cursor: pointer; font-size: 0.75rem;"></i>
-            </span>
-        `).join('');
-
-        if (orgLocationHidden) {
-            orgLocationHidden.value = selectedOrgLocations.length > 0 ? JSON.stringify(selectedOrgLocations) : '';
-        }
-
-        orgLocationContainer.querySelectorAll('.remove-location-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const idx = parseInt(e.currentTarget.getAttribute('data-index'));
-                selectedOrgLocations.splice(idx, 1);
-                renderOrgLocations();
-            });
-        });
-    }
-
-    function addLocation(locText) {
-        const val = locText.trim();
-        if (!val) return;
-        if (!selectedOrgLocations.includes(val)) {
-            selectedOrgLocations.push(val);
-            renderOrgLocations();
-        }
-        if (orgLocationInput) {
-            orgLocationInput.value = '';
-        }
-    }
 
     if (orgLocationInput) {
-        setupLocationAutocomplete(orgLocationInput, addLocation);
+        setupLocationAutocomplete(orgLocationInput);
         orgLocationInput.dataset.autocompleteBound = "true";
     }
 
@@ -10605,8 +10605,12 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             const postcode = addr.postcode || "";
                             if (city) {
                                 const locString = postcode ? `${postcode} ${city}` : city;
-                                addLocation(locString);
-                                showToast({ title: 'Standort ermittelt', message: `Ort hinzugefügt: ${locString}` });
+                                if (orgLocationInput) {
+                                    orgLocationInput.value = locString;
+                                    orgLocationInput.dispatchEvent(new Event('input', { bubbles: true }));
+                                    orgLocationInput.dispatchEvent(new Event('change', { bubbles: true }));
+                                }
+                                showToast({ title: 'Standort ermittelt', message: `Ort eingestellt: ${locString}` });
                             } else {
                                 showToast({ title: 'Fehler', message: 'Ort konnte nicht bestimmt werden.' });
                             }
@@ -10649,46 +10653,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
     // Musician Location Handling
     const musLocationInput = document.getElementById('input-mus-location-search');
-    const musLocationContainer = document.getElementById('mus-selected-locations-container');
-    const musLocationHidden = document.getElementById('input-mus-locations');
-    const addMusLocationBtn = document.getElementById('btn-mus-add-location');
-
-    function renderMusLocations() {
-        if (!musLocationContainer) return;
-        musLocationContainer.innerHTML = selectedMusLocations.map((loc, idx) => `
-            <span class="tag" style="background: rgba(168, 85, 247, 0.15) !important; border: 1.5px solid #a855f7 !important; color: #a855f7 !important; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.75rem;">
-                ${loc}
-                <i class="fa-solid fa-xmark remove-mus-location-btn" data-index="${idx}" style="cursor: pointer; font-size: 0.75rem;"></i>
-            </span>
-        `).join('');
-
-        if (musLocationHidden) {
-            musLocationHidden.value = selectedMusLocations.length > 0 ? JSON.stringify(selectedMusLocations) : '';
-        }
-
-        musLocationContainer.querySelectorAll('.remove-mus-location-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const idx = parseInt(e.currentTarget.getAttribute('data-index'));
-                selectedMusLocations.splice(idx, 1);
-                renderMusLocations();
-            });
-        });
-    }
-
-    function addMusLocation(locText) {
-        const val = locText.trim();
-        if (!val) return;
-        if (!selectedMusLocations.includes(val)) {
-            selectedMusLocations.push(val);
-            renderMusLocations();
-        }
-        if (musLocationInput) {
-            musLocationInput.value = '';
-        }
-    }
 
     if (musLocationInput) {
-        setupLocationAutocomplete(musLocationInput, addMusLocation);
+        setupLocationAutocomplete(musLocationInput);
         musLocationInput.dataset.autocompleteBound = "true";
     }
 
@@ -10870,8 +10837,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
-            if (selectedMusLocations.length === 0) {
-                errDiv.textContent = 'Bitte füge mindestens einen Einsatzort hinzu.';
+            const musLocVal = (musLocationInput?.value || '').trim();
+            if (!musLocVal) {
+                errDiv.textContent = 'Bitte gib deinen Standort (Stadt) an.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
@@ -10910,8 +10878,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
-            if (selectedOrgLocations.length === 0) {
-                errDiv.textContent = 'Bitte füge mindestens einen Veranstaltungsort hinzu.';
+            const orgLocVal = (orgLocationInput?.value || '').trim();
+            if (!orgLocVal) {
+                errDiv.textContent = 'Bitte gib den Veranstaltungsort (Stadt) an.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
@@ -10962,7 +10931,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         if (selectedRole === 'musician') {
             payload.bandName = registerForm.elements.bandName.value;
             payload.musicianType = Array.from(registerForm.querySelectorAll('input[name="musicianTypes"]:checked')).map(el => el.value).join(', ');
-            payload.locations = selectedMusLocations;
+            payload.locations = [musLocVal];
             payload.radius = registerForm.elements.radius.value;
             payload.minDuration = registerForm.elements.minDuration.value;
             payload.maxDuration = registerForm.elements.maxDuration.value;
@@ -11025,9 +10994,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             payload.minPublikum = registerForm.querySelector('#input-publikum-min')?.value || 0;
             payload.maxPublikum = registerForm.querySelector('#input-publikum-max')?.value || 500;
             payload.availability = availability;
-            payload.photos = window.registrationMedia.musician.photos;
-            payload.videos = window.registrationMedia.musician.videos;
-            payload.audios = window.registrationMedia.musician.audios || [];
+            payload.photos = (window.registrationMedia.musician.photos || []).filter(p => p !== 'loading');
+            payload.videos = (window.registrationMedia.musician.videos || []).filter(v => v && v.url !== 'loading');
+            payload.audios = (window.registrationMedia.musician.audios || []).filter(a => a && a.url !== 'loading');
         } else {
             payload.eventName = registerForm.elements.eventName.value.trim();
             payload.orgEventTypes = Array.from(registerForm.querySelectorAll('input[name="orgEventTypes"]:checked')).map(el => el.value);
@@ -11035,7 +11004,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             payload.eventDates = selectedEventDates;
             payload.eventStartTime = registerForm.querySelector('input[name="eventStartTime"]')?.value || '18:00';
             payload.eventEndTime = registerForm.querySelector('input[name="eventEndTime"]')?.value || '22:00';
-            payload.orgLocations = selectedOrgLocations;
+            payload.orgLocations = [orgLocVal];
             payload.orgGenres = Array.from(registerForm.querySelectorAll('input[name="orgGenres"]:checked')).map(el => el.value);
             payload.orgInstruments = Array.from(registerForm.querySelectorAll('input[name="orgInstruments"]:checked')).map(el => el.value);
             payload.orgMinDuration = registerForm.querySelector('input[name="orgMinDuration"]').value;
@@ -11048,9 +11017,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             payload.orgMinBudget = registerForm.querySelector('input[name="orgMinBudget"]').value;
             payload.orgMaxBudget = registerForm.querySelector('input[name="orgMaxBudget"]').value;
             payload.orgDescription = registerForm.querySelector('textarea[name="orgDescription"]').value.trim();
-            payload.photos = window.registrationMedia.organizer.photos;
-            payload.videos = window.registrationMedia.organizer.videos;
-            payload.audios = window.registrationMedia.organizer.audios || [];
+            payload.photos = (window.registrationMedia.organizer.photos || []).filter(p => p !== 'loading');
+            payload.videos = (window.registrationMedia.organizer.videos || []).filter(v => v && v.url !== 'loading');
+            payload.audios = (window.registrationMedia.organizer.audios || []).filter(a => a && a.url !== 'loading');
         }
 
         if (window.googleRegistrationUser) {
@@ -13793,7 +13762,7 @@ function initMockEmailWidget() {
     window.refreshMockEmailWidget();
 }
 
-function validateAndProcessPhoto(file, callback) {
+function validateAndProcessPhoto(file, callback, errorCallback) {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
     const maxSize = 10 * 1024 * 1024; // 10 MB
 
@@ -13802,6 +13771,7 @@ function validateAndProcessPhoto(file, callback) {
             title: "Fehler beim Fotoupload ❌",
             message: "Ungültiges Dateiformat. Erlaubt sind JPG, JPEG, PNG und WebP."
         });
+        if (errorCallback) errorCallback();
         return;
     }
 
@@ -13810,6 +13780,7 @@ function validateAndProcessPhoto(file, callback) {
             title: "Fehler beim Fotoupload ❌",
             message: "Die Datei ist zu groß. Maximale Größe ist 10 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
         });
+        if (errorCallback) errorCallback();
         return;
     }
 
@@ -13822,6 +13793,7 @@ function validateAndProcessPhoto(file, callback) {
                     title: "Auflösung zu gering 📷",
                     message: "Das Foto muss eine Auflösung von mindestens 300 px auf der längeren Seite haben."
                 });
+                if (errorCallback) errorCallback();
                 return;
             }
 
@@ -13851,7 +13823,7 @@ function validateAndProcessPhoto(file, callback) {
     reader.readAsDataURL(file);
 }
 
-function validateAndProcessVideo(file, callback) {
+function validateAndProcessVideo(file, callback, errorCallback) {
     const allowedExtensions = ['mp4', 'mov', 'webm', 'ogg', 'mkv', 'avi', '3gp', 'm4v'];
     const fileExt = file.name.split('.').pop().toLowerCase();
     const isAllowedExt = allowedExtensions.includes(fileExt);
@@ -13863,6 +13835,7 @@ function validateAndProcessVideo(file, callback) {
             title: "Fehler beim Videoupload ❌",
             message: "Ungültiges Dateiformat. Erlaubt sind gängige Videoformate wie MP4, MOV, WebM."
         });
+        if (errorCallback) errorCallback();
         return;
     }
 
@@ -13871,6 +13844,7 @@ function validateAndProcessVideo(file, callback) {
             title: "Fehler beim Videoupload ❌",
             message: "Die Datei ist zu groß. Maximale Größe ist 500 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
         });
+        if (errorCallback) errorCallback();
         return;
     }
 
