@@ -5016,3 +5016,32 @@ input[type="range"].input-field {
 .animate-hero-text {
     animation: heroLogoTextReveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
+
+/* Prevent iOS auto-zoom on input focus on mobile screens */
+@media (max-width: 767px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="search"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="date"],
+    input[type="time"],
+    select,
+    textarea,
+    .input-field,
+    .form-input {
+        font-size: 16px !important;
+    }
+}
+
+/* Avoid excessively wide cards on mobile screens */
+@media (max-width: 480px) {
+    .market-tile-card {
+        max-width: 380px !important;
+        width: 100% !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+}
