@@ -1563,6 +1563,7 @@ class StateManager {
         }
         this.interests = [];
         this.favorites = [];
+        this.initialLoadDone = false;
         this.initFirebaseData();
     }
 
@@ -1575,6 +1576,8 @@ class StateManager {
         } catch (e) {
             console.error("Firebase init failed, falling back to mock localStorage:", e);
             this.loadState();
+            this.initialLoadDone = true;
+            this.notify();
         }
     }
 
@@ -1604,42 +1607,80 @@ class StateManager {
             }
             
             console.log("Database seeded successfully!");
+            this.initialLoadDone = true;
             this.notify();
             return;
         }
 
         // 2. Real-time snapshot listeners
+        let musiciansLoaded = false;
+        let eventsLoaded = false;
+        let chatsLoaded = false;
+        let interestsLoaded = false;
+        
+        const checkInitialLoad = () => {
+            if (musiciansLoaded && eventsLoaded && chatsLoaded && interestsLoaded && !this.initialLoadDone) {
+                console.log("[DEBUG] Firestore initial load completed!");
+                this.initialLoadDone = true;
+                this.notify();
+            }
+        };
+
         db.collection('musicians').onSnapshot(snapshot => {
             const list = [];
             snapshot.forEach(doc => list.push(doc.data()));
             this.musicians = list;
             this.updateVersion = (this.updateVersion || 0) + 1;
+            musiciansLoaded = true;
             this.notify();
-        }, err => console.error("Musicians snapshot error:", err));
+            checkInitialLoad();
+        }, err => {
+            console.error("Musicians snapshot error:", err);
+            musiciansLoaded = true;
+            checkInitialLoad();
+        });
 
         db.collection('events').onSnapshot(snapshot => {
             const list = [];
             snapshot.forEach(doc => list.push(doc.data()));
             this.events = list;
             this.updateVersion = (this.updateVersion || 0) + 1;
+            eventsLoaded = true;
             this.notify();
-        }, err => console.error("Events snapshot error:", err));
+            checkInitialLoad();
+        }, err => {
+            console.error("Events snapshot error:", err);
+            eventsLoaded = true;
+            checkInitialLoad();
+        });
 
         db.collection('chats').onSnapshot(snapshot => {
             const list = [];
             snapshot.forEach(doc => list.push(doc.data()));
             this.chats = list;
             this.updateVersion = (this.updateVersion || 0) + 1;
+            chatsLoaded = true;
             this.notify();
-        }, err => console.error("Chats snapshot error:", err));
+            checkInitialLoad();
+        }, err => {
+            console.error("Chats snapshot error:", err);
+            chatsLoaded = true;
+            checkInitialLoad();
+        });
 
         db.collection('interests').onSnapshot(snapshot => {
             const list = [];
             snapshot.forEach(doc => list.push(doc.data()));
             this.interests = list;
             this.updateVersion = (this.updateVersion || 0) + 1;
+            interestsLoaded = true;
             this.notify();
-        }, err => console.error("Interests snapshot error:", err));
+            checkInitialLoad();
+        }, err => {
+            console.error("Interests snapshot error:", err);
+            interestsLoaded = true;
+            checkInitialLoad();
+        });
     }
 
     setupAuthListener() {
@@ -11902,6 +11943,16 @@ window.renderSubscriptionExpiredPage = renderSubscriptionExpiredPage;
 function navigate(page) {
     const mainContainer = document.getElementById('app-main');
     if (!mainContainer) return;
+
+    if (state && !state.initialLoadDone) {
+        mainContainer.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
+                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2.5rem; color: var(--color-purple);"></i>
+                <span style="font-weight: 700; font-size: 0.95rem; letter-spacing: -0.2px;">Lade Spieldaten...</span>
+            </div>
+        `;
+        return;
+    }
 
     // Check if subscription has expired (DSGVO Variant A)
     if (state && state.currentUser && isSubscriptionExpired(state.currentUser)) {
