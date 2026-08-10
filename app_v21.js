@@ -529,18 +529,33 @@ window.unlockListing = function(targetId, targetName) {
 window.normalizeCityName = function(city) {
     if (!city) return '';
     let normalized = city.trim();
-    if (normalized.toLowerCase() === 'köln') return 'Köln';
-    if (normalized.toLowerCase() === 'münchen') return 'München';
-    if (normalized.toLowerCase() === 'nürnberg') return 'Nürnberg';
-    if (normalized.toLowerCase() === 'düsseldorf') return 'Düsseldorf';
-    return normalized.split(', ').map(word => {
+    
+    const addZip = (loc) => {
+        if (!loc) return '';
+        if (/\(\d{5}\)/.test(loc)) return loc;
+        const cleanLoc = loc.toLowerCase();
+        const match = popularGermanCities.find(c => {
+            const cityName = c.split(' (')[0].toLowerCase();
+            return cityName === cleanLoc;
+        });
+        return match || loc;
+    };
+
+    if (normalized.toLowerCase() === 'köln') return addZip('Köln');
+    if (normalized.toLowerCase() === 'münchen') return addZip('München');
+    if (normalized.toLowerCase() === 'nürnberg') return addZip('Nürnberg');
+    if (normalized.toLowerCase() === 'düsseldorf') return addZip('Düsseldorf');
+    
+    const parts = normalized.split(', ').map(word => {
         const lw = word.toLowerCase();
         if (lw === 'köln') return 'Köln';
         if (lw === 'münchen') return 'München';
         if (lw === 'nürnberg') return 'Nürnberg';
         if (lw === 'düsseldorf') return 'Düsseldorf';
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    }).join(', ');
+    });
+    
+    return addZip(parts.join(', '));
 };
 
 // ==========================================
@@ -4724,7 +4739,7 @@ function renderMatchDial(score) {
 }
 
 const popularGermanCities = [
-    "Berlin", "Hamburg", "MÜnchen", "KÖln", "Frankfurt am Main", "Stuttgart", "Düsseldorf", "Dortmund", "Essen", "Leipzig", "Bremen", "Dresden", "Hannover", "Nürnberg", "Duisburg", "Bochum", "Wuppertal", "Bielefeld", "Bonn", "Münster", "Karlsruhe", "Mannheim", "Augsburg", "Wiesbaden", "Gelsenkirchen", "MÜnchengladbach", "Braunschweig", "Chemnitz", "Aachen", "Kiel", "Halle (Saale)", "Magdeburg", "Freiburg im Breisgau", "Krefeld", "Lübeck", "Oberhausen", "Erfurt", "Mainz", "Rostock", "Kassel", "Hagen", "Hamm", "Saarbrücken", "Mülheim an der Ruhr", "Potsdam", "Ludwigshafen am Rhein", "Oldenburg", "Leverkusen", "Osnabrück", "Solingen", "Heidelberg", "Herne", "Neuss", "Darmstadt", "Paderborn", "Regensburg", "Ingolstadt", "Würzburg", "FÜrth", "Wolfsburg", "Offenbach am Main", "Ulm", "Heilbronn", "Pforzheim", "Göttingen", "Bottrop", "Recklinghausen", "Reutlingen", "Koblenz", "Bergisch Gladbach", "Remscheid", "Bremerhaven", "Jena", "Trier", "Erlangen", "Moers", "Siegen", "Hildesheim", "Salzgitter", "Cottbus", "Kaiserslautern", "Witten", "Gütersloh", "Schwerin", "Gera", "Bad Homburg", "Marl", "Flensburg", "Lünen", "Villingen-Schwenningen", "Ratingen", "Neu-Isenburg", "Bad Salzuflen", "Tübingen", "Minden", "Worms", "Konstanz", "Wilhelmshaven", "Velbert", "Norderstedt", "Stein", "Castrop-Rauxel", "Delmenhorst", "Viersen", "Gladbeck", "Marburg", "Rheine", "Troisdorf", "Dorsten", "Lüneburg", "Detmold", "Bayreuth", "Arnsberg", "Lippstadt", "Landshut", "Dinslaken", "Plauen", "Weimar", "Neuwied", "Ibbenbüren", "Gießen", "Passau", "Freising", "Freital", "Frankfurt (Oder)", "Ravensburg", "Rosenheim", "Stralsund", "Lörrach", "Schweinfurt", "Baden-Baden", "Offenburg", "Stendal", "Heidenheim", "Garmisch-Partenkirchen", "Memmingen", "Dachau", "Kempten (Allgäu)", "Görlitz", "Bautzen", "Sindelfingen", "Goch", "Kleve", "Wesel", "Kevelaer", "Kempen", "Nettetal"
+    "Berlin (10115)", "Hamburg (20095)", "München (80331)", "Köln (50667)", "Frankfurt am Main (60311)", "Stuttgart (70173)", "Düsseldorf (40210)", "Dortmund (44135)", "Essen (45127)", "Leipzig (04109)", "Bremen (28195)", "Dresden (01067)", "Hannover (30159)", "Nürnberg (90402)", "Duisburg (47051)", "Bochum (44787)", "Wuppertal (42103)", "Bielefeld (33602)", "Bonn (53111)", "Münster (48143)", "Karlsruhe (76133)", "Mannheim (68161)", "Augsburg (86150)", "Wiesbaden (65183)", "Gelsenkirchen (45879)", "Mönchengladbach (41061)", "Braunschweig (38100)", "Chemnitz (09111)", "Aachen (52062)", "Kiel (24103)", "Halle (Saale) (06108)", "Magdeburg (39104)", "Freiburg im Breisgau (79098)", "Krefeld (47798)", "Lübeck (23552)", "Oberhausen (46045)", "Erfurt (99084)", "Mainz (55116)", "Rostock (18055)", "Kassel (34117)", "Hagen (58095)", "Hamm (59065)", "Saarbrücken (66111)", "Mülheim an der Ruhr (45468)", "Potsdam (14467)", "Ludwigshafen am Rhein (67059)", "Oldenburg (26122)", "Leverkusen (51373)", "Osnabrück (49074)", "Solingen (42651)", "Heidelberg (69117)", "Herne (44623)", "Neuss (41460)", "Darmstadt (64283)", "Paderborn (33098)", "Regensburg (93047)", "Ingolstadt (85049)", "Würzburg (97070)", "Fürth (90762)", "Wolfsburg (38440)", "Offenbach am Main (63065)", "Ulm (89073)", "Heilbronn (74072)", "Pforzheim (75175)", "Göttingen (37073)", "Bottrop (46236)", "Recklinghausen (45657)", "Reutlingen (72764)", "Koblenz (56068)", "Bergisch Gladbach (51465)", "Remscheid (42853)", "Bremerhaven (27568)", "Jena (07743)", "Trier (54290)", "Erlangen (91052)", "Moers (47441)", "Siegen (57072)", "Hildesheim (31134)", "Salzgitter (38226)", "Cottbus (03046)", "Kaiserslautern (67655)", "Witten (58452)", "Gütersloh (33330)", "Schwerin (19053)", "Gera (07545)", "Bad Homburg (61348)", "Marl (45768)", "Flensburg (24937)", "Lünen (44532)", "Villingen-Schwenningen (78048)", "Ratingen (40878)", "Neu-Isenburg (63263)", "Bad Salzuflen (32105)", "Tübingen (72070)", "Minden (32423)", "Worms (67547)", "Konstanz (78462)", "Wilhelmshaven (26382)", "Velbert (42549)", "Norderstedt (22846)", "Stein (90547)", "Castrop-Rauxel (44575)", "Delmenhorst (27749)", "Viersen (41747)", "Gladbeck (45964)", "Marburg (35037)", "Rheine (48431)", "Troisdorf (53840)", "Dorsten (46282)", "Lüneburg (21335)", "Detmold (32756)", "Bayreuth (95444)", "Arnsberg (59755)", "Lippstadt (59555)", "Landshut (84028)", "Dinslaken (46535)", "Plauen (08523)", "Weimar (99423)", "Neuwied (56564)", "Ibbenbüren (49479)", "Gießen (35390)", "Passau (94032)", "Freising (85354)", "Freital (01705)", "Frankfurt (Oder) (15230)", "Ravensburg (88212)", "Rosenheim (83022)", "Stralsund (18439)", "Lörrach (79539)", "Schweinfurt (97421)", "Baden-Baden (76530)", "Offenburg (77652)", "Stendal (39576)", "Heidenheim (89518)", "Garmisch-Partenkirchen (82467)", "Memmingen (87700)", "Dachau (85221)", "Kempten (Allgäu) (87435)", "Görlitz (02826)", "Bautzen (02625)", "Sindelfingen (71063)", "Goch (47574)", "Kleve (47533)", "Wesel (46483)", "Kevelaer (47623)", "Kempen (47906)", "Nettetal (41334)"
 ];
 
 function levenshteinDistance(a, b) {
@@ -4918,10 +4933,12 @@ function setupLocationAutocomplete(input, onSelect) {
                         apiMatches = data.map(item => {
                             const addr = item.address;
                             const cityName = addr.city || addr.town || addr.village || addr.municipality || item.name;
+                            const displayZip = addr.postcode;
+                            const displayCity = displayZip ? `${cityName} (${displayZip})` : cityName;
                             const state = addr.state ? `, ${addr.state}` : '';
                             return {
-                                name: cityName,
-                                label: `${cityName}${state}`
+                                name: displayCity,
+                                label: displayZip ? `${displayCity}${state}` : `${cityName}${state}`
                             };
                         });
                     }
@@ -4995,7 +5012,10 @@ function setupLocationAutocomplete(input, onSelect) {
             } else {
                 const val = input.value.trim();
                 if (val) {
-                    const matchedCity = popularGermanCities.find(c => c.toLowerCase() === val.toLowerCase());
+                    const matchedCity = popularGermanCities.find(c => {
+                        const cityName = c.split(' (')[0].toLowerCase();
+                        return cityName === val.toLowerCase() || c.toLowerCase() === val.toLowerCase();
+                    });
                     if (matchedCity) {
                         input.dataset.lastValidVal = matchedCity;
                         if (onSelect) {
@@ -5056,7 +5076,10 @@ function setupLocationAutocomplete(input, onSelect) {
                 return;
             }
             
-            const matchedCity = popularGermanCities.find(c => c.toLowerCase() === val.toLowerCase());
+            const matchedCity = popularGermanCities.find(c => {
+                const cityName = c.split(' (')[0].toLowerCase();
+                return cityName === val.toLowerCase() || c.toLowerCase() === val.toLowerCase();
+            });
             if (matchedCity) {
                 input.dataset.lastValidVal = matchedCity;
                 if (onSelect) {
@@ -5428,7 +5451,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Gäste (Anzahl)</label>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Publikum (Anzahl)</label>
                                     <span id="val-filter-publikum-m" style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a;">0 - 500+</span>
                                 </div>
                                 <div class="dual-range-slider" id="slider-filter-publikum-m-container">
@@ -5649,7 +5672,11 @@ function renderMarket(container, type, onNavigate) {
             ? (container.querySelector('#filter-location')?.value || '').trim().toLowerCase()
             : (container.querySelector('#filter-location-m')?.value || '').trim().toLowerCase();
         if (locInput) {
-            list = list.filter(item => (item.location || '').toLowerCase().includes(locInput));
+            const cleanQuery = locInput.split(' (')[0].toLowerCase().trim();
+            list = list.filter(item => {
+                const itemLoc = (item.location || '').split(' (')[0].toLowerCase().trim();
+                return itemLoc.includes(cleanQuery);
+            });
         }
 
         // 1.5. Datum Filter (Date Filter) - Multi-Date selection
@@ -7468,6 +7495,10 @@ function renderOrganizerEventItem(e, isActive) {
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>Spieldauer: ${durationDisplay}</span>
                         </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Gästeanzahl: ${e.minPublikum !== undefined && e.maxPublikum !== undefined ? `${e.minPublikum} - ${e.maxPublikum}+` : '50 - 150'}</span>
+                        </div>
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, e.id, 'tech') : 'nach Vereinbarung'}</span>
@@ -7853,9 +7884,6 @@ function renderMyMusicianItem(m, isActive) {
                                 <source src="${vid.url}" type="video/mp4">
                                 Dein Browser unterstützt dieses Video nicht.
                             </video>
-                            <span style="position: absolute; top: 12px; left: 12px; z-index: 4; font-size: 0.72rem; font-weight: 800; color: #fff; background: rgba(239, 68, 68, 0.9); padding: 0.25rem 0.65rem; border-radius: 6px; backdrop-filter: blur(4px);">
-                                🎬 Video #${vIdx + 1}: ${vid.title}
-                            </span>
                         </div>
                     `).join('')}
 
@@ -7928,7 +7956,11 @@ function renderMyMusicianItem(m, isActive) {
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${durationDisplay}</span>
+                            <span>Spielzeit: ${durationDisplay}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Publikumsgröße: ${m.minPublikum !== undefined && m.maxPublikum !== undefined ? `${m.minPublikum} - ${m.maxPublikum}+` : '0 - 500+'}</span>
                         </div>
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
@@ -13236,9 +13268,6 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                                     <source src="${vid.url}" type="video/mp4">
                                     Dein Browser unterstützt dieses Video nicht.
                                 </video>
-                                <span style="position: absolute; top: 12px; left: 12px; z-index: 4; font-size: 0.72rem; font-weight: 800; color: #fff; background: rgba(239, 68, 68, 0.9); padding: 0.25rem 0.65rem; border-radius: 6px; backdrop-filter: blur(4px);">
-                                    🎬 Video #${vIdx + 1}: ${vid.title}
-                                </span>
                             </div>
                         `).join('')}
 
@@ -13358,7 +13387,13 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <!-- 6. Spieldauer -->
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${durationDisplay}</span>
+                            <span>Spielzeit: ${durationDisplay}</span>
+                        </div>
+                        
+                        <!-- Publikum / Gäste -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-users" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
+                            <span>${isEvents ? 'Gästeanzahl' : 'Publikumsgröße'}: ${item.minPublikum !== undefined && item.maxPublikum !== undefined ? `${item.minPublikum} - ${item.maxPublikum}+` : (isEvents ? '50 - 150' : '0 - 500+')}</span>
                         </div>
                         
                         <!-- 7. Technik -->
