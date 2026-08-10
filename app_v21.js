@@ -4664,7 +4664,7 @@ function initDualSlider(containerId, minInputId, maxInputId, trackId, displayId,
         }
 
         const percentMin = ((minVal - minInput.min) / (minInput.max - minInput.min)) * 100;
-        const percentMax = ((maxVal - minInput.min) / (maxInput.max - minInput.min)) * 100;
+        const percentMax = ((maxVal - maxInput.min) / (maxInput.max - minInput.min)) * 100;
 
         if (track) {
             track.style.left = percentMin + '%';
@@ -4673,52 +4673,24 @@ function initDualSlider(containerId, minInputId, maxInputId, trackId, displayId,
 
         if (display) {
             if (isPrice) {
-                if (minVal === 0 && maxVal === 5000) {
-                    display.textContent = "unbegrenzt";
+                if (maxVal >= 5000) {
+                    display.textContent = `${minVal.toLocaleString('de-DE')} - 5.000+ €`;
                 } else {
-                    display.textContent = `${minVal} € - ${maxVal} €`;
+                    display.textContent = `${minVal.toLocaleString('de-DE')} - ${maxVal.toLocaleString('de-DE')} €`;
+                }
+            } else if (unit === 'Std.') {
+                display.textContent = `${minVal.toFixed(1).replace('.', ',')} - ${maxVal.toFixed(1).replace('.', ',')} Std.`;
+            } else if (unit === 'Personen') {
+                if (maxVal >= 500) {
+                    display.textContent = `${minVal} - 500+ Personen`;
+                } else {
+                    display.textContent = `${minVal} - ${maxVal} Personen`;
                 }
             } else {
                 display.textContent = `${minVal} - ${maxVal} ${unit}`;
             }
         }
     }
-
-    const handlePointerMove = (clientX) => {
-        const rect = container.getBoundingClientRect();
-        const mouseX = clientX - rect.left;
-        const width = rect.width;
-        
-        const minVal = parseFloat(minInput.value);
-        const maxVal = parseFloat(maxInput.value);
-        const minPercent = ((minVal - minInput.min) / (minInput.max - minInput.min));
-        const maxPercent = ((maxVal - minInput.min) / (maxInput.max - minInput.min));
-        
-        const minX = minPercent * width;
-        const maxX = maxPercent * width;
-        
-        const distMin = Math.abs(mouseX - minX);
-        const distMax = Math.abs(mouseX - maxX);
-        
-        if (distMin < distMax) {
-            minInput.style.pointerEvents = 'auto';
-            minInput.style.zIndex = '4';
-            maxInput.style.pointerEvents = 'none';
-            maxInput.style.zIndex = '3';
-        } else {
-            maxInput.style.pointerEvents = 'auto';
-            maxInput.style.zIndex = '4';
-            minInput.style.pointerEvents = 'none';
-            minInput.style.zIndex = '3';
-        }
-    };
-
-    container.addEventListener('mousemove', (e) => handlePointerMove(e.clientX));
-    container.addEventListener('touchstart', (e) => {
-        if (e.touches && e.touches[0]) {
-            handlePointerMove(e.touches[0].clientX);
-        }
-    }, { passive: true });
 
     minInput.addEventListener('input', updateSlider);
     maxInput.addEventListener('input', updateSlider);
@@ -7449,7 +7421,7 @@ function renderMyEvents(container) {
                             <p>Keine aktiven Ausschreibungen vorhanden.</p>
                         </div>
                     ` : `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
                             ${activeEvents.map(e => renderOrganizerEventItem(e, true)).join('')}
                         </div>
                     `}
@@ -7474,7 +7446,7 @@ function renderMyEvents(container) {
                             <p>Keine deaktivierten oder beendeten Events.</p>
                         </div>
                     ` : `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 1.5rem;">
                             ${deactivatedEvents.map(e => renderOrganizerEventItem(e, false)).join('')}
                         </div>
                     `}
@@ -7883,7 +7855,7 @@ function renderMyMusicians(container) {
                             <p>Keine aktiven Profile vorhanden.</p>
                         </div>
                     ` : `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
                             ${activeMusicians.map(m => renderMyMusicianItem(m, true)).join('')}
                         </div>
                     `}
@@ -7908,7 +7880,7 @@ function renderMyMusicians(container) {
                             <p>Keine pausierten oder inaktiven Profile.</p>
                         </div>
                     ` : `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 1.5rem;">
                             ${deactivatedMusicians.map(m => renderMyMusicianItem(m, false)).join('')}
                         </div>
                     `}
@@ -8403,13 +8375,23 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             }
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
+            fileInput.multiple = true;
             fileInput.accept = 'image/png, image/jpeg, image/gif, image/webp';
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    validateAndProcessPhoto(fileInput.files[0], (dataUrl) => {
-                        localMedia.photos.push(dataUrl);
-                        updateLocalMediaPreview();
+                    Array.from(fileInput.files).forEach(file => {
+                        if (localMedia.photos.length >= 5) {
+                            showToast({
+                                title: "Bilder-Limit erreicht 📷",
+                                message: "Es sind maximal 5 Bilder erlaubt."
+                            });
+                            return;
+                        }
+                        validateAndProcessPhoto(file, (dataUrl) => {
+                            localMedia.photos.push(dataUrl);
+                            updateLocalMediaPreview();
+                        });
                     });
                 }
             });
@@ -8430,13 +8412,23 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             }
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
+            fileInput.multiple = true;
             fileInput.accept = 'video/mp4, video/quicktime, video/webm, video/ogg, video/x-matroska';
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    validateAndProcessVideo(fileInput.files[0], (videoUrl) => {
-                        localMedia.videos.push(videoUrl);
-                        updateLocalMediaPreview();
+                    Array.from(fileInput.files).forEach(file => {
+                        if (localMedia.videos.length >= 3) {
+                            showToast({
+                                title: "Video-Limit erreicht 🎬",
+                                message: "Es sind maximal 3 Videos erlaubt."
+                            });
+                            return;
+                        }
+                        validateAndProcessVideo(file, (videoUrl) => {
+                            localMedia.videos.push({ url: videoUrl, title: file.name });
+                            updateLocalMediaPreview();
+                        });
                     });
                 }
             });
@@ -8457,13 +8449,23 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             }
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
+            fileInput.multiple = true;
             fileInput.accept = 'audio/mpeg, audio/wav, audio/ogg, audio/mp3, audio/m4a, audio/aac';
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    validateAndProcessAudio(fileInput.files[0], (audioObj) => {
-                        localMedia.audios.push(audioObj);
-                        updateLocalMediaPreview();
+                    Array.from(fileInput.files).forEach(file => {
+                        if (localMedia.audios.length >= 3) {
+                            showToast({
+                                title: "Audio-Limit erreicht 🎵",
+                                message: "Es sind maximal 3 Audio-Dateien erlaubt."
+                            });
+                            return;
+                        }
+                        validateAndProcessAudio(file, (audioObj) => {
+                            localMedia.audios.push(audioObj);
+                            updateLocalMediaPreview();
+                        });
                     });
                 }
             });
@@ -13723,10 +13725,10 @@ function validateAndProcessPhoto(file, callback) {
     reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
-            if (Math.max(img.width, img.height) < 1200) {
+            if (Math.max(img.width, img.height) < 300) {
                 showToast({
                     title: "Auflösung zu gering 📷",
-                    message: "Das Foto muss eine Auflösung von mindestens 1200 px auf der längeren Seite haben."
+                    message: "Das Foto muss eine Auflösung von mindestens 300 px auf der längeren Seite haben."
                 });
                 return;
             }
@@ -13758,13 +13760,16 @@ function validateAndProcessPhoto(file, callback) {
 }
 
 function validateAndProcessVideo(file, callback) {
-    const allowedTypes = ['video/mp4', 'video/quicktime', 'video/webm'];
+    const allowedExtensions = ['mp4', 'mov', 'webm', 'ogg', 'mkv', 'avi', '3gp', 'm4v'];
+    const fileExt = file.name.split('.').pop().toLowerCase();
+    const isAllowedExt = allowedExtensions.includes(fileExt);
+    const isAllowedMime = file.type && file.type.startsWith('video/');
     const maxSize = 500 * 1024 * 1024; // 500 MB
 
-    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(mp4|mov|webm)$/i)) {
+    if (!isAllowedMime && !isAllowedExt) {
         showToast({
             title: "Fehler beim Videoupload ❌",
-            message: "Ungültiges Dateiformat. Erlaubt sind MP4, MOV und WebM."
+            message: "Ungültiges Dateiformat. Erlaubt sind gängige Videoformate wie MP4, MOV, WebM."
         });
         return;
     }

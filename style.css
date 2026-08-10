@@ -3278,13 +3278,26 @@ body {
     }
 }
 
-/* Make all criteria labels inside the registration form purple and bold */
 #auth-register-form .form-group label:not(.tag-pill-checkbox),
 #auth-register-form .slider-value-display label,
 #musician-editor-form .form-group label:not(.tag-pill-checkbox),
 #musician-editor-form .slider-value-display label {
     color: var(--color-purple) !important;
     font-weight: 800 !important;
+}
+
+/* Selected checkboxes in musician registration and editor should be purple */
+#auth-register-form .tag-pill-checkbox.active,
+#musician-editor-form .tag-pill-checkbox.active {
+    background: rgba(124, 58, 237, 0.1) !important;
+    border-color: #7c3aed !important;
+    color: #7c3aed !important;
+    font-weight: 700 !important;
+    box-shadow: 0 0 8px rgba(124, 58, 237, 0.25) !important;
+}
+#auth-register-form .tag-pill-checkbox:hover,
+#musician-editor-form .tag-pill-checkbox:hover {
+    border-color: rgba(124, 58, 237, 0.5) !important;
 }
 
 /* Enforce bold headings inside modal content */
@@ -3590,6 +3603,16 @@ body {
     gap: 1rem;
     width: 100%;
     box-sizing: border-box;
+}
+
+#market-title-label {
+    color: var(--text-main) !important;
+}
+
+@media (max-width: 600px) {
+    #market-title-label {
+        display: none !important;
+    }
 }
 
 .market-filter-mobile-toggle {
