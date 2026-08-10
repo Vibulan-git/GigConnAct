@@ -2678,9 +2678,12 @@ class StateManager {
                     console.error("addMusician Firestore write failed async:", err);
                     this.musicians = this.musicians.filter(m => m.id !== id);
                     this.notify();
+                    const isSizeError = err.message.toLowerCase().includes("size") || err.message.toLowerCase().includes("large") || err.message.toLowerCase().includes("exceeds");
                     showToast({
                         title: "Fehler beim Speichern ⚠️",
-                        message: "Berechtigungsfehler (z. B. Limit auf ein Profil) oder Netzwerkfehler: " + err.message,
+                        message: isSizeError
+                            ? "Das Profil ist zu groß (max. 1 MB). Bitte entferne einige Medien/Bilder oder verkleinere sie."
+                            : "Berechtigungsfehler (z. B. Limit auf ein Profil) oder Netzwerkfehler: " + err.message,
                         type: "error"
                     });
                 });
@@ -2716,9 +2719,12 @@ class StateManager {
             db.collection('musicians').doc(musicianId).update(cleanData)
                 .catch(err => {
                     console.error("updateMusician Firestore write failed async:", err);
+                    const isSizeError = err.message.toLowerCase().includes("size") || err.message.toLowerCase().includes("large") || err.message.toLowerCase().includes("exceeds");
                     showToast({
                         title: "Fehler beim Aktualisieren ⚠️",
-                        message: "Firestore-Berechtigung verweigert: " + err.message,
+                        message: isSizeError
+                            ? "Das Profil ist zu groß (max. 1 MB). Bitte entferne einige Medien/Bilder oder verkleinere sie."
+                            : "Firestore-Berechtigung verweigert: " + err.message,
                         type: "error"
                     });
                 });
@@ -14271,7 +14277,7 @@ function validateAndProcessPhoto(file, callback, errorCallback) {
             }
 
             const canvas = document.createElement('canvas');
-            const maxDim = 3000;
+            const maxDim = 1200;
             let w = img.width;
             let h = img.height;
             if (w > h) {
@@ -14289,7 +14295,7 @@ function validateAndProcessPhoto(file, callback, errorCallback) {
             canvas.height = h;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, w, h);
-            callback(canvas.toDataURL('image/jpeg', 0.85)); // slightly higher quality
+            callback(canvas.toDataURL('image/jpeg', 0.75)); // compressed to stay well within 1MB Firestore limit
         };
         img.src = e.target.result;
     };
