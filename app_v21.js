@@ -5013,38 +5013,10 @@ function renderMarket(container, type, onNavigate) {
     let showOnlyTopMatches = false;
     let showOnlyFavorites = false;
 
-    let profileSelectorHtml = '';
-    let userProfiles = [];
-    let activeProfileId = '';
-    
-    if (state.currentUser) {
-        if (state.currentUser.role === 'musician') {
-            userProfiles = state.musicians.filter(m => m.creatorId === state.currentUser.id);
-            activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || '');
-            if (activeProfileId) state.activeMusicianId = activeProfileId;
-        } else if (state.currentUser.role === 'organizer') {
-            userProfiles = state.events.filter(e => e.creatorId === state.currentUser.id);
-            activeProfileId = state.activeEventId || (userProfiles[0]?.id || '');
-            if (activeProfileId) state.activeEventId = activeProfileId;
-        }
-        
-        if (userProfiles.length > 0) {
-            const options = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''}>${p.name || p.contactName || p.title || 'Profil'}</option>`).join('');
-            profileSelectorHtml = `
-                <div class="profile-switcher-wrapper" style="display: flex; align-items: center; gap: 0.25rem; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 20px; padding: 0.2rem 0.4rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin: 0; min-width: 0; max-width: 120px; flex: 1 1 auto; flex-shrink: 0; height: 36px; box-sizing: border-box;">
-                    <i class="${isEvents ? 'fa-solid fa-guitar' : 'fa-solid fa-calendar-day'}" style="color: ${isEvents ? '#2563eb' : '#7c3aed'}; font-size: 0.75rem; flex-shrink: 0;"></i>
-                    <select id="market-profile-select" class="input-field" style="width: 100%; height: 24px; padding: 0 0.15rem; font-size: 0.7rem; margin: 0; border: none; background: transparent; cursor: pointer; color: var(--text-main); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; outline: none;">
-                        ${options}
-                    </select>
-                </div>
-            `;
-        }
-    }
-
     container.innerHTML = `
         <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1rem 5rem; box-sizing: border-box;">
             
-            <!-- Controls Row: Filter, Sortierung, Stern, Herz, Ergebnisse, Profil-Auswahl in linear order -->
+            <!-- Controls Row: Filter, Sortierung, Stern, Herz, Ergebnisse in linear order -->
             <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 1.5rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0.6rem; -webkit-overflow-scrolling: touch;">
                 
                 <!-- 1. Filter -->
@@ -5073,8 +5045,6 @@ function renderMarket(container, type, onNavigate) {
                 <button class="market-control-toggle" id="btn-toggle-market-favorites" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Favoriten anzeigen">
                     <i class="fa-solid fa-heart" style="font-size: 1.05rem; margin: 0;"></i>
                 </button>
-
-                ${profileSelectorHtml}
 
                 <!-- 5. Ergebnisse als Zahl + Label pushed to the right -->
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-left: auto; flex-shrink: 0; padding-left: 0.5rem; margin-right: 0.2rem;">
