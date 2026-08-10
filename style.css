@@ -4056,6 +4056,14 @@ input[type="range"].input-field {
     border: 1.5px solid rgba(37, 99, 235, 0.25) !important;
 }
 
+.filter-header-sticky .market-sort-container-round {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+}
+.filter-header-sticky .market-sort-container-round:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+}
+
 /* Backdrop blur overlay for mobile filters drawer */
 .market-filters-overlay {
     position: fixed !important;

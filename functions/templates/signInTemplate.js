@@ -14,7 +14,10 @@ module.exports = function getSignInEmailHtml({ link, name, isNewUser, role }) {
 
     return `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
-            <h2 style="color: ${brandColor}; margin-top: 0; font-size: 1.5rem;">${title}</h2>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="https://gigconnact.de/discoball.png" alt="GigConnAct Logo" style="width: 70px; height: 70px; object-fit: contain;">
+            </div>
+            <h2 style="color: ${brandColor}; margin-top: 0; font-size: 1.5rem; text-align: center;">${title}</h2>
             <p>${salutation}</p>
             <p>${body}</p>
             <p style="margin-top: 25px;">

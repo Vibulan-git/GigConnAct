@@ -13,7 +13,7 @@ const getSignInEmailHtml = require('./templates/signInTemplate');
 admin.initializeApp();
 
 // Helper to send email via Resend
-async function sendEmail({ to, subject, html }) {
+async function sendEmail({ to, subject, html, headers = {} }) {
     try {
         const apiKey = process.env.RESEND_API_KEY;
         if (!apiKey) {
@@ -25,7 +25,8 @@ async function sendEmail({ to, subject, html }) {
             from: 'GigConnAct <noreply@gigconnact.de>',
             to: to,
             subject: subject,
-            html: html
+            html: html,
+            headers: headers
         });
         console.log("Email sent successfully to", to, data);
     } catch (error) {
@@ -38,32 +39,63 @@ async function getUserDetails(id) {
     try {
         if (!id) return null;
         let userId = id;
+        let profileContactName = null;
+        let profileName = null;
+        let profileEmail = null;
+        let profileRole = null;
 
         if (id.startsWith('mus_')) {
             const musDoc = await admin.firestore().collection('musicians').doc(id).get();
             if (musDoc.exists) {
-                userId = musDoc.data().creatorId;
+                const musData = musDoc.data();
+                userId = musData.creatorId || id.replace(/^mus_/, '');
+                profileContactName = musData.contactName;
+                profileName = musData.name;
+                profileEmail = musData.email;
+                profileRole = 'musician';
             } else {
                 userId = id.replace(/^mus_/, '');
             }
         } else if (id.startsWith('evt_') || id.startsWith('event_')) {
             const eventDoc = await admin.firestore().collection('events').doc(id).get();
             if (eventDoc.exists) {
-                userId = eventDoc.data().creatorId;
+                const evtData = eventDoc.data();
+                userId = evtData.creatorId || id.replace(/^(evt_|event_)/, '');
+                profileContactName = evtData.contactName;
+                profileName = evtData.name;
+                profileEmail = evtData.email;
+                profileRole = 'organizer';
             } else {
                 userId = id.replace(/^(evt_|event_)/, '');
             }
         }
 
         const userDoc = await admin.firestore().collection('users').doc(userId).get();
+        let email = profileEmail || null;
+        let displayName = null;
+        let role = profileRole || 'musician';
+
         if (userDoc.exists) {
             const data = userDoc.data();
-            return {
-                email: data.email || null,
-                name: data.name || data.contactName || 'Nutzer',
-                role: data.role || 'musician'
-            };
+            email = data.email || email;
+            role = data.role || role;
+            displayName = data.name || data.contactName;
+            if (!displayName && (data.firstName || data.lastName)) {
+                displayName = `${data.firstName || ''} ${data.lastName || ''}`.trim();
+            }
         }
+
+        // Apply fallback hierarchy for name
+        let finalName = displayName;
+        if (!finalName || finalName.toLowerCase() === 'nutzer' || finalName.toLowerCase() === 'gigconnact nutzer') {
+            finalName = profileContactName || profileName || 'Nutzer';
+        }
+
+        return {
+            email: email,
+            name: finalName,
+            role: role
+        };
     } catch (e) {
         console.error("Failed to fetch user details:", e);
     }
@@ -95,20 +127,36 @@ async function getDisplayName(id) {
 // Helper to calculate estimated distance between two cities (mockup mapping matching frontend)
 function getEstimatedDistance(city1, city2) {
     if (!city1 || !city2) return 250;
-    const c1 = city1.trim().toLowerCase();
-    const c2 = city2.trim().toLowerCase();
-    if (c1 === c2) return 0;
     
-    const key = [c1, c2].sort().join("-");
-    const distances = {
-        "augsburg-münchen": 80,
-        "augsburg-stuttgart": 150,
-        "augsburg-nürnberg": 140,
-        "münchen-nürnberg": 170,
-        "münchen-stuttgart": 220,
-        "nürnberg-stuttgart": 210
-    };
-    return distances[key] !== undefined ? distances[key] : 250;
+    // Split by commas in case there are multiple locations
+    const cities1 = city1.split(',').map(c => c.trim().toLowerCase());
+    const cities2 = city2.split(',').map(c => c.trim().toLowerCase());
+    
+    let minDistance = 250;
+    
+    for (const c1 of cities1) {
+        for (const c2 of cities2) {
+            if (c1 === c2) {
+                minDistance = Math.min(minDistance, 0);
+                continue;
+            }
+            
+            const key = [c1, c2].sort().join("-");
+            const distances = {
+                "augsburg-münchen": 80,
+                "augsburg-stuttgart": 150,
+                "augsburg-nürnberg": 140,
+                "münchen-nürnberg": 170,
+                "münchen-stuttgart": 220,
+                "nürnberg-stuttgart": 210
+            };
+            
+            const d = distances[key] !== undefined ? distances[key] : 250;
+            minDistance = Math.min(minDistance, d);
+        }
+    }
+    
+    return minDistance;
 }
 
 // Helper to calculate match score matching frontend calculateMatch logic
@@ -256,11 +304,30 @@ exports.onNewChatMessage = functions
 
         const senderName = await getDisplayName(latestMessage.senderId);
 
+        let senderProfile = null;
+        let isSenderMusician = false;
+        try {
+            const musDoc = await admin.firestore().collection('musicians').doc(latestMessage.senderId).get();
+            if (musDoc.exists) {
+                senderProfile = musDoc.data();
+                isSenderMusician = true;
+            } else {
+                const evtDoc = await admin.firestore().collection('events').doc(latestMessage.senderId).get();
+                if (evtDoc.exists) {
+                    senderProfile = evtDoc.data();
+                }
+            }
+        } catch (err) {
+            console.error('Error fetching sender profile for chat email:', err);
+        }
+
         const subject = `Neue Nachricht von ${senderName} 💬`;
         const html = getMessageEmailHtml({
             senderName: senderName,
             messageText: latestMessage.text,
-            role: recipient.role
+            role: recipient.role,
+            senderProfile: senderProfile,
+            isSenderMusician: isSenderMusician
         });
 
         await sendEmail({ to: recipient.email, subject, html });
@@ -363,13 +430,20 @@ exports.dailyTopMatchesCheck = functions
             if (topMatches.length > 0) {
                 const userDetails = await getUserDetails(musician.id);
                 if (userDetails && userDetails.email) {
-                    const subject = `Deine neuen Top-Matches heute! 🌟 (${topMatches.length} Treffer)`;
+                    const subject = `Neue passende Gigs auf GigConnAct (${topMatches.length} Vorschlag${topMatches.length > 1 ? 'e' : ''})`;
                     const html = getTopMatchEmailHtml({
                         userName: userDetails.name,
                         role: 'musician',
                         matches: topMatches
                     });
-                    await sendEmail({ to: userDetails.email, subject, html });
+                    await sendEmail({ 
+                        to: userDetails.email, 
+                        subject, 
+                        html,
+                        headers: {
+                            'List-Unsubscribe': '<https://gigconnact.de/#/settings>'
+                        }
+                    });
                 }
             }
         });
@@ -390,13 +464,20 @@ exports.dailyTopMatchesCheck = functions
                 if (creatorId) {
                     const userDetails = await getUserDetails(creatorId);
                     if (userDetails && userDetails.email) {
-                        const subject = `Neue passende Musiker für dein Event! 🌟 (${topMatches.length} Profile)`;
+                        const subject = `Neue passende Musiker für dein Event (${topMatches.length} Profil${topMatches.length > 1 ? 'e' : ''})`;
                         const html = getTopMatchEmailHtml({
                             userName: userDetails.name,
                             role: 'organizer',
                             matches: topMatches
                         });
-                        await sendEmail({ to: userDetails.email, subject, html });
+                        await sendEmail({ 
+                            to: userDetails.email, 
+                            subject, 
+                            html,
+                            headers: {
+                                'List-Unsubscribe': '<https://gigconnact.de/#/settings>'
+                            }
+                        });
                     }
                 }
             }

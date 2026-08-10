@@ -240,6 +240,17 @@ window.deleteRegMedia = function(role, type, idx) {
     const list = window.registrationMedia[role][listKey];
     list.splice(idx, 1);
     window.updateRegMediaPreview(role);
+window.toggleSelectAll = function(gridId, linkEl) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    const allSelected = checkedCount === checkboxes.length;
+    checkboxes.forEach(cb => {
+        cb.checked = !allSelected;
+        cb.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    linkEl.textContent = allSelected ? 'Alle auswählen' : 'Alle abwählen';
 };
 
 window.slideComboGallery = function(itemId, direction) {
@@ -5040,7 +5051,17 @@ function renderMarket(container, type, onNavigate) {
                     <i class="fa-solid fa-sliders" style="font-size: 1.05rem; margin: 0;"></i>
                 </button>
  
-
+                <!-- 2. Sortierung -->
+                <div class="market-sort-container-round" style="width: 42px !important; height: 42px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 50% !important; flex-shrink: 0; position: relative; margin: 0; cursor: pointer; transition: all 0.2s;">
+                    <i class="fa-solid fa-arrow-down-wide-short" style="color: #ffffff; font-size: 1.05rem; pointer-events: none;"></i>
+                    <select id="sort-select-m" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; margin: 0; z-index: 5;">
+                        <option value="match">Match-Faktor absteigend</option>
+                        <option value="newest">Neueste zuerst</option>
+                        <option value="price">Günstig zuerst</option>
+                        <option value="distance">Nächste zuerst</option>
+                        <option value="name">Name (A-Z)</option>
+                    </select>
+                </div>
 
                 <!-- 3. Stern (Nur Top-Matches anzeigen) -->
                 <button class="market-control-toggle" id="btn-toggle-market-top-matches" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Top-Matches anzeigen">
@@ -5107,6 +5128,12 @@ function renderMarket(container, type, onNavigate) {
                         <!-- 10 Event-Markt Filter + Suchbegriffe mit tag-pill-checkboxes & dual range sliders -->
                         <div style="display: flex; flex-direction: column; gap: 0.8rem; padding: 1rem;">
                             
+                            <!-- SUCHBEGRIFFE FELD (WEISSES EINGABEFELD) -->
+                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Suchbegriffe</label>
+                                <input type="text" id="filter-keyword" placeholder="z.B. Hochzeit, Sax, Rock..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                            </div>
+
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Event-Typ</label>
                                 <div class="checkbox-tag-grid" id="filter-event-type-grid">
@@ -5155,7 +5182,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Instrumente</label>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid">
-                                    ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/CajÃ³n', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                    ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterInstruments" value="${ins}">
                                             <span>${ins}</span>
@@ -5215,17 +5242,17 @@ function renderMarket(container, type, onNavigate) {
                                 </div>
                             </div>
 
-                            <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK (WEISSES EINGABEFELD) -->
-                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #5b21b6; margin-bottom: 0.35rem;">Suchbegriffe</label>
-                                <input type="text" id="filter-keyword" placeholder="z.B. Hochzeit, Sax, Rock..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                            </div>
-
                         </div>
                     ` : `
                         <!-- 10 Musiker-Markt Filter + Suchbegriffe mit tag-pill-checkboxes & dual range sliders -->
                         <div style="display: flex; flex-direction: column; gap: 0.8rem; padding: 1rem;">
                             
+                            <!-- SUCHBEGRIFFE FELD (WEISSES EINGABEFELD) -->
+                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Suchbegriffe</label>
+                                <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                            </div>
+
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Musiker-Typ</label>
                                 <div class="checkbox-tag-grid" id="filter-musician-type-grid">
@@ -5282,7 +5309,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Instrumente</label>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
-                                    ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/CajÃ³n', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                    ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
                                             <input type="checkbox" name="filterInstrumentsM" value="${ins}">
                                             <span>${ins}</span>
@@ -5354,12 +5381,6 @@ function renderMarket(container, type, onNavigate) {
                                 </div>
                             </div>
 
-                            <!-- SUCHBEGRIFFE FELD DIREKT UNTER TECHNIK (WEISSES EINGABEFELD) -->
-                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #1e3a8a; margin-bottom: 0.35rem;">Suchbegriffe</label>
-                                <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
-                            </div>
-
                         </div>
                     `}
                 </div>
@@ -5409,7 +5430,8 @@ function renderMarket(container, type, onNavigate) {
         }
     });
 
-    const sortSelect = container.querySelector('#sort-select');
+    const sortSelects = container.querySelectorAll('#sort-select, #sort-select-m');
+    const sortSelect = sortSelects[0] || null;
     const resetBtn = container.querySelector('#btn-reset-filters');
     const marketProfileSelect = container.querySelector('#market-profile-select');
     if (marketProfileSelect) {
@@ -5735,7 +5757,15 @@ function renderMarket(container, type, onNavigate) {
         console.log("applyAllFiltersAndSort finished. Output items count:", list.length, "IDs:", list.map(item => item.id).join(', '));
     }
 
-    sortSelect?.addEventListener('change', applyAllFiltersAndSort);
+    sortSelects.forEach(sel => {
+        sel.addEventListener('change', function() {
+            const val = this.value;
+            sortSelects.forEach(other => {
+                if (other !== this) other.value = val;
+            });
+            applyAllFiltersAndSort();
+        });
+    });
     
     // Bind change/input event to text inputs
     container.querySelectorAll('.form-input:not([type="checkbox"]):not([type="range"])').forEach(el => {
@@ -5904,7 +5934,7 @@ function renderMarket(container, type, onNavigate) {
             el.dispatchEvent(new Event('input'));
         });
 
-        if (sortSelect) sortSelect.value = 'match';
+        sortSelects.forEach(sel => sel.value = 'match');
         applyAllFiltersAndSort();
     });
 
@@ -6410,6 +6440,10 @@ window.revealMarketContact = function(itemId, type, value, clickedBtn) {
 };
 
 window.toggleFavorite = function(id) {
+    if (!state.currentUser) {
+        showModal('auth');
+        return;
+    }
     if (state.toggleFavorite(id)) {
         const isFav = state.isFavorite(id);
         showToast({
@@ -7969,11 +8003,11 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     };
 
     // Extract current types
-    const currentTypes = musicianObj?.type ? musicianObj.type.split(',').map(s => s.trim()) : ['Solo'];
+    const currentTypes = musicianObj?.type ? musicianObj.type.split(',').map(s => s.trim()) : [];
 
     // Helper to check if weekday availability day is active
     const isDayActive = (dayKey) => {
-        if (!musicianObj) return true; // Default to checked for new profiles
+        if (!musicianObj) return false; // Default to unchecked for new profiles
         const avail = musicianObj.availability;
         if (!avail) return false;
         if (Array.isArray(avail)) {
@@ -8003,7 +8037,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
         const defEnd = '23:59';
         const defVal = type === 'start' ? defStart : defEnd;
         
-        if (!musicianObj) return defVal;
+        if (!musicianObj) return '';
         const avail = musicianObj.availability;
         if (!avail || Array.isArray(avail) || typeof avail !== 'object') return defVal;
         
@@ -8034,7 +8068,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Künstler-Typ (Mehrfachauswahl)</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                            <label style="margin: 0;">Künstler-Typ (Mehrfachauswahl)</label>
+                            <span onclick="window.toggleSelectAll('grid-musician-types', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                        </div>
                         <div class="checkbox-tag-grid" id="grid-musician-types">
                             ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => {
                                 const isChecked = currentTypes.includes(t);
@@ -8062,7 +8099,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Genres (Mehrfachauswahl)</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                            <label style="margin: 0;">Genres (Mehrfachauswahl)</label>
+                            <span onclick="window.toggleSelectAll('grid-genres', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                        </div>
                         <div class="checkbox-tag-grid" id="grid-genres">
                             ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
                                 const isChecked = musicianObj?.genres?.includes(g);
@@ -8077,9 +8117,12 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Instrumente (Mehrfachauswahl)</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                            <label style="margin: 0;">Instrumente (Mehrfachauswahl)</label>
+                            <span onclick="window.toggleSelectAll('grid-instruments', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                        </div>
                         <div class="checkbox-tag-grid" id="grid-instruments">
-                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/CajÃ³n', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
+                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
                                 const isChecked = musicianObj?.instruments?.includes(ins);
                                 return `
                                     <label class="tag-pill-checkbox">
@@ -8118,7 +8161,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Bevorzugte Event-Typen (Mehrfachauswahl)</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                            <label style="margin: 0;">Bevorzugte Event-Typen (Mehrfachauswahl)</label>
+                            <span onclick="window.toggleSelectAll('grid-event-types', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                        </div>
                         <div class="checkbox-tag-grid" id="grid-event-types">
                             ${['Geburtstag', 'Hochzeit - Trauung', 'Hochzeit - Sektempfang', 'Hochzeit - Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => {
                                 const isChecked = musicianObj?.eventTypes?.includes(evt);
@@ -8556,12 +8602,12 @@ function showEventModal(eventObj = null, isDuplication = false) {
     } else if (eventObj?.dates) {
         selectedEventDates = [...eventObj.dates];
     } else {
-        selectedEventDates = [new Date().toISOString().split('T')[0]];
+        selectedEventDates = [];
     }
 
-    let selectedOrgLocations = eventObj?.locations ? [...eventObj.locations] : (eventObj?.location ? [eventObj.location] : ['München']);
-    const currentTypes = eventObj?.type ? eventObj.type.split(',').map(s => s.trim()) : ['Hochzeit - Trauung'];
-    const currentMusicianTypes = eventObj?.musicianTypes || (eventObj?.musicianType ? eventObj.musicianType.split(',').map(s => s.trim()) : ['Solo']);
+    let selectedOrgLocations = eventObj?.locations ? [...eventObj.locations] : (eventObj?.location ? [eventObj.location] : []);
+    const currentTypes = eventObj?.type ? eventObj.type.split(',').map(s => s.trim()) : [];
+    const currentMusicianTypes = eventObj?.musicianTypes || (eventObj?.musicianType ? eventObj.musicianType.split(',').map(s => s.trim()) : []);
 
     modalWrapper.innerHTML = `
         <div class="modal-content" style="max-width: 650px; max-height: 85vh; overflow-y: auto; text-align: left;">
@@ -8578,7 +8624,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Event-Typ (Mehrfachauswahl)</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                            <label style="margin: 0;">Event-Typ (Mehrfachauswahl)</label>
+                            <span onclick="window.toggleSelectAll('grid-org-event-types', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                        </div>
                         <div class="checkbox-tag-grid" id="grid-org-event-types">
                             ${['Geburtstag', 'Hochzeit - Trauung', 'Hochzeit - Sektempfang', 'Hochzeit - Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => {
                                 const isChecked = currentTypes.includes(t);
@@ -8589,10 +8638,14 @@ function showEventModal(eventObj = null, isDuplication = false) {
                                     </label>
                                 `;
                             }).join('')}
+                        </div>
                     </div>
  
                     <div class="form-group">
-                        <label>Gesuchte Musiker-Typen (Mehrfachauswahl)</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                            <label style="margin: 0;">Gesuchte Musiker-Typen (Mehrfachauswahl)</label>
+                            <span onclick="window.toggleSelectAll('grid-org-musician-types', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                        </div>
                         <div class="checkbox-tag-grid" id="grid-org-musician-types">
                             ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => {
                                 const isChecked = currentMusicianTypes.includes(t);
@@ -8647,7 +8700,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Genres (Mehrfachauswahl)</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                            <label style="margin: 0;">Genres (Mehrfachauswahl)</label>
+                            <span onclick="window.toggleSelectAll('grid-org-genres', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                        </div>
                         <div class="checkbox-tag-grid" id="grid-org-genres">
                             ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B/Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
                                 const isChecked = eventObj?.genres?.includes(g);
@@ -8662,7 +8718,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </div>
 
                     <div class="form-group">
-                        <label>Instrumente (Mehrfachauswahl)</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                            <label style="margin: 0;">Instrumente (Mehrfachauswahl)</label>
+                            <span onclick="window.toggleSelectAll('grid-org-instruments', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                        </div>
                         <div class="checkbox-tag-grid" id="grid-org-instruments">
                             ${['Akustik', 'Gesang', 'Gitarre', 'Klavier/Piano', 'Bass', 'Schlagzeug', 'Percussion/Cajón', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
                                 const isChecked = eventObj?.instruments?.includes(ins);
@@ -8691,7 +8750,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <div class="slider-value-display">
-                            <label>GÃ¤ste (Anzahl)</label>
+                            <label>Gäste (Anzahl)</label>
                             <span id="val-org-publikum">${eventObj?.minPublikum || 0} - ${eventObj?.maxPublikum || 500}+</span>
                         </div>
                         <div class="dual-range-slider" id="slider-org-publikum-container">
@@ -8704,7 +8763,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <div class="slider-value-display">
-                            <label>Budget (â‚¬)</label>
+                            <label>Budget (€)</label>
                             <span id="val-org-gage">${eventObj?.minBudget || eventObj?.budget || 0} - ${eventObj?.maxBudget || eventObj?.budget || 5000}+ €</span>
                         </div>
                         <div class="dual-range-slider" id="slider-org-gage-container">
@@ -8741,7 +8800,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
                     <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien</h4>
                     <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
-                        Füge Fotos, Videos und Hörproben (Audios) für dein Event hinzu, um es attraktiver zu gestalten.
+                        Füge Fotos und Videos für dein Event hinzu, um es attraktiver zu gestalten.
                     </p>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
@@ -8760,15 +8819,6 @@ function showEventModal(eventObj = null, isDuplication = false) {
                             </button>
                         </div>
                         <div id="event-modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 1.2rem;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 100 MB&#10;Maximale Länge: 10 Minuten"></i></label>
-                            <button type="button" id="btn-event-modal-add-audio" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
-                        </div>
-                        <div id="event-modal-audios-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
 
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
@@ -9433,8 +9483,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group">
                             <div class="slider-value-display">
-                                                                <label>Gage (â‚¬)</label>
-                                <span id="val-gage">0 - 5.000+ â‚¬</span>
+                                <label>Gage (€)</label>
+                                <span id="val-gage">0 - 5.000+ €</span>
                             </div>
                             <div class="dual-range-slider" id="slider-gage-container">
                                 <div class="dual-range-track"></div>
@@ -9667,7 +9717,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group">
                             <div class="slider-value-display">
-                                <label>GÃ¤ste (Anzahl)</label>
+                                <label>Gäste (Anzahl)</label>
                                 <span id="val-org-publikum">0 - 500+</span>
                             </div>
                             <div class="dual-range-slider" id="slider-org-publikum-container">
@@ -9680,7 +9730,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group">
                             <div class="slider-value-display">
-                                <label>Budget (â‚¬)</label>
+                                <label>Budget (€)</label>
                                 <span id="val-org-gage">0 - 5.000+ €</span>
                             </div>
                             <div class="dual-range-slider" id="slider-org-gage-container">
@@ -12769,7 +12819,7 @@ function renderPostbox(container) {
                                 ` : `
                                     <form id="chat-send-form" style="display: flex; gap: 0.8rem;">
                                         <input type="text" id="chat-message-input" class="input-field" placeholder="${isSys ? 'Antworten auf Systemnachrichten nicht mÖglich' : 'Schreibe eine Nachricht...'}" ${isSys ? 'disabled' : ''} required style="flex: 1; margin: 0; height: 42px;">
-                                        <button type="submit" class="btn btn-primary" ${isSys ? 'disabled' : ''} style="margin: 0; padding: 0 1.2rem; height: 42px; font-weight: 700;">
+                                        <button type="submit" class="btn btn-primary" ${isSys ? 'disabled' : ''} style="margin: 0; padding: 0 1.2rem; height: 42px; font-weight: 700; background: ${isMusician ? 'var(--color-purple)' : '#2563eb'}; border-color: ${isMusician ? 'var(--color-purple)' : '#2563eb'};">
                                             <i class="fa-solid fa-paper-plane"></i> Senden
                                         </button>
                                     </form>
@@ -12904,36 +12954,38 @@ function renderPostbox(container) {
     renderView();
 }
 
-function formatTruncatedList(listArray, themeColor, itemId, uniqueType) {
-    if (!listArray || listArray.length === 0) return 'Keine Angabe';
+function formatTruncatedValue(val, themeColor, itemId, uniqueType) {
+    if (!val) return 'Keine Angabe';
     
-    const fullJoined = listArray.join(', ');
-    
-    // If the total string is short and there are few items, just return it.
-    if (listArray.length <= 2 && fullJoined.length <= 32) {
-        return fullJoined;
+    let fullText = '';
+    if (Array.isArray(val)) {
+        fullText = val.join(', ');
+    } else {
+        fullText = String(val).trim();
     }
     
-    // Otherwise, decide how many items fit within 32 characters in the first line.
-    let visibleCount = 1;
-    let currentLength = listArray[0].length;
-    for (let i = 1; i < listArray.length; i++) {
-        const nextLength = currentLength + 2 + listArray[i].length;
-        if (nextLength <= 32 && i < 2) {
-            currentLength = nextLength;
-            visibleCount = i + 1;
-        } else {
-            break;
+    if (fullText.length === 0) return 'Keine Angabe';
+    
+    // We want to truncate if the content exceeds roughly 65 characters (approx. 2 lines)
+    if (fullText.length <= 65) {
+        return fullText;
+    }
+    
+    // Find a clean split point near index 55-65 (prefer comma, then space, then fallback to index 60)
+    let splitIdx = 60;
+    const searchArea = fullText.slice(50, 70);
+    const lastCommaIdx = searchArea.lastIndexOf(',');
+    if (lastCommaIdx !== -1) {
+        splitIdx = 50 + lastCommaIdx + 1; // split right after comma
+    } else {
+        const lastSpaceIdx = searchArea.lastIndexOf(' ');
+        if (lastSpaceIdx !== -1) {
+            splitIdx = 50 + lastSpaceIdx; // split at space
         }
     }
     
-    // If all items fit, just return the full list.
-    if (visibleCount >= listArray.length) {
-        return fullJoined;
-    }
-    
-    const visiblePart = listArray.slice(0, visibleCount).join(', ');
-    const hiddenPart = ', ' + listArray.slice(visibleCount).join(', ');
+    const visiblePart = fullText.slice(0, splitIdx);
+    const hiddenPart = fullText.slice(splitIdx);
     const hiddenId = `more-${uniqueType}-${itemId}`;
     
     return `
@@ -13144,49 +13196,49 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     <!-- 2. Einspaltige Informationen mit Icons (Reihenfolge nach Benutzer-Anforderungen) -->
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.75rem;">
                         <!-- 1. Ort -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${window.normalizeCityName(item.location || 'Deutschlandweit')}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(window.normalizeCityName(item.location || 'Deutschlandweit'), themeColor, item.id, 'location')}</span>
                         </div>
                         
                         ${isEvents ? `
                         <!-- 2. Event-Art (Event-Typ) -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${item.type || item.eventType || 'Event'}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(item.type || item.eventType || 'Event', themeColor, item.id, 'eventtype')}</span>
                         </div>
                         <!-- 3. Gesuchter Musiker-Typ -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>Gesucht: ${(Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes.join(', ') : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band'))}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Gesucht: ${formatTruncatedValue((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band')), themeColor, item.id, 'musiciantype')}</span>
                         </div>
                         <!-- 4. Datum -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${dateDisplay}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'date')}</span>
                         </div>
                         ` : `
                         <!-- 2. Musiker-Typ -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${item.type || item.category || 'Solo / Band'}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(item.type || item.category || 'Solo / Band', themeColor, item.id, 'mustype')}</span>
                         </div>
                         <!-- 3. Verfügbarkeit -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${dateDisplay}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'avail')}</span>
                         </div>
                         `}
 
                         <!-- 4. Genres -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-music" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedList(genresArr, themeColor, item.id, 'genres')}</span>
+                            <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, item.id, 'genres')}</span>
                         </div>
                         <!-- 5. Instrumente -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedList(instrumentsArr, themeColor, item.id, 'instruments')}</span>
+                            <span style="flex: 1;">${formatTruncatedValue(instrumentsArr, themeColor, item.id, 'instruments')}</span>
                         </div>
 
                         <!-- 6. Spieldauer -->
@@ -13203,7 +13255,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <!-- 8. Technik -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-microchip" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedList(techArr, themeColor, item.id, 'tech') : 'Technik ist noch unklar'}</span>
+                            <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, item.id, 'tech') : 'Technik ist noch unklar'}</span>
                         </div>
                     </div>
                 </div>

@@ -8,7 +8,10 @@ module.exports = function getPasswordResetEmailHtml({ link, name, role }) {
 
     return `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
-            <h2 style="color: ${brandColor}; margin-top: 0; font-size: 1.5rem;">Passwort zurücksetzen für GigConnAct 🔑</h2>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="https://gigconnact.de/discoball.png" alt="GigConnAct Logo" style="width: 70px; height: 70px; object-fit: contain;">
+            </div>
+            <h2 style="color: ${brandColor}; margin-top: 0; font-size: 1.5rem; text-align: center;">Passwort zurücksetzen für GigConnAct 🔑</h2>
             <p>${salutation}</p>
             <p>wir haben eine Anfrage zum Zurücksetzen deines Passworts für deinen GigConnAct-Account erhalten. Klicke auf den folgenden Button, um ein neues Passwort festzulegen:</p>
             <p style="margin-top: 25px;">
