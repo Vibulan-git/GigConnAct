@@ -5103,12 +5103,12 @@ function renderMarket(container, type, onNavigate) {
                 
                 <!-- 1. Ergebnisse als Zahl + Label at the very left -->
                 <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; padding-right: 0.5rem;">
-                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; white-space: nowrap; letter-spacing: -0.3px; line-height: 1.1; vertical-align: middle;">
-                        ${isEvents ? 'Event-Markt' : 'Musiker-Markt'}
-                    </span>
                     <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; text-align: center; padding: 0.2rem 0.55rem; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; min-width: 32px; white-space: nowrap; margin: 0; line-height: 1.2;">
                         ${items.length}
                     </div>
+                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; white-space: nowrap; letter-spacing: -0.3px; line-height: 1.1; vertical-align: middle;">
+                        ${isEvents ? 'Event-Markt' : 'Musiker-Markt'}
+                    </span>
                 </div>
 
                 <!-- 2. Filter -->
@@ -5122,7 +5122,7 @@ function renderMarket(container, type, onNavigate) {
                 </button>
 
                 <!-- 4. Herz (Nur Favoriten anzeigen) -->
-                <button class="market-control-toggle" id="btn-toggle-market-favorites" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Favoriten anzeigen">
+                <button class="market-control-toggle" id="btn-toggle-market-favorites" style="margin: 0 0.5rem 0 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Favoriten anzeigen">
                     <i class="fa-solid fa-heart" style="font-size: 1.05rem; margin: 0;"></i>
                 </button>
             </div>
@@ -8119,7 +8119,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                            <label style="margin: 0;">Künstler-Typ (Mehrfachauswahl)</label>
+                            <label style="margin: 0;">Musiker-Typ (Mehrfachauswahl)</label>
                             <span onclick="window.toggleSelectAll('grid-musician-types', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-musician-types">

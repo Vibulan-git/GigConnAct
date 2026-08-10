@@ -3887,6 +3887,13 @@ body {
     .market-page {
         padding: 0.1rem 0px 3rem !important;
     }
+
+    .profile-section-card {
+        padding: 1.25rem 0px !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
 }
 
 /* Specific theme overrides to bust global !important styles */
