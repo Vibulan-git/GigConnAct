@@ -5007,9 +5007,9 @@ function renderMarket(container, type, onNavigate) {
     let showOnlyFavorites = false;
 
     container.innerHTML = `
-        <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1400px; margin: 0 auto; padding: 1.5rem 1rem 5rem; box-sizing: border-box;">
+        <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 1rem 5rem; box-sizing: border-box;">
             
-            <!-- Controls Row: Filter, Sortierung, Stern, Herz, Ergebnisse in linear order -->
+            <!-- Controls Row: Filter, Stern, Herz, Ergebnisse in linear order -->
             <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 1.5rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0.6rem; -webkit-overflow-scrolling: touch;">
                 
                 <!-- 1. Filter -->
@@ -5017,19 +5017,7 @@ function renderMarket(container, type, onNavigate) {
                     <i class="fa-solid fa-sliders" style="font-size: 1.05rem; margin: 0;"></i>
                 </button>
  
-                <!-- 2. Sortierung -->
-                <div class="market-sort-container-round" style="width: 42px !important; height: 42px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 50% !important; flex-shrink: 0; position: relative; margin: 0; cursor: pointer; transition: all 0.2s;">
-                    <i class="fa-solid fa-arrow-down-wide-short" style="color: #ffffff; font-size: 1.05rem; pointer-events: none;"></i>
-                    <select id="sort-select-m" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; margin: 0; z-index: 5;">
-                        <option value="match">Match-Faktor absteigend</option>
-                        <option value="newest">Neueste zuerst</option>
-                        <option value="price">Günstig zuerst</option>
-                        <option value="distance">Nächste zuerst</option>
-                        <option value="name">Name (A-Z)</option>
-                    </select>
-                </div>
-
-                <!-- 3. Stern (Nur Top-Matches anzeigen) -->
+                <!-- 2. Stern (Nur Top-Matches anzeigen) -->
                 <button class="market-control-toggle" id="btn-toggle-market-top-matches" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Top-Matches anzeigen">
                     <i class="fa-solid fa-star" style="font-size: 1.05rem; margin: 0;"></i>
                 </button>
@@ -5351,7 +5339,7 @@ function renderMarket(container, type, onNavigate) {
 
                 <!-- Center Main Section -->
                 <div>
-                    <div id="market-items-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+                    <div id="market-items-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: 2rem;">
                         ${renderMarketGridHTML(items, isEvents)}
                     </div>
                 </div>
@@ -5710,7 +5698,7 @@ function renderMarket(container, type, onNavigate) {
         const labelEl = container.querySelector('#market-title-label');
         if (labelEl) {
             if (showOnlyTopMatches) {
-                labelEl.textContent = 'Top-Vorschläge';
+                labelEl.textContent = 'Top Matches';
             } else if (showOnlyFavorites) {
                 labelEl.textContent = 'Favoriten';
             } else {
@@ -7421,7 +7409,7 @@ function renderMyEvents(container) {
                             <p>Keine aktiven Ausschreibungen vorhanden.</p>
                         </div>
                     ` : `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
                             ${activeEvents.map(e => renderOrganizerEventItem(e, true)).join('')}
                         </div>
                     `}
@@ -7446,7 +7434,7 @@ function renderMyEvents(container) {
                             <p>Keine deaktivierten oder beendeten Events.</p>
                         </div>
                     ` : `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 1.5rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: 1.5rem;">
                             ${deactivatedEvents.map(e => renderOrganizerEventItem(e, false)).join('')}
                         </div>
                     `}
@@ -7855,7 +7843,7 @@ function renderMyMusicians(container) {
                             <p>Keine aktiven Profile vorhanden.</p>
                         </div>
                     ` : `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
                             ${activeMusicians.map(m => renderMyMusicianItem(m, true)).join('')}
                         </div>
                     `}
@@ -7880,7 +7868,7 @@ function renderMyMusicians(container) {
                             <p>Keine pausierten oder inaktiven Profile.</p>
                         </div>
                     ` : `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 1.5rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: 1.5rem;">
                             ${deactivatedMusicians.map(m => renderMyMusicianItem(m, false)).join('')}
                         </div>
                     `}
