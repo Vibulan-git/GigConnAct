@@ -7562,14 +7562,6 @@ function renderOrganizerEventItem(e, isActive) {
                         </p>
                     </div>
                 </div>
-
-                <!-- Slide Navigation Arrows -->
-                <button onclick="event.stopPropagation(); window.slideComboGallery('${e.id}', -1)" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(100, 116, 139, 0.65); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
-                    <i class="fa-solid fa-chevron-left" style="font-size: 0.8rem;"></i>
-                </button>
-                <button onclick="event.stopPropagation(); window.slideComboGallery('${e.id}', 1)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(100, 116, 139, 0.65); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
-                    <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem;"></i>
-                </button>
             </div>
 
             <!-- Tile Body Content -->
@@ -7605,7 +7597,7 @@ function renderOrganizerEventItem(e, isActive) {
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Gästeanzahl: ${e.minPublikum !== undefined && e.maxPublikum !== undefined ? `${e.minPublikum} - ${e.maxPublikum}+` : '50 - 150'}</span>
+                            <span>${e.minPublikum !== undefined && e.maxPublikum !== undefined ? `${e.minPublikum} - ${e.maxPublikum}+` : '50 - 150'} Personen</span>
                         </div>
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
@@ -8011,14 +8003,6 @@ function renderMyMusicianItem(m, isActive) {
                         </p>
                     </div>
                 </div>
-
-                <!-- Slide Navigation Arrows -->
-                <button onclick="event.stopPropagation(); window.slideComboGallery('${m.id}', -1)" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(100, 116, 139, 0.65); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
-                    <i class="fa-solid fa-chevron-left" style="font-size: 0.8rem;"></i>
-                </button>
-                <button onclick="event.stopPropagation(); window.slideComboGallery('${m.id}', 1)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(100, 116, 139, 0.65); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
-                    <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem;"></i>
-                </button>
             </div>
 
             <!-- Tile Body Content -->
@@ -8061,7 +8045,7 @@ function renderMyMusicianItem(m, isActive) {
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Publikumsgröße: ${m.minPublikum !== undefined && m.maxPublikum !== undefined ? `${m.minPublikum} - ${m.maxPublikum}+` : '0 - 500+'}</span>
+                            <span>${m.minPublikum !== undefined && m.maxPublikum !== undefined ? `${m.minPublikum} - ${m.maxPublikum}+` : '0 - 500+'} Personen</span>
                         </div>
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
@@ -13471,14 +13455,6 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
                     </div>
 
-                    <!-- Slide Navigation Arrows -->
-                    <button onclick="event.stopPropagation(); window.slideComboGallery('${item.id}', -1)" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(100, 116, 139, 0.65); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
-                        <i class="fa-solid fa-chevron-left" style="font-size: 0.9rem;"></i>
-                    </button>
-                    <button onclick="event.stopPropagation(); window.slideComboGallery('${item.id}', 1)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(100, 116, 139, 0.65); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5; backdrop-filter: blur(4px);">
-                        <i class="fa-solid fa-chevron-right" style="font-size: 0.9rem;"></i>
-                    </button>
-
                     <!-- Match-Faktor Badge oben rechts -->
                     <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 5px 12px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 50px;">
                         <span style="font-size: 1.05rem; font-weight: 900;">${item.matchScore !== undefined ? item.matchScore : '96'}%</span>
@@ -13576,7 +13552,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <!-- Publikum / GÃ¤ste -->
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i class="fa-solid fa-users" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${isEvents ? 'GÃ¤steanzahl' : 'PublikumsgrÃ¶ÃŸe'}: ${item.minPublikum !== undefined && item.maxPublikum !== undefined ? `${item.minPublikum} - ${item.maxPublikum}+` : (isEvents ? '50 - 150' : '0 - 500+')}</span>
+                            <span>${item.minPublikum !== undefined && item.maxPublikum !== undefined ? `${item.minPublikum} - ${item.maxPublikum}+` : (isEvents ? '50 - 150' : '0 - 500+')} Personen</span>
                         </div>
                         
                         <!-- 7. Technik -->
@@ -14692,3 +14668,98 @@ function renderDatenschutzPage(container) {
     window.scrollTo(0, 0);
 }
 window.renderDatenschutzPage = renderDatenschutzPage;
+
+// Global touch and mouse drag event delegation for card galleries
+(function() {
+    let startX = 0;
+    let startY = 0;
+    let isSwiping = false;
+    let currentSlider = null;
+    let dragDetected = false;
+
+    // Touch events
+    document.addEventListener('touchstart', (e) => {
+        const sliderContainer = e.target.closest('.tile-fullwidth-photo-slider');
+        if (!sliderContainer) return;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        isSwiping = true;
+        currentSlider = sliderContainer;
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!isSwiping || !currentSlider) return;
+        const currentX = e.touches[0].clientX;
+        const currentY = e.touches[0].clientY;
+        const diffX = startX - currentX;
+        const diffY = startY - currentY;
+        
+        if (Math.abs(diffX) > Math.abs(diffY)) {
+            if (e.cancelable) {
+                e.preventDefault();
+            }
+        }
+    }, { passive: false });
+
+    document.addEventListener('touchend', (e) => {
+        if (!isSwiping || !currentSlider) return;
+        const endX = e.changedTouches[0].clientX;
+        const diffX = startX - endX;
+        
+        const sliderInner = currentSlider.querySelector('[id^="combo-slider-"]');
+        if (sliderInner) {
+            const itemId = sliderInner.id.replace('combo-slider-', '');
+            if (Math.abs(diffX) > 40) {
+                if (diffX > 0) {
+                    window.slideComboGallery(itemId, 1);
+                } else {
+                    window.slideComboGallery(itemId, -1);
+                }
+            }
+        }
+        isSwiping = false;
+        currentSlider = null;
+    }, { passive: true });
+
+    // Mouse drag events for desktop
+    document.addEventListener('mousedown', (e) => {
+        const sliderContainer = e.target.closest('.tile-fullwidth-photo-slider');
+        if (!sliderContainer) return;
+        startX = e.clientX;
+        startY = e.clientY;
+        isSwiping = true;
+        currentSlider = sliderContainer;
+        dragDetected = false;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isSwiping || !currentSlider) return;
+        const currentX = e.clientX;
+        const currentY = e.clientY;
+        const diffX = startX - currentX;
+        
+        if (Math.abs(diffX) > 10) {
+            dragDetected = true;
+        }
+    });
+
+    document.addEventListener('mouseup', (e) => {
+        if (!isSwiping || !currentSlider) return;
+        const endX = e.clientX;
+        const diffX = startX - endX;
+        
+        if (dragDetected && Math.abs(diffX) > 40) {
+            const sliderInner = currentSlider.querySelector('[id^="combo-slider-"]');
+            if (sliderInner) {
+                const itemId = sliderInner.id.replace('combo-slider-', '');
+                if (diffX > 0) {
+                    window.slideComboGallery(itemId, 1);
+                } else {
+                    window.slideComboGallery(itemId, -1);
+                }
+            }
+        }
+        isSwiping = false;
+        currentSlider = null;
+    });
+})();
