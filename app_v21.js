@@ -402,6 +402,26 @@ window.slideComboGallery = function(itemId, direction) {
             counter.innerHTML = '📝 Info';
         }
     }
+
+    // Update pagination dots if they exist
+    const dotsContainer = document.getElementById('combo-dots-' + itemId);
+    if (dotsContainer) {
+        const dots = dotsContainer.children;
+        const themeColor = dotsContainer.getAttribute('data-theme') || '#7c3aed';
+        for (let i = 0; i < dots.length; i++) {
+            if (i === cur) {
+                dots[i].classList.add('active');
+                dots[i].style.background = themeColor;
+                dots[i].style.opacity = '1';
+                dots[i].style.transform = 'scale(1.2)';
+            } else {
+                dots[i].classList.remove('active');
+                dots[i].style.background = 'var(--text-muted)';
+                dots[i].style.opacity = '0.4';
+                dots[i].style.transform = 'scale(1)';
+            }
+        }
+    }
 };
 
 /* -------------------------------------------------------------
@@ -5283,8 +5303,8 @@ function renderMarket(container, type, onNavigate) {
                         
                                                 <!-- Right: Mobile Close Button -->
                         <div class="filter-header-close-wrapper" style="flex: 1; display: flex; justify-content: flex-end;">
-                            <button id="btn-close-filters-m" class="btn-close-filters-m" style="margin: 0; width: 42px; height: 42px;">
-                                <i class="fa-solid fa-xmark"></i>
+                            <button id="btn-close-filters-m" class="btn-close-filters-m" style="margin: 0; width: 42px; height: 42px;" title="Filter anwenden">
+                                <i class="fa-solid fa-check"></i>
                             </button>
                         </div>
                     </div>
@@ -7584,6 +7604,12 @@ function renderOrganizerEventItem(e, isActive) {
 
             <!-- Tile Body Content -->
             <div class="tile-body-content" style="padding: 1rem 1.1rem 0.8rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                <!-- Dots container -->
+                <div class="tile-gallery-dots" id="combo-dots-${e.id}" data-theme="${themeColor}" style="display: flex; justify-content: center; gap: 6px; margin: 0 auto 0.8rem; align-items: center;">
+                    ${Array.from({ length: photos.length + 1 }).map((_, dIdx) => `
+                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? themeColor : 'var(--text-muted)'}; opacity: ${dIdx === 0 ? '1' : '0.4'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.2)' : 'scale(1)'};"></span>
+                    `).join('')}
+                </div>
                 <div>
                     <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.6rem; line-height: 1.25;">
                         ${e.name}
@@ -8021,6 +8047,12 @@ function renderMyMusicianItem(m, isActive) {
 
             <!-- Tile Body Content -->
             <div class="tile-body-content" style="padding: 1rem 1.1rem 0.8rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                <!-- Dots container -->
+                <div class="tile-gallery-dots" id="combo-dots-${m.id}" data-theme="${themeColor}" style="display: flex; justify-content: center; gap: 6px; margin: 0 auto 0.8rem; align-items: center;">
+                    ${Array.from({ length: photos.length + videoSources.length + audios.length + 1 }).map((_, dIdx) => `
+                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? themeColor : 'var(--text-muted)'}; opacity: ${dIdx === 0 ? '1' : '0.4'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.2)' : 'scale(1)'};"></span>
+                    `).join('')}
+                </div>
                 <div>
                     <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.6rem; line-height: 1.25;">
                         ${m.name}
@@ -13498,8 +13530,14 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
 
                 <!-- Tile Body Content -->
                 <div class="tile-body-content" style="padding: 1.2rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
-                    
-                                        <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favorit Herz -->
+                    <!-- Dots container -->
+                    <div class="tile-gallery-dots" id="combo-dots-${item.id}" data-theme="${themeColor}" style="display: flex; justify-content: center; gap: 6px; margin: 0 auto 0.8rem; align-items: center;">
+                        ${Array.from({ length: photos.length + videos.length + audios.length + 1 }).map((_, dIdx) => `
+                            <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? themeColor : 'var(--text-muted)'}; opacity: ${dIdx === 0 ? '1' : '0.4'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.2)' : 'scale(1)'};"></span>
+                        `).join('')}
+                    </div>
+
+                    <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favorit Herz -->
                     <div style="margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
                         <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; flex: 1; height: 2.4em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">
                             ${bandName}
