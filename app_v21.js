@@ -413,11 +413,11 @@ window.slideComboGallery = function(itemId, direction) {
                 dots[i].classList.add('active');
                 dots[i].style.background = themeColor;
                 dots[i].style.opacity = '1';
-                dots[i].style.transform = 'scale(1.2)';
+                dots[i].style.transform = 'scale(1.25)';
             } else {
                 dots[i].classList.remove('active');
-                dots[i].style.background = 'var(--text-muted)';
-                dots[i].style.opacity = '0.4';
+                dots[i].style.background = '#ffffff';
+                dots[i].style.opacity = '0.5';
                 dots[i].style.transform = 'scale(1)';
             }
         }
@@ -7725,6 +7725,7 @@ function renderOrganizerEventItem(e, isActive) {
     const description = e.description || 'Wir suchen eine professionelle musikalische Begleitung für unser anstehendes Event mit fantastischer Stimmung.';
 
     const themeColor = '#7c3aed';
+    const dotActiveColor = '#a855f7';
 
     return `
         <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'};">
@@ -7734,6 +7735,13 @@ function renderOrganizerEventItem(e, isActive) {
                 <span class="tile-gallery-counter" style="position: absolute; bottom: 12px; left: 12px; z-index: 4; font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.75); padding: 0.25rem 0.5rem; border-radius: 6px; backdrop-filter: blur(4px); pointer-events: none; border: 1px solid rgba(255,255,255,0.1);">
                     📷 1 / ${photos.length}
                 </span>
+
+                <!-- Dots container inside the slider -->
+                <div class="tile-gallery-dots" id="combo-dots-${e.id}" data-theme="${dotActiveColor}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
+                    ${Array.from({ length: photos.length + 1 }).map((_, dIdx) => `
+                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.5'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.25)' : 'scale(1)'}; border: 1px solid rgba(0,0,0,0.15); box-shadow: 0 1px 2px rgba(0,0,0,0.2);"></span>
+                    `).join('')}
+                </div>
                 
                 <div id="combo-slider-${e.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
                     <!-- Slides 1-3: Fotos -->
@@ -7752,15 +7760,8 @@ function renderOrganizerEventItem(e, isActive) {
                 </div>
             </div>
 
-            <!-- Dots container below the slider, but very close -->
-            <div class="tile-gallery-dots" id="combo-dots-${e.id}" data-theme="${themeColor}" style="display: flex; justify-content: center; gap: 6px; margin: 0.5rem auto 0; align-items: center;">
-                ${Array.from({ length: photos.length + 1 }).map((_, dIdx) => `
-                    <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? themeColor : 'var(--text-muted)'}; opacity: ${dIdx === 0 ? '1' : '0.4'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.2)' : 'scale(1)'};"></span>
-                `).join('')}
-            </div>
-
             <!-- Tile Body Content -->
-            <div class="tile-body-content" style="padding: 0.8rem 1.1rem 0.8rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="tile-body-content" style="padding: 1.2rem 1.1rem 1.0rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                     <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.6rem; line-height: 1.25;">
                         ${e.name}
@@ -8143,6 +8144,8 @@ function renderMyMusicianItem(m, isActive) {
         }
     }
 
+    const dotActiveColor = '#3b82f6';
+
     return `
         <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'};">
             
@@ -8151,6 +8154,13 @@ function renderMyMusicianItem(m, isActive) {
                 <span class="tile-gallery-counter" style="position: absolute; bottom: 12px; left: 12px; z-index: 4; font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.75); padding: 0.25rem 0.5rem; border-radius: 6px; backdrop-filter: blur(4px); pointer-events: none; border: 1px solid rgba(255,255,255,0.1);">
                     📷 1 / ${photos.length}
                 </span>
+
+                <!-- Dots container inside the slider -->
+                <div class="tile-gallery-dots" id="combo-dots-${m.id}" data-theme="${dotActiveColor}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
+                    ${Array.from({ length: photos.length + videoSources.length + audios.length + 1 }).map((_, dIdx) => `
+                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.5'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.25)' : 'scale(1)'}; border: 1px solid rgba(0,0,0,0.15); box-shadow: 0 1px 2px rgba(0,0,0,0.2);"></span>
+                    `).join('')}
+                </div>
                 
                 <div id="combo-slider-${m.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
                     
@@ -8196,15 +8206,8 @@ function renderMyMusicianItem(m, isActive) {
                 </div>
             </div>
 
-            <!-- Dots container below the slider, but very close -->
-            <div class="tile-gallery-dots" id="combo-dots-${m.id}" data-theme="${themeColor}" style="display: flex; justify-content: center; gap: 6px; margin: 0.5rem auto 0; align-items: center;">
-                ${Array.from({ length: photos.length + videoSources.length + audios.length + 1 }).map((_, dIdx) => `
-                    <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? themeColor : 'var(--text-muted)'}; opacity: ${dIdx === 0 ? '1' : '0.4'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.2)' : 'scale(1)'};"></span>
-                `).join('')}
-            </div>
-
             <!-- Tile Body Content -->
-            <div class="tile-body-content" style="padding: 0.8rem 1.1rem 0.8rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="tile-body-content" style="padding: 1.2rem 1.1rem 1.0rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                     <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.6rem; line-height: 1.25;">
                         ${m.name}
@@ -13680,24 +13683,24 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <span style="font-size: 1.05rem; font-weight: 900;">${item.matchScore !== undefined ? item.matchScore : '96'}%</span>
                         <span style="font-size: 0.5rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
                     </div>
-                </div>
 
-                <!-- Dots container below the slider, but very close -->
-                <div class="tile-gallery-dots" id="combo-dots-${item.id}" data-theme="${themeColor}" style="display: flex; justify-content: center; gap: 6px; margin: 0.5rem auto 0; align-items: center;">
-                    ${Array.from({ length: photos.length + videos.length + audios.length + 1 }).map((_, dIdx) => `
-                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? themeColor : 'var(--text-muted)'}; opacity: ${dIdx === 0 ? '1' : '0.4'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.2)' : 'scale(1)'};"></span>
-                    `).join('')}
+                    <!-- Dots container inside the slider -->
+                    <div class="tile-gallery-dots" id="combo-dots-${item.id}" data-theme="${isEvents ? '#a855f7' : '#3b82f6'}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
+                        ${Array.from({ length: photos.length + videos.length + audios.length + 1 }).map((_, dIdx) => `
+                            <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? (isEvents ? '#a855f7' : '#3b82f6') : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.5'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.25)' : 'scale(1)'}; border: 1px solid rgba(0,0,0,0.15); box-shadow: 0 1px 2px rgba(0,0,0,0.2);"></span>
+                        `).join('')}
+                    </div>
                 </div>
 
                 <!-- Tile Body Content -->
-                <div class="tile-body-content" style="padding: 0.9rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
+                <div class="tile-body-content" style="padding: 1.3rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
                     
                     <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favorit Herz -->
                     <div style="margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
                         <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; flex: 1; height: 2.4em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">
                             ${bandName}
                         </h3>
-                        <div style="display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; margin-top: 0.15rem;">
+                        <div style="display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; margin-top: -0.02rem;">
                             ${item.matchScore >= 70 ? `
                                 <span title="Top Match" style="color: #eab308; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; cursor: default;">
                                     <i class="fa-solid fa-star" style="font-size: 1.2rem;"></i>
