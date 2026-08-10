@@ -5099,15 +5099,24 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 1rem 5rem; box-sizing: border-box;">
             
-            <!-- Controls Row: Filter, Stern, Herz, Ergebnisse in linear order -->
-            <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 1.5rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0.6rem; -webkit-overflow-scrolling: touch;">
+            <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 1.5rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0px; -webkit-overflow-scrolling: touch;">
                 
-                <!-- 1. Filter -->
-                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; flex-shrink: 0; cursor: pointer;" title="Filter öffnen">
+                <!-- 1. Ergebnisse als Zahl + Label at the very left -->
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; padding-right: 0.5rem;">
+                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; white-space: nowrap; letter-spacing: -0.3px; line-height: 1.1; vertical-align: middle;">
+                        ${isEvents ? 'Event-Markt' : 'Musiker-Markt'}
+                    </span>
+                    <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; text-align: center; padding: 0.2rem 0.55rem; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; min-width: 32px; white-space: nowrap; margin: 0; line-height: 1.2;">
+                        ${items.length}
+                    </div>
+                </div>
+
+                <!-- 2. Filter -->
+                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; flex-shrink: 0; cursor: pointer; margin-left: auto;" title="Filter öffnen">
                     <i class="fa-solid fa-sliders" style="font-size: 1.05rem; margin: 0;"></i>
                 </button>
  
-                <!-- 2. Stern (Nur Top-Matches anzeigen) -->
+                <!-- 3. Stern (Nur Top-Matches anzeigen) -->
                 <button class="market-control-toggle" id="btn-toggle-market-top-matches" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Top-Matches anzeigen">
                     <i class="fa-solid fa-star" style="font-size: 1.05rem; margin: 0;"></i>
                 </button>
@@ -5116,16 +5125,6 @@ function renderMarket(container, type, onNavigate) {
                 <button class="market-control-toggle" id="btn-toggle-market-favorites" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Favoriten anzeigen">
                     <i class="fa-solid fa-heart" style="font-size: 1.05rem; margin: 0;"></i>
                 </button>
-
-                <!-- 5. Ergebnisse als Zahl + Label pushed to the right -->
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-left: auto; flex-shrink: 0; padding-left: 0.5rem; margin-right: 0.2rem;">
-                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; white-space: nowrap; letter-spacing: -0.3px; line-height: 1.1; vertical-align: middle;">
-                        ${isEvents ? 'Event-Markt' : 'Musiker-Markt'}
-                    </span>
-                    <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: ${isEvents ? '#2563eb' : '#a855f7'}; text-align: center; padding: 0.2rem 0.55rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; min-width: 32px; white-space: nowrap; margin: 0; line-height: 1.2;">
-                        ${items.length}
-                    </div>
-                </div>
             </div>
 
             <!-- Main Layout: Left Sticky Sidebar Filters + Center Content -->
@@ -5788,7 +5787,7 @@ function renderMarket(container, type, onNavigate) {
         const labelEl = container.querySelector('#market-title-label');
         if (labelEl) {
             if (showOnlyTopMatches) {
-                labelEl.textContent = 'Top Matches';
+                labelEl.textContent = 'Top-Matches';
             } else if (showOnlyFavorites) {
                 labelEl.textContent = 'Favoriten';
             } else {
@@ -13290,7 +13289,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <!-- Bevorzugte Event-Typen -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Events: ${formatTruncatedValue(item.eventTypes || ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, item.id, 'eventtypes')}</span>
+                            <span style="flex: 1;">Event-Typen: ${formatTruncatedValue(item.eventTypes && item.eventTypes.length > 0 ? item.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, item.id, 'eventtypes')}</span>
                         </div>
                         `}
 
@@ -13301,8 +13300,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
                         <!-- 5. Instrumente -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                            <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(instrumentsArr, themeColor, item.id, 'instruments')}</span>
+                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Instrumente: ${formatTruncatedValue(instrumentsArr, themeColor, item.id, 'instruments')}</span>
                         </div>
 
                         <!-- 6. Spieldauer -->

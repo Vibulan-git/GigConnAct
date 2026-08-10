@@ -5068,9 +5068,9 @@ input[type="range"].input-field {
 @media (max-width: 767px) {
     #market-items-grid .market-tile-card,
     #top-matches-grid .market-tile-card {
-        max-width: 330px !important;
+        max-width: 100% !important;
         width: 100% !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
     }
 }
