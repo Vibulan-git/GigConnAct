@@ -7650,6 +7650,7 @@ function renderMyMusicianItem(m, isActive) {
 
     const genresArr = m.genres && m.genres.length > 0 ? m.genres : ['Pop', 'Rock'];
     const instrumentsList = (m.instruments || []).join(', ') || (m.type === 'DJ' ? 'DJ-Controller' : 'Gesang, Gitarre');
+    const eventTypesList = (m.eventTypes || []).join(', ') || 'Hochzeit, Geburtstag, Firmenfeier';
 
     let durationDisplay = '';
     const minDur = m.minDuration;
@@ -7790,6 +7791,14 @@ function renderMyMusicianItem(m, isActive) {
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, m.id, 'genres')}</span>
+                        </div>
+                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Instrumente: ${instrumentsList}</span>
+                        </div>
+                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Event-Typen: ${eventTypesList}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
@@ -8149,7 +8158,6 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                                          <label for="modal-chk-avail-${day.key}">${day.label}</label>
                                      </div>
                                      <div class="availability-day-times" id="modal-times-container-${day.key}">
-                                         <span>von</span>
                                          <input type="time" name="availStart_${day.key}" value="${day.minTime}" ${!day.defActive ? 'disabled' : ''}>
                                          <span>bis</span>
                                          <input type="time" name="availEnd_${day.key}" value="${day.maxTime}" ${!day.defActive ? 'disabled' : ''}>
@@ -8297,8 +8305,12 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
         photosContainer.innerHTML = localMedia.photos.length === 0
             ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Bilder hinzugefügt</span>`
             : localMedia.photos.map((p, idx) => `
-                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
-                    <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
+                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;">
+                    ${p === 'loading' ? `
+                        <i class="fa-solid fa-spinner fa-spin" style="color: #a855f7; font-size: 1.1rem;"></i>
+                    ` : `
+                        <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
+                    `}
                     <button type="button" class="btn-delete-modal-photo" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
                 </div>
             `).join('');
@@ -8307,7 +8319,11 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Videos hinzugefügt</span>`
             : localMedia.videos.map((v, idx) => `
                 <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;" title="${v.title || (typeof v === 'string' ? v : 'Video')}">
-                    <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.1rem;"></i>
+                    ${v.url === 'loading' ? `
+                        <i class="fa-solid fa-spinner fa-spin" style="color: #a855f7; font-size: 1.1rem;"></i>
+                    ` : `
+                        <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.1rem;"></i>
+                    `}
                     <button type="button" class="btn-delete-modal-video" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
                 </div>
             `).join('');
@@ -8317,7 +8333,11 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                 ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Audios hinzugefügt</span>`
                 : localMedia.audios.map((a, idx) => `
                     <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #1e1b4b; display:flex; align-items:center; justify-content:center;" title="${a.title || (typeof a === 'string' ? a : 'Audio')}">
-                        <i class="fa-solid fa-music" style="color: #06b6d4; font-size: 1.1rem;"></i>
+                        ${a.url === 'loading' ? `
+                            <i class="fa-solid fa-spinner fa-spin" style="color: #06b6d4; font-size: 1.1rem;"></i>
+                        ` : `
+                            <i class="fa-solid fa-music" style="color: #06b6d4; font-size: 1.1rem;"></i>
+                        `}
                         <button type="button" class="btn-delete-modal-audio" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
                     </div>
                 `).join('');
@@ -8381,15 +8401,34 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         });
                     }
                     filesToProcess.forEach(file => {
+                        const placeholderVal = 'loading';
+                        localMedia.photos.push(placeholderVal);
+                        updateLocalMediaPreview();
+
                         validateAndProcessPhoto(file, (dataUrl) => {
-                            if (localMedia.photos.includes(dataUrl)) {
+                            if (!dataUrl) {
+                                const pIdx = localMedia.photos.indexOf(placeholderVal);
+                                if (pIdx !== -1) localMedia.photos.splice(pIdx, 1);
+                                updateLocalMediaPreview();
+                                return;
+                            }
+                            const alreadyExists = localMedia.photos.some((p, pIdx) => p === dataUrl && pIdx !== localMedia.photos.indexOf(placeholderVal));
+                            if (alreadyExists) {
                                 showToast({
                                     title: "Bild existiert bereits",
                                     message: "Dieses Bild wurde bereits hinzugefügt."
                                 });
+                                const pIdx = localMedia.photos.indexOf(placeholderVal);
+                                if (pIdx !== -1) localMedia.photos.splice(pIdx, 1);
+                                updateLocalMediaPreview();
                                 return;
                             }
-                            localMedia.photos.push(dataUrl);
+                            const pIdx = localMedia.photos.indexOf(placeholderVal);
+                            if (pIdx !== -1) {
+                                localMedia.photos[pIdx] = dataUrl;
+                            } else {
+                                localMedia.photos.push(dataUrl);
+                            }
                             updateLocalMediaPreview();
                         });
                     });
@@ -8426,16 +8465,29 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         });
                     }
                     filesToProcess.forEach(file => {
+                        const placeholderObj = { url: 'loading', title: file.name };
+                        localMedia.videos.push(placeholderObj);
+                        updateLocalMediaPreview();
+
                         validateAndProcessVideo(file, (videoUrl) => {
-                            const alreadyExists = localMedia.videos.some(v => v.url === videoUrl);
+                            if (!videoUrl) {
+                                const pIdx = localMedia.videos.indexOf(placeholderObj);
+                                if (pIdx !== -1) localMedia.videos.splice(pIdx, 1);
+                                updateLocalMediaPreview();
+                                return;
+                            }
+                            const alreadyExists = localMedia.videos.some(v => v.url === videoUrl && v !== placeholderObj);
                             if (alreadyExists) {
                                 showToast({
                                     title: "Video existiert bereits",
                                     message: "Dieses Video wurde bereits hinzugefügt."
                                 });
+                                const pIdx = localMedia.videos.indexOf(placeholderObj);
+                                if (pIdx !== -1) localMedia.videos.splice(pIdx, 1);
+                                updateLocalMediaPreview();
                                 return;
                             }
-                            localMedia.videos.push({ url: videoUrl, title: file.name });
+                            placeholderObj.url = videoUrl;
                             updateLocalMediaPreview();
                         });
                     });
@@ -8472,16 +8524,30 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         });
                     }
                     filesToProcess.forEach(file => {
+                        const placeholderObj = { url: 'loading', title: file.name };
+                        localMedia.audios.push(placeholderObj);
+                        updateLocalMediaPreview();
+
                         validateAndProcessAudio(file, (audioObj) => {
-                            const alreadyExists = localMedia.audios.some(a => a.url === audioObj.url);
+                            if (!audioObj || !audioObj.url) {
+                                const pIdx = localMedia.audios.indexOf(placeholderObj);
+                                if (pIdx !== -1) localMedia.audios.splice(pIdx, 1);
+                                updateLocalMediaPreview();
+                                return;
+                            }
+                            const alreadyExists = localMedia.audios.some(a => a.url === audioObj.url && a !== placeholderObj);
                             if (alreadyExists) {
                                 showToast({
                                     title: "Hörprobe existiert bereits",
                                     message: "Diese Hörprobe wurde bereits hinzugefügt."
                                 });
+                                const pIdx = localMedia.audios.indexOf(placeholderObj);
+                                if (pIdx !== -1) localMedia.audios.splice(pIdx, 1);
+                                updateLocalMediaPreview();
                                 return;
                             }
-                            localMedia.audios.push(audioObj);
+                            placeholderObj.url = audioObj.url;
+                            placeholderObj.title = audioObj.title || file.name;
                             updateLocalMediaPreview();
                         });
                     });
@@ -8555,9 +8621,9 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                 ? Array.from(form.querySelectorAll('input[name="musTechnik"]:checked')).map(el => el.value)
                 : ["Technik ist noch unklar"],
             profilePic: selectedBase64,
-            photos: localMedia.photos,
-            videos: localMedia.videos,
-            audio: localMedia.audios || [],
+            photos: localMedia.photos.filter(p => p !== 'loading'),
+            videos: localMedia.videos.filter(v => v.url !== 'loading'),
+            audio: (localMedia.audios || []).filter(a => a.url !== 'loading'),
             contactName: `${state.currentUser.firstName} ${state.currentUser.lastName}`,
             phone: state.currentUser.phone,
             email: state.currentUser.email,
@@ -9173,9 +9239,9 @@ function showEventModal(eventObj = null, isDuplication = false) {
                 ? Array.from(form.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value)
                 : ["Technik ist noch unklar"],
             description: formData.get('orgDescription'),
-            photos: localMedia.photos,
-            videos: localMedia.videos,
-            audio: localMedia.audios || [],
+            photos: localMedia.photos.filter(p => p !== 'loading'),
+            videos: localMedia.videos.filter(v => v.url !== 'loading'),
+            audio: (localMedia.audios || []).filter(a => a.url !== 'loading'),
             contactName: `${state.currentUser.firstName} ${state.currentUser.lastName}`,
             phone: state.currentUser.phone,
             email: state.currentUser.email
@@ -9533,7 +9599,6 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                                             <label for="chk-avail-${day.key}">${day.label}</label>
                                         </div>
                                         <div class="availability-day-times" id="times-container-${day.key}">
-                                            <span>von</span>
                                             <input type="time" name="availStart_${day.key}" value="${day.minTime}">
                                             <span>bis</span>
                                             <input type="time" name="availEnd_${day.key}" value="${day.maxTime}">
@@ -13252,6 +13317,11 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'avail')}</span>
+                        </div>
+                        <!-- Bevorzugte Event-Typen -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Events: ${formatTruncatedValue(item.eventTypes || ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, item.id, 'eventtypes')}</span>
                         </div>
                         `}
 
