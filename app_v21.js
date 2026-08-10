@@ -2541,49 +2541,87 @@ class StateManager {
 
     addEvent(eventData) {
         if (!this.currentUser) return { success: false };
+        
+        // Clean undefined or NaN values to prevent Firestore synchronous errors
+        const cleanEventData = {};
+        for (const [key, val] of Object.entries(eventData)) {
+            if (val !== undefined && (typeof val !== 'number' || !isNaN(val))) {
+                cleanEventData[key] = val;
+            }
+        }
+
         const id = 'evt_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
         const newEvent = {
             id: id,
             creatorId: this.currentUser.id,
             createdAt: new Date().toISOString(),
             isActive: true,
-            ...eventData
+            ...cleanEventData
         };
 
         if (!this.events.some(e => e.id === id)) {
             this.events.push(newEvent);
         }
 
-        db.collection('events').doc(id).set(newEvent)
-            .catch(err => {
-                console.error("addEvent Firestore write failed:", err);
-                this.events = this.events.filter(e => e.id !== id);
-                this.notify();
-                showToast({
-                    title: "Fehler beim Speichern ⚠️",
-                    message: "Berechtigungsfehler oder Netzwerkfehler: " + err.message,
-                    type: "error"
+        try {
+            db.collection('events').doc(id).set(newEvent)
+                .catch(err => {
+                    console.error("addEvent Firestore write failed async:", err);
+                    this.events = this.events.filter(e => e.id !== id);
+                    this.notify();
+                    showToast({
+                        title: "Fehler beim Speichern ⚠️",
+                        message: "Berechtigungsfehler oder Netzwerkfehler: " + err.message,
+                        type: "error"
+                    });
                 });
+        } catch (err) {
+            console.error("addEvent Firestore write failed sync:", err);
+            this.events = this.events.filter(e => e.id !== id);
+            showToast({
+                title: "Validierungsfehler ⚠️",
+                message: "Interner Validierungsfehler: " + err.message,
+                type: "error"
             });
+        }
 
         this.notify();
         return { success: true };
     }
 
     updateEvent(eventId, updatedData) {
+        // Clean undefined or NaN values to prevent Firestore synchronous errors
+        const cleanData = {};
+        for (const [key, val] of Object.entries(updatedData)) {
+            if (val !== undefined && (typeof val !== 'number' || !isNaN(val))) {
+                cleanData[key] = val;
+            }
+        }
+
         const idx = this.events.findIndex(e => e.id === eventId);
         if (idx !== -1) {
-            this.events[idx] = { ...this.events[idx], ...updatedData };
+            this.events[idx] = { ...this.events[idx], ...cleanData };
         }
-        db.collection('events').doc(eventId).update(updatedData)
-            .catch(err => {
-                console.error("updateEvent Firestore write failed:", err);
-                showToast({
-                    title: "Fehler beim Aktualisieren ⚠️",
-                    message: "Firestore-Berechtigung verweigert: " + err.message,
-                    type: "error"
+
+        try {
+            db.collection('events').doc(eventId).update(cleanData)
+                .catch(err => {
+                    console.error("updateEvent Firestore write failed async:", err);
+                    showToast({
+                        title: "Fehler beim Aktualisieren ⚠️",
+                        message: "Firestore-Berechtigung verweigert: " + err.message,
+                        type: "error"
+                    });
                 });
+        } catch (err) {
+            console.error("updateEvent Firestore write failed sync:", err);
+            showToast({
+                title: "Validierungsfehler ⚠️",
+                message: "Interner Validierungsfehler: " + err.message,
+                type: "error"
             });
+        }
+
         this.notify();
         return { success: true };
     }
@@ -2608,6 +2646,15 @@ class StateManager {
 
     addMusician(musicianData) {
         if (!this.currentUser) return { success: false };
+
+        // Clean undefined or NaN values to prevent Firestore synchronous errors
+        const cleanMusicianData = {};
+        for (const [key, val] of Object.entries(musicianData)) {
+            if (val !== undefined && (typeof val !== 'number' || !isNaN(val))) {
+                cleanMusicianData[key] = val;
+            }
+        }
+
         const id = 'mus_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
         const newMusician = {
             id: id,
@@ -2618,43 +2665,72 @@ class StateManager {
             audio: [],
             socialLinks: { spotify: "", youtube: "", instagram: "" },
             isActive: true,
-            ...musicianData
+            ...cleanMusicianData
         };
 
         if (!this.musicians.some(m => m.id === id)) {
             this.musicians.push(newMusician);
         }
 
-        db.collection('musicians').doc(id).set(newMusician)
-            .catch(err => {
-                console.error("addMusician Firestore write failed:", err);
-                this.musicians = this.musicians.filter(m => m.id !== id);
-                this.notify();
-                showToast({
-                    title: "Fehler beim Speichern ⚠️",
-                    message: "Berechtigungsfehler (z. B. Limit auf ein Profil) oder Netzwerkfehler: " + err.message,
-                    type: "error"
+        try {
+            db.collection('musicians').doc(id).set(newMusician)
+                .catch(err => {
+                    console.error("addMusician Firestore write failed async:", err);
+                    this.musicians = this.musicians.filter(m => m.id !== id);
+                    this.notify();
+                    showToast({
+                        title: "Fehler beim Speichern ⚠️",
+                        message: "Berechtigungsfehler (z. B. Limit auf ein Profil) oder Netzwerkfehler: " + err.message,
+                        type: "error"
+                    });
                 });
+        } catch (err) {
+            console.error("addMusician Firestore write failed sync:", err);
+            this.musicians = this.musicians.filter(m => m.id !== id);
+            showToast({
+                title: "Validierungsfehler ⚠️",
+                message: "Interner Validierungsfehler: " + err.message,
+                type: "error"
             });
+        }
 
         this.notify();
         return { success: true };
     }
 
     updateMusician(musicianId, updatedData) {
+        // Clean undefined or NaN values to prevent Firestore synchronous errors
+        const cleanData = {};
+        for (const [key, val] of Object.entries(updatedData)) {
+            if (val !== undefined && (typeof val !== 'number' || !isNaN(val))) {
+                cleanData[key] = val;
+            }
+        }
+
         const idx = this.musicians.findIndex(m => m.id === musicianId);
         if (idx !== -1) {
-            this.musicians[idx] = { ...this.musicians[idx], ...updatedData };
+            this.musicians[idx] = { ...this.musicians[idx], ...cleanData };
         }
-        db.collection('musicians').doc(musicianId).update(updatedData)
-            .catch(err => {
-                console.error("updateMusician Firestore write failed:", err);
-                showToast({
-                    title: "Fehler beim Aktualisieren ⚠️",
-                    message: "Firestore-Berechtigung verweigert: " + err.message,
-                    type: "error"
+
+        try {
+            db.collection('musicians').doc(musicianId).update(cleanData)
+                .catch(err => {
+                    console.error("updateMusician Firestore write failed async:", err);
+                    showToast({
+                        title: "Fehler beim Aktualisieren ⚠️",
+                        message: "Firestore-Berechtigung verweigert: " + err.message,
+                        type: "error"
+                    });
                 });
+        } catch (err) {
+            console.error("updateMusician Firestore write failed sync:", err);
+            showToast({
+                title: "Validierungsfehler ⚠️",
+                message: "Interner Validierungsfehler: " + err.message,
+                type: "error"
             });
+        }
+
         this.notify();
         return { success: true };
     }
@@ -7078,6 +7154,18 @@ function renderProfilePage(container) {
                     registeredUsers[idx].eventEndTime = u.eventEndTime;
                 }
                 localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+            }
+
+            if (typeof db !== 'undefined' && u.id) {
+                db.collection('users').doc(u.id).set(u, { merge: true })
+                    .catch(err => {
+                        console.error("Firestore user details update failed:", err);
+                        showToast({
+                            title: "Fehler beim Speichern ⚠️",
+                            message: "Datenbankfehler beim Speichern der Kontaktdaten: " + err.message,
+                            type: "error"
+                        });
+                    });
             }
 
             state.currentUser = u;
