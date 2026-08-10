@@ -2549,14 +2549,42 @@ class StateManager {
             isActive: true,
             ...eventData
         };
+
+        if (!this.events.some(e => e.id === id)) {
+            this.events.push(newEvent);
+        }
+
         db.collection('events').doc(id).set(newEvent)
-            .catch(err => console.error("addEvent Firestore write failed:", err));
+            .catch(err => {
+                console.error("addEvent Firestore write failed:", err);
+                this.events = this.events.filter(e => e.id !== id);
+                this.notify();
+                showToast({
+                    title: "Fehler beim Speichern ⚠️",
+                    message: "Berechtigungsfehler oder Netzwerkfehler: " + err.message,
+                    type: "error"
+                });
+            });
+
+        this.notify();
         return { success: true };
     }
 
     updateEvent(eventId, updatedData) {
+        const idx = this.events.findIndex(e => e.id === eventId);
+        if (idx !== -1) {
+            this.events[idx] = { ...this.events[idx], ...updatedData };
+        }
         db.collection('events').doc(eventId).update(updatedData)
-            .catch(err => console.error("updateEvent Firestore write failed:", err));
+            .catch(err => {
+                console.error("updateEvent Firestore write failed:", err);
+                showToast({
+                    title: "Fehler beim Aktualisieren ⚠️",
+                    message: "Firestore-Berechtigung verweigert: " + err.message,
+                    type: "error"
+                });
+            });
+        this.notify();
         return { success: true };
     }
 
@@ -2592,14 +2620,42 @@ class StateManager {
             isActive: true,
             ...musicianData
         };
+
+        if (!this.musicians.some(m => m.id === id)) {
+            this.musicians.push(newMusician);
+        }
+
         db.collection('musicians').doc(id).set(newMusician)
-            .catch(err => console.error("addMusician Firestore write failed:", err));
+            .catch(err => {
+                console.error("addMusician Firestore write failed:", err);
+                this.musicians = this.musicians.filter(m => m.id !== id);
+                this.notify();
+                showToast({
+                    title: "Fehler beim Speichern ⚠️",
+                    message: "Berechtigungsfehler (z. B. Limit auf ein Profil) oder Netzwerkfehler: " + err.message,
+                    type: "error"
+                });
+            });
+
+        this.notify();
         return { success: true };
     }
 
     updateMusician(musicianId, updatedData) {
+        const idx = this.musicians.findIndex(m => m.id === musicianId);
+        if (idx !== -1) {
+            this.musicians[idx] = { ...this.musicians[idx], ...updatedData };
+        }
         db.collection('musicians').doc(musicianId).update(updatedData)
-            .catch(err => console.error("updateMusician Firestore write failed:", err));
+            .catch(err => {
+                console.error("updateMusician Firestore write failed:", err);
+                showToast({
+                    title: "Fehler beim Aktualisieren ⚠️",
+                    message: "Firestore-Berechtigung verweigert: " + err.message,
+                    type: "error"
+                });
+            });
+        this.notify();
         return { success: true };
     }
 
