@@ -5290,8 +5290,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Event-Typ</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">Alle</span>
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">alle auswählen</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-event-type-grid">
@@ -5329,8 +5328,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Genres</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">Alle</span>
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">alle auswählen</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-genres-grid">
@@ -5347,8 +5345,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Instrumente</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">Alle</span>
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">alle auswählen</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid">
@@ -5404,8 +5401,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Technik</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">Alle</span>
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">alle auswählen</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-technik-grid">
@@ -5433,8 +5429,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Musiker-Typ</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">Alle</span>
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">alle auswählen</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-musician-type-grid">
@@ -5480,8 +5475,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Genres</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">Alle</span>
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">alle auswählen</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-genres-grid-m">
@@ -5498,8 +5492,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Instrumente</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">Alle</span>
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">alle auswählen</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
@@ -5555,8 +5548,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Bevorzugte Event-Typen</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">Alle</span>
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">alle auswählen</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
@@ -5573,8 +5565,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Technik</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">Alle</span>
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, false)" style="color: #64748b; cursor: pointer; text-decoration: underline;">Keine</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">alle auswählen</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-technik-grid-m">
@@ -7592,10 +7583,6 @@ function renderOrganizerEventItem(e, isActive) {
                             <span style="flex: 1;">Musikgenres: ${formatTruncatedValue(genresArr, themeColor, e.id, 'genres')}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Spieldauer: ${durationDisplay}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>${e.minPublikum !== undefined && e.maxPublikum !== undefined ? `${e.minPublikum} - ${e.maxPublikum}+` : '50 - 150'} Personen</span>
                         </div>
@@ -8032,16 +8019,8 @@ function renderMyMusicianItem(m, isActive) {
                             <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, m.id, 'genres')}</span>
                         </div>
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Instrumente: ${formatTruncatedValue(m.instruments && m.instruments.length > 0 ? m.instruments : ['Gesang', 'Gitarre'], themeColor, m.id, 'instruments')}</span>
-                        </div>
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">Event-Typen: ${formatTruncatedValue(m.eventTypes && m.eventTypes.length > 0 ? m.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, m.id, 'eventtypes')}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Spielzeit: ${durationDisplay}</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
@@ -13455,8 +13434,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
                     </div>
 
-                    <!-- Match-Faktor Badge oben rechts -->
-                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 5px 12px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 50px;">
+                    <!-- Match-Faktor Badge rechts mittig -->
+                    <div style="position: absolute; top: 50%; transform: translateY(-50%); right: 12px; z-index: 5; background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 5px 12px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 50px;">
                         <span style="font-size: 1.05rem; font-weight: 900;">${item.matchScore !== undefined ? item.matchScore : '96'}%</span>
                         <span style="font-size: 0.5rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
                     </div>
@@ -13536,17 +13515,6 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-music" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, item.id, 'genres')}</span>
-                        </div>
-                        <!-- 5. Instrumente -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Instrumente: ${formatTruncatedValue(instrumentsArr, themeColor, item.id, 'instruments')}</span>
-                        </div>
-
-                        <!-- 6. Spieldauer -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>Spielzeit: ${durationDisplay}</span>
                         </div>
                         
                         <!-- Publikum / GÃ¤ste -->
