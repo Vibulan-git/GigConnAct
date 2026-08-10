@@ -14,6 +14,19 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
+window.gcaPromoCodes = [
+    "GCA-VNT-BUA", "GCA-2G0-0GI", "GCA-YIW-MV8", "GCA-PJB-CT4", "GCA-85P-YBH", "GCA-1Y7-KS9", "GCA-MYJ-VJH", "GCA-I9W-M9M", "GCA-5KD-S2B", "GCA-1SK-IVL",
+    "GCA-QTX-2XD", "GCA-EQ5-WF8", "GCA-020-IQJ", "GCA-S04-VJR", "GCA-SXT-7LE", "GCA-QNJ-FHE", "GCA-3L6-UA2", "GCA-854-9ZL", "GCA-UUW-J7Q", "GCA-9YN-F7K",
+    "GCA-XYW-2EJ", "GCA-UOX-U0Q", "GCA-I47-K96", "GCA-8Q4-UMZ", "GCA-UYL-QAM", "GCA-O91-AAL", "GCA-HBC-M4F", "GCA-OFA-OK4", "GCA-RZI-1CZ", "GCA-9C5-TCX",
+    "GCA-G09-7SD", "GCA-2XA-PMV", "GCA-4H1-PK1", "GCA-CTU-HQE", "GCA-90T-3VQ", "GCA-GOL-H44", "GCA-0E9-X24", "GCA-07D-Q37", "GCA-KDX-O6M", "GCA-T1M-EEO",
+    "GCA-E9U-J1W", "GCA-X3V-I69", "GCA-5KI-U4E", "GCA-585-O13", "GCA-0PU-YQ6", "GCA-2NG-TZD", "GCA-7VY-8PU", "GCA-69V-KC0", "GCA-3PF-QMW", "GCA-EAB-LX0",
+    "GCA-YL8-ZZU", "GCA-NQ7-UYN", "GCA-DXB-SAR", "GCA-ILL-QSX", "GCA-0RT-ZED", "GCA-TIJ-7JO", "GCA-5WO-49W", "GCA-OHI-EOQ", "GCA-E0D-DNM", "GCA-BYM-8C9",
+    "GCA-QO6-KGK", "GCA-BZD-UIH", "GCA-IQR-ISN", "GCA-3SJ-9RS", "GCA-CUE-PXL", "GCA-SX1-1Y3", "GCA-KTM-9CN", "GCA-Z3K-7RB", "GCA-DW5-L20", "GCA-M15-4OX",
+    "GCA-K06-B0K", "GCA-SJD-9IK", "GCA-71V-YKS", "GCA-GD1-050", "GCA-ZVN-CVG", "GCA-R1D-9TZ", "GCA-IK8-UWM", "GCA-S3X-DMT", "GCA-UPS-HDW", "GCA-PP6-CI9",
+    "GCA-7JC-4US", "GCA-LVO-0RB", "GCA-RCM-17C", "GCA-3D4-9YC", "GCA-BQQ-487", "GCA-GB6-MH3", "GCA-SVA-2N3", "GCA-PR2-0Y8", "GCA-B0E-Y3Y", "GCA-I1C-UEL",
+    "GCA-AXF-BAA", "GCA-3P8-1V1", "GCA-EF5-EFR", "GCA-N9R-A9S", "GCA-05P-T02", "GCA-OE6-OA8", "GCA-WT2-WOC", "GCA-FGG-O2F", "GCA-AYO-VX6", "GCA-A7D-YTY"
+];
+
 var state = null;
 
 const mockPhotoUrls = [
@@ -6875,6 +6888,17 @@ function renderProfilePage(container) {
                             <button type="button" class="btn btn-secondary btn-sm" id="btn-prof-apply-promo" style="margin:0; font-size:0.75rem; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple);">Code prüfen</button>
                         </div>
                         <div id="prof-promo-status-msg" style="font-size: 0.7rem; margin-top: 0.4rem; display: none;"></div>
+                        
+                        <!-- Stripe-Verbindung (wird eingeblendet bei richtigem Code) -->
+                        <div id="prof-stripe-connect-container" style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(37, 99, 235, 0.05); border: 1px solid #2563eb; border-radius: var(--radius-md); text-align: left;">
+                            <h6 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: #2563eb; display: flex; align-items: center; gap: 0.4rem;"><i class="fa-brands fa-stripe" style="font-size: 1.2rem;"></i> Stripe Verbindung</h6>
+                            <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.35;">
+                                Dein Gutscheincode ist gültig! Verbinde jetzt dein Konto mit Stripe, um die Premium-Buchung abzuschließen. Die Stripe-Schnittstelle wird nächste Woche aktiviert.
+                            </p>
+                            <button type="button" class="btn btn-primary btn-sm" style="background: #2563eb; border-color: #2563eb; display: flex; align-items: center; gap: 0.5rem; width: 100%; justify-content: center; cursor: not-allowed; opacity: 0.75;" disabled>
+                                <i class="fa-brands fa-stripe"></i> Mit Stripe verbinden (Ab nächste Woche)
+                            </button>
+                        </div>
                     </div>
 
                     <div style="display: flex; justify-content: flex-end;">
@@ -7108,13 +7132,16 @@ function renderProfilePage(container) {
         if (promoBtn && promoInput && promoStatus) {
             promoBtn.addEventListener('click', () => {
                 const code = promoInput.value.trim().toUpperCase();
-                if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code)) {
+                if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code) || window.gcaPromoCodes.includes(code)) {
                     isPromoApplied = true;
                     promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif freigeschaltet.";
                     promoStatus.style.color = "#10b981";
                     promoStatus.style.display = "block";
                     promoInput.disabled = true;
                     promoBtn.disabled = true;
+                    
+                    const stripeBox = document.getElementById('prof-stripe-connect-container');
+                    if (stripeBox) stripeBox.style.display = 'block';
                 } else {
                     isPromoApplied = false;
                     promoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Story-Beitrag.";
@@ -10257,6 +10284,17 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                                 <button type="button" class="btn btn-secondary btn-sm" id="btn-apply-promo" style="margin:0; font-size:0.75rem; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple);">Code prüfen</button>
                             </div>
                             <div id="promo-status-msg" style="font-size: 0.7rem; margin-top: 0.4rem; display: none;"></div>
+                            
+                            <!-- Stripe-Verbindung (wird eingeblendet bei richtigem Code) -->
+                            <div id="reg-stripe-connect-container" style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(37, 99, 235, 0.05); border: 1px solid #2563eb; border-radius: var(--radius-md); text-align: left;">
+                                <h6 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: #2563eb; display: flex; align-items: center; gap: 0.4rem;"><i class="fa-brands fa-stripe" style="font-size: 1.2rem;"></i> Stripe Verbindung</h6>
+                                <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.35;">
+                                    Dein Gutscheincode ist gültig! Verbinde jetzt dein Konto mit Stripe, um die Premium-Buchung abzuschließen. Die Stripe-Schnittstelle wird nächste Woche aktiviert.
+                                </p>
+                                <button type="button" class="btn btn-primary btn-sm" style="background: #2563eb; border-color: #2563eb; display: flex; align-items: center; gap: 0.5rem; width: 100%; justify-content: center; cursor: not-allowed; opacity: 0.75;" disabled>
+                                    <i class="fa-brands fa-stripe"></i> Mit Stripe verbinden (Ab nächste Woche)
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -10920,16 +10958,19 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     if (promoBtn && promoInput && promoStatus) {
         promoBtn.addEventListener('click', () => {
             const code = promoInput.value.trim().toUpperCase();
-            if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code)) {
+            if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code) || window.gcaPromoCodes.includes(code)) {
                 isPromoCodeApplied = true;
-                promoStatus.textContent = "? Gutscheincode gültig! Premium-Tarif freigeschaltet (3 Monate kostenfrei, danach 4,99 €/Monat).";
+                promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif freigeschaltet (3 Monate kostenfrei, danach 4,99 €/Monat).";
                 promoStatus.style.color = "#10b981";
                 promoStatus.style.display = "block";
                 promoInput.disabled = true;
                 promoBtn.disabled = true;
+                
+                const stripeBox = document.getElementById('reg-stripe-connect-container');
+                if (stripeBox) stripeBox.style.display = 'block';
             } else {
                 isPromoCodeApplied = false;
-                promoStatus.textContent = "? Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Beitrag.";
+                promoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Beitrag.";
                 promoStatus.style.color = "#ef4444";
                 promoStatus.style.display = "block";
             }
@@ -11964,6 +12005,17 @@ function renderSubscriptionExpiredPage(container) {
                         <button type="button" class="btn btn-secondary btn-sm" id="btn-expired-apply-promo" style="margin:0; font-size:0.75rem; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple);">Prüfen</button>
                     </div>
                     <div id="expired-promo-status-msg" style="font-size: 0.7rem; margin-top: 0.4rem; display: none;"></div>
+                    
+                    <!-- Stripe-Verbindung (wird eingeblendet bei richtigem Code) -->
+                    <div id="expired-stripe-connect-container" style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(37, 99, 235, 0.05); border: 1px solid #2563eb; border-radius: var(--radius-md); text-align: left;">
+                        <h6 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: #2563eb; display: flex; align-items: center; gap: 0.4rem;"><i class="fa-brands fa-stripe" style="font-size: 1.2rem;"></i> Stripe Verbindung</h6>
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.35;">
+                            Dein Gutscheincode ist gültig! Verbinde jetzt dein Konto mit Stripe, um die Premium-Buchung abzuschließen. Die Stripe-Schnittstelle wird nächste Woche aktiviert.
+                        </p>
+                        <button type="button" class="btn btn-primary btn-sm" style="background: #2563eb; border-color: #2563eb; display: flex; align-items: center; gap: 0.5rem; width: 100%; justify-content: center; cursor: not-allowed; opacity: 0.75;" disabled>
+                            <i class="fa-brands fa-stripe"></i> Mit Stripe verbinden (Ab nächste Woche)
+                        </button>
+                    </div>
                 </div>
 
                 <div class="sepa-panel" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
@@ -12030,13 +12082,16 @@ function renderSubscriptionExpiredPage(container) {
     if (promoBtn && promoInput && promoStatus) {
         promoBtn.addEventListener('click', () => {
             const code = promoInput.value.trim().toUpperCase();
-            if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code)) {
+            if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code) || window.gcaPromoCodes.includes(code)) {
                 isPromoApplied = true;
                 promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif (4,99 €) freigeschaltet.";
                 promoStatus.style.color = "#10b981";
                 promoStatus.style.display = "block";
                 promoInput.disabled = true;
                 promoBtn.disabled = true;
+                
+                const stripeBox = document.getElementById('expired-stripe-connect-container');
+                if (stripeBox) stripeBox.style.display = 'block';
                 
                 selectedPlan = 'premium';
                 updateUIForPlan('premium');
