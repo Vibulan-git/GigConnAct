@@ -12967,25 +12967,25 @@ function formatTruncatedValue(val, themeColor, itemId, uniqueType) {
     
     if (fullText.length === 0) return 'Keine Angabe';
     
-    // We want to truncate if the content exceeds roughly 65 characters (approx. 2 lines)
-    if (fullText.length <= 65) {
+    // Max one line: truncate if content exceeds 32 characters
+    if (fullText.length <= 32) {
         return fullText;
     }
     
-    // Find a clean split point near index 55-65 (prefer comma, then space, then fallback to index 60)
-    let splitIdx = 60;
-    const searchArea = fullText.slice(50, 70);
+    // Find a clean split point near index 22-30 (prefer comma, then space, then fallback to 25)
+    let splitIdx = 25;
+    const searchArea = fullText.slice(18, 30);
     const lastCommaIdx = searchArea.lastIndexOf(',');
     if (lastCommaIdx !== -1) {
-        splitIdx = 50 + lastCommaIdx + 1; // split right after comma
+        splitIdx = 18 + lastCommaIdx + 1; // split right after comma
     } else {
         const lastSpaceIdx = searchArea.lastIndexOf(' ');
         if (lastSpaceIdx !== -1) {
-            splitIdx = 50 + lastSpaceIdx; // split at space
+            splitIdx = 18 + lastSpaceIdx; // split at space
         }
     }
     
-    const visiblePart = fullText.slice(0, splitIdx);
+    const visiblePart = fullText.slice(0, splitIdx).trim();
     const hiddenPart = fullText.slice(splitIdx);
     const hiddenId = `more-${uniqueType}-${itemId}`;
     
