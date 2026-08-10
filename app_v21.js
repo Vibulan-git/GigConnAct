@@ -1527,6 +1527,7 @@ class StateManager {
             const list = [];
             snapshot.forEach(doc => list.push(doc.data()));
             this.musicians = list;
+            this.updateVersion = (this.updateVersion || 0) + 1;
             this.notify();
         }, err => console.error("Musicians snapshot error:", err));
 
@@ -1534,6 +1535,7 @@ class StateManager {
             const list = [];
             snapshot.forEach(doc => list.push(doc.data()));
             this.events = list;
+            this.updateVersion = (this.updateVersion || 0) + 1;
             this.notify();
         }, err => console.error("Events snapshot error:", err));
 
@@ -1541,6 +1543,7 @@ class StateManager {
             const list = [];
             snapshot.forEach(doc => list.push(doc.data()));
             this.chats = list;
+            this.updateVersion = (this.updateVersion || 0) + 1;
             this.notify();
         }, err => console.error("Chats snapshot error:", err));
 
@@ -1548,6 +1551,7 @@ class StateManager {
             const list = [];
             snapshot.forEach(doc => list.push(doc.data()));
             this.interests = list;
+            this.updateVersion = (this.updateVersion || 0) + 1;
             this.notify();
         }, err => console.error("Interests snapshot error:", err));
     }
@@ -8354,7 +8358,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     if (addPhotoBtn) {
         addPhotoBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (localMedia.photos.length >= 5) {
+            const remainingSlots = 5 - localMedia.photos.length;
+            if (remainingSlots <= 0) {
                 showToast({
                     title: "Bilder-Limit erreicht 📷",
                     message: "Es sind maximal 5 Bilder erlaubt."
@@ -8364,19 +8369,26 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.multiple = true;
-            fileInput.accept = 'image/png, image/jpeg, image/gif, image/webp';
+            fileInput.accept = 'image/*';
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    Array.from(fileInput.files).forEach(file => {
-                        if (localMedia.photos.length >= 5) {
-                            showToast({
-                                title: "Bilder-Limit erreicht 📷",
-                                message: "Es sind maximal 5 Bilder erlaubt."
-                            });
-                            return;
-                        }
+                    const filesToProcess = Array.from(fileInput.files).slice(0, remainingSlots);
+                    if (fileInput.files.length > remainingSlots) {
+                        showToast({
+                            title: "Bilder-Limit 📷",
+                            message: `Es wurden nur die ersten ${remainingSlots} Bilder ausgewählt (maximal 5 erlaubt).`
+                        });
+                    }
+                    filesToProcess.forEach(file => {
                         validateAndProcessPhoto(file, (dataUrl) => {
+                            if (localMedia.photos.includes(dataUrl)) {
+                                showToast({
+                                    title: "Bild existiert bereits",
+                                    message: "Dieses Bild wurde bereits hinzugefügt."
+                                });
+                                return;
+                            }
                             localMedia.photos.push(dataUrl);
                             updateLocalMediaPreview();
                         });
@@ -8391,7 +8403,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     if (addVideoBtn) {
         addVideoBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (localMedia.videos.length >= 3) {
+            const remainingSlots = 3 - localMedia.videos.length;
+            if (remainingSlots <= 0) {
                 showToast({
                     title: "Video-Limit erreicht 🎬",
                     message: "Es sind maximal 3 Videos erlaubt."
@@ -8401,19 +8414,27 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.multiple = true;
-            fileInput.accept = 'video/mp4, video/quicktime, video/webm, video/ogg, video/x-matroska';
+            fileInput.accept = 'video/*';
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    Array.from(fileInput.files).forEach(file => {
-                        if (localMedia.videos.length >= 3) {
-                            showToast({
-                                title: "Video-Limit erreicht 🎬",
-                                message: "Es sind maximal 3 Videos erlaubt."
-                            });
-                            return;
-                        }
+                    const filesToProcess = Array.from(fileInput.files).slice(0, remainingSlots);
+                    if (fileInput.files.length > remainingSlots) {
+                        showToast({
+                            title: "Video-Limit 🎬",
+                            message: `Es wurden nur die ersten ${remainingSlots} Videos ausgewählt (maximal 3 erlaubt).`
+                        });
+                    }
+                    filesToProcess.forEach(file => {
                         validateAndProcessVideo(file, (videoUrl) => {
+                            const alreadyExists = localMedia.videos.some(v => v.url === videoUrl);
+                            if (alreadyExists) {
+                                showToast({
+                                    title: "Video existiert bereits",
+                                    message: "Dieses Video wurde bereits hinzugefügt."
+                                });
+                                return;
+                            }
                             localMedia.videos.push({ url: videoUrl, title: file.name });
                             updateLocalMediaPreview();
                         });
@@ -8428,7 +8449,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     if (addAudioBtn) {
         addAudioBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (localMedia.audios.length >= 3) {
+            const remainingSlots = 3 - localMedia.audios.length;
+            if (remainingSlots <= 0) {
                 showToast({
                     title: "Audio-Limit erreicht 🎵",
                     message: "Es sind maximal 3 Audio-Dateien erlaubt."
@@ -8438,19 +8460,27 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.multiple = true;
-            fileInput.accept = 'audio/mpeg, audio/wav, audio/ogg, audio/mp3, audio/m4a, audio/aac';
+            fileInput.accept = 'audio/*';
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    Array.from(fileInput.files).forEach(file => {
-                        if (localMedia.audios.length >= 3) {
-                            showToast({
-                                title: "Audio-Limit erreicht 🎵",
-                                message: "Es sind maximal 3 Audio-Dateien erlaubt."
-                            });
-                            return;
-                        }
+                    const filesToProcess = Array.from(fileInput.files).slice(0, remainingSlots);
+                    if (fileInput.files.length > remainingSlots) {
+                        showToast({
+                            title: "Audio-Limit 🎵",
+                            message: `Es wurden nur die ersten ${remainingSlots} Audio-Dateien ausgewählt (maximal 3 erlaubt).`
+                        });
+                    }
+                    filesToProcess.forEach(file => {
                         validateAndProcessAudio(file, (audioObj) => {
+                            const alreadyExists = localMedia.audios.some(a => a.url === audioObj.url);
+                            if (alreadyExists) {
+                                showToast({
+                                    title: "Hörprobe existiert bereits",
+                                    message: "Diese Hörprobe wurde bereits hinzugefügt."
+                                });
+                                return;
+                            }
                             localMedia.audios.push(audioObj);
                             updateLocalMediaPreview();
                         });
@@ -11861,6 +11891,7 @@ function navigate(page) {
     const currentEventsCount = (state && state.events) ? state.events.length : 0;
     const activeMusicianId = (state && state.activeMusicianId) ? state.activeMusicianId : null;
     const activeEventId = (state && state.activeEventId) ? state.activeEventId : null;
+    const currentUpdateVersion = (state && state.updateVersion) ? state.updateVersion : 0;
 
     const maxChatTimestamp = (state && state.chats) 
         ? Math.max(...state.chats.map(c => new Date(c.updatedAt || 0).getTime()), 0) 
@@ -11870,7 +11901,8 @@ function navigate(page) {
                 "currentActivePage:", window.currentActivePage, 
                 "lastActiveMusicianId:", window.lastActiveMusicianId, "activeMusicianId:", activeMusicianId,
                 "lastActiveEventId:", window.lastActiveEventId, "activeEventId:", activeEventId,
-                "lastChatTimestamp:", window.lastChatTimestamp, "maxChatTimestamp:", maxChatTimestamp);
+                "lastChatTimestamp:", window.lastChatTimestamp, "maxChatTimestamp:", maxChatTimestamp,
+                "lastUpdateVersion:", window.lastUpdateVersion, "currentUpdateVersion:", currentUpdateVersion);
 
     const isIdentical = page !== '' && 
         window.currentActivePage === page && 
@@ -11879,7 +11911,8 @@ function navigate(page) {
         window.lastMusiciansCount === currentMusiciansCount &&
         window.lastEventsCount === currentEventsCount &&
         window.lastActiveMusicianId === activeMusicianId &&
-        window.lastActiveEventId === activeEventId;
+        window.lastActiveEventId === activeEventId &&
+        window.lastUpdateVersion === currentUpdateVersion;
 
     if (page === 'postbox') {
         if (isIdentical && window.lastChatTimestamp === maxChatTimestamp) {
@@ -11900,6 +11933,7 @@ function navigate(page) {
     window.lastActiveMusicianId = activeMusicianId;
     window.lastActiveEventId = activeEventId;
     window.lastChatTimestamp = maxChatTimestamp;
+    window.lastUpdateVersion = currentUpdateVersion;
 
     if (page === '') {
         mainContainer.classList.add('page-landing');
