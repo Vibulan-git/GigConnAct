@@ -6788,7 +6788,7 @@ function renderProfilePage(container) {
                     </div>` : ''}
 
                     <div style="display: flex; justify-content: center;">
-                        <button type="submit" class="btn btn-primary btn-sm" style="margin:0; background: ${themeBtnBg}; border-color: ${themeBtnBorder};">
+                        <button type="submit" class="btn btn-primary" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: ${themeBtnBg}; border-color: ${themeBtnBorder};">
                             <i class="fa-solid fa-floppy-disk"></i> Änderungen speichern
                         </button>
                     </div>
@@ -8518,7 +8518,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
 
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
-                        <button type="submit" class="btn btn-primary btn-sm" style="margin:0; background: var(--color-purple); border-color: var(--color-purple);">
+                        <button type="submit" class="btn btn-primary" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: var(--color-purple); border-color: var(--color-purple);">
                             ${isEdit ? 'Änderungen speichern' : 'Profil erstellen'}
                         </button>
                     </div>
@@ -9215,7 +9215,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </div>
 
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
-                        <button type="submit" class="btn btn-primary btn-sm" style="margin:0; background: #2563eb; border-color: #2563eb;">
+                        <button type="submit" class="btn btn-primary" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: #2563eb; border-color: #2563eb;">
                             ${isEdit ? 'Änderungen speichern' : 'Event ausschreiben'}
                         </button>
                     </div>
