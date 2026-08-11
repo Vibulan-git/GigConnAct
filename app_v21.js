@@ -5152,11 +5152,17 @@ function setupLocationAutocomplete(input, onSelect) {
                             const addr = item.address;
                             const cityName = addr.city || addr.town || addr.village || addr.municipality || item.name;
                             const displayZip = addr.postcode;
-                            const displayCity = displayZip ? `${cityName} (${displayZip})` : cityName;
+                            let displayCity = displayZip ? `${cityName} (${displayZip})` : cityName;
+                            
+                            // Enforce Zip Code display using our helper mapping (Option 1)
+                            if (!displayZip) {
+                                displayCity = window.normalizeCityName(cityName);
+                            }
+                            
                             const state = addr.state ? `, ${addr.state}` : '';
                             return {
                                 name: displayCity,
-                                label: displayZip ? `${displayCity}${state}` : `${cityName}${state}`
+                                label: displayCity.includes('(') ? `${displayCity}${state}` : `${cityName}${state}`
                             };
                         });
                     }
@@ -9125,7 +9131,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
         const data = {
             name: formData.get('bandName'),
             type: Array.from(form.querySelectorAll('input[name="musicianTypes"]:checked')).map(el => el.value).join(', ') || 'Solo',
-            location: formData.get('location'),
+            location: window.normalizeCityName(formData.get('location')),
+            locations: [window.normalizeCityName(formData.get('location'))],
             radius: parseInt(formData.get('radius')) || 50,
             minDuration: parseFloat(formData.get('minDuration')) || 1,
             maxDuration: parseFloat(formData.get('maxDuration')) || 3,
@@ -9745,8 +9752,8 @@ function showEventModal(eventObj = null, isDuplication = false) {
         const data = {
             name: formData.get('eventName'),
             type: Array.from(form.querySelectorAll('input[name="orgEventTypes"]:checked')).map(el => el.value).join(', ') || 'Sonstige',
-            location: (orgLocationInput?.value || '').trim() || 'München',
-            locations: [(orgLocationInput?.value || '').trim() || 'München'],
+            location: window.normalizeCityName((orgLocationInput?.value || '').trim() || 'München'),
+            locations: [window.normalizeCityName((orgLocationInput?.value || '').trim() || 'München')],
             date: selectedEventDates[0] || new Date().toISOString().split('T')[0],
             dates: selectedEventDates,
             eventStartTime: formData.get('eventStartTime') || '18:00',
@@ -11243,6 +11250,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const errDiv = document.getElementById('register-error-msg');
+        let musLocVal = '';
+        let orgLocVal = '';
+        let musDescVal = '';
+        let orgDescVal = '';
         
         const privacyConsent = registerForm.elements.privacyConsent?.checked;
         if (!privacyConsent) {
@@ -11329,7 +11340,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 markInvalid(document.getElementById('grid-event-types'));
                 return;
             }
-            const musLocVal = (musLocationInput?.value || '').trim();
+            musLocVal = (musLocationInput?.value || '').trim();
             if (!musLocVal) {
                 errDiv.textContent = 'Bitte gib deinen Standort (Stadt) an.';
                 errDiv.style.display = 'block';
@@ -11337,7 +11348,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 markInvalid(document.getElementById('input-mus-location-search'));
                 return;
             }
-            const musDescVal = registerForm.querySelector('textarea[name="musDescription"]')?.value.trim();
+            musDescVal = registerForm.querySelector('textarea[name="musDescription"]')?.value.trim();
             if (!musDescVal) {
                 errDiv.textContent = 'Bitte gib eine kurze Beschreibung über dich/deine Band an.';
                 errDiv.style.display = 'block';
@@ -11384,7 +11395,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 markInvalid(document.getElementById('org-calendar-days-grid'));
                 return;
             }
-            const orgLocVal = (orgLocationInput?.value || '').trim();
+            orgLocVal = (orgLocationInput?.value || '').trim();
             if (!orgLocVal) {
                 errDiv.textContent = 'Bitte gib den Veranstaltungsort (Stadt) an.';
                 errDiv.style.display = 'block';
@@ -11416,7 +11427,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 markInvalid(document.getElementById('grid-org-technik'));
                 return;
             }
-            const orgDescVal = registerForm.querySelector('textarea[name="orgDescription"]')?.value.trim();
+            orgDescVal = registerForm.querySelector('textarea[name="orgDescription"]')?.value.trim();
             if (!orgDescVal) {
                 errDiv.textContent = 'Bitte gib eine kurze Beschreibung deines Events an.';
                 errDiv.style.display = 'block';
@@ -11457,7 +11468,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         if (selectedRole === 'musician') {
             payload.bandName = registerForm.elements.bandName.value;
             payload.musicianType = Array.from(registerForm.querySelectorAll('input[name="musicianTypes"]:checked')).map(el => el.value).join(', ');
-            payload.locations = [musLocVal];
+            payload.locations = [window.normalizeCityName(musLocVal)];
             payload.radius = registerForm.elements.radius.value;
             payload.minDuration = registerForm.elements.minDuration.value;
             payload.maxDuration = registerForm.elements.maxDuration.value;
@@ -11530,7 +11541,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             payload.eventDates = selectedEventDates;
             payload.eventStartTime = registerForm.querySelector('input[name="eventStartTime"]')?.value || '18:00';
             payload.eventEndTime = registerForm.querySelector('input[name="eventEndTime"]')?.value || '22:00';
-            payload.orgLocations = [orgLocVal];
+            payload.orgLocations = [window.normalizeCityName(orgLocVal)];
             payload.orgGenres = Array.from(registerForm.querySelectorAll('input[name="orgGenres"]:checked')).map(el => el.value);
             payload.orgInstruments = Array.from(registerForm.querySelectorAll('input[name="orgInstruments"]:checked')).map(el => el.value);
             payload.orgMinDuration = registerForm.querySelector('input[name="orgMinDuration"]').value;
