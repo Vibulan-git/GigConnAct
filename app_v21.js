@@ -9042,36 +9042,43 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
         const checkedTypes = form.querySelectorAll('input[name="musicianTypes"]:checked');
         if (checkedTypes.length === 0) {
             showToast({ title: "Validierungsfehler ⚠️", message: "Bitte wähle mindestens einen Musiker-Typen aus." });
+            markInvalid(form.querySelector('input[name="musicianTypes"]'), '.checkbox-tag-grid');
             return;
         }
         const checkedGenres = form.querySelectorAll('input[name="genres"]:checked');
         if (checkedGenres.length === 0) {
             showToast({ title: "Validierungsfehler ⚠️", message: "Bitte wähle mindestens ein Genre aus." });
+            markInvalid(form.querySelector('input[name="genres"]'), '.checkbox-tag-grid');
             return;
         }
         const checkedInstruments = form.querySelectorAll('input[name="instruments"]:checked');
         if (checkedInstruments.length === 0) {
             showToast({ title: "Validierungsfehler ⚠️", message: "Bitte wähle mindestens ein Instrument aus." });
+            markInvalid(form.querySelector('input[name="instruments"]'), '.checkbox-tag-grid');
             return;
         }
         const checkedEventTypes = form.querySelectorAll('input[name="eventTypes"]:checked');
         if (checkedEventTypes.length === 0) {
             showToast({ title: "Validierungsfehler ⚠️", message: "Bitte wähle mindestens eine Event-Art aus." });
+            markInvalid(form.querySelector('input[name="eventTypes"]'), '.checkbox-tag-grid');
             return;
         }
         const locVal = formData.get('location')?.trim();
         if (!locVal) {
             showToast({ title: "Validierungsfehler ⚠️", message: "Bitte gib deinen Standort (Stadt) an." });
+            markInvalid(form.querySelector('input[name="location"]'));
             return;
         }
         const descVal = formData.get('description')?.trim();
         if (!descVal) {
             showToast({ title: "Validierungsfehler ⚠️", message: "Bitte gib eine kurze Beschreibung über dich/deine Band an." });
+            markInvalid(form.querySelector('textarea[name="description"]'));
             return;
         }
         const checkedTechnik = form.querySelectorAll('input[name="musTechnik"]:checked');
         if (checkedTechnik.length === 0) {
             showToast({ title: "Validierungsfehler ⚠️", message: "Bitte wähle mindestens eine Technik-Option aus." });
+            markInvalid(form.querySelector('input[name="musTechnik"]'), '.checkbox-tag-grid');
             return;
         }
 
@@ -9690,40 +9697,48 @@ function showEventModal(eventObj = null, isDuplication = false) {
         const checkedEventTypes = form.querySelectorAll('input[name="orgEventTypes"]:checked');
         if (checkedEventTypes.length === 0) {
             showToast({ title: "Validierungsfehler ⚠️", message: "Bitte wähle mindestens einen Event-Typen aus." });
+            markInvalid(form.querySelector('input[name="orgEventTypes"]'), '.checkbox-tag-grid');
             return;
         }
         const checkedMusicianTypes = form.querySelectorAll('input[name="orgMusicianTypes"]:checked');
         if (checkedMusicianTypes.length === 0) {
             showToast({ title: "Validierungsfehler ⚠️", message: "Bitte wähle mindestens einen gesuchten Musiker-Typen aus." });
+            markInvalid(form.querySelector('input[name="orgMusicianTypes"]'), '.checkbox-tag-grid');
             return;
         }
         if (selectedEventDates.length === 0) {
             showToast({ title: "Validierungsfehler ⚠️", message: "Bitte wähle mindestens ein Veranstaltungsdatum im Kalender aus." });
+            markInvalid(document.getElementById('org-calendar-days-grid'));
             return;
         }
         const locVal = (orgLocationInput?.value || '').trim();
         if (!locVal) {
             showToast({ title: "Validierungsfehler ⚠️", message: "Bitte gib den Veranstaltungsort (Stadt) an." });
+            markInvalid(orgLocationInput);
             return;
         }
         const checkedGenres = form.querySelectorAll('input[name="orgGenres"]:checked');
         if (checkedGenres.length === 0) {
             showToast({ title: "Validierungsfehler ⚠️", message: "Bitte wähle mindestens ein Genre aus." });
+            markInvalid(form.querySelector('input[name="orgGenres"]'), '.checkbox-tag-grid');
             return;
         }
         const checkedInstruments = form.querySelectorAll('input[name="orgInstruments"]:checked');
         if (checkedInstruments.length === 0) {
             showToast({ title: "Validierungsfehler ⚠️", message: "Bitte wähle mindestens ein Instrument aus." });
+            markInvalid(form.querySelector('input[name="orgInstruments"]'), '.checkbox-tag-grid');
             return;
         }
         const checkedTechnik = form.querySelectorAll('input[name="orgTechnik"]:checked');
         if (checkedTechnik.length === 0) {
             showToast({ title: "Validierungsfehler ⚠️", message: "Bitte wähle mindestens eine Technik-Option aus." });
+            markInvalid(form.querySelector('input[name="orgTechnik"]'), '.checkbox-tag-grid');
             return;
         }
         const descVal = formData.get('orgDescription')?.trim();
         if (!descVal) {
             showToast({ title: "Validierungsfehler ⚠️", message: "Bitte gib eine kurze Beschreibung deines Events an." });
+            markInvalid(form.querySelector('textarea[name="orgDescription"]'));
             return;
         }
 
@@ -11234,6 +11249,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             errDiv.textContent = "Bitte bestätige, dass du die Datenschutzerklärung gelesen hast.";
             errDiv.style.display = 'block';
             errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            markInvalid(registerForm.elements.privacyConsent, '.form-checkbox');
             return;
         }
 
@@ -11244,6 +11260,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             errDiv.textContent = "Bitte gib einen gültigen Gutscheincode ein, um den Premium-Tarif freizuschalten.";
             errDiv.style.display = 'block';
             errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            markInvalid(document.getElementById('input-promo-code'));
             return;
         }
 
@@ -11252,6 +11269,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             errDiv.textContent = emailValidation.message;
             errDiv.style.display = 'block';
             errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            markInvalid(registerForm.elements.email);
             return;
         }
 
@@ -11261,6 +11279,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             errDiv.textContent = 'Der Vor- und Nachname darf nur Buchstaben, Leerzeichen oder Bindestriche enthalten.';
             errDiv.style.display = 'block';
             errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            markInvalid(registerForm.elements.fullName);
             return;
         }
 
@@ -11273,6 +11292,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             errDiv.textContent = 'Die Telefonnummer muss zwischen 8 und 13 Ziffern lang sein.';
             errDiv.style.display = 'block';
             errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            markInvalid(registerForm.elements.phone);
             return;
         }
 
@@ -11282,6 +11302,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.textContent = 'Bitte wähle mindestens eine Kategorie (z.B. Band oder Solokünstler) aus.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(document.getElementById('grid-musician-types'));
                 return;
             }
             const checkedGenres = registerForm.querySelectorAll('input[name="genres"]:checked');
@@ -11289,6 +11310,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.textContent = 'Bitte wähle mindestens ein Genre aus.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(document.getElementById('grid-genres'));
                 return;
             }
             const checkedInstruments = registerForm.querySelectorAll('input[name="instruments"]:checked');
@@ -11296,6 +11318,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.textContent = 'Bitte wähle mindestens ein Instrument aus.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(document.getElementById('grid-instruments'));
                 return;
             }
             const checkedEventTypes = registerForm.querySelectorAll('input[name="eventTypes"]:checked');
@@ -11303,6 +11326,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.textContent = 'Bitte wähle mindestens eine Event-Art aus.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(document.getElementById('grid-event-types'));
                 return;
             }
             const musLocVal = (musLocationInput?.value || '').trim();
@@ -11310,6 +11334,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.textContent = 'Bitte gib deinen Standort (Stadt) an.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(document.getElementById('input-mus-location-search'));
                 return;
             }
             const musDescVal = registerForm.querySelector('textarea[name="musDescription"]')?.value.trim();
@@ -11317,6 +11342,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.textContent = 'Bitte gib eine kurze Beschreibung über dich/deine Band an.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(document.getElementById('textarea-mus-desc'));
                 return;
             }
         } else if (selectedRole === 'organizer') {
@@ -11325,12 +11351,14 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.textContent = 'Bitte gib einen Eventnamen ein.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(registerForm.elements.eventName);
                 return;
             }
             if (eventName.length > 25) {
                 errDiv.textContent = 'Der Eventname darf maximal 25 Zeichen lang sein.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(registerForm.elements.eventName);
                 return;
             }
             const checkedEventTypes = registerForm.querySelectorAll('input[name="orgEventTypes"]:checked');
@@ -11338,6 +11366,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.textContent = 'Bitte wähle mindestens einen Event-Typen aus.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(document.getElementById('grid-org-event-types'));
                 return;
             }
             const checkedMusicianTypes = registerForm.querySelectorAll('input[name="orgMusicianTypes"]:checked');
@@ -11345,12 +11374,14 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.textContent = 'Bitte wähle mindestens einen gesuchten Musiker-Typen aus.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(document.getElementById('grid-org-musician-types'));
                 return;
             }
             if (selectedEventDates.length === 0) {
                 errDiv.textContent = 'Bitte wähle mindestens ein Veranstaltungsdatum im Kalender aus.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(document.getElementById('org-calendar-days-grid'));
                 return;
             }
             const orgLocVal = (orgLocationInput?.value || '').trim();
@@ -11358,6 +11389,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.textContent = 'Bitte gib den Veranstaltungsort (Stadt) an.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(document.getElementById('input-org-location-search'));
                 return;
             }
             const checkedGenres = registerForm.querySelectorAll('input[name="orgGenres"]:checked');
@@ -11365,6 +11397,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.textContent = 'Bitte wähle mindestens ein Genre aus.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(document.getElementById('grid-org-genres'));
                 return;
             }
             const checkedInstruments = registerForm.querySelectorAll('input[name="orgInstruments"]:checked');
@@ -11372,6 +11405,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.textContent = 'Bitte wähle mindestens ein Instrument aus.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(document.getElementById('grid-org-instruments'));
                 return;
             }
             const checkedTechnik = registerForm.querySelectorAll('input[name="orgTechnik"]:checked');
@@ -11379,6 +11413,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.textContent = 'Bitte wähle mindestens eine Technik-Option aus.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(document.getElementById('grid-org-technik'));
                 return;
             }
             const orgDescVal = registerForm.querySelector('textarea[name="orgDescription"]')?.value.trim();
@@ -11386,6 +11421,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 errDiv.textContent = 'Bitte gib eine kurze Beschreibung deines Events an.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(document.getElementById('textarea-org-desc'));
                 return;
             }
         }
@@ -11399,6 +11435,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     errDiv.textContent = 'Bitte gib den Namen deiner Organisation/Firma an.';
                     errDiv.style.display = 'block';
                     errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    markInvalid(registerForm.elements.company);
                     return;
                 }
                 compValue = compInputVal;
@@ -12806,6 +12843,30 @@ function updateNavbar(forceLanding) {
                 navigateAfterLogin();
             });
         });
+    }
+function markInvalid(el, parentSelector = null) {
+    if (!el) return;
+    const target = parentSelector ? el.closest(parentSelector) : el;
+    if (!target) return;
+    
+    if (target.classList.contains('checkbox-tag-grid') || target.classList.contains('checkbox-grid') || target.tagName === 'DIV' || target.id === 'filter-calendar-days-grid' || target.classList.contains('checkbox-filter-list')) {
+        target.classList.add('checkbox-group-error');
+        const cleanErr = () => {
+            target.classList.remove('checkbox-group-error');
+            target.removeEventListener('change', cleanErr);
+            target.removeEventListener('click', cleanErr);
+        };
+        target.addEventListener('change', cleanErr);
+        target.addEventListener('click', cleanErr);
+    } else {
+        target.classList.add('input-error');
+        const cleanErr = () => {
+            target.classList.remove('input-error');
+            target.removeEventListener('input', cleanErr);
+            target.removeEventListener('change', cleanErr);
+        };
+        target.addEventListener('input', cleanErr);
+        target.addEventListener('change', cleanErr);
     }
 }
 

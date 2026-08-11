@@ -195,8 +195,15 @@ module.exports = function getTopMatchEmailHtml({ userName, role, profileName, ma
                     </table>
                     
                     <!-- Description / Beschreibung -->
-                    <div style="border-top: 1px solid #f1f5f9; padding-top: 14px; font-size: 0.84rem; color: #475569; line-height: 1.5; font-family: Arial, sans-serif;">
+                    <div style="border-top: 1px solid #f1f5f9; padding-top: 14px; font-size: 0.84rem; color: #475569; line-height: 1.5; font-family: Arial, sans-serif; margin-bottom: 16px;">
                         ${shortDesc}
+                    </div>
+
+                    <!-- Direct Link Button inside Card -->
+                    <div style="text-align: center; border-top: 1px solid #f1f5f9; padding-top: 14px;">
+                        <a href="https://gigconnact.de/#/${isOrganizer ? 'musicians' : 'events'}?id=${m.id}" style="background: ${themeColor}; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 0.85rem; display: inline-block; box-shadow: 0 3px 8px rgba(0,0,0,0.1); width: calc(100% - 40px); box-sizing: border-box;">
+                            Profil auf GigConnAct anzeigen & kontaktieren
+                        </a>
                     </div>
                 </div>
             </div>

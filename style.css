@@ -5094,3 +5094,17 @@ input[type="range"].input-field {
         margin-right: 0 !important;
     }
 }
+
+/* Form Validation Error feedback */
+.input-error {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
+    outline: none !important;
+}
+
+.checkbox-group-error {
+    border: 1px solid #ef4444 !important;
+    border-radius: 12px;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
+    padding: 0.5rem !important;
+}
