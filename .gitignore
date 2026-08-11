@@ -2,6 +2,7 @@
 .firebase/
 firebase.exe
 firebase-tools-instant-win.exe
+node.exe
 firebase-debug.log
 ui-debug.log
 .firebaserc.local
