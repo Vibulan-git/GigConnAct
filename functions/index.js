@@ -434,6 +434,7 @@ exports.dailyTopMatchesCheck = functions
                     const html = getTopMatchEmailHtml({
                         userName: userDetails.name,
                         role: 'musician',
+                        profileName: musician.name || musician.title || '',
                         matches: topMatches
                     });
                     await sendEmail({ 
@@ -468,6 +469,7 @@ exports.dailyTopMatchesCheck = functions
                         const html = getTopMatchEmailHtml({
                             userName: userDetails.name,
                             role: 'organizer',
+                            profileName: event.name || event.title || '',
                             matches: topMatches
                         });
                         await sendEmail({ 

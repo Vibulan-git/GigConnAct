@@ -1,22 +1,29 @@
 /**
  * Template für die täglichen Top-Matches
  */
-module.exports = function getTopMatchEmailHtml({ userName, role, matches }) {
+module.exports = function getTopMatchEmailHtml({ userName, role, profileName, matches }) {
     const isOrganizer = role === 'organizer';
     const brandColor = isOrganizer ? '#0ea5e9' : '#7c3aed';
     const themeColor = isOrganizer ? '#2563eb' : '#7c3aed';
     
+    // Helper to clean Base64 images to avoid bloating email size (Gmail cuts off above 102KB)
+    const cleanPhotoUrl = (url) => {
+        if (!url || typeof url !== 'string') return 'https://gigconnact.de/discoball.png';
+        if (url.startsWith('data:image/')) {
+            return 'https://gigconnact.de/discoball.png';
+        }
+        return url;
+    };
+    
     const listHtml = matches.map(m => {
         const title = m.title || m.name || 'Unbekannt';
-        const details = m.type || (m.instruments ? m.instruments.join(', ') : (m.genres ? m.genres.join(', ') : ''));
         const matchColor = '#10b981';
         
-        // Resolve card image:
-        // For events, we ignore profilePic (which might be the organizer's personal photo) and use event photos/image.
-        // Fallback is always the discoball logo.
-        const photoUrl = isOrganizer 
+        // Resolve card image and clean Base64 data URLs:
+        const rawPhotoUrl = isOrganizer 
             ? (m.profilePic || (m.photos && m.photos.length > 0 ? m.photos[0] : null) || m.image || 'https://gigconnact.de/discoball.png')
             : ((m.photos && m.photos.length > 0 ? m.photos[0] : null) || m.image || 'https://gigconnact.de/discoball.png');
+        const photoUrl = cleanPhotoUrl(rawPhotoUrl);
         
         // Location and Date display
         const loc = m.location || 'Ort nach Absprache';
@@ -29,7 +36,7 @@ module.exports = function getTopMatchEmailHtml({ userName, role, matches }) {
         if (m.availability && m.availability.length > 0) {
             dateStr = m.availability.join(', ');
         }
-
+ 
         // Format Duration display
         let durationDisplay = '';
         const minDur = m.minDuration;
@@ -47,7 +54,7 @@ module.exports = function getTopMatchEmailHtml({ userName, role, matches }) {
             baseDur = baseDur.replace(/ca\.\s*/gi, '').replace(/\s*Stunden\.?/gi, '').trim();
             durationDisplay = `${baseDur} Stunden`;
         }
-
+ 
         // Format Budget / Gage display
         let budgetDisplay = '';
         const minB = m.minBudget !== undefined ? m.minBudget : (m.budget || m.price);
@@ -64,22 +71,42 @@ module.exports = function getTopMatchEmailHtml({ userName, role, matches }) {
             budgetDisplay = 'Auf Anfrage';
         }
         
-        // Description snippet
+        // Format Audience / Publikum
+        const minP = m.minPublikum;
+        const maxP = m.maxPublikum;
+        let publikumDisplay = 'Nach Vereinbarung';
+        if (minP !== undefined && minP !== null) {
+            if (maxP !== undefined && maxP !== null) {
+                publikumDisplay = `${minP} - ${maxP} Personen`;
+            } else {
+                publikumDisplay = `${minP}+ Personen`;
+            }
+        } else if (m.publikum) {
+            publikumDisplay = m.publikum;
+        }
+
+        // Format Tech / Technik
+        const techArr = Array.isArray(m.technik) 
+            ? m.technik 
+            : (typeof m.technik === 'string' && m.technik.trim() !== '' ? m.technik.split(',').map(s => s.trim()) : []);
+        const techDisplay = techArr.length > 0 ? techArr.join(', ') : 'Nach Vereinbarung';
+
+        // Description snippet (limit raised to 350 for more information)
         const desc = m.description || m.bio || (isOrganizer 
             ? 'Professionelle Live-Musik für unvergessliche Momente.' 
             : 'Wir suchen eine musikalische Begleitung für unser Event.');
-        const shortDesc = desc.length > 150 ? desc.substring(0, 150) + '...' : desc;
-
+        const shortDesc = desc.length > 350 ? desc.substring(0, 350) + '...' : desc;
+ 
         const musicianTypes = (Array.isArray(m.musicianTypes) && m.musicianTypes.length > 0) 
             ? m.musicianTypes.join(', ') 
             : (typeof m.musicianTypes === 'string' && m.musicianTypes.trim() !== '' ? m.musicianTypes : (m.musicianType || 'Solo / Band'));
-
+ 
         return `
             <!-- Event / Musician Card (Kachel) -->
             <div style="border: 1px solid #e2e8f0; border-radius: 18px; background: #ffffff; margin-bottom: 24px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.03); font-family: Arial, sans-serif; max-width: 550px; margin-left: auto; margin-right: auto;">
                 <!-- Card Image -->
                 <div style="width: 100%; height: 210px; background-color: #0f172a; overflow: hidden; text-align: center;">
-                    <img src="${photoUrl}" alt="${title}" style="width: 100%; height: 210px; object-fit: cover; display: block;">
+                    <img src="${photoUrl}" alt="${title}" style="width: 100%; height: 210px; object-fit: cover; display: block; margin: 0 auto;">
                 </div>
                 
                 <!-- Card Body -->
@@ -98,12 +125,17 @@ module.exports = function getTopMatchEmailHtml({ userName, role, matches }) {
                         </tr>
                     </table>
                     
+                    <!-- Media Notice -->
+                    <div style="margin-top: 10px; margin-bottom: 15px; font-size: 0.8rem; font-style: italic; color: #475569; font-family: Arial, sans-serif; text-align: center; background: #f1f5f9; padding: 8px 12px; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                        📷 🎥 🎵 Fotos, Videos & Hörproben sind direkt auf GigConnAct abrufbar.
+                    </div>
+
                     <!-- Details List -->
                     <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; color: #334155; margin-bottom: 16px; line-height: 1.6;">
                         <!-- Location (Ort) -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">📍</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;">${loc}</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Ort:</b> ${loc}</td>
                         </tr>
                         
                         <!-- Event-Art or Musiker-Typ -->
@@ -111,8 +143,8 @@ module.exports = function getTopMatchEmailHtml({ userName, role, matches }) {
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🎸</td>
                             <td style="padding: 5px 0; font-family: Arial, sans-serif;">
                                 ${isOrganizer 
-                                    ? `Typ: ${m.type || m.category || 'Solo / Band'}` 
-                                    : `Gesucht: ${musicianTypes}`
+                                    ? `<b>Typ:</b> ${m.type || m.category || 'Solo / Band'}` 
+                                    : `<b>Gesucht:</b> ${musicianTypes}`
                                 }
                             </td>
                         </tr>
@@ -120,33 +152,45 @@ module.exports = function getTopMatchEmailHtml({ userName, role, matches }) {
                         <!-- Date (Datum / Verfügbarkeit) -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">📅</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;">${dateStr}</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>${isOrganizer ? 'Verfügbarkeit' : 'Datum'}:</b> ${dateStr}</td>
                         </tr>
                         
                         <!-- Genres -->
                         ${m.genres && m.genres.length > 0 ? `
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🎵</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;">${m.genres.join(', ')}</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Genres:</b> ${m.genres.join(', ')}</td>
                         </tr>` : ''}
                         
                         <!-- Instruments (Instrumente) -->
                         ${m.instruments && m.instruments.length > 0 ? `
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🎹</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;">${m.instruments.join(', ')}</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Instrumente:</b> ${m.instruments.join(', ')}</td>
                         </tr>` : ''}
                         
                         <!-- Duration (Spieldauer) -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">⏱️</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;">${durationDisplay}</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Spieldauer:</b> ${durationDisplay}</td>
+                        </tr>
+
+                        <!-- Publikum (Audience Size) -->
+                        <tr>
+                            <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">👥</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Publikum:</b> ${publikumDisplay}</td>
+                        </tr>
+
+                        <!-- Technik (Tech setup) -->
+                        <tr>
+                            <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🎛️</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Technik:</b> ${techDisplay}</td>
                         </tr>
                         
                         <!-- Budget / Gage -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">💰</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif; font-weight: 600;">${budgetDisplay}</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif; font-weight: 600;"><b>${isOrganizer ? 'Gage' : 'Budget'}:</b> ${budgetDisplay}</td>
                         </tr>
                     </table>
                     
@@ -158,12 +202,15 @@ module.exports = function getTopMatchEmailHtml({ userName, role, matches }) {
             </div>
         `;
     }).join('');
-
-    const headingText = isOrganizer ? 'Neue passende Musiker für dein Event! 🌟' : 'Deine neuen Top-Matches heute! 🌟';
+ 
+    const pName = profileName || (isOrganizer ? 'dein Event' : 'dein Musiker-Profil');
+    const headingText = isOrganizer 
+        ? `Neue passende Musiker für dein Event "${pName}"! 🌟` 
+        : `Deine neuen Top-Matches für "${pName}"! 🌟`;
     const subHeadingText = isOrganizer 
-        ? 'wir haben neue passende Musiker-Profile der letzten 24 Stunden auf dem Markt für dein Event gefunden:'
-        : 'wir haben neue Top-Matches der letzten 24 Stunden auf dem Markt für dich gefunden:';
-
+        ? `wir haben neue passende Musiker-Profile der letzten 24 Stunden auf dem Markt für dein Event <strong>"${pName}"</strong> gefunden:`
+        : `wir haben neue Top-Matches der letzten 24 Stunden auf dem Markt für dein Musiker-Profil <strong>"${pName}"</strong> gefunden:`;
+ 
     return `
         <div style="font-family: Arial, sans-serif; padding: 24px; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; background: #f8fafc;">
             <!-- Brand Logo Header -->
@@ -181,7 +228,7 @@ module.exports = function getTopMatchEmailHtml({ userName, role, matches }) {
             </div>
             
             <p style="margin-top: 25px; text-align: center;">
-                <a href="https://gigconnact.de" style="background: ${themeColor}; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 0.9rem; display: inline-block; box-shadow: 0 4px 10px rgba(124,58,237,0.25);">Jetzt auf GigConnAct ansehen</a>
+                <a href="${isOrganizer ? 'https://gigconnact.de/#/musicians' : 'https://gigconnact.de/#/events'}" style="background: ${themeColor}; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 0.9rem; display: inline-block; box-shadow: 0 4px 10px rgba(124,58,237,0.25);">Jetzt auf GigConnAct ansehen</a>
             </p>
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 15px;">
             <p style="font-size: 0.78rem; color: #94a3b8; text-align: center; margin: 0;">GigConnAct — Dein Live-Musik Marktplatz</p>
