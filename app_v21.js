@@ -46,12 +46,12 @@ const mockVideoSources = [
 window.registrationMedia = {
     musician: {
         photos: ['https://picsum.photos/id/453/400/300'],
-        videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }],
-        audios: [{ title: 'Live Medley Demo', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' }]
+        videos: [],
+        audios: []
     },
     organizer: {
         photos: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'],
-        videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }],
+        videos: [],
         audios: []
     }
 };
@@ -5105,13 +5105,16 @@ function setupLocationAutocomplete(input, onSelect) {
         if (onSelect) {
             onSelect(val);
         } else {
+            input.dataset.selecting = "true";
             input.value = val;
             input.dispatchEvent(new Event('input', { bubbles: true }));
             input.dispatchEvent(new Event('change', { bubbles: true }));
+            delete input.dataset.selecting;
         }
     }
 
     input.addEventListener('input', (e) => {
+        if (input.dataset.selecting === "true") return;
         clearTimeout(debounceTimer);
         const query = e.target.value.trim();
         
@@ -9950,12 +9953,12 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     window.registrationMedia = {
         musician: {
             photos: ['https://picsum.photos/id/453/400/300'],
-            videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }],
+            videos: [],
             audios: []
         },
         organizer: {
             photos: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'],
-            videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }],
+            videos: [],
             audios: []
         }
     };
@@ -10655,12 +10658,12 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             window.registrationMedia = {
                 musician: {
                     photos: ['https://picsum.photos/id/453/400/300'],
-                    videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }],
+                    videos: [],
                     audios: []
                 },
                 organizer: {
                     photos: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'],
-                    videos: [{ title: 'Live Performance Highlights', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4' }],
+                    videos: [],
                     audios: []
                 }
             };
@@ -11250,6 +11253,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const errDiv = document.getElementById('register-error-msg');
+        const submitBtn = registerForm.querySelector('button[type="submit"]');
+        const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
         let musLocVal = '';
         let orgLocVal = '';
         let musDescVal = '';
@@ -11559,6 +11564,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             payload.audios = (window.registrationMedia.organizer.audios || []).filter(a => a && a.url !== 'loading');
         }
 
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Registrierung läuft...`;
+        }
+
         if (window.googleRegistrationUser) {
             try {
                 const user = window.googleRegistrationUser;
@@ -11664,11 +11674,19 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 console.error("Google user profile setup failed:", err);
                 errDiv.textContent = "Google-Registrierung fehlgeschlagen: " + err.message;
                 errDiv.style.display = 'block';
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                }
             }
             return;
         }
 
         const res = await state.registerPasswordless(payload);
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnHtml;
+        }
         if (res.success) {
             closeModal();
             showModal('verification', onSuccessCallback);

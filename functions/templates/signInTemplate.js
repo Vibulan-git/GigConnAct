@@ -3,10 +3,10 @@
  */
 module.exports = function getSignInEmailHtml({ link, name, isNewUser, role }) {
     const isOrganizer = role === 'organizer';
-    const brandColor = isOrganizer ? '#0ea5e9' : '#7c3aed';
+    const brandColor = isOrganizer ? '#1e3a8a' : '#7c3aed';
     const salutation = (!name || name === 'Nutzer' || name === 'GigConnAct Nutzer') ? 'Hallo,' : `Hallo ${name},`;
     
-    const title = isNewUser ? 'Dein Registrierungs-Link für GigConnAct 🚀' : 'Dein Anmeldelink für GigConnAct 🔐';
+    const title = isNewUser ? 'Dein Registrierungs-Link für GigConnAct' : 'Dein Anmeldelink für GigConnAct 🔐';
     const body = isNewUser
         ? `vielen Dank für deine Registrierung auf GigConnAct! Klicke auf den folgenden Button, um deine Registrierung abzuschließen und dich direkt anzumelden:`
         : `klicke auf den folgenden Button, um dich sicher und passwortlos in deinen GigConnAct-Account einzuloggen:`;

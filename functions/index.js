@@ -639,7 +639,7 @@ exports.sendCustomSignInEmail = functions
             const html = getSignInEmailHtml({ link, name, isNewUser, role });
             
             const subject = isNewUser 
-                ? 'Dein Registrierungs-Link für GigConnAct 🚀' 
+                ? 'Dein Registrierungs-Link für GigConnAct' 
                 : 'Dein Anmeldelink für GigConnAct 🔐';
 
             await sendEmail({
