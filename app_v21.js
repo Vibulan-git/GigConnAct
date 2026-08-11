@@ -5882,6 +5882,15 @@ function renderMarket(container, type, onNavigate) {
         let list = [...items];
         console.log("applyAllFiltersAndSort started. Input items:", list.length, "isEvents:", isEvents);
 
+        // Parse profile/event ID from hash query parameter (for direct links from emails)
+        const hash = window.location.hash;
+        const queryString = hash.split('?')[1] || '';
+        const urlParams = new URLSearchParams(queryString);
+        const targetId = urlParams.get('id') || urlParams.get('profileId');
+        if (targetId) {
+            list = list.filter(item => item.id === targetId);
+        }
+
         // Pre-calculate matchScore for every item in list based on logged in user profile
         if (state.currentUser) {
             if (state.currentUser.role === 'musician') {
@@ -6110,7 +6119,37 @@ function renderMarket(container, type, onNavigate) {
         }
 
         const grid = container.querySelector('#market-items-grid');
-        if (grid) grid.innerHTML = renderMarketGridHTML(list, isEvents);
+        if (grid) {
+            grid.innerHTML = renderMarketGridHTML(list, isEvents);
+
+            // Banner injection if displaying a specific profile/event from an email match
+            const bannerContainerId = 'market-single-profile-banner';
+            let bannerEl = container.querySelector('#' + bannerContainerId);
+            if (targetId && list.length > 0) {
+                const matchedItem = list[0];
+                const name = matchedItem.name || matchedItem.title || 'Profil';
+                if (!bannerEl) {
+                    bannerEl = document.createElement('div');
+                    bannerEl.id = bannerContainerId;
+                    bannerEl.className = 'market-single-profile-banner';
+                    bannerEl.style.cssText = 'background: rgba(124, 58, 237, 0.15); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: 100%; box-sizing: border-box;';
+                    grid.parentNode.insertBefore(bannerEl, grid);
+                }
+                bannerEl.innerHTML = `
+                    <span style="color: #ffffff; font-size: 0.9rem; font-weight: 600;">
+                        Du siehst das Profil für <strong>"${name}"</strong> aus deiner E-Mail-Benachrichtigung.
+                    </span>
+                    <button onclick="window.location.hash = '${isEvents ? '#/events' : '#/musicians'}'; window.location.reload();" class="btn btn-secondary" style="margin: 0; padding: 0.4rem 1rem; font-size: 0.82rem; border-radius: 8px; font-weight: 700; white-space: nowrap;">
+                        Alle Profile anzeigen
+                    </button>
+                `;
+                bannerEl.style.display = 'flex';
+            } else {
+                if (bannerEl) {
+                    bannerEl.style.display = 'none';
+                }
+            }
+        }
         
         const countEl = container.querySelector('#market-results-count');
         if (countEl) countEl.textContent = list.length;
