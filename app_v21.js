@@ -2134,7 +2134,7 @@ class StateManager {
 
     loadState() {
         // Force reset old local data version once to ensure new format/fields are loaded
-        const currentDataVersion = '20260811_v4';
+        const currentDataVersion = '20260811_v5';
         if (localStorage.getItem('GigConnAct_data_version') !== currentDataVersion) {
             localStorage.removeItem('GigConnAct_musicians');
             localStorage.removeItem('GigConnAct_events');
@@ -7864,52 +7864,52 @@ function renderOrganizerEventItem(e, isActive) {
                         <!-- 1. Ort -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Ort: ${window.normalizeCityName(e.location)}</span>
+                            <span>${window.normalizeCityName(e.location)}</span>
                         </div>
                         <!-- 2. Datum -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Datum: ${formattedDate}</span>
+                            <span>${formattedDate}</span>
                         </div>
                         <!-- 3. Event-Typ -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Event-Typ: ${e.type}</span>
+                            <span>${e.type}</span>
                         </div>
                         <!-- 4. Gesucht (Musiker-Typen) -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Gesucht: ${formatTruncatedValue((Array.isArray(e.musicianTypes) && e.musicianTypes.length > 0) ? e.musicianTypes : (typeof e.musicianTypes === 'string' && e.musicianTypes.trim() !== '' ? e.musicianTypes : (e.musicianType || 'Solo / Band')), themeColor, e.id, 'musiciantype')}</span>
+                            <span>${formatTruncatedValue((Array.isArray(e.musicianTypes) && e.musicianTypes.length > 0) ? e.musicianTypes : (typeof e.musicianTypes === 'string' && e.musicianTypes.trim() !== '' ? e.musicianTypes : (e.musicianType || 'Solo / Band')), themeColor, e.id, 'musiciantype')}</span>
                         </div>
                         <!-- 5. Genres -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Genres: ${formatTruncatedValue(genresArr, themeColor, e.id, 'genres')}</span>
+                            <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, e.id, 'genres')}</span>
                         </div>
                         <!-- 6. Instrumente -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-drum" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Instrumente: ${formatTruncatedValue(e.instruments || (e.category ? [e.category] : ['Gesang', 'Gitarre']), themeColor, e.id, 'instruments')}</span>
+                            <span style="flex: 1;">${formatTruncatedValue(e.instruments || (e.category ? [e.category] : ['Gesang', 'Gitarre']), themeColor, e.id, 'instruments')}</span>
                         </div>
                         <!-- 7. Spielzeit -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Spielzeit: ${durationDisplay}</span>
+                            <span>${durationDisplay}</span>
                         </div>
                         <!-- 8. Publikum -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Gäste: ${e.minPublikum !== undefined && e.maxPublikum !== undefined ? `${e.minPublikum} - ${e.maxPublikum}+` : '50 - 150'} Personen</span>
+                            <span>${e.minPublikum !== undefined && e.maxPublikum !== undefined ? `${e.minPublikum} - ${e.maxPublikum}+` : '50 - 150'} Personen</span>
                         </div>
                         <!-- 9. Technik -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Technik: ${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, e.id, 'tech') : 'nach Vereinbarung'}</span>
+                            <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, e.id, 'tech') : 'nach Vereinbarung'}</span>
                         </div>
                         <!-- 10. Gage/Budget -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-coins" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Budget: ${budgetDisplay}</span>
+                            <span>${budgetDisplay}</span>
                         </div>
                     </div>
                 </div>
@@ -8331,52 +8331,52 @@ function renderMyMusicianItem(m, isActive) {
                         <!-- 1. Ort -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Ort: ${window.normalizeCityName(m.location)}</span>
+                            <span>${window.normalizeCityName(m.location)}</span>
                         </div>
                         <!-- 2. Verfügbarkeit -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Verfügbarkeit: ${availDaysStr}</span>
+                            <span>${availDaysStr}</span>
                         </div>
                         <!-- 3. Musiker-Typ -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Musiker-Typ: ${m.type}</span>
+                            <span>${m.type}</span>
                         </div>
                         <!-- 4. Event-Typen (Gesucht) -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Event-Typen (Gesucht): ${formatTruncatedValue(m.eventTypes && m.eventTypes.length > 0 ? m.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, m.id, 'eventtypes')}</span>
+                            <span style="flex: 1;">${formatTruncatedValue(m.eventTypes && m.eventTypes.length > 0 ? m.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, m.id, 'eventtypes')}</span>
                         </div>
                         <!-- 5. Genres -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Genres: ${formatTruncatedValue(genresArr, themeColor, m.id, 'genres')}</span>
+                            <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, m.id, 'genres')}</span>
                         </div>
                         <!-- 6. Instrumente -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-drum" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Instrumente: ${formatTruncatedValue(m.instruments || (m.category ? [m.category] : ['Gesang', 'Gitarre']), themeColor, m.id, 'instruments')}</span>
+                            <span style="flex: 1;">${formatTruncatedValue(m.instruments || (m.category ? [m.category] : ['Gesang', 'Gitarre']), themeColor, m.id, 'instruments')}</span>
                         </div>
                         <!-- 7. Spielzeit -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Spielzeit: ${durationDisplay}</span>
+                            <span>${durationDisplay}</span>
                         </div>
                         <!-- 8. Publikum -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Gäste: ${m.minPublikum !== undefined && m.maxPublikum !== undefined ? `${m.minPublikum} - ${m.maxPublikum}+` : '0 - 500+'} Personen</span>
+                            <span>${m.minPublikum !== undefined && m.maxPublikum !== undefined ? `${m.minPublikum} - ${m.maxPublikum}+` : '0 - 500+'} Personen</span>
                         </div>
                         <!-- 9. Technik -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Technik: ${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, m.id, 'tech') : 'nach Vereinbarung'}</span>
+                            <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, m.id, 'tech') : 'nach Vereinbarung'}</span>
                         </div>
                         <!-- 10. Gage/Budget -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-coins" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Gage: ${budgetDisplay}</span>
+                            <span>${budgetDisplay}</span>
                         </div>
                     </div>
                 </div>
@@ -13955,61 +13955,61 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <!-- 1. Ort -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Ort: ${formatTruncatedValue(window.normalizeCityName(item.location || 'Deutschlandweit'), themeColor, item.id, 'location')}</span>
+                            <span style="flex: 1;">${formatTruncatedValue(window.normalizeCityName(item.location || 'Deutschlandweit'), themeColor, item.id, 'location')}</span>
                         </div>
                         
                         <!-- 2. Datum/Verfügbarkeit -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${isEvents ? 'Datum' : 'Verfügbarkeit'}: ${formatTruncatedValue(dateDisplay, themeColor, item.id, isEvents ? 'date' : 'avail')}</span>
+                            <span style="flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, isEvents ? 'date' : 'avail')}</span>
                         </div>
 
                         <!-- 3. Musiker-Typen/Event-Typen -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${isEvents ? 'Event-Typ' : 'Musiker-Typ'}: ${formatTruncatedValue(isEvents ? (item.type || item.eventType || 'Event') : (item.type || item.category || 'Solo / Band'), themeColor, item.id, isEvents ? 'eventtype' : 'mustype')}</span>
+                            <span style="flex: 1;">${formatTruncatedValue(isEvents ? (item.type || item.eventType || 'Event') : (item.type || item.category || 'Solo / Band'), themeColor, item.id, isEvents ? 'eventtype' : 'mustype')}</span>
                         </div>
 
                         <!-- 4. Event-Typen/Musiker-Typen (Gesucht:) -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${isEvents ? 'Gesucht' : 'Event-Typen (Gesucht)'}: ${formatTruncatedValue(isEvents ? ((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band'))) : (item.eventTypes && item.eventTypes.length > 0 ? item.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier']), themeColor, item.id, isEvents ? 'musiciantype' : 'eventtypes')}</span>
+                            <span style="flex: 1;">${formatTruncatedValue(isEvents ? ((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band'))) : (item.eventTypes && item.eventTypes.length > 0 ? item.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier']), themeColor, item.id, isEvents ? 'musiciantype' : 'eventtypes')}</span>
                         </div>
 
                         <!-- 5. Genres -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-music" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Genres: ${formatTruncatedValue(genresArr, themeColor, item.id, 'genres')}</span>
+                            <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, item.id, 'genres')}</span>
                         </div>
 
                         <!-- 6. Instrumente -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-drum" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Instrumente: ${formatTruncatedValue(instrumentsArr, themeColor, item.id, 'instruments')}</span>
+                            <span style="flex: 1;">${formatTruncatedValue(instrumentsArr, themeColor, item.id, 'instruments')}</span>
                         </div>
 
                         <!-- 7. Spielzeit -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Spielzeit: ${formatTruncatedValue(durationDisplay, themeColor, item.id, 'duration')}</span>
+                            <span style="flex: 1;">${formatTruncatedValue(durationDisplay, themeColor, item.id, 'duration')}</span>
                         </div>
 
                         <!-- 8. Publikum/Gäste (Anzahl in Personen) -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-users" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Gäste: ${item.minPublikum !== undefined && item.maxPublikum !== undefined ? `${item.minPublikum} - ${item.maxPublikum}+` : (isEvents ? '50 - 150' : '0 - 500+')} Personen</span>
+                            <span style="flex: 1;">${item.minPublikum !== undefined && item.maxPublikum !== undefined ? `${item.minPublikum} - ${item.maxPublikum}+` : (isEvents ? '50 - 150' : '0 - 500+')} Personen</span>
                         </div>
 
                         <!-- 9. Technik -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Technik: ${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, item.id, 'tech') : 'nach Vereinbarung'}</span>
+                            <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, item.id, 'tech') : 'nach Vereinbarung'}</span>
                         </div>
 
                         <!-- 10. Gage/Budget -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-coins" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${isEvents ? 'Budget' : 'Gage'}: ${budgetDisplay}</span>
+                            <span style="flex: 1;">${budgetDisplay}</span>
                         </div>
                     </div>
                 </div>
