@@ -61,6 +61,29 @@ module.exports = function getMessageEmailHtml({ senderName, messageText, role, s
             budgetDisplay = 'Auf Anfrage';
         }
 
+        // Format Audience / Publikum
+        const minP = m.minPublikum;
+        const maxP = m.maxPublikum;
+        let publikumDisplay = 'Nach Vereinbarung';
+        if (minP !== undefined && minP !== null) {
+            if (maxP !== undefined && maxP !== null) {
+                publikumDisplay = `${minP} - ${maxP} Personen`;
+            } else {
+                publikumDisplay = `${minP}+ Personen`;
+            }
+        } else if (m.publikum) {
+            publikumDisplay = m.publikum;
+        }
+
+        // Format Tech / Technik
+        const techArr = Array.isArray(m.technik) 
+            ? m.technik 
+            : (typeof m.technik === 'string' && m.technik.trim() !== '' ? m.technik.split(',').map(s => s.trim()) : []);
+        const techDisplay = techArr.length > 0 ? techArr.join(', ') : 'Nach Vereinbarung';
+
+        // Format Instruments
+        const instrumentsDisplay = m.instruments && m.instruments.length > 0 ? m.instruments.join(', ') : 'Nach Vereinbarung';
+
         // Description
         const desc = m.description || m.bio || (isSenderMusician
             ? 'Professionelle Live-Musik für unvergessliche Momente.'
@@ -99,53 +122,68 @@ module.exports = function getMessageEmailHtml({ senderName, messageText, role, s
                         
                         <!-- Details List -->
                         <table style="width: 100%; border-collapse: collapse; font-size: 0.82rem; color: #334155; margin-bottom: 12px; line-height: 1.5;">
-                            <!-- Location (Ort) -->
+                            <!-- 1. Ort -->
                             <tr>
                                 <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">📍</td>
-                                <td style="padding: 4px 0; font-family: Arial, sans-serif;">${loc}</td>
+                                <td style="padding: 4px 0; font-family: Arial, sans-serif;"><b>Ort:</b> ${loc}</td>
                             </tr>
                             
-                            <!-- Event-Art or Musiker-Typ -->
+                            <!-- 2. Datum / Verfügbarkeit -->
+                            <tr>
+                                <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">📅</td>
+                                <td style="padding: 4px 0; font-family: Arial, sans-serif;"><b>${isSenderMusician ? 'Verfügbarkeit' : 'Datum'}:</b> ${dateStr}</td>
+                            </tr>
+                            
+                            <!-- 3. Musiker-Typ / Event-Typ -->
                             <tr>
                                 <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">🎸</td>
                                 <td style="padding: 4px 0; font-family: Arial, sans-serif;">
-                                    ${isSenderMusician 
-                                        ? `Künstler-Typ: ${m.type || 'Solo / Band'}` 
-                                        : `Gesucht: ${musicianTypes}`
-                                    }
+                                    <b>${isSenderMusician ? 'Musiker-Typ' : 'Event-Typ'}:</b> ${isSenderMusician ? (m.type || m.category || 'Solo / Band') : (m.type || m.eventType || 'Event')}
                                 </td>
                             </tr>
-                            
-                            <!-- Date (Datum / Verfügbarkeit) -->
+
+                            <!-- 4. Event-Typen (Gesucht) / Gesucht (Musiker-Typen) -->
                             <tr>
-                                <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">📅</td>
-                                <td style="padding: 4px 0; font-family: Arial, sans-serif;">${dateStr}</td>
+                                <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">📋</td>
+                                <td style="padding: 4px 0; font-family: Arial, sans-serif;">
+                                    <b>${isSenderMusician ? 'Event-Typen (Gesucht)' : 'Gesucht'}:</b> ${isSenderMusician ? (m.eventTypes && m.eventTypes.length > 0 ? m.eventTypes.slice(0, 5).join(', ') : 'Hochzeit, Geburtstag, Firmenfeier') : musicianTypes}
+                                </td>
                             </tr>
-                            
-                            <!-- Genres -->
-                            ${m.genres && m.genres.length > 0 ? `
+
+                            <!-- 5. Genres -->
                             <tr>
                                 <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">🎵</td>
-                                <td style="padding: 4px 0; font-family: Arial, sans-serif;">${m.genres.slice(0, 5).join(', ')}</td>
-                            </tr>` : ''}
-                            
-                            <!-- Instruments (Instrumente) -->
-                            ${m.instruments && m.instruments.length > 0 ? `
+                                <td style="padding: 4px 0; font-family: Arial, sans-serif;"><b>Genres:</b> ${m.genres && m.genres.length > 0 ? m.genres.slice(0, 5).join(', ') : 'Nach Absprache'}</td>
+                            </tr>
+
+                            <!-- 6. Instrumente -->
                             <tr>
                                 <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">🎹</td>
-                                <td style="padding: 4px 0; font-family: Arial, sans-serif;">${m.instruments.join(', ')}</td>
-                            </tr>` : ''}
-                            
-                            <!-- Duration (Spieldauer) -->
+                                <td style="padding: 4px 0; font-family: Arial, sans-serif;"><b>Instrumente:</b> ${instrumentsDisplay}</td>
+                            </tr>
+
+                            <!-- 7. Spielzeit -->
                             <tr>
                                 <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">⏱️</td>
-                                <td style="padding: 4px 0; font-family: Arial, sans-serif;">${durationDisplay}</td>
+                                <td style="padding: 4px 0; font-family: Arial, sans-serif;"><b>Spieldauer:</b> ${durationDisplay}</td>
                             </tr>
-                            
-                            <!-- Budget / Gage -->
+
+                            <!-- 8. Publikum -->
+                            <tr>
+                                <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">👥</td>
+                                <td style="padding: 4px 0; font-family: Arial, sans-serif;"><b>Gäste:</b> ${publikumDisplay}</td>
+                            </tr>
+
+                            <!-- 9. Technik -->
+                            <tr>
+                                <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">🎛️</td>
+                                <td style="padding: 4px 0; font-family: Arial, sans-serif;"><b>Technik:</b> ${techDisplay}</td>
+                            </tr>
+
+                            <!-- 10. Gage / Budget -->
                             <tr>
                                 <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">💰</td>
-                                <td style="padding: 4px 0; font-family: Arial, sans-serif; font-weight: 600;">${budgetDisplay}</td>
+                                <td style="padding: 4px 0; font-family: Arial, sans-serif; font-weight: 600;"><b>${isSenderMusician ? 'Gage' : 'Budget'}:</b> ${budgetDisplay}</td>
                             </tr>
                         </table>
                         

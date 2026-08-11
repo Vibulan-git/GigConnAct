@@ -132,62 +132,65 @@ module.exports = function getTopMatchEmailHtml({ userName, role, profileName, ma
 
                     <!-- Details List -->
                     <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; color: #334155; margin-bottom: 16px; line-height: 1.6;">
-                        <!-- Location (Ort) -->
+                        <!-- 1. Ort -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">📍</td>
                             <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Ort:</b> ${loc}</td>
                         </tr>
-                        
-                        <!-- Event-Art or Musiker-Typ -->
-                        <tr>
-                            <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🎸</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;">
-                                ${isOrganizer 
-                                    ? `<b>Typ:</b> ${m.type || m.category || 'Solo / Band'}` 
-                                    : `<b>Gesucht:</b> ${musicianTypes}`
-                                }
-                            </td>
-                        </tr>
-                        
-                        <!-- Date (Datum / Verfügbarkeit) -->
+
+                        <!-- 2. Datum / Verfügbarkeit -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">📅</td>
                             <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>${isOrganizer ? 'Verfügbarkeit' : 'Datum'}:</b> ${dateStr}</td>
                         </tr>
-                        
-                        <!-- Genres -->
-                        ${m.genres && m.genres.length > 0 ? `
+
+                        <!-- 3. Musiker-Typ / Event-Typ -->
+                        <tr>
+                            <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🎸</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;">
+                                <b>${isOrganizer ? 'Musiker-Typ' : 'Event-Typ'}:</b> ${isOrganizer ? (m.type || m.category || 'Solo / Band') : (m.type || m.eventType || 'Event')}
+                            </td>
+                        </tr>
+
+                        <!-- 4. Event-Typen (Gesucht) / Gesucht (Musiker-Typen) -->
+                        <tr>
+                            <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">📋</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;">
+                                <b>${isOrganizer ? 'Event-Typen (Gesucht)' : 'Gesucht'}:</b> ${isOrganizer ? (m.eventTypes && m.eventTypes.length > 0 ? m.eventTypes.join(', ') : 'Hochzeit, Geburtstag, Firmenfeier') : musicianTypes}
+                            </td>
+                        </tr>
+
+                        <!-- 5. Genres -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🎵</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Genres:</b> ${m.genres.join(', ')}</td>
-                        </tr>` : ''}
-                        
-                        <!-- Instruments (Instrumente) -->
-                        ${m.instruments && m.instruments.length > 0 ? `
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Genres:</b> ${m.genres && m.genres.length > 0 ? m.genres.join(', ') : 'Nach Absprache'}</td>
+                        </tr>
+
+                        <!-- 6. Instrumente -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🎹</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Instrumente:</b> ${m.instruments.join(', ')}</td>
-                        </tr>` : ''}
-                        
-                        <!-- Duration (Spieldauer) -->
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Instrumente:</b> ${m.instruments && m.instruments.length > 0 ? m.instruments.join(', ') : 'Nach Vereinbarung'}</td>
+                        </tr>
+
+                        <!-- 7. Spielzeit -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">⏱️</td>
                             <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Spieldauer:</b> ${durationDisplay}</td>
                         </tr>
 
-                        <!-- Publikum (Audience Size) -->
+                        <!-- 8. Publikum -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">👥</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Publikum:</b> ${publikumDisplay}</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Gäste:</b> ${publikumDisplay}</td>
                         </tr>
 
-                        <!-- Technik (Tech setup) -->
+                        <!-- 9. Technik -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🎛️</td>
                             <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Technik:</b> ${techDisplay}</td>
                         </tr>
-                        
-                        <!-- Budget / Gage -->
+
+                        <!-- 10. Gage / Budget -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">💰</td>
                             <td style="padding: 5px 0; font-family: Arial, sans-serif; font-weight: 600;"><b>${isOrganizer ? 'Gage' : 'Budget'}:</b> ${budgetDisplay}</td>

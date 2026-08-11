@@ -1733,11 +1733,17 @@ class StateManager {
 
     setupAuthListener() {
         auth.onAuthStateChanged(async (firebaseUser) => {
+            if (this.userDocUnsubscribe) {
+                this.userDocUnsubscribe();
+                this.userDocUnsubscribe = null;
+            }
+
             if (firebaseUser) {
                 console.log("Firebase user logged in:", firebaseUser.email);
                 const userDocRef = db.collection('users').doc(firebaseUser.uid);
                 
-                userDocRef.onSnapshot(async (doc) => {
+                this.userDocUnsubscribe = userDocRef.onSnapshot(async (doc) => {
+                    if (typeof auth !== 'undefined' && !auth.currentUser) return;
                     if (doc.exists) {
                         this.currentUser = doc.data();
                         if (this.currentUser.role === 'musician') {
@@ -1752,9 +1758,9 @@ class StateManager {
                         this.notify();
                     } else {
                         console.warn("Logged in user has no document in Firestore 'users' collection.");
-                        // Failsafe: Automatically open registration modal for user to complete registration!
                         window.googleRegistrationUser = firebaseUser;
                         setTimeout(() => {
+                            if (typeof auth !== 'undefined' && !auth.currentUser) return;
                             showModal('auth');
                             const registerForm = document.getElementById('auth-register-form');
                             if (registerForm) {
@@ -1778,9 +1784,11 @@ class StateManager {
                         }, 500);
                     }
                 }, async (err) => {
+                    if (typeof auth !== 'undefined' && !auth.currentUser) return;
                     console.error("User doc snapshot error, falling back to HTTP get():", err);
                     try {
                         const doc = await userDocRef.get();
+                        if (typeof auth !== 'undefined' && !auth.currentUser) return;
                         if (doc.exists) {
                             this.currentUser = doc.data();
                             if (this.currentUser.role === 'musician') {
@@ -1813,6 +1821,7 @@ class StateManager {
                             if (registerTabBtn) registerTabBtn.click();
                         }
                     } catch (getErr) {
+                        if (typeof auth !== 'undefined' && !auth.currentUser) return;
                         console.error("User doc fallback get() failed:", getErr);
                         showToast({
                             title: "Datenbank-Verbindungsfehler",
@@ -2124,6 +2133,14 @@ class StateManager {
     }
 
     loadState() {
+        // Force reset old local data version once to ensure new format/fields are loaded
+        const currentDataVersion = '20260811_v4';
+        if (localStorage.getItem('GigConnAct_data_version') !== currentDataVersion) {
+            localStorage.removeItem('GigConnAct_musicians');
+            localStorage.removeItem('GigConnAct_events');
+            localStorage.setItem('GigConnAct_data_version', currentDataVersion);
+        }
+
         try {
             const storedUser = localStorage.getItem('GigConnAct_current_user');
             this.currentUser = storedUser ? JSON.parse(storedUser) : null;
@@ -2146,11 +2163,26 @@ class StateManager {
                 }
             });
             this.musicians = generateRemainingMusicians(base).map(m => {
+                // Ensure minPublikum and maxPublikum exist on all musicians
+                if (m.minPublikum === undefined || m.minPublikum === null) {
+                    m.minPublikum = [20, 50, 100, 150, 200, 300][(m.id.charCodeAt(m.id.length - 1) || 0) % 6];
+                    m.maxPublikum = m.minPublikum + [30, 50, 100, 200][(m.id.charCodeAt(m.id.length - 1) || 0) % 4];
+                    m.publikum = `${m.minPublikum} - ${m.maxPublikum}`;
+                }
                 if (m.id && m.id.startsWith('mus_gen_') && m.maxBudget === undefined) {
                     m.minDuration = m.minDuration || 2;
                     m.maxDuration = m.maxDuration || 4;
                     m.minBudget = m.minBudget || 300;
                     m.maxBudget = m.minBudget + 500;
+                }
+                // Fallbacks for static initialMusicians if budget/duration is missing
+                if (m.minDuration === undefined || m.minDuration === null) {
+                    m.minDuration = 2;
+                    m.maxDuration = 4;
+                }
+                if (m.minBudget === undefined || m.minBudget === null) {
+                    m.minBudget = 400;
+                    m.maxBudget = 1000;
                 }
                 if (m.technik && !Array.isArray(m.technik)) {
                     m.technik = [m.technik];
@@ -2182,6 +2214,12 @@ class StateManager {
                 }
             });
             this.events = generateRemainingEvents(base).map(e => {
+                // Ensure minPublikum and maxPublikum exist on all events
+                if (e.minPublikum === undefined || e.minPublikum === null) {
+                    e.minPublikum = [20, 50, 100, 150, 200, 300][(e.id.charCodeAt(e.id.length - 1) || 0) % 6];
+                    e.maxPublikum = e.minPublikum + [30, 50, 100, 200][(e.id.charCodeAt(e.id.length - 1) || 0) % 4];
+                    e.publikum = `${e.minPublikum} - ${e.maxPublikum}`;
+                }
                 if (!e.eventStartTime) {
                     const hoursPool = [
                         { start: "14:00", end: "17:00" },
@@ -2206,6 +2244,15 @@ class StateManager {
                         e.maxDuration = e.minDuration + 2;
                     }
                 }
+                // Fallbacks for static initialEvents if budget/duration is missing
+                if (e.minDuration === undefined || e.minDuration === null) {
+                    e.minDuration = 2;
+                    e.maxDuration = 4;
+                }
+                if (e.minBudget === undefined || e.minBudget === null) {
+                    e.minBudget = 400;
+                    e.maxBudget = 1000;
+                }
                 if (e.technik && !Array.isArray(e.technik)) {
                     e.technik = [e.technik];
                 } else if (!e.technik) {
@@ -2216,11 +2263,6 @@ class StateManager {
                 }
                 if (e.budget === undefined || e.budget === null) {
                     e.budget = e.minBudget !== undefined ? e.minBudget : 300;
-                }
-                if (e.minPublikum === undefined || e.minPublikum === null) {
-                    e.minPublikum = [20, 50, 100, 150, 200, 300][Math.floor(Math.random() * 6)];
-                    e.maxPublikum = e.minPublikum + [30, 50, 100, 200][Math.floor(Math.random() * 4)];
-                    e.publikum = `${e.minPublikum} - ${e.maxPublikum}`;
                 }
                 if (["evt_1", "evt_3", "evt_5"].includes(e.id)) {
                     e.hidePhone = true;
@@ -6702,7 +6744,7 @@ window.openItemDetailModal = function(id, isEvents) {
 
                         <div>
                             <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">Gage / Budget</span>
-                            <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-sack-dollar" style="color: ${roleColor};"></i> ${budgetDisplay}</strong>
+                            <strong style="font-size: 0.9rem; color: #fff;"><i class="fa-solid fa-coins" style="color: ${roleColor};"></i> ${budgetDisplay}</strong>
                         </div>
 
                         <div>
@@ -7819,32 +7861,54 @@ function renderOrganizerEventItem(e, isActive) {
 
                     <!-- Single column list matching market style -->
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
+                        <!-- 1. Ort -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${window.normalizeCityName(e.location)}</span>
+                            <span>Ort: ${window.normalizeCityName(e.location)}</span>
                         </div>
+                        <!-- 2. Datum -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-calendar" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${formattedDate}</span>
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Datum: ${formattedDate}</span>
                         </div>
+                        <!-- 3. Event-Typ -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-tag" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>Typ: ${e.type}</span>
+                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Event-Typ: ${e.type}</span>
                         </div>
+                        <!-- 4. Gesucht (Musiker-Typen) -->
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Gesucht: ${formatTruncatedValue((Array.isArray(e.musicianTypes) && e.musicianTypes.length > 0) ? e.musicianTypes : (typeof e.musicianTypes === 'string' && e.musicianTypes.trim() !== '' ? e.musicianTypes : (e.musicianType || 'Solo / Band')), themeColor, e.id, 'musiciantype')}</span>
+                        </div>
+                        <!-- 5. Genres -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Musikgenres: ${formatTruncatedValue(genresArr, themeColor, e.id, 'genres')}</span>
+                            <span style="flex: 1;">Genres: ${formatTruncatedValue(genresArr, themeColor, e.id, 'genres')}</span>
                         </div>
+                        <!-- 6. Instrumente -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                            <i class="fa-solid fa-drum" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Instrumente: ${formatTruncatedValue(e.instruments || (e.category ? [e.category] : ['Gesang', 'Gitarre']), themeColor, e.id, 'instruments')}</span>
+                        </div>
+                        <!-- 7. Spielzeit -->
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Spielzeit: ${durationDisplay}</span>
+                        </div>
+                        <!-- 8. Publikum -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${e.minPublikum !== undefined && e.maxPublikum !== undefined ? `${e.minPublikum} - ${e.maxPublikum}+` : '50 - 150'} Personen</span>
+                            <span>Gäste: ${e.minPublikum !== undefined && e.maxPublikum !== undefined ? `${e.minPublikum} - ${e.maxPublikum}+` : '50 - 150'} Personen</span>
                         </div>
+                        <!-- 9. Technik -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, e.id, 'tech') : 'nach Vereinbarung'}</span>
+                            <span style="flex: 1;">Technik: ${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, e.id, 'tech') : 'nach Vereinbarung'}</span>
                         </div>
+                        <!-- 10. Gage/Budget -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-euro-sign" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <i class="fa-solid fa-coins" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>Budget: ${budgetDisplay}</span>
                         </div>
                     </div>
@@ -8264,37 +8328,55 @@ function renderMyMusicianItem(m, isActive) {
 
                     <!-- Single column list matching market style -->
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
+                        <!-- 1. Ort -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${window.normalizeCityName(m.location)}</span>
+                            <span>Ort: ${window.normalizeCityName(m.location)}</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${m.type}</span>
-                        </div>
+                        <!-- 2. Verfügbarkeit -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${availDaysStr}</span>
+                            <span>Verfügbarkeit: ${availDaysStr}</span>
                         </div>
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, m.id, 'genres')}</span>
+                        <!-- 3. Musiker-Typ -->
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Musiker-Typ: ${m.type}</span>
                         </div>
+                        <!-- 4. Event-Typen (Gesucht) -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Event-Typen: ${formatTruncatedValue(m.eventTypes && m.eventTypes.length > 0 ? m.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, m.id, 'eventtypes')}</span>
+                            <span style="flex: 1;">Event-Typen (Gesucht): ${formatTruncatedValue(m.eventTypes && m.eventTypes.length > 0 ? m.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, m.id, 'eventtypes')}</span>
                         </div>
+                        <!-- 5. Genres -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                            <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Genres: ${formatTruncatedValue(genresArr, themeColor, m.id, 'genres')}</span>
+                        </div>
+                        <!-- 6. Instrumente -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                            <i class="fa-solid fa-drum" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Instrumente: ${formatTruncatedValue(m.instruments || (m.category ? [m.category] : ['Gesang', 'Gitarre']), themeColor, m.id, 'instruments')}</span>
+                        </div>
+                        <!-- 7. Spielzeit -->
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Spielzeit: ${durationDisplay}</span>
+                        </div>
+                        <!-- 8. Publikum -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${m.minPublikum !== undefined && m.maxPublikum !== undefined ? `${m.minPublikum} - ${m.maxPublikum}+` : '0 - 500+'} Personen</span>
+                            <span>Gäste: ${m.minPublikum !== undefined && m.maxPublikum !== undefined ? `${m.minPublikum} - ${m.maxPublikum}+` : '0 - 500+'} Personen</span>
                         </div>
+                        <!-- 9. Technik -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, m.id, 'tech') : 'nach Vereinbarung'}</span>
+                            <span style="flex: 1;">Technik: ${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, m.id, 'tech') : 'nach Vereinbarung'}</span>
                         </div>
+                        <!-- 10. Gage/Budget -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-euro-sign" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${budgetDisplay}</span>
+                            <i class="fa-solid fa-coins" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>Gage: ${budgetDisplay}</span>
                         </div>
                     </div>
                 </div>
@@ -10576,7 +10658,15 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         </div>
     `;
 
-    document.getElementById('btn-close-modal').addEventListener('click', closeModal);
+    document.getElementById('btn-close-modal').addEventListener('click', () => {
+        closeModal();
+        if (typeof auth !== 'undefined' && auth.currentUser && (!state.currentUser || !state.currentUser.id)) {
+            auth.signOut();
+        }
+        if (!state.currentUser) {
+            window.location.hash = '#/';
+        }
+    });
 
     // Full name input filter to allow only letters, spaces, and hyphens
     const nameInput = document.getElementById('input-reg-fullname');
@@ -12907,6 +12997,15 @@ function handleRouting() {
     let page = pageWithQuery.split('?')[0];
     if (page === 'top-matches') page = 'matches';
     
+    // Check if user is half-logged-in (Firebase Auth exists but no Firestore profile)
+    if (typeof auth !== 'undefined' && auth.currentUser && (!state || !state.currentUser || !state.currentUser.id)) {
+        if (page === '' || page === '/') {
+            console.log("Half-logged-in user on landing page. Signing out to prevent auth loop.");
+            auth.signOut();
+            return;
+        }
+    }
+    
     // Redirect logged-in users away from the landing page
     if (state && state.currentUser && state.currentUser.id && (page === '' || page === '/')) {
         if (state.currentUser.role === 'musician') {
@@ -13837,7 +13936,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                                     <i class="fa-solid fa-star" style="font-size: 1.2rem;"></i>
                                 </span>
                             ` : ''}
-                            <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufÃ¼gen/entfernen">
+                            <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
                                 ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? `
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444" width="22" height="22" style="display: block;">
                                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -13851,70 +13950,66 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
                     </div>
 
-                                        <!-- 2. Einspaltige Informationen mit Icons (Reihenfolge nach Benutzer-Anforderungen) -->
+                    <!-- 2. Einspaltige Informationen mit Icons (Reihenfolge nach Benutzer-Anforderungen) -->
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.75rem;">
                         <!-- 1. Ort -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(window.normalizeCityName(item.location || 'Deutschlandweit'), themeColor, item.id, 'location')}</span>
+                            <span style="flex: 1;">Ort: ${formatTruncatedValue(window.normalizeCityName(item.location || 'Deutschlandweit'), themeColor, item.id, 'location')}</span>
                         </div>
                         
-                        ${isEvents ? `
-                        <!-- 2. Datum -->
+                        <!-- 2. Datum/Verfügbarkeit -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'date')}</span>
+                            <span style="flex: 1;">${isEvents ? 'Datum' : 'Verfügbarkeit'}: ${formatTruncatedValue(dateDisplay, themeColor, item.id, isEvents ? 'date' : 'avail')}</span>
                         </div>
-                        <!-- 3. Event-Art (Event-Typ) -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(item.type || item.eventType || 'Event', themeColor, item.id, 'eventtype')}</span>
-                        </div>
-                        <!-- 4. Gesuchter Musiker-Typ -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Gesucht: ${formatTruncatedValue((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band')), themeColor, item.id, 'musiciantype')}</span>
-                        </div>
-                        ` : `
-                        <!-- 2. VerfÃ¼gbarkeit -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'avail')}</span>
-                        </div>
-                        <!-- 3. Musiker-Typ -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(item.type || item.category || 'Solo / Band', themeColor, item.id, 'mustype')}</span>
-                        </div>
-                        <!-- Bevorzugte Event-Typen -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">Event-Typen (Gesucht): ${formatTruncatedValue(item.eventTypes && item.eventTypes.length > 0 ? item.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, item.id, 'eventtypes')}</span>
-                        </div>
-                        `}
 
-                        <!-- 4. Genres -->
+                        <!-- 3. Musiker-Typen/Event-Typen -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${isEvents ? 'Event-Typ' : 'Musiker-Typ'}: ${formatTruncatedValue(isEvents ? (item.type || item.eventType || 'Event') : (item.type || item.category || 'Solo / Band'), themeColor, item.id, isEvents ? 'eventtype' : 'mustype')}</span>
+                        </div>
+
+                        <!-- 4. Event-Typen/Musiker-Typen (Gesucht:) -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${isEvents ? 'Gesucht' : 'Event-Typen (Gesucht)'}: ${formatTruncatedValue(isEvents ? ((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band'))) : (item.eventTypes && item.eventTypes.length > 0 ? item.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier']), themeColor, item.id, isEvents ? 'musiciantype' : 'eventtypes')}</span>
+                        </div>
+
+                        <!-- 5. Genres -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-music" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, item.id, 'genres')}</span>
-                        </div>
-                        
-                        <!-- Publikum / GÃ¤ste -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-users" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${item.minPublikum !== undefined && item.maxPublikum !== undefined ? `${item.minPublikum} - ${item.maxPublikum}+` : (isEvents ? '50 - 150' : '0 - 500+')} Personen</span>
-                        </div>
-                        
-                        <!-- 7. Technik -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                            <i class="fa-solid fa-microchip" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, item.id, 'tech') : 'Technik ist noch unklar'}</span>
+                            <span style="flex: 1;">Genres: ${formatTruncatedValue(genresArr, themeColor, item.id, 'genres')}</span>
                         </div>
 
-                        <!-- 8. Budget / Gage (last) -->
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <i class="fa-solid fa-sack-dollar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem;"></i>
-                            <span>${isEvents ? 'Budget' : 'Gage'}: ${budgetDisplay}</span>
+                        <!-- 6. Instrumente -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-drum" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Instrumente: ${formatTruncatedValue(instrumentsArr, themeColor, item.id, 'instruments')}</span>
+                        </div>
+
+                        <!-- 7. Spielzeit -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Spielzeit: ${formatTruncatedValue(durationDisplay, themeColor, item.id, 'duration')}</span>
+                        </div>
+
+                        <!-- 8. Publikum/Gäste (Anzahl in Personen) -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-users" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Gäste: ${item.minPublikum !== undefined && item.maxPublikum !== undefined ? `${item.minPublikum} - ${item.maxPublikum}+` : (isEvents ? '50 - 150' : '0 - 500+')} Personen</span>
+                        </div>
+
+                        <!-- 9. Technik -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">Technik: ${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, item.id, 'tech') : 'nach Vereinbarung'}</span>
+                        </div>
+
+                        <!-- 10. Gage/Budget -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-coins" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${isEvents ? 'Budget' : 'Gage'}: ${budgetDisplay}</span>
                         </div>
                     </div>
                 </div>
