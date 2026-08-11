@@ -2134,7 +2134,7 @@ class StateManager {
 
     loadState() {
         // Force reset old local data version once to ensure new format/fields are loaded
-        const currentDataVersion = '20260811_v6';
+        const currentDataVersion = '20260811_v7';
         if (localStorage.getItem('GigConnAct_data_version') !== currentDataVersion) {
             localStorage.removeItem('GigConnAct_musicians');
             localStorage.removeItem('GigConnAct_events');
@@ -5549,10 +5549,10 @@ function renderMarket(container, type, onNavigate) {
                                 </div>
                             </div>
 
-                            <!-- 5. Gesuchte Musiker-Typen (Mehrfachauswahl) -->
+                            <!-- 5. Gesuchte Musiker-Typen -->
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                                    <label style="font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Gesuchte Musiker-Typen (Mehrfachauswahl)</label>
+                                    <label style="font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Gesuchte Musiker-Typen</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
                                         <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">alle auswählen</span>
                                     </div>
@@ -8689,10 +8689,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         </div>
                     </div>
 
-                    <!-- 4. Musiker-Typ (Mehrfachauswahl) -->
+                    <!-- 4. Musiker-Typ -->
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                            <label style="margin: 0;">Musiker-Typ (Mehrfachauswahl)</label>
+                            <label style="margin: 0;">Musiker-Typ</label>
                             <span onclick="window.toggleSelectAll('grid-musician-types', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-musician-types">
@@ -8708,10 +8708,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         </div>
                     </div>
 
-                    <!-- 5. Bevorzugte Event-Typen (Mehrfachauswahl) -->
+                    <!-- 5. Bevorzugte Event-Typen -->
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                            <label style="margin: 0;">Bevorzugte Event-Typen (Mehrfachauswahl)</label>
+                            <label style="margin: 0;">Bevorzugte Event-Typen</label>
                             <span onclick="window.toggleSelectAll('grid-event-types', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-event-types">
@@ -8727,10 +8727,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         </div>
                     </div>
 
-                    <!-- 6. Genres (Mehrfachauswahl) -->
+                    <!-- 6. Genres -->
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                            <label style="margin: 0;">Genres (Mehrfachauswahl)</label>
+                            <label style="margin: 0;">Genres</label>
                             <span onclick="window.toggleSelectAll('grid-genres', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-genres">
@@ -8746,10 +8746,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         </div>
                     </div>
 
-                    <!-- 7. Instrumente (Mehrfachauswahl) -->
+                    <!-- 7. Instrumente -->
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                            <label style="margin: 0;">Instrumente (Mehrfachauswahl)</label>
+                            <label style="margin: 0;">Instrumente</label>
                             <span onclick="window.toggleSelectAll('grid-instruments', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-instruments">
@@ -8765,17 +8765,17 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         </div>
                     </div>
 
-                    <!-- 8. Spieldauer (Stunden) -->
+                    <!-- 8. Spieldauer (Std.) -->
                     <div class="form-group">
                         <div class="slider-value-display">
-                            <label>Spieldauer (Stunden)</label>
-                            <span id="val-spieldauer">${musicianObj?.minDuration || 0.5} - ${musicianObj?.maxDuration || 2.0} Std.</span>
+                            <label>Spieldauer (Std.)</label>
+                            <span id="edit-val-spieldauer">${String(musicianObj?.minDuration !== undefined ? musicianObj.minDuration : 0.5).replace('.', ',')} - ${String(musicianObj?.maxDuration !== undefined ? musicianObj.maxDuration : 2.0).replace('.', ',')} Std.</span>
                         </div>
-                        <div class="dual-range-slider" id="slider-spieldauer-container">
+                        <div class="dual-range-slider" id="edit-slider-spieldauer-container">
                             <div class="dual-range-track"></div>
-                            <div class="dual-range-active-track" id="track-spieldauer"></div>
-                            <input type="range" id="input-spieldauer-min" name="minDuration" min="0.5" max="10" step="0.5" value="${musicianObj?.minDuration || 0.5}">
-                            <input type="range" id="input-spieldauer-max" name="maxDuration" min="0.5" max="10" step="0.5" value="${musicianObj?.maxDuration || 2.0}">
+                            <div class="dual-range-active-track" id="edit-track-spieldauer"></div>
+                            <input type="range" id="edit-input-spieldauer-min" name="minDuration" min="0.5" max="10" step="0.5" value="${musicianObj?.minDuration || 0.5}">
+                            <input type="range" id="edit-input-spieldauer-max" name="maxDuration" min="0.5" max="10" step="0.5" value="${musicianObj?.maxDuration || 2.0}">
                         </div>
                     </div>
 
@@ -8783,13 +8783,13 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     <div class="form-group">
                         <div class="slider-value-display">
                             <label>Publikum (Anzahl)</label>
-                            <span id="val-publikum">${musicianObj?.minPublikum || 0} - ${musicianObj?.maxPublikum || 500}+</span>
+                            <span id="edit-val-publikum">${musicianObj?.minPublikum || 0} - ${musicianObj?.maxPublikum || 500}+</span>
                         </div>
-                        <div class="dual-range-slider" id="slider-publikum-container">
+                        <div class="dual-range-slider" id="edit-slider-publikum-container">
                             <div class="dual-range-track"></div>
-                            <div class="dual-range-active-track" id="track-publikum"></div>
-                            <input type="range" id="input-publikum-min" name="minPublikum" min="0" max="500" step="50" value="${musicianObj?.minPublikum || 0}">
-                            <input type="range" id="input-publikum-max" name="maxPublikum" min="0" max="500" step="50" value="${musicianObj?.maxPublikum || 500}">
+                            <div class="dual-range-active-track" id="edit-track-publikum"></div>
+                            <input type="range" id="edit-input-publikum-min" name="minPublikum" min="0" max="500" step="50" value="${musicianObj?.minPublikum || 0}">
+                            <input type="range" id="edit-input-publikum-max" name="maxPublikum" min="0" max="500" step="50" value="${musicianObj?.maxPublikum || 500}">
                         </div>
                     </div>
 
@@ -8815,13 +8815,13 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     <div class="form-group">
                         <div class="slider-value-display">
                             <label>Gage (€)</label>
-                            <span id="val-gage">${musicianObj?.minBudget || 0} - ${musicianObj?.maxBudget || 5000} €</span>
+                            <span id="edit-val-gage">${musicianObj?.minBudget || 0} - ${musicianObj?.maxBudget || 5000} €</span>
                         </div>
-                        <div class="dual-range-slider" id="slider-gage-container">
+                        <div class="dual-range-slider" id="edit-slider-gage-container">
                             <div class="dual-range-track"></div>
-                            <div class="dual-range-active-track" id="track-gage"></div>
-                            <input type="range" id="input-gage-min" name="minBudget" min="0" max="5000" step="100" value="${musicianObj?.minBudget || 0}">
-                            <input type="range" id="input-gage-max" name="maxBudget" min="0" max="5000" step="100" value="${musicianObj?.maxBudget || 5000}">
+                            <div class="dual-range-active-track" id="edit-track-gage"></div>
+                            <input type="range" id="edit-input-gage-min" name="minBudget" min="0" max="5000" step="100" value="${musicianObj?.minBudget || 0}">
+                            <input type="range" id="edit-input-gage-max" name="maxBudget" min="0" max="5000" step="100" value="${musicianObj?.maxBudget || 5000}">
                         </div>
                     </div>
 
@@ -8892,9 +8892,9 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     }
 
     // Dual sliders initialization (scoped to modalWrapper to avoid duplicate ID issues)
-    initDualSlider('slider-spieldauer-container', 'input-spieldauer-min', 'input-spieldauer-max', 'track-spieldauer', 'val-spieldauer', 'Std.', false, modalWrapper);
-    initDualSlider('slider-gage-container', 'input-gage-min', 'input-gage-max', 'track-gage', 'val-gage', '€', true, modalWrapper);
-    initDualSlider('slider-publikum-container', 'input-publikum-min', 'input-publikum-max', 'track-publikum', 'val-publikum', 'Personen', false, modalWrapper);
+    initDualSlider('edit-slider-spieldauer-container', 'edit-input-spieldauer-min', 'edit-input-spieldauer-max', 'edit-track-spieldauer', 'edit-val-spieldauer', 'Std.', false, modalWrapper);
+    initDualSlider('edit-slider-gage-container', 'edit-input-gage-min', 'edit-input-gage-max', 'edit-track-gage', 'edit-val-gage', '€', true, modalWrapper);
+    initDualSlider('edit-slider-publikum-container', 'edit-input-publikum-min', 'edit-input-publikum-max', 'edit-track-publikum', 'edit-val-publikum', 'Personen', false, modalWrapper);
 
     // Weekday times enable/disable sync
     modalWrapper.querySelectorAll('input[name="availDays"]').forEach(chk => {
@@ -9301,8 +9301,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             phone: state.currentUser.phone,
             email: state.currentUser.email,
             availability: availability,
-            minPublikum: parseInt(form.querySelector('#input-publikum-min')?.value) || 0,
-            maxPublikum: parseInt(form.querySelector('#input-publikum-max')?.value) || 500
+            minPublikum: parseInt(form.querySelector('#edit-input-publikum-min')?.value) || 0,
+            maxPublikum: parseInt(form.querySelector('#edit-input-publikum-max')?.value) || 500
         };
 
         if (isEdit) {
@@ -9419,7 +9419,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     <!-- 4. Event-Typ -->
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                            <label style="margin: 0;">Event-Typ (Mehrfachauswahl)</label>
+                            <label style="margin: 0;">Event-Typ</label>
                             <span onclick="window.toggleSelectAll('grid-org-event-types', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-event-types">
@@ -9435,10 +9435,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
                         </div>
                     </div>
  
-                    <!-- 5. Gesuchte Musiker-Typen (Mehrfachauswahl) -->
+                    <!-- 5. Gesuchte Musiker-Typen -->
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                            <label style="margin: 0;">Gesuchte Musiker-Typen (Mehrfachauswahl)</label>
+                            <label style="margin: 0;">Gesuchte Musiker-Typen</label>
                             <span onclick="window.toggleSelectAll('grid-org-musician-types', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-musician-types">
@@ -9454,10 +9454,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
                         </div>
                     </div>
 
-                    <!-- 6. Genres (Mehrfachauswahl) -->
+                    <!-- 6. Genres -->
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                            <label style="margin: 0;">Genres (Mehrfachauswahl)</label>
+                            <label style="margin: 0;">Genres</label>
                             <span onclick="window.toggleSelectAll('grid-org-genres', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-genres">
@@ -9473,10 +9473,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
                         </div>
                     </div>
 
-                    <!-- 7. Instrumente (Mehrfachauswahl) -->
+                    <!-- 7. Instrumente -->
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                            <label style="margin: 0;">Instrumente (Mehrfachauswahl)</label>
+                            <label style="margin: 0;">Instrumente</label>
                             <span onclick="window.toggleSelectAll('grid-org-instruments', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-instruments">
@@ -9496,13 +9496,13 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     <div class="form-group">
                         <div class="slider-value-display">
                             <label>Spieldauer (Std.)</label>
-                            <span id="val-org-spieldauer">${eventObj?.minDuration || 0.5} - ${eventObj?.maxDuration || 2.0} Std.</span>
+                            <span id="edit-val-org-spieldauer">${String(eventObj?.minDuration !== undefined ? eventObj.minDuration : 0.5).replace('.', ',')} - ${String(eventObj?.maxDuration !== undefined ? eventObj.maxDuration : 2.0).replace('.', ',')} Std.</span>
                         </div>
-                        <div class="dual-range-slider" id="slider-org-spieldauer-container">
+                        <div class="dual-range-slider" id="edit-slider-org-spieldauer-container">
                             <div class="dual-range-track"></div>
-                            <div class="dual-range-active-track" id="track-org-spieldauer"></div>
-                            <input type="range" id="input-org-spieldauer-min" name="orgMinDuration" min="0.5" max="10" step="0.5" value="${eventObj?.minDuration || 0.5}">
-                            <input type="range" id="input-org-spieldauer-max" name="orgMaxDuration" min="0.5" max="10" step="0.5" value="${eventObj?.maxDuration || 2.0}">
+                            <div class="dual-range-active-track" id="edit-track-org-spieldauer"></div>
+                            <input type="range" id="edit-input-org-spieldauer-min" name="orgMinDuration" min="0.5" max="10" step="0.5" value="${eventObj?.minDuration || 0.5}">
+                            <input type="range" id="edit-input-org-spieldauer-max" name="orgMaxDuration" min="0.5" max="10" step="0.5" value="${eventObj?.maxDuration || 2.0}">
                         </div>
                     </div>
 
@@ -9510,13 +9510,13 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     <div class="form-group">
                         <div class="slider-value-display">
                             <label>Gäste (Anzahl)</label>
-                            <span id="val-org-publikum">${eventObj?.minPublikum || 0} - ${eventObj?.maxPublikum || 500}+</span>
+                            <span id="edit-val-org-publikum">${eventObj?.minPublikum || 0} - ${eventObj?.maxPublikum || 500}+</span>
                         </div>
-                        <div class="dual-range-slider" id="slider-org-publikum-container">
+                        <div class="dual-range-slider" id="edit-slider-org-publikum-container">
                             <div class="dual-range-track"></div>
-                            <div class="dual-range-active-track" id="track-org-publikum"></div>
-                            <input type="range" id="input-org-publikum-min" name="orgMinPublikum" min="0" max="500" step="50" value="${eventObj?.minPublikum || 0}">
-                            <input type="range" id="input-org-publikum-max" name="orgMaxPublikum" min="0" max="500" step="50" value="${eventObj?.maxPublikum || 500}">
+                            <div class="dual-range-active-track" id="edit-track-org-publikum"></div>
+                            <input type="range" id="edit-input-org-publikum-min" name="orgMinPublikum" min="0" max="500" step="50" value="${eventObj?.minPublikum || 0}">
+                            <input type="range" id="edit-input-org-publikum-max" name="orgMaxPublikum" min="0" max="500" step="50" value="${eventObj?.maxPublikum || 500}">
                         </div>
                     </div>
 
@@ -9542,13 +9542,13 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     <div class="form-group">
                         <div class="slider-value-display">
                             <label>Budget (€)</label>
-                            <span id="val-org-gage">${eventObj?.minBudget || eventObj?.budget || 0} - ${eventObj?.maxBudget || eventObj?.budget || 5000}+ €</span>
+                            <span id="edit-val-org-gage">${eventObj?.minBudget || eventObj?.budget || 0} - ${eventObj?.maxBudget || eventObj?.budget || 5000}+ €</span>
                         </div>
-                        <div class="dual-range-slider" id="slider-org-gage-container">
+                        <div class="dual-range-slider" id="edit-slider-org-gage-container">
                             <div class="dual-range-track"></div>
-                            <div class="dual-range-active-track" id="track-org-gage"></div>
-                            <input type="range" id="input-org-gage-min" name="orgMinBudget" min="0" max="5000" step="100" value="${eventObj?.minBudget || eventObj?.budget || 0}">
-                            <input type="range" id="input-org-gage-max" name="orgMaxBudget" min="0" max="5000" step="100" value="${eventObj?.maxBudget || eventObj?.budget || 5000}">
+                            <div class="dual-range-active-track" id="edit-track-org-gage"></div>
+                            <input type="range" id="edit-input-org-gage-min" name="orgMinBudget" min="0" max="5000" step="100" value="${eventObj?.minBudget || eventObj?.budget || 0}">
+                            <input type="range" id="edit-input-org-gage-max" name="orgMaxBudget" min="0" max="5000" step="100" value="${eventObj?.maxBudget || eventObj?.budget || 5000}">
                         </div>
                     </div>
 
@@ -9686,9 +9686,9 @@ function showEventModal(eventObj = null, isDuplication = false) {
     }
 
     // Dual sliders initialization (scoped to modalWrapper to avoid duplicate ID issues)
-    initDualSlider('slider-org-spieldauer-container', 'input-org-spieldauer-min', 'input-org-spieldauer-max', 'track-org-spieldauer', 'val-org-spieldauer', 'Std.', false, modalWrapper);
-    initDualSlider('slider-org-publikum-container', 'input-org-publikum-min', 'input-org-publikum-max', 'track-org-publikum', 'val-org-publikum', 'Personen', false, modalWrapper);
-    initDualSlider('slider-org-gage-container', 'input-org-gage-min', 'input-org-gage-max', 'track-org-gage', 'val-org-gage', '€', true, modalWrapper);
+    initDualSlider('edit-slider-org-spieldauer-container', 'edit-input-org-spieldauer-min', 'edit-input-org-spieldauer-max', 'edit-track-org-spieldauer', 'edit-val-org-spieldauer', 'Std.', false, modalWrapper);
+    initDualSlider('edit-slider-org-publikum-container', 'edit-input-org-publikum-min', 'edit-input-org-publikum-max', 'edit-track-org-publikum', 'edit-val-org-publikum', 'Personen', false, modalWrapper);
+    initDualSlider('edit-slider-org-gage-container', 'edit-input-org-gage-min', 'edit-input-org-gage-max', 'edit-track-org-gage', 'edit-val-org-gage', '€', true, modalWrapper);
 
     // Sync active class on tag checkboxes
     modalWrapper.querySelectorAll('.tag-pill-checkbox input').forEach(input => {
@@ -10438,9 +10438,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             </div>
                         </div>
 
-                        <!-- 5. Gesuchte Musiker-Typen (Mehrfachauswahl) -->
+                        <!-- 5. Gesuchte Musiker-Typen -->
                         <div class="form-group">
-                            <label>Gesuchte Musiker-Typen (Mehrfachauswahl)</label>
+                            <label>Gesuchte Musiker-Typen</label>
                             <div class="checkbox-tag-grid" id="grid-org-musician-types">
                                 ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
                                     <label class="tag-pill-checkbox">
@@ -14290,12 +14290,18 @@ window.toggleCategoriesRow = function(type) {
 };
 
 window.toggleAllFilterCheckboxes = function(element, checkAll) {
-    // Traverse up to find the card wrapping container
-    const section = element.closest('div[style*="background:"]');
+    // Find the wrapper div by walking up until we find a div containing a .checkbox-tag-grid
+    let section = element.parentElement;
+    while (section && !section.querySelector('.checkbox-tag-grid')) {
+        section = section.parentElement;
+    }
     if (!section) return;
     const checkboxes = section.querySelectorAll('input[type="checkbox"]');
     checkboxes.forEach(cb => {
         cb.checked = checkAll;
+        if (cb.parentElement.classList.contains('tag-pill-checkbox')) {
+            cb.parentElement.classList.toggle('active', checkAll);
+        }
     });
     // Mark the grid as interacted
     const grid = section.querySelector('.checkbox-tag-grid');
