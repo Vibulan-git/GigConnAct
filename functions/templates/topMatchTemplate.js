@@ -203,13 +203,13 @@ module.exports = function getTopMatchEmailHtml({ userName, role, profileName, ma
         `;
     }).join('');
  
-    const pName = profileName || (isOrganizer ? 'dein Event' : 'dein Musiker-Profil');
+    const pName = profileName || (isOrganizer ? 'dein Event' : 'dein Profil');
     const headingText = isOrganizer 
         ? `Neue passende Musiker für dein Event "${pName}"! 🌟` 
         : `Deine neuen Top-Matches für "${pName}"! 🌟`;
     const subHeadingText = isOrganizer 
         ? `wir haben neue passende Musiker-Profile der letzten 24 Stunden auf dem Markt für dein Event <strong>"${pName}"</strong> gefunden:`
-        : `wir haben neue Top-Matches der letzten 24 Stunden auf dem Markt für dein Musiker-Profil <strong>"${pName}"</strong> gefunden:`;
+        : `wir haben neue Top-Matches der letzten 24 Stunden auf dem Markt für <strong>"${pName}"</strong> gefunden:`;
  
     return `
         <div style="font-family: Arial, sans-serif; padding: 24px; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; background: #f8fafc;">
