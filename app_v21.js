@@ -12855,6 +12855,8 @@ function updateNavbar(forceLanding) {
             });
         });
     }
+}
+
 function markInvalid(el, parentSelector = null) {
     if (!el) return;
     const target = parentSelector ? el.closest(parentSelector) : el;
