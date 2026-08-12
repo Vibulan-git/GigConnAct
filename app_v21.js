@@ -3533,9 +3533,11 @@ function getEstimatedDistance(city1, city2) {
 }
 
 function getWeekdayFromDate(dateStr) {
+    if (!dateStr) return '';
     const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    return weekdays[date.getDay()];
+    return weekdays[date.getDay()] || '';
 }
 
 function expandList(arr) {
@@ -3682,9 +3684,10 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
                     isAvailable = true;
                 }
             }
-        } else if (typeof musician.availability === 'object') {
-            const eventWeekday = getWeekdayFromDate(event.date).toLowerCase();
-            if (musician.availability[eventWeekday] !== undefined) {
+        } else if (musician.availability && typeof musician.availability === 'object') {
+            const weekdayRaw = getWeekdayFromDate(event.date);
+            const eventWeekday = weekdayRaw ? weekdayRaw.toLowerCase() : '';
+            if (eventWeekday && musician.availability[eventWeekday] !== undefined) {
                 isAvailable = !!musician.availability[eventWeekday].available;
             } else {
                 const isModified = musician.availability.modifiedDates && musician.availability.modifiedDates.includes(event.date);
@@ -6058,9 +6061,10 @@ function renderMarket(container, type, onNavigate) {
                             if (item.availability.includes(dateVal)) return true;
                             const weekday = getWeekdayFromDate(dateVal);
                             return item.availability.includes(weekday);
-                        } else if (typeof item.availability === 'object') {
-                            const eventWeekday = getWeekdayFromDate(dateVal).toLowerCase();
-                            if (item.availability[eventWeekday] !== undefined) {
+                        } else if (item.availability && typeof item.availability === 'object') {
+                            const weekdayRaw = getWeekdayFromDate(dateVal);
+                            const eventWeekday = weekdayRaw ? weekdayRaw.toLowerCase() : '';
+                            if (eventWeekday && item.availability[eventWeekday] !== undefined) {
                                 return !!item.availability[eventWeekday].available;
                             } else {
                                 const isModified = item.availability.modifiedDates && item.availability.modifiedDates.includes(dateVal);
