@@ -5108,3 +5108,9 @@ input[type="range"].input-field {
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
     padding: 0.5rem !important;
 }
+
+@media (max-width: 768px) {
+    .market-ill-desktop {
+        display: none !important;
+    }
+}
