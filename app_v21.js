@@ -4039,6 +4039,11 @@ function renderHowItWorksContentHTML(type) {
     return `
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 650px; margin: 0 auto;">
             
+            <!-- Large Focus Title Above the Top Card -->
+            <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: ${themeColor}; margin-bottom: 1.5rem; text-align: center; text-transform: none; letter-spacing: -0.5px;">
+                ${isMusician ? 'Event-Kachel' : 'Musiker-Kachel'}
+            </div>
+
             <!-- 1. Top Card: Öffentlicher Markt -->
             <div style="width: 100%; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
                 <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1;">
@@ -4047,8 +4052,11 @@ function renderHowItWorksContentHTML(type) {
                     </div>
                     <div style="font-family: var(--font-body);">
                         <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.35;">
-                            Kontaktdaten von ${isMusician ? 'Veranstaltern' : 'Musikern'}<br><span style="color: ${themeColor};">verborgen</span>
+                            Kontaktdaten<br><span style="color: ${themeColor};">verborgen</span>
                         </h4>
+                        <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.35rem 0 0; font-weight: 500; line-height: 1.4;">
+                            Namen, Telefonnummern, E-Mail-Adressen etc. von ${isMusician ? 'Veranstaltern' : 'Musikern'}
+                        </p>
                     </div>
                 </div>
                 <!-- Illustration -->
@@ -4107,8 +4115,11 @@ function renderHowItWorksContentHTML(type) {
                     </div>
                     <div style="font-family: var(--font-body);">
                         <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.35;">
-                            Kontaktdaten von ${isMusician ? 'Veranstaltern' : 'Musikern'}<br><span style="color: ${themeColor};">sichtbar</span>
+                            Kontaktdaten<br><span style="color: ${themeColor};">sichtbar</span>
                         </h4>
+                        <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.35rem 0 0; font-weight: 500; line-height: 1.4;">
+                            Direkter Kontakt zu ${isMusician ? 'Veranstaltern' : 'Musikern'}
+                        </p>
                     </div>
                 </div>
                 <!-- Illustration -->
