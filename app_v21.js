@@ -4037,13 +4037,8 @@ function renderHowItWorksContentHTML(type) {
 
     // Build HTML matching the exact structure from the image
     return `
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 800px; margin: 0 auto;">
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 650px; margin: 0 auto;">
             
-            <!-- Context Label Above the Top Card -->
-            <div style="font-size: 0.9rem; font-weight: 800; color: ${themeColor}; text-transform: uppercase; margin-bottom: 0.75rem; letter-spacing: 0.5px; text-align: center; font-family: var(--font-heading);">
-                ${isMusician ? 'Event-Markt: Mehr Gigs. Mehr Einnahmen.' : 'Musiker-Markt: Dein Event. Dein Act.'}
-            </div>
-
             <!-- 1. Top Card: Öffentlicher Markt -->
             <div style="width: 100%; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
                 <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1;">
@@ -4052,7 +4047,7 @@ function renderHowItWorksContentHTML(type) {
                     </div>
                     <div style="font-family: var(--font-body);">
                         <h4 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; color: #0f172a; margin: 0; line-height: 1.25;">
-                            Kontaktdaten<br>verborgen
+                            Kontaktdaten<br><span style="color: ${themeColor};">verborgen</span>
                         </h4>
                     </div>
                 </div>
@@ -4077,7 +4072,7 @@ function renderHowItWorksContentHTML(type) {
                 <div style="width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2.5rem 2rem; display: flex; flex-direction: column; gap: 1.8rem; text-align: left; box-sizing: border-box; box-shadow: 0 15px 40px rgba(0,0,0,0.03); position: relative; margin-top: 10px; margin-bottom: 10px;">
                     
                     <!-- Vertical dashed line on the left side of icons -->
-                    <div style="position: absolute; left: 54px; top: 3.5rem; bottom: 3.5rem; width: 2px; border-left: 2px dashed #cbd5e1; z-index: 1;"></div>
+                    <div style="position: absolute; left: 54px; top: 1rem; bottom: 1rem; width: 2px; border-left: 2px dashed #cbd5e1; z-index: 1;"></div>
 
                     ${points.map((pt, index) => `
                         <!-- Item ${index + 1} -->
@@ -4112,7 +4107,7 @@ function renderHowItWorksContentHTML(type) {
                     </div>
                     <div style="font-family: var(--font-body);">
                         <h4 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; color: #0f172a; margin: 0; line-height: 1.25;">
-                            Kontaktdaten<br>sichtbar
+                            Kontaktdaten<br><span style="color: ${themeColor};">sichtbar</span>
                         </h4>
                     </div>
                 </div>
