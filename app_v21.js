@@ -5435,7 +5435,7 @@ function renderMarket(container, type, onNavigate) {
             <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.75rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0px; -webkit-overflow-scrolling: touch;">
                 
                 <!-- 1. Ergebnisse als Zahl + Label at the very left -->
-                <div style="display: flex; align-items: center; gap: 0.7rem; flex-shrink: 0; padding-right: 0.5rem; padding-left: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.7rem; flex-shrink: 0; padding-right: 0.5rem; padding-left: 0.5rem;">
                     <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; text-align: center; padding: 0.2rem 0.55rem; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; min-width: 32px; white-space: nowrap; margin: 0; line-height: 1.2;">
                         ${items.length}
                     </div>
@@ -6424,6 +6424,9 @@ function renderMarket(container, type, onNavigate) {
         container.querySelectorAll('.checkbox-tag-grid').forEach(grid => {
             grid.removeAttribute('data-interacted');
         });
+        container.querySelectorAll('[onclick*="toggleAllFilterCheckboxes"]').forEach(el => {
+            el.textContent = 'alle auswählen';
+        });
         
         const durationMin = container.querySelector('#input-filter-duration-min') || container.querySelector('#input-filter-duration-m-min');
         if (durationMin) durationMin.value = durationMin.min;
@@ -6840,9 +6843,11 @@ window.openItemDetailModal = function(id, isEvents) {
                                 <i class="fa-solid fa-lock" style="color: ${roleColor};"></i> Geschützter Kontaktbereich
                             </div>
                             <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">
-                                Kontaktdaten (Telefonnummer & E-Mail-Adresse) sind im geschützten Modus verborgen. Registriere dich oder melde dich an, um direkt zu kommunizieren.
+                                ${state && state.currentUser 
+                                    ? 'Schalte die Kontaktdaten frei, um direkt zu kommunizieren.' 
+                                    : 'Kontaktdaten (Telefonnummer & E-Mail-Adresse) sind im geschützten Modus verborgen. Registriere dich oder melde dich an, um direkt zu kommunizieren.'}
                             </p>
-                            <button class="btn btn-primary" onclick="showModal('auth'); document.getElementById('modal-item-detail').remove();" style="background: ${isEvents ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'} !important; border-color: ${isEvents ? '#1e40af' : '#7c3aed'} !important; font-weight: 800; padding: 0.9rem 2rem; font-size: 1rem; border-radius: 12px; display: inline-flex; align-items: center; gap: 0.6rem; box-shadow: ${isEvents ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'} !important;">
+                            <button class="btn btn-primary" onclick="${state && state.currentUser ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : `showModal('auth')`}; document.getElementById('modal-item-detail').remove();" style="background: ${isEvents ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'} !important; border-color: ${isEvents ? '#1e40af' : '#7c3aed'} !important; font-weight: 800; padding: 0.9rem 2rem; font-size: 1rem; border-radius: 12px; display: inline-flex; align-items: center; gap: 0.6rem; box-shadow: ${isEvents ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'} !important;">
                                 <i class="fa-solid fa-sign-in-alt"></i> Kontaktdaten freischalten
                             </button>
                         `}
@@ -13205,7 +13210,15 @@ function initGigConnActApp() {
 
     document.addEventListener('user-state-changed', () => {
         if (typeof updateNavbar === 'function') updateNavbar();
-        if (typeof handleRouting === 'function') handleRouting();
+        
+        const currentHash = window.location.hash;
+        const isUserSame = window.lastUserSessionId === (state && state.currentUser ? state.currentUser.id : null);
+        
+        if (isUserSame && (currentHash.includes('events') || currentHash.includes('musicians')) && typeof window.marketApplyFilters === 'function') {
+            window.marketApplyFilters();
+        } else {
+            if (typeof handleRouting === 'function') handleRouting();
+        }
         runMatchingMonitor();
     });
 
@@ -14146,7 +14159,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 ` : `
                     <!-- 4. Aktions-Button: "Kontaktdaten freischalten" -->
                     <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); showModal('auth')" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); ${state && state.currentUser ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : `showModal('auth')`}" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
                             <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
                         </button>
                     </div>
@@ -14289,20 +14302,28 @@ window.toggleCategoriesRow = function(type) {
     }
 };
 
-window.toggleAllFilterCheckboxes = function(element, checkAll) {
+window.toggleAllFilterCheckboxes = function(element) {
     // Find the wrapper div by walking up until we find a div containing a .checkbox-tag-grid
     let section = element.parentElement;
     while (section && !section.querySelector('.checkbox-tag-grid')) {
         section = section.parentElement;
     }
     if (!section) return;
+    
     const checkboxes = section.querySelectorAll('input[type="checkbox"]');
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    const allSelected = checkedCount === checkboxes.length;
+    const nextState = !allSelected;
+    
     checkboxes.forEach(cb => {
-        cb.checked = checkAll;
+        cb.checked = nextState;
         if (cb.parentElement.classList.contains('tag-pill-checkbox')) {
-            cb.parentElement.classList.toggle('active', checkAll);
+            cb.parentElement.classList.toggle('active', nextState);
         }
     });
+    
+    element.textContent = nextState ? 'alle abwählen' : 'alle auswählen';
+    
     // Mark the grid as interacted
     const grid = section.querySelector('.checkbox-tag-grid');
     if (grid) {
