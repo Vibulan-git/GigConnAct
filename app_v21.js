@@ -4037,16 +4037,16 @@ function renderHowItWorksContentHTML(type) {
 
     // Build HTML matching the exact structure from the image
     return `
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 650px; margin: 0 auto;">
+        <div style="display: flex; flex-direction: column; align-items: flex-start; width: 100%; max-width: 650px; margin: 0 auto;">
             
             <!-- Large Focus Title Above the Top Card -->
-            <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: ${themeColor}; margin-bottom: 1.5rem; text-align: center; text-transform: none; letter-spacing: -0.5px; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+            <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: ${themeColor}; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 0.6rem; width: 100%; box-sizing: border-box; padding-left: 2rem;">
                 <i class="fa-solid ${isMusician ? 'fa-calendar-days' : 'fa-guitar'}"></i>
                 <span>${isMusician ? 'Event-Markt' : 'Musiker-Markt'}</span>
             </div>
 
-            <!-- 1. Top Card: Öffentlicher Markt -->
-            <div style="width: 100%; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+            <!-- 1. Top Card: Kontaktdaten verborgen (max-width: 520px) -->
+            <div style="width: 100%; max-width: 520px; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
                 <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1;">
                     <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
                         <i class="fa-solid ${topIcon}" style="color: ${themeColor}; font-size: 1.1rem;"></i>
@@ -4068,13 +4068,11 @@ function renderHowItWorksContentHTML(type) {
                 </div>
             </div>
 
-            <!-- Dotted Line with Toggle Badge (Pulsing, Clickable) -->
-            <div style="display: flex; position: relative; width: 100%; height: 60px; box-sizing: border-box;">
-                <div style="width: 2px; height: 60px; border-left: 2px dashed ${themeBorder}; position: absolute; left: 54px; top: 0;"></div>
-                <button onclick="window.toggleHowItWorksMiddle()" id="how-it-works-toggle-badge" style="position: absolute; left: 54px; top: 50%; transform: translate(-50%, -50%); padding: 0.35rem 0.9rem; border-radius: 20px; background: #ffffff; border: 1.5px solid ${themeBorder}; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem; z-index: 5; transition: all 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.05); white-space: nowrap;" onmouseover="this.style.background='${themeColor}'; this.style.color='#ffffff'; this.style.boxShadow='0 6px 15px rgba(0,0,0,0.1)';" onmouseout="this.style.background='#ffffff'; this.style.color='${themeColor}'; this.style.boxShadow='0 4px 10px rgba(0,0,0,0.05)';">
-                    <span id="how-it-works-toggle-badge-text" style="display: flex; align-items: center; gap: 4px;">
-                        <i class="fa-solid fa-plus" style="font-size: 0.7rem;"></i> Vorteile anzeigen
-                    </span>
+            <!-- Dotted Line with Down Arrow Button (Toggle) -->
+            <div style="display: flex; position: relative; width: 100%; height: 35px; box-sizing: border-box;">
+                <div style="width: 2px; height: 35px; border-left: 2px dashed ${themeBorder}; position: absolute; left: 54px; top: 0;"></div>
+                <button onclick="window.toggleHowItWorksMiddle()" style="position: absolute; left: 36px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; background: ${themeColor}; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.18); border: 2.5px solid white; z-index: 5; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-50%) scale(1.08)';" onmouseout="this.style.transform='translateY(-50%) scale(1)';">
+                    <i class="fa-solid fa-chevron-down" id="how-it-works-toggle-arrow-icon" style="font-size: 0.85rem; transition: transform 0.3s;"></i>
                 </button>
             </div>
 
@@ -4106,12 +4104,12 @@ function renderHowItWorksContentHTML(type) {
             </div>
 
             <!-- Second Dotted Line (Connector to bottom, hidden until expanded) -->
-            <div id="how-it-works-bottom-connector" style="display: none; position: relative; width: 100%; height: 45px; box-sizing: border-box;">
-                <div style="width: 2px; height: 45px; border-left: 2px dashed ${themeBorder}; position: absolute; left: 54px; top: 0;"></div>
+            <div id="how-it-works-bottom-connector" style="display: none; position: relative; width: 100%; height: 25px; box-sizing: border-box;">
+                <div style="width: 2px; height: 25px; border-left: 2px dashed ${themeBorder}; position: absolute; left: 54px; top: 0;"></div>
             </div>
 
-            <!-- 3. Bottom Card: Privater Markt -->
-            <div style="width: 100%; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+            <!-- 3. Bottom Card: Kontaktdaten sichtbar (max-width: 520px) -->
+            <div style="width: 100%; max-width: 520px; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
                 <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1;">
                     <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1.1rem;"></i>
@@ -4121,7 +4119,7 @@ function renderHowItWorksContentHTML(type) {
                             Kontaktdaten <span style="color: ${themeColor};">sichtbar</span>
                         </h4>
                         <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.35rem 0 0; font-weight: 500; line-height: 1.4;">
-                            Direkter Kontakt zu ${isMusician ? 'Veranstaltern' : 'Musikern'}
+                            Interessante Anfragen an und von ${isMusician ? 'Veranstaltern' : 'Musikern'}
                         </p>
                     </div>
                 </div>
@@ -4135,8 +4133,8 @@ function renderHowItWorksContentHTML(type) {
             </div>
 
             <!-- Bottom CTA Button -->
-            <div style="margin-top: 2.5rem; text-align: center; width: 100%;">
-                <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: 100%; box-sizing: border-box; margin: 0; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')">
+            <div style="margin-top: 2rem; text-align: left; width: 100%; box-sizing: border-box; padding-left: 2rem;">
+                <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: auto; min-width: 280px; box-sizing: border-box; margin: 0; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')">
                     Hier geht's zum ${isMusician ? 'Event-Markt' : 'Musiker-Markt'} <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
@@ -4168,25 +4166,21 @@ window.toggleHowItWorks = function(type) {
 
 window.toggleHowItWorksMiddle = function() {
     const middleSection = document.getElementById('how-it-works-middle-wrapper');
-    const toggleBadgeText = document.getElementById('how-it-works-toggle-badge-text');
+    const arrowIcon = document.getElementById('how-it-works-toggle-arrow-icon');
     const bottomConnector = document.getElementById('how-it-works-bottom-connector');
-    if (!middleSection) return;
+    if (!middleSection || !arrowIcon) return;
     
     const isCollapsed = middleSection.style.maxHeight === '0px' || middleSection.style.maxHeight === '';
     
     if (isCollapsed) {
         middleSection.style.maxHeight = middleSection.scrollHeight + 'px';
         middleSection.style.opacity = '1';
-        if (toggleBadgeText) {
-            toggleBadgeText.innerHTML = '<i class="fa-solid fa-minus" style="font-size: 0.7rem;"></i> Vorteile ausblenden';
-        }
+        arrowIcon.style.transform = 'rotate(180deg)';
         if (bottomConnector) bottomConnector.style.display = 'flex';
     } else {
         middleSection.style.maxHeight = '0px';
         middleSection.style.opacity = '0';
-        if (toggleBadgeText) {
-            toggleBadgeText.innerHTML = '<i class="fa-solid fa-plus" style="font-size: 0.7rem;"></i> Vorteile anzeigen';
-        }
+        arrowIcon.style.transform = 'rotate(0deg)';
         if (bottomConnector) bottomConnector.style.display = 'none';
     }
 };
