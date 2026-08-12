@@ -4068,11 +4068,13 @@ function renderHowItWorksContentHTML(type) {
                 </div>
             </div>
 
-            <!-- Dotted Line with Down Arrow Button (Toggle) -->
-            <div style="display: flex; position: relative; width: 100%; height: 55px; box-sizing: border-box;">
-                <div style="width: 2px; height: 55px; border-left: 2px dashed ${themeBorder}; position: absolute; left: 54px; top: 0;"></div>
-                <button onclick="window.toggleHowItWorksMiddle()" style="position: absolute; left: 36px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; background: ${themeColor}; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.18); border: 2.5px solid white; z-index: 5; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-50%) scale(1.08)';" onmouseout="this.style.transform='translateY(-50%) scale(1)';">
-                    <i class="fa-solid fa-chevron-down" id="how-it-works-toggle-arrow-icon" style="font-size: 0.85rem; transition: transform 0.3s;"></i>
+            <!-- Dotted Line with Toggle Badge (Pulsing, Clickable) -->
+            <div style="display: flex; position: relative; width: 100%; height: 60px; box-sizing: border-box;">
+                <div style="width: 2px; height: 60px; border-left: 2px dashed ${themeBorder}; position: absolute; left: 54px; top: 0;"></div>
+                <button onclick="window.toggleHowItWorksMiddle()" id="how-it-works-toggle-badge" style="position: absolute; left: 54px; top: 50%; transform: translate(-50%, -50%); padding: 0.35rem 0.9rem; border-radius: 20px; background: #ffffff; border: 1.5px solid ${themeBorder}; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.3rem; z-index: 5; transition: all 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.05); white-space: nowrap;" onmouseover="this.style.background='${themeColor}'; this.style.color='#ffffff'; this.style.boxShadow='0 6px 15px rgba(0,0,0,0.1)';" onmouseout="this.style.background='#ffffff'; this.style.color='${themeColor}'; this.style.boxShadow='0 4px 10px rgba(0,0,0,0.05)';">
+                    <span id="how-it-works-toggle-badge-text" style="display: flex; align-items: center; gap: 4px;">
+                        <i class="fa-solid fa-plus" style="font-size: 0.7rem;"></i> Vorteile anzeigen
+                    </span>
                 </button>
             </div>
 
@@ -4166,21 +4168,25 @@ window.toggleHowItWorks = function(type) {
 
 window.toggleHowItWorksMiddle = function() {
     const middleSection = document.getElementById('how-it-works-middle-wrapper');
-    const arrowIcon = document.getElementById('how-it-works-toggle-arrow-icon');
+    const toggleBadgeText = document.getElementById('how-it-works-toggle-badge-text');
     const bottomConnector = document.getElementById('how-it-works-bottom-connector');
-    if (!middleSection || !arrowIcon) return;
+    if (!middleSection) return;
     
     const isCollapsed = middleSection.style.maxHeight === '0px' || middleSection.style.maxHeight === '';
     
     if (isCollapsed) {
         middleSection.style.maxHeight = middleSection.scrollHeight + 'px';
         middleSection.style.opacity = '1';
-        arrowIcon.style.transform = 'rotate(180deg)';
+        if (toggleBadgeText) {
+            toggleBadgeText.innerHTML = '<i class="fa-solid fa-minus" style="font-size: 0.7rem;"></i> Vorteile ausblenden';
+        }
         if (bottomConnector) bottomConnector.style.display = 'flex';
     } else {
         middleSection.style.maxHeight = '0px';
         middleSection.style.opacity = '0';
-        arrowIcon.style.transform = 'rotate(0deg)';
+        if (toggleBadgeText) {
+            toggleBadgeText.innerHTML = '<i class="fa-solid fa-plus" style="font-size: 0.7rem;"></i> Vorteile anzeigen';
+        }
         if (bottomConnector) bottomConnector.style.display = 'none';
     }
 };
