@@ -4042,12 +4042,12 @@ function renderHowItWorksContentHTML(type) {
             <!-- 1. Top Card: Öffentlicher Markt -->
             <div style="width: 100%; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
                 <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1;">
-                    <div style="width: 68px; height: 68px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0;">
-                        <i class="fa-solid ${topIcon}" style="color: ${themeColor}; font-size: 1.6rem;"></i>
+                    <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
+                        <i class="fa-solid ${topIcon}" style="color: ${themeColor}; font-size: 1.1rem;"></i>
                     </div>
                     <div style="font-family: var(--font-body);">
-                        <h4 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; color: #0f172a; margin: 0; line-height: 1.25;">
-                            Kontaktdaten<br><span style="color: ${themeColor};">verborgen</span>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.35;">
+                            Kontaktdaten von ${isMusician ? 'Veranstaltern' : 'Musikern'}<br><span style="color: ${themeColor};">verborgen</span>
                         </h4>
                     </div>
                 </div>
@@ -4060,9 +4060,9 @@ function renderHowItWorksContentHTML(type) {
             </div>
 
             <!-- Dotted Line with Down Arrow Button (Toggle) -->
-            <div style="display: flex; flex-direction: column; align-items: center; height: 55px; position: relative; width: 100%;">
-                <div style="width: 2px; height: 55px; border-left: 2px dashed ${themeBorder};"></div>
-                <button onclick="window.toggleHowItWorksMiddle()" style="position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; background: ${themeColor}; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.18); border: 2.5px solid white; z-index: 5; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-50%) scale(1.08)';" onmouseout="this.style.transform='translateY(-50%) scale(1)';">
+            <div style="display: flex; position: relative; width: 100%; height: 55px; box-sizing: border-box;">
+                <div style="width: 2px; height: 55px; border-left: 2px dashed ${themeBorder}; position: absolute; left: 54px; top: 0;"></div>
+                <button onclick="window.toggleHowItWorksMiddle()" style="position: absolute; left: 36px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; background: ${themeColor}; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.18); border: 2.5px solid white; z-index: 5; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-50%) scale(1.08)';" onmouseout="this.style.transform='translateY(-50%) scale(1)';">
                     <i class="fa-solid fa-chevron-down" id="how-it-works-toggle-arrow-icon" style="font-size: 0.85rem; transition: transform 0.3s;"></i>
                 </button>
             </div>
@@ -4081,7 +4081,7 @@ function renderHowItWorksContentHTML(type) {
                                 <i class="fa-solid ${pt.icon}" style="color: ${themeColor}; font-size: 1.1rem;"></i>
                             </div>
                             <div style="font-family: var(--font-body); padding-top: 0.15rem;">
-                                <h5 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0 0 0.15rem;">
+                                <h5 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0 0 0.15rem;">
                                     ${pt.title}
                                 </h5>
                                 <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0; font-weight: 500; line-height: 1.45;">
@@ -4095,19 +4095,19 @@ function renderHowItWorksContentHTML(type) {
             </div>
 
             <!-- Second Dotted Line (Connector to bottom, hidden until expanded) -->
-            <div id="how-it-works-bottom-connector" style="display: none; flex-direction: column; align-items: center; height: 45px; position: relative; width: 100%;">
-                <div style="width: 2px; height: 45px; border-left: 2px dashed ${themeBorder};"></div>
+            <div id="how-it-works-bottom-connector" style="display: none; position: relative; width: 100%; height: 45px; box-sizing: border-box;">
+                <div style="width: 2px; height: 45px; border-left: 2px dashed ${themeBorder}; position: absolute; left: 54px; top: 0;"></div>
             </div>
 
             <!-- 3. Bottom Card: Privater Markt -->
             <div style="width: 100%; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
                 <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1;">
-                    <div style="width: 68px; height: 68px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0;">
-                        <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1.6rem;"></i>
+                    <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
+                        <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1.1rem;"></i>
                     </div>
                     <div style="font-family: var(--font-body);">
-                        <h4 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; color: #0f172a; margin: 0; line-height: 1.25;">
-                            Kontaktdaten<br><span style="color: ${themeColor};">sichtbar</span>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.35;">
+                            Kontaktdaten von ${isMusician ? 'Veranstaltern' : 'Musikern'}<br><span style="color: ${themeColor};">sichtbar</span>
                         </h4>
                     </div>
                 </div>
