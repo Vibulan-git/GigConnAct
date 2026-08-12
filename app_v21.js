@@ -501,6 +501,7 @@ window.toggleAudioTrack = function(item, audioUrl) {
 };
 
 window.unlockListing = function(targetId, targetName) {
+    console.log('[DEBUG] window.unlockListing called with targetId:', targetId, 'targetName:', targetName, 'currentUser:', state.currentUser);
     if (!state.currentUser) {
         showModal('auth');
         return;
@@ -2861,6 +2862,12 @@ class StateManager {
 
         isUnlocked(targetId) {
         if (!this.currentUser) return false;
+        
+        // Premium users (flatrate subscription) have unlimited unlocks
+        if (this.currentUser.isPremium === true) {
+            console.log('[DEBUG] isUnlocked returning true: user is premium for targetId:', targetId);
+            return true;
+        }
         
         // Find if this is the user's own profile or event
         const isOwn = (this.musicians || []).some(m => m.id === targetId && m.creatorId === this.currentUser.id) ||
@@ -13209,14 +13216,18 @@ function initGigConnActApp() {
     }
 
     document.addEventListener('user-state-changed', () => {
+        console.log('[DEBUG] user-state-changed event received. activeMusicianId:', state.activeMusicianId, 'activeEventId:', state.activeEventId);
         if (typeof updateNavbar === 'function') updateNavbar();
         
         const currentHash = window.location.hash;
         const isUserSame = window.lastUserSessionId === (state && state.currentUser ? state.currentUser.id : null);
+        console.log('[DEBUG] user-state-changed info - currentHash:', currentHash, 'isUserSame:', isUserSame, 'lastUserSessionId:', window.lastUserSessionId);
         
         if (isUserSame && (currentHash.includes('events') || currentHash.includes('musicians')) && typeof window.marketApplyFilters === 'function') {
+            console.log('[DEBUG] user-state-changed: calling window.marketApplyFilters()');
             window.marketApplyFilters();
         } else {
+            console.log('[DEBUG] user-state-changed: calling handleRouting()');
             if (typeof handleRouting === 'function') handleRouting();
         }
         runMatchingMonitor();
