@@ -4051,10 +4051,10 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid ${topIcon}" style="color: ${themeColor}; font-size: 1.6rem;"></i>
                     </div>
                     <div style="font-family: var(--font-body);">
-                        <h4 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; color: #0f172a; margin: 0 0 0.25rem;">
-                            Öffentlicher <span style="color: ${themeColor};">${isMusician ? 'Event-Markt' : 'Musiker-Markt'}</span>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; color: #0f172a; margin: 0; line-height: 1.25;">
+                            Öffentlicher<br><span style="color: ${themeColor};">${isMusician ? 'Event-Markt' : 'Musiker-Markt'}</span>
                         </h4>
-                        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; font-weight: 500; line-height: 1.4;">
+                        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0.35rem 0 0; font-weight: 500; line-height: 1.4;">
                             ${topDesc}
                         </p>
                     </div>
@@ -4067,45 +4067,44 @@ function renderHowItWorksContentHTML(type) {
                 </div>
             </div>
 
-            <!-- Dotted Line with Down Arrow -->
-            <div style="display: flex; flex-direction: column; align-items: center; height: 50px; position: relative;">
-                <div style="width: 2px; height: 50px; border-left: 2px dashed ${themeBorder};"></div>
-                <div style="position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: ${themeColor}; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); border: 2px solid white; z-index: 2;">
-                    <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
+            <!-- Dotted Line with Down Arrow Button (Toggle) -->
+            <div style="display: flex; flex-direction: column; align-items: center; height: 55px; position: relative; width: 100%;">
+                <div style="width: 2px; height: 55px; border-left: 2px dashed ${themeBorder};"></div>
+                <button onclick="window.toggleHowItWorksMiddle()" style="position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; background: ${themeColor}; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.18); border: 2.5px solid white; z-index: 5; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-50%) scale(1.08)';" onmouseout="this.style.transform='translateY(-50%) scale(1)';">
+                    <i class="fa-solid fa-chevron-down" id="how-it-works-toggle-arrow-icon" style="font-size: 0.85rem; transition: transform 0.3s;"></i>
+                </button>
+            </div>
+
+            <!-- Collapsible Middle Card Wrapper -->
+            <div id="how-it-works-middle-wrapper" style="max-height: 0px; opacity: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; width: 100%;">
+                <div style="width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2.5rem 2rem; display: flex; flex-direction: column; gap: 1.8rem; text-align: left; box-sizing: border-box; box-shadow: 0 15px 40px rgba(0,0,0,0.03); position: relative; margin-top: 10px; margin-bottom: 10px;">
+                    
+                    <!-- Vertical dashed line on the left side of icons -->
+                    <div style="position: absolute; left: 54px; top: 3.5rem; bottom: 3.5rem; width: 2px; border-left: 2px dashed #cbd5e1; z-index: 1;"></div>
+
+                    ${points.map((pt, index) => `
+                        <!-- Item ${index + 1} -->
+                        <div style="display: flex; align-items: flex-start; gap: 1.5rem; position: relative; z-index: 2;">
+                            <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
+                                <i class="fa-solid ${pt.icon}" style="color: ${themeColor}; font-size: 1.1rem;"></i>
+                            </div>
+                            <div style="font-family: var(--font-body); padding-top: 0.15rem;">
+                                <h5 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0 0 0.15rem;">
+                                    ${pt.title}
+                                </h5>
+                                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0; font-weight: 500; line-height: 1.45;">
+                                    ${pt.desc}
+                                </p>
+                            </div>
+                        </div>
+                    `).join('')}
+
                 </div>
             </div>
 
-            <!-- 2. Middle Card: Die Vorteile -->
-            <div style="width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2.5rem 2rem; display: flex; flex-direction: column; gap: 1.8rem; text-align: left; box-sizing: border-box; box-shadow: 0 15px 40px rgba(0,0,0,0.03); position: relative;">
-                
-                <!-- Vertical dashed line on the left side of icons -->
-                <div style="position: absolute; left: 54px; top: 3.5rem; bottom: 3.5rem; width: 2px; border-left: 2px dashed #cbd5e1; z-index: 1;"></div>
-
-                ${points.map((pt, index) => `
-                    <!-- Item ${index + 1} -->
-                    <div style="display: flex; align-items: flex-start; gap: 1.5rem; position: relative; z-index: 2;">
-                        <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
-                            <i class="fa-solid ${pt.icon}" style="color: ${themeColor}; font-size: 1.1rem;"></i>
-                        </div>
-                        <div style="font-family: var(--font-body); padding-top: 0.15rem;">
-                            <h5 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0 0 0.15rem;">
-                                ${pt.title}
-                            </h5>
-                            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0; font-weight: 500; line-height: 1.45;">
-                                ${pt.desc}
-                            </p>
-                        </div>
-                    </div>
-                `).join('')}
-
-            </div>
-
-            <!-- Dotted Line with Down Arrow -->
-            <div style="display: flex; flex-direction: column; align-items: center; height: 50px; position: relative;">
-                <div style="width: 2px; height: 50px; border-left: 2px dashed ${themeBorder};"></div>
-                <div style="position: absolute; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border-radius: 50%; background: ${themeColor}; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); border: 2px solid white; z-index: 2;">
-                    <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
-                </div>
+            <!-- Second Dotted Line (Connector to bottom, hidden until expanded) -->
+            <div id="how-it-works-bottom-connector" style="display: none; flex-direction: column; align-items: center; height: 45px; position: relative; width: 100%;">
+                <div style="width: 2px; height: 45px; border-left: 2px dashed ${themeBorder};"></div>
             </div>
 
             <!-- 3. Bottom Card: Privater Markt -->
@@ -4115,10 +4114,10 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1.6rem;"></i>
                     </div>
                     <div style="font-family: var(--font-body);">
-                        <h4 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; color: #0f172a; margin: 0 0 0.25rem;">
-                            Privater <span style="color: ${themeColor};">${isMusician ? 'Event-Markt' : 'Musiker-Markt'}</span>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; color: #0f172a; margin: 0; line-height: 1.25;">
+                            Privater<br><span style="color: ${themeColor};">${isMusician ? 'Event-Markt' : 'Musiker-Markt'}</span>
                         </h4>
-                        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; font-weight: 500; line-height: 1.4;">
+                        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0.35rem 0 0; font-weight: 500; line-height: 1.4;">
                             ${bottomDesc}
                         </p>
                     </div>
@@ -4134,7 +4133,7 @@ function renderHowItWorksContentHTML(type) {
 
             <!-- Bottom CTA Button -->
             <div style="margin-top: 2.5rem; text-align: center; width: 100%;">
-                <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: 100%; box-sizing: border-box; margin: 0; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 8px 25px rgba(0,0,0,0.05);" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.05)';" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')">
+                <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: 100%; box-sizing: border-box; margin: 0; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')">
                     Hier geht's zum ${isMusician ? 'Event-Markt' : 'Musiker-Markt'} <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
@@ -4162,6 +4161,27 @@ window.toggleHowItWorks = function(type) {
         btnMusician.style.color = '#64748b';
     }
     contentContainer.innerHTML = renderHowItWorksContentHTML(type);
+};
+
+window.toggleHowItWorksMiddle = function() {
+    const middleSection = document.getElementById('how-it-works-middle-wrapper');
+    const arrowIcon = document.getElementById('how-it-works-toggle-arrow-icon');
+    const bottomConnector = document.getElementById('how-it-works-bottom-connector');
+    if (!middleSection || !arrowIcon) return;
+    
+    const isCollapsed = middleSection.style.maxHeight === '0px' || middleSection.style.maxHeight === '';
+    
+    if (isCollapsed) {
+        middleSection.style.maxHeight = middleSection.scrollHeight + 'px';
+        middleSection.style.opacity = '1';
+        arrowIcon.style.transform = 'rotate(180deg)';
+        if (bottomConnector) bottomConnector.style.display = 'flex';
+    } else {
+        middleSection.style.maxHeight = '0px';
+        middleSection.style.opacity = '0';
+        arrowIcon.style.transform = 'rotate(0deg)';
+        if (bottomConnector) bottomConnector.style.display = 'none';
+    }
 };
 
 function renderLandingPage(container, onNavigate) {
@@ -4586,7 +4606,7 @@ function renderLandingPage(container, onNavigate) {
                         <i class="fa-solid fa-guitar"></i> Für Musiker
                     </button>
                     <button class="how-works-tab-btn" id="btn-how-works-organizer" style="padding: 0.55rem 1.4rem; border-radius: 25px; border: none; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.25s; background: transparent; color: #64748b;" onclick="toggleHowItWorks('organizer')">
-                        <i class="fa-solid fa-users"></i> Für Veranstalter
+                        <i class="fa-solid fa-calendar-check"></i> Für Veranstalter
                     </button>
                 </div>
 
