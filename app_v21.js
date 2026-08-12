@@ -3991,12 +3991,7 @@ function renderHowItWorksContentHTML(type) {
     const isMusician = type === 'musician';
     
     // Config values
-    const topTitle = isMusician ? 'Öffentlicher Event-Markt' : 'Öffentlicher Musiker-Markt';
-    const topDesc = isMusician ? 'Entdecke öffentliche Events und finde passende Auftritte.' : 'Entdecke Musiker-Profile und finde passende Acts.';
     const topIcon = isMusician ? 'fa-lock' : 'fa-lock';
-    
-    const bottomTitle = isMusician ? 'Privater Event-Markt' : 'Privater Musiker-Markt';
-    const bottomDesc = isMusician ? 'Erhalte Zugang zu exklusiven Events und privaten Anfragen.' : 'Erhalte Zugang zu exklusiven Musikern und privaten Anfragen.';
     
     // Theme colors
     const themeColor = isMusician ? '#7c3aed' : '#2563eb';
@@ -4051,12 +4046,12 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid ${topIcon}" style="color: ${themeColor}; font-size: 1.6rem;"></i>
                     </div>
                     <div style="font-family: var(--font-body);">
+                        <div style="font-size: 0.8rem; font-weight: 800; color: ${themeColor}; text-transform: uppercase; margin-bottom: 0.25rem; letter-spacing: 0.5px;">
+                            ${isMusician ? 'Event-Markt: Mehr Gigs. Mehr Einnahmen.' : 'Musiker-Markt: Dein Event. Dein Act.'}
+                        </div>
                         <h4 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; color: #0f172a; margin: 0; line-height: 1.25;">
-                            Öffentlicher<br><span style="color: ${themeColor};">${isMusician ? 'Event-Markt' : 'Musiker-Markt'}</span>
+                            Kontaktdaten<br>verborgen
                         </h4>
-                        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0.35rem 0 0; font-weight: 500; line-height: 1.4;">
-                            ${topDesc}
-                        </p>
                     </div>
                 </div>
                 <!-- Illustration -->
@@ -4115,11 +4110,8 @@ function renderHowItWorksContentHTML(type) {
                     </div>
                     <div style="font-family: var(--font-body);">
                         <h4 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; color: #0f172a; margin: 0; line-height: 1.25;">
-                            Privater<br><span style="color: ${themeColor};">${isMusician ? 'Event-Markt' : 'Musiker-Markt'}</span>
+                            Kontaktdaten<br>sichtbar
                         </h4>
-                        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0.35rem 0 0; font-weight: 500; line-height: 1.4;">
-                            ${bottomDesc}
-                        </p>
                     </div>
                 </div>
                 <!-- Illustration -->
