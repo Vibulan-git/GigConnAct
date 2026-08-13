@@ -4000,12 +4000,14 @@ function renderHowItWorksContentHTML(type) {
     const themeBadgeBg = isMusician ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)';
     const themeBadgeBorder = isMusician ? 'rgba(167, 139, 250, 0.35)' : 'rgba(96, 165, 250, 0.35)';
 
+    const dashedBorderColor = isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)';
+
     // Build HTML matching the exact structure from the image
     return `
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 650px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
             
             <!-- Large Focus Title Above the Top Card (Centered link with right arrow) -->
-            <div style="text-align: center; margin-bottom: 2rem; width: 100%;">
+            <div style="text-align: center; margin-bottom: 0px; width: 100%;">
                 <a href="javascript:void(0)" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')" style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: ${themeColor}; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">
                     <i class="fa-solid ${isMusician ? 'fa-calendar-days' : 'fa-guitar'}"></i>
                     <span>${isMusician ? 'Event-Markt' : 'Musiker-Markt'}</span>
@@ -4013,8 +4015,13 @@ function renderHowItWorksContentHTML(type) {
                 </a>
             </div>
 
-            <!-- 1. Top Card: Kontaktdaten verborgen (max-width: 400px) -->
-            <div style="width: 100%; max-width: 400px; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
+            <!-- Dotted Line (Connector from Title to Card 1) -->
+            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 35px; box-sizing: border-box;">
+                <div style="width: 2px; height: 35px; border-left: 3px dashed ${dashedBorderColor};"></div>
+            </div>
+
+            <!-- 1. Top Card: Kontaktdaten verborgen (max-width: 400px, white background) -->
+            <div style="width: 100%; max-width: 400px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
                 <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
                     <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
                         <i class="fa-solid ${topIcon}" style="color: ${themeColor}; font-size: 1.1rem;"></i>
@@ -4032,10 +4039,10 @@ function renderHowItWorksContentHTML(type) {
 
             <!-- Dotted Line (Connector to Card 2) -->
             <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 35px; box-sizing: border-box;">
-                <div style="width: 2px; height: 35px; border-left: 2px dashed ${themeBorder};"></div>
+                <div style="width: 2px; height: 35px; border-left: 3px dashed ${dashedBorderColor};"></div>
             </div>
 
-            <!-- 2. Middle Card: Schnelle Anmeldung (max-width: 400px) -->
+            <!-- 2. Middle Card: Schnelle Anmeldung (max-width: 400px, white background) -->
             <div style="width: 100%; max-width: 400px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
                 <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
                     <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
@@ -4054,11 +4061,11 @@ function renderHowItWorksContentHTML(type) {
 
             <!-- Dotted Line (Connector to Card 3) -->
             <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 35px; box-sizing: border-box;">
-                <div style="width: 2px; height: 35px; border-left: 2px dashed ${themeBorder};"></div>
+                <div style="width: 2px; height: 35px; border-left: 3px dashed ${dashedBorderColor};"></div>
             </div>
 
-            <!-- 3. Bottom Card: Kontaktdaten sichtbar (max-width: 400px) -->
-            <div style="width: 100%; max-width: 400px; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
+            <!-- 3. Bottom Card: Kontaktdaten sichtbar (max-width: 400px, white background) -->
+            <div style="width: 100%; max-width: 400px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
                 <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
                     <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1.1rem;"></i>
@@ -4076,7 +4083,7 @@ function renderHowItWorksContentHTML(type) {
 
             <!-- Dotted Line (Connector to Advantages Sub-header) -->
             <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 35px; box-sizing: border-box;">
-                <div style="width: 2px; height: 35px; border-left: 2px dashed ${themeBorder};"></div>
+                <div style="width: 2px; height: 35px; border-left: 3px dashed ${dashedBorderColor};"></div>
             </div>
 
             <!-- Sub-header: "Mehr Gigs. Mehr Einnahmen." / "Dein Event. Dein Act." -->
@@ -4095,13 +4102,13 @@ function renderHowItWorksContentHTML(type) {
                         Direkter Kontakt
                     </h5>
                 </div>
-                <!-- Col 2: Keine Provisionskosten -->
+                <!-- Col 2: Preiswertes Abo-Modell -->
                 <div style="background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
                     <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-percent" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                     </div>
                     <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.25; word-break: break-word;">
-                        Keine Provisionskosten
+                        Preiswertes Abo-Modell
                     </h5>
                 </div>
                 <!-- Col 3: Top-Matches -->
@@ -4110,7 +4117,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-star" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                     </div>
                     <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.25; word-break: break-word;">
-                        Top-Matches
+                        Top-<br>Matches
                     </h5>
                 </div>
             </div>
@@ -4563,12 +4570,12 @@ function renderLandingPage(container, onNavigate) {
             <div style="max-width: 1000px; margin: 5rem auto 2rem; padding: 0 1.5rem; text-align: center;">
                 <div style="text-align: center; margin-bottom: 2rem; padding: 0 1rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; color: #0f172a; margin: 0 0 0.5rem; line-height: 1.2; letter-spacing: -1px;">
-                        Wie funktioniert <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">GigConnAct</span>?
+                        <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">GigConnAct</span> erklärt
                     </h2>
                 </div>
                 
                 <!-- Tab Selector -->
-                <div class="how-it-works-tabs" style="display: inline-flex; background: rgba(0,0,0,0.04); border-radius: 30px; padding: 0.3rem; gap: 0.2rem; margin-bottom: 2.5rem; border: 1px solid rgba(0,0,0,0.06); font-family: var(--font-heading);">
+                <div class="how-it-works-tabs" style="display: inline-flex; background: rgba(0,0,0,0.04); border-radius: 30px; padding: 0.3rem; gap: 0.2rem; margin-bottom: 0.75rem; border: 1px solid rgba(0,0,0,0.06); font-family: var(--font-heading);">
                     <button class="how-works-tab-btn active" id="btn-how-works-musician" style="padding: 0.55rem 1.4rem; border-radius: 25px; border: none; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.25s; background: #7c3aed; color: #ffffff;" onclick="toggleHowItWorks('musician')">
                         <i class="fa-solid fa-guitar"></i> Für Musiker
                     </button>
