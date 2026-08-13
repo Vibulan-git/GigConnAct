@@ -4052,7 +4052,7 @@ function renderHowItWorksContentHTML(type) {
             <!-- Market Switch CTA Button (Moved above Passende Veranstalter / Musiker card) -->
             <div style="margin-bottom: 2rem; text-align: center; width: 100%; box-sizing: border-box;">
                 <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: 100%; max-width: 100%; box-sizing: border-box; margin: 0 auto; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;" onmouseover="this.style.transform='scale(1.015)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')">
-                    ${isMusician ? 'Event-Markt' : 'Musiker-Markt'} <i class="fa-solid fa-arrow-right"></i>
+                    ${isMusician ? 'Event-Markt' : 'Musiker-Markt'}
                 </button>
             </div>
 
@@ -4131,7 +4131,7 @@ function renderHowItWorksContentHTML(type) {
             <!-- Advantages Grid (3 columns side-by-side even on mobile) -->
             <div style="width: 100%; display: flex; flex-direction: row; gap: 0.5rem; justify-content: space-between; box-sizing: border-box; margin-bottom: 1rem;">
                 <!-- Col 1: Top-Matches -->
-                <div style="background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37,99,235,0.15)'};">
+                <div onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')" style="cursor: pointer; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37,99,235,0.15)'};">
                     <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
                         <i class="fa-solid fa-star" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                     </div>
@@ -4140,7 +4140,7 @@ function renderHowItWorksContentHTML(type) {
                     </h5>
                 </div>
                 <!-- Col 2: Standard Card: MEHR GIGS / DEIN ACT (Themed background, white text) -->
-                <div style="background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37,99,235,0.15)'};">
+                <div onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')" style="cursor: pointer; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37,99,235,0.15)'};">
                     <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
                         <i class="fa-solid ${middleIcon}" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                     </div>
@@ -4149,7 +4149,7 @@ function renderHowItWorksContentHTML(type) {
                     </h5>
                 </div>
                 <!-- Col 3: Preiswertes Abo-Modell / Keine Kosten -->
-                <div style="background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37,99,235,0.15)'};">
+                <div onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')" style="cursor: pointer; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37,99,235,0.15)'};">
                     <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
                         <i class="fa-solid fa-percent" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                     </div>
