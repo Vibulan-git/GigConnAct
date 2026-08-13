@@ -4240,9 +4240,10 @@ function renderLandingPage(container, onNavigate) {
 
                 <!-- 1/3: Large Logo -->
                 <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0 0.8rem; box-sizing: border-box;">
-                    <!-- Large SVG Disco Ball -->
-                    <!-- Large PNG Disco Ball -->
-                    <img src="discoball.png" class="${logoClass} spinning-disco-ball" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); flex-shrink: 0; object-fit: contain; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.55)); opacity: 1; pointer-events: none;">
+                    <!-- Large PNG Disco Ball (nested wrapper to combine entry and spin animations) -->
+                    <div class="${logoClass}" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible;">
+                        <img src="discoball.png" class="spinning-disco-ball" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.55)); opacity: 1; pointer-events: none;">
+                    </div>
                     <div class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.2rem); font-weight: 900; letter-spacing: -1.5px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                         GigConnAct
                     </div>
