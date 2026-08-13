@@ -4003,9 +4003,9 @@ function renderHowItWorksContentHTML(type) {
     // Descriptions for middle points
     const points = isMusician ? [
         {
-            title: 'Schnelle Anmeldung',
-            desc: 'Anlegen eines Musiker-Profils. Ohne Passwort.',
-            icon: 'fa-bolt'
+            title: 'Direkter Kontakt',
+            desc: 'Direkte Absprachen mit Veranstaltern.',
+            icon: 'fa-comments'
         },
         {
             title: 'Keine Provisionskosten',
@@ -4019,13 +4019,13 @@ function renderHowItWorksContentHTML(type) {
         }
     ] : [
         {
-            title: 'Schnelle Anmeldung',
-            desc: 'Anlegen eines Veranstalter-Profils. Ohne Passwort.',
-            icon: 'fa-bolt'
+            title: 'Direkter Kontakt',
+            desc: 'Direkte Absprachen mit Musikern.',
+            icon: 'fa-comments'
         },
         {
             title: 'Keine Provisionskosten',
-            desc: 'Oder andere versteckte Kosten. Kostenlose Vermittlung für Veranstalter.',
+            desc: 'Kostenlose Vermittlung für Veranstalter.',
             icon: 'fa-percent'
         },
         {
@@ -4037,16 +4037,19 @@ function renderHowItWorksContentHTML(type) {
 
     // Build HTML matching the exact structure from the image
     return `
-        <div style="display: flex; flex-direction: column; align-items: flex-start; width: 100%; max-width: 650px; margin: 0 auto;">
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 650px; margin: 0 auto; box-sizing: border-box; padding: 0 1rem;">
             
-            <!-- Large Focus Title Above the Top Card -->
-            <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: ${themeColor}; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 0.6rem; width: 100%; box-sizing: border-box; padding-left: 2rem;">
-                <i class="fa-solid ${isMusician ? 'fa-calendar-days' : 'fa-guitar'}"></i>
-                <span>${isMusician ? 'Event-Markt' : 'Musiker-Markt'}</span>
+            <!-- Large Focus Title Above the Top Card (Centered link with right arrow) -->
+            <div style="text-align: center; margin-bottom: 2rem; width: 100%;">
+                <a href="javascript:void(0)" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')" style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: ${themeColor}; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">
+                    <i class="fa-solid ${isMusician ? 'fa-calendar-days' : 'fa-guitar'}"></i>
+                    <span>${isMusician ? 'Event-Markt' : 'Musiker-Markt'}</span>
+                    <i class="fa-solid fa-arrow-right" style="font-size: 1.3rem;"></i>
+                </a>
             </div>
 
             <!-- 1. Top Card: Kontaktdaten verborgen (max-width: 520px) -->
-            <div style="width: 100%; max-width: 520px; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+            <div style="width: 100%; max-width: 520px; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
                 <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1;">
                     <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
                         <i class="fa-solid ${topIcon}" style="color: ${themeColor}; font-size: 1.1rem;"></i>
@@ -4068,48 +4071,13 @@ function renderHowItWorksContentHTML(type) {
                 </div>
             </div>
 
-            <!-- Dotted Line with Down Arrow Button (Toggle) -->
-            <div style="display: flex; position: relative; width: 100%; height: 35px; box-sizing: border-box;">
-                <div style="width: 2px; height: 35px; border-left: 2px dashed ${themeBorder}; position: absolute; left: 54px; top: 0;"></div>
-                <button onclick="window.toggleHowItWorksMiddle()" style="position: absolute; left: 36px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; background: ${themeColor}; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.18); border: 2.5px solid white; z-index: 5; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-50%) scale(1.08)';" onmouseout="this.style.transform='translateY(-50%) scale(1)';">
-                    <i class="fa-solid fa-chevron-down" id="how-it-works-toggle-arrow-icon" style="font-size: 0.85rem; transition: transform 0.3s;"></i>
-                </button>
+            <!-- Dotted Line (Connector to Card 2) -->
+            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 35px; box-sizing: border-box;">
+                <div style="width: 2px; height: 35px; border-left: 2px dashed ${themeBorder};"></div>
             </div>
 
-            <!-- Collapsible Middle Card Wrapper -->
-            <div id="how-it-works-middle-wrapper" style="max-height: 0px; opacity: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; width: 100%;">
-                <div style="width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2.5rem 2rem; display: flex; flex-direction: column; gap: 1.8rem; text-align: left; box-sizing: border-box; box-shadow: 0 15px 40px rgba(0,0,0,0.03); position: relative; margin-top: 10px; margin-bottom: 10px;">
-                    
-                    <!-- Vertical dashed line on the left side of icons -->
-                    <div style="position: absolute; left: 54px; top: 1rem; bottom: 1rem; width: 2px; border-left: 2px dashed #cbd5e1; z-index: 1;"></div>
-
-                    ${points.map((pt, index) => `
-                        <!-- Item ${index + 1} -->
-                        <div style="display: flex; align-items: flex-start; gap: 1.5rem; position: relative; z-index: 2;">
-                            <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
-                                <i class="fa-solid ${pt.icon}" style="color: ${themeColor}; font-size: 1.1rem;"></i>
-                            </div>
-                            <div style="font-family: var(--font-body); padding-top: 0.15rem;">
-                                <h5 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0 0 0.15rem;">
-                                    ${pt.title}
-                                </h5>
-                                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0; font-weight: 500; line-height: 1.45;">
-                                    ${pt.desc}
-                                </p>
-                            </div>
-                        </div>
-                    `).join('')}
-
-                </div>
-            </div>
-
-            <!-- Second Dotted Line (Connector to bottom, hidden until expanded) -->
-            <div id="how-it-works-bottom-connector" style="display: none; position: relative; width: 100%; height: 25px; box-sizing: border-box;">
-                <div style="width: 2px; height: 25px; border-left: 2px dashed ${themeBorder}; position: absolute; left: 54px; top: 0;"></div>
-            </div>
-
-            <!-- 3. Bottom Card: Kontaktdaten sichtbar (max-width: 520px) -->
-            <div style="width: 100%; max-width: 520px; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+            <!-- 2. Bottom Card: Kontaktdaten sichtbar (max-width: 520px) -->
+            <div style="width: 100%; max-width: 520px; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
                 <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1;">
                     <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1.1rem;"></i>
@@ -4132,9 +4100,38 @@ function renderHowItWorksContentHTML(type) {
                 </div>
             </div>
 
-            <!-- Bottom CTA Button -->
-            <div style="margin-top: 2rem; text-align: left; width: 100%; box-sizing: border-box; padding-left: 2rem;">
-                <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: auto; min-width: 280px; box-sizing: border-box; margin: 0; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')">
+            <!-- Dotted Line (Connector to Advantages Sub-header) -->
+            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 35px; box-sizing: border-box;">
+                <div style="width: 2px; height: 35px; border-left: 2px dashed ${themeBorder};"></div>
+            </div>
+
+            <!-- Sub-header: "Mehr Gigs. Mehr Einnahmen." / "Dein Event. Dein Act." -->
+            <div style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 800; color: ${themeColor}; margin-bottom: 1.5rem; text-align: center; text-transform: none; letter-spacing: -0.3px; width: 100%;">
+                ${isMusician ? 'Mehr Gigs. Mehr Einnahmen.' : 'Dein Event. Dein Act.'}
+            </div>
+
+            <!-- Advantages Grid (3 columns side-by-side) -->
+            <div style="width: 100%; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; box-sizing: border-box; margin-bottom: 1rem;">
+                ${points.map((pt) => `
+                    <div style="background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.5rem; flex: 1 1 180px; box-sizing: border-box; text-align: left; display: flex; flex-direction: column; gap: 0.8rem; box-shadow: 0 10px 25px rgba(0,0,0,0.02); min-width: 180px;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.01); background-color: #ffffff;">
+                            <i class="fa-solid ${pt.icon}" style="color: ${themeColor}; font-size: 1.05rem;"></i>
+                        </div>
+                        <div style="font-family: var(--font-body);">
+                            <h5 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0 0 0.25rem;">
+                                ${pt.title}
+                            </h5>
+                            <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0; font-weight: 500; line-height: 1.45;">
+                                ${pt.desc}
+                            </p>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+
+            <!-- Bottom CTA Button (Centered) -->
+            <div style="margin-top: 2rem; text-align: center; width: 100%;">
+                <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: auto; min-width: 280px; box-sizing: border-box; margin: 0 auto; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')">
                     Hier geht's zum ${isMusician ? 'Event-Markt' : 'Musiker-Markt'} <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
@@ -4165,24 +4162,7 @@ window.toggleHowItWorks = function(type) {
 };
 
 window.toggleHowItWorksMiddle = function() {
-    const middleSection = document.getElementById('how-it-works-middle-wrapper');
-    const arrowIcon = document.getElementById('how-it-works-toggle-arrow-icon');
-    const bottomConnector = document.getElementById('how-it-works-bottom-connector');
-    if (!middleSection || !arrowIcon) return;
-    
-    const isCollapsed = middleSection.style.maxHeight === '0px' || middleSection.style.maxHeight === '';
-    
-    if (isCollapsed) {
-        middleSection.style.maxHeight = middleSection.scrollHeight + 'px';
-        middleSection.style.opacity = '1';
-        arrowIcon.style.transform = 'rotate(180deg)';
-        if (bottomConnector) bottomConnector.style.display = 'flex';
-    } else {
-        middleSection.style.maxHeight = '0px';
-        middleSection.style.opacity = '0';
-        arrowIcon.style.transform = 'rotate(0deg)';
-        if (bottomConnector) bottomConnector.style.display = 'none';
-    }
+    // No-op: all advantages are now fully expanded by default
 };
 
 function renderLandingPage(container, onNavigate) {
