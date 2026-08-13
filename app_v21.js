@@ -413,12 +413,16 @@ window.slideComboGallery = function(itemId, direction) {
                 dots[i].classList.add('active');
                 dots[i].style.background = themeColor;
                 dots[i].style.opacity = '1';
-                dots[i].style.transform = 'scale(1.25)';
+                dots[i].style.transform = 'scale(1.35)';
+                dots[i].style.boxShadow = '0 0 6px ' + themeColor;
+                dots[i].style.border = '1px solid ' + themeColor;
             } else {
                 dots[i].classList.remove('active');
                 dots[i].style.background = '#ffffff';
-                dots[i].style.opacity = '0.5';
+                dots[i].style.opacity = '0.95';
                 dots[i].style.transform = 'scale(1)';
+                dots[i].style.boxShadow = '0 1px 2px rgba(0,0,0,0.2)';
+                dots[i].style.border = '1px solid rgba(0,0,0,0.15)';
             }
         }
     }
@@ -7796,7 +7800,7 @@ function renderOrganizerEventItem(e, isActive) {
     const description = e.description || 'Wir suchen eine professionelle musikalische Begleitung für unser anstehendes Event mit fantastischer Stimmung.';
 
     const themeColor = '#7c3aed';
-    const dotActiveColor = '#a855f7';
+    const dotActiveColor = '#7c3aed';
 
     return `
         <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'};">
@@ -7810,7 +7814,7 @@ function renderOrganizerEventItem(e, isActive) {
                 <!-- Dots container inside the slider -->
                 <div class="tile-gallery-dots" id="combo-dots-${e.id}" data-theme="${dotActiveColor}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
                     ${Array.from({ length: photos.length + 1 }).map((_, dIdx) => `
-                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.5'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.25)' : 'scale(1)'}; border: 1px solid rgba(0,0,0,0.15); box-shadow: 0 1px 2px rgba(0,0,0,0.2);"></span>
+                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? dotActiveColor : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + dotActiveColor : '0 1px 2px rgba(0,0,0,0.2)'};"></span>
                     `).join('')}
                 </div>
                 
@@ -8237,7 +8241,7 @@ function renderMyMusicianItem(m, isActive) {
         }
     }
 
-    const dotActiveColor = '#3b82f6';
+    const dotActiveColor = '#2563eb';
 
     return `
         <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'};">
@@ -8251,7 +8255,7 @@ function renderMyMusicianItem(m, isActive) {
                 <!-- Dots container inside the slider -->
                 <div class="tile-gallery-dots" id="combo-dots-${m.id}" data-theme="${dotActiveColor}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
                     ${Array.from({ length: photos.length + videoSources.length + audios.length + 1 }).map((_, dIdx) => `
-                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.5'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.25)' : 'scale(1)'}; border: 1px solid rgba(0,0,0,0.15); box-shadow: 0 1px 2px rgba(0,0,0,0.2);"></span>
+                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? dotActiveColor : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + dotActiveColor : '0 1px 2px rgba(0,0,0,0.2)'};"></span>
                     `).join('')}
                 </div>
                 
@@ -13947,9 +13951,9 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     </div>
 
                     <!-- Dots container inside the slider -->
-                    <div class="tile-gallery-dots" id="combo-dots-${item.id}" data-theme="${isEvents ? '#a855f7' : '#3b82f6'}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
+                    <div class="tile-gallery-dots" id="combo-dots-${item.id}" data-theme="${isEvents ? '#7c3aed' : '#2563eb'}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
                         ${Array.from({ length: photos.length + videos.length + audios.length + 1 }).map((_, dIdx) => `
-                            <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? (isEvents ? '#a855f7' : '#3b82f6') : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.5'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.25)' : 'scale(1)'}; border: 1px solid rgba(0,0,0,0.15); box-shadow: 0 1px 2px rgba(0,0,0,0.2);"></span>
+                            <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? (isEvents ? '#7c3aed' : '#2563eb') : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? (isEvents ? '#7c3aed' : '#2563eb') : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + (isEvents ? '#7c3aed' : '#2563eb') : '0 1px 2px rgba(0,0,0,0.2)'};"></span>
                         `).join('')}
                     </div>
                 </div>
