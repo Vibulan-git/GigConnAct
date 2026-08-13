@@ -4154,7 +4154,7 @@ function renderHowItWorksContentHTML(type) {
             <!-- Bottom CTA Button (Centered) -->
             <div style="margin-top: 1rem; text-align: center; width: 100%; box-sizing: border-box;">
                 <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: 100%; max-width: 100%; box-sizing: border-box; margin: 0 auto; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;" onmouseover="this.style.transform='scale(1.015)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')">
-                    Hier geht's zum ${isMusician ? 'Event-Markt' : 'Musiker-Markt'} <i class="fa-solid fa-arrow-right"></i>
+                    ${isMusician ? 'Event-Markt' : 'Musiker-Markt'} <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
 
