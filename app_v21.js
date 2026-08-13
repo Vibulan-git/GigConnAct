@@ -4607,18 +4607,18 @@ function renderLandingPage(container, onNavigate) {
 
             <!-- 4. Wie funktioniert GigConnAct? Section -->
             <div style="max-width: 1000px; margin: 5rem auto 2rem; padding: 0 1.5rem; text-align: center;">
-                <div style="text-align: center; margin-bottom: 0.75rem; padding: 0 1rem;">
+                <div style="text-align: center; margin-bottom: 2.5rem; padding: 0 1rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; color: #0f172a; margin: 0 0 0.5rem; line-height: 1.2; letter-spacing: -1px;">
                         <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">GigConnAct</span> erklärt
                     </h2>
                 </div>
                 
-                <!-- Tab Selector (Nebeneinander & Schmaler & Statisch) -->
-                <div class="how-it-works-tabs" style="display: flex; flex-direction: row; justify-content: center; width: 100%; max-width: 650px; margin: 0 auto 0.5rem; gap: 0.75rem; font-family: var(--font-heading); box-sizing: border-box; padding: 0 0.5rem;">
-                    <button class="how-works-tab-btn active" id="btn-how-works-musician" style="width: 140px; height: 42px; border-radius: 12px; border: 1.5px solid transparent; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.25s; background: #7c3aed; color: #ffffff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);" onclick="toggleHowItWorks('musician')">
+                <!-- Tab Selector (Nebeneinander & Breit & Statisch) -->
+                <div class="how-it-works-tabs" style="display: flex; flex-direction: row; justify-content: center; width: 100%; max-width: 650px; margin: 0 auto 2.5rem; gap: 0.75rem; font-family: var(--font-heading); box-sizing: border-box; padding: 0 0.5rem;">
+                    <button class="how-works-tab-btn active" id="btn-how-works-musician" style="flex: 1; min-width: 0; height: 42px; border-radius: 12px; border: 1.5px solid transparent; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.25s; background: #7c3aed; color: #ffffff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);" onclick="toggleHowItWorks('musician')">
                         <span style="font-size: 0.9rem; font-weight: 800; white-space: nowrap;">Für Musiker</span>
                     </button>
-                    <button class="how-works-tab-btn" id="btn-how-works-organizer" style="width: 140px; height: 42px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06); font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.25s; background: #ffffff; color: #64748b;" onclick="toggleHowItWorks('organizer')">
+                    <button class="how-works-tab-btn" id="btn-how-works-organizer" style="flex: 1; min-width: 0; height: 42px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06); font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.25s; background: #ffffff; color: #64748b;" onclick="toggleHowItWorks('organizer')">
                         <span style="font-size: 0.9rem; font-weight: 800; white-space: nowrap;">Für Veranstalter</span>
                     </button>
                 </div>
