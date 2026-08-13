@@ -4013,74 +4013,53 @@ function renderHowItWorksContentHTML(type) {
             </div>
 
             <!-- Dotted Line (Connector from Title to Card 1) -->
-            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 20px; box-sizing: border-box;">
-                <div style="width: 2px; height: 20px; border-left: 3px dashed ${dashedBorderColor};"></div>
+            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 25px; box-sizing: border-box;">
+                <div style="width: 2px; height: 25px; border-left: 3px dashed ${dashedBorderColor};"></div>
             </div>
 
-            <!-- 1. Top Card: Kontaktdaten verborgen (max-width: 400px, white background) -->
-            <div style="width: 100%; max-width: 400px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
-                <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
-                    <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
-                        <i class="fa-solid ${topIcon}" style="color: ${themeColor}; font-size: 1.1rem;"></i>
-                    </div>
-                    <div style="font-family: var(--font-body);">
-                        <h4 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3;">
-                            Kontaktdaten <span style="color: ${themeColor};">verborgen</span>
-                        </h4>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.25rem 0 0; font-weight: 500; line-height: 1.35;">
-                            Namen, Telefonnummern, Mail-Adressen etc. von ${isMusician ? 'Veranstaltern' : 'Musikern'}
-                        </p>
-                    </div>
+            <!-- 1. Top Card: Kontaktdaten verborgen (max-width: 300px, white background) -->
+            <div style="width: 100%; max-width: 300px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.75rem 1.25rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
+                    <i class="fa-solid ${topIcon}" style="color: ${themeColor}; font-size: 1.05rem;"></i>
                 </div>
+                <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2; flex: 1;">
+                    Kontaktdaten <span style="color: ${themeColor};">verborgen</span>
+                </h4>
             </div>
 
             <!-- Dotted Line (Connector to Card 2) -->
-            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 35px; box-sizing: border-box;">
-                <div style="width: 2px; height: 35px; border-left: 3px dashed ${dashedBorderColor};"></div>
+            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 25px; box-sizing: border-box;">
+                <div style="width: 2px; height: 25px; border-left: 3px dashed ${dashedBorderColor};"></div>
             </div>
 
-            <!-- 2. Middle Card: Schnelle Anmeldung (max-width: 400px, white background) -->
-            <div style="width: 100%; max-width: 400px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
-                <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
-                    <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
-                        <i class="fa-solid fa-bolt" style="color: ${themeColor}; font-size: 1.1rem;"></i>
-                    </div>
-                    <div style="font-family: var(--font-body);">
-                        <h4 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3;">
-                            Schnelle Anmeldung
-                        </h4>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.25rem 0 0; font-weight: 500; line-height: 1.35;">
-                            ${isMusician ? 'Anlegen eines Musiker-Profils. Ohne Passwort.' : 'Anlegen eines Veranstalter-Profils. Ohne Passwort.'}
-                        </p>
-                    </div>
+            <!-- 2. Middle Card: Schnelle Anmeldung (max-width: 300px, white background) -->
+            <div style="width: 100%; max-width: 300px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.75rem 1.25rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
+                    <i class="fa-solid fa-bolt" style="color: ${themeColor}; font-size: 1.05rem;"></i>
                 </div>
+                <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2; flex: 1;">
+                    Schnelle Anmeldung
+                </h4>
             </div>
 
             <!-- Dotted Line (Connector to Card 3) -->
-            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 35px; box-sizing: border-box;">
-                <div style="width: 2px; height: 35px; border-left: 3px dashed ${dashedBorderColor};"></div>
+            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 25px; box-sizing: border-box;">
+                <div style="width: 2px; height: 25px; border-left: 3px dashed ${dashedBorderColor};"></div>
             </div>
 
-            <!-- 3. Bottom Card: Kontaktdaten sichtbar (max-width: 400px, white background) -->
-            <div style="width: 100%; max-width: 400px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
-                <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
-                    <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
-                        <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1.1rem;"></i>
-                    </div>
-                    <div style="font-family: var(--font-body);">
-                        <h4 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3;">
-                            Kontaktdaten <span style="color: ${themeColor};">sichtbar</span>
-                        </h4>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.25rem 0 0; font-weight: 500; line-height: 1.35;">
-                            Interessante Anfragen an und von ${isMusician ? 'Veranstaltern' : 'Musikern'}
-                        </p>
-                    </div>
+            <!-- 3. Bottom Card: Kontaktdaten sichtbar (max-width: 300px, white background) -->
+            <div style="width: 100%; max-width: 300px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.75rem 1.25rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
+                    <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1.05rem;"></i>
                 </div>
+                <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2; flex: 1;">
+                    Kontaktdaten <span style="color: ${themeColor};">sichtbar</span>
+                </h4>
             </div>
 
             <!-- Dotted Line (Connector to Advantages Sub-header) -->
-            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 35px; box-sizing: border-box;">
-                <div style="width: 2px; height: 35px; border-left: 3px dashed ${dashedBorderColor};"></div>
+            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 25px; box-sizing: border-box;">
+                <div style="width: 2px; height: 25px; border-left: 3px dashed ${dashedBorderColor};"></div>
             </div>
 
             <!-- Sub-header: "Mehr Gigs. Mehr Einnahmen." / "Dein Event. Dein Act." -->
