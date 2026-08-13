@@ -4107,7 +4107,7 @@ function renderHowItWorksContentHTML(type) {
                     </h4>
                     <div id="flow-card-desc-3" style="display: ${window.howItWorksExpanded[3] ? 'block' : 'none'}; opacity: ${window.howItWorksExpanded[3] ? '1' : '0'}; height: ${window.howItWorksExpanded[3] ? 'auto' : '0px'}; overflow: hidden; margin-top: 0.35rem; transition: all 0.3s ease-out;">
                         <p style="font-size: 0.82rem; color: #64748b; margin: 0; font-weight: 500; line-height: 1.4;">
-                            Austausch via Telefon, Mail, Nachrichten im GigConnAct Postfach
+                            Austausch via Telefon, Mail, Nachrichten im Postfach
                         </p>
                     </div>
                 </div>
@@ -4618,15 +4618,13 @@ function renderLandingPage(container, onNavigate) {
                     </h2>
                 </div>
                 
-                <!-- Tab Selector (Nebeneinander & Quadratisch) -->
+                <!-- Tab Selector (Nebeneinander & Schmaler) -->
                 <div class="how-it-works-tabs" style="display: flex; flex-direction: row; justify-content: center; width: 100%; max-width: 650px; margin: 0 auto 0.5rem; gap: 0.75rem; font-family: var(--font-heading); box-sizing: border-box; padding: 0 0.5rem;">
-                    <button class="how-works-tab-btn active" id="btn-how-works-musician" style="width: 160px; height: 90px; padding: 0.75rem; border-radius: 16px; border: 1.5px solid transparent; font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; transition: all 0.25s; background: #7c3aed; color: #ffffff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);" onclick="toggleHowItWorks('musician')">
-                        <span style="font-size: 0.95rem; font-weight: 800; line-height: 1.2;">Für Musiker</span>
-                        <span style="font-size: 0.8rem; font-weight: 700; opacity: 0.9; line-height: 1.2;">Event-Markt</span>
+                    <button class="how-works-tab-btn active" id="btn-how-works-musician" style="width: 150px; height: 50px; border-radius: 12px; border: 1.5px solid transparent; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.25s; background: #7c3aed; color: #ffffff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);" onclick="toggleHowItWorks('musician')">
+                        <span id="tab-text-musician" style="font-size: 0.9rem; font-weight: 800; transition: opacity 0.3s ease-in-out; white-space: nowrap; opacity: 1;">Für Musiker</span>
                     </button>
-                    <button class="how-works-tab-btn" id="btn-how-works-organizer" style="width: 160px; height: 90px; padding: 0.75rem; border-radius: 16px; border: 1.5px solid rgba(0,0,0,0.06); font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; transition: all 0.25s; background: #ffffff; color: #64748b;" onclick="toggleHowItWorks('organizer')">
-                        <span style="font-size: 0.95rem; font-weight: 800; line-height: 1.2;">Für Veranstalter</span>
-                        <span style="font-size: 0.8rem; font-weight: 700; opacity: 0.9; line-height: 1.2;">Musiker-Markt</span>
+                    <button class="how-works-tab-btn" id="btn-how-works-organizer" style="width: 150px; height: 50px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06); font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.25s; background: #ffffff; color: #64748b;" onclick="toggleHowItWorks('organizer')">
+                        <span id="tab-text-organizer" style="font-size: 0.9rem; font-weight: 800; transition: opacity 0.3s ease-in-out; white-space: nowrap; opacity: 1;">Für Veranstalter</span>
                     </button>
                 </div>
 
@@ -4881,6 +4879,37 @@ function renderLandingPage(container, onNavigate) {
         // Monitor the initial active player (v1)
         monitorPlayer(v1, v2);
     }
+
+    // Start button text rotation cycle (every 3 seconds)
+    if (window.tabTextRotationInterval) {
+        clearInterval(window.tabTextRotationInterval);
+    }
+    window.tabTextState = 0; // 0 = Für Musiker / Für Veranstalter, 1 = Event-Markt / Musiker-Markt
+    window.tabTextRotationInterval = setInterval(() => {
+        window.tabTextState = window.tabTextState === 0 ? 1 : 0;
+        
+        const elMusician = document.getElementById('tab-text-musician');
+        const elOrganizer = document.getElementById('tab-text-organizer');
+        
+        if (elMusician && elOrganizer) {
+            // Fade out
+            elMusician.style.opacity = '0';
+            elOrganizer.style.opacity = '0';
+            
+            setTimeout(() => {
+                if (window.tabTextState === 0) {
+                    elMusician.innerText = 'Für Musiker';
+                    elOrganizer.innerText = 'Für Veranstalter';
+                } else {
+                    elMusician.innerText = 'Event-Markt';
+                    elOrganizer.innerText = 'Musiker-Markt';
+                }
+                // Fade in
+                elMusician.style.opacity = '1';
+                elOrganizer.style.opacity = '1';
+            }, 300);
+        }
+    }, 3000);
 }
 
 
