@@ -4006,6 +4006,10 @@ function renderHowItWorksContentHTML(type) {
     return `
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 650px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
             
+            <!-- Slanted Arrow (Connector from active tab to Card 1) -->
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0 0 0.5rem 0;">
+                <i class="fa-solid ${isMusician ? 'fa-arrow-down-right' : 'fa-arrow-down-left'}" style="color: ${themeColor}; font-size: 1.1rem; opacity: 0.6; margin-left: ${isMusician ? '-80px' : '80px'};"></i>
+            </div>
 
             <!-- 1. Top Card: Kontaktdaten verborgen (width: 100%, white background) -->
             <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
@@ -4546,7 +4550,7 @@ function renderLandingPage(container, onNavigate) {
                 </div>
                 
                 <!-- Tab Selector (Nebeneinander & Quadratisch) -->
-                <div class="how-it-works-tabs" style="display: flex; flex-direction: row; justify-content: center; width: 100%; max-width: 650px; margin: 0 auto 1.5rem; gap: 0.75rem; font-family: var(--font-heading); box-sizing: border-box; padding: 0 0.5rem;">
+                <div class="how-it-works-tabs" style="display: flex; flex-direction: row; justify-content: center; width: 100%; max-width: 650px; margin: 0 auto 0.5rem; gap: 0.75rem; font-family: var(--font-heading); box-sizing: border-box; padding: 0 0.5rem;">
                     <button class="how-works-tab-btn active" id="btn-how-works-musician" style="width: 160px; height: 90px; padding: 0.75rem; border-radius: 16px; border: 1.5px solid transparent; font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; transition: all 0.25s; background: #7c3aed; color: #ffffff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);" onclick="toggleHowItWorks('musician')">
                         <span style="font-size: 0.95rem; font-weight: 800; line-height: 1.2;">Event-Markt</span>
                         <span style="font-size: 0.8rem; font-weight: 700; opacity: 0.9; line-height: 1.2;">für Musiker</span>
