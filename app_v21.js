@@ -4000,44 +4000,9 @@ function renderHowItWorksContentHTML(type) {
     const themeBadgeBg = isMusician ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)';
     const themeBadgeBorder = isMusician ? 'rgba(167, 139, 250, 0.35)' : 'rgba(96, 165, 250, 0.35)';
 
-    // Descriptions for middle points
-    const points = isMusician ? [
-        {
-            title: 'Direkter Kontakt',
-            desc: 'Direkte Absprachen mit Veranstaltern.',
-            icon: 'fa-comments'
-        },
-        {
-            title: 'Keine Provisionskosten',
-            desc: 'Preiswertes Abo-Modell. Jederzeit kündbar.',
-            icon: 'fa-percent'
-        },
-        {
-            title: 'Top-Matches',
-            desc: 'Durch Matching-Logik. Automatische Event-Empfehlungen.',
-            icon: 'fa-star'
-        }
-    ] : [
-        {
-            title: 'Direkter Kontakt',
-            desc: 'Direkte Absprachen mit Musikern.',
-            icon: 'fa-comments'
-        },
-        {
-            title: 'Keine Provisionskosten',
-            desc: 'Kostenlose Vermittlung für Veranstalter.',
-            icon: 'fa-percent'
-        },
-        {
-            title: 'Top-Matches',
-            desc: 'Durch Matching-Logik. Automatische Vorschläge.',
-            icon: 'fa-star'
-        }
-    ];
-
     // Build HTML matching the exact structure from the image
     return `
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 650px; margin: 0 auto; box-sizing: border-box; padding: 0 1rem;">
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 650px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
             
             <!-- Large Focus Title Above the Top Card (Centered link with right arrow) -->
             <div style="text-align: center; margin-bottom: 2rem; width: 100%;">
@@ -4048,26 +4013,20 @@ function renderHowItWorksContentHTML(type) {
                 </a>
             </div>
 
-            <!-- 1. Top Card: Kontaktdaten verborgen (max-width: 520px) -->
-            <div style="width: 100%; max-width: 520px; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
-                <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1;">
+            <!-- 1. Top Card: Kontaktdaten verborgen (max-width: 400px) -->
+            <div style="width: 100%; max-width: 400px; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
+                <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
                     <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
                         <i class="fa-solid ${topIcon}" style="color: ${themeColor}; font-size: 1.1rem;"></i>
                     </div>
                     <div style="font-family: var(--font-body);">
-                        <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.35;">
+                        <h4 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3;">
                             Kontaktdaten <span style="color: ${themeColor};">verborgen</span>
                         </h4>
-                        <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.35rem 0 0; font-weight: 500; line-height: 1.4;">
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.25rem 0 0; font-weight: 500; line-height: 1.35;">
                             Namen, Telefonnummern, Mail-Adressen etc. von ${isMusician ? 'Veranstaltern' : 'Musikern'}
                         </p>
                     </div>
-                </div>
-                <!-- Illustration -->
-                <div class="market-ill-desktop" style="width: 150px; height: 75px; display: flex; align-items: flex-end; gap: 4px; flex-shrink: 0; border-bottom: 2px solid ${themeBorder}; padding-bottom: 2px; box-sizing: border-box; opacity: 0.85;">
-                    <div style="flex: 1; height: 35px; background: ${themeBadgeBorder}; border-radius: 4px 4px 0 0; display: flex; align-items: center; justify-content: center; color: white;"><i class="fa-solid fa-guitar" style="font-size: 0.8rem;"></i></div>
-                    <div style="flex: 1.2; height: 55px; background: ${themeColor}; border-radius: 4px 4px 0 0; display: flex; align-items: center; justify-content: center; color: white;"><i class="fa-solid fa-music" style="font-size: 0.9rem;"></i></div>
-                    <div style="flex: 1; height: 40px; background: ${themeBadgeBorder}; border-radius: 4px 4px 0 0; display: flex; align-items: center; justify-content: center; color: white;"><i class="fa-solid fa-microphone" style="font-size: 0.8rem;"></i></div>
                 </div>
             </div>
 
@@ -4076,26 +4035,41 @@ function renderHowItWorksContentHTML(type) {
                 <div style="width: 2px; height: 35px; border-left: 2px dashed ${themeBorder};"></div>
             </div>
 
-            <!-- 2. Bottom Card: Kontaktdaten sichtbar (max-width: 520px) -->
-            <div style="width: 100%; max-width: 520px; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
-                <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1;">
+            <!-- 2. Middle Card: Schnelle Anmeldung (max-width: 400px) -->
+            <div style="width: 100%; max-width: 400px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
+                <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                    <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
+                        <i class="fa-solid fa-bolt" style="color: ${themeColor}; font-size: 1.1rem;"></i>
+                    </div>
+                    <div style="font-family: var(--font-body);">
+                        <h4 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3;">
+                            Schnelle Anmeldung
+                        </h4>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.25rem 0 0; font-weight: 500; line-height: 1.35;">
+                            ${isMusician ? 'Anlegen eines Musiker-Profils. Ohne Passwort.' : 'Anlegen eines Veranstalter-Profils. Ohne Passwort.'}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dotted Line (Connector to Card 3) -->
+            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 35px; box-sizing: border-box;">
+                <div style="width: 2px; height: 35px; border-left: 2px dashed ${themeBorder};"></div>
+            </div>
+
+            <!-- 3. Bottom Card: Kontaktdaten sichtbar (max-width: 400px) -->
+            <div style="width: 100%; max-width: 400px; background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 24px; padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
+                <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
                     <div style="width: 44px; height: 44px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1.1rem;"></i>
                     </div>
                     <div style="font-family: var(--font-body);">
-                        <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.35;">
+                        <h4 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3;">
                             Kontaktdaten <span style="color: ${themeColor};">sichtbar</span>
                         </h4>
-                        <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0.35rem 0 0; font-weight: 500; line-height: 1.4;">
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.25rem 0 0; font-weight: 500; line-height: 1.35;">
                             Interessante Anfragen an und von ${isMusician ? 'Veranstaltern' : 'Musikern'}
                         </p>
-                    </div>
-                </div>
-                <!-- Illustration -->
-                <div class="market-ill-desktop" style="width: 120px; height: 75px; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; opacity: 0.85;">
-                    <div style="width: 70px; height: 50px; background: ${themeBadgeBorder}; border-radius: 8px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center;">
-                        <i class="fa-solid fa-envelope" style="color: white; font-size: 1.8rem;"></i>
-                        <div style="position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; border-radius: 50%; background: ${themeColor}; color: white; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"><i class="fa-solid fa-star" style="font-size: 0.65rem;"></i></div>
                     </div>
                 </div>
             </div>
@@ -4110,23 +4084,35 @@ function renderHowItWorksContentHTML(type) {
                 ${isMusician ? 'Mehr Gigs. Mehr Einnahmen.' : 'Dein Event. Dein Act.'}
             </div>
 
-            <!-- Advantages Grid (3 columns side-by-side) -->
-            <div style="width: 100%; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; box-sizing: border-box; margin-bottom: 1rem;">
-                ${points.map((pt) => `
-                    <div style="background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.5rem; flex: 1 1 180px; box-sizing: border-box; text-align: left; display: flex; flex-direction: column; gap: 0.8rem; box-shadow: 0 10px 25px rgba(0,0,0,0.02); min-width: 180px;">
-                        <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.01); background-color: #ffffff;">
-                            <i class="fa-solid ${pt.icon}" style="color: ${themeColor}; font-size: 1.05rem;"></i>
-                        </div>
-                        <div style="font-family: var(--font-body);">
-                            <h5 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0 0 0.25rem;">
-                                ${pt.title}
-                            </h5>
-                            <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0; font-weight: 500; line-height: 1.45;">
-                                ${pt.desc}
-                            </p>
-                        </div>
+            <!-- Advantages Grid (3 columns side-by-side even on mobile) -->
+            <div style="width: 100%; display: flex; flex-direction: row; gap: 0.5rem; justify-content: space-between; box-sizing: border-box; margin-bottom: 1rem;">
+                <!-- Col 1: Direkter Kontakt -->
+                <div style="background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                        <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                     </div>
-                `).join('')}
+                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.25; word-break: break-word;">
+                        Direkter Kontakt
+                    </h5>
+                </div>
+                <!-- Col 2: Keine Provisionskosten -->
+                <div style="background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                        <i class="fa-solid fa-percent" style="color: ${themeColor}; font-size: 0.9rem;"></i>
+                    </div>
+                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.25; word-break: break-word;">
+                        Keine Provisionskosten
+                    </h5>
+                </div>
+                <!-- Col 3: Top-Matches -->
+                <div style="background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                        <i class="fa-solid fa-star" style="color: ${themeColor}; font-size: 0.9rem;"></i>
+                    </div>
+                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.25; word-break: break-word;">
+                        Top-Matches
+                    </h5>
+                </div>
             </div>
 
             <!-- Bottom CTA Button (Centered) -->
