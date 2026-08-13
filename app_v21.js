@@ -4545,13 +4545,15 @@ function renderLandingPage(container, onNavigate) {
                     </h2>
                 </div>
                 
-                <!-- Tab Selector (Vertical Stack) -->
-                <div class="how-it-works-tabs" style="display: flex; flex-direction: column; width: 100%; max-width: 650px; margin: 0 auto 1.5rem; gap: 0.6rem; font-family: var(--font-heading); box-sizing: border-box; padding: 0 0.5rem;">
-                    <button class="how-works-tab-btn active" id="btn-how-works-musician" style="width: 100%; padding: 0.8rem 1.5rem; border-radius: 15px; border: 1.5px solid transparent; font-weight: 800; font-size: 0.95rem; cursor: pointer; text-align: center; transition: all 0.25s; background: #7c3aed; color: #ffffff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);" onclick="toggleHowItWorks('musician')">
-                        Event-Markt für Musiker
+                <!-- Tab Selector (Nebeneinander & Quadratisch) -->
+                <div class="how-it-works-tabs" style="display: flex; flex-direction: row; justify-content: center; width: 100%; max-width: 650px; margin: 0 auto 1.5rem; gap: 0.75rem; font-family: var(--font-heading); box-sizing: border-box; padding: 0 0.5rem;">
+                    <button class="how-works-tab-btn active" id="btn-how-works-musician" style="width: 160px; height: 90px; padding: 0.75rem; border-radius: 16px; border: 1.5px solid transparent; font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; transition: all 0.25s; background: #7c3aed; color: #ffffff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);" onclick="toggleHowItWorks('musician')">
+                        <span style="font-size: 0.95rem; font-weight: 800; line-height: 1.2;">Event-Markt</span>
+                        <span style="font-size: 0.8rem; font-weight: 700; opacity: 0.9; line-height: 1.2;">für Musiker</span>
                     </button>
-                    <button class="how-works-tab-btn" id="btn-how-works-organizer" style="width: 100%; padding: 0.8rem 1.5rem; border-radius: 15px; border: 1.5px solid rgba(0,0,0,0.06); font-weight: 800; font-size: 0.95rem; cursor: pointer; text-align: center; transition: all 0.25s; background: #ffffff; color: #64748b;" onclick="toggleHowItWorks('organizer')">
-                        Musiker-Markt für Veranstalter
+                    <button class="how-works-tab-btn" id="btn-how-works-organizer" style="width: 160px; height: 90px; padding: 0.75rem; border-radius: 16px; border: 1.5px solid rgba(0,0,0,0.06); font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; transition: all 0.25s; background: #ffffff; color: #64748b;" onclick="toggleHowItWorks('organizer')">
+                        <span style="font-size: 0.95rem; font-weight: 800; line-height: 1.2;">Musiker-Markt</span>
+                        <span style="font-size: 0.8rem; font-weight: 700; opacity: 0.9; line-height: 1.2;">für Veranstalter</span>
                     </button>
                 </div>
 
