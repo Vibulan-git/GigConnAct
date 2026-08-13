@@ -4613,25 +4613,13 @@ function renderLandingPage(container, onNavigate) {
                     </h2>
                 </div>
                 
-                <!-- Tab Selector (Nebeneinander & Ticker-Prompter) -->
+                <!-- Tab Selector (Nebeneinander & Schmaler & Statisch) -->
                 <div class="how-it-works-tabs" style="display: flex; flex-direction: row; justify-content: center; width: 100%; max-width: 650px; margin: 0 auto 0.5rem; gap: 0.75rem; font-family: var(--font-heading); box-sizing: border-box; padding: 0 0.5rem;">
-                    <button class="how-works-tab-btn active" id="btn-how-works-musician" style="width: 175px; height: 50px; border-radius: 12px; border: 1.5px solid transparent; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.25s; background: #7c3aed; color: #ffffff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);" onclick="toggleHowItWorks('musician')">
-                        <div style="height: 24px; overflow: hidden; width: 100%; display: flex; justify-content: center; align-items: center;">
-                            <div id="prompter-musician" style="transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(0px); display: flex; flex-direction: column; align-items: center; width: 100%;">
-                                <span style="height: 24px; line-height: 24px; font-size: 0.88rem; font-weight: 800; white-space: nowrap; display: block;">Für Musiker</span>
-                                <span style="height: 24px; line-height: 24px; font-size: 0.88rem; font-weight: 800; white-space: nowrap; display: block;">Event-Markt</span>
-                                <span style="height: 24px; line-height: 24px; font-size: 0.78rem; font-weight: 800; white-space: nowrap; display: block;">Mehr Gigs. Mehr Einnahmen.</span>
-                            </div>
-                        </div>
+                    <button class="how-works-tab-btn active" id="btn-how-works-musician" style="width: 140px; height: 42px; border-radius: 12px; border: 1.5px solid transparent; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.25s; background: #7c3aed; color: #ffffff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);" onclick="toggleHowItWorks('musician')">
+                        <span style="font-size: 0.9rem; font-weight: 800; white-space: nowrap;">Für Musiker</span>
                     </button>
-                    <button class="how-works-tab-btn" id="btn-how-works-organizer" style="width: 175px; height: 50px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06); font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.25s; background: #ffffff; color: #64748b;" onclick="toggleHowItWorks('organizer')">
-                        <div style="height: 24px; overflow: hidden; width: 100%; display: flex; justify-content: center; align-items: center;">
-                            <div id="prompter-organizer" style="transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(0px); display: flex; flex-direction: column; align-items: center; width: 100%;">
-                                <span style="height: 24px; line-height: 24px; font-size: 0.88rem; font-weight: 800; white-space: nowrap; display: block;">Für Veranstalter</span>
-                                <span style="height: 24px; line-height: 24px; font-size: 0.88rem; font-weight: 800; white-space: nowrap; display: block;">Musiker-Markt</span>
-                                <span style="height: 24px; line-height: 24px; font-size: 0.78rem; font-weight: 800; white-space: nowrap; display: block;">Dein Event. Dein Act.</span>
-                            </div>
-                        </div>
+                    <button class="how-works-tab-btn" id="btn-how-works-organizer" style="width: 140px; height: 42px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06); font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.25s; background: #ffffff; color: #64748b;" onclick="toggleHowItWorks('organizer')">
+                        <span style="font-size: 0.9rem; font-weight: 800; white-space: nowrap;">Für Veranstalter</span>
                     </button>
                 </div>
 
@@ -4887,23 +4875,10 @@ function renderLandingPage(container, onNavigate) {
         monitorPlayer(v1, v2);
     }
 
-    // Start prompter ticker rotation cycle (every 3 seconds)
+    // Clear any active tab text rotation intervals
     if (window.tabTextRotationInterval) {
         clearInterval(window.tabTextRotationInterval);
     }
-    window.tabTextState = 0; // 0, 1, 2
-    window.tabTextRotationInterval = setInterval(() => {
-        window.tabTextState = (window.tabTextState + 1) % 3;
-        
-        const elMusician = document.getElementById('prompter-musician');
-        const elOrganizer = document.getElementById('prompter-organizer');
-        
-        if (elMusician && elOrganizer) {
-            const shiftY = window.tabTextState * -24;
-            elMusician.style.transform = `translateY(${shiftY}px)`;
-            elOrganizer.style.transform = `translateY(${shiftY}px)`;
-        }
-    }, 3000);
 }
 
 
