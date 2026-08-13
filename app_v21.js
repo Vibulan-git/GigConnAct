@@ -4131,11 +4131,11 @@ function renderHowItWorksContentHTML(type) {
             <!-- Advantages Grid (3 columns side-by-side even on mobile) -->
             <div style="width: 100%; display: flex; flex-direction: row; gap: 0.5rem; justify-content: space-between; box-sizing: border-box; margin-bottom: 1rem;">
                 <!-- Col 1: Top-Matches -->
-                <div style="background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                <div style="background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37,99,235,0.15)'};">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
                         <i class="fa-solid fa-star" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                     </div>
-                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.25; word-break: break-word;">
+                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #ffffff; margin: 0; line-height: 1.25; word-break: break-word;">
                         Top-<br>Matches
                     </h5>
                 </div>
@@ -4149,11 +4149,11 @@ function renderHowItWorksContentHTML(type) {
                     </h5>
                 </div>
                 <!-- Col 3: Preiswertes Abo-Modell / Keine Kosten -->
-                <div style="background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                <div style="background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37,99,235,0.15)'};">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
                         <i class="fa-solid fa-percent" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                     </div>
-                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.25; word-break: break-word;">
+                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #ffffff; margin: 0; line-height: 1.25; word-break: break-word;">
                         ${isMusician ? 'Preiswertes<br>Abo-Modell' : 'Keine<br>Kosten'}
                     </h5>
                 </div>
