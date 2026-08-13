@@ -4015,13 +4015,11 @@ window.toggleFlowCard = function(cardIndex) {
         }
     }
     
-    const arrow0 = document.getElementById('flow-arrow-icon-0');
     const arrow1 = document.getElementById('flow-arrow-icon-1');
     const arrow2 = document.getElementById('flow-arrow-icon-2');
     const arrow3 = document.getElementById('flow-arrow-icon-3');
     
     if (cardIndex === 1) {
-        if (arrow0) arrow0.style.transform = isExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
         if (arrow1) arrow1.style.transform = isExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
     } else if (cardIndex === 2) {
         if (arrow2) arrow2.style.transform = isExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
@@ -4049,12 +4047,6 @@ function renderHowItWorksContentHTML(type) {
     return `
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 650px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
             
-            <!-- Arrow 0 (Connector from active tab to Card 1) -->
-            <div onclick="window.toggleFlowCard(1)" style="cursor: pointer; display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;" class="flow-arrow-container">
-                <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s; margin-left: ${isMusician ? '-80px' : '80px'};" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';">
-                    <i class="fa-solid ${isMusician ? 'fa-arrow-down-right' : 'fa-arrow-down-left'}" style="color: ${themeColor}; font-size: 0.85rem; transition: transform 0.3s ease; transform: ${window.howItWorksExpanded[1] ? 'rotate(180deg)' : 'rotate(0deg)'};" id="flow-arrow-icon-0"></i>
-                </div>
-            </div>
 
             <!-- 1. Top Card: Passende Veranstalter / Musiker (width: 100%, white background) -->
             <div onclick="window.toggleFlowCard(1)" style="cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
@@ -4091,7 +4083,7 @@ function renderHowItWorksContentHTML(type) {
                     </h4>
                     <div id="flow-card-desc-2" style="display: ${window.howItWorksExpanded[2] ? 'block' : 'none'}; opacity: ${window.howItWorksExpanded[2] ? '1' : '0'}; height: ${window.howItWorksExpanded[2] ? 'auto' : '0px'}; overflow: hidden; margin-top: 0.35rem; transition: all 0.3s ease-out;">
                         <p style="font-size: 0.82rem; color: #64748b; margin: 0; font-weight: 500; line-height: 1.4;">
-                            ${isMusician ? 'Musiker-Profil ohne Passwort anlegen' : 'Veranstalter-Profil ohne Passwort anlegen'}
+                            ${isMusician ? 'Musiker-Profil anlegen und ohne Passwort einloggen' : 'Veranstalter-Profil anlegen und ohne Passwort einloggen'}
                         </p>
                     </div>
                 </div>
@@ -4115,7 +4107,7 @@ function renderHowItWorksContentHTML(type) {
                     </h4>
                     <div id="flow-card-desc-3" style="display: ${window.howItWorksExpanded[3] ? 'block' : 'none'}; opacity: ${window.howItWorksExpanded[3] ? '1' : '0'}; height: ${window.howItWorksExpanded[3] ? 'auto' : '0px'}; overflow: hidden; margin-top: 0.35rem; transition: all 0.3s ease-out;">
                         <p style="font-size: 0.82rem; color: #64748b; margin: 0; font-weight: 500; line-height: 1.4;">
-                            Austausch via Telefon, Mail und Nachrichten
+                            Austausch via Telefon, Mail, Nachrichten im GigConnAct Postfach
                         </p>
                     </div>
                 </div>
