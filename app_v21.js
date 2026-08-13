@@ -4059,7 +4059,7 @@ function renderHowItWorksContentHTML(type) {
                     </h4>
                     <div id="flow-card-desc-1" style="display: ${window.howItWorksExpanded[1] ? 'block' : 'none'}; opacity: ${window.howItWorksExpanded[1] ? '1' : '0'}; height: ${window.howItWorksExpanded[1] ? 'auto' : '0px'}; overflow: hidden; margin-top: 0.35rem; transition: all 0.3s ease-out;">
                         <p style="font-size: 0.82rem; color: #64748b; margin: 0; font-weight: 500; line-height: 1.4;">
-                            ${isMusician ? 'Hochzeiten, Geburtstage, Firmenfeiern und Co.' : 'Bands, DJs, Solisten und Co.'}
+                            ${isMusician ? 'Hochzeiten, Geburtstage, Firmenfeiern und Co.' : 'Sänger, Bands, DJs, Solokünstler und Co.'}
                         </p>
                     </div>
                 </div>
