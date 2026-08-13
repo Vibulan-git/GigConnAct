@@ -4006,13 +4006,10 @@ function renderHowItWorksContentHTML(type) {
     return `
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 650px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
             
-            <!-- Large Focus Title Above the Top Card (Centered link with right arrow) -->
-            <div style="text-align: center; margin-bottom: 0px; width: 100%;">
-                <a href="javascript:void(0)" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')" style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: ${themeColor}; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">
-                    <i class="fa-solid ${isMusician ? 'fa-calendar-days' : 'fa-guitar'}"></i>
-                    <span>${isMusician ? 'Event-Markt' : 'Musiker-Markt'}</span>
-                    <i class="fa-solid fa-arrow-right" style="font-size: 1.3rem;"></i>
-                </a>
+            <!-- Large Focus Title Above the Top Card (Static centered text) -->
+            <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: ${themeColor}; text-align: center; margin-bottom: 0px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+                <i class="fa-solid ${isMusician ? 'fa-calendar-days' : 'fa-microphone'}"></i>
+                <span>${isMusician ? 'Event-Markt' : 'Musiker-Markt'}</span>
             </div>
 
             <!-- Dotted Line (Connector from Title to Card 1) -->
@@ -4568,7 +4565,7 @@ function renderLandingPage(container, onNavigate) {
 
             <!-- 4. Wie funktioniert GigConnAct? Section -->
             <div style="max-width: 1000px; margin: 5rem auto 2rem; padding: 0 1.5rem; text-align: center;">
-                <div style="text-align: center; margin-bottom: 2rem; padding: 0 1rem;">
+                <div style="text-align: center; margin-bottom: 0.75rem; padding: 0 1rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; color: #0f172a; margin: 0 0 0.5rem; line-height: 1.2; letter-spacing: -1px;">
                         <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">GigConnAct</span> erklärt
                     </h2>
