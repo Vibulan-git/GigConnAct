@@ -4016,8 +4016,8 @@ function renderHowItWorksContentHTML(type) {
             </div>
 
             <!-- Dotted Line (Connector from Title to Card 1) -->
-            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 35px; box-sizing: border-box;">
-                <div style="width: 2px; height: 35px; border-left: 3px dashed ${dashedBorderColor};"></div>
+            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 20px; box-sizing: border-box;">
+                <div style="width: 2px; height: 20px; border-left: 3px dashed ${dashedBorderColor};"></div>
             </div>
 
             <!-- 1. Top Card: Kontaktdaten verborgen (max-width: 400px, white background) -->
@@ -4094,7 +4094,7 @@ function renderHowItWorksContentHTML(type) {
             <!-- Advantages Grid (3 columns side-by-side even on mobile) -->
             <div style="width: 100%; display: flex; flex-direction: row; gap: 0.5rem; justify-content: space-between; box-sizing: border-box; margin-bottom: 1rem;">
                 <!-- Col 1: Direkter Kontakt -->
-                <div style="background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
+                <div style="background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
                     <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                     </div>
@@ -4103,7 +4103,7 @@ function renderHowItWorksContentHTML(type) {
                     </h5>
                 </div>
                 <!-- Col 2: Preiswertes Abo-Modell -->
-                <div style="background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
+                <div style="background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
                     <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-percent" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                     </div>
@@ -4112,7 +4112,7 @@ function renderHowItWorksContentHTML(type) {
                     </h5>
                 </div>
                 <!-- Col 3: Top-Matches -->
-                <div style="background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
+                <div style="background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
                     <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-star" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                     </div>
@@ -4123,7 +4123,7 @@ function renderHowItWorksContentHTML(type) {
             </div>
 
             <!-- Bottom CTA Button (Centered) -->
-            <div style="margin-top: 2rem; text-align: center; width: 100%;">
+            <div style="margin-top: 1rem; text-align: center; width: 100%;">
                 <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: auto; min-width: 280px; box-sizing: border-box; margin: 0 auto; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')">
                     Hier geht's zum ${isMusician ? 'Event-Markt' : 'Musiker-Markt'} <i class="fa-solid fa-arrow-right"></i>
                 </button>
