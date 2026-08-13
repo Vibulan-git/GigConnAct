@@ -4033,8 +4033,8 @@ function renderHowItWorksContentHTML(type) {
     
     // Config values
     const topIcon = isMusician ? 'fa-lock' : 'fa-lock';
-    const middleIcon = isMusician ? 'fa-money-bill-trend-up' : 'fa-calendar-check';
-    const middleSlogan = isMusician ? 'Mehr Gigs<br>Mehr Einnahmen' : 'Dein Event<br>Dein Act';
+    const middleIcon = 'fa-arrow-trend-up';
+    const middleSlogan = isMusician ? 'MEHR<br>GIGS' : 'MEHR<br>ACTS';
     
     // Theme colors
     const themeColor = isMusician ? '#7c3aed' : '#2563eb';
@@ -4044,13 +4044,6 @@ function renderHowItWorksContentHTML(type) {
     const themeBadgeBorder = isMusician ? 'rgba(167, 139, 250, 0.35)' : 'rgba(96, 165, 250, 0.35)';
 
     const dashedBorderColor = isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)';
-
-    const specialCardBorder = isMusician
-        ? `linear-gradient(${themeBg}, ${themeBg}) padding-box, linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%) border-box`
-        : `linear-gradient(${themeBg}, ${themeBg}) padding-box, linear-gradient(135deg, #2563eb 0%, #60a5fa 100%) border-box`;
-    const specialCardShadow = isMusician
-        ? '0 6px 18px rgba(124, 58, 237, 0.12)'
-        : '0 6px 18px rgba(37, 99, 235, 0.12)';
 
     // Build HTML matching the exact structure from the image
     return `
@@ -4140,9 +4133,9 @@ function renderHowItWorksContentHTML(type) {
                         Top-<br>Matches
                     </h5>
                 </div>
-                <!-- Col 2: Special Card: Mehr Gigs Mehr Einnahmen / Dein Event Dein Act -->
-                <div style="background: ${specialCardBorder}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: ${specialCardShadow}; transform: translateY(-2px); position: relative;">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeColor}; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                <!-- Col 2: Standard Card: MEHR GIGS / MEHR ACTS -->
+                <div style="background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid ${middleIcon}" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                     </div>
                     <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.25; word-break: break-word;">
