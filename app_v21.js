@@ -4014,19 +4014,7 @@ window.toggleFlowCard = function(cardIndex) {
             }, 250);
         }
     }
-    
-    const arrow1 = document.getElementById('flow-arrow-icon-1');
-    const arrow2 = document.getElementById('flow-arrow-icon-2');
-    const arrow3 = document.getElementById('flow-arrow-icon-3');
-    
-    if (cardIndex === 1) {
-        if (arrow1) arrow1.style.transform = isExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
-    } else if (cardIndex === 2) {
-        if (arrow2) arrow2.style.transform = isExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
-    } else if (cardIndex === 3) {
-        if (arrow3) arrow3.style.transform = isExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
-    }
-};
+}
 
 function renderHowItWorksContentHTML(type) {
     const isMusician = type === 'musician';
@@ -4076,7 +4064,7 @@ function renderHowItWorksContentHTML(type) {
             <!-- Arrow 1 (Connector to Card 2) -->
             <div onclick="window.toggleFlowCard(1)" style="cursor: pointer; display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;" class="flow-arrow-container">
                 <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';">
-                    <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem; transition: transform 0.3s ease; transform: ${window.howItWorksExpanded[1] ? 'rotate(180deg)' : 'rotate(0deg)'};" id="flow-arrow-icon-1"></i>
+                    <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;" id="flow-arrow-icon-1"></i>
                 </div>
             </div>
 
@@ -4100,7 +4088,7 @@ function renderHowItWorksContentHTML(type) {
             <!-- Arrow 2 (Connector to Card 3) -->
             <div onclick="window.toggleFlowCard(2)" style="cursor: pointer; display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;" class="flow-arrow-container">
                 <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';">
-                    <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem; transition: transform 0.3s ease; transform: ${window.howItWorksExpanded[2] ? 'rotate(180deg)' : 'rotate(0deg)'};" id="flow-arrow-icon-2"></i>
+                    <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;" id="flow-arrow-icon-2"></i>
                 </div>
             </div>
 
@@ -4124,7 +4112,7 @@ function renderHowItWorksContentHTML(type) {
             <!-- Arrow 3 (Connector to Sub-header) -->
             <div onclick="window.toggleFlowCard(3)" style="cursor: pointer; display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;" class="flow-arrow-container">
                 <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';">
-                    <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem; transition: transform 0.3s ease; transform: ${window.howItWorksExpanded[3] ? 'rotate(180deg)' : 'rotate(0deg)'};" id="flow-arrow-icon-3"></i>
+                    <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;" id="flow-arrow-icon-3"></i>
                 </div>
             </div>
 
@@ -4171,6 +4159,9 @@ window.toggleHowItWorks = function(type) {
     if (!btnMusician || !btnOrganizer || !contentContainer) return;
 
     if (isMusician) {
+        btnMusician.classList.add('active');
+        btnOrganizer.classList.remove('active');
+        
         btnMusician.style.background = '#7c3aed';
         btnMusician.style.color = '#ffffff';
         btnMusician.style.border = '1.5px solid transparent';
@@ -4181,6 +4172,9 @@ window.toggleHowItWorks = function(type) {
         btnOrganizer.style.border = '1.5px solid rgba(0,0,0,0.06)';
         btnOrganizer.style.boxShadow = 'none';
     } else {
+        btnOrganizer.classList.add('active');
+        btnMusician.classList.remove('active');
+        
         btnOrganizer.style.background = '#2563eb';
         btnOrganizer.style.color = '#ffffff';
         btnOrganizer.style.border = '1.5px solid transparent';
@@ -4608,6 +4602,24 @@ function renderLandingPage(container, onNavigate) {
 
             <!-- 4. Wie funktioniert GigConnAct? Section -->
             <div style="max-width: 1000px; margin: 5rem auto 2rem; padding: 0 1.5rem; text-align: center;">
+                <style>
+                    .how-works-tab-btn {
+                        transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                    }
+                    /* When hovered and not active, make it visually lift and highlight */
+                    .how-works-tab-btn:not(.active):hover {
+                        background: #f8fafc !important;
+                        color: #0f172a !important;
+                        border-color: rgba(124, 58, 237, 0.25) !important;
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08) !important;
+                    }
+                    /* Subtle lift on hover even when active */
+                    .how-works-tab-btn.active:hover {
+                        transform: translateY(-2px);
+                        filter: brightness(1.05);
+                    }
+                </style>
                 <div style="text-align: center; margin-bottom: 2.5rem; padding: 0 1rem;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; color: #0f172a; margin: 0 0 0.5rem; line-height: 1.2; letter-spacing: -1px;">
                         <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">GigConnAct</span> erklärt
