@@ -12613,8 +12613,35 @@ function navigate(page) {
     if (state && !state.initialLoadDone) {
         mainContainer.innerHTML = `
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
-                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2.5rem; color: var(--color-purple);"></i>
-                
+                <!-- Spinning SVG Disco Ball Logo as loading indicator -->
+                <svg id="logo-svg-loading" viewBox="0 0 100 100" style="width: 70px; height: 70px; flex-shrink: 0; filter: drop-shadow(0 4px 12px rgba(124,58,237,0.3)); overflow: visible; animation: spin 4s linear infinite;">
+                  <defs>
+                    <radialGradient id="sphereGradLoading" cx="35%" cy="35%" r="65%">
+                      <stop offset="0%" stop-color="#ffffff" />
+                      <stop offset="40%" stop-color="#a78bfa" />
+                      <stop offset="75%" stop-color="#6d28d9" />
+                      <stop offset="100%" stop-color="#1e40af" />
+                    </radialGradient>
+                  </defs>
+                  <g>
+                      <circle cx="50" cy="50" r="40" fill="url(#sphereGradLoading)" />
+                      <!-- Grid arcs -->
+                      <path d="M 10 50 A 40 40 0 0 0 90 50 A 40 40 0 0 0 10 50" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
+                      <path d="M 11.5 40 A 40 30 0 0 0 88.5 40" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 15 30 A 40 20 0 0 0 85 30" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 21.8 20 A 40 10 0 0 0 78.2 20" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 11.5 60 A 40 30 0 0 1 88.5 60" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 15 70 A 40 20 0 0 1 85 70" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 21.8 80 A 40 10 0 0 1 78.2 80" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 50 10 A 40 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
+                      <path d="M 50 10 A 30 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 50 10 A 20 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 50 10 A 10 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 50 10 A 30 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 50 10 A 20 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                      <path d="M 50 10 A 10 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
+                  </g>
+                </svg>
             </div>
         `;
         return;
