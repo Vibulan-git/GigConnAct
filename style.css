@@ -2234,7 +2234,7 @@ body {
  * Clean Human-Crafted Platform Styles (Less AI/Glow)
  * ------------------------------------------------------------- */
 body {
-    background-image: linear-gradient(135deg, #f5f3ff 0%, #eff6ff 50%, #e0f2fe 100%) !important;
+    background-image: linear-gradient(to right, #eddffd 0%, #e0e7ff 50%, #bae6fd 100%) !important;
     background-attachment: fixed !important;
 }
 
