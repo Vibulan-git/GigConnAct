@@ -4120,29 +4120,24 @@ function renderHowItWorksContentHTML(type) {
                 </div>
             </div>
 
-            <!-- Sub-header: "Mehr Gigs. Mehr Einnahmen." / "Dein Event. Dein Act." -->
-            <div style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 800; color: ${themeColor}; margin-top: 1.5rem; margin-bottom: 1.5rem; text-align: center; text-transform: none; letter-spacing: -0.3px; width: 100%;">
-                ${isMusician ? 'Mehr Gigs. Mehr Einnahmen.' : 'Dein Event. Dein Act.'}
-            </div>
-
             <!-- Advantages Grid (3 columns side-by-side even on mobile) -->
             <div style="width: 100%; display: flex; flex-direction: row; gap: 0.5rem; justify-content: space-between; box-sizing: border-box; margin-bottom: 1rem;">
-                <!-- Col 1: Direkter Kontakt -->
-                <div style="background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
-                        <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 0.9rem;"></i>
-                    </div>
-                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.25; word-break: break-word;">
-                        Direkter<br>Kontakt
-                    </h5>
-                </div>
-                <!-- Col 2: Top-Matches -->
+                <!-- Col 1: Top-Matches -->
                 <div style="background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
                     <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-star" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                     </div>
                     <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.25; word-break: break-word;">
                         Top-<br>Matches
+                    </h5>
+                </div>
+                <!-- Col 2: Direkter Kontakt -->
+                <div style="background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                        <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 0.9rem;"></i>
+                    </div>
+                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.25; word-break: break-word;">
+                        Direkter<br>Kontakt
                     </h5>
                 </div>
                 <!-- Col 3: Preiswertes Abo-Modell / Keine Kosten -->
@@ -4618,13 +4613,25 @@ function renderLandingPage(container, onNavigate) {
                     </h2>
                 </div>
                 
-                <!-- Tab Selector (Nebeneinander & Schmaler) -->
+                <!-- Tab Selector (Nebeneinander & Ticker-Prompter) -->
                 <div class="how-it-works-tabs" style="display: flex; flex-direction: row; justify-content: center; width: 100%; max-width: 650px; margin: 0 auto 0.5rem; gap: 0.75rem; font-family: var(--font-heading); box-sizing: border-box; padding: 0 0.5rem;">
-                    <button class="how-works-tab-btn active" id="btn-how-works-musician" style="width: 150px; height: 50px; border-radius: 12px; border: 1.5px solid transparent; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.25s; background: #7c3aed; color: #ffffff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);" onclick="toggleHowItWorks('musician')">
-                        <span id="tab-text-musician" style="font-size: 0.9rem; font-weight: 800; transition: opacity 0.3s ease-in-out; white-space: nowrap; opacity: 1;">Für Musiker</span>
+                    <button class="how-works-tab-btn active" id="btn-how-works-musician" style="width: 175px; height: 50px; border-radius: 12px; border: 1.5px solid transparent; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.25s; background: #7c3aed; color: #ffffff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);" onclick="toggleHowItWorks('musician')">
+                        <div style="height: 24px; overflow: hidden; width: 100%; display: flex; justify-content: center; align-items: center;">
+                            <div id="prompter-musician" style="transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(0px); display: flex; flex-direction: column; align-items: center; width: 100%;">
+                                <span style="height: 24px; line-height: 24px; font-size: 0.88rem; font-weight: 800; white-space: nowrap; display: block;">Für Musiker</span>
+                                <span style="height: 24px; line-height: 24px; font-size: 0.88rem; font-weight: 800; white-space: nowrap; display: block;">Event-Markt</span>
+                                <span style="height: 24px; line-height: 24px; font-size: 0.78rem; font-weight: 800; white-space: nowrap; display: block;">Mehr Gigs. Mehr Einnahmen.</span>
+                            </div>
+                        </div>
                     </button>
-                    <button class="how-works-tab-btn" id="btn-how-works-organizer" style="width: 150px; height: 50px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06); font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.25s; background: #ffffff; color: #64748b;" onclick="toggleHowItWorks('organizer')">
-                        <span id="tab-text-organizer" style="font-size: 0.9rem; font-weight: 800; transition: opacity 0.3s ease-in-out; white-space: nowrap; opacity: 1;">Für Veranstalter</span>
+                    <button class="how-works-tab-btn" id="btn-how-works-organizer" style="width: 175px; height: 50px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06); font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.25s; background: #ffffff; color: #64748b;" onclick="toggleHowItWorks('organizer')">
+                        <div style="height: 24px; overflow: hidden; width: 100%; display: flex; justify-content: center; align-items: center;">
+                            <div id="prompter-organizer" style="transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(0px); display: flex; flex-direction: column; align-items: center; width: 100%;">
+                                <span style="height: 24px; line-height: 24px; font-size: 0.88rem; font-weight: 800; white-space: nowrap; display: block;">Für Veranstalter</span>
+                                <span style="height: 24px; line-height: 24px; font-size: 0.88rem; font-weight: 800; white-space: nowrap; display: block;">Musiker-Markt</span>
+                                <span style="height: 24px; line-height: 24px; font-size: 0.78rem; font-weight: 800; white-space: nowrap; display: block;">Dein Event. Dein Act.</span>
+                            </div>
+                        </div>
                     </button>
                 </div>
 
@@ -4880,34 +4887,21 @@ function renderLandingPage(container, onNavigate) {
         monitorPlayer(v1, v2);
     }
 
-    // Start button text rotation cycle (every 3 seconds)
+    // Start prompter ticker rotation cycle (every 3 seconds)
     if (window.tabTextRotationInterval) {
         clearInterval(window.tabTextRotationInterval);
     }
-    window.tabTextState = 0; // 0 = Für Musiker / Für Veranstalter, 1 = Event-Markt / Musiker-Markt
+    window.tabTextState = 0; // 0, 1, 2
     window.tabTextRotationInterval = setInterval(() => {
-        window.tabTextState = window.tabTextState === 0 ? 1 : 0;
+        window.tabTextState = (window.tabTextState + 1) % 3;
         
-        const elMusician = document.getElementById('tab-text-musician');
-        const elOrganizer = document.getElementById('tab-text-organizer');
+        const elMusician = document.getElementById('prompter-musician');
+        const elOrganizer = document.getElementById('prompter-organizer');
         
         if (elMusician && elOrganizer) {
-            // Fade out
-            elMusician.style.opacity = '0';
-            elOrganizer.style.opacity = '0';
-            
-            setTimeout(() => {
-                if (window.tabTextState === 0) {
-                    elMusician.innerText = 'Für Musiker';
-                    elOrganizer.innerText = 'Für Veranstalter';
-                } else {
-                    elMusician.innerText = 'Event-Markt';
-                    elOrganizer.innerText = 'Musiker-Markt';
-                }
-                // Fade in
-                elMusician.style.opacity = '1';
-                elOrganizer.style.opacity = '1';
-            }, 300);
+            const shiftY = window.tabTextState * -24;
+            elMusician.style.transform = `translateY(${shiftY}px)`;
+            elOrganizer.style.transform = `translateY(${shiftY}px)`;
         }
     }, 3000);
 }
