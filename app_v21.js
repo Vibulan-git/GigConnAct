@@ -4034,7 +4034,7 @@ function renderHowItWorksContentHTML(type) {
     // Config values
     const topIcon = isMusician ? 'fa-lock' : 'fa-lock';
     const middleIcon = 'fa-arrow-trend-up';
-    const middleSlogan = isMusician ? 'MEHR<br>GIGS' : 'MEHR<br>ACTS';
+    const middleSlogan = isMusician ? 'MEHR<br>GIGS' : 'DEIN<br>ACT';
     
     // Theme colors
     const themeColor = isMusician ? '#7c3aed' : '#2563eb';
@@ -4049,6 +4049,12 @@ function renderHowItWorksContentHTML(type) {
     return `
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 650px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
             
+            <!-- Market Switch CTA Button (Moved above Passende Veranstalter / Musiker card) -->
+            <div style="margin-bottom: 2rem; text-align: center; width: 100%; box-sizing: border-box;">
+                <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: 100%; max-width: 100%; box-sizing: border-box; margin: 0 auto; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;" onmouseover="this.style.transform='scale(1.015)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')">
+                    ${isMusician ? 'Event-Markt' : 'Musiker-Markt'} <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
 
             <!-- 1. Top Card: Passende Veranstalter / Musiker (width: 100%, white background) -->
             <div onclick="window.toggleFlowCard(1)" style="cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
@@ -4133,12 +4139,12 @@ function renderHowItWorksContentHTML(type) {
                         Top-<br>Matches
                     </h5>
                 </div>
-                <!-- Col 2: Standard Card: MEHR GIGS / MEHR ACTS -->
-                <div style="background: ${themeBg}; border: 1.5px solid ${themeBorder}; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.01);">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                <!-- Col 2: Standard Card: MEHR GIGS / DEIN ACT (Themed background, white text) -->
+                <div style="background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37,99,235,0.15)'};">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
                         <i class="fa-solid ${middleIcon}" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                     </div>
-                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.25; word-break: break-word;">
+                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #ffffff; margin: 0; line-height: 1.25; word-break: break-word;">
                         ${middleSlogan}
                     </h5>
                 </div>
@@ -4151,13 +4157,6 @@ function renderHowItWorksContentHTML(type) {
                         ${isMusician ? 'Preiswertes<br>Abo-Modell' : 'Keine<br>Kosten'}
                     </h5>
                 </div>
-            </div>
-
-            <!-- Bottom CTA Button (Centered) -->
-            <div style="margin-top: 1rem; text-align: center; width: 100%; box-sizing: border-box;">
-                <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: 100%; max-width: 100%; box-sizing: border-box; margin: 0 auto; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;" onmouseover="this.style.transform='scale(1.015)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')">
-                    ${isMusician ? 'Event-Markt' : 'Musiker-Markt'} <i class="fa-solid fa-arrow-right"></i>
-                </button>
             </div>
 
         </div>
