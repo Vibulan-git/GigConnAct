@@ -4007,14 +4007,9 @@ function renderHowItWorksContentHTML(type) {
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 650px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
             
             <!-- Large Focus Title Above the Top Card (Static centered text) -->
-            <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: ${themeColor}; text-align: center; margin-bottom: 0px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
+            <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: ${themeColor}; text-align: center; margin-bottom: 1.5rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
                 <i class="fa-solid ${isMusician ? 'fa-calendar-days' : 'fa-microphone-lines'}"></i>
                 <span>${isMusician ? 'Event-Markt' : 'Musiker-Markt'}</span>
-            </div>
-
-            <!-- Down Arrow (Connector from Title to Card 1) -->
-            <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 25px; box-sizing: border-box; margin: 0.25rem 0;">
-                <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 1.1rem; opacity: 0.6;"></i>
             </div>
 
             <!-- 1. Top Card: Kontaktdaten verborgen (width: 100%, white background) -->
@@ -4023,7 +4018,7 @@ function renderHowItWorksContentHTML(type) {
                     <i class="fa-solid ${topIcon}" style="color: ${themeColor}; font-size: 1.05rem;"></i>
                 </div>
                 <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2; flex: 1;">
-                    Kontaktdaten <span style="color: ${themeColor};">verborgen</span>
+                    ${isMusician ? 'Passende Veranstalter' : 'Passende Musiker'}
                 </h4>
             </div>
 
@@ -4053,17 +4048,12 @@ function renderHowItWorksContentHTML(type) {
                     <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1.05rem;"></i>
                 </div>
                 <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2; flex: 1;">
-                    Kontaktdaten <span style="color: ${themeColor};">sichtbar</span>
+                    Kontaktdaten sichtbar
                 </h4>
             </div>
 
-            <!-- Down Arrow (Connector to Advantages Sub-header) -->
-            <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 25px; box-sizing: border-box; margin: 0.25rem 0;">
-                <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 1.1rem; opacity: 0.6;"></i>
-            </div>
-
             <!-- Sub-header: "Mehr Gigs. Mehr Einnahmen." / "Dein Event. Dein Act." -->
-            <div style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 800; color: ${themeColor}; margin-bottom: 1.5rem; text-align: center; text-transform: none; letter-spacing: -0.3px; width: 100%;">
+            <div style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 800; color: ${themeColor}; margin-top: 1.5rem; margin-bottom: 1.5rem; text-align: center; text-transform: none; letter-spacing: -0.3px; width: 100%;">
                 ${isMusician ? 'Mehr Gigs. Mehr Einnahmen.' : 'Dein Event. Dein Act.'}
             </div>
 
