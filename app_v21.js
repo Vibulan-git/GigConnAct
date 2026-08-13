@@ -4006,11 +4006,6 @@ function renderHowItWorksContentHTML(type) {
     return `
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 650px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
             
-            <!-- Large Focus Title Above the Top Card (Static centered text) -->
-            <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: ${themeColor}; text-align: center; margin-bottom: 1.5rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
-                <i class="fa-solid ${isMusician ? 'fa-calendar-days' : 'fa-microphone-lines'}"></i>
-                <span>${isMusician ? 'Event-Markt' : 'Musiker-Markt'}</span>
-            </div>
 
             <!-- 1. Top Card: Kontaktdaten verborgen (width: 100%, white background) -->
             <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
@@ -4109,13 +4104,23 @@ window.toggleHowItWorks = function(type) {
     if (isMusician) {
         btnMusician.style.background = '#7c3aed';
         btnMusician.style.color = '#ffffff';
-        btnOrganizer.style.background = 'transparent';
+        btnMusician.style.border = '1.5px solid transparent';
+        btnMusician.style.boxShadow = '0 4px 12px rgba(124, 58, 237, 0.15)';
+        
+        btnOrganizer.style.background = '#ffffff';
         btnOrganizer.style.color = '#64748b';
+        btnOrganizer.style.border = '1.5px solid rgba(0,0,0,0.06)';
+        btnOrganizer.style.boxShadow = 'none';
     } else {
         btnOrganizer.style.background = '#2563eb';
         btnOrganizer.style.color = '#ffffff';
-        btnMusician.style.background = 'transparent';
+        btnOrganizer.style.border = '1.5px solid transparent';
+        btnOrganizer.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.15)';
+        
+        btnMusician.style.background = '#ffffff';
         btnMusician.style.color = '#64748b';
+        btnMusician.style.border = '1.5px solid rgba(0,0,0,0.06)';
+        btnMusician.style.boxShadow = 'none';
     }
     contentContainer.innerHTML = renderHowItWorksContentHTML(type);
 };
@@ -4540,13 +4545,13 @@ function renderLandingPage(container, onNavigate) {
                     </h2>
                 </div>
                 
-                <!-- Tab Selector -->
-                <div class="how-it-works-tabs" style="display: inline-flex; background: rgba(0,0,0,0.04); border-radius: 30px; padding: 0.3rem; gap: 0.2rem; margin-bottom: 0.75rem; border: 1px solid rgba(0,0,0,0.06); font-family: var(--font-heading);">
-                    <button class="how-works-tab-btn active" id="btn-how-works-musician" style="padding: 0.55rem 1.4rem; border-radius: 25px; border: none; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.25s; background: #7c3aed; color: #ffffff;" onclick="toggleHowItWorks('musician')">
-                        <i class="fa-solid fa-guitar"></i> Für Musiker
+                <!-- Tab Selector (Vertical Stack) -->
+                <div class="how-it-works-tabs" style="display: flex; flex-direction: column; width: 100%; max-width: 650px; margin: 0 auto 1.5rem; gap: 0.6rem; font-family: var(--font-heading); box-sizing: border-box; padding: 0 0.5rem;">
+                    <button class="how-works-tab-btn active" id="btn-how-works-musician" style="width: 100%; padding: 0.8rem 1.5rem; border-radius: 15px; border: 1.5px solid transparent; font-weight: 800; font-size: 0.95rem; cursor: pointer; text-align: center; transition: all 0.25s; background: #7c3aed; color: #ffffff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);" onclick="toggleHowItWorks('musician')">
+                        Event-Markt für Musiker
                     </button>
-                    <button class="how-works-tab-btn" id="btn-how-works-organizer" style="padding: 0.55rem 1.4rem; border-radius: 25px; border: none; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.25s; background: transparent; color: #64748b;" onclick="toggleHowItWorks('organizer')">
-                        <i class="fa-solid fa-calendar-check"></i> Für Veranstalter
+                    <button class="how-works-tab-btn" id="btn-how-works-organizer" style="width: 100%; padding: 0.8rem 1.5rem; border-radius: 15px; border: 1.5px solid rgba(0,0,0,0.06); font-weight: 800; font-size: 0.95rem; cursor: pointer; text-align: center; transition: all 0.25s; background: #ffffff; color: #64748b;" onclick="toggleHowItWorks('organizer')">
+                        Musiker-Markt für Veranstalter
                     </button>
                 </div>
 
