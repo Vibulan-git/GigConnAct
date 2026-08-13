@@ -4008,17 +4008,17 @@ function renderHowItWorksContentHTML(type) {
             
             <!-- Large Focus Title Above the Top Card (Static centered text) -->
             <div style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: ${themeColor}; text-align: center; margin-bottom: 0px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.6rem;">
-                <i class="fa-solid ${isMusician ? 'fa-calendar-days' : 'fa-microphone'}"></i>
+                <i class="fa-solid ${isMusician ? 'fa-calendar-days' : 'fa-microphone-lines'}"></i>
                 <span>${isMusician ? 'Event-Markt' : 'Musiker-Markt'}</span>
             </div>
 
-            <!-- Dotted Line (Connector from Title to Card 1) -->
-            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 25px; box-sizing: border-box;">
-                <div style="width: 2px; height: 25px; border-left: 3px dashed ${dashedBorderColor};"></div>
+            <!-- Down Arrow (Connector from Title to Card 1) -->
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 25px; box-sizing: border-box; margin: 0.25rem 0;">
+                <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 1.1rem; opacity: 0.6;"></i>
             </div>
 
-            <!-- 1. Top Card: Kontaktdaten verborgen (max-width: 300px, white background) -->
-            <div style="width: 100%; max-width: 300px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.75rem 1.25rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
+            <!-- 1. Top Card: Kontaktdaten verborgen (width: 100%, white background) -->
+            <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
                 <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
                     <i class="fa-solid ${topIcon}" style="color: ${themeColor}; font-size: 1.05rem;"></i>
                 </div>
@@ -4027,13 +4027,13 @@ function renderHowItWorksContentHTML(type) {
                 </h4>
             </div>
 
-            <!-- Dotted Line (Connector to Card 2) -->
-            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 25px; box-sizing: border-box;">
-                <div style="width: 2px; height: 25px; border-left: 3px dashed ${dashedBorderColor};"></div>
+            <!-- Down Arrow (Connector to Card 2) -->
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 25px; box-sizing: border-box; margin: 0.25rem 0;">
+                <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 1.1rem; opacity: 0.6;"></i>
             </div>
 
-            <!-- 2. Middle Card: Schnelle Anmeldung (max-width: 300px, white background) -->
-            <div style="width: 100%; max-width: 300px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.75rem 1.25rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
+            <!-- 2. Middle Card: Schnelle Anmeldung (width: 100%, white background) -->
+            <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
                 <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
                     <i class="fa-solid fa-bolt" style="color: ${themeColor}; font-size: 1.05rem;"></i>
                 </div>
@@ -4042,13 +4042,13 @@ function renderHowItWorksContentHTML(type) {
                 </h4>
             </div>
 
-            <!-- Dotted Line (Connector to Card 3) -->
-            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 25px; box-sizing: border-box;">
-                <div style="width: 2px; height: 25px; border-left: 3px dashed ${dashedBorderColor};"></div>
+            <!-- Down Arrow (Connector to Card 3) -->
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 25px; box-sizing: border-box; margin: 0.25rem 0;">
+                <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 1.1rem; opacity: 0.6;"></i>
             </div>
 
-            <!-- 3. Bottom Card: Kontaktdaten sichtbar (max-width: 300px, white background) -->
-            <div style="width: 100%; max-width: 300px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.75rem 1.25rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); margin: 0 auto;">
+            <!-- 3. Bottom Card: Kontaktdaten sichtbar (width: 100%, white background) -->
+            <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
                 <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
                     <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1.05rem;"></i>
                 </div>
@@ -4057,9 +4057,9 @@ function renderHowItWorksContentHTML(type) {
                 </h4>
             </div>
 
-            <!-- Dotted Line (Connector to Advantages Sub-header) -->
-            <div style="display: flex; justify-content: center; position: relative; width: 100%; height: 25px; box-sizing: border-box;">
-                <div style="width: 2px; height: 25px; border-left: 3px dashed ${dashedBorderColor};"></div>
+            <!-- Down Arrow (Connector to Advantages Sub-header) -->
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 25px; box-sizing: border-box; margin: 0.25rem 0;">
+                <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 1.1rem; opacity: 0.6;"></i>
             </div>
 
             <!-- Sub-header: "Mehr Gigs. Mehr Einnahmen." / "Dein Event. Dein Act." -->
@@ -4099,8 +4099,8 @@ function renderHowItWorksContentHTML(type) {
             </div>
 
             <!-- Bottom CTA Button (Centered) -->
-            <div style="margin-top: 1rem; text-align: center; width: 100%;">
-                <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: auto; min-width: 280px; box-sizing: border-box; margin: 0 auto; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')">
+            <div style="margin-top: 1rem; text-align: center; width: 100%; box-sizing: border-box;">
+                <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: 100%; max-width: 100%; box-sizing: border-box; margin: 0 auto; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;" onmouseover="this.style.transform='scale(1.015)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')">
                     Hier geht's zum ${isMusician ? 'Event-Markt' : 'Musiker-Markt'} <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
