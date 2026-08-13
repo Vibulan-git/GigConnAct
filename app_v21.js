@@ -3987,6 +3987,49 @@ function renderHeroTabContent(isMusician) {
     }
 }
 
+window.howItWorksExpanded = window.howItWorksExpanded || { 1: false, 2: false, 3: false };
+
+window.toggleFlowCard = function(cardIndex) {
+    const isExpanded = !window.howItWorksExpanded[cardIndex];
+    window.howItWorksExpanded[cardIndex] = isExpanded;
+    
+    const descEl = document.getElementById(`flow-card-desc-${cardIndex}`);
+    if (descEl) {
+        if (isExpanded) {
+            descEl.style.display = 'block';
+            descEl.style.opacity = '0';
+            descEl.style.height = '0px';
+            descEl.style.overflow = 'hidden';
+            descEl.style.transition = 'all 0.3s ease-out';
+            setTimeout(() => {
+                descEl.style.opacity = '1';
+                descEl.style.height = descEl.scrollHeight + 'px';
+            }, 10);
+        } else {
+            descEl.style.transition = 'all 0.25s ease-in';
+            descEl.style.opacity = '0';
+            descEl.style.height = '0px';
+            setTimeout(() => {
+                descEl.style.display = 'none';
+            }, 250);
+        }
+    }
+    
+    const arrow0 = document.getElementById('flow-arrow-icon-0');
+    const arrow1 = document.getElementById('flow-arrow-icon-1');
+    const arrow2 = document.getElementById('flow-arrow-icon-2');
+    const arrow3 = document.getElementById('flow-arrow-icon-3');
+    
+    if (cardIndex === 1) {
+        if (arrow0) arrow0.style.transform = isExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+        if (arrow1) arrow1.style.transform = isExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+    } else if (cardIndex === 2) {
+        if (arrow2) arrow2.style.transform = isExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+    } else if (cardIndex === 3) {
+        if (arrow3) arrow3.style.transform = isExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+};
+
 function renderHowItWorksContentHTML(type) {
     const isMusician = type === 'musician';
     
@@ -4006,49 +4049,83 @@ function renderHowItWorksContentHTML(type) {
     return `
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 650px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
             
-            <!-- Slanted Arrow (Connector from active tab to Card 1) -->
-            <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0 0 0.5rem 0;">
-                <i class="fa-solid ${isMusician ? 'fa-arrow-down-right' : 'fa-arrow-down-left'}" style="color: ${themeColor}; font-size: 1.1rem; opacity: 0.6; margin-left: ${isMusician ? '-80px' : '80px'};"></i>
+            <!-- Arrow 0 (Connector from active tab to Card 1) -->
+            <div onclick="window.toggleFlowCard(1)" style="cursor: pointer; display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;" class="flow-arrow-container">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s; margin-left: ${isMusician ? '-80px' : '80px'};" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';">
+                    <i class="fa-solid ${isMusician ? 'fa-arrow-down-right' : 'fa-arrow-down-left'}" style="color: ${themeColor}; font-size: 0.85rem; transition: transform 0.3s ease; transform: ${window.howItWorksExpanded[1] ? 'rotate(180deg)' : 'rotate(0deg)'};" id="flow-arrow-icon-0"></i>
+                </div>
             </div>
 
-            <!-- 1. Top Card: Kontaktdaten verborgen (width: 100%, white background) -->
-            <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+            <!-- 1. Top Card: Passende Veranstalter / Musiker (width: 100%, white background) -->
+            <div onclick="window.toggleFlowCard(1)" style="cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
                 <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
                     <i class="fa-solid ${topIcon}" style="color: ${themeColor}; font-size: 1.05rem;"></i>
                 </div>
-                <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2; flex: 1;">
-                    ${isMusician ? 'Passende Veranstalter' : 'Passende Musiker'}
-                </h4>
+                <div style="flex: 1; display: flex; flex-direction: column;">
+                    <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2;">
+                        ${isMusician ? 'Passende Veranstalter' : 'Passende Musiker'}
+                    </h4>
+                    <div id="flow-card-desc-1" style="display: ${window.howItWorksExpanded[1] ? 'block' : 'none'}; opacity: ${window.howItWorksExpanded[1] ? '1' : '0'}; height: ${window.howItWorksExpanded[1] ? 'auto' : '0px'}; overflow: hidden; margin-top: 0.35rem; transition: all 0.3s ease-out;">
+                        <p style="font-size: 0.82rem; color: #64748b; margin: 0; font-weight: 500; line-height: 1.4;">
+                            ${isMusician ? 'Hochzeiten, Geburtstage, Firmenfeiern und Co.' : 'Bands, DJs, Solisten und Co.'}
+                        </p>
+                    </div>
+                </div>
             </div>
 
-            <!-- Down Arrow (Connector to Card 2) -->
-            <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 25px; box-sizing: border-box; margin: 0.25rem 0;">
-                <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 1.1rem; opacity: 0.6;"></i>
+            <!-- Arrow 1 (Connector to Card 2) -->
+            <div onclick="window.toggleFlowCard(1)" style="cursor: pointer; display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;" class="flow-arrow-container">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';">
+                    <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem; transition: transform 0.3s ease; transform: ${window.howItWorksExpanded[1] ? 'rotate(180deg)' : 'rotate(0deg)'};" id="flow-arrow-icon-1"></i>
+                </div>
             </div>
 
             <!-- 2. Middle Card: Schnelle Anmeldung (width: 100%, white background) -->
-            <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+            <div onclick="window.toggleFlowCard(2)" style="cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
                 <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
                     <i class="fa-solid fa-bolt" style="color: ${themeColor}; font-size: 1.05rem;"></i>
                 </div>
-                <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2; flex: 1;">
-                    Schnelle Anmeldung
-                </h4>
+                <div style="flex: 1; display: flex; flex-direction: column;">
+                    <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2;">
+                        Schnelle Anmeldung
+                    </h4>
+                    <div id="flow-card-desc-2" style="display: ${window.howItWorksExpanded[2] ? 'block' : 'none'}; opacity: ${window.howItWorksExpanded[2] ? '1' : '0'}; height: ${window.howItWorksExpanded[2] ? 'auto' : '0px'}; overflow: hidden; margin-top: 0.35rem; transition: all 0.3s ease-out;">
+                        <p style="font-size: 0.82rem; color: #64748b; margin: 0; font-weight: 500; line-height: 1.4;">
+                            ${isMusician ? 'Musiker-Profil ohne Passwort anlegen' : 'Veranstalter-Profil ohne Passwort anlegen'}
+                        </p>
+                    </div>
+                </div>
             </div>
 
-            <!-- Down Arrow (Connector to Card 3) -->
-            <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 25px; box-sizing: border-box; margin: 0.25rem 0;">
-                <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 1.1rem; opacity: 0.6;"></i>
+            <!-- Arrow 2 (Connector to Card 3) -->
+            <div onclick="window.toggleFlowCard(2)" style="cursor: pointer; display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;" class="flow-arrow-container">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';">
+                    <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem; transition: transform 0.3s ease; transform: ${window.howItWorksExpanded[2] ? 'rotate(180deg)' : 'rotate(0deg)'};" id="flow-arrow-icon-2"></i>
+                </div>
             </div>
 
             <!-- 3. Bottom Card: Kontaktdaten sichtbar (width: 100%, white background) -->
-            <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+            <div onclick="window.toggleFlowCard(3)" style="cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
                 <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
                     <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1.05rem;"></i>
                 </div>
-                <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2; flex: 1;">
-                    Kontaktdaten sichtbar
-                </h4>
+                <div style="flex: 1; display: flex; flex-direction: column;">
+                    <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2;">
+                        Kontaktdaten sichtbar
+                    </h4>
+                    <div id="flow-card-desc-3" style="display: ${window.howItWorksExpanded[3] ? 'block' : 'none'}; opacity: ${window.howItWorksExpanded[3] ? '1' : '0'}; height: ${window.howItWorksExpanded[3] ? 'auto' : '0px'}; overflow: hidden; margin-top: 0.35rem; transition: all 0.3s ease-out;">
+                        <p style="font-size: 0.82rem; color: #64748b; margin: 0; font-weight: 500; line-height: 1.4;">
+                            Austausch via Telefon, Mail und Nachrichten
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Arrow 3 (Connector to Sub-header) -->
+            <div onclick="window.toggleFlowCard(3)" style="cursor: pointer; display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;" class="flow-arrow-container">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';">
+                    <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem; transition: transform 0.3s ease; transform: ${window.howItWorksExpanded[3] ? 'rotate(180deg)' : 'rotate(0deg)'};" id="flow-arrow-icon-3"></i>
+                </div>
             </div>
 
             <!-- Sub-header: "Mehr Gigs. Mehr Einnahmen." / "Dein Event. Dein Act." -->
