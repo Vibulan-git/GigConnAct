@@ -12583,9 +12583,32 @@ function renderSubscriptionExpiredPage(container) {
 }
 window.renderSubscriptionExpiredPage = renderSubscriptionExpiredPage;
 
+window.updateBodyBackground = function(page) {
+    let gradient = 'linear-gradient(to right, #eddffd 0%, #e0e7ff 50%, #bae6fd 100%)'; // default combined
+    
+    if (page === 'events') {
+        gradient = 'linear-gradient(to right, #f5f3ff 0%, #eddffd 50%, #ebd8ff 100%)'; // purple
+    } else if (page === 'musicians') {
+        gradient = 'linear-gradient(to right, #eff6ff 0%, #e0f2fe 50%, #bae6fd 100%)'; // blue
+    } else if (['postbox', 'dashboard', 'my-musicians', 'my-events', 'matches', 'profile', 'credits'].includes(page)) {
+        const role = (state && state.currentUser) ? state.currentUser.role : null;
+        if (role === 'organizer') {
+            gradient = 'linear-gradient(to right, #eff6ff 0%, #e0f2fe 50%, #bae6fd 100%)'; // blue
+        } else if (role === 'musician') {
+            gradient = 'linear-gradient(to right, #f5f3ff 0%, #eddffd 50%, #ebd8ff 100%)'; // purple
+        }
+    }
+    
+    document.body.style.setProperty('background-image', gradient, 'important');
+};
+
 function navigate(page) {
     const mainContainer = document.getElementById('app-main');
     if (!mainContainer) return;
+
+    if (typeof window.updateBodyBackground === 'function') {
+        window.updateBodyBackground(page);
+    }
 
     if (state && !state.initialLoadDone) {
         mainContainer.innerHTML = `
