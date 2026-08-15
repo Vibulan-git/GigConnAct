@@ -13068,8 +13068,11 @@ function updateNavbar(forceLanding) {
         nav.innerHTML = '';
         authArea.innerHTML = `
             <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger">
-                <span class="btn-text-top">Anmelden/Registrieren</span>
-                <span class="btn-text-bottom">ohne Passwort</span>
+                <i class="fa-solid fa-right-to-bracket header-login-icon"></i>
+                <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; line-height: 1.0;">
+                    <span class="btn-text-top">ohne</span>
+                    <span class="btn-text-bottom">Passwort</span>
+                </div>
             </button>
         `;
         document.getElementById('btn-login-trigger').addEventListener('click', () => {

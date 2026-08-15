@@ -4393,10 +4393,11 @@ input[type="range"].input-field {
     line-height: 1.0 !important;
     padding: 0.35rem 0.85rem !important;
     display: inline-flex !important;
-    flex-direction: column !important;
+    flex-direction: row !important;
     align-items: center !important;
     justify-content: center !important;
-    text-align: center !important;
+    text-align: left !important;
+    gap: 0.5rem !important;
     border-radius: 8px !important;
     flex-shrink: 0 !important;
     background: rgba(255, 255, 255, 0.15) !important;
@@ -4409,10 +4410,17 @@ input[type="range"].input-field {
     border-color: rgba(255, 255, 255, 0.4) !important;
 }
 
+.header-login-btn .header-login-icon {
+    font-size: 1.25rem !important;
+    color: #ffffff !important;
+    opacity: 0.95 !important;
+    flex-shrink: 0 !important;
+}
+
 .header-login-btn .btn-text-top {
     font-weight: 700 !important;
     display: block !important;
-    font-size: 0.75rem !important;
+    font-size: 0.72rem !important;
     opacity: 0.9 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
@@ -4425,19 +4433,22 @@ input[type="range"].input-field {
 .header-login-btn .btn-text-bottom {
     font-weight: 900 !important;
     display: block !important;
-    font-size: 1.12rem !important;
+    font-size: 1.08rem !important;
     color: #ffffff !important;
     text-shadow: 0 0 8px rgba(255,255,255,0.1) !important;
-    margin: -3px 0 0 0 !important;
+    margin: -2px 0 0 0 !important;
     padding: 0 !important;
     line-height: 1.0 !important;
-    letter-spacing: 2.2px !important;
+    letter-spacing: 2.0px !important;
 }
 
 /* Mobile responsive styles for the Header Login Button */
 @media (max-width: 768px) {
     .header-login-btn {
         padding: 0.25rem 0.5rem !important;
+    }
+    .header-login-btn .header-login-icon {
+        font-size: 1.05rem !important;
     }
     .header-login-btn .btn-text-top {
         font-size: 0.6rem !important;
@@ -4451,6 +4462,9 @@ input[type="range"].input-field {
     }
 }
 @media (max-width: 380px) {
+    .header-login-btn .header-login-icon {
+        font-size: 0.95rem !important;
+    }
     .header-login-btn .btn-text-top {
         font-size: 0.55rem !important;
         margin: 0 !important;
