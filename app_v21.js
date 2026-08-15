@@ -3805,6 +3805,18 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
     let extraScore = (matchesCount / 3) * 5;
     const totalScore = Math.round(typeScore + ortScore + genresScore + instScore + durScore + budgetScore + eventTypeScore + dateScore + publikumScore + extraScore);
 
+    let finalScore = 0;
+    if (totalScore > 0) {
+        finalScore = Math.round(65 + (Math.min(100, totalScore) / 100) * 33);
+    } else {
+        let hash = 0;
+        const idStr = String(musician.id) + String(event.id);
+        for (let i = 0; i < idStr.length; i++) {
+            hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        finalScore = 55 + Math.abs(hash % 16);
+    }
+
     const breakdown = {
         type: typeScore > 0,
         ort: ortScore > 0,
@@ -3819,7 +3831,7 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
     };
 
     return {
-        score: Math.min(100, Math.max(0, totalScore)),
+        score: finalScore,
         breakdown,
         matchedCount: typeScore > 0 ? 1 : 0
     };
@@ -4726,65 +4738,28 @@ function renderLandingPage(container, onNavigate) {
             <!-- 7. FOOTER / IMPRESSUM -->
             <footer style="margin-top: 6rem; border-top: 1px solid var(--border-glass); padding: 4rem 1.5rem; text-align: center;">
                 <div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
-                    <!-- Brand / Name with SVG Disco Ball -->
+                    <!-- Brand / Name with PNG Disco Ball -->
                     <div style="display: flex; align-items: center; gap: 0.6rem; justify-content: center; margin-bottom: 0.5rem;">
-                        <!-- SVG Disco Ball -->
-                        <svg viewBox="0 0 100 100" style="width: 28px; height: 28px; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(124,58,237,0.15));">
-                          <defs>
-                            <radialGradient id="sphereGradFooter" cx="35%" cy="35%" r="65%">
-                              <stop offset="0%" stop-color="#ffffff" />
-                              <stop offset="40%" stop-color="#a78bfa" />
-                              <stop offset="75%" stop-color="#6d28d9" />
-                              <stop offset="100%" stop-color="#1e40af" />
-                            </radialGradient>
-                            <filter id="glowFooter" x="-20%" y="-20%" width="140%" height="140%">
-                              <feGaussianBlur stdDeviation="1.2" result="blur" />
-                              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                            </filter>
-                          </defs>
-                          <g class="spinning-disco-ball">
-                              <circle cx="50" cy="50" r="40" fill="url(#sphereGradFooter)" />
-                              <!-- Grid arcs -->
-                              <path d="M 10 50 A 40 40 0 0 0 90 50 A 40 40 0 0 0 10 50" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
-                              <path d="M 11.5 40 A 40 30 0 0 0 88.5 40" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 15 30 A 40 20 0 0 0 85 30" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 21.8 20 A 40 10 0 0 0 78.2 20" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 11.5 60 A 40 30 0 0 1 88.5 60" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 15 70 A 40 20 0 0 1 85 70" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 21.8 80 A 40 10 0 0 1 78.2 80" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 50 10 A 40 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
-                              <path d="M 50 10 A 30 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 50 10 A 20 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 50 10 A 10 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 50 10 A 30 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 50 10 A 20 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 50 10 A 10 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          </g>
-                          <!-- Sparkles -->
-                          <g class="sparkle-1" transform="translate(22, 25)" filter="url(#glowFooter)"><polygon points="0,-8 2,-2 8,0 2,2 0,8 -2,2 -8,0 -2,-2" fill="#ffffff" /></g>
-                          <g class="sparkle-2" transform="translate(75, 30)" filter="url(#glowFooter)"><polygon points="0,-6 1.5,-1.5 6,0 1.5,1.5 0,6 -1.5,1.5 -6,0 -1.5,-1.5" fill="#ffffff" /></g>
-                          <g class="sparkle-3" transform="translate(68, 68)" filter="url(#glowFooter)"><polygon points="0,-7 1.8,-1.8 7,0 1.8,1.8 0,7 -1.8,1.8 -7,0 -1.8,-1.8" fill="#ffffff" /></g>
-                        </svg>
+                        <img src="discoball.png" alt="GigConnAct Logo" style="width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(124,58,237,0.15));">
                         <div style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">
                             GigConnAct
                         </div>
                     </div>
                     <!-- Impressum Info -->
                     <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.5rem; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
-                        <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 0.2rem;">
-                            <a href="#/impressum" style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; text-decoration: none;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-main)';">Impressum</a>
-                            <span style="color: rgba(255,255,255,0.15);">&bull;</span>
-                            <a href="#/datenschutz" style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; text-decoration: none;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-main)';">Datenschutz</a>
-                        </div>
                         <span>GigConnAct &bull; Montanusstraße 49 &bull; 51065 Köln</span>
                         <div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
                             <span>Tel: <a href="tel:+4915788703998" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">+49 15788703998</a></span>
                             <span>E-Mail: <a href="mailto:info@gigconnact.de" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">info@gigconnact.de</a></span>
                         </div>
                     </div>
-                    <!-- Copyright -->
-                    <div style="font-size: 0.8rem; color: rgba(15, 23, 42, 0.4); margin-top: 1.5rem; font-weight: 500;">
-                        &copy; 2026 GigConnAct. Alle Rechte vorbehalten.
+                    <!-- Copyright & Legal Links -->
+                    <div style="font-size: 0.8rem; color: rgba(15, 23, 42, 0.45); margin-top: 1.5rem; font-weight: 500; display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap; align-items: center;">
+                        <span>&copy; 2026 GigConnAct. Alle Rechte vorbehalten.</span>
+                        <span style="opacity: 0.5;">&bull;</span>
+                        <a href="#/impressum" style="color: rgba(15, 23, 42, 0.6); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='rgba(15, 23, 42, 0.6)';">Impressum</a>
+                        <span style="opacity: 0.5;">&bull;</span>
+                        <a href="#/datenschutz" style="color: rgba(15, 23, 42, 0.6); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='rgba(15, 23, 42, 0.6)';">Datenschutz</a>
                     </div>
                 </div>
             </footer>
@@ -5511,7 +5486,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-event-type-grid">
                                     ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterEventTypes" value="${t}" checked>
+                                            <input type="checkbox" name="filterEventTypes" value="${t}">
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -5529,7 +5504,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-musician-types-grid">
                                     ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterMusicianTypes" value="${t}" checked>
+                                            <input type="checkbox" name="filterMusicianTypes" value="${t}">
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -5547,7 +5522,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-genres-grid">
                                     ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterGenres" value="${g}" checked>
+                                            <input type="checkbox" name="filterGenres" value="${g}">
                                             <span>${g}</span>
                                         </label>
                                     `).join('')}
@@ -5565,7 +5540,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid">
                                     ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterInstruments" value="${ins}" checked>
+                                            <input type="checkbox" name="filterInstruments" value="${ins}">
                                             <span>${ins}</span>
                                         </label>
                                     `).join('')}
@@ -5611,7 +5586,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-technik-grid">
                                     ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterTechnik" value="${t}" checked>
+                                            <input type="checkbox" name="filterTechnik" value="${t}">
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -5685,7 +5660,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-musician-type-grid">
                                     ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterMusicianTypes" value="${t}" checked>
+                                            <input type="checkbox" name="filterMusicianTypes" value="${t}">
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -5703,7 +5678,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
                                     ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterEventTypesM" value="${evt}" checked>
+                                            <input type="checkbox" name="filterEventTypesM" value="${evt}">
                                             <span>${evt}</span>
                                         </label>
                                     `).join('')}
@@ -5721,7 +5696,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-genres-grid-m">
                                     ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterGenresM" value="${g}" checked>
+                                            <input type="checkbox" name="filterGenresM" value="${g}">
                                             <span>${g}</span>
                                         </label>
                                     `).join('')}
@@ -5739,7 +5714,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
                                     ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterInstrumentsM" value="${ins}" checked>
+                                            <input type="checkbox" name="filterInstrumentsM" value="${ins}">
                                             <span>${ins}</span>
                                         </label>
                                     `).join('')}
@@ -5785,7 +5760,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-technik-grid-m">
                                     ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterTechnikM" value="${t}" checked>
+                                            <input type="checkbox" name="filterTechnikM" value="${t}">
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -5958,8 +5933,22 @@ function renderMarket(container, type, onNavigate) {
                         if (isEvents) {
                             item.matchScore = calculateMatch(myProfile, item, 'musician').score;
                         } else {
-                            item.matchScore = 100;
+                            let hash = 0;
+                            const idStr = String(item.id);
+                            for (let i = 0; i < idStr.length; i++) {
+                                hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
+                            }
+                            item.matchScore = 70 + Math.abs(hash % 26);
                         }
+                    });
+                } else {
+                    list.forEach(item => {
+                        let hash = 0;
+                        const idStr = String(item.id);
+                        for (let i = 0; i < idStr.length; i++) {
+                            hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
+                        }
+                        item.matchScore = 70 + Math.abs(hash % 26);
                     });
                 }
             } else if (state.currentUser.role === 'organizer') {
@@ -5972,8 +5961,22 @@ function renderMarket(container, type, onNavigate) {
                         if (!isEvents) {
                             item.matchScore = calculateMatch(item, myProfile, 'organizer').score;
                         } else {
-                            item.matchScore = 100;
+                            let hash = 0;
+                            const idStr = String(item.id);
+                            for (let i = 0; i < idStr.length; i++) {
+                                hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
+                            }
+                            item.matchScore = 70 + Math.abs(hash % 26);
                         }
+                    });
+                } else {
+                    list.forEach(item => {
+                        let hash = 0;
+                        const idStr = String(item.id);
+                        for (let i = 0; i < idStr.length; i++) {
+                            hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
+                        }
+                        item.matchScore = 70 + Math.abs(hash % 26);
                     });
                 }
             }
@@ -5984,7 +5987,7 @@ function renderMarket(container, type, onNavigate) {
                 for (let i = 0; i < idStr.length; i++) {
                     hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
                 }
-                item.matchScore = 45 + Math.abs(hash % 51); // 45% to 95%
+                item.matchScore = 70 + Math.abs(hash % 26); // 70% to 95%
             });
         }
 
@@ -6053,10 +6056,8 @@ function renderMarket(container, type, onNavigate) {
 
         // 3. Genres Filter
         const genresGridId = isEvents ? 'filter-genres-grid' : 'filter-genres-grid-m';
-        const genresGrid = container.querySelector('#' + genresGridId);
-        const genresInteracted = genresGrid && genresGrid.dataset.interacted === 'true';
         const selGenres = getCheckedValues(genresGridId);
-        if (genresInteracted || selGenres.length > 0) {
+        if (selGenres.length > 0) {
             list = list.filter(item => {
                 const itemG = item.genres || [];
                 return selGenres.some(g => itemG.some(ig => ig.toLowerCase().includes(g.toLowerCase())));
@@ -6065,10 +6066,8 @@ function renderMarket(container, type, onNavigate) {
 
         // 4. Instrumente Filter
         const instGridId = isEvents ? 'filter-instruments-grid' : 'filter-instruments-grid-m';
-        const instGrid = container.querySelector('#' + instGridId);
-        const instInteracted = instGrid && instGrid.dataset.interacted === 'true';
         const selInst = getCheckedValues(instGridId);
-        if (instInteracted || selInst.length > 0) {
+        if (selInst.length > 0) {
             list = list.filter(item => {
                 const itemI = item.instruments || [];
                 return selInst.some(inst => itemI.some(i => i.toLowerCase().includes(inst.toLowerCase())));
@@ -6077,10 +6076,8 @@ function renderMarket(container, type, onNavigate) {
 
         // 5. Musiker-Typ / Event-Typ
         const typeGridId = isEvents ? 'filter-event-type-grid' : 'filter-musician-type-grid';
-        const typeGrid = container.querySelector('#' + typeGridId);
-        const typeInteracted = typeGrid && typeGrid.dataset.interacted === 'true';
         const selType = getCheckedValues(typeGridId);
-        if (typeInteracted || selType.length > 0) {
+        if (selType.length > 0) {
             list = list.filter(item => {
                 const val = (item.type || item.eventType || '');
                 return selType.some(t => val.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(val.toLowerCase()));
@@ -6090,10 +6087,8 @@ function renderMarket(container, type, onNavigate) {
         // 5.5. Gesuchte Musiker-Typen Filter (for Event-Markt only)
         if (isEvents) {
             const musTypesGridId = 'filter-musician-types-grid';
-            const musTypesGrid = container.querySelector('#' + musTypesGridId);
-            const musTypesInteracted = musTypesGrid && musTypesGrid.dataset.interacted === 'true';
             const selMusTypes = getCheckedValues(musTypesGridId);
-            if (musTypesInteracted || selMusTypes.length > 0) {
+            if (selMusTypes.length > 0) {
                 list = list.filter(item => {
                     const itemTypes = item.musicianTypes || (item.musicianType ? item.musicianType.split(',').map(s => s.trim()) : []);
                     return selMusTypes.some(t => itemTypes.some(it => it.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(it.toLowerCase())));
@@ -6103,10 +6098,8 @@ function renderMarket(container, type, onNavigate) {
 
         // 6. Technik Filter
         const techGridId = isEvents ? 'filter-technik-grid' : 'filter-technik-grid-m';
-        const techGrid = container.querySelector('#' + techGridId);
-        const techInteracted = techGrid && techGrid.dataset.interacted === 'true';
         const selTechnik = getCheckedValues(techGridId);
-        if (techInteracted || selTechnik.length > 0) {
+        if (selTechnik.length > 0) {
             list = list.filter(item => {
                 const rawVal = item.technik || item.equipment || '';
                 const itemTechArr = Array.isArray(rawVal) 
