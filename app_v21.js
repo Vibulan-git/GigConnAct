@@ -428,6 +428,80 @@ window.slideComboGallery = function(itemId, direction) {
     }
 };
 
+window.jumpToComboGallerySlide = function(itemId, slideIndex) {
+    const s = document.getElementById('combo-slider-' + itemId);
+    if (!s) return;
+    const slidesCount = s.children.length;
+    if (slidesCount <= 0 || slideIndex < 0 || slideIndex >= slidesCount) return;
+    
+    s.style.transform = 'translateX(-' + (slideIndex * 100) + '%)';
+    s.setAttribute('data-idx', slideIndex);
+    
+    const counter = s.parentElement.querySelector('.tile-gallery-counter');
+    if (counter) {
+        const activeSlide = s.children[slideIndex];
+        const isPhoto = activeSlide.querySelector('img');
+        const isVideo = activeSlide.querySelector('video');
+        const isAudio = activeSlide.querySelector('audio');
+        if (isPhoto) {
+            let photoIdx = 1;
+            for (let i = 0; i < slideIndex; i++) {
+                if (s.children[i].querySelector('img')) photoIdx++;
+            }
+            let totalPhotos = 0;
+            for (let i = 0; i < slidesCount; i++) {
+                if (s.children[i].querySelector('img')) totalPhotos++;
+            }
+            counter.innerText = '📷 ' + photoIdx + ' / ' + totalPhotos;
+        } else if (isVideo) {
+            let videoIdx = 1;
+            for (let i = 0; i < slideIndex; i++) {
+                if (s.children[i].querySelector('video')) videoIdx++;
+            }
+            let totalVideos = 0;
+            for (let i = 0; i < slidesCount; i++) {
+                if (s.children[i].querySelector('video')) totalVideos++;
+            }
+            counter.innerText = '🎬 Video ' + videoIdx + ' / ' + totalVideos;
+        } else if (isAudio) {
+            let audioIdx = 1;
+            for (let i = 0; i < slideIndex; i++) {
+                if (s.children[i].querySelector('audio')) audioIdx++;
+            }
+            let totalAudios = 0;
+            for (let i = 0; i < slidesCount; i++) {
+                if (s.children[i].querySelector('audio')) totalAudios++;
+            }
+            counter.innerText = '🎵 Audio ' + audioIdx + ' / ' + totalAudios;
+        } else {
+            counter.innerHTML = '📝 Info';
+        }
+    }
+    
+    const dotsContainer = document.getElementById('combo-dots-' + itemId);
+    if (dotsContainer) {
+        const dots = dotsContainer.children;
+        const themeColor = dotsContainer.getAttribute('data-theme') || '#7c3aed';
+        for (let i = 0; i < dots.length; i++) {
+            if (i === slideIndex) {
+                dots[i].classList.add('active');
+                dots[i].style.background = themeColor;
+                dots[i].style.opacity = '1';
+                dots[i].style.transform = 'scale(1.35)';
+                dots[i].style.boxShadow = '0 0 6px ' + themeColor;
+                dots[i].style.border = '1px solid ' + themeColor;
+            } else {
+                dots[i].classList.remove('active');
+                dots[i].style.background = '#ffffff';
+                dots[i].style.opacity = '0.95';
+                dots[i].style.transform = 'scale(1)';
+                dots[i].style.boxShadow = '0 1px 2px rgba(0,0,0,0.2)';
+                dots[i].style.border = '1px solid rgba(0,0,0,0.15)';
+            }
+        }
+    }
+};
+
 /* -------------------------------------------------------------
  * GigConnAct - Single Unified Application Script
  * Combines mockData, state management, matching logic, and UI
@@ -7781,7 +7855,7 @@ function renderOrganizerEventItem(e, isActive) {
                 <!-- Dots container inside the slider -->
                 <div class="tile-gallery-dots" id="combo-dots-${e.id}" data-theme="${dotActiveColor}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
                     ${Array.from({ length: photos.length + 1 }).map((_, dIdx) => `
-                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? dotActiveColor : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + dotActiveColor : '0 1px 2px rgba(0,0,0,0.2)'};"></span>
+                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${e.id}', ${dIdx})" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? dotActiveColor : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + dotActiveColor : '0 1px 2px rgba(0,0,0,0.2)'}; cursor: pointer;"></span>
                     `).join('')}
                 </div>
                 
@@ -8222,7 +8296,7 @@ function renderMyMusicianItem(m, isActive) {
                 <!-- Dots container inside the slider -->
                 <div class="tile-gallery-dots" id="combo-dots-${m.id}" data-theme="${dotActiveColor}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
                     ${Array.from({ length: photos.length + videoSources.length + audios.length + 1 }).map((_, dIdx) => `
-                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? dotActiveColor : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + dotActiveColor : '0 1px 2px rgba(0,0,0,0.2)'};"></span>
+                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${m.id}', ${dIdx})" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? dotActiveColor : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + dotActiveColor : '0 1px 2px rgba(0,0,0,0.2)'}; cursor: pointer;"></span>
                     `).join('')}
                 </div>
                 
@@ -10275,7 +10349,14 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                                 <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 100 MB&#10;Maximale Länge: 10 Minuten"></i></label>
                                 <button type="button" onclick="window.addRegMedia('musician', 'audio')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
-                                    <i c                    <div id="reg-fields-organizer" class="hidden">
+                                    <i class="fa-solid fa-plus"></i> Audio hinzufügen
+                                </button>
+                            </div>
+                            <div id="reg-musician-audios-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                        </div>
+                    </div>
+
+                    <div id="reg-fields-organizer" class="hidden">
                         
                         <!-- 1. Eventname -->
                         <div class="form-group">
@@ -12554,15 +12635,15 @@ window.updateBodyBackground = function(page) {
     let gradient = 'linear-gradient(to right, #eddffd 0%, #e0e7ff 50%, #bae6fd 100%)'; // default combined
     
     if (page === 'events') {
-        gradient = 'linear-gradient(to right, #f5f3ff 0%, #eddffd 50%, #ebd8ff 100%)'; // purple
+        gradient = 'linear-gradient(to right, #ebd8ff 0%, #f5f3ff 50%, #ebd8ff 100%)'; // purple symmetric
     } else if (page === 'musicians') {
-        gradient = 'linear-gradient(to right, #eff6ff 0%, #e0f2fe 50%, #bae6fd 100%)'; // blue
+        gradient = 'linear-gradient(to right, #bae6fd 0%, #eff6ff 50%, #bae6fd 100%)'; // blue symmetric
     } else if (['postbox', 'dashboard', 'my-musicians', 'my-events', 'matches', 'profile', 'credits'].includes(page)) {
         const role = (state && state.currentUser) ? state.currentUser.role : null;
         if (role === 'organizer') {
-            gradient = 'linear-gradient(to right, #eff6ff 0%, #e0f2fe 50%, #bae6fd 100%)'; // blue
+            gradient = 'linear-gradient(to right, #bae6fd 0%, #eff6ff 50%, #bae6fd 100%)'; // blue symmetric
         } else if (role === 'musician') {
-            gradient = 'linear-gradient(to right, #f5f3ff 0%, #eddffd 50%, #ebd8ff 100%)'; // purple
+            gradient = 'linear-gradient(to right, #ebd8ff 0%, #f5f3ff 50%, #ebd8ff 100%)'; // purple symmetric
         }
     }
     
@@ -13943,7 +14024,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     <!-- Dots container inside the slider -->
                     <div class="tile-gallery-dots" id="combo-dots-${item.id}" data-theme="${isEvents ? '#7c3aed' : '#2563eb'}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
                         ${Array.from({ length: photos.length + videos.length + audios.length + 1 }).map((_, dIdx) => `
-                            <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? (isEvents ? '#7c3aed' : '#2563eb') : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? (isEvents ? '#7c3aed' : '#2563eb') : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + (isEvents ? '#7c3aed' : '#2563eb') : '0 1px 2px rgba(0,0,0,0.2)'};"></span>
+                            <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${item.id}', ${dIdx})" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? (isEvents ? '#7c3aed' : '#2563eb') : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? (isEvents ? '#7c3aed' : '#2563eb') : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + (isEvents ? '#7c3aed' : '#2563eb') : '0 1px 2px rgba(0,0,0,0.2)'}; cursor: pointer;"></span>
                         `).join('')}
                     </div>
                 </div>
@@ -15205,6 +15286,13 @@ window.renderDatenschutzPage = renderDatenschutzPage;
         isSwiping = false;
         currentSlider = null;
     }, { passive: true });
+
+    // Prevent default dragstart on slider images/elements to allow custom mouse-drag sliding
+    document.addEventListener('dragstart', (e) => {
+        if (e.target.closest('.tile-fullwidth-photo-slider')) {
+            e.preventDefault();
+        }
+    });
 
     // Mouse drag events for desktop
     document.addEventListener('mousedown', (e) => {

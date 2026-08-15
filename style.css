@@ -3945,6 +3945,10 @@ body {
 /* Card slider height adjustments to keep first tile content above the fold */
 .tile-fullwidth-photo-slider {
     height: 180px !important; /* Reduced from 235px */
+    cursor: grab;
+}
+.tile-fullwidth-photo-slider:active {
+    cursor: grabbing;
 }
 
 @media (max-width: 900px) {
