@@ -5365,7 +5365,7 @@ function validateAndProcessAudio(file, callback, errorCallback) {
 window.addRegMedia = function(role, type) {
     const listKey = type === 'photo' ? 'photos' : type === 'video' ? 'videos' : 'audios';
     const list = window.registrationMedia[role][listKey];
-    const limit = 3;
+    const limit = type === 'photo' ? 5 : 3;
     if (list.length >= limit) {
         showToast({
             title: type === 'photo' ? "Fotos-Limit erreicht 📷" : type === 'video' ? "Video-Limit erreicht 🎬" : "Audio-Limit erreicht 🎵",
@@ -6997,10 +6997,12 @@ class StateManager {
                             const registerTabBtn = document.getElementById('tab-register-btn');
                             if (registerTabBtn) registerTabBtn.click();
                             
+                            /*
                             showToast({
                                 title: "Registrierung abschließen",
                                 message: "Bitte vervollständige deine Angaben, um deinen Account zu erstellen."
                             });
+                            */
                         }, 500);
                     }
                 }, async (err) => {
@@ -7329,10 +7331,12 @@ class StateManager {
                         const registerTabBtn = document.getElementById('tab-register-btn');
                         if (registerTabBtn) registerTabBtn.click();
                         
+                        /*
                         showToast({
                             title: "Google-Konto verknüpft!",
                             message: "Bitte vervollständige deine Angaben, um die Registrierung abzuschließen."
                         });
+                        */
                     }, 500);
                 } else {
                     // EXISTING USER: Logged in!
@@ -9060,10 +9064,13 @@ function showToast(options) {
     const container = document.getElementById('toast-container');
     if (!container) return;
 
+    const isOrg = (state && state.currentUser && state.currentUser.role === 'organizer');
+    const bellColor = isOrg ? '#2563eb' : 'var(--color-purple)';
+
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.innerHTML = `
-        <div class="toast-icon"><i class="fa-solid fa-bell"></i></div>
+        <div class="toast-icon" style="color: ${bellColor} !important;"><i class="fa-solid fa-bell"></i></div>
         <div class="toast-body">
             <div class="toast-title">${options.title}</div>
             <div class="toast-message">${options.message}</div>
@@ -13950,7 +13957,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </p>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
                             <button type="button" id="btn-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -13968,7 +13975,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 100 MB&#10;Maximale Länge: 10 Minuten"></i></label>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV&#10;Maximale Größe: 20 MB&#10;Maximale Länge: 10 Minuten"></i></label>
                             <button type="button" id="btn-modal-add-audio" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -14118,11 +14125,11 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     if (addPhotoBtn) {
         addPhotoBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            const remainingSlots = 3 - localMedia.photos.length;
+            const remainingSlots = 5 - localMedia.photos.length;
             if (remainingSlots <= 0) {
                 showToast({
                     title: "Bilder-Limit erreicht 📷",
-                    message: "Es sind maximal 3 Bilder erlaubt."
+                    message: "Es sind maximal 5 Bilder erlaubt."
                 });
                 return;
             }
@@ -14137,7 +14144,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     if (fileInput.files.length > remainingSlots) {
                         showToast({
                             title: "Bilder-Limit 📷",
-                            message: `Es wurden nur die ersten ${remainingSlots} Bilder ausgewählt (maximal 3 erlaubt).`
+                            message: `Es wurden nur die ersten ${remainingSlots} Bilder ausgewählt (maximal 5 erlaubt).`
                         });
                     }
                     filesToProcess.forEach(file => {
@@ -14677,7 +14684,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </p>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
                             <button type="button" id="btn-event-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -14894,10 +14901,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
     if (addEventPhotoBtn) {
         addEventPhotoBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (localMedia.photos.length >= 3) {
+            if (localMedia.photos.length >= 5) {
                 showToast({
                     title: "Bilder-Limit erreicht 📷",
-                    message: "Es sind maximal 3 Bilder erlaubt."
+                    message: "Es sind maximal 5 Bilder erlaubt."
                 });
                 return;
             }
@@ -15483,7 +15490,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </p>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
                                 <button type="button" onclick="window.addRegMedia('musician', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
@@ -15699,7 +15706,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
                                 <button type="button" onclick="window.addRegMedia('organizer', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
@@ -16018,6 +16025,38 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             // Trigger the real Firebase auth email sending
             const res = await state.loginPasswordless(email);
             
+            if (!res.success) {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.display = 'flex';
+                    btn.innerHTML = `<i class="fa-solid fa-magic"></i> Magic Link anfordern`;
+                }
+                if (magicForm.elements.email) magicForm.elements.email.style.display = 'block';
+                
+                if (res.message === "Diese E-Mail-Adresse ist nicht registriert.") {
+                    // Redirect to registration tab!
+                    const registerTabBtn = document.getElementById('tab-register-btn');
+                    if (registerTabBtn) {
+                        registerTabBtn.click();
+                        const regEmailInput = document.querySelector('#auth-register-form input[name="email"]');
+                        if (regEmailInput) {
+                            regEmailInput.value = email;
+                        }
+                        showToast({
+                            title: "Konto nicht gefunden 🔍",
+                            message: "Diese E-Mail-Adresse ist noch nicht registriert. Bitte erstelle zuerst ein Konto."
+                        });
+                    }
+                } else {
+                    if (errDiv) {
+                        errDiv.innerText = res.message || "Fehler beim Senden des Links.";
+                        errDiv.style.display = 'block';
+                    }
+                }
+                return;
+            }
+
+            // Success: hide the form inputs
             if (btn) btn.style.display = 'none';
             if (magicForm.elements.email) magicForm.elements.email.style.display = 'none';
             const grp = magicForm.querySelector('.form-group');
@@ -16026,20 +16065,6 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 const para = grp.querySelector('p');
                 if (lbl) lbl.style.display = 'none';
                 if (para) para.style.display = 'none';
-            }
-
-            if (!res.success) {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.style.display = 'flex';
-                    btn.innerHTML = `<i class="fa-solid fa-magic"></i> Magic Link anfordern`;
-                }
-                if (magicForm.elements.email) magicForm.elements.email.style.display = 'block';
-                if (errDiv) {
-                    errDiv.innerText = res.message || "Fehler beim Senden des Links.";
-                    errDiv.style.display = 'block';
-                }
-                return;
             }
 
             if (successContainer) {
@@ -17082,10 +17107,12 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             const registerTabBtn = document.getElementById('tab-register-btn');
                             if (registerTabBtn) registerTabBtn.click();
                             
+                            /*
                             showToast({
                                 title: "Google-Konto verknüpft!",
                                 message: "Bitte vervollständige deine Angaben, um die Registrierung abzuschließen."
                             });
+                            */
                         } else {
                             // EXISTING USER: Logged in!
                             closeModal();
@@ -17561,10 +17588,12 @@ function showCookieConsentBanner(preExistingSettings = null) {
         localStorage.setItem('GigConnAct_cookie_consent', JSON.stringify(newConsent));
         banner.remove();
         loadTrackingScripts(newConsent);
+        /*
         showToast({
             title: "Einstellungen gespeichert 🍪",
             message: "Deine Cookie-Auswahl wurde erfolgreich übernommen."
         });
+        */
     }
 }
 window.showCookieConsentBanner = showCookieConsentBanner;
@@ -17812,18 +17841,18 @@ function renderSubscriptionExpiredPage(container) {
 window.renderSubscriptionExpiredPage = renderSubscriptionExpiredPage;
 
 window.updateBodyBackground = function(page) {
-    let gradient = 'linear-gradient(to right, #eddffd 0%, #e0e7ff 50%, #bae6fd 100%)'; // default combined
+    let gradient = 'linear-gradient(to right, #f3e8ff 0%, #faf5ff 50%, #e0f2fe 100%)'; // default combined (softer)
     
     if (page === 'events') {
-        gradient = 'linear-gradient(to right, #ebd8ff 0%, #f5f3ff 50%, #ebd8ff 100%)'; // purple symmetric
+        gradient = 'linear-gradient(to right, #f3e8ff 0%, #faf5ff 50%, #f3e8ff 100%)'; // purple symmetric (softer)
     } else if (page === 'musicians') {
-        gradient = 'linear-gradient(to right, #bae6fd 0%, #eff6ff 50%, #bae6fd 100%)'; // blue symmetric
+        gradient = 'linear-gradient(to right, #e0f2fe 0%, #f0f9ff 50%, #e0f2fe 100%)'; // blue symmetric (softer)
     } else if (['postbox', 'dashboard', 'my-musicians', 'my-events', 'matches', 'profile', 'credits'].includes(page)) {
         const role = (state && state.currentUser) ? state.currentUser.role : null;
         if (role === 'organizer') {
-            gradient = 'linear-gradient(to right, #bae6fd 0%, #eff6ff 50%, #bae6fd 100%)'; // blue symmetric
+            gradient = 'linear-gradient(to right, #e0f2fe 0%, #f0f9ff 50%, #e0f2fe 100%)'; // blue symmetric (softer)
         } else if (role === 'musician') {
-            gradient = 'linear-gradient(to right, #ebd8ff 0%, #f5f3ff 50%, #ebd8ff 100%)'; // purple symmetric
+            gradient = 'linear-gradient(to right, #f3e8ff 0%, #faf5ff 50%, #f3e8ff 100%)'; // purple symmetric (softer)
         }
     }
     
@@ -18230,7 +18259,7 @@ function updateNavbar(forceLanding) {
             <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger">
                 <i class="fa-solid fa-right-to-bracket header-login-icon"></i>
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.0;">
-                    <span class="btn-text-top" style="text-transform: none !important; font-weight: 900 !important;">Ohne</span>
+                    <span class="btn-text-top" style="text-transform: none !important; font-weight: 900 !important; font-size: 1.08rem !important; letter-spacing: 0.5px !important;">Ohne</span>
                     <span class="btn-text-bottom">Passwort</span>
                 </div>
             </button>
@@ -19938,8 +19967,8 @@ window.showMediaModal = function(itemId, isEvents) {
                 <!-- Section: Photos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">📷 Fotos (${photos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></span>
-                        ${photos.length < 3 ? `
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">📷 Fotos (${photos.length}/5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></span>
+                        ${photos.length < 5 ? `
                             <button id="btn-add-mock-photo" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: ${isEvents ? 'rgba(37, 99, 235, 0.3)' : 'rgba(124, 58, 237, 0.3)'}; color: ${isEvents ? '#2563eb' : '#7c3aed'}; display: flex; align-items: center; gap: 0.25rem;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -20018,7 +20047,7 @@ window.showMediaModal = function(itemId, isEvents) {
     const addPhotoBtn = document.getElementById('btn-add-mock-photo');
     if (addPhotoBtn) {
         addPhotoBtn.addEventListener('click', () => {
-            const maxPhotos = 3;
+            const maxPhotos = 5;
             if (photos.length >= maxPhotos) {
                 showToast({
                     title: "Fotos-Limit erreicht 📷",
