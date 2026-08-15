@@ -225,11 +225,7 @@ function validateAndProcessAudio(file, callback, errorCallback) {
 window.addRegMedia = function(role, type) {
     const listKey = type === 'photo' ? 'photos' : type === 'video' ? 'videos' : 'audios';
     const list = window.registrationMedia[role][listKey];
-    const limit = type === 'photo' 
-        ? 5 
-        : type === 'video' 
-            ? 3 
-            : 3;
+    const limit = 3;
     if (list.length >= limit) {
         showToast({
             title: type === 'photo' ? "Fotos-Limit erreicht 📷" : type === 'video' ? "Video-Limit erreicht 🎬" : "Audio-Limit erreicht 🎵",
@@ -8814,7 +8810,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </p>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
                             <button type="button" id="btn-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -8982,11 +8978,11 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     if (addPhotoBtn) {
         addPhotoBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            const remainingSlots = 5 - localMedia.photos.length;
+            const remainingSlots = 3 - localMedia.photos.length;
             if (remainingSlots <= 0) {
                 showToast({
                     title: "Bilder-Limit erreicht 📷",
-                    message: "Es sind maximal 5 Bilder erlaubt."
+                    message: "Es sind maximal 3 Bilder erlaubt."
                 });
                 return;
             }
@@ -9001,7 +8997,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     if (fileInput.files.length > remainingSlots) {
                         showToast({
                             title: "Bilder-Limit 📷",
-                            message: `Es wurden nur die ersten ${remainingSlots} Bilder ausgewählt (maximal 5 erlaubt).`
+                            message: `Es wurden nur die ersten ${remainingSlots} Bilder ausgewählt (maximal 3 erlaubt).`
                         });
                     }
                     filesToProcess.forEach(file => {
@@ -9541,7 +9537,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </p>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
                             <button type="button" id="btn-event-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -9758,10 +9754,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
     if (addEventPhotoBtn) {
         addEventPhotoBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (localMedia.photos.length >= 5) {
+            if (localMedia.photos.length >= 3) {
                 showToast({
                     title: "Bilder-Limit erreicht 📷",
-                    message: "Es sind maximal 5 Bilder erlaubt."
+                    message: "Es sind maximal 3 Bilder erlaubt."
                 });
                 return;
             }
@@ -10213,7 +10209,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 4. Musiker-Typ -->
                         <div class="form-group">
-                            <label>Musiker-Typ</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <label style="margin: 0;">Musiker-Typ</label>
+                                <span onclick="window.toggleSelectAll('grid-musician-types', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-musician-types">
                                 ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
                                     <label class="tag-pill-checkbox">
@@ -10226,7 +10225,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 5. Bevorzugte Event-Typen -->
                         <div class="form-group">
-                            <label>Bevorzugte Event-Typen</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <label style="margin: 0;">Bevorzugte Event-Typen</label>
+                                <span onclick="window.toggleSelectAll('grid-event-types', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-event-types">
                                 ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
                                     <label class="tag-pill-checkbox">
@@ -10239,7 +10241,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 6. Genres -->
                         <div class="form-group">
-                            <label>Genres</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <label style="margin: 0;">Genres</label>
+                                <span onclick="window.toggleSelectAll('grid-genres', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-genres">
                                 ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                     <label class="tag-pill-checkbox">
@@ -10252,7 +10257,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 7. Instrumente -->
                         <div class="form-group">
-                            <label>Instrumente</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <label style="margin: 0;">Instrumente</label>
+                                <span onclick="window.toggleSelectAll('grid-instruments', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-instruments">
                                 ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                     <label class="tag-pill-checkbox">
@@ -10335,7 +10343,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </p>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
                                 <button type="button" onclick="window.addRegMedia('musician', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
@@ -10415,7 +10423,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 4. Event-Typ -->
                         <div class="form-group">
-                            <label>Event-Typ</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <label style="margin: 0;">Event-Typ</label>
+                                <span onclick="window.toggleSelectAll('grid-org-event-types', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-org-event-types">
                                 ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
                                     <label class="tag-pill-checkbox">
@@ -10428,7 +10439,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 5. Gesuchte Musiker-Typen -->
                         <div class="form-group">
-                            <label>Gesuchte Musiker-Typen</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <label style="margin: 0;">Gesuchte Musiker-Typen</label>
+                                <span onclick="window.toggleSelectAll('grid-org-musician-types', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-org-musician-types">
                                 ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
                                     <label class="tag-pill-checkbox">
@@ -10441,7 +10455,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 6. Genres -->
                         <div class="form-group">
-                            <label>Genres</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <label style="margin: 0;">Genres</label>
+                                <span onclick="window.toggleSelectAll('grid-org-genres', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-org-genres">
                                 ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                     <label class="tag-pill-checkbox">
@@ -10454,7 +10471,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 7. Instrumente -->
                         <div class="form-group">
-                            <label>Instrumente</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <label style="margin: 0;">Instrumente</label>
+                                <span onclick="window.toggleSelectAll('grid-org-instruments', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-org-instruments">
                                 ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                     <label class="tag-pill-checkbox">
@@ -10539,7 +10559,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
                                 <button type="button" onclick="window.addRegMedia('organizer', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
@@ -14778,8 +14798,8 @@ window.showMediaModal = function(itemId, isEvents) {
                 <!-- Section: Photos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">📷 Fotos (${photos.length}/${isEvents ? 3 : 5}) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></span>
-                        ${photos.length < (isEvents ? 3 : 5) ? `
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">📷 Fotos (${photos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></span>
+                        ${photos.length < 3 ? `
                             <button id="btn-add-mock-photo" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: ${isEvents ? 'rgba(37, 99, 235, 0.3)' : 'rgba(124, 58, 237, 0.3)'}; color: ${isEvents ? '#2563eb' : '#7c3aed'}; display: flex; align-items: center; gap: 0.25rem;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -14798,8 +14818,8 @@ window.showMediaModal = function(itemId, isEvents) {
                 <!-- Section: Videos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Videos (${videos.length}/${isEvents ? 1 : 3}) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 500 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></span>
-                        ${videos.length < (isEvents ? 1 : 3) ? `
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Videos (${videos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 500 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></span>
+                        ${videos.length < 3 ? `
                             <button id="btn-add-mock-video" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: ${isEvents ? 'rgba(37, 99, 235, 0.3)' : 'rgba(124, 58, 237, 0.3)'}; color: ${isEvents ? '#2563eb' : '#7c3aed'}; display: flex; align-items: center; gap: 0.25rem;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -14858,7 +14878,7 @@ window.showMediaModal = function(itemId, isEvents) {
     const addPhotoBtn = document.getElementById('btn-add-mock-photo');
     if (addPhotoBtn) {
         addPhotoBtn.addEventListener('click', () => {
-            const maxPhotos = isEvents ? 3 : 5;
+            const maxPhotos = 3;
             if (photos.length >= maxPhotos) {
                 showToast({
                     title: "Fotos-Limit erreicht 📷",
@@ -14886,7 +14906,7 @@ window.showMediaModal = function(itemId, isEvents) {
     const addVideoBtn = document.getElementById('btn-add-mock-video');
     if (addVideoBtn) {
         addVideoBtn.addEventListener('click', () => {
-            const maxVideos = isEvents ? 1 : 3;
+            const maxVideos = 3;
             if (videos.length >= maxVideos) {
                 showToast({
                     title: "Video-Limit erreicht 🎬",

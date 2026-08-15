@@ -5137,6 +5137,7 @@ input[type="range"].input-field {
 
     <script>
 // Firebase Configuration
+// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyCuGm5JDhKwFILPrgxz3iQftTBUFGpb8qo",
     authDomain: "gigconnact.firebaseapp.com",
@@ -5363,11 +5364,7 @@ function validateAndProcessAudio(file, callback, errorCallback) {
 window.addRegMedia = function(role, type) {
     const listKey = type === 'photo' ? 'photos' : type === 'video' ? 'videos' : 'audios';
     const list = window.registrationMedia[role][listKey];
-    const limit = type === 'photo' 
-        ? 5 
-        : type === 'video' 
-            ? 3 
-            : 3;
+    const limit = 3;
     if (list.length >= limit) {
         showToast({
             title: type === 'photo' ? "Fotos-Limit erreicht 📷" : type === 'video' ? "Video-Limit erreicht 🎬" : "Audio-Limit erreicht 🎵",
@@ -5551,12 +5548,90 @@ window.slideComboGallery = function(itemId, direction) {
                 dots[i].classList.add('active');
                 dots[i].style.background = themeColor;
                 dots[i].style.opacity = '1';
-                dots[i].style.transform = 'scale(1.25)';
+                dots[i].style.transform = 'scale(1.35)';
+                dots[i].style.boxShadow = '0 0 6px ' + themeColor;
+                dots[i].style.border = '1px solid ' + themeColor;
             } else {
                 dots[i].classList.remove('active');
                 dots[i].style.background = '#ffffff';
-                dots[i].style.opacity = '0.5';
+                dots[i].style.opacity = '0.95';
                 dots[i].style.transform = 'scale(1)';
+                dots[i].style.boxShadow = '0 1px 2px rgba(0,0,0,0.2)';
+                dots[i].style.border = '1px solid rgba(0,0,0,0.15)';
+            }
+        }
+    }
+};
+
+window.jumpToComboGallerySlide = function(itemId, slideIndex) {
+    const s = document.getElementById('combo-slider-' + itemId);
+    if (!s) return;
+    const slidesCount = s.children.length;
+    if (slidesCount <= 0 || slideIndex < 0 || slideIndex >= slidesCount) return;
+    
+    s.style.transform = 'translateX(-' + (slideIndex * 100) + '%)';
+    s.setAttribute('data-idx', slideIndex);
+    
+    const counter = s.parentElement.querySelector('.tile-gallery-counter');
+    if (counter) {
+        const activeSlide = s.children[slideIndex];
+        const isPhoto = activeSlide.querySelector('img');
+        const isVideo = activeSlide.querySelector('video');
+        const isAudio = activeSlide.querySelector('audio');
+        if (isPhoto) {
+            let photoIdx = 1;
+            for (let i = 0; i < slideIndex; i++) {
+                if (s.children[i].querySelector('img')) photoIdx++;
+            }
+            let totalPhotos = 0;
+            for (let i = 0; i < slidesCount; i++) {
+                if (s.children[i].querySelector('img')) totalPhotos++;
+            }
+            counter.innerText = '📷 ' + photoIdx + ' / ' + totalPhotos;
+        } else if (isVideo) {
+            let videoIdx = 1;
+            for (let i = 0; i < slideIndex; i++) {
+                if (s.children[i].querySelector('video')) videoIdx++;
+            }
+            let totalVideos = 0;
+            for (let i = 0; i < slidesCount; i++) {
+                if (s.children[i].querySelector('video')) totalVideos++;
+            }
+            counter.innerText = '🎬 Video ' + videoIdx + ' / ' + totalVideos;
+        } else if (isAudio) {
+            let audioIdx = 1;
+            for (let i = 0; i < slideIndex; i++) {
+                if (s.children[i].querySelector('audio')) audioIdx++;
+            }
+            let totalAudios = 0;
+            for (let i = 0; i < slidesCount; i++) {
+                if (s.children[i].querySelector('audio')) totalAudios++;
+            }
+            counter.innerText = '🎵 Audio ' + audioIdx + ' / ' + totalAudios;
+        } else {
+            counter.innerHTML = '📝 Info';
+        }
+    }
+    
+    const dotsContainer = document.getElementById('combo-dots-' + itemId);
+    if (dotsContainer) {
+        const dots = dotsContainer.children;
+        const themeColor = dotsContainer.getAttribute('data-theme') || '#7c3aed';
+        for (let i = 0; i < dots.length; i++) {
+            if (i === slideIndex) {
+                dots[i].classList.add('active');
+                dots[i].style.background = themeColor;
+                dots[i].style.opacity = '1';
+                dots[i].style.transform = 'scale(1.35)';
+                dots[i].style.boxShadow = '0 0 6px ' + themeColor;
+                dots[i].style.border = '1px solid ' + themeColor;
+            } else {
+                dots[i].classList.remove('active');
+                dots[i].style.background = '#ffffff';
+                dots[i].style.opacity = '0.95';
+                dots[i].style.transform = 'scale(1)';
+                dots[i].style.boxShadow = '0 1px 2px rgba(0,0,0,0.2)';
+                dots[i].style.border = '1px solid rgba(0,0,0,0.15)';
             }
         }
     }
@@ -5639,6 +5714,7 @@ window.toggleAudioTrack = function(item, audioUrl) {
 };
 
 window.unlockListing = function(targetId, targetName) {
+    console.log('[DEBUG] window.unlockListing called with targetId:', targetId, 'targetName:', targetName, 'currentUser:', state.currentUser);
     if (!state.currentUser) {
         showModal('auth');
         return;
@@ -6899,6 +6975,11 @@ class StateManager {
                         window.googleRegistrationUser = firebaseUser;
                         setTimeout(() => {
                             if (typeof auth !== 'undefined' && !auth.currentUser) return;
+                            const currentHash = window.location.hash || '';
+                            if (currentHash.includes('datenschutz') || currentHash.includes('impressum')) {
+                                console.log("Skipping auth modal popup on legal pages.");
+                                return;
+                            }
                             showModal('auth');
                             const registerForm = document.getElementById('auth-register-form');
                             if (registerForm) {
@@ -8000,6 +8081,12 @@ class StateManager {
         isUnlocked(targetId) {
         if (!this.currentUser) return false;
         
+        // Premium users (flatrate subscription) have unlimited unlocks
+        if (this.currentUser.isPremium === true) {
+            console.log('[DEBUG] isUnlocked returning true: user is premium for targetId:', targetId);
+            return true;
+        }
+        
         // Find if this is the user's own profile or event
         const isOwn = (this.musicians || []).some(m => m.id === targetId && m.creatorId === this.currentUser.id) ||
                       (this.events || []).some(e => e.id === targetId && e.creatorId === this.currentUser.id) ||
@@ -8664,9 +8751,11 @@ function getEstimatedDistance(city1, city2) {
 }
 
 function getWeekdayFromDate(dateStr) {
+    if (!dateStr) return '';
     const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    return weekdays[date.getDay()];
+    return weekdays[date.getDay()] || '';
 }
 
 function expandList(arr) {
@@ -8813,9 +8902,10 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
                     isAvailable = true;
                 }
             }
-        } else if (typeof musician.availability === 'object') {
-            const eventWeekday = getWeekdayFromDate(event.date).toLowerCase();
-            if (musician.availability[eventWeekday] !== undefined) {
+        } else if (musician.availability && typeof musician.availability === 'object') {
+            const weekdayRaw = getWeekdayFromDate(event.date);
+            const eventWeekday = weekdayRaw ? weekdayRaw.toLowerCase() : '';
+            if (eventWeekday && musician.availability[eventWeekday] !== undefined) {
                 isAvailable = !!musician.availability[eventWeekday].available;
             } else {
                 const isModified = musician.availability.modifiedDates && musician.availability.modifiedDates.includes(event.date);
@@ -8855,6 +8945,18 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
     let extraScore = (matchesCount / 3) * 5;
     const totalScore = Math.round(typeScore + ortScore + genresScore + instScore + durScore + budgetScore + eventTypeScore + dateScore + publikumScore + extraScore);
 
+    let finalScore = 0;
+    if (totalScore > 0) {
+        finalScore = Math.round(65 + (Math.min(100, totalScore) / 100) * 33);
+    } else {
+        let hash = 0;
+        const idStr = String(musician.id) + String(event.id);
+        for (let i = 0; i < idStr.length; i++) {
+            hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        finalScore = 55 + Math.abs(hash % 16);
+    }
+
     const breakdown = {
         type: typeScore > 0,
         ort: ortScore > 0,
@@ -8869,7 +8971,7 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
     };
 
     return {
-        score: Math.min(100, Math.max(0, totalScore)),
+        score: finalScore,
         breakdown,
         matchedCount: typeScore > 0 ? 1 : 0
     };
@@ -9115,6 +9217,211 @@ function renderHeroTabContent(isMusician) {
     }
 }
 
+window.howItWorksExpanded = window.howItWorksExpanded || { 1: false, 2: false, 3: false };
+
+window.toggleFlowCard = function(cardIndex) {
+    const isExpanded = !window.howItWorksExpanded[cardIndex];
+    window.howItWorksExpanded[cardIndex] = isExpanded;
+    
+    const descEl = document.getElementById(`flow-card-desc-${cardIndex}`);
+    if (descEl) {
+        if (isExpanded) {
+            descEl.style.display = 'block';
+            descEl.style.opacity = '0';
+            descEl.style.height = '0px';
+            descEl.style.overflow = 'hidden';
+            descEl.style.transition = 'all 0.3s ease-out';
+            setTimeout(() => {
+                descEl.style.opacity = '1';
+                descEl.style.height = descEl.scrollHeight + 'px';
+            }, 10);
+        } else {
+            descEl.style.transition = 'all 0.25s ease-in';
+            descEl.style.opacity = '0';
+            descEl.style.height = '0px';
+            setTimeout(() => {
+                descEl.style.display = 'none';
+            }, 250);
+        }
+    }
+}
+
+function renderHowItWorksContentHTML(type) {
+    const isMusician = type === 'musician';
+    
+    // Config values
+    const topIcon = isMusician ? 'fa-lock' : 'fa-lock';
+    const middleIcon = isMusician ? 'fa-arrow-trend-up' : 'fa-microphone';
+    const middleSlogan = isMusician ? 'MEHR<br>GIGS' : 'DEIN<br>ACT';
+    
+    // Theme colors
+    const themeColor = isMusician ? '#7c3aed' : '#2563eb';
+    const themeBg = isMusician ? 'rgba(124, 58, 237, 0.04)' : 'rgba(37, 99, 235, 0.04)';
+    const themeBorder = isMusician ? 'rgba(124, 58, 237, 0.15)' : 'rgba(37, 99, 235, 0.15)';
+    const themeBadgeBg = isMusician ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)';
+    const themeBadgeBorder = isMusician ? 'rgba(167, 139, 250, 0.35)' : 'rgba(96, 165, 250, 0.35)';
+
+    const dashedBorderColor = isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)';
+
+    // Build HTML matching the exact structure from the image
+    return `
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 650px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
+            
+            <!-- Market Switch CTA Button (Moved above Passende Veranstalter / Musiker card) -->
+            <div style="margin-bottom: 2rem; text-align: center; width: 100%; box-sizing: border-box;">
+                <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: 100%; max-width: 100%; box-sizing: border-box; margin: 0 auto; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;" onmouseover="this.style.transform='scale(1.015)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')">
+                    ${isMusician ? 'Event-Markt' : 'Musiker-Markt'}
+                </button>
+            </div>
+
+            <!-- 1. Top Card: Passende Veranstalter / Musiker (width: 100%, white background) -->
+            <div onclick="window.toggleFlowCard(1)" style="cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
+                    <i class="fa-solid ${topIcon}" style="color: ${themeColor}; font-size: 1.05rem;"></i>
+                </div>
+                <div style="flex: 1; display: flex; flex-direction: column;">
+                    <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2;">
+                        ${isMusician ? 'Passende Veranstalter' : 'Passende Musiker'}
+                    </h4>
+                    <div id="flow-card-desc-1" style="display: ${window.howItWorksExpanded[1] ? 'block' : 'none'}; opacity: ${window.howItWorksExpanded[1] ? '1' : '0'}; height: ${window.howItWorksExpanded[1] ? 'auto' : '0px'}; overflow: hidden; margin-top: 0.35rem; transition: all 0.3s ease-out;">
+                        <p style="font-size: 0.82rem; color: #64748b; margin: 0; font-weight: 500; line-height: 1.4;">
+                            ${isMusician ? 'Hochzeiten, Geburtstage, Firmenfeiern und Co.' : 'Sänger, Bands, DJs, Solokünstler und Co.'}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Arrow 1 (Connector to Card 2) -->
+            <div onclick="window.toggleFlowCard(1)" style="cursor: pointer; display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;" class="flow-arrow-container">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';">
+                    <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;" id="flow-arrow-icon-1"></i>
+                </div>
+            </div>
+
+            <!-- 2. Middle Card: Schnelle Anmeldung (width: 100%, white background) -->
+            <div onclick="window.toggleFlowCard(2)" style="cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
+                    <i class="fa-solid fa-bolt" style="color: ${themeColor}; font-size: 1.05rem;"></i>
+                </div>
+                <div style="flex: 1; display: flex; flex-direction: column;">
+                    <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2;">
+                        Schnelle Anmeldung
+                    </h4>
+                    <div id="flow-card-desc-2" style="display: ${window.howItWorksExpanded[2] ? 'block' : 'none'}; opacity: ${window.howItWorksExpanded[2] ? '1' : '0'}; height: ${window.howItWorksExpanded[2] ? 'auto' : '0px'}; overflow: hidden; margin-top: 0.35rem; transition: all 0.3s ease-out;">
+                        <p style="font-size: 0.82rem; color: #64748b; margin: 0; font-weight: 500; line-height: 1.4;">
+                            ${isMusician ? 'Musiker-Profil anlegen und ohne Passwort einloggen' : 'Veranstalter-Profil anlegen und ohne Passwort einloggen'}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Arrow 2 (Connector to Card 3) -->
+            <div onclick="window.toggleFlowCard(2)" style="cursor: pointer; display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;" class="flow-arrow-container">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';">
+                    <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;" id="flow-arrow-icon-2"></i>
+                </div>
+            </div>
+
+            <!-- 3. Bottom Card: Kontaktdaten sichtbar (width: 100%, white background) -->
+            <div onclick="window.toggleFlowCard(3)" style="cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
+                    <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1.05rem;"></i>
+                </div>
+                <div style="flex: 1; display: flex; flex-direction: column;">
+                    <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2;">
+                        Kontaktdaten sichtbar
+                    </h4>
+                    <div id="flow-card-desc-3" style="display: ${window.howItWorksExpanded[3] ? 'block' : 'none'}; opacity: ${window.howItWorksExpanded[3] ? '1' : '0'}; height: ${window.howItWorksExpanded[3] ? 'auto' : '0px'}; overflow: hidden; margin-top: 0.35rem; transition: all 0.3s ease-out;">
+                        <p style="font-size: 0.82rem; color: #64748b; margin: 0; font-weight: 500; line-height: 1.4;">
+                            Austausch via Telefon, Mail, Nachrichten im Postfach
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Arrow 3 (Connector to Sub-header) -->
+            <div onclick="window.toggleFlowCard(3)" style="cursor: pointer; display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;" class="flow-arrow-container">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';">
+                    <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;" id="flow-arrow-icon-3"></i>
+                </div>
+            </div>
+
+            <!-- Advantages Grid (3 columns side-by-side even on mobile) -->
+            <div style="width: 100%; display: flex; flex-direction: row; gap: 0.5rem; justify-content: space-between; box-sizing: border-box; margin-bottom: 1rem;">
+                <!-- Col 1: Top-Matches -->
+                <div onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')" style="cursor: pointer; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37,99,235,0.15)'};">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                        <i class="fa-solid fa-star" style="color: ${themeColor}; font-size: 0.9rem;"></i>
+                    </div>
+                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #ffffff; margin: 0; line-height: 1.25; word-break: break-word;">
+                        Top-<br>Matches
+                    </h5>
+                </div>
+                <!-- Col 2: Standard Card: MEHR GIGS / DEIN ACT (Themed background, white text) -->
+                <div onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')" style="cursor: pointer; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37,99,235,0.15)'};">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                        <i class="fa-solid ${middleIcon}" style="color: ${themeColor}; font-size: 0.9rem;"></i>
+                    </div>
+                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #ffffff; margin: 0; line-height: 1.25; word-break: break-word;">
+                        ${middleSlogan}
+                    </h5>
+                </div>
+                <!-- Col 3: Preiswertes Abo-Modell / Keine Kosten -->
+                <div onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')" style="cursor: pointer; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37,99,235,0.15)'};">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                        <span style="color: ${themeColor}; font-size: 1.1rem; font-weight: 900; font-family: var(--font-heading); line-height: 1;">€</span>
+                    </div>
+                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #ffffff; margin: 0; line-height: 1.25; word-break: break-word;">
+                        ${isMusician ? 'Preiswertes<br>Abo-Modell' : 'Keine<br>Kosten'}
+                    </h5>
+                </div>
+            </div>
+
+        </div>
+    `;
+}
+
+window.toggleHowItWorks = function(type) {
+    const isMusician = type === 'musician';
+    const btnMusician = document.getElementById('btn-how-works-musician');
+    const btnOrganizer = document.getElementById('btn-how-works-organizer');
+    const contentContainer = document.getElementById('how-it-works-content');
+    if (!btnMusician || !btnOrganizer || !contentContainer) return;
+
+    if (isMusician) {
+        btnMusician.classList.add('active');
+        btnOrganizer.classList.remove('active');
+        
+        btnMusician.style.background = '#7c3aed';
+        btnMusician.style.color = '#ffffff';
+        btnMusician.style.border = '1.5px solid transparent';
+        btnMusician.style.boxShadow = '0 4px 12px rgba(124, 58, 237, 0.15)';
+        
+        btnOrganizer.style.background = '#ffffff';
+        btnOrganizer.style.color = '#64748b';
+        btnOrganizer.style.border = '1.5px solid rgba(0,0,0,0.06)';
+        btnOrganizer.style.boxShadow = 'none';
+    } else {
+        btnOrganizer.classList.add('active');
+        btnMusician.classList.remove('active');
+        
+        btnOrganizer.style.background = '#2563eb';
+        btnOrganizer.style.color = '#ffffff';
+        btnOrganizer.style.border = '1.5px solid transparent';
+        btnOrganizer.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.15)';
+        
+        btnMusician.style.background = '#ffffff';
+        btnMusician.style.color = '#64748b';
+        btnMusician.style.border = '1.5px solid rgba(0,0,0,0.06)';
+        btnMusician.style.boxShadow = 'none';
+    }
+    contentContainer.innerHTML = renderHowItWorksContentHTML(type);
+};
+
+window.toggleHowItWorksMiddle = function() {
+    // No-op: all advantages are now fully expanded by default
+};
+
 function renderLandingPage(container, onNavigate) {
     window.onNavigate = onNavigate;
     const isUserLoggedIn = !!state.currentUser;
@@ -9159,43 +9466,10 @@ function renderLandingPage(container, onNavigate) {
 
                 <!-- 1/3: Large Logo -->
                 <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0 0.8rem; box-sizing: border-box;">
-                    <!-- Large SVG Disco Ball -->
-                    <svg id="hero-logo-svg" class="${logoClass}" viewBox="0 0 100 100" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); flex-shrink: 0; overflow: visible; opacity: 1;">
-                      <defs>
-                        <radialGradient id="sphereGradLarge" cx="35%" cy="35%" r="65%">
-                          <stop offset="0%" stop-color="#ffffff" />
-                          <stop offset="40%" stop-color="#a78bfa" />
-                          <stop offset="75%" stop-color="#6d28d9" />
-                          <stop offset="100%" stop-color="#1e40af" />
-                        </radialGradient>
-                        <filter id="glowLarge" x="-30%" y="-30%" width="160%" height="160%">
-                          <feGaussianBlur stdDeviation="2.5" result="blur" />
-                          <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                        </filter>
-                      </defs>
-                      <g class="spinning-disco-ball">
-                          <circle cx="50" cy="50" r="40" fill="url(#sphereGradLarge)" />
-                          <!-- Grid arcs -->
-                          <path d="M 10 50 A 40 40 0 0 0 90 50 A 40 40 0 0 0 10 50" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
-                          <path d="M 11.5 40 A 40 30 0 0 0 88.5 40" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 15 30 A 40 20 0 0 0 85 30" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 21.8 20 A 40 10 0 0 0 78.2 20" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 11.5 60 A 40 30 0 0 1 88.5 60" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 15 70 A 40 20 0 0 1 85 70" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 21.8 80 A 40 10 0 0 1 78.2 80" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 50 10 A 40 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
-                          <path d="M 50 10 A 30 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 50 10 A 20 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 50 10 A 10 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 50 10 A 30 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 50 10 A 20 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          <path d="M 50 10 A 10 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                      </g>
-                      <!-- Sparkles -->
-                      <g transform="translate(22, 25)" filter="url(#glowLarge)"><polygon class="sparkle-1" points="0,-8 2,-2 8,0 2,2 0,8 -2,2 -8,0 -2,-2" fill="#ffffff" /></g>
-                      <g transform="translate(75, 30)" filter="url(#glowLarge)"><polygon class="sparkle-2" points="0,-6 1.5,-1.5 6,0 1.5,1.5 0,6 -1.5,1.5 -6,0 -1.5,-1.5" fill="#ffffff" /></g>
-                      <g transform="translate(68, 68)" filter="url(#glowLarge)"><polygon class="sparkle-3" points="0,-7 1.8,-1.8 7,0 1.8,1.8 0,7 -1.8,1.8 -7,0 -1.8,-1.8" fill="#ffffff" /></g>
-                    </svg>
+                    <!-- Large PNG Disco Ball (nested wrapper to keep entry animations, but static without rotation) -->
+                    <div class="${logoClass}" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible;">
+                        <img src="discoball.png" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.55)); opacity: 1; pointer-events: none;">
+                    </div>
                     <div class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.2rem); font-weight: 900; letter-spacing: -1.5px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                         GigConnAct
                     </div>
@@ -9237,7 +9511,7 @@ function renderLandingPage(container, onNavigate) {
                 </div>
 
                 <!-- Subtitle: Category Icons -->
-                <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; margin-bottom: 2.2rem;">
+                <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; margin-bottom: 0.85rem;">
                     <span><i class="fa-solid fa-heart" style="color: #7c3aed; margin-right: 0.35rem;"></i> Hochzeit</span>
                     <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
                     <span><i class="fa-solid fa-cake-candles" style="color: #7c3aed; margin-right: 0.35rem;"></i> Geburtstag</span>
@@ -9353,7 +9627,7 @@ function renderLandingPage(container, onNavigate) {
                 </div>
 
                 <!-- Subtitle: Category Icons -->
-                <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; margin-bottom: 2.2rem;">
+                <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; margin-bottom: 0.85rem;">
                     <span><i class="fa-solid fa-microphone" style="color: #2563eb; margin-right: 0.35rem;"></i> Sänger</span>
                     <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
                     <span><i class="fa-solid fa-users" style="color: #2563eb; margin-right: 0.35rem;"></i> Band</span>
@@ -9523,341 +9797,45 @@ function renderLandingPage(container, onNavigate) {
                 </div>
             </div>
 
-            <!-- 4. SECTION 3 & 4: Vorteile für Musiker & Veranstalter (Split-Layout on laptops) -->
-            <div style="max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem 0;">
-                <div class="benefits-container-split" style="gap: 2rem;">
-                    
-                    <!-- Left column: Musiker benefits -->
-                    <div class="benefit-split-card card-musician">
-                        <div>
-                            <!-- Header badge -->
-                            <div style="background: rgba(124, 58, 237, 0.1); color: #7c3aed; border-radius: 20px; padding: 0.45rem 1rem; font-size: 0.88rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1.2rem; text-transform: uppercase;">
-                                <i class="fa-solid fa-guitar"></i> Für Musiker
-                            </div>
-                            
-                            <!-- Title and Illustration Row -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem;">
-                                <h3 style="font-family: var(--font-heading); font-size: clamp(1.5rem, 2.8vw, 2.0rem); font-weight: 900; color: var(--text-main); margin: 0; line-height: 1.25; text-align: left;">
-                                    <span style="color: #7c3aed;">Mehr Gigs.</span><br><span style="white-space: nowrap;">Mehr Einnahmen.</span>
-                                </h3>
-                                <!-- Illustration: guitar + music notes -->
-                                <div style="width: 76px; height: 76px; background: rgba(124, 58, 237, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0;">
-                                    <i class="fa-solid fa-guitar" style="font-size: 2.2rem; color: #7c3aed; transform: rotate(-15deg);"></i>
-                                </div>
-                            </div>
+            <!-- 4. Wie funktioniert GigConnAct? Section -->
+            <div style="max-width: 1000px; margin: 5rem auto 2rem; padding: 0 1.5rem; text-align: center;">
+                <style>
+                    .how-works-tab-btn {
+                        transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                    }
+                    /* When hovered and not active, make it visually lift and highlight */
+                    .how-works-tab-btn:not(.active):hover {
+                        background: #f8fafc !important;
+                        color: #0f172a !important;
+                        border-color: rgba(124, 58, 237, 0.25) !important;
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08) !important;
+                    }
+                    /* Subtle lift on hover even when active */
+                    .how-works-tab-btn.active:hover {
+                        transform: translateY(-2px);
+                        filter: brightness(1.05);
+                    }
+                </style>
+                <div style="text-align: center; margin-bottom: 2.5rem; padding: 0 1rem;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; color: #0f172a; margin: 0 0 0.5rem; line-height: 1.2; letter-spacing: -1px;">
+                        <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">GigConnAct</span> erklärt
+                    </h2>
+                </div>
+                
+                <!-- Tab Selector (Nebeneinander & Breit & Statisch) -->
+                <div class="how-it-works-tabs" style="display: flex; flex-direction: row; justify-content: center; width: 100%; max-width: 650px; margin: 0 auto 2.5rem; gap: 0.75rem; font-family: var(--font-heading); box-sizing: border-box; padding: 0 0.5rem;">
+                    <button class="how-works-tab-btn active" id="btn-how-works-musician" style="flex: 1; min-width: 0; height: 42px; border-radius: 12px; border: 1.5px solid transparent; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.25s; background: #7c3aed; color: #ffffff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);" onclick="toggleHowItWorks('musician')">
+                        <span style="font-size: 0.9rem; font-weight: 800; white-space: nowrap;">Für Musiker</span>
+                    </button>
+                    <button class="how-works-tab-btn" id="btn-how-works-organizer" style="flex: 1; min-width: 0; height: 42px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.06); font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.25s; background: #ffffff; color: #64748b;" onclick="toggleHowItWorks('organizer')">
+                        <span style="font-size: 0.9rem; font-weight: 800; white-space: nowrap;">Für Veranstalter</span>
+                    </button>
+                </div>
 
-                            <!-- List stack -->
-                            <div style="display: flex; flex-direction: column; gap: 0.8rem; width: 100%;">
-                                
-                                <!-- Item 1 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-store" style="color: #7c3aed; font-size: 1.0rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
-                                            01 Kostenloser Zugang
-                                        </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Zum Event-Markt
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Hochzeiten, Feiern, Festival ...
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Arrow 1 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(124, 58, 237, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </div>
-
-                                <!-- Item 2 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-sliders" style="color: #7c3aed; font-size: 1.0rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
-                                            02 Passende Events
-                                        </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Durch Filter-Logik
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Event-Typ, Entfernung, Gage ...
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Arrow 2 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(124, 58, 237, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </div>
-
-                                <!-- Item 3 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-bolt" style="color: #7c3aed; font-size: 1.0rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
-                                            03 Schnelle Anmeldung
-                                        </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Anlegen eines Musiker-Profils
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Ohne Passwort
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Arrow 3 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(124, 58, 237, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </div>
-
-                                <!-- Item 4 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-percent" style="color: #7c3aed; font-size: 1.0rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
-                                            04 Keine Provisionskosten
-                                        </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Preiswertes Abo-Modell
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Jederzeit kündbar
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Arrow 4 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(124, 58, 237, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </div>
-
-                                <!-- Item 5 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-star" style="color: #7c3aed; font-size: 1.0rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
-                                            05 Top-Vorschläge
-                                        </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Durch Matching-Logik
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Automatische Event-Empfehlungen
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Arrow 5 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(124, 58, 237, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </div>
-
-                                <!-- Item 6 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                                        <i class="fa-solid fa-comments" style="color: #7c3aed; font-size: 1.0rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">
-                                            06  Direkter Kontakt
-                                        </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Zu Veranstaltern der Events
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Name, Telefon, Mail, Nachricht ...
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Button: Hier geht's zum Event-Markt -->
-                                <div style="margin-top: 1.5rem; text-align: center; width: 100%;">
-                                    <button id="btn-benefits-to-events" class="btn-homepage-market theme-musician" style="width: 100%; box-sizing: border-box; margin: 0;">
-                                        Hier geht's zum Event-Markt <i class="fa-solid fa-arrow-right"></i>
-                                    </button>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right column: Veranstalter benefits -->
-                    <div class="benefit-split-card card-organizer">
-                        <div>
-                            <!-- Header badge -->
-                            <div style="background: rgba(37, 99, 235, 0.1); color: #2563eb; border-radius: 20px; padding: 0.45rem 1rem; font-size: 0.88rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1.2rem; text-transform: uppercase;">
-                                <i class="fa-solid fa-building"></i> Für Veranstalter
-                            </div>
-                            
-                            <!-- Title and Illustration Row -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem;">
-                                <h3 style="font-family: var(--font-heading); font-size: clamp(1.5rem, 2.8vw, 2.0rem); font-weight: 900; color: var(--text-main); margin: 0; line-height: 1.25; text-align: left;">
-                                    <span style="color: #0f172a;">Dein Event.</span><br><span style="color: #2563eb;">Dein Act.</span>
-                                </h3>
-                                <!-- Illustration: calendar -->
-                                <div style="width: 76px; height: 76px; background: rgba(37, 99, 235, 0.08); border-radius: 18px; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0;">
-                                    <i class="fa-solid fa-calendar-days" style="font-size: 2rem; color: #2563eb;"></i>
-                                </div>
-                            </div>
-
-                            <!-- List stack -->
-                            <div style="display: flex; flex-direction: column; gap: 0.8rem; width: 100%;">
-                                
-                                <!-- Item 1 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                                        <i class="fa-solid fa-users" style="color: #2563eb; font-size: 1.0rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #2563eb;">
-                                            01 Kostenloser Zugang
-                                        </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Zu Musikern
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Coverbands, Bands, DJs, Duos, Trios, Gitarristen, Sänger etc.
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Arrow 1 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(37, 99, 235, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </div>
-
-                                <!-- Item 2 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                                        <i class="fa-solid fa-sliders" style="color: #2563eb; font-size: 1.0rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #2563eb;">
-                                            02 Passende Musiker
-                                        </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Durch Filter-Logik
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Musiker-Typ, Budget, Genre, Spieldauer etc.
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Arrow 2 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(37, 99, 235, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </div>
-
-                                <!-- Item 3 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                                        <i class="fa-solid fa-comments" style="color: #2563eb; font-size: 1.0rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #2563eb;">
-                                            03 Direkter Kontakt
-                                        </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Zu Musikern
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Name, Telefon, Mail, Nachricht ...
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Arrow 3 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(37, 99, 235, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </div>
-
-                                <!-- Item 4 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                                        <i class="fa-solid fa-star" style="color: #2563eb; font-size: 1.0rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #2563eb;">
-                                            04 Top-Vorschläge
-                                        </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Durch Matching-Logik
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Automatische Empfehlungen von GigConnAct
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Arrow 4 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(37, 99, 235, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </div>
-
-                                <!-- Item 5 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                                        <i class="fa-solid fa-bolt" style="color: #2563eb; font-size: 1.0rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #2563eb;">
-                                            05 Schnelle Anmeldung
-                                        </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Anlegen eines Veranstalter-Profils
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Ohne Passwort
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Arrow 5 -->
-                                <div style="display: flex; align-items: center; justify-content: center; width: 38px; margin: -0.2rem 0; color: rgba(37, 99, 235, 0.65); font-size: 1.25rem; height: 20px; flex-shrink: 0;">
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </div>
-
-                                <!-- Item 6 -->
-                                <div style="display: flex; align-items: center; gap: 1rem; min-height: 54px;">
-                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                                        <i class="fa-solid fa-percent" style="color: #2563eb; font-size: 1.0rem;"></i>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column; gap: 0.05rem; text-align: left; font-family: var(--font-body);">
-                                        <div style="font-size: 0.95rem; font-weight: 800; color: #2563eb;">
-                                            06 Keine Provisionskosten
-                                        </div>
-                                        <div style="font-size: 0.9rem; font-weight: 800; color: #0f172a;">
-                                            Oder andere versteckte Kosten
-                                        </div>
-                                        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500; line-height: 1.35;">
-                                            Kostenlose Vermittlung für Veranstalter
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Button: Hier geht's zum Musiker-Markt -->
-                                <div style="margin-top: 1.5rem; text-align: center; width: 100%;">
-                                    <button id="btn-benefits-to-musicians" class="btn-homepage-market theme-organizer" style="width: 100%; box-sizing: border-box; margin: 0;">
-                                        Hier geht's zum Musiker-Markt <i class="fa-solid fa-arrow-right"></i>
-                                    </button>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
+                <!-- Dynamic Content Container -->
+                <div id="how-it-works-content" style="width: 100%;">
+                    ${renderHowItWorksContentHTML('musician')}
                 </div>
             </div>
 <!-- Founder Title: „Airbnb für Live-Musik“ -->
@@ -9900,65 +9878,28 @@ function renderLandingPage(container, onNavigate) {
             <!-- 7. FOOTER / IMPRESSUM -->
             <footer style="margin-top: 6rem; border-top: 1px solid var(--border-glass); padding: 4rem 1.5rem; text-align: center;">
                 <div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
-                    <!-- Brand / Name with SVG Disco Ball -->
+                    <!-- Brand / Name with PNG Disco Ball -->
                     <div style="display: flex; align-items: center; gap: 0.6rem; justify-content: center; margin-bottom: 0.5rem;">
-                        <!-- SVG Disco Ball -->
-                        <svg viewBox="0 0 100 100" style="width: 28px; height: 28px; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(124,58,237,0.15));">
-                          <defs>
-                            <radialGradient id="sphereGradFooter" cx="35%" cy="35%" r="65%">
-                              <stop offset="0%" stop-color="#ffffff" />
-                              <stop offset="40%" stop-color="#a78bfa" />
-                              <stop offset="75%" stop-color="#6d28d9" />
-                              <stop offset="100%" stop-color="#1e40af" />
-                            </radialGradient>
-                            <filter id="glowFooter" x="-20%" y="-20%" width="140%" height="140%">
-                              <feGaussianBlur stdDeviation="1.2" result="blur" />
-                              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                            </filter>
-                          </defs>
-                          <g class="spinning-disco-ball">
-                              <circle cx="50" cy="50" r="40" fill="url(#sphereGradFooter)" />
-                              <!-- Grid arcs -->
-                              <path d="M 10 50 A 40 40 0 0 0 90 50 A 40 40 0 0 0 10 50" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
-                              <path d="M 11.5 40 A 40 30 0 0 0 88.5 40" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 15 30 A 40 20 0 0 0 85 30" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 21.8 20 A 40 10 0 0 0 78.2 20" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 11.5 60 A 40 30 0 0 1 88.5 60" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 15 70 A 40 20 0 0 1 85 70" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 21.8 80 A 40 10 0 0 1 78.2 80" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 50 10 A 40 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8" />
-                              <path d="M 50 10 A 30 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 50 10 A 20 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 50 10 A 10 40 0 0 0 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 50 10 A 30 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 50 10 A 20 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                              <path d="M 50 10 A 10 40 0 0 1 50 90" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" />
-                          </g>
-                          <!-- Sparkles -->
-                          <g class="sparkle-1" transform="translate(22, 25)" filter="url(#glowFooter)"><polygon points="0,-8 2,-2 8,0 2,2 0,8 -2,2 -8,0 -2,-2" fill="#ffffff" /></g>
-                          <g class="sparkle-2" transform="translate(75, 30)" filter="url(#glowFooter)"><polygon points="0,-6 1.5,-1.5 6,0 1.5,1.5 0,6 -1.5,1.5 -6,0 -1.5,-1.5" fill="#ffffff" /></g>
-                          <g class="sparkle-3" transform="translate(68, 68)" filter="url(#glowFooter)"><polygon points="0,-7 1.8,-1.8 7,0 1.8,1.8 0,7 -1.8,1.8 -7,0 -1.8,-1.8" fill="#ffffff" /></g>
-                        </svg>
+                        <img src="discoball.png" alt="GigConnAct Logo" style="width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(124,58,237,0.15));">
                         <div style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">
                             GigConnAct
                         </div>
                     </div>
                     <!-- Impressum Info -->
                     <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.5rem; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
-                        <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 0.2rem;">
-                            <a href="#/impressum" style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; text-decoration: none;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-main)';">Impressum</a>
-                            <span style="color: rgba(255,255,255,0.15);">&bull;</span>
-                            <a href="#/datenschutz" style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; text-decoration: none;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-main)';">Datenschutz</a>
-                        </div>
                         <span>GigConnAct &bull; Montanusstraße 49 &bull; 51065 Köln</span>
                         <div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
                             <span>Tel: <a href="tel:+4915788703998" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">+49 15788703998</a></span>
                             <span>E-Mail: <a href="mailto:info@gigconnact.de" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">info@gigconnact.de</a></span>
                         </div>
                     </div>
-                    <!-- Copyright -->
-                    <div style="font-size: 0.8rem; color: rgba(15, 23, 42, 0.4); margin-top: 1.5rem; font-weight: 500;">
-                        &copy; 2026 GigConnAct. Alle Rechte vorbehalten.
+                    <!-- Copyright & Legal Links -->
+                    <div style="font-size: 0.8rem; color: rgba(15, 23, 42, 0.45); margin-top: 1.5rem; font-weight: 500; display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap; align-items: center;">
+                        <span>&copy; 2026 GigConnAct. Alle Rechte vorbehalten.</span>
+                        <span style="opacity: 0.5;">&bull;</span>
+                        <a href="#/impressum" style="color: rgba(15, 23, 42, 0.6); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='rgba(15, 23, 42, 0.6)';">Impressum</a>
+                        <span style="opacity: 0.5;">&bull;</span>
+                        <a href="#/datenschutz" style="color: rgba(15, 23, 42, 0.6); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='rgba(15, 23, 42, 0.6)';">Datenschutz</a>
                     </div>
                 </div>
             </footer>
@@ -10106,6 +10047,11 @@ function renderLandingPage(container, onNavigate) {
         // Monitor the initial active player (v1)
         monitorPlayer(v1, v2);
     }
+
+    // Clear any active tab text rotation intervals
+    if (window.tabTextRotationInterval) {
+        clearInterval(window.tabTextRotationInterval);
+    }
 }
 
 
@@ -10243,6 +10189,8 @@ function initDualSlider(containerId, minInputId, maxInputId, trackId, displayId,
 
 function setupLocationAutocomplete(input, onSelect) {
     if (!input) return;
+    if (input.dataset.autocompleteBound === "true") return;
+    input.dataset.autocompleteBound = "true";
     
     let wrapper = input.parentElement;
     if (wrapper && (window.getComputedStyle(wrapper).display === 'flex' || wrapper.style.display === 'flex')) {
@@ -10563,7 +10511,7 @@ function renderMarket(container, type, onNavigate) {
     const items = isEvents ? state.events : state.musicians;
     
     let selectedFilterDates = [];
-    let currentFilterCalDate = new Date(2026, 6, 1); // July 2026
+    let currentFilterCalDate = new Date();
     let showOnlyTopMatches = false;
     let showOnlyFavorites = false;
 
@@ -10573,7 +10521,7 @@ function renderMarket(container, type, onNavigate) {
             <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.75rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0px; -webkit-overflow-scrolling: touch;">
                 
                 <!-- 1. Ergebnisse als Zahl + Label at the very left -->
-                <div style="display: flex; align-items: center; gap: 0.7rem; flex-shrink: 0; padding-right: 0.5rem; padding-left: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.7rem; flex-shrink: 0; padding-right: 0.5rem; padding-left: 0.5rem;">
                     <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; text-align: center; padding: 0.2rem 0.55rem; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; min-width: 32px; white-space: nowrap; margin: 0; line-height: 1.2;">
                         ${items.length}
                     </div>
@@ -10680,7 +10628,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-event-type-grid">
                                     ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterEventTypes" value="${t}" checked>
+                                            <input type="checkbox" name="filterEventTypes" value="${t}">
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -10698,7 +10646,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-musician-types-grid">
                                     ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterMusicianTypes" value="${t}" checked>
+                                            <input type="checkbox" name="filterMusicianTypes" value="${t}">
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -10716,7 +10664,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-genres-grid">
                                     ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterGenres" value="${g}" checked>
+                                            <input type="checkbox" name="filterGenres" value="${g}">
                                             <span>${g}</span>
                                         </label>
                                     `).join('')}
@@ -10734,7 +10682,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid">
                                     ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterInstruments" value="${ins}" checked>
+                                            <input type="checkbox" name="filterInstruments" value="${ins}">
                                             <span>${ins}</span>
                                         </label>
                                     `).join('')}
@@ -10780,7 +10728,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-technik-grid">
                                     ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterTechnik" value="${t}" checked>
+                                            <input type="checkbox" name="filterTechnik" value="${t}">
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -10854,7 +10802,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-musician-type-grid">
                                     ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterMusicianTypes" value="${t}" checked>
+                                            <input type="checkbox" name="filterMusicianTypes" value="${t}">
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -10872,7 +10820,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
                                     ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterEventTypesM" value="${evt}" checked>
+                                            <input type="checkbox" name="filterEventTypesM" value="${evt}">
                                             <span>${evt}</span>
                                         </label>
                                     `).join('')}
@@ -10890,7 +10838,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-genres-grid-m">
                                     ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterGenresM" value="${g}" checked>
+                                            <input type="checkbox" name="filterGenresM" value="${g}">
                                             <span>${g}</span>
                                         </label>
                                     `).join('')}
@@ -10908,7 +10856,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
                                     ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterInstrumentsM" value="${ins}" checked>
+                                            <input type="checkbox" name="filterInstrumentsM" value="${ins}">
                                             <span>${ins}</span>
                                         </label>
                                     `).join('')}
@@ -10954,7 +10902,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="checkbox-tag-grid" id="filter-technik-grid-m">
                                     ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
                                         <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterTechnikM" value="${t}" checked>
+                                            <input type="checkbox" name="filterTechnikM" value="${t}">
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -11127,8 +11075,22 @@ function renderMarket(container, type, onNavigate) {
                         if (isEvents) {
                             item.matchScore = calculateMatch(myProfile, item, 'musician').score;
                         } else {
-                            item.matchScore = 100;
+                            let hash = 0;
+                            const idStr = String(item.id);
+                            for (let i = 0; i < idStr.length; i++) {
+                                hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
+                            }
+                            item.matchScore = 70 + Math.abs(hash % 26);
                         }
+                    });
+                } else {
+                    list.forEach(item => {
+                        let hash = 0;
+                        const idStr = String(item.id);
+                        for (let i = 0; i < idStr.length; i++) {
+                            hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
+                        }
+                        item.matchScore = 70 + Math.abs(hash % 26);
                     });
                 }
             } else if (state.currentUser.role === 'organizer') {
@@ -11141,8 +11103,22 @@ function renderMarket(container, type, onNavigate) {
                         if (!isEvents) {
                             item.matchScore = calculateMatch(item, myProfile, 'organizer').score;
                         } else {
-                            item.matchScore = 100;
+                            let hash = 0;
+                            const idStr = String(item.id);
+                            for (let i = 0; i < idStr.length; i++) {
+                                hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
+                            }
+                            item.matchScore = 70 + Math.abs(hash % 26);
                         }
+                    });
+                } else {
+                    list.forEach(item => {
+                        let hash = 0;
+                        const idStr = String(item.id);
+                        for (let i = 0; i < idStr.length; i++) {
+                            hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
+                        }
+                        item.matchScore = 70 + Math.abs(hash % 26);
                     });
                 }
             }
@@ -11153,7 +11129,7 @@ function renderMarket(container, type, onNavigate) {
                 for (let i = 0; i < idStr.length; i++) {
                     hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
                 }
-                item.matchScore = 45 + Math.abs(hash % 51); // 45% to 95%
+                item.matchScore = 70 + Math.abs(hash % 26); // 70% to 95%
             });
         }
 
@@ -11189,9 +11165,10 @@ function renderMarket(container, type, onNavigate) {
                             if (item.availability.includes(dateVal)) return true;
                             const weekday = getWeekdayFromDate(dateVal);
                             return item.availability.includes(weekday);
-                        } else if (typeof item.availability === 'object') {
-                            const eventWeekday = getWeekdayFromDate(dateVal).toLowerCase();
-                            if (item.availability[eventWeekday] !== undefined) {
+                        } else if (item.availability && typeof item.availability === 'object') {
+                            const weekdayRaw = getWeekdayFromDate(dateVal);
+                            const eventWeekday = weekdayRaw ? weekdayRaw.toLowerCase() : '';
+                            if (eventWeekday && item.availability[eventWeekday] !== undefined) {
                                 return !!item.availability[eventWeekday].available;
                             } else {
                                 const isModified = item.availability.modifiedDates && item.availability.modifiedDates.includes(dateVal);
@@ -11221,10 +11198,8 @@ function renderMarket(container, type, onNavigate) {
 
         // 3. Genres Filter
         const genresGridId = isEvents ? 'filter-genres-grid' : 'filter-genres-grid-m';
-        const genresGrid = container.querySelector('#' + genresGridId);
-        const genresInteracted = genresGrid && genresGrid.dataset.interacted === 'true';
         const selGenres = getCheckedValues(genresGridId);
-        if (genresInteracted || selGenres.length > 0) {
+        if (selGenres.length > 0) {
             list = list.filter(item => {
                 const itemG = item.genres || [];
                 return selGenres.some(g => itemG.some(ig => ig.toLowerCase().includes(g.toLowerCase())));
@@ -11233,10 +11208,8 @@ function renderMarket(container, type, onNavigate) {
 
         // 4. Instrumente Filter
         const instGridId = isEvents ? 'filter-instruments-grid' : 'filter-instruments-grid-m';
-        const instGrid = container.querySelector('#' + instGridId);
-        const instInteracted = instGrid && instGrid.dataset.interacted === 'true';
         const selInst = getCheckedValues(instGridId);
-        if (instInteracted || selInst.length > 0) {
+        if (selInst.length > 0) {
             list = list.filter(item => {
                 const itemI = item.instruments || [];
                 return selInst.some(inst => itemI.some(i => i.toLowerCase().includes(inst.toLowerCase())));
@@ -11245,10 +11218,8 @@ function renderMarket(container, type, onNavigate) {
 
         // 5. Musiker-Typ / Event-Typ
         const typeGridId = isEvents ? 'filter-event-type-grid' : 'filter-musician-type-grid';
-        const typeGrid = container.querySelector('#' + typeGridId);
-        const typeInteracted = typeGrid && typeGrid.dataset.interacted === 'true';
         const selType = getCheckedValues(typeGridId);
-        if (typeInteracted || selType.length > 0) {
+        if (selType.length > 0) {
             list = list.filter(item => {
                 const val = (item.type || item.eventType || '');
                 return selType.some(t => val.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(val.toLowerCase()));
@@ -11258,10 +11229,8 @@ function renderMarket(container, type, onNavigate) {
         // 5.5. Gesuchte Musiker-Typen Filter (for Event-Markt only)
         if (isEvents) {
             const musTypesGridId = 'filter-musician-types-grid';
-            const musTypesGrid = container.querySelector('#' + musTypesGridId);
-            const musTypesInteracted = musTypesGrid && musTypesGrid.dataset.interacted === 'true';
             const selMusTypes = getCheckedValues(musTypesGridId);
-            if (musTypesInteracted || selMusTypes.length > 0) {
+            if (selMusTypes.length > 0) {
                 list = list.filter(item => {
                     const itemTypes = item.musicianTypes || (item.musicianType ? item.musicianType.split(',').map(s => s.trim()) : []);
                     return selMusTypes.some(t => itemTypes.some(it => it.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(it.toLowerCase())));
@@ -11271,10 +11240,8 @@ function renderMarket(container, type, onNavigate) {
 
         // 6. Technik Filter
         const techGridId = isEvents ? 'filter-technik-grid' : 'filter-technik-grid-m';
-        const techGrid = container.querySelector('#' + techGridId);
-        const techInteracted = techGrid && techGrid.dataset.interacted === 'true';
         const selTechnik = getCheckedValues(techGridId);
-        if (techInteracted || selTechnik.length > 0) {
+        if (selTechnik.length > 0) {
             list = list.filter(item => {
                 const rawVal = item.technik || item.equipment || '';
                 const itemTechArr = Array.isArray(rawVal) 
@@ -11561,6 +11528,9 @@ function renderMarket(container, type, onNavigate) {
         });
         container.querySelectorAll('.checkbox-tag-grid').forEach(grid => {
             grid.removeAttribute('data-interacted');
+        });
+        container.querySelectorAll('[onclick*="toggleAllFilterCheckboxes"]').forEach(el => {
+            el.textContent = 'alle auswählen';
         });
         
         const durationMin = container.querySelector('#input-filter-duration-min') || container.querySelector('#input-filter-duration-m-min');
@@ -11978,9 +11948,11 @@ window.openItemDetailModal = function(id, isEvents) {
                                 <i class="fa-solid fa-lock" style="color: ${roleColor};"></i> Geschützter Kontaktbereich
                             </div>
                             <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem;">
-                                Kontaktdaten (Telefonnummer & E-Mail-Adresse) sind im geschützten Modus verborgen. Registriere dich oder melde dich an, um direkt zu kommunizieren.
+                                ${state && state.currentUser 
+                                    ? 'Schalte die Kontaktdaten frei, um direkt zu kommunizieren.' 
+                                    : 'Kontaktdaten (Telefonnummer & E-Mail-Adresse) sind im geschützten Modus verborgen. Registriere dich oder melde dich an, um direkt zu kommunizieren.'}
                             </p>
-                            <button class="btn btn-primary" onclick="showModal('auth'); document.getElementById('modal-item-detail').remove();" style="background: ${isEvents ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'} !important; border-color: ${isEvents ? '#1e40af' : '#7c3aed'} !important; font-weight: 800; padding: 0.9rem 2rem; font-size: 1rem; border-radius: 12px; display: inline-flex; align-items: center; gap: 0.6rem; box-shadow: ${isEvents ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'} !important;">
+                            <button class="btn btn-primary" onclick="${state && state.currentUser ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : `showModal('auth')`}; document.getElementById('modal-item-detail').remove();" style="background: ${isEvents ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'} !important; border-color: ${isEvents ? '#1e40af' : '#7c3aed'} !important; font-weight: 800; padding: 0.9rem 2rem; font-size: 1rem; border-radius: 12px; display: inline-flex; align-items: center; gap: 0.6rem; box-shadow: ${isEvents ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'} !important;">
                                 <i class="fa-solid fa-sign-in-alt"></i> Kontaktdaten freischalten
                             </button>
                         `}
@@ -13004,7 +12976,7 @@ function renderOrganizerEventItem(e, isActive) {
     const description = e.description || 'Wir suchen eine professionelle musikalische Begleitung für unser anstehendes Event mit fantastischer Stimmung.';
 
     const themeColor = '#7c3aed';
-    const dotActiveColor = '#a855f7';
+    const dotActiveColor = '#7c3aed';
 
     return `
         <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'};">
@@ -13018,7 +12990,7 @@ function renderOrganizerEventItem(e, isActive) {
                 <!-- Dots container inside the slider -->
                 <div class="tile-gallery-dots" id="combo-dots-${e.id}" data-theme="${dotActiveColor}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
                     ${Array.from({ length: photos.length + 1 }).map((_, dIdx) => `
-                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.5'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.25)' : 'scale(1)'}; border: 1px solid rgba(0,0,0,0.15); box-shadow: 0 1px 2px rgba(0,0,0,0.2);"></span>
+                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${e.id}', ${dIdx})" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? dotActiveColor : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + dotActiveColor : '0 1px 2px rgba(0,0,0,0.2)'}; cursor: pointer;"></span>
                     `).join('')}
                 </div>
                 
@@ -13445,7 +13417,7 @@ function renderMyMusicianItem(m, isActive) {
         }
     }
 
-    const dotActiveColor = '#3b82f6';
+    const dotActiveColor = '#2563eb';
 
     return `
         <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'};">
@@ -13459,7 +13431,7 @@ function renderMyMusicianItem(m, isActive) {
                 <!-- Dots container inside the slider -->
                 <div class="tile-gallery-dots" id="combo-dots-${m.id}" data-theme="${dotActiveColor}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
                     ${Array.from({ length: photos.length + videoSources.length + audios.length + 1 }).map((_, dIdx) => `
-                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.5'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.25)' : 'scale(1)'}; border: 1px solid rgba(0,0,0,0.15); box-shadow: 0 1px 2px rgba(0,0,0,0.2);"></span>
+                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${m.id}', ${dIdx})" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? dotActiveColor : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + dotActiveColor : '0 1px 2px rgba(0,0,0,0.2)'}; cursor: pointer;"></span>
                     `).join('')}
                 </div>
                 
@@ -13977,7 +13949,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </p>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
                             <button type="button" id="btn-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -14145,11 +14117,11 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     if (addPhotoBtn) {
         addPhotoBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            const remainingSlots = 5 - localMedia.photos.length;
+            const remainingSlots = 3 - localMedia.photos.length;
             if (remainingSlots <= 0) {
                 showToast({
                     title: "Bilder-Limit erreicht 📷",
-                    message: "Es sind maximal 5 Bilder erlaubt."
+                    message: "Es sind maximal 3 Bilder erlaubt."
                 });
                 return;
             }
@@ -14164,7 +14136,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     if (fileInput.files.length > remainingSlots) {
                         showToast({
                             title: "Bilder-Limit 📷",
-                            message: `Es wurden nur die ersten ${remainingSlots} Bilder ausgewählt (maximal 5 erlaubt).`
+                            message: `Es wurden nur die ersten ${remainingSlots} Bilder ausgewählt (maximal 3 erlaubt).`
                         });
                     }
                     filesToProcess.forEach(file => {
@@ -14516,7 +14488,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
                     <!-- 2. Ort -->
                     <div class="form-group">
-                        <label>Veranstaltungsort (Stadt)</label>
+                        <label>Veranstaltungsort</label>
                         <input type="text" id="modal-input-org-location-search" class="input-field" value="${eventObj?.location || ''}" placeholder="z.B. München" autocomplete="off" style="width: 100%;">
                     </div>
 
@@ -14704,7 +14676,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     </p>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
                             <button type="button" id="btn-event-modal-add-photo" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -14734,7 +14706,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
     document.getElementById('btn-close-event-modal').addEventListener('click', closeModal);
 
     // Initialize Calendar Widget
-    let currentCalDate = new Date(2026, 6, 1); // July 2026
+    let currentCalDate = new Date();
     const calendarMonthYear = document.getElementById('modal-org-calendar-month-year');
     const calendarDaysGrid = document.getElementById('modal-org-calendar-days-grid');
     const calendarPrevBtn = document.getElementById('modal-btn-cal-prev');
@@ -14751,6 +14723,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
         const adjustedFirstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
         const totalDays = new Date(year, month + 1, 0).getDate();
 
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
         let daysHtml = '';
         for (let i = 0; i < adjustedFirstDayIndex; i++) {
             daysHtml += `<div class="org-cal-day empty"></div>`;
@@ -14758,13 +14734,15 @@ function showEventModal(eventObj = null, isDuplication = false) {
         for (let day = 1; day <= totalDays; day++) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const isSelected = selectedEventDates.includes(dateStr);
-            daysHtml += `<div class="org-cal-day ${isSelected ? 'selected' : ''}" data-date="${dateStr}">${day}</div>`;
+            const isPast = dateStr < todayStr;
+            daysHtml += `<div class="org-cal-day ${isSelected ? 'selected' : ''}" data-date="${dateStr}" style="${isPast ? 'opacity: 0.35; text-decoration: line-through; pointer-events: none; cursor: not-allowed;' : ''}">${day}</div>`;
         }
         calendarDaysGrid.innerHTML = daysHtml;
 
         calendarDaysGrid.querySelectorAll('.org-cal-day:not(.empty)').forEach(cell => {
             cell.addEventListener('click', (e) => {
                 const dateVal = e.currentTarget.getAttribute('data-date');
+                if (dateVal < todayStr) return; // Prevent selection of past dates
                 const idx = selectedEventDates.indexOf(dateVal);
                 if (idx > -1) {
                     selectedEventDates.splice(idx, 1);
@@ -14915,10 +14893,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
     if (addEventPhotoBtn) {
         addEventPhotoBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (localMedia.photos.length >= 5) {
+            if (localMedia.photos.length >= 3) {
                 showToast({
                     title: "Bilder-Limit erreicht 📷",
-                    message: "Es sind maximal 5 Bilder erlaubt."
+                    message: "Es sind maximal 3 Bilder erlaubt."
                 });
                 return;
             }
@@ -15019,7 +14997,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
         }
         const locVal = (orgLocationInput?.value || '').trim();
         if (!locVal) {
-            showToast({ title: "Validierungsfehler ⚠️", message: "Bitte gib den Veranstaltungsort (Stadt) an." });
+            showToast({ title: "Validierungsfehler ⚠️", message: "Bitte gib den Veranstaltungsort an." });
             markInvalid(orgLocationInput);
             return;
         }
@@ -15326,7 +15304,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <!-- 1. Musikername -->
                         <div class="form-group">
                             <label>Musikername</label>
-                            <input type="text" name="bandName" class="input-field" maxlength="50" required placeholder="Name des Acts">
+                            <input type="text" name="bandName" class="input-field" maxlength="50" placeholder="Name des Acts">
                         </div>
 
                         <!-- 2. Ort -->
@@ -15370,7 +15348,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 4. Musiker-Typ -->
                         <div class="form-group">
-                            <label>Musiker-Typ</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <label style="margin: 0;">Musiker-Typ</label>
+                                <span onclick="window.toggleSelectAll('grid-musician-types', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-musician-types">
                                 ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
                                     <label class="tag-pill-checkbox">
@@ -15383,7 +15364,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 5. Bevorzugte Event-Typen -->
                         <div class="form-group">
-                            <label>Bevorzugte Event-Typen</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <label style="margin: 0;">Bevorzugte Event-Typen</label>
+                                <span onclick="window.toggleSelectAll('grid-event-types', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-event-types">
                                 ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
                                     <label class="tag-pill-checkbox">
@@ -15396,7 +15380,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 6. Genres -->
                         <div class="form-group">
-                            <label>Genres</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <label style="margin: 0;">Genres</label>
+                                <span onclick="window.toggleSelectAll('grid-genres', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-genres">
                                 ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                     <label class="tag-pill-checkbox">
@@ -15409,7 +15396,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 7. Instrumente -->
                         <div class="form-group">
-                            <label>Instrumente</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <label style="margin: 0;">Instrumente</label>
+                                <span onclick="window.toggleSelectAll('grid-instruments', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-instruments">
                                 ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                     <label class="tag-pill-checkbox">
@@ -15481,7 +15471,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                                 <label>Beschreibung</label>
                                 <span id="desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 200</span>
                             </div>
-                            <textarea name="musDescription" id="textarea-mus-desc" class="input-field" rows="3" maxlength="200" placeholder="Erzähle kurz etwas über dich/eure Band..." required></textarea>
+                            <textarea name="musDescription" id="textarea-mus-desc" class="input-field" rows="3" maxlength="200" placeholder="Erzähle kurz etwas über dich/eure Band..."></textarea>
                         </div>
 
                         <!-- Media Section -->
@@ -15492,7 +15482,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </p>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
                                 <button type="button" onclick="window.addRegMedia('musician', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
@@ -15512,7 +15502,14 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                                 <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 100 MB&#10;Maximale Länge: 10 Minuten"></i></label>
                                 <button type="button" onclick="window.addRegMedia('musician', 'audio')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
-                                    <i c                    <div id="reg-fields-organizer" class="hidden">
+                                    <i class="fa-solid fa-plus"></i> Audio hinzufügen
+                                </button>
+                            </div>
+                            <div id="reg-musician-audios-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                        </div>
+                    </div>
+
+                    <div id="reg-fields-organizer" class="hidden">
                         
                         <!-- 1. Eventname -->
                         <div class="form-group">
@@ -15522,7 +15519,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 2. Ort -->
                         <div class="form-group">
-                            <label>Veranstaltungsort (Stadt)</label>
+                            <label>Veranstaltungsort</label>
                             <input type="text" name="orgLocation" id="input-org-location-search" class="input-field" placeholder="z.B. München" autocomplete="off" style="width: 100%;">
                         </div>
 
@@ -15565,7 +15562,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 4. Event-Typ -->
                         <div class="form-group">
-                            <label>Event-Typ</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <label style="margin: 0;">Event-Typ</label>
+                                <span onclick="window.toggleSelectAll('grid-org-event-types', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-org-event-types">
                                 ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
                                     <label class="tag-pill-checkbox">
@@ -15578,7 +15578,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 5. Gesuchte Musiker-Typen -->
                         <div class="form-group">
-                            <label>Gesuchte Musiker-Typen</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <label style="margin: 0;">Gesuchte Musiker-Typen</label>
+                                <span onclick="window.toggleSelectAll('grid-org-musician-types', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-org-musician-types">
                                 ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
                                     <label class="tag-pill-checkbox">
@@ -15591,7 +15594,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 6. Genres -->
                         <div class="form-group">
-                            <label>Genres</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <label style="margin: 0;">Genres</label>
+                                <span onclick="window.toggleSelectAll('grid-org-genres', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-org-genres">
                                 ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                     <label class="tag-pill-checkbox">
@@ -15604,7 +15610,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 7. Instrumente -->
                         <div class="form-group">
-                            <label>Instrumente</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <label style="margin: 0;">Instrumente</label>
+                                <span onclick="window.toggleSelectAll('grid-org-instruments', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-org-instruments">
                                 ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
                                     <label class="tag-pill-checkbox">
@@ -15677,7 +15686,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                                 <label>Beschreibung</label>
                                 <span id="org-desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 200</span>
                             </div>
-                            <textarea name="orgDescription" id="textarea-org-desc" class="input-field" rows="3" maxlength="200" placeholder="Beschreibe kurz dein Event..." required></textarea>
+                            <textarea name="orgDescription" id="textarea-org-desc" class="input-field" rows="3" maxlength="200" placeholder="Beschreibe kurz dein Event..."></textarea>
                         </div>
 
                         <!-- Media Section -->
@@ -15689,7 +15698,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
                                 <button type="button" onclick="window.addRegMedia('organizer', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
@@ -15865,15 +15874,15 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             <p id="sepa-mandate-text">Ich ermächtige GigConnAct, Zahlungen für das Musiker-Abonnement (9,99 € pro Monat) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GigConnAct auf mein Konto gezogenen Lastschriften einzulösen.</p>
                         </div>
                         <label class="form-checkbox" style="margin-bottom: 1.5rem;">
-                            <input type="checkbox" name="sepaConsent" required checked>
+                            <input type="checkbox" name="sepaConsent" required oninvalid="this.setCustomValidity('Bitte stimme dem SEPA-Lastschriftmandat zu.')" oninput="this.setCustomValidity('')" checked>
                             <span id="sepa-checkbox-label">Ich stimme dem SEPA-Lastschriftmandat für das 9,99 € Abo zu.</span>
                         </label>
                     </div>
 
                     <div id="reg-privacy-consent-container" style="margin-top: 1.2rem; margin-bottom: 1.2rem;">
                         <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.8rem; line-height: 1.4; color: var(--text-muted); cursor: pointer;">
-                            <input type="checkbox" name="privacyConsent" required style="width: auto; margin-top: 0.2rem; cursor: pointer; transform: scale(1.2);">
-                            <span>Ich habe die <a href="#/datenschutz" target="_blank" style="color: var(--color-purple); text-decoration: underline;">Datenschutzerklärung</a> gelesen und willige in die Verarbeitung meiner personenbezogenen Daten zum Zweck der Partnervermittlung ein.</span>
+                            <input type="checkbox" name="privacyConsent" required oninvalid="this.setCustomValidity('Bitte bestätige, dass du die Datenschutzerklärung gelesen hast.')" oninput="this.setCustomValidity('')" style="width: auto; margin-top: 0.2rem; cursor: pointer; transform: scale(1.2);">
+                            <span>Ich habe die <a href="#/datenschutz" target="_blank" onclick="window.open(this.href, '_blank'); return false;" style="color: var(--color-purple); text-decoration: underline;">Datenschutzerklärung</a> gelesen und willige in die Verarbeitung meiner personenbezogenen Daten zum Zweck der Partnervermittlung ein.</span>
                         </label>
                     </div>
 
@@ -16291,7 +16300,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     const inputEventDates = document.getElementById('input-event-dates');
     const selectedDatesPreview = document.getElementById('org-selected-dates-preview');
 
-    let currentCalDate = new Date(2026, 6, 1); // July 2026 as standard start for this application
+    let currentCalDate = new Date();
 
     function renderOrganizerCalendar() {
         if (!calendarDaysGrid || !calendarMonthYear) return;
@@ -16309,6 +16318,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         const adjustedFirstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
         const totalDays = new Date(year, month + 1, 0).getDate();
 
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
         let daysHtml = '';
 
         for (let i = 0; i < adjustedFirstDayIndex; i++) {
@@ -16318,8 +16331,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         for (let day = 1; day <= totalDays; day++) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const isSelected = selectedEventDates.includes(dateStr);
+            const isPast = dateStr < todayStr;
             daysHtml += `
-                <div class="org-cal-day ${isSelected ? 'selected' : ''}" data-date="${dateStr}">
+                <div class="org-cal-day ${isSelected ? 'selected' : ''}" data-date="${dateStr}" style="${isPast ? 'opacity: 0.35; text-decoration: line-through; pointer-events: none; cursor: not-allowed;' : ''}">
                     ${day}
                 </div>
             `;
@@ -16330,6 +16344,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         calendarDaysGrid.querySelectorAll('.org-cal-day:not(.empty)').forEach(cell => {
             cell.addEventListener('click', (e) => {
                 const dateVal = e.currentTarget.getAttribute('data-date');
+                if (dateVal < todayStr) return; // Prevent selection of past dates
                 const idx = selectedEventDates.indexOf(dateVal);
                 if (idx > -1) {
                     selectedEventDates.splice(idx, 1);
@@ -16631,6 +16646,14 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         }
 
         if (selectedRole === 'musician') {
+            const bandName = (registerForm.elements.bandName?.value || '').trim();
+            if (!bandName) {
+                errDiv.textContent = 'Bitte gib einen Musikernamen an.';
+                errDiv.style.display = 'block';
+                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(registerForm.elements.bandName);
+                return;
+            }
             const checkedTypes = registerForm.querySelectorAll('input[name="musicianTypes"]:checked');
             if (checkedTypes.length === 0) {
                 errDiv.textContent = 'Bitte wähle mindestens eine Kategorie (z.B. Band oder Solokünstler) aus.';
@@ -16720,7 +16743,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             }
             orgLocVal = (orgLocationInput?.value || '').trim();
             if (!orgLocVal) {
-                errDiv.textContent = 'Bitte gib den Veranstaltungsort (Stadt) an.';
+                errDiv.textContent = 'Bitte gib den Veranstaltungsort an.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 markInvalid(document.getElementById('input-org-location-search'));
@@ -17161,7 +17184,7 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
                             <input type="text" class="input-field" placeholder="DE89 5000 0000 1234 5678 90" required style="width:100%; height:38px; font-size:0.85rem; padding: 0.4rem 0.8rem; margin:0;">
                         </div>
                         <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; line-height: 1.4;">
-                            <input type="checkbox" required style="margin-top:2px;">
+                            <input type="checkbox" required oninvalid="this.setCustomValidity('Bitte stimme dem Lastschriftverfahren zu.')" oninput="this.setCustomValidity('')" style="margin-top:2px;">
                             <span>Ich stimme dem Lastschriftverfahren für die gewählte Option ausdrücklich zu.</span>
                         </label>
                     </div>
@@ -17635,7 +17658,7 @@ function renderSubscriptionExpiredPage(container) {
                     </p>
                 </div>
                 <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 2rem; cursor: pointer;">
-                    <input type="checkbox" id="expired-sepa-consent" required checked style="margin-top: 0.15rem; width: auto; transform: scale(1.1); cursor: pointer;">
+                    <input type="checkbox" id="expired-sepa-consent" required oninvalid="this.setCustomValidity('Bitte stimme dem SEPA-Lastschriftmandat zu.')" oninput="this.setCustomValidity('')" checked style="margin-top: 0.15rem; width: auto; transform: scale(1.1); cursor: pointer;">
                     <span id="expired-sepa-checkbox-label">Ich stimme dem SEPA-Lastschriftmandat für das ${planInfo.priceText} Abo zu.</span>
                 </label>
             </div>
@@ -17787,15 +17810,38 @@ function renderSubscriptionExpiredPage(container) {
 }
 window.renderSubscriptionExpiredPage = renderSubscriptionExpiredPage;
 
+window.updateBodyBackground = function(page) {
+    let gradient = 'linear-gradient(to right, #eddffd 0%, #e0e7ff 50%, #bae6fd 100%)'; // default combined
+    
+    if (page === 'events') {
+        gradient = 'linear-gradient(to right, #ebd8ff 0%, #f5f3ff 50%, #ebd8ff 100%)'; // purple symmetric
+    } else if (page === 'musicians') {
+        gradient = 'linear-gradient(to right, #bae6fd 0%, #eff6ff 50%, #bae6fd 100%)'; // blue symmetric
+    } else if (['postbox', 'dashboard', 'my-musicians', 'my-events', 'matches', 'profile', 'credits'].includes(page)) {
+        const role = (state && state.currentUser) ? state.currentUser.role : null;
+        if (role === 'organizer') {
+            gradient = 'linear-gradient(to right, #bae6fd 0%, #eff6ff 50%, #bae6fd 100%)'; // blue symmetric
+        } else if (role === 'musician') {
+            gradient = 'linear-gradient(to right, #ebd8ff 0%, #f5f3ff 50%, #ebd8ff 100%)'; // purple symmetric
+        }
+    }
+    
+    document.body.style.setProperty('background-image', gradient, 'important');
+};
+
 function navigate(page) {
     const mainContainer = document.getElementById('app-main');
     if (!mainContainer) return;
 
+    if (typeof window.updateBodyBackground === 'function') {
+        window.updateBodyBackground(page);
+    }
+
     if (state && !state.initialLoadDone) {
         mainContainer.innerHTML = `
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
-                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2.5rem; color: var(--color-purple);"></i>
-                
+                <!-- Spinning high-quality brand PNG Discoball as loading indicator -->
+                <img src="discoball.png" style="width: 80px; height: 80px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(124,58,237,0.25)); animation: spin 5s linear infinite;" alt="Laden...">
             </div>
         `;
         return;
@@ -18345,8 +18391,20 @@ function initGigConnActApp() {
     }
 
     document.addEventListener('user-state-changed', () => {
+        console.log('[DEBUG] user-state-changed event received. activeMusicianId:', state.activeMusicianId, 'activeEventId:', state.activeEventId);
         if (typeof updateNavbar === 'function') updateNavbar();
-        if (typeof handleRouting === 'function') handleRouting();
+        
+        const currentHash = window.location.hash;
+        const isUserSame = window.lastUserSessionId === (state && state.currentUser ? state.currentUser.id : null);
+        console.log('[DEBUG] user-state-changed info - currentHash:', currentHash, 'isUserSame:', isUserSame, 'lastUserSessionId:', window.lastUserSessionId);
+        
+        if (isUserSame && (currentHash.includes('events') || currentHash.includes('musicians')) && typeof window.marketApplyFilters === 'function') {
+            console.log('[DEBUG] user-state-changed: calling window.marketApplyFilters()');
+            window.marketApplyFilters();
+        } else {
+            console.log('[DEBUG] user-state-changed: calling handleRouting()');
+            if (typeof handleRouting === 'function') handleRouting();
+        }
         runMatchingMonitor();
     });
 
@@ -19146,9 +19204,9 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     </div>
 
                     <!-- Dots container inside the slider -->
-                    <div class="tile-gallery-dots" id="combo-dots-${item.id}" data-theme="${isEvents ? '#a855f7' : '#3b82f6'}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
+                    <div class="tile-gallery-dots" id="combo-dots-${item.id}" data-theme="${isEvents ? '#7c3aed' : '#2563eb'}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
                         ${Array.from({ length: photos.length + videos.length + audios.length + 1 }).map((_, dIdx) => `
-                            <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? (isEvents ? '#a855f7' : '#3b82f6') : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.5'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.25)' : 'scale(1)'}; border: 1px solid rgba(0,0,0,0.15); box-shadow: 0 1px 2px rgba(0,0,0,0.2);"></span>
+                            <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${item.id}', ${dIdx})" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? (isEvents ? '#7c3aed' : '#2563eb') : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? (isEvents ? '#7c3aed' : '#2563eb') : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + (isEvents ? '#7c3aed' : '#2563eb') : '0 1px 2px rgba(0,0,0,0.2)'}; cursor: pointer;"></span>
                         `).join('')}
                     </div>
                 </div>
@@ -19287,7 +19345,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 ` : `
                     <!-- 4. Aktions-Button: "Kontaktdaten freischalten" -->
                     <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); showModal('auth')" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); ${state && state.currentUser ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : `showModal('auth')`}" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
                             <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
                         </button>
                     </div>
@@ -19430,20 +19488,28 @@ window.toggleCategoriesRow = function(type) {
     }
 };
 
-window.toggleAllFilterCheckboxes = function(element, checkAll) {
+window.toggleAllFilterCheckboxes = function(element) {
     // Find the wrapper div by walking up until we find a div containing a .checkbox-tag-grid
     let section = element.parentElement;
     while (section && !section.querySelector('.checkbox-tag-grid')) {
         section = section.parentElement;
     }
     if (!section) return;
+    
     const checkboxes = section.querySelectorAll('input[type="checkbox"]');
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    const allSelected = checkedCount === checkboxes.length;
+    const nextState = !allSelected;
+    
     checkboxes.forEach(cb => {
-        cb.checked = checkAll;
+        cb.checked = nextState;
         if (cb.parentElement.classList.contains('tag-pill-checkbox')) {
-            cb.parentElement.classList.toggle('active', checkAll);
+            cb.parentElement.classList.toggle('active', nextState);
         }
     });
+    
+    element.textContent = nextState ? 'alle abwählen' : 'alle auswählen';
+    
     // Mark the grid as interacted
     const grid = section.querySelector('.checkbox-tag-grid');
     if (grid) {
@@ -19871,8 +19937,8 @@ window.showMediaModal = function(itemId, isEvents) {
                 <!-- Section: Photos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">📷 Fotos (${photos.length}/${isEvents ? 3 : 5}) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></span>
-                        ${photos.length < (isEvents ? 3 : 5) ? `
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">📷 Fotos (${photos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></span>
+                        ${photos.length < 3 ? `
                             <button id="btn-add-mock-photo" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: ${isEvents ? 'rgba(37, 99, 235, 0.3)' : 'rgba(124, 58, 237, 0.3)'}; color: ${isEvents ? '#2563eb' : '#7c3aed'}; display: flex; align-items: center; gap: 0.25rem;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -19891,8 +19957,8 @@ window.showMediaModal = function(itemId, isEvents) {
                 <!-- Section: Videos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Videos (${videos.length}/${isEvents ? 1 : 3}) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 500 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></span>
-                        ${videos.length < (isEvents ? 1 : 3) ? `
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Videos (${videos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 500 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></span>
+                        ${videos.length < 3 ? `
                             <button id="btn-add-mock-video" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: ${isEvents ? 'rgba(37, 99, 235, 0.3)' : 'rgba(124, 58, 237, 0.3)'}; color: ${isEvents ? '#2563eb' : '#7c3aed'}; display: flex; align-items: center; gap: 0.25rem;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -19951,7 +20017,7 @@ window.showMediaModal = function(itemId, isEvents) {
     const addPhotoBtn = document.getElementById('btn-add-mock-photo');
     if (addPhotoBtn) {
         addPhotoBtn.addEventListener('click', () => {
-            const maxPhotos = isEvents ? 3 : 5;
+            const maxPhotos = 3;
             if (photos.length >= maxPhotos) {
                 showToast({
                     title: "Fotos-Limit erreicht 📷",
@@ -19979,7 +20045,7 @@ window.showMediaModal = function(itemId, isEvents) {
     const addVideoBtn = document.getElementById('btn-add-mock-video');
     if (addVideoBtn) {
         addVideoBtn.addEventListener('click', () => {
-            const maxVideos = isEvents ? 1 : 3;
+            const maxVideos = 3;
             if (videos.length >= maxVideos) {
                 showToast({
                     title: "Video-Limit erreicht 🎬",
@@ -20402,6 +20468,13 @@ window.renderDatenschutzPage = renderDatenschutzPage;
         isSwiping = false;
         currentSlider = null;
     }, { passive: true });
+
+    // Prevent default dragstart on slider images/elements to allow custom mouse-drag sliding
+    document.addEventListener('dragstart', (e) => {
+        if (e.target.closest('.tile-fullwidth-photo-slider')) {
+            e.preventDefault();
+        }
+    });
 
     // Mouse drag events for desktop
     document.addEventListener('mousedown', (e) => {
