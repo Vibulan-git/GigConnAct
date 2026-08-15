@@ -1840,6 +1840,11 @@ class StateManager {
                         window.googleRegistrationUser = firebaseUser;
                         setTimeout(() => {
                             if (typeof auth !== 'undefined' && !auth.currentUser) return;
+                            const currentHash = window.location.hash || '';
+                            if (currentHash.includes('datenschutz') || currentHash.includes('impressum')) {
+                                console.log("Skipping auth modal popup on legal pages.");
+                                return;
+                            }
                             showModal('auth');
                             const registerForm = document.getElementById('auth-register-form');
                             if (registerForm) {
@@ -5049,6 +5054,8 @@ function initDualSlider(containerId, minInputId, maxInputId, trackId, displayId,
 
 function setupLocationAutocomplete(input, onSelect) {
     if (!input) return;
+    if (input.dataset.autocompleteBound === "true") return;
+    input.dataset.autocompleteBound = "true";
     
     let wrapper = input.parentElement;
     if (wrapper && (window.getComputedStyle(wrapper).display === 'flex' || wrapper.style.display === 'flex')) {
@@ -5369,7 +5376,7 @@ function renderMarket(container, type, onNavigate) {
     const items = isEvents ? state.events : state.musicians;
     
     let selectedFilterDates = [];
-    let currentFilterCalDate = new Date(2026, 6, 1); // July 2026
+    let currentFilterCalDate = new Date();
     let showOnlyTopMatches = false;
     let showOnlyFavorites = false;
 
@@ -9346,7 +9353,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
                     <!-- 2. Ort -->
                     <div class="form-group">
-                        <label>Veranstaltungsort (Stadt)</label>
+                        <label>Veranstaltungsort</label>
                         <input type="text" id="modal-input-org-location-search" class="input-field" value="${eventObj?.location || ''}" placeholder="z.B. München" autocomplete="off" style="width: 100%;">
                     </div>
 
@@ -9564,7 +9571,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
     document.getElementById('btn-close-event-modal').addEventListener('click', closeModal);
 
     // Initialize Calendar Widget
-    let currentCalDate = new Date(2026, 6, 1); // July 2026
+    let currentCalDate = new Date();
     const calendarMonthYear = document.getElementById('modal-org-calendar-month-year');
     const calendarDaysGrid = document.getElementById('modal-org-calendar-days-grid');
     const calendarPrevBtn = document.getElementById('modal-btn-cal-prev');
@@ -9581,6 +9588,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
         const adjustedFirstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
         const totalDays = new Date(year, month + 1, 0).getDate();
 
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
         let daysHtml = '';
         for (let i = 0; i < adjustedFirstDayIndex; i++) {
             daysHtml += `<div class="org-cal-day empty"></div>`;
@@ -9588,13 +9599,15 @@ function showEventModal(eventObj = null, isDuplication = false) {
         for (let day = 1; day <= totalDays; day++) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const isSelected = selectedEventDates.includes(dateStr);
-            daysHtml += `<div class="org-cal-day ${isSelected ? 'selected' : ''}" data-date="${dateStr}">${day}</div>`;
+            const isPast = dateStr < todayStr;
+            daysHtml += `<div class="org-cal-day ${isSelected ? 'selected' : ''}" data-date="${dateStr}" style="${isPast ? 'opacity: 0.35; text-decoration: line-through; pointer-events: none; cursor: not-allowed;' : ''}">${day}</div>`;
         }
         calendarDaysGrid.innerHTML = daysHtml;
 
         calendarDaysGrid.querySelectorAll('.org-cal-day:not(.empty)').forEach(cell => {
             cell.addEventListener('click', (e) => {
                 const dateVal = e.currentTarget.getAttribute('data-date');
+                if (dateVal < todayStr) return; // Prevent selection of past dates
                 const idx = selectedEventDates.indexOf(dateVal);
                 if (idx > -1) {
                     selectedEventDates.splice(idx, 1);
@@ -9849,7 +9862,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
         }
         const locVal = (orgLocationInput?.value || '').trim();
         if (!locVal) {
-            showToast({ title: "Validierungsfehler ⚠️", message: "Bitte gib den Veranstaltungsort (Stadt) an." });
+            showToast({ title: "Validierungsfehler ⚠️", message: "Bitte gib den Veranstaltungsort an." });
             markInvalid(orgLocationInput);
             return;
         }
@@ -10156,7 +10169,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <!-- 1. Musikername -->
                         <div class="form-group">
                             <label>Musikername</label>
-                            <input type="text" name="bandName" class="input-field" maxlength="50" required placeholder="Name des Acts">
+                            <input type="text" name="bandName" class="input-field" maxlength="50" placeholder="Name des Acts">
                         </div>
 
                         <!-- 2. Ort -->
@@ -10311,7 +10324,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                                 <label>Beschreibung</label>
                                 <span id="desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 200</span>
                             </div>
-                            <textarea name="musDescription" id="textarea-mus-desc" class="input-field" rows="3" maxlength="200" placeholder="Erzähle kurz etwas über dich/eure Band..." required></textarea>
+                            <textarea name="musDescription" id="textarea-mus-desc" class="input-field" rows="3" maxlength="200" placeholder="Erzähle kurz etwas über dich/eure Band..."></textarea>
                         </div>
 
                         <!-- Media Section -->
@@ -10359,7 +10372,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 2. Ort -->
                         <div class="form-group">
-                            <label>Veranstaltungsort (Stadt)</label>
+                            <label>Veranstaltungsort</label>
                             <input type="text" name="orgLocation" id="input-org-location-search" class="input-field" placeholder="z.B. München" autocomplete="off" style="width: 100%;">
                         </div>
 
@@ -10514,7 +10527,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                                 <label>Beschreibung</label>
                                 <span id="org-desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 200</span>
                             </div>
-                            <textarea name="orgDescription" id="textarea-org-desc" class="input-field" rows="3" maxlength="200" placeholder="Beschreibe kurz dein Event..." required></textarea>
+                            <textarea name="orgDescription" id="textarea-org-desc" class="input-field" rows="3" maxlength="200" placeholder="Beschreibe kurz dein Event..."></textarea>
                         </div>
 
                         <!-- Media Section -->
@@ -10702,15 +10715,15 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             <p id="sepa-mandate-text">Ich ermächtige GigConnAct, Zahlungen für das Musiker-Abonnement (9,99 € pro Monat) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GigConnAct auf mein Konto gezogenen Lastschriften einzulösen.</p>
                         </div>
                         <label class="form-checkbox" style="margin-bottom: 1.5rem;">
-                            <input type="checkbox" name="sepaConsent" required checked>
+                            <input type="checkbox" name="sepaConsent" required oninvalid="this.setCustomValidity('Bitte stimme dem SEPA-Lastschriftmandat zu.')" oninput="this.setCustomValidity('')" checked>
                             <span id="sepa-checkbox-label">Ich stimme dem SEPA-Lastschriftmandat für das 9,99 € Abo zu.</span>
                         </label>
                     </div>
 
                     <div id="reg-privacy-consent-container" style="margin-top: 1.2rem; margin-bottom: 1.2rem;">
                         <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.8rem; line-height: 1.4; color: var(--text-muted); cursor: pointer;">
-                            <input type="checkbox" name="privacyConsent" required style="width: auto; margin-top: 0.2rem; cursor: pointer; transform: scale(1.2);">
-                            <span>Ich habe die <a href="#/datenschutz" target="_blank" style="color: var(--color-purple); text-decoration: underline;">Datenschutzerklärung</a> gelesen und willige in die Verarbeitung meiner personenbezogenen Daten zum Zweck der Partnervermittlung ein.</span>
+                            <input type="checkbox" name="privacyConsent" required oninvalid="this.setCustomValidity('Bitte bestätige, dass du die Datenschutzerklärung gelesen hast.')" oninput="this.setCustomValidity('')" style="width: auto; margin-top: 0.2rem; cursor: pointer; transform: scale(1.2);">
+                            <span>Ich habe die <a href="#/datenschutz" target="_blank" onclick="window.open(this.href, '_blank'); return false;" style="color: var(--color-purple); text-decoration: underline;">Datenschutzerklärung</a> gelesen und willige in die Verarbeitung meiner personenbezogenen Daten zum Zweck der Partnervermittlung ein.</span>
                         </label>
                     </div>
 
@@ -11128,7 +11141,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     const inputEventDates = document.getElementById('input-event-dates');
     const selectedDatesPreview = document.getElementById('org-selected-dates-preview');
 
-    let currentCalDate = new Date(2026, 6, 1); // July 2026 as standard start for this application
+    let currentCalDate = new Date();
 
     function renderOrganizerCalendar() {
         if (!calendarDaysGrid || !calendarMonthYear) return;
@@ -11146,6 +11159,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         const adjustedFirstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
         const totalDays = new Date(year, month + 1, 0).getDate();
 
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
         let daysHtml = '';
 
         for (let i = 0; i < adjustedFirstDayIndex; i++) {
@@ -11155,8 +11172,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         for (let day = 1; day <= totalDays; day++) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const isSelected = selectedEventDates.includes(dateStr);
+            const isPast = dateStr < todayStr;
             daysHtml += `
-                <div class="org-cal-day ${isSelected ? 'selected' : ''}" data-date="${dateStr}">
+                <div class="org-cal-day ${isSelected ? 'selected' : ''}" data-date="${dateStr}" style="${isPast ? 'opacity: 0.35; text-decoration: line-through; pointer-events: none; cursor: not-allowed;' : ''}">
                     ${day}
                 </div>
             `;
@@ -11167,6 +11185,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         calendarDaysGrid.querySelectorAll('.org-cal-day:not(.empty)').forEach(cell => {
             cell.addEventListener('click', (e) => {
                 const dateVal = e.currentTarget.getAttribute('data-date');
+                if (dateVal < todayStr) return; // Prevent selection of past dates
                 const idx = selectedEventDates.indexOf(dateVal);
                 if (idx > -1) {
                     selectedEventDates.splice(idx, 1);
@@ -11468,6 +11487,14 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         }
 
         if (selectedRole === 'musician') {
+            const bandName = (registerForm.elements.bandName?.value || '').trim();
+            if (!bandName) {
+                errDiv.textContent = 'Bitte gib einen Musikernamen an.';
+                errDiv.style.display = 'block';
+                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                markInvalid(registerForm.elements.bandName);
+                return;
+            }
             const checkedTypes = registerForm.querySelectorAll('input[name="musicianTypes"]:checked');
             if (checkedTypes.length === 0) {
                 errDiv.textContent = 'Bitte wähle mindestens eine Kategorie (z.B. Band oder Solokünstler) aus.';
@@ -11557,7 +11584,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             }
             orgLocVal = (orgLocationInput?.value || '').trim();
             if (!orgLocVal) {
-                errDiv.textContent = 'Bitte gib den Veranstaltungsort (Stadt) an.';
+                errDiv.textContent = 'Bitte gib den Veranstaltungsort an.';
                 errDiv.style.display = 'block';
                 errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 markInvalid(document.getElementById('input-org-location-search'));
@@ -11998,7 +12025,7 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
                             <input type="text" class="input-field" placeholder="DE89 5000 0000 1234 5678 90" required style="width:100%; height:38px; font-size:0.85rem; padding: 0.4rem 0.8rem; margin:0;">
                         </div>
                         <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; line-height: 1.4;">
-                            <input type="checkbox" required style="margin-top:2px;">
+                            <input type="checkbox" required oninvalid="this.setCustomValidity('Bitte stimme dem Lastschriftverfahren zu.')" oninput="this.setCustomValidity('')" style="margin-top:2px;">
                             <span>Ich stimme dem Lastschriftverfahren für die gewählte Option ausdrücklich zu.</span>
                         </label>
                     </div>
@@ -12472,7 +12499,7 @@ function renderSubscriptionExpiredPage(container) {
                     </p>
                 </div>
                 <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 2rem; cursor: pointer;">
-                    <input type="checkbox" id="expired-sepa-consent" required checked style="margin-top: 0.15rem; width: auto; transform: scale(1.1); cursor: pointer;">
+                    <input type="checkbox" id="expired-sepa-consent" required oninvalid="this.setCustomValidity('Bitte stimme dem SEPA-Lastschriftmandat zu.')" oninput="this.setCustomValidity('')" checked style="margin-top: 0.15rem; width: auto; transform: scale(1.1); cursor: pointer;">
                     <span id="expired-sepa-checkbox-label">Ich stimme dem SEPA-Lastschriftmandat für das ${planInfo.priceText} Abo zu.</span>
                 </label>
             </div>
