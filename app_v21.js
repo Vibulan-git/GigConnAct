@@ -10536,7 +10536,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                                 <div class="dual-range-track"></div>
                                 <div class="dual-range-active-track" id="track-org-gage"></div>
                                 <input type="range" id="input-org-gage-min" name="orgMinBudget" min="0" max="5000" step="100" value="0">
-                                <input type="range" id="input-org-gage-max" name="maxBudget" min="0" max="5000" step="100" value="5000">
+                                <input type="range" id="input-org-gage-max" name="orgMaxBudget" min="0" max="5000" step="100" value="5000">
                             </div>
                         </div>
 
@@ -11437,11 +11437,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         });
     }
 
-    // Phone numbers only sanitizer (max 13 numbers)
+    // Phone numbers only sanitizer (max 16 numbers)
     const phoneInput = document.getElementById('input-reg-phone');
     if (phoneInput) {
         phoneInput.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 13);
+            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 16);
         });
     }
     registerForm.addEventListener('submit', async (e) => {
@@ -11484,9 +11484,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         }
 
         const fullName = registerForm.elements.fullName ? registerForm.elements.fullName.value.trim() : '';
-        const nameReg = /^[a-zA-ZäöüÄÖÜß\s\-]+$/;
+        const nameReg = /^[a-zA-Z\p{L}\s\-\.‘'’]+$/u;
         if (!nameReg.test(fullName)) {
-            errDiv.textContent = 'Der Vor- und Nachname darf nur Buchstaben, Leerzeichen oder Bindestriche enthalten.';
+            errDiv.textContent = 'Der Vor- und Nachname darf nur Buchstaben, Leerzeichen, Bindestriche, Apostrophe oder Punkte enthalten.';
             errDiv.style.display = 'block';
             errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
             markInvalid(registerForm.elements.fullName);
@@ -11498,8 +11498,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         const lastName = nameParts.slice(1).join(' ') || '';
 
         const cleanPhone = registerForm.elements.phone.value.replace(/\D/g, '');
-        if (cleanPhone.length < 8 || cleanPhone.length > 13) {
-            errDiv.textContent = 'Die Telefonnummer muss zwischen 8 und 13 Ziffern lang sein.';
+        if (cleanPhone.length < 5 || cleanPhone.length > 16) {
+            errDiv.textContent = 'Die Telefonnummer muss zwischen 5 und 16 Ziffern lang sein.';
             errDiv.style.display = 'block';
             errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
             markInvalid(registerForm.elements.phone);
@@ -13089,8 +13089,8 @@ function updateNavbar(forceLanding) {
         authArea.innerHTML = `
             <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger">
                 <i class="fa-solid fa-right-to-bracket header-login-icon"></i>
-                <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; line-height: 1.0;">
-                    <span class="btn-text-top">ohne</span>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.0;">
+                    <span class="btn-text-top" style="text-transform: none !important; font-weight: 900 !important;">Ohne</span>
                     <span class="btn-text-bottom">Passwort</span>
                 </div>
             </button>
