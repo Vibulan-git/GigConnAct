@@ -5919,7 +5919,7 @@ window.unlockListing = function(targetId, targetName) {
         subBtn.disabled = true;
         subBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zu Stripe...`;
         try {
-            const createStripeSession = firebase.functions().httpsCallable('createStripeCheckoutSession');
+            const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
             const res = await createStripeSession({ 
                 planKey: selectedPlan,
                 baseUrl: window.location.origin
@@ -7480,7 +7480,7 @@ class StateManager {
                         message: "Du wirst jetzt zur Stripe-Zahlungsseite weitergeleitet..."
                     });
                     try {
-                        const createStripeSession = firebase.functions().httpsCallable('createStripeCheckoutSession');
+                        const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
                         const res = await createStripeSession({ 
                             planKey: targetPlan,
                             baseUrl: window.location.origin
@@ -11045,10 +11045,10 @@ function renderMarket(container, type, onNavigate) {
                                 </div>
                             </div>
 
-                            <!-- 5. Bevorzugte Event-Typen -->
+                            <!-- 5. Gesuchte Event-Typen -->
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                                    <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Bevorzugte Event-Typen</label>
+                                    <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Gesuchte Event-Typen</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
                                         <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">alle auswählen</span>
                                     </div>
@@ -11531,7 +11531,7 @@ function renderMarket(container, type, onNavigate) {
             }
         }
 
-        // 11. Bevorzugte Event-Typen Filter (for Musiker-Markt only)
+        // 11. Gesuchte Event-Typen Filter (for Musiker-Markt only)
         if (!isEvents) {
             const selEvtTypes = getCheckedValues('filter-event-types-grid-m');
             if (selEvtTypes.length > 0) {
@@ -12825,7 +12825,7 @@ function renderProfilePage(container) {
                     saveSubBtn.disabled = true;
                     saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung zu Stripe...`;
                     
-                    const createStripeSession = firebase.functions().httpsCallable('createStripeCheckoutSession');
+                    const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
                     const res = await createStripeSession({ 
                         planKey: selectedPlan,
                         baseUrl: window.location.origin
@@ -14049,10 +14049,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         </div>
                     </div>
 
-                    <!-- 5. Bevorzugte Event-Typen -->
+                    <!-- 5. Gesuchte Event-Typen -->
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                            <label style="margin: 0;">Bevorzugte Event-Typen</label>
+                            <label style="margin: 0;">Gesuchte Event-Typen</label>
                             <span onclick="window.toggleSelectAll('grid-event-types', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-event-types">
@@ -15599,10 +15599,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             </div>
                         </div>
 
-                        <!-- 5. Bevorzugte Event-Typen -->
+                        <!-- 5. Gesuchte Event-Typen -->
                         <div class="form-group">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
-                                <label style="margin: 0;">Bevorzugte Event-Typen</label>
+                                <label style="margin: 0;">Gesuchte Event-Typen</label>
                                 <span onclick="window.toggleSelectAll('grid-event-types', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                             </div>
                             <div class="checkbox-tag-grid" id="grid-event-types">
@@ -17265,7 +17265,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         message: "Du wirst jetzt zur Stripe-Zahlungsseite weitergeleitet..."
                     });
                     try {
-                        const createStripeSession = firebase.functions().httpsCallable('createStripeCheckoutSession');
+                        const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
                         const res = await createStripeSession({ 
                             planKey: payload.subscriptionPlan,
                             baseUrl: window.location.origin
@@ -18019,7 +18019,7 @@ function renderSubscriptionExpiredPage(container) {
                 reactivateBtn.disabled = true;
                 reactivateBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung zu Stripe...`;
 
-                const createStripeSession = firebase.functions().httpsCallable('createStripeCheckoutSession');
+                const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
                 const res = await createStripeSession({ 
                     planKey: selectedPlan,
                     baseUrl: window.location.origin
