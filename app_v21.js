@@ -240,6 +240,22 @@ window.addRegMedia = function(role, type) {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.multiple = true;
+    fileInput.style.position = 'absolute';
+    fileInput.style.width = '0';
+    fileInput.style.height = '0';
+    fileInput.style.opacity = '0';
+    fileInput.style.pointerEvents = 'none';
+    document.body.appendChild(fileInput);
+
+    const cleanup = () => {
+        window.removeEventListener('focus', cleanup);
+        setTimeout(() => {
+            if (fileInput.parentNode) {
+                document.body.removeChild(fileInput);
+            }
+        }, 1000);
+    };
+    window.addEventListener('focus', cleanup);
     
     if (type === 'photo') {
         fileInput.accept = 'image/png, image/jpeg, image/webp';
@@ -1952,6 +1968,8 @@ class StateManager {
                         console.log("Completing registration for new user:", email);
                         const profileId = pendingReg.role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
                         
+                        const isPromo = pendingReg.subscriptionPlan === 'premium' && pendingReg.isPromoCodeApplied === true;
+
                         const newUser = {
                             id: user.uid,
                             role: pendingReg.role,
@@ -1963,7 +1981,8 @@ class StateManager {
                             hidePhone: pendingReg.hidePhone || false,
                             email: pendingReg.email,
                             profileId: profileId,
-                            isPremium: pendingReg.role === "musician" ? pendingReg.sepaConsent : true,
+                            isPremium: isPromo,
+                            subscriptionPlan: pendingReg.subscriptionPlan || "flex",
                             successfulGigs: 0,
                             contactRequests: 0,
                             favorites: [],
@@ -2041,7 +2060,9 @@ class StateManager {
                                 hidePhone: pendingReg.hidePhone || false,
                                 email: newUser.email,
                                 isOnline: true,
-                                creatorId: user.uid
+                                creatorId: user.uid,
+                                isPremium: newUser.isPremium,
+                                subscriptionPlan: pendingReg.subscriptionPlan || "flex"
                             };
                             await db.collection('events').doc(profileId).set(newEvent);
                         }
@@ -2150,7 +2171,37 @@ class StateManager {
                         }
                     }
                 }
+                
+                let redirectToStripe = false;
+                let targetPlan = 'flex';
+                if (pendingReg && pendingReg.email.toLowerCase() === email.toLowerCase()) {
+                    targetPlan = pendingReg.subscriptionPlan || 'flex';
+                    if (targetPlan === 'flex' || targetPlan === 'plus' || targetPlan === 'pro') {
+                        redirectToStripe = true;
+                    }
+                }
+                
                 window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
+                
+                if (redirectToStripe) {
+                    showToast({
+                        title: "Registrierung abgeschlossen! 💳",
+                        message: "Du wirst jetzt zur Stripe-Zahlungsseite weitergeleitet..."
+                    });
+                    try {
+                        const createStripeSession = firebase.functions().httpsCallable('createStripeCheckoutSession');
+                        const res = await createStripeSession({ 
+                            planKey: targetPlan,
+                            baseUrl: window.location.origin
+                        });
+                        if (res.data && res.data.url) {
+                            window.location.href = res.data.url;
+                            return;
+                        }
+                    } catch (stripeErr) {
+                        console.error("Stripe Checkout Redirect failed during registration link:", stripeErr);
+                    }
+                }
                 navigateAfterLogin();
             } catch (err) {
                 console.error("Sign in link verification failed:", err);
@@ -10391,7 +10442,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
                                 <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 100 MB&#10;Maximale Länge: 10 Minuten"></i></label>
                                 <button type="button" onclick="window.addRegMedia('musician', 'audio')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
-                                    <i class="fa-solid fa-plus"></i> Audio hinzufügen
+                                    <i class="fa-solid fa-plus"></i>
                                 </button>
                             </div>
                             <div id="reg-musician-audios-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
@@ -11812,6 +11863,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             payload.audios = (window.registrationMedia.organizer.audios || []).filter(a => a && a.url !== 'loading');
         }
 
+        payload.isPromoCodeApplied = isPromoCodeApplied;
+
         if (submitBtn) {
             submitBtn.disabled = true;
             submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Registrierung läuft...`;
@@ -11821,6 +11874,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             try {
                 const user = window.googleRegistrationUser;
                 const profileId = payload.role === 'musician' ? 'mus_' + user.uid : 'event_' + user.uid;
+                const isPromo = payload.subscriptionPlan === 'premium' && isPromoCodeApplied;
 
                 const newUser = {
                     id: user.uid,
@@ -11834,6 +11888,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     favorites: [],
                     credits: 5,
                     profileId: payload.role === 'musician' ? profileId : null,
+                    isPremium: isPromo,
+                    subscriptionPlan: payload.subscriptionPlan,
                     createdAt: new Date().toISOString()
                 };
 
@@ -11861,7 +11917,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         bio: payload.description,
                         photos: payload.photos,
                         videos: payload.videos,
-                        audio: payload.audios
+                        audio: payload.audios,
+                        isPremium: isPromo,
+                        subscriptionPlan: payload.subscriptionPlan
                     };
                     await db.collection('users').doc(user.uid).set(newUser);
                     await db.collection('musicians').doc(profileId).set(newMusician);
@@ -11892,7 +11950,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         videos: payload.videos,
                         audio: payload.audios || [],
                         isActive: true,
-                        isCanceled: false
+                        isCanceled: false,
+                        isPremium: isPromo,
+                        subscriptionPlan: payload.subscriptionPlan
                     };
                     await db.collection('users').doc(user.uid).set(newUser);
                     await db.collection('events').doc(newEvent.id).set(newEvent);
@@ -11908,6 +11968,27 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 }
 
                 closeModal();
+
+                if (payload.subscriptionPlan === 'flex' || payload.subscriptionPlan === 'plus' || payload.subscriptionPlan === 'pro') {
+                    showToast({
+                        title: "Registrierung abgeschlossen! 💳",
+                        message: "Du wirst jetzt zur Stripe-Zahlungsseite weitergeleitet..."
+                    });
+                    try {
+                        const createStripeSession = firebase.functions().httpsCallable('createStripeCheckoutSession');
+                        const res = await createStripeSession({ 
+                            planKey: payload.subscriptionPlan,
+                            baseUrl: window.location.origin
+                        });
+                        if (res.data && res.data.url) {
+                            window.location.href = res.data.url;
+                            return;
+                        }
+                    } catch (stripeErr) {
+                        console.error("Stripe Checkout Redirect failed during registration:", stripeErr);
+                    }
+                }
+
                 showToast({
                     title: "Registrierung abgeschlossen!",
                     message: `Willkommen bei GigConnAct, ${newUser.firstName}!`
