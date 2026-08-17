@@ -597,57 +597,104 @@ window.unlockListing = function(targetId, targetName) {
         return;
     }
     if (state.currentUser.role !== 'musician') return;
-    
     if (state.currentUser.isPremium) return; // already premium
+
+    // Create a beautiful, custom in-place modal overlay for selecting subscription plans
+    const modal = document.createElement('div');
+    modal.className = 'custom-video-modal-overlay';
+    modal.style = "position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px); padding:1rem;";
     
-    if (state.currentUser.credits > 0) {
-        // Show a custom confirmation dialog
-        const modal = document.createElement('div');
-        modal.className = 'custom-video-modal-overlay';
-        modal.style = "position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px);";
-        
-        modal.innerHTML = `
-            <div style="width:90%; max-width:400px; background:var(--bg-card); border:1px solid var(--border-glass); border-radius:12px; padding:1.5rem; position:relative; box-shadow:var(--shadow-premium); text-align:center;">
-                <i class="fa-solid fa-coins" style="font-size:3rem; color:#FFD700; margin-bottom:1rem;"></i>
-                <h4 style="font-family:var(--font-heading); font-size:1.2rem; margin-bottom:0.5rem; color:var(--text-main);">Kontaktdaten freischalten?</h4>
-                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem;">
-                    Möchtest du die Kontaktdaten für <strong>${targetName}</strong> freischalten? Dies kostet dich 1 Credit.<br><br>
-                    <span style="font-weight:700; color:var(--text-main);">Deine verbleibenden Credits: ${state.currentUser.credits}</span>
-                </p>
-                <div style="display:flex; gap:1rem; justify-content:center;">
-                    <button class="btn btn-sm btn-glass" id="btn-cancel-unlock" style="margin:0;">Abbrechen</button>
-                    <button class="btn btn-sm btn-primary" id="btn-confirm-unlock" style="margin:0; background:var(--color-green); border-color:var(--color-green); color:#000; font-weight:700;">1 Credit ausgeben</button>
+    // Default active plan to flex
+    let selectedPlan = 'flex';
+
+    modal.innerHTML = `
+        <div style="width:100%; max-width:480px; background:var(--bg-card); border:1px solid var(--border-glass); border-radius:18px; padding:2rem; position:relative; box-shadow:var(--shadow-premium); text-align:center;">
+            <button id="btn-close-unlock-modal" style="position:absolute; top:1rem; right:1rem; background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+            
+            <i class="fa-solid fa-lock" style="font-size:3rem; color:var(--color-purple); margin-bottom:1rem; filter: drop-shadow(0 0 10px rgba(124, 58, 237, 0.3));"></i>
+            <h4 style="font-family:var(--font-heading); font-size:1.4rem; margin-bottom:0.5rem; color:var(--text-main);">Kontaktdaten geschützt 🔒</h4>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.45;">
+                Um die Kontaktdaten von <strong>${targetName}</strong> freizuschalten und direkt zu chatten, benötigst du ein aktives Abonnement. Wähle deinen Tarif:
+            </p>
+            
+            <!-- Plan Selection Box -->
+            <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.5rem; text-align:left;">
+                <!-- Flex Card -->
+                <div class="unlock-plan-card active" data-plan="flex" style="padding:0.9rem 1.1rem; background:rgba(124,58,237,0.06); border:2px solid var(--color-purple); border-radius:12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:0.2s;">
+                    <div>
+                        <strong style="display:block; font-size:0.95rem; color:#fff;">Flex</strong>
+                        <span style="font-size:0.7rem; color:var(--text-muted);">1 Monat Laufzeit, jederzeit kündbar.</span>
+                    </div>
+                    <strong style="color:var(--color-purple); font-size:1.1rem;">9,99 €</strong>
+                </div>
+                <!-- Plus Card -->
+                <div class="unlock-plan-card" data-plan="plus" style="padding:0.9rem 1.1rem; background:rgba(255,255,255,0.02); border:2px solid rgba(255,255,255,0.05); border-radius:12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:0.2s;">
+                    <div>
+                        <strong style="display:block; font-size:0.95rem; color:#fff;">Plus</strong>
+                        <span style="font-size:0.7rem; color:var(--text-muted);">6 Monate Laufzeit, 1. Monat kostenlos.</span>
+                    </div>
+                    <strong style="color:var(--color-purple); font-size:1.1rem;">7,99 €</strong>
+                </div>
+                <!-- Pro Card -->
+                <div class="unlock-plan-card" data-plan="pro" style="padding:0.9rem 1.1rem; background:rgba(255,255,255,0.02); border:2px solid rgba(255,255,255,0.05); border-radius:12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:0.2s;">
+                    <div>
+                        <strong style="display:block; font-size:0.95rem; color:#fff;">Pro</strong>
+                        <span style="font-size:0.7rem; color:var(--text-muted);">12 Monate Laufzeit, 1. Monat kostenlos.</span>
+                    </div>
+                    <strong style="color:var(--color-purple); font-size:1.1rem;">5,99 €</strong>
                 </div>
             </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        modal.querySelector('#btn-cancel-unlock').addEventListener('click', () => modal.remove());
-        modal.querySelector('#btn-confirm-unlock').addEventListener('click', async () => {
-            const res = await state.unlockContact(targetId);
-            modal.remove();
-            if (res.success) {
-                showToast({
-                    title: "Kontaktdaten freigeschaltet! 🪙",
-                    message: `Du hast die Kontaktdaten von ${targetName} erfolgreich freigeschaltet.`
-                });
-                updateNavbar();
-                const currentHash = window.location.hash;
-                if ((currentHash.includes('events') || currentHash.includes('musicians')) && typeof window.marketApplyFilters === 'function') {
-                    window.marketApplyFilters();
-                } else if (currentHash.includes('matches') && typeof window.matchesUpdate === 'function') {
-                    window.matchesUpdate();
-                } else {
-                    window.handleRouting();
-                }
-            }
+            
+            <button class="btn btn-primary" id="btn-subscribe-unlock" style="margin:0; width:100%; font-weight:800; padding:0.9rem; font-size:1rem; border-radius:10px; background:linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; border:none; color:#fff;">
+                Jetzt abonnieren & freischalten
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('#btn-close-unlock-modal').addEventListener('click', () => modal.remove());
+
+    const planCards = modal.querySelectorAll('.unlock-plan-card');
+    planCards.forEach(card => {
+        card.addEventListener('click', () => {
+            planCards.forEach(c => {
+                c.classList.remove('active');
+                c.style.border = '2px solid rgba(255,255,255,0.05)';
+                c.style.background = 'rgba(255,255,255,0.02)';
+            });
+            card.classList.add('active');
+            card.style.border = '2px solid var(--color-purple)';
+            card.style.background = 'rgba(124,58,237,0.06)';
+            selectedPlan = card.getAttribute('data-plan');
         });
-    } else {
-        // Track pending unlock ID and open Premium Modal
-        state.pendingUnlockListingId = targetId;
-        showModal('premium');
-    }
+    });
+
+    const subBtn = modal.querySelector('#btn-subscribe-unlock');
+    subBtn.addEventListener('click', async () => {
+        subBtn.disabled = true;
+        subBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zu Stripe...`;
+        try {
+            const createStripeSession = firebase.functions().httpsCallable('createStripeCheckoutSession');
+            const res = await createStripeSession({ 
+                planKey: selectedPlan,
+                baseUrl: window.location.origin
+            });
+            if (res.data && res.data.url) {
+                window.location.href = res.data.url;
+            } else {
+                throw new Error("Fehler beim Erstellen der Stripe-Zahlung.");
+            }
+        } catch (stripeErr) {
+            console.error("Stripe redirection failed:", stripeErr);
+            showToast({
+                title: "Fehler beim Bezahlvorgang ❌",
+                message: stripeErr.message || "Es gab ein Problem bei der Weiterleitung zu Stripe."
+            });
+            subBtn.disabled = false;
+            subBtn.innerHTML = "Jetzt abonnieren & freischalten";
+        }
+    });
 };
 
 window.normalizeCityName = function(city) {
@@ -2019,7 +2066,7 @@ class StateManager {
                                 email: newUser.email,
                                 isPremium: newUser.isPremium,
                                 subscriptionPlan: pendingReg.subscriptionPlan || "flex",
-                                credits: 5,
+                                credits: 0,
                                 unlockedContacts: [],
                                 socialLinks: { spotify: "", youtube: "", instagram: "" },
                                 photos: pendingReg.photos || [],
@@ -2088,7 +2135,7 @@ class StateManager {
                             profileId: profileId,
                             isPremium: true,
                             subscriptionPlan: 'flex',
-                            credits: role === 'musician' ? 5 : 0,
+                            credits: 0,
                             unlockedContacts: [],
                             successfulGigs: 0,
                             contactRequests: 0,
@@ -2128,7 +2175,7 @@ class StateManager {
                                 email: email,
                                 isPremium: false,
                                 subscriptionPlan: "flex",
-                                credits: 5,
+                                credits: 0,
                                 unlockedContacts: [],
                                 socialLinks: { spotify: "", youtube: "", instagram: "" },
                                 photos: [],
@@ -3337,7 +3384,7 @@ class StateManager {
                 email: email,
                 profileId: profileId,
                 isPremium: true,
-                credits: 5,
+                credits: 0,
                 unlockedContacts: [],
                 successfulGigs: 0,
                 contactRequests: 0,
@@ -3375,7 +3422,7 @@ class StateManager {
                 email: email,
                 isPremium: false,
                 subscriptionPlan: "flex",
-                credits: 5,
+                credits: 0,
                 unlockedContacts: [],
                 socialLinks: { spotify: "", youtube: "", instagram: "" },
                 photos: [],
@@ -3406,7 +3453,7 @@ class StateManager {
             email: email,
             profileId: profileId,
             isPremium: true,
-            credits: role === 'musician' ? 5 : 0,
+            credits: 0,
             unlockedContacts: [],
             successfulGigs: 0,
             contactRequests: 0,
@@ -3447,7 +3494,7 @@ class StateManager {
                     email: email,
                     isPremium: false,
                     subscriptionPlan: "flex",
-                    credits: 5,
+                    credits: 0,
                     unlockedContacts: [],
                     socialLinks: { spotify: "", youtube: "", instagram: "" },
                     photos: [],
@@ -7680,8 +7727,8 @@ function renderMatchesPage(container) {
         
         const isOrganizer = u.role === 'organizer';
         const creditsValue = isOrganizer ? 'Gratis' : (u.isPremium ? '∞' : u.credits);
-        const billingMode = isOrganizer ? 'Kostenlos' : (u.isPremium ? 'Flatrate' : 'Prepaid');
-        const unlockedCount = isOrganizer ? 'Unbegrenzt' : (u.unlockedContacts || []).length;
+        const billingMode = isOrganizer ? 'Kostenlos' : (u.isPremium ? 'Flatrate' : 'Inaktiv');
+        const unlockedCount = isOrganizer ? 'Unbegrenzt' : (u.isPremium ? 'Flatrate' : (u.unlockedContacts || []).length);
 
         container.innerHTML = `
             <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;">
@@ -7717,7 +7764,7 @@ function renderMatchesPage(container) {
                             <div style="flex:1; display:grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap:1rem;">
                                 <div style="background:rgba(56,239,125,0.02); border:1px solid rgba(56,239,125,0.15); padding:0.6rem 0.8rem; border-radius:var(--radius-md);">
                                     <div style="font-size:0.65rem; color:var(--color-green); text-transform:uppercase; font-weight:700; margin-bottom:0.15rem;">Kontaktdaten</div>
-                                    <div id="stats-unlocked-contacts" style="font-size:1.3rem; font-weight:700; color:var(--color-green);">Unbegrenzt</div>
+                                    <div id="stats-unlocked-contacts" style="font-size:1.3rem; font-weight:700; color:var(--color-green);">${unlockedCount}</div>
                                 </div>
                                 <div style="background:rgba(124,58,237,0.02); border:1px solid rgba(124,58,237,0.15); padding:0.6rem 0.8rem; border-radius:var(--radius-md);">
                                     <div style="font-size:0.65rem; color:var(--color-purple); text-transform:uppercase; font-weight:700; margin-bottom:0.15rem;">Top Matches (>=70%)</div>
@@ -12643,17 +12690,6 @@ function renderSubscriptionExpiredPage(container) {
                         </button>
                     </div>
                 </div>
-
-                <div class="sepa-panel" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
-                    <h5 style="margin:0 0 0.5rem; font-size:0.85rem; color:var(--text-main);"><i class="fa-solid fa-circle-info"></i> SEPA Lastschrift-Mandat</h5>
-                    <p style="margin:0; font-size:0.7rem; color:var(--text-muted); line-height:1.4;" id="expired-sepa-text">
-                        Ich ermächtige GigConnAct, Zahlungen für das Musiker-Abonnement (${planInfo.priceText}) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GigConnAct auf mein Konto gezogenen Lastschriften einzulösen.
-                    </p>
-                </div>
-                <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 2rem; cursor: pointer;">
-                    <input type="checkbox" id="expired-sepa-consent" required oninvalid="this.setCustomValidity('Bitte stimme dem SEPA-Lastschriftmandat zu.')" oninput="this.setCustomValidity('')" checked style="margin-top: 0.15rem; width: auto; transform: scale(1.1); cursor: pointer;">
-                    <span id="expired-sepa-checkbox-label">Ich stimme dem SEPA-Lastschriftmandat für das ${planInfo.priceText} Abo zu.</span>
-                </label>
             </div>
 
             <div style="display: flex; gap: 1rem; justify-content: center; align-items: center; flex-wrap: wrap;">
@@ -12669,14 +12705,10 @@ function renderSubscriptionExpiredPage(container) {
 
     const subCards = container.querySelectorAll('.subscription-card');
     const promoBox = document.getElementById('expired-promo-code-box');
-    const sepaText = document.getElementById('expired-sepa-text');
-    const sepaLabel = document.getElementById('expired-sepa-checkbox-label');
     let isPromoApplied = false;
 
     const updateUIForPlan = (planKey) => {
         const details = getPlanDetails(planKey);
-        sepaText.textContent = `Ich ermächtige GigConnAct, Zahlungen für das Musiker-Abonnement (${details.priceText}) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GigConnAct auf mein Konto gezogenen Lastschriften einzulösen.`;
-        sepaLabel.textContent = `Ich stimme dem SEPA-Lastschriftmandat für das ${details.priceText} Abo zu.`;
     };
 
     subCards.forEach(card => {
@@ -12733,11 +12765,7 @@ function renderSubscriptionExpiredPage(container) {
     const reactivateBtn = document.getElementById('btn-reactivate-expired-sub');
     if (reactivateBtn) {
         reactivateBtn.addEventListener('click', async () => {
-            const sepaChecked = document.getElementById('expired-sepa-consent').checked;
-            if (!sepaChecked) {
-                showToast({ title: "Zustimmung erforderlich", message: "Bitte stimme dem SEPA-Lastschriftmandat zu.", type: "error" });
-                return;
-            }
+
 
             if (selectedPlan === 'premium' && !isPromoApplied) {
                 showToast({ title: "Gutscheincode erforderlich", message: "Bitte gib einen gültigen Instagram-Code ein, um den Premium-Tarif freizuschalten.", type: "error" });
