@@ -3659,7 +3659,7 @@ class StateManager {
                     email: newUser.email,
                     isPremium: newUser.isPremium,
                     subscriptionPlan: pendingReg.subscriptionPlan || "flex",
-                    credits: 5,
+                    credits: 0,
                     unlockedContacts: [],
                     socialLinks: { spotify: "", youtube: "", instagram: "" },
                     photos: pendingReg.photos || [],
@@ -11905,7 +11905,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         if (window.googleRegistrationUser) {
             try {
                 const user = window.googleRegistrationUser;
-                const profileId = payload.role === 'musician' ? 'mus_' + user.uid : 'event_' + user.uid;
+                const profileId = payload.role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
                 const isPromo = payload.subscriptionPlan === 'premium' && isPromoCodeApplied;
 
                 const newUser = {
@@ -11918,7 +11918,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     hidePhone: payload.hidePhone,
                     email: user.email,
                     favorites: [],
-                    credits: 5,
+                    credits: 0,
                     profileId: payload.role === 'musician' ? profileId : null,
                     isPremium: isPromo,
                     subscriptionPlan: payload.subscriptionPlan,
@@ -11945,49 +11945,63 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         availability: payload.availability,
                         minPublikum: parseInt(payload.minPublikum) || 0,
                         maxPublikum: parseInt(payload.maxPublikum) || 500,
-                        technik: payload.technik,
-                        bio: payload.description,
-                        photos: payload.photos,
-                        videos: payload.videos,
-                        audio: payload.audios,
-                        isPremium: isPromo,
-                        subscriptionPlan: payload.subscriptionPlan
+                        description: payload.description,
+                        technik: payload.technik || ["Technik ist noch unklar"],
+                        company: newUser.company || "Privatperson",
+                        contactName: `${newUser.firstName} ${newUser.lastName}`,
+                        phone: newUser.phone,
+                        hidePhone: payload.hidePhone || false,
+                        email: newUser.email,
+                        isPremium: newUser.isPremium,
+                        subscriptionPlan: payload.subscriptionPlan || "flex",
+                        credits: 0,
+                        unlockedContacts: [],
+                        socialLinks: { spotify: "", youtube: "", instagram: "" },
+                        photos: payload.photos || [],
+                        videos: payload.videos || [],
+                        audio: payload.audios || []
                     };
                     await db.collection('users').doc(user.uid).set(newUser);
                     await db.collection('musicians').doc(profileId).set(newMusician);
                 } else {
                     const newEvent = {
-                        id: 'event_' + user.uid,
+                        id: profileId,
                         creatorId: user.uid,
                         name: payload.eventName,
-                        type: payload.orgEventTypes ? payload.orgEventTypes.join(', ') : 'Event',
-                        musicianTypes: payload.orgMusicianTypes,
-                        location: payload.orgLocations ? payload.orgLocations.join(', ') : 'München',
-                        locations: payload.orgLocations || ['München'],
-                        date: payload.eventDates[0] || new Date().toISOString().split('T')[0],
-                        dates: payload.eventDates,
-                        eventStartTime: payload.eventStartTime,
-                        eventEndTime: payload.eventEndTime,
-                        genres: payload.orgGenres,
-                        instruments: payload.orgInstruments,
-                        minDuration: parseFloat(payload.orgMinDuration) || 1,
-                        maxDuration: parseFloat(payload.orgMaxDuration) || 3,
-                        minPublikum: parseInt(payload.orgMinPublikum) || 0,
-                        maxPublikum: parseInt(payload.orgMaxPublikum) || 500,
-                        technik: payload.technik,
-                        budget: parseFloat(payload.orgMinBudget) || 200,
-                        budgetMax: parseFloat(payload.orgMaxBudget) || 1500,
-                        description: payload.orgDescription,
-                        photos: payload.photos,
-                        videos: payload.videos,
-                        audio: payload.audios || [],
-                        isActive: true,
-                        isCanceled: false,
-                        isPremium: isPromo,
-                        subscriptionPlan: payload.subscriptionPlan
+                        type: payload.orgEventTypes ? payload.orgEventTypes[0] : "",
+                        eventTypes: payload.orgEventTypes || [],
+                        date: payload.eventDates ? payload.eventDates[0] : "",
+                        dates: payload.eventDates || [],
+                        eventStartTime: payload.eventStartTime || "18:00",
+                        eventEndTime: payload.eventEndTime || "22:00",
+                        location: payload.orgLocations ? payload.orgLocations.join(', ') : "",
+                        locations: payload.orgLocations || [],
+                        genres: payload.orgGenres || [],
+                        instruments: payload.orgInstruments || [],
+                        minDuration: parseFloat(payload.orgMinDuration) || 2.0,
+                        maxDuration: parseFloat(payload.orgMaxDuration) || 4.0,
+                        duration: parseFloat(payload.orgMinDuration) || 2.0,
+                        minPublikum: parseInt(payload.orgMinPublikum) || 50,
+                        maxPublikum: parseInt(payload.orgMaxPublikum) || 150,
+                        publikum: `${payload.orgMinPublikum || 50} - ${payload.orgMaxPublikum || 150}`,
+                        minBudget: parseFloat(payload.orgMinBudget) || 300,
+                        maxBudget: parseFloat(payload.orgMaxBudget) || 800,
+                        budget: parseFloat(payload.orgMinBudget) || 300,
+                        description: payload.orgDescription || "",
+                        technik: payload.technik || ["Technik ist noch unklar"],
+                        company: newUser.company || "Privatperson",
+                        organizerType: newUser.organizerType || "Privater Veranstalter",
+                        contactName: `${newUser.firstName} ${newUser.lastName}`,
+                        phone: newUser.phone,
+                        hidePhone: payload.hidePhone || false,
+                        email: newUser.email,
+                        isOnline: true,
+                        photos: payload.photos || [],
+                        videos: payload.videos || [],
+                        audio: payload.audios || []
                     };
                     await db.collection('users').doc(user.uid).set(newUser);
-                    await db.collection('events').doc(newEvent.id).set(newEvent);
+                    await db.collection('events').doc(profileId).set(newEvent);
                 }
 
                 window.googleRegistrationUser = null;
