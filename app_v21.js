@@ -8892,7 +8892,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                     <!-- 10. Technik -->
                     <div class="form-group">
-                        <label>Technik</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                            <label style="margin:0;">Technik</label>
+                            <span onclick="window.toggleSelectAll('grid-technik', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                        </div>
                         <div class="checkbox-tag-grid" id="grid-technik">
                             ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => {
                                 const isChecked = Array.isArray(musicianObj?.technik) 
@@ -9619,7 +9622,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
                     <!-- 10. Technik -->
                     <div class="form-group">
-                        <label>Technik</label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                            <label style="margin:0;">Technik</label>
+                            <span onclick="window.toggleSelectAll('grid-org-technik', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                        </div>
                         <div class="checkbox-tag-grid" id="grid-org-technik">
                             ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => {
                                 const isChecked = Array.isArray(eventObj?.technik) 
@@ -10427,7 +10433,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 10. Technik -->
                         <div class="form-group">
-                            <label>Technik</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                <label style="margin:0;">Technik</label>
+                                <span onclick="window.toggleSelectAll('grid-technik', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-technik">
                                 ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
                                     <label class="tag-pill-checkbox">
@@ -10641,7 +10650,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                         <!-- 10. Technik -->
                         <div class="form-group">
-                            <label>Technik</label>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                <label style="margin:0;">Technik</label>
+                                <span onclick="window.toggleSelectAll('grid-org-technik', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                            </div>
                             <div class="checkbox-tag-grid" id="grid-org-technik">
                                 ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
                                     <label class="tag-pill-checkbox">
@@ -10855,16 +10867,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         </div>
                     </div>
 
-                    <div id="reg-sepa-consent-container" style="margin-top: 1.5rem;">
-                        <div class="sepa-panel">
-                            <h5><i class="fa-solid fa-circle-info"></i> SEPA Lastschrift-Mandat</h5>
-                            <p id="sepa-mandate-text">Ich ermächtige GigConnAct, Zahlungen für das Musiker-Abonnement (9,99 € pro Monat) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GigConnAct auf mein Konto gezogenen Lastschriften einzulösen.</p>
-                        </div>
-                        <label class="form-checkbox" style="margin-bottom: 1.5rem;">
-                            <input type="checkbox" name="sepaConsent" required oninvalid="this.setCustomValidity('Bitte stimme dem SEPA-Lastschriftmandat zu.')" oninput="this.setCustomValidity('')" checked>
-                            <span id="sepa-checkbox-label">Ich stimme dem SEPA-Lastschriftmandat für das 9,99 € Abo zu.</span>
-                        </label>
-                    </div>
+
 
                     <div id="reg-privacy-consent-container" style="margin-top: 1.2rem; margin-bottom: 1.2rem;">
                         <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.8rem; line-height: 1.4; color: var(--text-muted); cursor: pointer;">
@@ -11093,12 +11096,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         const subContainer = document.getElementById('reg-subscription-container');
         if (subContainer) subContainer.classList.remove('hidden');
         
-        const sepaContainer = document.getElementById('reg-sepa-consent-container');
-        if (sepaContainer) {
-            sepaContainer.classList.remove('hidden');
-            const consentChk = sepaContainer.querySelector('input[name="sepaConsent"]');
-            if (consentChk) consentChk.setAttribute('required', '');
-        }
+
 
         const orgTypeContainer = document.getElementById('reg-organizer-type-container');
         if (orgTypeContainer) {
@@ -11138,12 +11136,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         const subContainer = document.getElementById('reg-subscription-container');
         if (subContainer) subContainer.classList.add('hidden');
         
-        const sepaContainer = document.getElementById('reg-sepa-consent-container');
-        if (sepaContainer) {
-            sepaContainer.classList.add('hidden');
-            const consentChk = sepaContainer.querySelector('input[name="sepaConsent"]');
-            if (consentChk) consentChk.removeAttribute('required');
-        }
+
 
         const orgTypeContainer = document.getElementById('reg-organizer-type-container');
         if (orgTypeContainer) {
@@ -11173,9 +11166,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     } else {
                         el.setAttribute('required', '');
                     }
-                } else if (el.name === 'sepaConsent') {
-                    el.setAttribute('required', '');
-                }
+
             } else {
                 el.removeAttribute('required');
             }
@@ -11490,8 +11481,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     // Subscription Selector logic
     const subCards = document.querySelectorAll('.subscription-card');
     const selectedPlanInput = document.getElementById('input-selected-plan');
-    const sepaMandateText = document.getElementById('sepa-mandate-text');
-    const sepaCheckboxLabel = document.getElementById('sepa-checkbox-label');
+
 
     subCards.forEach(card => {
         card.addEventListener('click', () => {
@@ -11530,12 +11520,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 }
             }
 
-            if (sepaMandateText) {
-                sepaMandateText.innerHTML = `Ich ermächtige GigConnAct, Zahlungen für das Musiker-Abonnement (${priceText} ${periodText}) von meinem Bankkonto mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von GigConnAct auf mein Konto gezogenen Lastschriften einzulösen.`;
-            }
-            if (sepaCheckboxLabel) {
-                sepaCheckboxLabel.textContent = `Ich stimme dem SEPA-Lastschriftmandat für das ${priceText} Abo zu.`;
-            }
+
         });
     });
 
@@ -11826,7 +11811,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             payload.minBudget = registerForm.elements.minBudget.value;
             payload.maxBudget = registerForm.elements.maxBudget.value;
             payload.description = registerForm.elements.musDescription.value;
-            payload.sepaConsent = registerForm.elements.sepaConsent.checked;
+            payload.sepaConsent = false;
             payload.technik = Array.from(registerForm.querySelectorAll('input[name="musTechnik"]:checked')).map(el => el.value).length > 0
                 ? Array.from(registerForm.querySelectorAll('input[name="musTechnik"]:checked')).map(el => el.value)
                 : ["Technik ist noch unklar"];

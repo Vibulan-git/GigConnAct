@@ -4417,29 +4417,18 @@ input[type="range"].input-field {
     flex-shrink: 0 !important;
 }
 
-.header-login-btn .btn-text-top {
-    font-weight: 700 !important;
-    display: block !important;
-    font-size: 0.72rem !important;
-    opacity: 0.9 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-    color: #ffffff !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    line-height: 1.0 !important;
-}
-
+.header-login-btn .btn-text-top,
 .header-login-btn .btn-text-bottom {
     font-weight: 900 !important;
     display: block !important;
     font-size: 1.08rem !important;
     color: #ffffff !important;
     text-shadow: 0 0 8px rgba(255,255,255,0.1) !important;
-    margin: -2px 0 0 0 !important;
-    padding: 0 !important;
+    text-transform: none !important;
+    letter-spacing: 0.5px !important;
     line-height: 1.0 !important;
-    letter-spacing: 2.0px !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* Mobile responsive styles for the Header Login Button */
@@ -4450,29 +4439,22 @@ input[type="range"].input-field {
     .header-login-btn .header-login-icon {
         font-size: 1.05rem !important;
     }
-    .header-login-btn .btn-text-top {
-        font-size: 0.6rem !important;
-        letter-spacing: 0.2px !important;
-        margin: 0 !important;
-    }
+    .header-login-btn .btn-text-top,
     .header-login-btn .btn-text-bottom {
         font-size: 0.88rem !important;
-        letter-spacing: 1.6px !important;
-        margin: -2px 0 0 0 !important;
+        letter-spacing: 0.4px !important;
+        margin: 0 !important;
     }
 }
 @media (max-width: 380px) {
     .header-login-btn .header-login-icon {
         font-size: 0.95rem !important;
     }
-    .header-login-btn .btn-text-top {
-        font-size: 0.55rem !important;
-        margin: 0 !important;
-    }
+    .header-login-btn .btn-text-top,
     .header-login-btn .btn-text-bottom {
         font-size: 0.8rem !important;
-        letter-spacing: 1.2px !important;
-        margin: -1px 0 0 0 !important;
+        letter-spacing: 0.3px !important;
+        margin: 0 !important;
     }
 }
 
