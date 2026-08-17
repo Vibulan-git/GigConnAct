@@ -10872,7 +10872,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     <div id="reg-privacy-consent-container" style="margin-top: 1.2rem; margin-bottom: 1.2rem;">
                         <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.8rem; line-height: 1.4; color: var(--text-muted); cursor: pointer;">
                             <input type="checkbox" name="privacyConsent" required oninvalid="this.setCustomValidity('Bitte bestätige, dass du die Datenschutzerklärung gelesen hast.')" oninput="this.setCustomValidity('')" style="width: auto; margin-top: 0.2rem; cursor: pointer; transform: scale(1.2);">
-                            <span>Ich habe die <a href="#/datenschutz" target="_blank" onclick="window.open(this.href, '_blank'); return false;" style="color: var(--color-purple); text-decoration: underline;">Datenschutzerklärung</a> gelesen und willige in die Verarbeitung meiner personenbezogenen Daten zum Zweck der Partnervermittlung ein.</span>
+                            <span>Ich habe die <a href="#/datenschutz" target="_blank" onclick="window.open(this.href, '_blank'); return false;" style="color: var(--color-purple); text-decoration: underline;">Datenschutzerklärung</a> gelesen und willige in die Verarbeitung meiner personenbezogenen Daten zum Zweck der Gig-Vermittlung ein.</span>
                         </label>
                     </div>
 
