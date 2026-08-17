@@ -2247,6 +2247,11 @@ class StateManager {
                         }
                     } catch (stripeErr) {
                         console.error("Stripe Checkout Redirect failed during registration link:", stripeErr);
+                        showToast({
+                            title: "Stripe-Weiterleitung fehlgeschlagen ⚠️",
+                            message: stripeErr.message || "Es gab ein Problem bei der Weiterleitung zur Bezahlseite.",
+                            type: "error"
+                        });
                     }
                 }
                 navigateAfterLogin();
@@ -12032,6 +12037,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         }
                     } catch (stripeErr) {
                         console.error("Stripe Checkout Redirect failed during registration:", stripeErr);
+                        showToast({
+                            title: "Stripe-Weiterleitung fehlgeschlagen ⚠️",
+                            message: stripeErr.message || "Es gab ein Problem bei der Weiterleitung zur Bezahlseite.",
+                            type: "error"
+                        });
                     }
                 }
 
