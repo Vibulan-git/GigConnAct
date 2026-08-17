@@ -11166,7 +11166,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     } else {
                         el.setAttribute('required', '');
                     }
-
+                }
             } else {
                 el.removeAttribute('required');
             }
