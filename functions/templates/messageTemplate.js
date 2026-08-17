@@ -16,7 +16,7 @@ module.exports = function getMessageEmailHtml({ senderName, messageText, role, s
             : (m.profilePic || (m.photos && m.photos.length > 0 ? m.photos[0] : null) || m.image || 'https://gigconnact.de/discoball.png');
             
         // Location and Date display
-        const loc = m.location || 'Ort nach Absprache';
+        const loc = m.location || 'Deutschlandweit';
         
         // Date / Availability
         let dateStr = m.date || 'Termin nach Absprache';
@@ -48,7 +48,7 @@ module.exports = function getMessageEmailHtml({ senderName, messageText, role, s
         // Format Budget / Gage
         let budgetDisplay = '';
         const minB = m.minBudget !== undefined ? m.minBudget : (m.budget || m.price);
-        const maxB = m.maxBudget;
+        const maxB = m.maxBudget !== undefined ? m.maxBudget : m.budgetMax;
         if (minB !== undefined && minB !== null) {
             const minBStr = typeof minB === 'number' ? minB.toLocaleString('de-DE') : String(minB);
             if (maxB !== undefined && maxB !== null && maxB !== minB) {
@@ -58,13 +58,13 @@ module.exports = function getMessageEmailHtml({ senderName, messageText, role, s
                 budgetDisplay = `${minBStr} €`;
             }
         } else {
-            budgetDisplay = 'Auf Anfrage';
+            budgetDisplay = isSenderMusician ? 'Auf Anfrage' : '0 - 5.000 €';
         }
 
         // Format Audience / Publikum
         const minP = m.minPublikum;
         const maxP = m.maxPublikum;
-        let publikumDisplay = 'Nach Vereinbarung';
+        let publikumDisplay = isSenderMusician ? '0 - 500+ Personen' : '50 - 150 Personen';
         if (minP !== undefined && minP !== null) {
             if (maxP !== undefined && maxP !== null) {
                 publikumDisplay = `${minP} - ${maxP} Personen`;
@@ -82,7 +82,9 @@ module.exports = function getMessageEmailHtml({ senderName, messageText, role, s
         const techDisplay = techArr.length > 0 ? techArr.join(', ') : 'Nach Vereinbarung';
 
         // Format Instruments
-        const instrumentsDisplay = m.instruments && m.instruments.length > 0 ? m.instruments.join(', ') : 'Nach Vereinbarung';
+        const instrumentsDisplay = m.instruments && m.instruments.length > 0 
+            ? m.instruments.join(', ') 
+            : (isSenderMusician ? 'Nach Vereinbarung' : 'Gesang, Gitarre');
 
         // Description
         const desc = m.description || m.bio || (isSenderMusician
@@ -158,13 +160,13 @@ module.exports = function getMessageEmailHtml({ senderName, messageText, role, s
 
                             <!-- 6. Instrumente -->
                             <tr>
-                                <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">🎹</td>
+                                <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">🥁</td>
                                 <td style="padding: 4px 0; font-family: Arial, sans-serif;"><b>Instrumente:</b> ${instrumentsDisplay}</td>
                             </tr>
 
                             <!-- 7. Spielzeit -->
                             <tr>
-                                <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">⏱️</td>
+                                <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">🕒</td>
                                 <td style="padding: 4px 0; font-family: Arial, sans-serif;"><b>Spieldauer:</b> ${durationDisplay}</td>
                             </tr>
 
@@ -176,7 +178,7 @@ module.exports = function getMessageEmailHtml({ senderName, messageText, role, s
 
                             <!-- 9. Technik -->
                             <tr>
-                                <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">🎛️</td>
+                                <td style="padding: 4px 0; width: 22px; vertical-align: top; font-size: 0.9rem;">🔊</td>
                                 <td style="padding: 4px 0; font-family: Arial, sans-serif;"><b>Technik:</b> ${techDisplay}</td>
                             </tr>
 

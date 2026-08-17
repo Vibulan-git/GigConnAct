@@ -9,7 +9,7 @@ module.exports = function getRadiusEventEmailHtml({ musicianName, event, distanc
     const dateStr = event.date || 'Termin nach Absprache';
     
     // Location and distance
-    const loc = event.location || 'Ort nach Absprache';
+    const loc = event.location || 'Deutschlandweit';
     const locDisplay = `${loc} (ca. ${distance} km von dir entfernt)`;
 
     // Format Duration display
@@ -33,7 +33,7 @@ module.exports = function getRadiusEventEmailHtml({ musicianName, event, distanc
     // Format Budget / Gage display
     let budgetDisplay = '';
     const minB = event.minBudget !== undefined ? event.minBudget : (event.budget || event.price);
-    const maxB = event.maxBudget;
+    const maxB = event.maxBudget !== undefined ? event.maxBudget : event.budgetMax;
     if (minB !== undefined && minB !== null) {
         const minBStr = typeof minB === 'number' ? minB.toLocaleString('de-DE') : String(minB);
         if (maxB !== undefined && maxB !== null && maxB !== minB) {
@@ -43,13 +43,13 @@ module.exports = function getRadiusEventEmailHtml({ musicianName, event, distanc
             budgetDisplay = `${minBStr} €`;
         }
     } else {
-        budgetDisplay = 'Auf Anfrage';
+        budgetDisplay = '0 - 5.000 €';
     }
 
     // Format Audience / Publikum
     const minP = event.minPublikum;
     const maxP = event.maxPublikum;
-    let publikumDisplay = 'Nach Vereinbarung';
+    let publikumDisplay = '50 - 150 Personen';
     if (minP !== undefined && minP !== null) {
         if (maxP !== undefined && maxP !== null) {
             publikumDisplay = `${minP} - ${maxP} Personen`;
@@ -72,7 +72,7 @@ module.exports = function getRadiusEventEmailHtml({ musicianName, event, distanc
         : (typeof event.musicianTypes === 'string' && event.musicianTypes.trim() !== '' ? event.musicianTypes : (event.musicianType || 'Solo / Band'));
 
     // Format Instruments
-    const instrumentsDisplay = event.instruments && event.instruments.length > 0 ? event.instruments.join(', ') : 'Nach Vereinbarung';
+    const instrumentsDisplay = event.instruments && event.instruments.length > 0 ? event.instruments.join(', ') : 'Gesang, Gitarre';
 
     return `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
@@ -113,12 +113,12 @@ module.exports = function getRadiusEventEmailHtml({ musicianName, event, distanc
                     </tr>
                     <!-- 6. Instrumente -->
                     <tr>
-                        <td style="padding: 6px 0; font-weight: bold; vertical-align: top;">🎹 Instrumente:</td>
+                        <td style="padding: 6px 0; font-weight: bold; vertical-align: top;">🥁 Instrumente:</td>
                         <td style="padding: 6px 0;">${instrumentsDisplay}</td>
                     </tr>
                     <!-- 7. Spielzeit -->
                     <tr>
-                        <td style="padding: 6px 0; font-weight: bold; vertical-align: top;">⏱️ Spielzeit:</td>
+                        <td style="padding: 6px 0; font-weight: bold; vertical-align: top;">🕒 Spieldauer:</td>
                         <td style="padding: 6px 0;">${durationDisplay}</td>
                     </tr>
                     <!-- 8. Publikum -->
@@ -128,7 +128,7 @@ module.exports = function getRadiusEventEmailHtml({ musicianName, event, distanc
                     </tr>
                     <!-- 9. Technik -->
                     <tr>
-                        <td style="padding: 6px 0; font-weight: bold; vertical-align: top;">🎛️ Technik:</td>
+                        <td style="padding: 6px 0; font-weight: bold; vertical-align: top;">🔊 Technik:</td>
                         <td style="padding: 6px 0;">${techDisplay}</td>
                     </tr>
                     <!-- 10. Budget -->

@@ -26,7 +26,7 @@ module.exports = function getTopMatchEmailHtml({ userName, role, profileName, ma
         const photoUrl = cleanPhotoUrl(rawPhotoUrl);
         
         // Location and Date display
-        const loc = m.location || 'Ort nach Absprache';
+        const loc = m.location || 'Deutschlandweit';
         
         // Format Date / Availability display
         let dateStr = m.date || 'Termin nach Absprache';
@@ -58,7 +58,7 @@ module.exports = function getTopMatchEmailHtml({ userName, role, profileName, ma
         // Format Budget / Gage display
         let budgetDisplay = '';
         const minB = m.minBudget !== undefined ? m.minBudget : (m.budget || m.price);
-        const maxB = m.maxBudget;
+        const maxB = m.maxBudget !== undefined ? m.maxBudget : m.budgetMax;
         if (minB !== undefined && minB !== null) {
             const minBStr = typeof minB === 'number' ? minB.toLocaleString('de-DE') : String(minB);
             if (maxB !== undefined && maxB !== null && maxB !== minB) {
@@ -68,13 +68,13 @@ module.exports = function getTopMatchEmailHtml({ userName, role, profileName, ma
                 budgetDisplay = `${minBStr} €`;
             }
         } else {
-            budgetDisplay = 'Auf Anfrage';
+            budgetDisplay = isOrganizer ? 'Auf Anfrage' : '0 - 5.000 €';
         }
         
         // Format Audience / Publikum
         const minP = m.minPublikum;
         const maxP = m.maxPublikum;
-        let publikumDisplay = 'Nach Vereinbarung';
+        let publikumDisplay = isOrganizer ? '0 - 500+ Personen' : '50 - 150 Personen';
         if (minP !== undefined && minP !== null) {
             if (maxP !== undefined && maxP !== null) {
                 publikumDisplay = `${minP} - ${maxP} Personen`;
@@ -90,6 +90,11 @@ module.exports = function getTopMatchEmailHtml({ userName, role, profileName, ma
             ? m.technik 
             : (typeof m.technik === 'string' && m.technik.trim() !== '' ? m.technik.split(',').map(s => s.trim()) : []);
         const techDisplay = techArr.length > 0 ? techArr.join(', ') : 'Nach Vereinbarung';
+
+        // Format Instruments
+        const instrumentsDisplay = m.instruments && m.instruments.length > 0 
+            ? m.instruments.join(', ') 
+            : (isOrganizer ? 'Nach Vereinbarung' : 'Gesang, Gitarre');
 
         // Description snippet (limit raised to 350 for more information)
         const desc = m.description || m.bio || (isOrganizer 
@@ -168,13 +173,13 @@ module.exports = function getTopMatchEmailHtml({ userName, role, profileName, ma
 
                         <!-- 6. Instrumente -->
                         <tr>
-                            <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🎹</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Instrumente:</b> ${m.instruments && m.instruments.length > 0 ? m.instruments.join(', ') : 'Nach Vereinbarung'}</td>
+                            <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🥁</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Instrumente:</b> ${instrumentsDisplay}</td>
                         </tr>
 
                         <!-- 7. Spielzeit -->
                         <tr>
-                            <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">⏱️</td>
+                            <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🕒</td>
                             <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Spieldauer:</b> ${durationDisplay}</td>
                         </tr>
 
@@ -186,7 +191,7 @@ module.exports = function getTopMatchEmailHtml({ userName, role, profileName, ma
 
                         <!-- 9. Technik -->
                         <tr>
-                            <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🎛️</td>
+                            <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🔊</td>
                             <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Technik:</b> ${techDisplay}</td>
                         </tr>
 

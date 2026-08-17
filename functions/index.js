@@ -654,3 +654,159 @@ exports.sendCustomSignInEmail = functions
             throw new functions.https.HttpsError('internal', error.message);
         }
     });
+
+// ==========================================
+// Stripe Checkout Session Creation
+// ==========================================
+exports.createStripeCheckoutSession = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['STRIPE_SECRET_KEY'] })
+    .https.onCall(async (data, context) => {
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'Bitte melde dich an.');
+        }
+
+        const { planKey, baseUrl } = data;
+        if (!planKey) {
+            throw new functions.https.HttpsError('invalid-argument', 'Kein Tarif (Plan) angegeben.');
+        }
+
+        // Map plan keys to Price IDs
+        const planPriceMap = {
+            'flex': 'price_1U5NyeEPGnhCeJ3ymgmiLzFG',
+            'plus': 'price_1U5O06EPGnhCeJ3y2IJIY3sx',
+            'pro': 'price_1U5O10EPGnhCeJ3ygarInwXi',
+            'premium': 'price_1U5O23EPGnhCeJ3yMOB5XBuQ'
+        };
+
+        const priceId = planPriceMap[planKey];
+        if (!priceId) {
+            throw new functions.https.HttpsError('invalid-argument', 'Ungültiger Tarif angegeben.');
+        }
+
+        const fallbackBaseUrl = 'https://www.gigconnact.de';
+        const cleanBaseUrl = (baseUrl && (baseUrl.startsWith('http://localhost') || baseUrl.startsWith('https://'))) 
+            ? baseUrl 
+            : fallbackBaseUrl;
+
+        try {
+            const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+            
+            // Get user email
+            const userDoc = await admin.firestore().collection('users').doc(context.auth.uid).get();
+            const email = userDoc.exists ? userDoc.data().email : null;
+
+            const session = await stripe.checkout.sessions.create({
+                payment_method_types: ['card', 'sepa_debit'],
+                mode: 'subscription',
+                customer_email: email || undefined,
+                line_items: [{
+                    price: priceId,
+                    quantity: 1,
+                }],
+                success_url: `${cleanBaseUrl}/#/profile?payment=success`,
+                cancel_url: `${cleanBaseUrl}/#/profile?payment=cancel`,
+                metadata: {
+                    userId: context.auth.uid,
+                    planKey: planKey
+                }
+            });
+
+            return { url: session.url };
+        } catch (error) {
+            console.error("Stripe Checkout Error:", error);
+            throw new functions.https.HttpsError('internal', error.message);
+        }
+    });
+
+// ==========================================
+// Stripe Webhook Handler
+// ==========================================
+exports.stripeWebhook = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET'] })
+    .https.onRequest(async (req, res) => {
+        const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+        const sig = req.headers['stripe-signature'];
+        let event;
+
+        try {
+            event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
+        } catch (err) {
+            console.error("Webhook signature verification failed:", err.message);
+            return res.status(400).send(`Webhook Error: ${err.message}`);
+        }
+
+        if (event.type === 'checkout.session.completed') {
+            const session = event.data.object;
+            const userId = session.metadata.userId;
+            const planKey = session.metadata.planKey;
+
+            if (userId && planKey) {
+                try {
+                    console.log(`Processing successful subscription for user ${userId}, plan: ${planKey}`);
+                    
+                    // Update user doc in Firestore
+                    const userRef = admin.firestore().collection('users').doc(userId);
+                    await userRef.update({
+                        isPremium: true,
+                        subscriptionPlan: planKey,
+                        subscriptionCancelled: false,
+                        subscriptionId: session.subscription || null,
+                        subscriptionEndDate: admin.firestore.FieldValue.delete()
+                    });
+
+                    // Also check if there's a musician profile and update it too
+                    const userDoc = await userRef.get();
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        if (userData.profileId && userData.role === 'musician') {
+                            await admin.firestore().collection('musicians').doc(userData.profileId).update({
+                                isPremium: true,
+                                subscriptionPlan: planKey
+                            });
+                        }
+                    }
+                    console.log(`Successfully updated user ${userId} and their profiles to Premium.`);
+                } catch (dbErr) {
+                    console.error("Failed to update user profile in Firestore after Stripe webhook:", dbErr);
+                    return res.status(500).send("Database update failed");
+                }
+            }
+        } else if (event.type === 'customer.subscription.deleted') {
+            const subscription = event.data.object;
+            // Query user document by Stripe subscription ID
+            try {
+                const usersSnapshot = await admin.firestore().collection('users')
+                    .where('subscriptionId', '==', subscription.id)
+                    .get();
+
+                if (!usersSnapshot.empty) {
+                    for (const doc of usersSnapshot.docs) {
+                        const userId = doc.id;
+                        console.log(`Subscription ${subscription.id} deleted. Demoting user ${userId} to free/flex.`);
+                        
+                        await admin.firestore().collection('users').doc(userId).update({
+                            isPremium: false,
+                            subscriptionPlan: 'flex',
+                            subscriptionId: null
+                        });
+
+                        const userData = doc.data();
+                        if (userData.profileId && userData.role === 'musician') {
+                            await admin.firestore().collection('musicians').doc(userData.profileId).update({
+                                isPremium: false,
+                                subscriptionPlan: 'flex'
+                            });
+                        }
+                    }
+                }
+            } catch (dbErr) {
+                console.error("Failed to update user profile after subscription deletion webhook:", dbErr);
+                return res.status(500).send("Database update failed");
+            }
+        }
+
+        res.json({ received: true });
+    });
+

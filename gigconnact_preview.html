@@ -6820,9 +6820,10 @@ class StateManager {
         this.chats = [];
         try {
             const storedRead = localStorage.getItem('GigConnAct_read_chats');
-            this.readChats = storedRead ? JSON.parse(storedRead) : [];
+            const parsed = storedRead ? JSON.parse(storedRead) : {};
+            this.readChats = (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
         } catch (e) {
-            this.readChats = [];
+            this.readChats = {};
         }
         this.interests = [];
         this.favorites = [];
@@ -7539,9 +7540,10 @@ class StateManager {
 
         try {
             const storedRead = localStorage.getItem('GigConnAct_read_chats');
-            this.readChats = storedRead ? JSON.parse(storedRead) : [];
+            const parsed = storedRead ? JSON.parse(storedRead) : {};
+            this.readChats = (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
         } catch (e) {
-            this.readChats = [];
+            this.readChats = {};
         }
 
         try {
@@ -7762,7 +7764,6 @@ class StateManager {
     isChatUnread(chat) {
         if (!this.currentUser) return false;
         if (!chat) return false;
-        if ((this.readChats || []).includes(chat.id)) return false;
 
         // Gather all participant IDs of the current user
         const userParticipantIds = [this.currentUser.id];
@@ -7783,10 +7784,22 @@ class StateManager {
         }
 
         // Check if the last message was sent by someone else
-        if (chat.messages && chat.messages.length > 0) {
-            const lastMsg = chat.messages[chat.messages.length - 1];
-            if (userParticipantIds.includes(lastMsg.senderId)) {
-                return false;
+        if (!chat.messages || chat.messages.length === 0) {
+            return false;
+        }
+        const lastMsg = chat.messages[chat.messages.length - 1];
+        if (userParticipantIds.includes(lastMsg.senderId)) {
+            return false;
+        }
+
+        // Check if the chat is read based on the last read message timestamp
+        if (this.readChats) {
+            if (Array.isArray(this.readChats)) {
+                return !this.readChats.includes(chat.id);
+            } else if (typeof this.readChats === 'object') {
+                const lastReadTime = this.readChats[chat.id];
+                if (!lastReadTime) return true; // Never read
+                return new Date(lastMsg.timestamp) > new Date(lastReadTime);
             }
         }
         return true;
@@ -8141,9 +8154,15 @@ class StateManager {
     }
 
     markChatAsRead(chatId) {
-        if (!this.readChats) this.readChats = [];
-        if (!this.readChats.includes(chatId)) {
-            this.readChats.push(chatId);
+        if (!this.readChats || Array.isArray(this.readChats)) {
+            this.readChats = {};
+        }
+        const chat = (this.chats || []).find(c => c.id === chatId);
+        const lastMsgTimestamp = (chat && chat.messages && chat.messages.length > 0)
+            ? chat.messages[chat.messages.length - 1].timestamp
+            : new Date().toISOString();
+        if (this.readChats[chatId] !== lastMsgTimestamp) {
+            this.readChats[chatId] = lastMsgTimestamp;
             this.notify();
         }
     }
@@ -8303,8 +8322,11 @@ class StateManager {
             }
         }
 
-        if (!this.readChats.includes(newId)) {
-            this.readChats.push(newId);
+        if (!this.readChats || Array.isArray(this.readChats)) {
+            this.readChats = {};
+        }
+        if (this.readChats[newId] !== newMessage.timestamp) {
+            this.readChats[newId] = newMessage.timestamp;
             this.notify();
         }
 
@@ -8345,7 +8367,11 @@ class StateManager {
             }
         }
         
-        this.readChats = this.readChats.filter(id => id !== newId);
+        if (this.readChats && typeof this.readChats === 'object' && !Array.isArray(this.readChats)) {
+            delete this.readChats[newId];
+        } else {
+            this.readChats = {};
+        }
         
         const user = this.currentUser;
         if (user) {

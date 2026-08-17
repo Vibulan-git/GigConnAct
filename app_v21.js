@@ -1680,9 +1680,10 @@ class StateManager {
         this.chats = [];
         try {
             const storedRead = localStorage.getItem('GigConnAct_read_chats');
-            this.readChats = storedRead ? JSON.parse(storedRead) : [];
+            const parsed = storedRead ? JSON.parse(storedRead) : {};
+            this.readChats = (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
         } catch (e) {
-            this.readChats = [];
+            this.readChats = {};
         }
         this.interests = [];
         this.favorites = [];
@@ -2399,9 +2400,10 @@ class StateManager {
 
         try {
             const storedRead = localStorage.getItem('GigConnAct_read_chats');
-            this.readChats = storedRead ? JSON.parse(storedRead) : [];
+            const parsed = storedRead ? JSON.parse(storedRead) : {};
+            this.readChats = (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
         } catch (e) {
-            this.readChats = [];
+            this.readChats = {};
         }
 
         try {
@@ -2622,7 +2624,6 @@ class StateManager {
     isChatUnread(chat) {
         if (!this.currentUser) return false;
         if (!chat) return false;
-        if ((this.readChats || []).includes(chat.id)) return false;
 
         // Gather all participant IDs of the current user
         const userParticipantIds = [this.currentUser.id];
@@ -2643,10 +2644,22 @@ class StateManager {
         }
 
         // Check if the last message was sent by someone else
-        if (chat.messages && chat.messages.length > 0) {
-            const lastMsg = chat.messages[chat.messages.length - 1];
-            if (userParticipantIds.includes(lastMsg.senderId)) {
-                return false;
+        if (!chat.messages || chat.messages.length === 0) {
+            return false;
+        }
+        const lastMsg = chat.messages[chat.messages.length - 1];
+        if (userParticipantIds.includes(lastMsg.senderId)) {
+            return false;
+        }
+
+        // Check if the chat is read based on the last read message timestamp
+        if (this.readChats) {
+            if (Array.isArray(this.readChats)) {
+                return !this.readChats.includes(chat.id);
+            } else if (typeof this.readChats === 'object') {
+                const lastReadTime = this.readChats[chat.id];
+                if (!lastReadTime) return true; // Never read
+                return new Date(lastMsg.timestamp) > new Date(lastReadTime);
             }
         }
         return true;
@@ -3001,9 +3014,15 @@ class StateManager {
     }
 
     markChatAsRead(chatId) {
-        if (!this.readChats) this.readChats = [];
-        if (!this.readChats.includes(chatId)) {
-            this.readChats.push(chatId);
+        if (!this.readChats || Array.isArray(this.readChats)) {
+            this.readChats = {};
+        }
+        const chat = (this.chats || []).find(c => c.id === chatId);
+        const lastMsgTimestamp = (chat && chat.messages && chat.messages.length > 0)
+            ? chat.messages[chat.messages.length - 1].timestamp
+            : new Date().toISOString();
+        if (this.readChats[chatId] !== lastMsgTimestamp) {
+            this.readChats[chatId] = lastMsgTimestamp;
             this.notify();
         }
     }
@@ -3163,8 +3182,11 @@ class StateManager {
             }
         }
 
-        if (!this.readChats.includes(newId)) {
-            this.readChats.push(newId);
+        if (!this.readChats || Array.isArray(this.readChats)) {
+            this.readChats = {};
+        }
+        if (this.readChats[newId] !== newMessage.timestamp) {
+            this.readChats[newId] = newMessage.timestamp;
             this.notify();
         }
 
@@ -3205,7 +3227,11 @@ class StateManager {
             }
         }
         
-        this.readChats = this.readChats.filter(id => id !== newId);
+        if (this.readChats && typeof this.readChats === 'object' && !Array.isArray(this.readChats)) {
+            delete this.readChats[newId];
+        } else {
+            this.readChats = {};
+        }
         
         const user = this.currentUser;
         if (user) {
@@ -7448,41 +7474,36 @@ function renderProfilePage(container) {
                     return;
                 }
 
-                u.subscriptionPlan = selectedPlan;
-                u.isPremium = true;
-                u.subscriptionCancelled = false;
-                delete u.subscriptionEndDate;
-
-                const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-                const idx = registeredUsers.findIndex(usr => usr.id === u.id);
-                if (idx !== -1) {
-                    registeredUsers[idx].subscriptionPlan = selectedPlan;
-                    registeredUsers[idx].isPremium = true;
-                    registeredUsers[idx].subscriptionCancelled = false;
-                    delete registeredUsers[idx].subscriptionEndDate;
-                    localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                if (selectedPlan === activePlan && u.isPremium) {
+                    showToast({ title: "Tarif bereits aktiv", message: "Du nutzt bereits diesen Tarif." });
+                    return;
                 }
 
-                if (typeof db !== 'undefined' && u.id) {
-                    try {
-                        await db.collection('users').doc(u.id).update({
-                            subscriptionPlan: selectedPlan,
-                            isPremium: true,
-                            subscriptionCancelled: false,
-                            subscriptionEndDate: firebase.firestore.FieldValue.delete()
-                        });
-                    } catch (err) {
-                        console.error("Firestore user sub save update error:", err);
+                try {
+                    saveSubBtn.disabled = true;
+                    saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung zu Stripe...`;
+                    
+                    const createStripeSession = firebase.functions().httpsCallable('createStripeCheckoutSession');
+                    const res = await createStripeSession({ 
+                        planKey: selectedPlan,
+                        baseUrl: window.location.origin
+                    });
+
+                    if (res.data && res.data.url) {
+                        window.location.href = res.data.url;
+                    } else {
+                        throw new Error("Zahlungs-URL konnte nicht generiert werden.");
                     }
+                } catch (err) {
+                    console.error("Stripe Checkout Redirect failed:", err);
+                    saveSubBtn.disabled = false;
+                    saveSubBtn.innerHTML = `Tarif wechseln`;
+                    showToast({
+                        title: "Fehler beim Bezahlvorgang ⚠️",
+                        message: err.message || "Bitte versuche es später noch einmal.",
+                        type: "error"
+                    });
                 }
-
-                state.saveState();
-                showToast({
-                    title: "Tarif erfolgreich gewechselt! 🚀",
-                    message: `Dein Abonnement wurde auf den Tarif "${selectedPlan.toUpperCase()}" umgestellt.`
-                });
-                renderProfilePage(container);
-                updateNavbar();
             });
         }
     }
@@ -11975,12 +11996,13 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             */
                         } else {
                             // EXISTING USER: Logged in!
+                            state.currentUser = userDoc.data();
                             closeModal();
                             showToast({
                                 title: "Erfolgreich angemeldet!",
                                 message: `Willkommen zurück, ${user.displayName || user.email}!`
                             });
-                            // setupAuthListener will trigger state update
+                            navigateAfterLogin();
                         }
                     }
                 })
@@ -12643,49 +12665,24 @@ function renderSubscriptionExpiredPage(container) {
 
             try {
                 reactivateBtn.disabled = true;
-                reactivateBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Reaktivierung läuft...`;
+                reactivateBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung zu Stripe...`;
 
-                u.subscriptionCancelled = false;
-                u.subscriptionPlan = selectedPlan;
-                u.isPremium = true;
-                delete u.subscriptionEndDate;
-
-                const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-                const idx = registeredUsers.findIndex(usr => usr.id === u.id);
-                if (idx !== -1) {
-                    registeredUsers[idx].subscriptionCancelled = false;
-                    registeredUsers[idx].subscriptionPlan = selectedPlan;
-                    registeredUsers[idx].isPremium = true;
-                    delete registeredUsers[idx].subscriptionEndDate;
-                    localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
-                }
-
-                if (typeof db !== 'undefined' && u.id) {
-                    await db.collection('users').doc(u.id).update({
-                        subscriptionCancelled: false,
-                        subscriptionPlan: selectedPlan,
-                        isPremium: true,
-                        subscriptionEndDate: firebase.firestore.FieldValue.delete()
-                    });
-                }
-
-                state.currentUser = u;
-                state.saveState();
-
-                showToast({
-                    title: "Abonnement reaktiviert! 🎉",
-                    message: "Vielen Dank! Dein Zugang ist wieder aktiv."
+                const createStripeSession = firebase.functions().httpsCallable('createStripeCheckoutSession');
+                const res = await createStripeSession({ 
+                    planKey: selectedPlan,
+                    baseUrl: window.location.origin
                 });
 
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-
+                if (res.data && res.data.url) {
+                    window.location.href = res.data.url;
+                } else {
+                    throw new Error("Zahlungs-URL konnte nicht generiert werden.");
+                }
             } catch (err) {
                 console.error("Reactivation failed:", err);
                 reactivateBtn.disabled = false;
                 reactivateBtn.innerHTML = `<i class="fa-solid fa-arrow-rotate-right"></i> Abo reaktivieren & bezahlen`;
-                showToast({ title: "Fehler", message: "Die Reaktivierung ist fehlgeschlagen: " + err.message, type: "error" });
+                showToast({ title: "Fehler beim Bezahlvorgang ⚠️", message: err.message || "Die Reaktivierung ist fehlgeschlagen.", type: "error" });
             }
         });
     }
