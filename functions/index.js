@@ -696,7 +696,7 @@ exports.createStripeCheckoutSession = functions
             const userDoc = await admin.firestore().collection('users').doc(context.auth.uid).get();
             const email = userDoc.exists ? userDoc.data().email : null;
 
-            const session = await stripe.checkout.sessions.create({
+            const sessionParams = {
                 payment_method_types: ['card', 'sepa_debit'],
                 mode: 'subscription',
                 customer_email: email || undefined,
@@ -710,7 +710,20 @@ exports.createStripeCheckoutSession = functions
                     userId: context.auth.uid,
                     planKey: planKey
                 }
-            });
+            };
+
+            // Set trial period dynamically based on the plan configuration
+            if (planKey === 'premium') {
+                sessionParams.subscription_data = {
+                    trial_period_days: 90
+                };
+            } else if (planKey === 'flex' || planKey === 'plus' || planKey === 'pro') {
+                sessionParams.subscription_data = {
+                    trial_period_days: 30
+                };
+            }
+
+            const session = await stripe.checkout.sessions.create(sessionParams);
 
             return { url: session.url };
         } catch (error) {
@@ -746,15 +759,31 @@ exports.stripeWebhook = functions
                 try {
                     console.log(`Processing successful subscription for user ${userId}, plan: ${planKey}`);
                     
-                    // Update user doc in Firestore
-                    const userRef = admin.firestore().collection('users').doc(userId);
-                    await userRef.update({
+                    const updateData = {
                         isPremium: true,
                         subscriptionPlan: planKey,
                         subscriptionCancelled: false,
                         subscriptionId: session.subscription || null,
                         subscriptionEndDate: admin.firestore.FieldValue.delete()
-                    });
+                    };
+
+                    if (session.subscription) {
+                        try {
+                            const sub = await stripe.subscriptions.retrieve(session.subscription);
+                            updateData.subscriptionCreated = sub.created;
+                            updateData.subscriptionPeriodStart = sub.current_period_start;
+                            updateData.subscriptionPeriodEnd = sub.current_period_end;
+                            updateData.subscriptionTrialStart = sub.trial_start || null;
+                            updateData.subscriptionTrialEnd = sub.trial_end || null;
+                            updateData.subscriptionStatus = sub.status;
+                        } catch (subErr) {
+                            console.error(`Failed to retrieve Stripe subscription details for ${session.subscription}:`, subErr);
+                        }
+                    }
+                    
+                    // Update user doc in Firestore
+                    const userRef = admin.firestore().collection('users').doc(userId);
+                    await userRef.update(updateData);
 
                     // Also check if there's a musician profile and update it too
                     const userDoc = await userRef.get();
@@ -771,6 +800,24 @@ exports.stripeWebhook = functions
                 } catch (dbErr) {
                     console.error("Failed to update user profile in Firestore after Stripe webhook:", dbErr);
                     return res.status(500).send("Database update failed");
+                }
+            }
+        } else if (event.type === 'customer.subscription.updated') {
+            const subscription = event.data.object;
+            const userId = subscription.metadata ? subscription.metadata.userId : null;
+            if (userId) {
+                try {
+                    await admin.firestore().collection('users').doc(userId).update({
+                        subscriptionPeriodStart: subscription.current_period_start,
+                        subscriptionPeriodEnd: subscription.current_period_end,
+                        subscriptionTrialStart: subscription.trial_start || null,
+                        subscriptionTrialEnd: subscription.trial_end || null,
+                        subscriptionStatus: subscription.status,
+                        subscriptionCancelled: subscription.cancel_at_period_end
+                    });
+                    console.log(`Successfully updated subscription timestamps for user ${userId} on customer.subscription.updated`);
+                } catch (dbErr) {
+                    console.error(`Failed to update user profile in Firestore on customer.subscription.updated:`, dbErr);
                 }
             }
         } else if (event.type === 'customer.subscription.deleted') {

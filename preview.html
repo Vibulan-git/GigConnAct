@@ -12356,6 +12356,12 @@ function renderProfilePage(container) {
         }
     };
     
+    const formatDate = (ts) => {
+        if (!ts) return '';
+        const date = new Date(ts * 1000);
+        return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    };
+
     const activePlan = u.subscriptionPlan || 'flex';
     const planInfo = getPlanDetails(activePlan);
     let selectedPlan = activePlan;
@@ -12441,7 +12447,24 @@ function renderProfilePage(container) {
                             ${planInfo.details}
                         </div>
                         <div style="font-size: 0.75rem; font-weight: 700; margin-top: 0.5rem; color: ${u.subscriptionCancelled ? 'var(--color-red)' : '#10b981'};">
-                            Status: ${u.subscriptionCancelled ? `Gekündigt (Aktiv bis zum ${u.subscriptionEndDate || 'Ende des Abrechnungszeitraums'})` : 'Aktiv (Automatische Verlängerung)'}
+                            Status: ${u.subscriptionCancelled ? `Gekündigt (Aktiv bis zum ${u.subscriptionEndDate || (u.subscriptionPeriodEnd ? formatDate(u.subscriptionPeriodEnd) : 'Ende des Abrechnungszeitraums')})` : 'Aktiv (Automatische Verlängerung)'}
+                        </div>
+                        
+                        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.8rem; border-top: 1px dashed var(--border-glass); padding-top: 0.6rem; display: grid; grid-template-columns: auto 1fr; gap: 0.3rem 1.5rem;">
+                            ${u.subscriptionCreated ? `
+                                <span><strong>Abschluss-Datum:</strong></span>
+                                <span style="color: var(--text-main);">${formatDate(u.subscriptionCreated)}</span>
+                            ` : ''}
+                            ${u.subscriptionTrialEnd ? `
+                                <span><strong>Kostenlose Testphase:</strong></span>
+                                <span style="color: var(--text-main);">${u.subscriptionTrialStart ? formatDate(u.subscriptionTrialStart) : (u.subscriptionCreated ? formatDate(u.subscriptionCreated) : '')} bis ${formatDate(u.subscriptionTrialEnd)}</span>
+                            ` : ''}
+                            ${u.subscriptionPeriodEnd && !u.subscriptionCancelled ? `
+                                <span><strong>Nächste Abbuchung:</strong></span>
+                                <span style="color: var(--text-main);">${formatDate(u.subscriptionPeriodEnd)} (automatische Verlängerung)</span>
+                            ` : ''}
+                            <span><strong>Vertragslaufzeit:</strong></span>
+                            <span style="color: var(--text-main);">${activePlan === 'plus' ? '6 Monate' : (activePlan === 'pro' || activePlan === 'premium' ? '12 Monate' : '1 Monat')}</span>
                         </div>
                     </div>
                     
