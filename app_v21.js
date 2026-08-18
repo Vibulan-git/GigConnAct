@@ -14312,8 +14312,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                             <span style="flex: 1;">${formatTruncatedValue(instrumentsArr, themeColor, item.id, 'instruments')}</span>
                         </div>
 
-                        <!-- Toggle Button Row aligned to the far right directly under instruments -->
-                        <div style="display: flex; justify-content: flex-end; margin-top: 0.2rem; margin-bottom: 0.2rem; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 0.4rem;">
+                        <!-- Toggle Button Row centered directly under instruments -->
+                        <div style="display: flex; justify-content: center; margin-top: 0.2rem; margin-bottom: 0.2rem; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 0.4rem;">
                             <button onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.2rem 0; cursor: pointer; color: ${themeColor}; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Mehr Details anzeigen/verbergen">
                                 <i class="fa-solid fa-circle-plus" id="toggle-icon-${item.id}" style="font-size: 1.6rem; opacity: 0.85;"></i>
                             </button>
