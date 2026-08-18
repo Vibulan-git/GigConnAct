@@ -4523,7 +4523,7 @@ function renderLandingPage(container, onNavigate) {
                 </div>
 
                 <!-- Carousel: Events -->
-                <div class="carousel-container" style="margin-bottom: 1.5rem;">
+                <div class="carousel-container" style="margin-bottom: 0.5rem;">
                     <div class="carousel-viewport">
                         <div class="carousel-track theme-musician" id="carousel-track-events">
                             ${renderMarketGridHTML(state.events.slice(0, 9), true, true)}
@@ -4532,7 +4532,7 @@ function renderLandingPage(container, onNavigate) {
                 </div>
 
                 <!-- Pagination Dots: Events -->
-                <div class="carousel-dots-container" style="margin-bottom: 2.2rem;">
+                <div class="carousel-dots-container" style="margin-bottom: 1.2rem;">
                     <div class="carousel-dots" id="carousel-dots-events">
                         <span class="carousel-dot active" onclick="jumpToCarouselSlide('events', 0)"></span>
                         <span class="carousel-dot" onclick="jumpToCarouselSlide('events', 1)"></span>
@@ -4639,7 +4639,7 @@ function renderLandingPage(container, onNavigate) {
                 </div>
 
                 <!-- Carousel: Musiker -->
-                <div class="carousel-container" style="margin-bottom: 1.5rem;">
+                <div class="carousel-container" style="margin-bottom: 0.5rem;">
                     <div class="carousel-viewport">
                         <div class="carousel-track theme-organizer" id="carousel-track-musicians">
                             ${renderMarketGridHTML(state.musicians.slice(0, 9), false, true)}
@@ -4648,7 +4648,7 @@ function renderLandingPage(container, onNavigate) {
                 </div>
 
                 <!-- Pagination Dots: Musiker -->
-                <div class="carousel-dots-container" style="margin-bottom: 2.2rem;">
+                <div class="carousel-dots-container" style="margin-bottom: 1.2rem;">
                     <div class="carousel-dots" id="carousel-dots-musicians">
                         <span class="carousel-dot active" onclick="jumpToCarouselSlide('musicians', 0)"></span>
                         <span class="carousel-dot" onclick="jumpToCarouselSlide('musicians', 1)"></span>
@@ -4850,7 +4850,7 @@ function renderLandingPage(container, onNavigate) {
                         <img src="founder.jpg" alt="Vibulan Sivanathan" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
                     </div>
                     <!-- Right column: Text with padding -->
-                    <div style="flex: 1.5 1 400px; padding: 3rem 2.5rem; display: flex; flex-direction: column; justify-content: center; gap: 1.2rem; text-align: left;">
+                    <div style="flex: 1.5 1 400px; padding: 1.5rem 2.5rem; display: flex; flex-direction: column; justify-content: center; gap: 0.8rem; text-align: left;">
                         <div style="display: flex; flex-direction: column; gap: 0.35rem;">
                             <h3 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin: 0;">Vibulan Sivanathan</h3>
                             <div style="display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.3px;">
