@@ -14228,11 +14228,13 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
                     </div>
 
-                    <!-- Match-Faktor Badge oben rechts -->
+                    <!-- Match-Faktor Badge oben rechts - Only if user is logged in -->
+                    ${state.currentUser ? `
                     <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 48px;">
                         <span style="font-size: 0.95rem; font-weight: 900;">${item.matchScore !== undefined ? item.matchScore : '96'}%</span>
                         <span style="font-size: 0.45rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
                     </div>
+                    ` : ''}
 
                     <!-- Dots container inside the slider -->
                     <div class="tile-gallery-dots" id="combo-dots-${item.id}" data-theme="${isEvents ? '#7c3aed' : '#2563eb'}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
@@ -14296,8 +14298,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         
                         <!-- Right Column: Star, Heart, Plus stacked vertically, aligned to the bottom (Instrumente height) -->
                         <div style="display: flex; flex-direction: column; justify-content: flex-end; padding-left: 0.6rem; border-left: 1px solid var(--border-glass); padding-bottom: 0.1rem; min-width: 46px; box-sizing: border-box; align-items: center; gap: 0.9rem;">
-                            <!-- 1. Star (Top Match) - Only if matchScore >= 70 -->
-                            ${item.matchScore >= 70 ? `
+                            <!-- 1. Star (Top Match) - Only if matchScore >= 70 and logged in -->
+                            ${(state.currentUser && item.matchScore >= 70) ? `
                                 <span title="Top Match" style="color: #eab308; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; cursor: default;">
                                     <i class="fa-solid fa-star" style="font-size: 1.6rem;"></i>
                                 </span>
