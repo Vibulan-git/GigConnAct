@@ -18549,9 +18549,27 @@ window.toggleTileDetails = function(itemId) {
         if (isCollapsed) {
             el.style.display = 'flex';
             icon.className = 'fa-solid fa-circle-minus';
+            
+            // Expand all truncated text fields for this card
+            const container = el.closest('.market-tile-card');
+            if (container) {
+                const moreSpans = container.querySelectorAll('[id^="more-"]');
+                moreSpans.forEach(span => span.style.display = 'inline');
+                const dotsSpans = container.querySelectorAll('[id^="dots-"]');
+                dotsSpans.forEach(span => span.style.display = 'none');
+            }
         } else {
             el.style.display = 'none';
             icon.className = 'fa-solid fa-circle-plus';
+            
+            // Collapse all truncated text fields for this card
+            const container = el.closest('.market-tile-card');
+            if (container) {
+                const moreSpans = container.querySelectorAll('[id^="more-"]');
+                moreSpans.forEach(span => span.style.display = 'none');
+                const dotsSpans = container.querySelectorAll('[id^="dots-"]');
+                dotsSpans.forEach(span => span.style.display = 'inline');
+            }
         }
     }
 };
@@ -19278,7 +19296,7 @@ function formatTruncatedValue(val, themeColor, itemId, uniqueType) {
     
     if (fullText.length === 0) return 'Keine Angabe';
     
-    // Max one line: truncate if content exceeds 26 characters (keeps plus button on first line)
+    // Max one line: truncate if content exceeds 26 characters (keeps content compact)
     if (fullText.length <= 26) {
         return fullText;
     }
@@ -19299,9 +19317,10 @@ function formatTruncatedValue(val, themeColor, itemId, uniqueType) {
     const visiblePart = fullText.slice(0, splitIdx).trim();
     const hiddenPart = fullText.slice(splitIdx);
     const hiddenId = `more-${uniqueType}-${itemId}`;
+    const dotsId = `dots-${uniqueType}-${itemId}`;
     
     return `
-        <span>${visiblePart}</span><span id="${hiddenId}" style="display: none;">${hiddenPart}</span><span onclick="event.stopPropagation(); window.toggleTruncatedList(this, '${hiddenId}')" style="color: ${themeColor}; font-weight: 900; cursor: pointer; margin-left: 0.5rem; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.25); width: 26px; height: 26px; border-radius: 50%; font-size: 1.15rem; vertical-align: middle; line-height: 1; transition: all 0.2s; padding-bottom: 2px; box-sizing: border-box;" onmouseover="this.style.background='rgba(255,255,255,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.25)'" title="Mehr anzeigen">+</span>
+        <span>${visiblePart}</span><span id="${dotsId}">...</span><span id="${hiddenId}" style="display: none;">${hiddenPart}</span>
     `;
 }
 
@@ -19796,20 +19815,6 @@ window.toggleAllFilterCheckboxes = function(element) {
     }
 };
 
-window.toggleTruncatedList = function(element, hiddenId) {
-    const hiddenSpan = document.getElementById(hiddenId);
-    if (!hiddenSpan) return;
-    const isHidden = hiddenSpan.style.display === 'none';
-    if (isHidden) {
-        hiddenSpan.style.display = 'inline';
-        element.innerHTML = '−';
-        element.setAttribute('title', 'Weniger anzeigen');
-    } else {
-        hiddenSpan.style.display = 'none';
-        element.innerHTML = '+';
-        element.setAttribute('title', 'Mehr anzeigen');
-    }
-};
 
 window.initCarouselTouch = function(type) {
     const track = document.getElementById(`carousel-track-${type}`);
