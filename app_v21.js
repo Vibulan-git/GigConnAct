@@ -13246,12 +13246,8 @@ function updateNavbar(forceLanding) {
         nav.className = 'main-nav';
         nav.innerHTML = '';
         authArea.innerHTML = `
-            <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger">
-                <i class="fa-solid fa-right-to-bracket header-login-icon"></i>
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.0;">
-                    <span class="btn-text-top">Ohne</span>
-                    <span class="btn-text-bottom">Passwort</span>
-                </div>
+            <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger" title="Einloggen / Registrieren" style="padding: 0; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.15);">
+                <i class="fa-solid fa-right-to-bracket header-login-icon" style="margin: 0; font-size: 1.35rem;"></i>
             </button>
         `;
         document.getElementById('btn-login-trigger').addEventListener('click', () => {
@@ -14232,11 +14228,6 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
                     </div>
 
-                    <!-- Match-Faktor Badge rechts mittig -->
-                    <div style="position: absolute; top: 50%; transform: translateY(-50%); right: 12px; z-index: 5; background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 5px 12px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 50px;">
-                        <span style="font-size: 1.05rem; font-weight: 900;">${item.matchScore !== undefined ? item.matchScore : '96'}%</span>
-                        <span style="font-size: 0.5rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
-                    </div>
 
                     <!-- Dots container inside the slider -->
                     <div class="tile-gallery-dots" id="combo-dots-${item.id}" data-theme="${isEvents ? '#7c3aed' : '#2563eb'}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
@@ -14249,28 +14240,14 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 <!-- Tile Body Content -->
                 <div class="tile-body-content" style="padding: 1.3rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
                     
-                    <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favorit Herz -->
+                    <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Match Score Badge -->
                     <div style="margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
                         <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; flex: 1; height: 2.4em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">
                             ${bandName}
                         </h3>
-                        <div style="display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; margin-top: -0.02rem;">
-                            ${item.matchScore >= 70 ? `
-                                <span title="Top Match" style="color: #eab308; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; cursor: default;">
-                                    <i class="fa-solid fa-star" style="font-size: 1.2rem;"></i>
-                                </span>
-                            ` : ''}
-                            <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
-                                ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? `
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444" width="22" height="22" style="display: block;">
-                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                    </svg>
-                                ` : `
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffffff" stroke="#ef4444" stroke-width="2" width="22" height="22" style="display: block;">
-                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                    </svg>
-                                `}
-                            </button>
+                        <div style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; padding: 0.25rem 0.45rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 48px; flex-shrink: 0; margin-top: -0.05rem;">
+                            <span style="font-size: 0.95rem; font-weight: 900;">${item.matchScore !== undefined ? item.matchScore : '96'}%</span>
+                            <span style="font-size: 0.45rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
                         </div>
                     </div>
 
@@ -14316,9 +14293,30 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                             </div>
                         </div>
                         
-                        <!-- Right Column: Big plus button on the side, vertically aligned with Instrumente (bottom of visibility box 1-6) -->
-                        <div style="display: flex; flex-direction: column; justify-content: flex-end; padding-left: 0.6rem; border-left: 1px solid var(--border-glass); padding-bottom: 0.1rem; min-width: 42px; box-sizing: border-box; align-items: center;">
-                            <button onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.2rem 0; cursor: pointer; color: ${themeColor}; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Mehr Details anzeigen/verbergen">
+                        <!-- Right Column: Star, Heart, Plus stacked vertically, aligned to the bottom (Instrumente height) -->
+                        <div style="display: flex; flex-direction: column; justify-content: flex-end; padding-left: 0.6rem; border-left: 1px solid var(--border-glass); padding-bottom: 0.1rem; min-width: 46px; box-sizing: border-box; align-items: center; gap: 0.5rem;">
+                            <!-- 1. Star (Top Match) - Only if matchScore >= 70 -->
+                            ${item.matchScore >= 70 ? `
+                                <span title="Top Match" style="color: #eab308; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; cursor: default;">
+                                    <i class="fa-solid fa-star" style="font-size: 1.6rem;"></i>
+                                </span>
+                            ` : ''}
+                            
+                            <!-- 2. Heart (Favorite Button) -->
+                            <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none; width: 28px; height: 28px;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
+                                ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? `
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444" width="26" height="26" style="display: block;">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                    </svg>
+                                ` : `
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" width="26" height="26" style="display: block;">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                    </svg>
+                                `}
+                            </button>
+                            
+                            <!-- 3. Plus (Expand Button) -->
+                            <button onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0; cursor: pointer; color: ${themeColor}; outline: none; transition: transform 0.2s; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Mehr Details anzeigen/verbergen">
                                 <i class="fa-solid fa-circle-plus" id="toggle-icon-${item.id}" style="font-size: 1.6rem; opacity: 0.85;"></i>
                             </button>
                         </div>
