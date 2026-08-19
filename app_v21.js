@@ -597,6 +597,21 @@ window.unlockListing = function(targetId, targetName) {
         return;
     }
     if (state.currentUser.role !== 'musician') return;
+
+    // Check if they selected a paid plan but payment is pending (isPremium !== true)
+    const paidPlans = ['flex', 'plus', 'pro'];
+    if (paidPlans.includes(state.currentUser.subscriptionPlan) && state.currentUser.isPremium !== true) {
+        const mainContainer = document.getElementById('app-main');
+        if (mainContainer) {
+            // Close any open detail modal first
+            const detailModal = document.getElementById('modal-item-detail');
+            if (detailModal) detailModal.remove();
+            
+            renderPaymentPendingScreen(mainContainer);
+            return;
+        }
+    }
+
     if (state.currentUser.isPremium) return; // already premium
 
     // Create a beautiful, custom in-place modal overlay for selecting subscription plans
@@ -673,7 +688,7 @@ window.unlockListing = function(targetId, targetName) {
     const subBtn = modal.querySelector('#btn-subscribe-unlock');
     subBtn.addEventListener('click', async () => {
         subBtn.disabled = true;
-        subBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zu Stripe...`;
+        subBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
         try {
             const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
             const res = await createStripeSession({ 
@@ -683,13 +698,13 @@ window.unlockListing = function(targetId, targetName) {
             if (res.data && res.data.url) {
                 window.location.href = res.data.url;
             } else {
-                throw new Error("Fehler beim Erstellen der Stripe-Zahlung.");
+                throw new Error("Fehler beim Erstellen der Zahlung.");
             }
         } catch (stripeErr) {
-            console.error("Stripe redirection failed:", stripeErr);
+            console.error("Redirection failed:", stripeErr);
             showToast({
                 title: "Fehler beim Bezahlvorgang ❌",
-                message: stripeErr.message || "Es gab ein Problem bei der Weiterleitung zu Stripe."
+                message: stripeErr.message || "Es gab ein Problem bei der Weiterleitung zur Bezahlseite."
             });
             subBtn.disabled = false;
             subBtn.innerHTML = "Jetzt abonnieren & freischalten";
@@ -7662,89 +7677,91 @@ function renderProfilePage(container) {
 
     // DSGVO Daten-Export wird auf Anfrage per E-Mail abgewickelt
 
-    // DSGVO Konto-Löschung Listener
+    // DSGVO Konto-Löschung Helper
+    window.deleteCurrentUserAccount = async function() {
+        const u = state.currentUser;
+        if (!u) return;
+
+        const firstConfirm = confirm("ACHTUNG: Möchtest du dein GigConnAct-Konto wirklich unwiderruflich löschen?\n\nDies löscht alle deine Profildaten, Musiker- und Event-Angebote sowie deine Verknüpfungen. Dieser Schritt kann NICHT rückgängig gemacht werden.");
+        if (!firstConfirm) return;
+
+        const secondConfirm = confirm("Bist du dir absolut sicher? Alle deine Daten werden gelöscht und du wirst sofort abgemeldet.");
+        if (!secondConfirm) return;
+
+        try {
+            showToast({
+                title: "Löschung läuft...",
+                message: "Dein Konto wird gelöscht. Bitte warte einen Moment."
+            });
+
+            const myMusicians = state.musicians.filter(m => m.creatorId === u.id || m.id === u.profileId);
+            const myEvents = state.events.filter(e => e.creatorId === u.id || e.id === u.profileId);
+
+            // Delete musician profiles in Firestore
+            for (const m of myMusicians) {
+                await db.collection('musicians').doc(m.id).delete();
+            }
+
+            // Delete event profiles in Firestore
+            for (const e of myEvents) {
+                await db.collection('events').doc(e.id).delete();
+            }
+
+            // Delete user from users collection
+            await db.collection('users').doc(u.id).delete();
+
+            // Delete Authentication account
+            const firebaseUser = auth.currentUser;
+            if (firebaseUser) {
+                await firebaseUser.delete();
+            }
+
+            // Clean local fallback users list
+            const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+            const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+            if (idx !== -1) {
+                registeredUsers.splice(idx, 1);
+                localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+            }
+
+            // Clean local state & session storage/localStorage items
+            state.currentUser = null;
+            state.activeMusicianId = null;
+            state.activeEventId = null;
+            state.saveState();
+            localStorage.removeItem('GigConnAct_read_chats');
+
+            showToast({
+                title: "Konto gelöscht ℹ",
+                message: "Dein Konto wurde erfolgreich gelöscht."
+            });
+            
+            setTimeout(() => {
+                window.location.hash = '#/';
+                window.location.reload();
+            }, 1500);
+
+        } catch (err) {
+            console.error("Account deletion failed:", err);
+            if (err.code === 'auth/requires-recent-login') {
+                showToast({
+                    title: "Reauthentifizierung erforderlich",
+                    message: "Aus Sicherheitsgründen musst du dich vor dem Löschen deines Kontos abmelden, wieder neu anmelden und es direkt erneut versuchen.",
+                    type: "error"
+                });
+            } else {
+                showToast({
+                    title: "Fehler beim Löschen",
+                    message: "Dein Konto konnte nicht gelöscht werden: " + err.message,
+                    type: "error"
+                });
+            }
+        }
+    };
+
     const deleteBtn = document.getElementById('btn-delete-useraccount');
     if (deleteBtn) {
-        deleteBtn.addEventListener('click', async () => {
-            const u = state.currentUser;
-            if (!u) return;
-
-            const firstConfirm = confirm("ACHTUNG: Möchtest du dein GigConnAct-Konto wirklich unwiderruflich löschen?\n\nDies löscht alle deine Profildaten, Musiker- und Event-Angebote sowie deine Verknüpfungen. Dieser Schritt kann NICHT rückgängig gemacht werden.");
-            if (!firstConfirm) return;
-
-            const secondConfirm = confirm("Bist du dir absolut sicher? Alle deine Daten werden gelöscht und du wirst sofort abgemeldet.");
-            if (!secondConfirm) return;
-
-            try {
-                showToast({
-                    title: "Löschung läuft...",
-                    message: "Dein Konto wird gelöscht. Bitte warte einen Moment."
-                });
-
-                const myMusicians = state.musicians.filter(m => m.creatorId === u.id || m.id === u.profileId);
-                const myEvents = state.events.filter(e => e.creatorId === u.id || e.id === u.profileId);
-
-                // Delete musician profiles in Firestore
-                for (const m of myMusicians) {
-                    await db.collection('musicians').doc(m.id).delete();
-                }
-
-                // Delete event profiles in Firestore
-                for (const e of myEvents) {
-                    await db.collection('events').doc(e.id).delete();
-                }
-
-                // Delete user from users collection
-                await db.collection('users').doc(u.id).delete();
-
-                // Delete Authentication account
-                const firebaseUser = auth.currentUser;
-                if (firebaseUser) {
-                    await firebaseUser.delete();
-                }
-
-                // Clean local fallback users list
-                const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-                const idx = registeredUsers.findIndex(usr => usr.id === u.id);
-                if (idx !== -1) {
-                    registeredUsers.splice(idx, 1);
-                    localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
-                }
-
-                // Clean local state & session storage/localStorage items
-                state.currentUser = null;
-                state.activeMusicianId = null;
-                state.activeEventId = null;
-                state.saveState();
-                localStorage.removeItem('GigConnAct_read_chats');
-
-                showToast({
-                    title: "Konto gelöscht ℹ",
-                    message: "Dein Konto wurde erfolgreich gelöscht."
-                });
-                
-                setTimeout(() => {
-                    window.location.hash = '#/';
-                    window.location.reload();
-                }, 1500);
-
-            } catch (err) {
-                console.error("Account deletion failed:", err);
-                if (err.code === 'auth/requires-recent-login') {
-                    showToast({
-                        title: "Reauthentifizierung erforderlich",
-                        message: "Aus Sicherheitsgründen musst du dich vor dem Löschen deines Kontos abmelden, wieder neu anmelden und es direkt erneut versuchen.",
-                        type: "error"
-                    });
-                } else {
-                    showToast({
-                        title: "Fehler beim Löschen",
-                        message: "Dein Konto konnte nicht gelöscht werden: " + err.message,
-                        type: "error"
-                    });
-                }
-            }
-        });
+        deleteBtn.addEventListener('click', window.deleteCurrentUserAccount);
     }
 
     const logoutBtn = document.getElementById('btn-profile-logout');
@@ -13333,15 +13350,19 @@ function renderPaymentPendingScreen(container) {
             <h2 style="font-family: var(--font-heading); color: var(--text-main); margin-bottom: 1rem; font-size: 1.8rem;">Zahlung ausstehend 💳</h2>
             <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 2rem;">
                 Um GigConnAct nutzen zu können, ist der Abschluss deiner Zahlung für den gewählten Tarif <strong>${(state.currentUser.subscriptionPlan || 'flex').toUpperCase()}</strong> erforderlich.<br><br>
-                Bitte klicke auf den Button unten, um den Zahlungsvorgang über Stripe abzuschließen, oder melde dich ab.
+                Bitte klicke auf den Button unten, um den Zahlungsvorgang abzuschließen, oder melde dich ab.
             </p>
             
             <button id="btn-pending-pay" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.05rem; font-weight: 800; border-radius: 12px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; background: ${btnColor} !important;">
                 <i class="fa-solid fa-wallet"></i> Jetzt sicher bezahlen
             </button>
             
-            <button id="btn-pending-logout" class="btn" style="width: 100%; padding: 0.85rem; font-size: 0.95rem; font-weight: 700; border-radius: 12px; background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border-color);">
+            <button id="btn-pending-logout" class="btn" style="width: 100%; padding: 0.85rem; font-size: 0.95rem; font-weight: 700; border-radius: 12px; background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border-color); margin-bottom: 1rem;">
                 <i class="fa-solid fa-sign-out-alt"></i> Abmelden
+            </button>
+
+            <button id="btn-pending-delete" class="btn btn-outline" style="width: 100%; padding: 0.85rem; font-size: 0.95rem; font-weight: 700; border-radius: 12px; background: transparent; color: var(--color-red); border: 1px solid var(--color-red); transition: all 0.2s;">
+                <i class="fa-solid fa-trash-can"></i> Konto unwiderruflich löschen
             </button>
         </div>
     `;
@@ -13382,6 +13403,11 @@ function renderPaymentPendingScreen(container) {
             state.logout();
             window.location.hash = '#/';
         });
+    }
+
+    const deletePendingBtn = document.getElementById('btn-pending-delete');
+    if (deletePendingBtn) {
+        deletePendingBtn.addEventListener('click', window.deleteCurrentUserAccount);
     }
 }
 
