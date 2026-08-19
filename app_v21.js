@@ -3587,7 +3587,7 @@ class StateManager {
             const isExisting = emailExistsLocal || !snapshot.empty;
             
             if (!isExisting) {
-                return { success: false, message: "Diese E-Mail-Adresse ist nicht registriert. Bitte erstelle zuerst ein Konto unter 'Registrieren'." };
+                return { success: false, message: "Diese E-Mail-Adresse ist nicht registriert." };
             }
 
             const sendCustomSignInEmail = firebase.app().functions('europe-west3').httpsCallable('sendCustomSignInEmail');
@@ -10911,7 +10911,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             auth.signOut();
         }
         if (!state.currentUser) {
-            window.location.hash = '#/';
+            const protectedHashes = ['#/matches', '#/top-matches', '#/dashboard', '#/my-musicians', '#/my-events', '#/postbox', '#/credits', '#/profile'];
+            if (protectedHashes.includes(window.location.hash)) {
+                window.location.hash = '#/';
+            }
         }
     });
 
