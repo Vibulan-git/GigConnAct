@@ -2114,10 +2114,37 @@ class StateManager {
                             await db.collection('events').doc(profileId).set(newEvent);
                         }
                         window.localStorage.removeItem('GigConnAct_pending_registration');
-                        showToast({
-                            title: "Registrierung abgeschlossen! 🎉",
-                            message: "Dein Profil wurde erfolgreich erstellt."
-                        });
+                        
+                        const isPaidPlan = (pendingReg.subscriptionPlan === 'flex' || pendingReg.subscriptionPlan === 'plus' || pendingReg.subscriptionPlan === 'pro');
+                        if (isPaidPlan) {
+                            showToast({
+                                title: "Registrierung abgeschlossen! 💳",
+                                message: "Du wirst jetzt zur Stripe-Zahlungsseite weitergeleitet..."
+                            });
+                            try {
+                                const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
+                                const res = await createStripeSession({ 
+                                    planKey: pendingReg.subscriptionPlan,
+                                    baseUrl: window.location.origin
+                                });
+                                if (res.data && res.data.url) {
+                                    window.location.href = res.data.url;
+                                    return;
+                                }
+                            } catch (stripeErr) {
+                                console.error("Stripe Checkout Redirect failed during passwordless registration:", stripeErr);
+                                showToast({
+                                    title: "Stripe-Weiterleitung fehlgeschlagen ⚠️",
+                                    message: stripeErr.message || "Es gab ein Problem bei der Weiterleitung zur Bezahlseite.",
+                                    type: "error"
+                                });
+                            }
+                        } else {
+                            showToast({
+                                title: "Registrierung abgeschlossen! 🎉",
+                                message: "Dein Profil wurde erfolgreich erstellt."
+                            });
+                        }
                     } else {
                         console.log("Creating default user profile on the fly...");
                         const role = urlParams.get('role') || 'musician';
@@ -11598,6 +11625,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     }
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // Clear all previous validation errors
+        clearAllValidationErrors(registerForm);
+
         const errDiv = document.getElementById('register-error-msg');
         const submitBtn = registerForm.querySelector('button[type="submit"]');
         const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
@@ -11608,10 +11639,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         
         const privacyConsent = registerForm.elements.privacyConsent?.checked;
         if (!privacyConsent) {
-            errDiv.textContent = "Bitte bestätige, dass du die Datenschutzerklärung gelesen hast.";
-            errDiv.style.display = 'block';
-            errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            markInvalid(registerForm.elements.privacyConsent, '.form-checkbox');
+            showValidationError(registerForm.elements.privacyConsent, '.form-checkbox', "Bitte bestätige, dass du die Datenschutzerklärung gelesen hast.");
             return;
         }
 
@@ -11619,29 +11647,20 @@ function renderAuthModal(wrapper, onSuccessCallback) {
         
         const selectedPlan = document.getElementById('input-selected-plan')?.value || 'flex';
         if (selectedPlan === 'premium' && !isPromoCodeApplied) {
-            errDiv.textContent = "Bitte gib einen gültigen Gutscheincode ein, um den Premium-Tarif freizuschalten.";
-            errDiv.style.display = 'block';
-            errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            markInvalid(document.getElementById('input-promo-code'));
+            showValidationError(document.getElementById('input-promo-code'), null, "Bitte gib einen gültigen Gutscheincode ein, um den Premium-Tarif freizuschalten.");
             return;
         }
 
         const emailValidation = validateEmailAddress(email);
         if (!emailValidation.isValid) {
-            errDiv.textContent = emailValidation.message;
-            errDiv.style.display = 'block';
-            errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            markInvalid(registerForm.elements.email);
+            showValidationError(registerForm.elements.email, null, emailValidation.message);
             return;
         }
 
         const fullName = registerForm.elements.fullName ? registerForm.elements.fullName.value.trim() : '';
         const nameReg = /^[a-zA-Z\p{L}\s\-\.‘'’]+$/u;
         if (!nameReg.test(fullName)) {
-            errDiv.textContent = 'Der Vor- und Nachname darf nur Buchstaben, Leerzeichen, Bindestriche, Apostrophe oder Punkte enthalten.';
-            errDiv.style.display = 'block';
-            errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            markInvalid(registerForm.elements.fullName);
+            showValidationError(registerForm.elements.fullName, null, 'Der Vor- und Nachname darf nur Buchstaben, Leerzeichen, Bindestriche, Apostrophe oder Punkte enthalten.');
             return;
         }
 
@@ -11651,147 +11670,93 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
         const cleanPhone = registerForm.elements.phone.value.replace(/\D/g, '');
         if (cleanPhone.length < 5 || cleanPhone.length > 16) {
-            errDiv.textContent = 'Die Telefonnummer muss zwischen 5 und 16 Ziffern lang sein.';
-            errDiv.style.display = 'block';
-            errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            markInvalid(registerForm.elements.phone);
+            showValidationError(registerForm.elements.phone, null, 'Die Telefonnummer muss zwischen 5 und 16 Ziffern lang sein.');
             return;
         }
 
         if (selectedRole === 'musician') {
             const bandName = (registerForm.elements.bandName?.value || '').trim();
             if (!bandName) {
-                errDiv.textContent = 'Bitte gib einen Musikernamen an.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(registerForm.elements.bandName);
+                showValidationError(registerForm.elements.bandName, null, 'Bitte gib einen Musikernamen an.');
                 return;
             }
             const checkedTypes = registerForm.querySelectorAll('input[name="musicianTypes"]:checked');
             if (checkedTypes.length === 0) {
-                errDiv.textContent = 'Bitte wähle mindestens eine Kategorie (z.B. Band oder Solokünstler) aus.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(document.getElementById('grid-musician-types'));
+                showValidationError(document.getElementById('grid-musician-types'), null, 'Bitte wähle mindestens eine Kategorie (z.B. Band oder Solokünstler) aus.');
                 return;
             }
             const checkedGenres = registerForm.querySelectorAll('input[name="genres"]:checked');
             if (checkedGenres.length === 0) {
-                errDiv.textContent = 'Bitte wähle mindestens ein Genre aus.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(document.getElementById('grid-genres'));
+                showValidationError(document.getElementById('grid-genres'), null, 'Bitte wähle mindestens ein Genre aus.');
                 return;
             }
             const checkedInstruments = registerForm.querySelectorAll('input[name="instruments"]:checked');
             if (checkedInstruments.length === 0) {
-                errDiv.textContent = 'Bitte wähle mindestens ein Instrument aus.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(document.getElementById('grid-instruments'));
+                showValidationError(document.getElementById('grid-instruments'), null, 'Bitte wähle mindestens ein Instrument aus.');
                 return;
             }
             const checkedEventTypes = registerForm.querySelectorAll('input[name="eventTypes"]:checked');
             if (checkedEventTypes.length === 0) {
-                errDiv.textContent = 'Bitte wähle mindestens eine Event-Art aus.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(document.getElementById('grid-event-types'));
+                showValidationError(document.getElementById('grid-event-types'), null, 'Bitte wähle mindestens eine Event-Art aus.');
                 return;
             }
             musLocVal = (musLocationInput?.value || '').trim();
             if (!musLocVal) {
-                errDiv.textContent = 'Bitte gib deinen Standort (Stadt) an.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(document.getElementById('input-mus-location-search'));
+                showValidationError(document.getElementById('input-mus-location-search'), null, 'Bitte gib deinen Standort (Stadt) an.');
                 return;
             }
             musDescVal = registerForm.querySelector('textarea[name="musDescription"]')?.value.trim();
             if (!musDescVal) {
-                errDiv.textContent = 'Bitte gib eine kurze Beschreibung über dich/deine Band an.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(document.getElementById('textarea-mus-desc'));
+                showValidationError(document.getElementById('textarea-mus-desc'), null, 'Bitte gib eine kurze Beschreibung über dich/deine Band an.');
                 return;
             }
         } else if (selectedRole === 'organizer') {
             const eventName = registerForm.elements.eventName.value.trim();
             if (!eventName) {
-                errDiv.textContent = 'Bitte gib einen Eventnamen ein.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(registerForm.elements.eventName);
+                showValidationError(registerForm.elements.eventName, null, 'Bitte gib einen Eventnamen ein.');
                 return;
             }
             if (eventName.length > 25) {
-                errDiv.textContent = 'Der Eventname darf maximal 25 Zeichen lang sein.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(registerForm.elements.eventName);
+                showValidationError(registerForm.elements.eventName, null, 'Der Eventname darf maximal 25 Zeichen lang sein.');
                 return;
             }
             const checkedEventTypes = registerForm.querySelectorAll('input[name="orgEventTypes"]:checked');
             if (checkedEventTypes.length === 0) {
-                errDiv.textContent = 'Bitte wähle mindestens einen Event-Typen aus.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(document.getElementById('grid-org-event-types'));
+                showValidationError(document.getElementById('grid-org-event-types'), null, 'Bitte wähle mindestens einen Event-Typen aus.');
                 return;
             }
             const checkedMusicianTypes = registerForm.querySelectorAll('input[name="orgMusicianTypes"]:checked');
             if (checkedMusicianTypes.length === 0) {
-                errDiv.textContent = 'Bitte wähle mindestens einen gesuchten Musiker-Typen aus.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(document.getElementById('grid-org-musician-types'));
+                showValidationError(document.getElementById('grid-org-musician-types'), null, 'Bitte wähle mindestens einen gesuchten Musiker-Typen aus.');
                 return;
             }
             if (selectedEventDates.length === 0) {
-                errDiv.textContent = 'Bitte wähle mindestens ein Veranstaltungsdatum im Kalender aus.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(document.getElementById('org-calendar-days-grid'));
+                showValidationError(document.getElementById('org-calendar-days-grid'), null, 'Bitte wähle mindestens ein Veranstaltungsdatum im Kalender aus.');
                 return;
             }
             orgLocVal = (orgLocationInput?.value || '').trim();
             if (!orgLocVal) {
-                errDiv.textContent = 'Bitte gib den Veranstaltungsort an.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(document.getElementById('input-org-location-search'));
+                showValidationError(document.getElementById('input-org-location-search'), null, 'Bitte gib den Veranstaltungsort an.');
                 return;
             }
             const checkedGenres = registerForm.querySelectorAll('input[name="orgGenres"]:checked');
             if (checkedGenres.length === 0) {
-                errDiv.textContent = 'Bitte wähle mindestens ein Genre aus.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(document.getElementById('grid-org-genres'));
+                showValidationError(document.getElementById('grid-org-genres'), null, 'Bitte wähle mindestens ein Genre aus.');
                 return;
             }
             const checkedInstruments = registerForm.querySelectorAll('input[name="orgInstruments"]:checked');
             if (checkedInstruments.length === 0) {
-                errDiv.textContent = 'Bitte wähle mindestens ein Instrument aus.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(document.getElementById('grid-org-instruments'));
+                showValidationError(document.getElementById('grid-org-instruments'), null, 'Bitte wähle mindestens ein Instrument aus.');
                 return;
             }
             const checkedTechnik = registerForm.querySelectorAll('input[name="orgTechnik"]:checked');
             if (checkedTechnik.length === 0) {
-                errDiv.textContent = 'Bitte wähle mindestens eine Technik-Option aus.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(document.getElementById('grid-org-technik'));
+                showValidationError(document.getElementById('grid-org-technik'), null, 'Bitte wähle mindestens eine Technik-Option aus.');
                 return;
             }
             orgDescVal = registerForm.querySelector('textarea[name="orgDescription"]')?.value.trim();
             if (!orgDescVal) {
-                errDiv.textContent = 'Bitte gib eine kurze Beschreibung deines Events an.';
-                errDiv.style.display = 'block';
-                errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                markInvalid(document.getElementById('textarea-org-desc'));
+                showValidationError(document.getElementById('textarea-org-desc'), null, 'Bitte gib eine kurze Beschreibung deines Events an.');
                 return;
             }
         }
@@ -11802,10 +11767,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             if (orgType && orgType !== 'Privater Veranstalter') {
                 const compInputVal = registerForm.elements.company.value.trim();
                 if (!compInputVal) {
-                    errDiv.textContent = 'Bitte gib den Namen deiner Organisation/Firma an.';
-                    errDiv.style.display = 'block';
-                    errDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    markInvalid(registerForm.elements.company);
+                    showValidationError(registerForm.elements.company, null, 'Bitte gib den Namen deiner Organisation/Firma an.');
                     return;
                 }
                 compValue = compInputVal;
@@ -12042,9 +12004,13 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     registerForm.elements.email.style.cursor = '';
                 }
 
-                closeModal();
+                const isPaidPlan = (payload.subscriptionPlan === 'flex' || payload.subscriptionPlan === 'plus' || payload.subscriptionPlan === 'pro');
 
-                if (payload.subscriptionPlan === 'flex' || payload.subscriptionPlan === 'plus' || payload.subscriptionPlan === 'pro') {
+                if (isPaidPlan) {
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zu Stripe...`;
+                    }
                     showToast({
                         title: "Registrierung abgeschlossen! 💳",
                         message: "Du wirst jetzt zur Stripe-Zahlungsseite weitergeleitet..."
@@ -12068,6 +12034,8 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         });
                     }
                 }
+
+                closeModal();
 
                 showToast({
                     title: "Registrierung abgeschlossen!",
@@ -13293,6 +13261,116 @@ function markInvalid(el, parentSelector = null) {
     }
 }
 
+function clearAllValidationErrors(form) {
+    if (!form) return;
+    form.querySelectorAll('.field-error-message').forEach(el => el.remove());
+    form.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    form.querySelectorAll('.checkbox-group-error').forEach(el => el.classList.remove('checkbox-group-error'));
+    
+    const errDiv = document.getElementById('register-error-msg');
+    if (errDiv) {
+        errDiv.style.display = 'none';
+        errDiv.textContent = '';
+    }
+}
+
+function showValidationError(element, parentSelector, message) {
+    if (!element) return;
+    const formGroup = element.closest('.form-group') || element.parentElement;
+    if (!formGroup) return;
+    
+    // Clear any previous error in this form-group
+    formGroup.querySelectorAll('.field-error-message').forEach(el => el.remove());
+    
+    // Add the border error class
+    markInvalid(element, parentSelector);
+    
+    // Create and append the red error message
+    const errorSpan = document.createElement('span');
+    errorSpan.className = 'field-error-message';
+    errorSpan.style.color = 'var(--color-red)';
+    errorSpan.style.fontSize = '0.8rem';
+    errorSpan.style.marginTop = '0.35rem';
+    errorSpan.style.display = 'block';
+    errorSpan.style.fontWeight = '600';
+    errorSpan.textContent = message;
+    
+    // Append at the end of form-group
+    formGroup.appendChild(errorSpan);
+    
+    // Scroll to the form-group
+    formGroup.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Try focusing the element
+    if (element.focus && typeof element.focus === 'function' && element.type !== 'checkbox' && element.type !== 'radio') {
+        element.focus();
+    }
+}
+
+function renderPaymentPendingScreen(container) {
+    const themeColor = state.currentUser.role === 'musician' ? 'var(--color-purple)' : 'var(--color-cyan)';
+    const btnColor = state.currentUser.role === 'musician' ? 'var(--bg-purple-grad)' : 'var(--bg-cyan-grad)';
+    
+    container.innerHTML = `
+        <div class="payment-pending-container" style="max-width: 500px; margin: 4rem auto; padding: 2.5rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
+            <div style="font-size: 4.5rem; color: var(--color-purple); margin-bottom: 1.5rem; filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.4));">
+                <i class="fa-solid fa-credit-card"></i>
+            </div>
+            <h2 style="font-family: var(--font-heading); color: var(--text-main); margin-bottom: 1rem; font-size: 1.8rem;">Zahlung ausstehend 💳</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 2rem;">
+                Um GigConnAct nutzen zu können, ist der Abschluss deiner Zahlung für den gewählten Tarif <strong>${(state.currentUser.subscriptionPlan || 'flex').toUpperCase()}</strong> erforderlich.<br><br>
+                Bitte klicke auf den Button unten, um den Zahlungsvorgang über Stripe abzuschließen, oder melde dich ab.
+            </p>
+            
+            <button id="btn-pending-pay" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.05rem; font-weight: 800; border-radius: 12px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; background: ${btnColor} !important;">
+                <i class="fa-solid fa-wallet"></i> Jetzt sicher bezahlen
+            </button>
+            
+            <button id="btn-pending-logout" class="btn" style="width: 100%; padding: 0.85rem; font-size: 0.95rem; font-weight: 700; border-radius: 12px; background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border-color);">
+                <i class="fa-solid fa-sign-out-alt"></i> Abmelden
+            </button>
+        </div>
+    `;
+    
+    // Add event listeners
+    const payBtn = document.getElementById('btn-pending-pay');
+    if (payBtn) {
+        payBtn.addEventListener('click', async () => {
+            payBtn.disabled = true;
+            payBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zu Stripe...`;
+            try {
+                const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
+                const res = await createStripeSession({ 
+                    planKey: state.currentUser.subscriptionPlan,
+                    baseUrl: window.location.origin
+                });
+                if (res.data && res.data.url) {
+                    window.location.href = res.data.url;
+                } else {
+                    throw new Error("Keine URL erhalten.");
+                }
+            } catch (err) {
+                console.error("Pending payment checkout creation failed:", err);
+                showToast({
+                    title: "Stripe-Weiterleitung fehlgeschlagen ⚠️",
+                    message: err.message || "Es gab ein Problem bei der Weiterleitung zur Bezahlseite.",
+                    type: "error"
+                });
+                payBtn.disabled = false;
+                payBtn.innerHTML = `<i class="fa-solid fa-wallet"></i> Jetzt sicher bezahlen`;
+            }
+        });
+    }
+    
+    const logoutBtn = document.getElementById('btn-pending-logout');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            state.logout();
+            window.location.hash = '#/';
+        });
+    }
+}
+
 function handleRouting() {
     const hash = window.location.hash;
     let pageWithQuery = hash.replace('#/', '');
@@ -13306,6 +13384,13 @@ function handleRouting() {
             auth.signOut();
             return;
         }
+    }
+    
+    // Check if user is logged in but hasn't paid for their subscription
+    const paidPlans = ['flex', 'plus', 'pro'];
+    if (state && state.currentUser && paidPlans.includes(state.currentUser.subscriptionPlan) && state.currentUser.isPremium !== true) {
+        renderPaymentPendingScreen(mainContainer);
+        return;
     }
     
     // Redirect logged-in users away from the landing page
