@@ -5557,7 +5557,7 @@ function renderMarket(container, type, onNavigate) {
 
     const items = isEvents ? state.events : state.musicians;
     
-    let selectedFilterDates = [];
+    let selectedFilterDates = []; window.selectedFilterDates = selectedFilterDates;
     let currentFilterCalDate = new Date();
     let showOnlyTopMatches = false;
     let showOnlyFavorites = false;
@@ -6566,7 +6566,7 @@ function renderMarket(container, type, onNavigate) {
     resetBtn?.addEventListener('click', () => {
         container.querySelectorAll('input[type="text"]').forEach(el => el.value = '');
         
-        selectedFilterDates = [];
+        selectedFilterDates = []; window.selectedFilterDates = selectedFilterDates;
         renderFilterCalendar();
         
         container.querySelectorAll('.tag-pill-checkbox input').forEach(el => {
@@ -9569,6 +9569,22 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             maxPublikum: parseInt(form.querySelector('#edit-input-publikum-max')?.value) || 500
         };
 
+        const bioText = (data.description || '').toLowerCase();
+        const artistName = (data.name || '').toLowerCase();
+        if (artistName.length > 2 && bioText.includes(artistName)) {
+            showToast({
+                title: "Datenschutz-Hinweis ⚠️",
+                message: "Aus Datenschutzgründen darf deine Beschreibung nicht deinen Künstlernamen/Bandnamen enthalten, da dieser für Gäste unsichtbar sein soll. Bitte formuliere den Beschreibungstext neutral.",
+                type: "error"
+            });
+            const saveBtn = form.querySelector('button[type="submit"]');
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = isEdit ? 'Änderungen speichern' : 'Profil veröffentlichen';
+            }
+            return;
+        }
+
         if (isEdit) {
             state.updateMusician(musicianObj.id, data);
             showToast({
@@ -10356,12 +10372,12 @@ function formatAvailability(availability) {
 }
 
 // Modal Controllers
-function showModal(type, onSuccessCallback) {
+function showModal(type, onSuccessCallback, defaultRole) {
     const modalWrapper = document.getElementById('modal-container');
     if (!modalWrapper) return;
 
     if (type === 'auth') {
-        renderAuthModal(modalWrapper, onSuccessCallback);
+        renderAuthModal(modalWrapper, onSuccessCallback, defaultRole);
     } else if (type === 'premium') {
         renderPremiumModal(modalWrapper, onSuccessCallback);
     } else if (type === 'verification') {
@@ -10380,7 +10396,7 @@ function closeModal() {
     }
 }
 
-function renderAuthModal(wrapper, onSuccessCallback) {
+function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
     window.registrationMedia = {
         musician: {
             photos: ['https://picsum.photos/id/453/400/300'],
@@ -11237,16 +11253,29 @@ function renderAuthModal(wrapper, onSuccessCallback) {
     const pickerOrg = document.getElementById('role-picker-org');
     const fieldsMus = document.getElementById('reg-fields-musician');
     const fieldsOrg = document.getElementById('reg-fields-organizer');
-    let selectedRole = 'musician';
+    let selectedRole = defaultRole || 'musician';
 
     // State arrays for organizer dates
     let selectedEventDates = [];
 
     // Default class on form
     if (registerForm) {
-        registerForm.classList.add('role-musician-active');
-        registerForm.classList.remove('role-organizer-active');
+        if (selectedRole === 'organizer') {
+            registerForm.classList.add('role-organizer-active');
+            registerForm.classList.remove('role-musician-active');
+        } else {
+            registerForm.classList.add('role-musician-active');
+            registerForm.classList.remove('role-organizer-active');
+        }
     }
+
+    setTimeout(() => {
+        if (selectedRole === 'organizer' && pickerOrg) {
+            pickerOrg.click();
+        } else if (selectedRole === 'musician' && pickerMus) {
+            pickerMus.click();
+        }
+    }, 50);
 
     pickerMus.addEventListener('click', () => {
         selectedRole = 'musician';
@@ -11825,6 +11854,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             musDescVal = registerForm.querySelector('textarea[name="musDescription"]')?.value.trim();
             if (!musDescVal) {
                 showValidationError(document.getElementById('textarea-mus-desc'), null, 'Bitte erzähle kurz etwas über dich.');
+                return;
+            }
+            if (bandName.length > 2 && musDescVal.toLowerCase().includes(bandName.toLowerCase())) {
+                showValidationError(document.getElementById('textarea-mus-desc'), null, 'Aus Datenschutzgründen darf deine Beschreibung nicht deinen Künstlernamen/Bandnamen enthalten, da dieser für Gäste unsichtbar sein soll. Bitte formuliere den Beschreibungstext neutral.');
                 return;
             }
         } else if (selectedRole === 'organizer') {
@@ -14416,7 +14449,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
 
     overlay.querySelector('#btn-choice-register').addEventListener('click', () => {
         overlay.remove();
-        showModal('auth');
+        showModal('auth', null, 'organizer');
     });
 
     overlay.querySelector('#btn-choice-agency').addEventListener('click', () => {
@@ -14426,125 +14459,531 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
 };
 
 window.showAgencyBookingForm = function(musicianId, bandName) {
+    const modalWrapper = document.getElementById('modal-container');
+    if (!modalWrapper) return;
+
+    window.registrationMedia = {
+        organizer: {
+            photos: [],
+            videos: [],
+            audios: []
+        }
+    };
+
+    // Prefill data extraction
     const filterLoc = (document.getElementById('filter-location-m')?.value || '').split(' (')[0].trim();
     
-    let filterGenres = '';
+    let filterGenres = [];
     const genresGrid = document.getElementById('filter-genres-grid-m');
     if (genresGrid) {
-        const checked = Array.from(genresGrid.querySelectorAll('input:checked')).map(el => el.value);
-        if (checked.length > 0) {
-            filterGenres = checked.join(', ');
-        }
+        filterGenres = Array.from(genresGrid.querySelectorAll('input:checked')).map(el => el.value);
     }
 
-    const filterGage = document.getElementById('input-filter-gage-m-max')?.value || '1000';
+    const filterGageMax = parseFloat(document.getElementById('input-filter-gage-m-max')?.value) || 5000;
 
-    const overlay = document.createElement('div');
-    overlay.id = 'agency-booking-modal';
-    overlay.className = 'custom-video-modal-overlay';
-    overlay.style = "position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); padding:1rem; overflow-y:auto;";
-    
-    overlay.innerHTML = `
-        <div style="width:100%; max-width:540px; background:var(--bg-card); border:1px solid var(--border-glass); border-radius:18px; padding:2rem; box-shadow:0 15px 35px rgba(0,0,0,0.4); position:relative; font-family:var(--font-heading); color:#fff; margin-top:2rem; margin-bottom:2rem;">
+    let selectedEventDates = window.selectedFilterDates ? [...window.selectedFilterDates] : [];
+    let currentCalDate = new Date();
+
+    modalWrapper.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header" style="flex-direction: column; padding: 1.5rem 2rem 1.2rem;">
+                <h3 style="line-height: 1.2; text-align: center; margin: 0; font-family: var(--font-heading); width: 100%;">
+                    <span style="display: block; font-size: 0.95rem; font-weight: 700; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-purple);">GigConnAct-Vermittlung</span>
+                    <span style="display: block; font-size: 1.45rem; font-weight: 900; color: #000000; margin-top: 0.25rem; letter-spacing: 0.5px;">Vermittlung anfordern</span>
+                </h3>
+                <button class="close-modal-btn" id="btn-close-modal">&times;</button>
+            </div>
             
-            <button id="btn-close-booking-modal" style="position:absolute; top:1.2rem; right:1.2rem; background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:1.4rem;">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+            <div class="modal-body" style="padding: 1.5rem 2rem; max-height: 70vh; overflow-y: auto;">
+                <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.45; text-align: center;">
+                    Keine Registrierung erforderlich! Bitte fülle das Formular aus. Wir finden risikofrei und passgenau die besten Acts für dein Event.
+                </p>
 
-            <h3 style="font-size:1.3rem; font-weight:800; text-align:center; margin:0 0 0.5rem; color:#fff;">GigConnAct-Vermittlung anfordern</h3>
-            <p style="font-size:0.8rem; color:var(--text-muted); text-align:center; margin-bottom:1.5rem; line-height:1.4;">
-                Wir finden risikofrei passende Acts für dein Event. Bitte fülle das Formular aus.
-            </p>
-
-            <form id="agency-booking-form" style="display:flex; flex-direction:column; gap:1rem;">
-                <div class="form-group">
-                    <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">Event-Titel (z.B. Hochzeit, Firmenfeier)</label>
-                    <input type="text" name="eventTitle" placeholder="Hochzeit von Sarah & Tom" required style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box;">
-                </div>
-
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <form id="agency-booking-form">
+                    <!-- 1. Eventname -->
                     <div class="form-group">
-                        <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">Veranstaltungsdatum</label>
-                        <input type="date" name="eventDate" required style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box;">
+                        <label>Eventname</label>
+                        <input type="text" name="eventName" class="input-field" maxlength="50" placeholder="z.B. Hochzeit von Sarah & Tom" required>
                     </div>
+
+                    <!-- 2. Ort -->
                     <div class="form-group">
-                        <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">Veranstaltungsort</label>
-                        <input type="text" name="eventLocation" value="${filterLoc}" placeholder="München" required style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box;">
+                        <label>Veranstaltungsort</label>
+                        <input type="text" name="orgLocation" id="input-org-location-search" class="input-field" value="${filterLoc}" placeholder="z.B. München" autocomplete="off" style="width: 100%;" required>
                     </div>
-                </div>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                    <!-- 3. Datum -->
                     <div class="form-group">
-                        <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">Gewünschte Genres</label>
-                        <input type="text" name="eventGenres" value="${filterGenres}" placeholder="Pop, Rock, Jazz" required style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box;">
+                        <label>Datum</label>
+                        <p style="font-size:0.7rem; color:var(--text-muted); margin-bottom: 0.5rem; line-height: 1.3;">
+                            An welchem Tag bzw. an welchen Tagen findet dein Event statt?
+                        </p>
+                        <div class="organizer-calendar-widget" id="org-calendar-widget">
+                            <div class="org-calendar-header">
+                                <button type="button" class="btn-cal-nav" id="btn-cal-prev"><i class="fa-solid fa-chevron-left"></i></button>
+                                <span id="org-calendar-month-year"></span>
+                                <button type="button" class="btn-cal-nav" id="btn-cal-next"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                            <div class="org-calendar-weekdays">
+                                <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
+                            </div>
+                            <div class="org-calendar-days" id="org-calendar-days-grid"></div>
+                        </div>
+                        <input type="hidden" name="eventDates" id="input-event-dates" value="${selectedEventDates.join(',')}">
+                        <div id="org-selected-dates-preview" style="font-size:0.75rem; color:#3b82f6; margin-top:0.5rem; font-weight:600;">
+                            Keine Termine ausgewählt
+                        </div>
                     </div>
+
                     <div class="form-group">
-                        <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">Max. Gage / Budget (€)</label>
-                        <input type="number" name="eventBudget" value="${filterGage}" placeholder="1000" required style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box;">
+                        <label>Standard-Uhrzeit</label>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                            <div style="width: 120px; flex-shrink: 0;">
+                                 <span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.3rem;">Startzeit</span>
+                                 <input type="time" name="eventStartTime" class="input-field" value="18:00" style="margin: 0; width: 120px; height:42px;">
+                             </div>
+                             <div style="width: 120px; flex-shrink: 0;">
+                                 <span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:0.3rem;">Endzeit</span>
+                                 <input type="time" name="eventEndTime" class="input-field" value="22:00" style="margin: 0; width: 120px; height:42px;">
+                             </div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">Besondere Wünsche / Beschreibung</label>
-                    <textarea name="eventDescription" placeholder="Wir suchen nach einer tanzbaren Band für unsere Hochzeitsfeier am Abend (ca. 3 Stunden)..." style="width:100%; height:80px; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box; resize:vertical; font-family:sans-serif;"></textarea>
-                </div>
-
-                <hr style="border:0; border-top:1px solid var(--border-glass); margin:0.5rem 0;">
-
-                <h4 style="font-size:0.95rem; font-weight:700; margin:0; color:#fff;">Deine Kontaktdaten</h4>
-
-                <div class="form-group">
-                    <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">Name / Ansprechpartner</label>
-                    <input type="text" name="contactName" placeholder="Max Mustermann" required style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box;">
-                </div>
-
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                    <!-- 4. Event-Typ -->
                     <div class="form-group">
-                        <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">E-Mail-Adresse</label>
-                        <input type="email" name="contactEmail" placeholder="max@beispiel.de" required style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                            <label style="margin: 0;">Event-Typ</label>
+                            <span onclick="window.toggleSelectAll('grid-org-event-types', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                        </div>
+                        <div class="checkbox-tag-grid" id="grid-org-event-types">
+                            ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
+                                <label class="tag-pill-checkbox">
+                                    <input type="checkbox" name="orgEventTypes" value="${t}">
+                                    <span>${t}</span>
+                                </label>
+                            `).join('')}
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">Telefonnummer</label>
-                        <input type="tel" name="contactPhone" placeholder="+49 170 1234567" required style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box;">
-                    </div>
-                </div>
 
-                <div style="display:flex; justify-content:center; margin-top:1rem;">
-                    <button type="submit" id="btn-submit-booking" class="btn btn-primary" style="width:100%; margin:0; padding:0.85rem; font-size:1rem; font-weight:800; background:linear-gradient(135deg,#7c3aed 0%,#6d28d9 100%); border-color:#7c3aed;">
-                        Kostenlose Vermittlungsanfrage senden
-                    </button>
-                </div>
-            </form>
+                    <!-- 5. Gesuchte Musiker-Typen -->
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                            <label style="margin: 0;">Gesuchte Musiker-Typen</label>
+                            <span onclick="window.toggleSelectAll('grid-org-musician-types', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                        </div>
+                        <div class="checkbox-tag-grid" id="grid-org-musician-types">
+                            ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
+                                <label class="tag-pill-checkbox">
+                                    <input type="checkbox" name="orgMusicianTypes" value="${t}" ${t === 'Band' || t === 'Solokünstler' ? 'checked' : ''}>
+                                    <span>${t}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- 6. Genres -->
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                            <label style="margin: 0;">Genres</label>
+                            <span onclick="window.toggleSelectAll('grid-org-genres', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                        </div>
+                        <div class="checkbox-tag-grid" id="grid-org-genres">
+                            ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
+                                <label class="tag-pill-checkbox">
+                                    <input type="checkbox" name="orgGenres" value="${g}" ${filterGenres.includes(g) ? 'checked' : ''}>
+                                    <span>${g}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- 7. Instrumente -->
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                            <label style="margin: 0;">Instrumente</label>
+                            <span onclick="window.toggleSelectAll('grid-org-instruments', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                        </div>
+                        <div class="checkbox-tag-grid" id="grid-org-instruments">
+                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                <label class="tag-pill-checkbox">
+                                    <input type="checkbox" name="orgInstruments" value="${ins}">
+                                    <span>${ins}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- 8. Spieldauer -->
+                    <div class="form-group">
+                        <div class="slider-value-display">
+                            <label>Spieldauer (Std.)</label>
+                            <span id="val-org-spieldauer">0,5 - 2,0 Std.</span>
+                        </div>
+                        <div class="dual-range-slider" id="slider-org-spieldauer-container">
+                            <div class="dual-range-track"></div>
+                            <div class="dual-range-active-track" id="track-org-spieldauer"></div>
+                            <input type="range" id="input-org-spieldauer-min" name="orgMinDuration" min="0.5" max="10" step="0.5" value="0.5">
+                            <input type="range" id="input-org-spieldauer-max" name="orgMaxDuration" min="0.5" max="10" step="0.5" value="2.0">
+                        </div>
+                    </div>
+
+                    <!-- 9. Gäste -->
+                    <div class="form-group">
+                        <div class="slider-value-display">
+                            <label>Gäste (Anzahl)</label>
+                            <span id="val-org-publikum">0 - 500+</span>
+                        </div>
+                        <div class="dual-range-slider" id="slider-org-publikum-container">
+                            <div class="dual-range-track"></div>
+                            <div class="dual-range-active-track" id="track-org-publikum"></div>
+                            <input type="range" id="input-org-publikum-min" name="orgMinPublikum" min="0" max="500" step="50" value="0">
+                            <input type="range" id="input-org-publikum-max" name="orgMaxPublikum" min="0" max="500" step="50" value="500">
+                        </div>
+                    </div>
+
+                    <!-- 10. Technik -->
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                            <label style="margin:0;">Technik</label>
+                            <span onclick="window.toggleSelectAll('grid-org-technik', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
+                        </div>
+                        <div class="checkbox-tag-grid" id="grid-org-technik">
+                            ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
+                                <label class="tag-pill-checkbox">
+                                    <input type="checkbox" name="orgTechnik" value="${t}">
+                                    <span>${t}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- 11. Budget -->
+                    <div class="form-group">
+                        <div class="slider-value-display">
+                            <label>Budget (€)</label>
+                            <span id="val-org-gage">0 - ${filterGageMax.toLocaleString('de-DE')} €</span>
+                        </div>
+                        <div class="dual-range-slider" id="slider-org-gage-container">
+                            <div class="dual-range-track"></div>
+                            <div class="dual-range-active-track" id="track-org-gage"></div>
+                            <input type="range" id="input-org-gage-min" name="orgMinBudget" min="0" max="5000" step="100" value="0">
+                            <input type="range" id="input-org-gage-max" name="orgMaxBudget" min="0" max="5000" step="100" value="${filterGageMax}">
+                        </div>
+                    </div>
+
+                    <!-- 12. Beschreibung -->
+                    <div class="form-group">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label>Erzähle kurz etwas über das Event</label>
+                            <span id="org-desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 200</span>
+                        </div>
+                        <textarea name="orgDescription" id="textarea-org-desc" class="input-field" rows="3" maxlength="200" placeholder="Erzähle kurz etwas über das Event..." required></textarea>
+                    </div>
+
+                    <!-- Media Section -->
+                    <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
+                    <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien</h4>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
+                        Füge Fotos und Videos für dein Event hinzu, um es attraktiver zu gestalten.
+                    </p>
+
+                    <div class="form-group" style="margin-bottom: 1.2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Fotos (max. 5) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: JPG, JPEG, PNG, WebP&#10;Maximale Größe: 10 MB&#10;Auflösung: mind. 1200 x 1200 px"></i></label>
+                            <button type="button" onclick="window.addRegMedia('organizer', 'photo')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                        <div id="reg-organizer-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 500 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></label>
+                            <button type="button" onclick="window.addRegMedia('organizer', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                        <div id="reg-organizer-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                    </div>
+
+                    <!-- Personal Details -->
+                    <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
+                    <h4 style="font-family: var(--font-heading); font-size:1rem; margin-bottom:1rem; color:var(--text-main);"><i class="fa-solid fa-user-lock"></i> Persönliche Kontaktdaten</h4>
+
+                    <div class="form-group" id="reg-organizer-type-container">
+                        <label>Veranstalter-Typ</label>
+                        <select name="organizerType" id="reg-org-type-select" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;" required>
+                            <option value="" disabled selected>Veranstalter-Typ auswählen</option>
+                            <option value="Privater Veranstalter">Privater Veranstalter</option>
+                            <option value="Event-Agentur">Event-Agentur</option>
+                            <option value="Hochzeitsplaner">Hochzeitsplaner</option>
+                            <option value="Eventlocation">Eventlocation</option>
+                            <option value="Firma">Firma</option>
+                            <option value="Hotel">Hotel</option>
+                            <option value="Restaurant">Restaurant</option>
+                            <option value="Bar">Bar</option>
+                            <option value="Stadtmarketing">Stadtmarketing</option>
+                            <option value="Festivalveranstalter">Festivalveranstalter</option>
+                            <option value="Verein">Verein</option>
+                            <option value="Sonstige">Sonstige</option>
+                        </select>
+                    </div>
+
+                    <!-- Dynamic field for non-private organizers -->
+                    <div class="form-group hidden" id="reg-org-company-dynamic-container" style="margin-top: 1rem;">
+                        <label id="reg-org-company-dynamic-label">Name Organisation</label>
+                        <input type="text" name="company" id="reg-org-company-input" class="input-field" maxlength="50" placeholder="Name eingeben">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Vor- und Nachname</label>
+                        <input type="text" name="fullName" id="input-reg-fullname" class="input-field" maxlength="50" placeholder="z.B. Max Mustermann" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>E-Mail-Adresse</label>
+                            <input type="email" name="email" class="input-field" maxlength="80" placeholder="z.B. max.mustermann@gmail.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Telefonnummer</label>
+                            <input type="text" name="phone" id="input-reg-phone" class="input-field" maxlength="20" placeholder="z.B. 01761234567" required>
+                            <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem;">
+                                <input type="checkbox" name="hidePhone" id="input-reg-hidephone" style="width: auto; margin: 0; cursor: pointer;">
+                                <label for="input-reg-hidephone" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0;">Telefonnummer verbergen</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; justify-content:center; margin-top:1.5rem;">
+                        <button type="submit" id="btn-submit-booking" class="btn btn-primary" style="width:100%; margin:0; padding:0.85rem; font-size:1rem; font-weight:800; background:linear-gradient(135deg,#7c3aed 0%,#6d28d9 100%); border-color:#7c3aed;">
+                            Vermittlung anfordern (Kostenlos)
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     `;
 
-    document.body.appendChild(overlay);
+    modalWrapper.classList.remove('hidden');
 
-    overlay.querySelector('#btn-close-booking-modal').addEventListener('click', () => {
-        overlay.remove();
+    // 1. Close Button Handler
+    modalWrapper.querySelector('#btn-close-modal').addEventListener('click', () => {
+        closeModal();
     });
 
-    const form = overlay.querySelector('#agency-booking-form');
+    // 2. Location Autocomplete
+    initAllLocationAutocompletes();
+
+    // 3. Sliders Init
+    initDualSlider('slider-org-spieldauer-container', 'input-org-spieldauer-min', 'input-org-spieldauer-max', 'track-org-spieldauer', 'val-org-spieldauer', 'Std.', false, modalWrapper);
+    initDualSlider('slider-org-publikum-container', 'input-org-publikum-min', 'input-org-publikum-max', 'track-org-publikum', 'val-org-publikum', 'Personen', false, modalWrapper);
+    initDualSlider('slider-org-gage-container', 'input-org-gage-min', 'input-org-gage-max', 'track-org-gage', 'val-org-gage', '€', true, modalWrapper);
+
+    // 4. Calendar Widget rendering inside Modal
+    const calendarDaysGrid = modalWrapper.querySelector('#org-calendar-days-grid');
+    const calendarMonthYear = modalWrapper.querySelector('#org-calendar-month-year');
+    const calendarPrevBtn = modalWrapper.querySelector('#btn-cal-prev');
+    const calendarNextBtn = modalWrapper.querySelector('#btn-cal-next');
+
+    function renderModalOrganizerCalendar() {
+        if (!calendarDaysGrid || !calendarMonthYear) return;
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth();
+        const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+        calendarMonthYear.textContent = `${monthNames[month]} ${year}`;
+
+        const firstDayIndex = new Date(year, month, 1).getDay();
+        const adjustedFirstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+        const totalDays = new Date(year, month + 1, 0).getDate();
+
+        let daysHtml = '';
+        for (let i = 0; i < adjustedFirstDayIndex; i++) {
+            daysHtml += '<div class="org-cal-day empty"></div>';
+        }
+
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+
+        for (let day = 1; day <= totalDays; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const isSelected = selectedEventDates.includes(dateStr);
+            const isPast = dateStr < todayStr;
+            daysHtml += `
+                <div class="org-cal-day${isSelected ? ' selected' : ''}${isPast ? ' past' : ''}" data-date="${dateStr}">
+                    ${day}
+                </div>
+            `;
+        }
+
+        calendarDaysGrid.innerHTML = daysHtml;
+
+        calendarDaysGrid.querySelectorAll('.org-cal-day:not(.empty):not(.past)').forEach(cell => {
+            cell.addEventListener('click', (e) => {
+                const dateVal = e.currentTarget.getAttribute('data-date');
+                const idx = selectedEventDates.indexOf(dateVal);
+                if (idx > -1) {
+                    selectedEventDates.splice(idx, 1);
+                } else {
+                    selectedEventDates.push(dateVal);
+                }
+                renderModalOrganizerCalendar();
+                updateDatesPreview();
+            });
+        });
+    }
+
+    function updateDatesPreview() {
+        const preview = modalWrapper.querySelector('#org-selected-dates-preview');
+        const hiddenInput = modalWrapper.querySelector('#input-event-dates');
+        if (hiddenInput) hiddenInput.value = selectedEventDates.join(',');
+        
+        if (preview) {
+            if (selectedEventDates.length === 0) {
+                preview.textContent = 'Keine Termine ausgewählt';
+            } else {
+                const sorted = [...selectedEventDates].sort();
+                preview.textContent = sorted.map(d => {
+                    const [y, m, day] = d.split('-');
+                    return `${day}.${m}.`;
+                }).join(', ');
+            }
+        }
+    }
+
+    if (calendarPrevBtn) {
+        calendarPrevBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentCalDate.setMonth(currentCalDate.getMonth() - 1);
+            renderModalOrganizerCalendar();
+        });
+    }
+    if (calendarNextBtn) {
+        calendarNextBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentCalDate.setMonth(currentCalDate.getMonth() + 1);
+            renderModalOrganizerCalendar();
+        });
+    }
+
+    renderModalOrganizerCalendar();
+    updateDatesPreview();
+
+    // 5. Checkbox Tag Click listener for active toggling
+    modalWrapper.querySelectorAll('.tag-pill-checkbox input').forEach(input => {
+        if (input.checked) {
+            input.parentElement.classList.add('active');
+        }
+        input.addEventListener('change', function() {
+            if (this.checked) {
+                this.parentElement.classList.add('active');
+            } else {
+                this.parentElement.classList.remove('active');
+            }
+        });
+    });
+
+    // 6. Description Counter
+    const orgDescTextarea = modalWrapper.querySelector('#textarea-org-desc');
+    const orgCharCounter = modalWrapper.querySelector('#org-desc-char-counter');
+    if (orgDescTextarea && orgCharCounter) {
+        orgDescTextarea.addEventListener('input', (e) => {
+            orgCharCounter.textContent = `${e.target.value.length} / 200`;
+        });
+    }
+
+    // 7. Organizer Type and Company Toggle
+    const orgTypeSelect = modalWrapper.querySelector('#reg-org-type-select');
+    const orgCompanyContainer = modalWrapper.querySelector('#reg-org-company-dynamic-container');
+    const orgCompanyInput = modalWrapper.querySelector('#reg-org-company-input');
+    const orgCompanyLabel = modalWrapper.querySelector('#reg-org-company-dynamic-label');
+
+    if (orgTypeSelect) {
+        orgTypeSelect.addEventListener('change', function() {
+            const val = this.value;
+            if (val === 'Privater Veranstalter' || !val) {
+                orgCompanyContainer.classList.add('hidden');
+                orgCompanyInput.value = '';
+                orgCompanyInput.removeAttribute('required');
+            } else {
+                orgCompanyContainer.classList.remove('hidden');
+                orgCompanyInput.setAttribute('required', '');
+                if (val === 'Verein') {
+                    orgCompanyLabel.textContent = 'Name des Vereins';
+                    orgCompanyInput.placeholder = 'z.B. Musikverein e.V.';
+                } else if (val === 'Eventlocation' || val === 'Hotel' || val === 'Restaurant' || val === 'Bar') {
+                    orgCompanyLabel.textContent = 'Name der Location';
+                    orgCompanyInput.placeholder = 'z.B. Gasthof Adler';
+                } else {
+                    orgCompanyLabel.textContent = 'Name Organisation / Firma';
+                    orgCompanyInput.placeholder = 'z.B. Event-Agentur Müller';
+                }
+            }
+        });
+    }
+
+    // 8. Submit Handler
+    const form = modalWrapper.querySelector('#agency-booking-form');
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const submitBtn = overlay.querySelector('#btn-submit-booking');
+        // 9. Validation
+        if (selectedEventDates.length === 0) {
+            showValidationError(modalWrapper.querySelector('#org-calendar-days-grid'), null, 'Bitte wähle mindestens ein Veranstaltungsdatum im Kalender aus.');
+            return;
+        }
+
+        const orgLocationInput = modalWrapper.querySelector('#input-org-location-search');
+        const orgLocVal = (orgLocationInput?.value || '').trim();
+        if (!orgLocVal) {
+            showValidationError(orgLocationInput, null, 'Bitte gib den Veranstaltungsort an.');
+            return;
+        }
+
+        const checkedEventTypes = Array.from(form.querySelectorAll('input[name="orgEventTypes"]:checked')).map(el => el.value);
+        if (checkedEventTypes.length === 0) {
+            showValidationError(form.querySelector('#grid-org-event-types'), null, 'Bitte wähle mindestens einen Event-Typen aus.');
+            return;
+        }
+
+        const checkedMusicianTypes = Array.from(form.querySelectorAll('input[name="orgMusicianTypes"]:checked')).map(el => el.value);
+        if (checkedMusicianTypes.length === 0) {
+            showValidationError(form.querySelector('#grid-org-musician-types'), null, 'Bitte wähle mindestens einen gesuchten Musiker-Typen aus.');
+            return;
+        }
+
+        const checkedGenres = Array.from(form.querySelectorAll('input[name="orgGenres"]:checked')).map(el => el.value);
+        if (checkedGenres.length === 0) {
+            showValidationError(form.querySelector('#grid-org-genres'), null, 'Bitte wähle mindestens ein Genre aus.');
+            return;
+        }
+
+        const checkedInstruments = Array.from(form.querySelectorAll('input[name="orgInstruments"]:checked')).map(el => el.value);
+        if (checkedInstruments.length === 0) {
+            showValidationError(form.querySelector('#grid-org-instruments'), null, 'Bitte wähle mindestens ein Instrument aus.');
+            return;
+        }
+
+        const checkedTechnik = Array.from(form.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value);
+        if (checkedTechnik.length === 0) {
+            showValidationError(form.querySelector('#grid-org-technik'), null, 'Bitte wähle mindestens eine Technik-Option aus.');
+            return;
+        }
+
+        const fullNameVal = form.elements.fullName.value.trim();
+        const emailVal = form.elements.email.value.trim();
+        const phoneVal = form.elements.phone.value.replace(/\D/g, '');
+
+        if (phoneVal.length < 5 || phoneVal.length > 16) {
+            showValidationError(form.elements.phone, null, 'Die Telefonnummer muss zwischen 5 und 16 Ziffern lang sein.');
+            return;
+        }
+
+        const submitBtn = form.querySelector('#btn-submit-booking');
         submitBtn.disabled = true;
         submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Anfrage wird gesendet...`;
 
         try {
-            const title = form.elements.eventTitle.value.trim();
-            const date = form.elements.eventDate.value;
-            const location = form.elements.eventLocation.value.trim();
-            const genresStr = form.elements.eventGenres.value.trim();
-            const budget = parseFloat(form.elements.eventBudget.value) || 0;
-            const description = form.elements.eventDescription.value.trim();
-            const contactName = form.elements.contactName.value.trim();
-            const contactEmail = form.elements.contactEmail.value.trim();
-            const contactPhone = form.elements.contactPhone.value.trim();
-
-            const genres = genresStr.split(',').map(s => s.trim()).filter(s => s.length > 0);
-
             let adminUid = 'info-gigconnact-admin';
             try {
                 const adminSnapshot = await db.collection('users').where('email', '==', 'info@gigconnact.de').limit(1).get();
@@ -14555,14 +14994,23 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                 console.error("Admin user lookup failed, falling back:", err);
             }
 
+            const orgType = orgTypeSelect.value;
+            let compValue = "Privatperson";
+            if (orgType !== 'Privater Veranstalter') {
+                compValue = orgCompanyInput.value.trim();
+            }
+
+            const detailDescription = form.querySelector('#textarea-org-desc').value.trim();
             const fullDescription = `
-${description}
+${detailDescription}
 
 ---
 ANFRAGE-DETAILS (GIGCONNACT-VERMITTLUNG):
-Ansprechpartner: ${contactName}
-E-Mail: ${contactEmail}
-Telefon: ${contactPhone}
+Ansprechpartner: ${fullNameVal}
+E-Mail: ${emailVal}
+Telefon: ${form.elements.phone.value.trim()}
+Unternehmen/Organisation: ${compValue}
+Veranstalter-Typ: ${orgType}
 Referenzierter Künstler-Code: ${musicianId} (${bandName})
             `.trim();
 
@@ -14570,46 +15018,48 @@ Referenzierter Künstler-Code: ${musicianId} (${bandName})
             const newEvent = {
                 id: eventId,
                 creatorId: adminUid,
-                name: title,
-                type: 'Sonstiges',
-                eventTypes: ['Sonstiges'],
-                date: date,
-                dates: [date],
-                eventStartTime: '18:00',
-                eventEndTime: '22:00',
-                location: location,
-                locations: [location],
-                genres: genres,
-                instruments: [],
-                minDuration: 1.0,
-                maxDuration: 4.0,
-                duration: 2.0,
-                minPublikum: 50,
-                maxPublikum: 150,
-                publikum: '50 - 150',
-                budget: budget,
-                minBudget: budget,
-                maxBudget: budget,
+                name: form.elements.eventName.value.trim(),
+                type: checkedEventTypes[0] || 'Sonstiges',
+                eventTypes: checkedEventTypes,
+                date: selectedEventDates[0],
+                dates: selectedEventDates,
+                eventStartTime: form.elements.eventStartTime.value,
+                eventEndTime: form.elements.eventEndTime.value,
+                location: orgLocVal,
+                locations: [orgLocVal],
+                genres: checkedGenres,
+                instruments: checkedInstruments,
+                minDuration: parseFloat(form.elements.orgMinDuration.value) || 0.5,
+                maxDuration: parseFloat(form.elements.orgMaxDuration.value) || 2.0,
+                duration: parseFloat(form.elements.orgMinDuration.value) || 0.5,
+                minPublikum: parseInt(form.querySelector('#input-org-publikum-min')?.value) || 0,
+                maxPublikum: parseInt(form.querySelector('#input-org-publikum-max')?.value) || 500,
+                publikum: `${form.querySelector('#input-org-publikum-min')?.value || 0} - ${form.querySelector('#input-org-publikum-max')?.value || 500}`,
+                budget: parseFloat(form.elements.orgMinBudget.value) || 0,
+                minBudget: parseFloat(form.elements.orgMinBudget.value) || 0,
+                maxBudget: parseFloat(form.elements.orgMaxBudget.value) || 5000,
                 description: fullDescription,
-                technik: ["Technik ist noch unklar"],
-                company: "GigConnAct Vermittlung",
-                organizerType: "Agentur",
+                technik: checkedTechnik,
+                company: compValue,
+                organizerType: orgType,
                 contactName: "GigConnAct Team",
                 phone: "+49 170 1234567",
                 email: "info@gigconnact.de",
                 isOnline: true,
                 isAgencyRequest: true,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                photos: window.registrationMedia.organizer.photos || [],
+                videos: window.registrationMedia.organizer.videos || []
             };
 
             await db.collection('events').doc(eventId).set(newEvent);
-            overlay.remove();
-            showAgencySuccessModal(contactEmail);
+            closeModal();
+            showAgencySuccessModal(emailVal);
 
         } catch (err) {
             console.error("Agency request submission failed:", err);
             submitBtn.disabled = false;
-            submitBtn.innerHTML = `Kostenlose Vermittlungsanfrage senden`;
+            submitBtn.innerHTML = `Vermittlung anfordern (Kostenlos)`;
             showToast({
                 title: "Fehler beim Senden ⚠️",
                 message: err.message || "Bitte versuche es noch einmal.",
@@ -14741,7 +15191,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
         const bandName = item.name || item.title || '';
         const displayName = (isEvents || (state && state.currentUser))
             ? bandName
-            : `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 500; display: block; margin-top: 0.15rem; filter: none !important;">(Name geschützt)</span>`;
+            : `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: #3b82f6; font-size: 0.85rem; margin-left: 0.45rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`;
 
         return `
             <div class="market-tile-card" style="cursor: default; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
@@ -14963,7 +15413,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 ` : `
                     <!-- 4. Aktions-Button: "Kontaktdaten freischalten" -->
                     <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); ${state && state.currentUser ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : `window.showMatchmakingChoiceModal('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')`}" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); ${state && state.currentUser ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : (isEvents ? `showModal('auth', null, 'musician')` : `window.showMatchmakingChoiceModal('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')`)}" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
                             <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
                         </button>
                     </div>
