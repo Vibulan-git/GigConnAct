@@ -712,7 +712,8 @@ exports.createStripeCheckoutSession = functions
                 }
             };
 
-            // Set trial period dynamically based on the plan configuration
+            // Set trial period dynamically based on the plan configuration (TEMPORARILY DISABLED FOR TESTING PAYMENTS)
+            /*
             if (planKey === 'premium') {
                 sessionParams.subscription_data = {
                     trial_period_days: 90
@@ -722,6 +723,7 @@ exports.createStripeCheckoutSession = functions
                     trial_period_days: 30
                 };
             }
+            */
 
             const session = await stripe.checkout.sessions.create(sessionParams);
 
