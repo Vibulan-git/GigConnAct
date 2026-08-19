@@ -18597,6 +18597,9 @@ function renderPaymentPendingScreen(container) {
 }
 
 function handleRouting() {
+    const mainContainer = document.getElementById('app-main');
+    if (!mainContainer) return;
+
     const hash = window.location.hash;
     let pageWithQuery = hash.replace('#/', '');
     let page = pageWithQuery.split('?')[0];
