@@ -12362,13 +12362,10 @@ window.toggleFavorite = function(id) {
 // Global success/cancel payment interceptor
 if (window.location.hash.includes('payment=success')) {
     window.isPaymentSuccessPending = true;
+    window.showSubscriptionSuccessModal = true;
     setTimeout(() => {
         window.isPaymentSuccessPending = false;
     }, 10000);
-    showToast({
-        title: "Zahlung erfolgreich! 🎉",
-        message: "Vielen Dank! Dein Tarif wurde erfolgreich freigeschaltet."
-    });
     // Remove query parameter from hash immediately to keep URL clean
     window.location.hash = '#/profile';
 } else if (window.location.hash.includes('payment=cancel')) {
@@ -12472,12 +12469,46 @@ window.deleteCurrentUserAccount = async function() {
     }
 };
 
+function showSubscriptionChangeSuccessModal() {
+    const modal = document.createElement('div');
+    modal.className = 'custom-video-modal-overlay';
+    modal.style = "position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); padding:1rem;";
+    modal.innerHTML = `
+        <div style="width:100%; max-width:440px; background:var(--bg-card); border:1px solid var(--border-glass); border-radius:16px; padding:2.5rem 2rem; text-align:center; box-shadow:0 15px 35px rgba(0,0,0,0.4); position:relative;">
+            <div style="font-size:4rem; color:#10b981; margin-bottom:1.2rem; filter:drop-shadow(0 0 8px rgba(16,185,129,0.3));">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 style="font-family:var(--font-heading); font-size:1.6rem; color:#fff; margin-bottom:0.75rem;">Tarifwechsel erfolgreich! 🎉</h3>
+            <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.55; margin-bottom:1.8rem;">
+                Vielen Dank! Deine Zahlung war erfolgreich und dein neuer Tarif wurde erfolgreich freigeschaltet. Du kannst GigConnAct nun mit allen Vorteilen nutzen.
+            </p>
+            <button id="btn-close-sub-success-modal" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:700; border-radius:10px; background:#10b981; border-color:#10b981; margin:0;">
+                Loslegen
+            </button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    modal.querySelector('#btn-close-sub-success-modal').addEventListener('click', () => {
+        modal.remove();
+    });
+}
+window.showSubscriptionChangeSuccessModal = showSubscriptionChangeSuccessModal;
+
 function renderProfilePage(container) {
     if (!state.currentUser) {
         navigate('');
         showModal('auth');
         return;
     }
+    
+    if (window.showSubscriptionSuccessModal) {
+        window.showSubscriptionSuccessModal = false;
+        setTimeout(() => {
+            window.showSubscriptionChangeSuccessModal();
+        }, 100);
+    }
+
     const u = state.currentUser;
     const isMusician = (u.role === 'musician');
     const themeColor = isMusician ? 'var(--color-purple)' : 'var(--color-cyan)';
