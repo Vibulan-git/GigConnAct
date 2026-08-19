@@ -697,7 +697,9 @@ exports.createStripeCheckoutSession = functions
             const email = userDoc.exists ? userDoc.data().email : null;
 
             const sessionParams = {
-                payment_method_types: ['card'],
+                automatic_payment_methods: {
+                    enabled: true
+                },
                 mode: 'subscription',
                 customer_email: email || undefined,
                 line_items: [{
