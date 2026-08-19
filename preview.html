@@ -15139,6 +15139,13 @@ function showEventModal(eventObj = null, isDuplication = false) {
                         <div id="event-modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
 
+                    <div style="display: flex; align-items: flex-start; gap: 0.5rem; margin-top: 1.2rem; margin-bottom: 0.8rem;">
+                        <input type="checkbox" id="chk-event-publish-consent" style="width: auto; margin-top: 0.25rem; cursor: pointer;" required checked>
+                        <label for="chk-event-publish-consent" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0; line-height: 1.35; text-align: left;">
+                            GigConnAct hat deine Erlaubnis, dein Event auf GigConnAct zu veröffentlichen.
+                        </label>
+                    </div>
+
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
                         <button type="submit" class="btn btn-primary" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: #2563eb; border-color: #2563eb;">
                             ${isEdit ? 'Änderungen speichern' : 'Event ausschreiben'}
@@ -16329,6 +16336,13 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         </label>
                     </div>
 
+                    <div id="reg-event-publish-consent-container" style="display: none; margin-top: 0.5rem; margin-bottom: 1.2rem;">
+                        <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.8rem; line-height: 1.4; color: var(--text-muted); cursor: pointer;">
+                            <input type="checkbox" name="eventPublishConsent" oninvalid="this.setCustomValidity('Bitte erteile die Erlaubnis zur Veröffentlichung deines Events.')" oninput="this.setCustomValidity('')" style="width: auto; margin-top: 0.2rem; cursor: pointer; transform: scale(1.2);">
+                            <span>GigConnAct hat deine Erlaubnis, dein Event auf GigConnAct zu veröffentlichen.</span>
+                        </label>
+                    </div>
+
                     <div id="register-error-msg" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
                     <button type="submit" class="btn btn-secondary" style="width: 100%;">
                         Registrierung abschließen
@@ -16531,14 +16545,31 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
     // State arrays for organizer dates
     let selectedEventDates = [];
 
-    // Default class on form
+    // Default class on form and initialize publish permission consent visibility
     if (registerForm) {
+        const publishConsentContainer = document.getElementById('reg-event-publish-consent-container');
         if (selectedRole === 'organizer') {
             registerForm.classList.add('role-organizer-active');
             registerForm.classList.remove('role-musician-active');
+            if (publishConsentContainer) {
+                publishConsentContainer.style.display = 'block';
+                const chk = publishConsentContainer.querySelector('input');
+                if (chk) {
+                    chk.setAttribute('required', '');
+                    chk.checked = true;
+                }
+            }
         } else {
             registerForm.classList.add('role-musician-active');
             registerForm.classList.remove('role-organizer-active');
+            if (publishConsentContainer) {
+                publishConsentContainer.style.display = 'none';
+                const chk = publishConsentContainer.querySelector('input');
+                if (chk) {
+                    chk.removeAttribute('required');
+                    chk.checked = false;
+                }
+            }
         }
     }
 
@@ -16565,7 +16596,15 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         const subContainer = document.getElementById('reg-subscription-container');
         if (subContainer) subContainer.classList.remove('hidden');
         
-
+        const publishConsentContainer = document.getElementById('reg-event-publish-consent-container');
+        if (publishConsentContainer) {
+            publishConsentContainer.style.display = 'none';
+            const chk = publishConsentContainer.querySelector('input');
+            if (chk) {
+                chk.removeAttribute('required');
+                chk.checked = false;
+            }
+        }
 
         const orgTypeContainer = document.getElementById('reg-organizer-type-container');
         if (orgTypeContainer) {
@@ -16605,7 +16644,15 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         const subContainer = document.getElementById('reg-subscription-container');
         if (subContainer) subContainer.classList.add('hidden');
         
-
+        const publishConsentContainer = document.getElementById('reg-event-publish-consent-container');
+        if (publishConsentContainer) {
+            publishConsentContainer.style.display = 'block';
+            const chk = publishConsentContainer.querySelector('input');
+            if (chk) {
+                chk.setAttribute('required', '');
+                chk.checked = true;
+            }
+        }
 
         const orgTypeContainer = document.getElementById('reg-organizer-type-container');
         if (orgTypeContainer) {
@@ -20039,6 +20086,13 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                                 <label for="input-reg-hidephone" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0;">Telefonnummer verbergen</label>
                             </div>
                         </div>
+                    </div>
+
+                    <div style="display: flex; align-items: flex-start; gap: 0.5rem; margin-top: 1.2rem; margin-bottom: 0.8rem;">
+                        <input type="checkbox" id="chk-agency-publish-consent" style="width: auto; margin-top: 0.25rem; cursor: pointer;" required checked>
+                        <label for="chk-agency-publish-consent" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0; line-height: 1.35; text-align: left;">
+                            GigConnAct hat deine Erlaubnis, dein Event auf GigConnAct zu veröffentlichen.
+                        </label>
                     </div>
 
                     <div style="display:flex; justify-content:center; margin-top:1.5rem;">
