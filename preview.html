@@ -12361,8 +12361,87 @@ window.toggleFavorite = function(id) {
         }
     }
 };
+// DSGVO Konto-Löschung Helper
+window.deleteCurrentUserAccount = async function() {
+    const u = state.currentUser;
+    if (!u) return;
 
+    const firstConfirm = confirm("ACHTUNG: Möchtest du dein GigConnAct-Konto wirklich unwiderruflich löschen?\n\nDies löscht alle deine Profildaten, Musiker- und Event-Angebote sowie deine Verknüpfungen. Dieser Schritt kann NICHT rückgängig gemacht werden.");
+    if (!firstConfirm) return;
 
+    const secondConfirm = confirm("Bist du dir absolut sicher? Alle deine Daten werden gelöscht und du wirst sofort abgemeldet.");
+    if (!secondConfirm) return;
+
+    try {
+        showToast({
+            title: "Löschung läuft...",
+            message: "Dein Konto wird gelöscht. Bitte warte einen Moment."
+        });
+
+        const myMusicians = state.musicians.filter(m => m.creatorId === u.id || m.id === u.profileId);
+        const myEvents = state.events.filter(e => e.creatorId === u.id || e.id === u.profileId);
+
+        // Delete musician profiles in Firestore
+        for (const m of myMusicians) {
+            await db.collection('musicians').doc(m.id).delete();
+        }
+
+        // Delete event profiles in Firestore
+        for (const e of myEvents) {
+            await db.collection('events').doc(e.id).delete();
+        }
+
+        // Delete user from users collection
+        await db.collection('users').doc(u.id).delete();
+
+        // Delete Authentication account
+        const firebaseUser = auth.currentUser;
+        if (firebaseUser) {
+            await firebaseUser.delete();
+        }
+
+        // Clean local fallback users list
+        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+        const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+        if (idx !== -1) {
+            registeredUsers.splice(idx, 1);
+            localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+        }
+
+        // Clean local state & session storage/localStorage items
+        state.currentUser = null;
+        state.activeMusicianId = null;
+        state.activeEventId = null;
+        state.saveState();
+        localStorage.removeItem('GigConnAct_read_chats');
+
+        showToast({
+            title: "Konto gelöscht ℹ",
+            message: "Dein Konto wurde erfolgreich gelöscht."
+        });
+        
+        setTimeout(() => {
+            window.location.hash = '#/';
+            window.location.reload();
+        }, 1500);
+
+    } catch (err) {
+        console.error("Account deletion failed:", err);
+        if (err.code === 'auth/requires-recent-login') {
+            showToast({
+                title: "Reauthentifizierung erforderlich",
+                message: "Aus Sicherheitsgründen musst du dich vor dem Löschen deines Kontos abmelden, wieder neu anmelden und es direkt erneut versuchen.",
+                type: "error"
+            });
+        } else {
+            showToast({
+                title: "Fehler beim Löschen",
+                message: "Dein Konto konnte nicht gelöscht werden: " + err.message,
+                type: "error"
+            });
+        }
+    }
+};
 
 function renderProfilePage(container) {
     if (!state.currentUser) {
@@ -12902,88 +12981,7 @@ function renderProfilePage(container) {
 
     // DSGVO Daten-Export wird auf Anfrage per E-Mail abgewickelt
 
-    // DSGVO Konto-Löschung Helper
-    window.deleteCurrentUserAccount = async function() {
-        const u = state.currentUser;
-        if (!u) return;
-
-        const firstConfirm = confirm("ACHTUNG: Möchtest du dein GigConnAct-Konto wirklich unwiderruflich löschen?\n\nDies löscht alle deine Profildaten, Musiker- und Event-Angebote sowie deine Verknüpfungen. Dieser Schritt kann NICHT rückgängig gemacht werden.");
-        if (!firstConfirm) return;
-
-        const secondConfirm = confirm("Bist du dir absolut sicher? Alle deine Daten werden gelöscht und du wirst sofort abgemeldet.");
-        if (!secondConfirm) return;
-
-        try {
-            showToast({
-                title: "Löschung läuft...",
-                message: "Dein Konto wird gelöscht. Bitte warte einen Moment."
-            });
-
-            const myMusicians = state.musicians.filter(m => m.creatorId === u.id || m.id === u.profileId);
-            const myEvents = state.events.filter(e => e.creatorId === u.id || e.id === u.profileId);
-
-            // Delete musician profiles in Firestore
-            for (const m of myMusicians) {
-                await db.collection('musicians').doc(m.id).delete();
-            }
-
-            // Delete event profiles in Firestore
-            for (const e of myEvents) {
-                await db.collection('events').doc(e.id).delete();
-            }
-
-            // Delete user from users collection
-            await db.collection('users').doc(u.id).delete();
-
-            // Delete Authentication account
-            const firebaseUser = auth.currentUser;
-            if (firebaseUser) {
-                await firebaseUser.delete();
-            }
-
-            // Clean local fallback users list
-            const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-            const idx = registeredUsers.findIndex(usr => usr.id === u.id);
-            if (idx !== -1) {
-                registeredUsers.splice(idx, 1);
-                localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
-            }
-
-            // Clean local state & session storage/localStorage items
-            state.currentUser = null;
-            state.activeMusicianId = null;
-            state.activeEventId = null;
-            state.saveState();
-            localStorage.removeItem('GigConnAct_read_chats');
-
-            showToast({
-                title: "Konto gelöscht ℹ",
-                message: "Dein Konto wurde erfolgreich gelöscht."
-            });
-            
-            setTimeout(() => {
-                window.location.hash = '#/';
-                window.location.reload();
-            }, 1500);
-
-        } catch (err) {
-            console.error("Account deletion failed:", err);
-            if (err.code === 'auth/requires-recent-login') {
-                showToast({
-                    title: "Reauthentifizierung erforderlich",
-                    message: "Aus Sicherheitsgründen musst du dich vor dem Löschen deines Kontos abmelden, wieder neu anmelden und es direkt erneut versuchen.",
-                    type: "error"
-                });
-            } else {
-                showToast({
-                    title: "Fehler beim Löschen",
-                    message: "Dein Konto konnte nicht gelöscht werden: " + err.message,
-                    type: "error"
-                });
-            }
-        }
-    };
-
+    // DSGVO Konto-Löschung Helper is now globally defined above renderProfilePage
     const deleteBtn = document.getElementById('btn-delete-useraccount');
     if (deleteBtn) {
         deleteBtn.addEventListener('click', window.deleteCurrentUserAccount);
