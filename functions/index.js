@@ -712,18 +712,31 @@ exports.createStripeCheckoutSession = functions
                 }
             };
 
-            // Set trial period dynamically based on the plan configuration (TEMPORARILY DISABLED FOR TESTING PAYMENTS)
-            /*
-            if (planKey === 'premium') {
-                sessionParams.subscription_data = {
-                    trial_period_days: 90
-                };
-            } else if (planKey === 'flex' || planKey === 'plus' || planKey === 'pro') {
-                sessionParams.subscription_data = {
-                    trial_period_days: 30
-                };
+            // Check if email has already had a trial by hashing the email and checking in Firestore 'used_trials'
+            let hasHadTrial = false;
+            if (email) {
+                const crypto = require('crypto');
+                const emailHash = crypto.createHash('sha256').update(String(email).trim().toLowerCase()).digest('hex');
+                const usedTrialDoc = await admin.firestore().collection('used_trials').doc(emailHash).get();
+                if (usedTrialDoc.exists) {
+                    hasHadTrial = true;
+                }
             }
-            */
+
+            const disableAllTrialsForTesting = true; // Set to false when ready to re-enable trials!
+
+            // Set trial period dynamically based on the plan configuration if they haven't had a trial yet
+            if (!disableAllTrialsForTesting && !hasHadTrial) {
+                if (planKey === 'premium') {
+                    sessionParams.subscription_data = {
+                        trial_period_days: 90
+                    };
+                } else if (planKey === 'flex' || planKey === 'plus' || planKey === 'pro') {
+                    sessionParams.subscription_data = {
+                        trial_period_days: 30
+                    };
+                }
+            }
 
             const session = await stripe.checkout.sessions.create(sessionParams);
 
@@ -858,4 +871,24 @@ exports.stripeWebhook = functions
 
         res.json({ received: true });
     });
+
+
+// ==========================================
+// Auth Trigger: Hash email on deletion to prevent trial abuse
+// ==========================================
+exports.onUserDeleted = functions.region('europe-west3').auth.user().onDelete(async (user) => {
+    const email = user.email;
+    if (email) {
+        const crypto = require('crypto');
+        const emailHash = crypto.createHash('sha256').update(String(email).trim().toLowerCase()).digest('hex');
+        try {
+            await admin.firestore().collection('used_trials').doc(emailHash).set({
+                hashedAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+            console.log(`Saved trial abuse hash for deleted user ${user.uid}`);
+        } catch (error) {
+            console.error(`Error saving trial abuse hash for deleted user ${user.uid}:`, error);
+        }
+    }
+});
 
