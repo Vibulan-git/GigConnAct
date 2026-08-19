@@ -19565,6 +19565,311 @@ function formatTruncatedValue(val, themeColor, itemId, uniqueType) {
     `;
 }
 
+window.showMatchmakingChoiceModal = function(musicianId, bandName) {
+    const overlay = document.createElement('div');
+    overlay.id = 'agency-choice-modal';
+    overlay.className = 'custom-video-modal-overlay';
+    overlay.style = "position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); padding:1rem;";
+    
+    overlay.innerHTML = `
+        <div style="width:100%; max-width:680px; background:var(--bg-card); border:1px solid var(--border-glass); border-radius:18px; padding:2rem; box-shadow:0 15px 35px rgba(0,0,0,0.4); position:relative; font-family:var(--font-heading); color:#fff;">
+            
+            <button id="btn-close-choice-modal" style="position:absolute; top:1.2rem; right:1.2rem; background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:1.4rem;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h3 style="font-size:1.4rem; font-weight:800; text-align:center; margin:0 0 1.5rem; color:#fff;">Kontaktdaten freischalten</h3>
+            <p style="font-size:0.9rem; color:var(--text-muted); text-align:center; margin-bottom:2rem; line-height:1.4;">
+                Wie möchtest du mit dem Künstler in Verbindung treten? Wähle eine der folgenden Optionen:
+            </p>
+
+            <div class="choice-cards-container" style="display:grid; grid-template-columns:1fr; gap:1.5rem;">
+                <style>
+                    @media (min-width: 576px) {
+                        .choice-cards-container {
+                            grid-template-columns: 1fr 1fr !important;
+                        }
+                    }
+                </style>
+
+                <!-- Weg 1: Selbst kontaktieren -->
+                <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-glass); border-radius:12px; padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div>
+                        <div style="font-size:2rem; color:#3b82f6; margin-bottom:0.75rem; text-align:center;">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </div>
+                        <h4 style="font-size:1.05rem; font-weight:700; margin:0 0 0.75rem; text-align:center;">1. Selbst kontaktieren (Kostenlos)</h4>
+                        <ul style="font-size:0.8rem; color:var(--text-muted); padding-left:1.1rem; margin:0 0 1.5rem; line-height:1.6;">
+                            <li>Kostenloses Veranstalter-Konto erstellen</li>
+                            <li>Beliebig viele Musiker selbst anfragen und Verträge aushandeln</li>
+                            <li>Direkte Kommunikation im Chat</li>
+                        </ul>
+                    </div>
+                    <button id="btn-choice-register" class="btn btn-primary" style="width:100%; margin:0; padding:0.75rem; font-size:0.85rem; font-weight:700; background:#3b82f6; border-color:#3b82f6;">
+                        Kostenlos registrieren
+                    </button>
+                </div>
+
+                <!-- Weg 2: GigConnAct-Vermittlung -->
+                <div style="background:rgba(124,58,237,0.05); border:1px solid rgba(124,58,237,0.25); border-radius:12px; padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between; position:relative; box-shadow:0 0 15px rgba(124,58,237,0.1);">
+                    <div style="position:absolute; top:-10px; right:15px; background:#7c3aed; color:#fff; font-size:0.6rem; font-weight:900; padding:0.2rem 0.5rem; border-radius:10px; text-transform:uppercase; letter-spacing:0.5px;">Bequem & Sicher</div>
+                    <div>
+                        <div style="font-size:2rem; color:#7c3aed; margin-bottom:0.75rem; text-align:center;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <h4 style="font-size:1.05rem; font-weight:700; margin:0 0 0.75rem; text-align:center;">2. GigConnAct-Vermittlung</h4>
+                        <ul style="font-size:0.8rem; color:var(--text-muted); padding-left:1.1rem; margin:0 0 1.5rem; line-height:1.6;">
+                            <li>Keine Registrierung oder Account erforderlich</li>
+                            <li>Wir suchen, prüfen und senden dir 1–3 passende Acts innerhalb von 5 Werktagen</li>
+                            <li>Provision erst fällig bei erfolgreichem Auftritt</li>
+                        </ul>
+                    </div>
+                    <button id="btn-choice-agency" class="btn btn-primary" style="width:100%; margin:0; padding:0.75rem; font-size:0.85rem; font-weight:700; background:#7c3aed; border-color:#7c3aed;">
+                        Vermittlung anfordern
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    overlay.querySelector('#btn-close-choice-modal').addEventListener('click', () => {
+        overlay.remove();
+    });
+
+    overlay.querySelector('#btn-choice-register').addEventListener('click', () => {
+        overlay.remove();
+        showModal('auth');
+    });
+
+    overlay.querySelector('#btn-choice-agency').addEventListener('click', () => {
+        overlay.remove();
+        window.showAgencyBookingForm(musicianId, bandName);
+    });
+};
+
+window.showAgencyBookingForm = function(musicianId, bandName) {
+    const filterLoc = (document.getElementById('filter-location-m')?.value || '').split(' (')[0].trim();
+    
+    let filterGenres = '';
+    const genresGrid = document.getElementById('filter-genres-grid-m');
+    if (genresGrid) {
+        const checked = Array.from(genresGrid.querySelectorAll('input:checked')).map(el => el.value);
+        if (checked.length > 0) {
+            filterGenres = checked.join(', ');
+        }
+    }
+
+    const filterGage = document.getElementById('input-filter-gage-m-max')?.value || '1000';
+
+    const overlay = document.createElement('div');
+    overlay.id = 'agency-booking-modal';
+    overlay.className = 'custom-video-modal-overlay';
+    overlay.style = "position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); padding:1rem; overflow-y:auto;";
+    
+    overlay.innerHTML = `
+        <div style="width:100%; max-width:540px; background:var(--bg-card); border:1px solid var(--border-glass); border-radius:18px; padding:2rem; box-shadow:0 15px 35px rgba(0,0,0,0.4); position:relative; font-family:var(--font-heading); color:#fff; margin-top:2rem; margin-bottom:2rem;">
+            
+            <button id="btn-close-booking-modal" style="position:absolute; top:1.2rem; right:1.2rem; background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:1.4rem;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h3 style="font-size:1.3rem; font-weight:800; text-align:center; margin:0 0 0.5rem; color:#fff;">GigConnAct-Vermittlung anfordern</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); text-align:center; margin-bottom:1.5rem; line-height:1.4;">
+                Wir finden risikofrei passende Acts für dein Event. Bitte fülle das Formular aus.
+            </p>
+
+            <form id="agency-booking-form" style="display:flex; flex-direction:column; gap:1rem;">
+                <div class="form-group">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">Event-Titel (z.B. Hochzeit, Firmenfeier)</label>
+                    <input type="text" name="eventTitle" placeholder="Hochzeit von Sarah & Tom" required style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box;">
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                    <div class="form-group">
+                        <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">Veranstaltungsdatum</label>
+                        <input type="date" name="eventDate" required style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box;">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">Veranstaltungsort</label>
+                        <input type="text" name="eventLocation" value="${filterLoc}" placeholder="München" required style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box;">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                    <div class="form-group">
+                        <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">Gewünschte Genres</label>
+                        <input type="text" name="eventGenres" value="${filterGenres}" placeholder="Pop, Rock, Jazz" required style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box;">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">Max. Gage / Budget (€)</label>
+                        <input type="number" name="eventBudget" value="${filterGage}" placeholder="1000" required style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">Besondere Wünsche / Beschreibung</label>
+                    <textarea name="eventDescription" placeholder="Wir suchen nach einer tanzbaren Band für unsere Hochzeitsfeier am Abend (ca. 3 Stunden)..." style="width:100%; height:80px; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box; resize:vertical; font-family:sans-serif;"></textarea>
+                </div>
+
+                <hr style="border:0; border-top:1px solid var(--border-glass); margin:0.5rem 0;">
+
+                <h4 style="font-size:0.95rem; font-weight:700; margin:0; color:#fff;">Deine Kontaktdaten</h4>
+
+                <div class="form-group">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">Name / Ansprechpartner</label>
+                    <input type="text" name="contactName" placeholder="Max Mustermann" required style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box;">
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                    <div class="form-group">
+                        <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">E-Mail-Adresse</label>
+                        <input type="email" name="contactEmail" placeholder="max@beispiel.de" required style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box;">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size:0.8rem; font-weight:700; color:var(--color-purple); display:block; margin-bottom:0.35rem;">Telefonnummer</label>
+                        <input type="tel" name="contactPhone" placeholder="+49 170 1234567" required style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.05); color:#fff; font-size:0.88rem; outline:none; box-sizing:border-box;">
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:center; margin-top:1rem;">
+                    <button type="submit" id="btn-submit-booking" class="btn btn-primary" style="width:100%; margin:0; padding:0.85rem; font-size:1rem; font-weight:800; background:linear-gradient(135deg,#7c3aed 0%,#6d28d9 100%); border-color:#7c3aed;">
+                        Kostenlose Vermittlungsanfrage senden
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    overlay.querySelector('#btn-close-booking-modal').addEventListener('click', () => {
+        overlay.remove();
+    });
+
+    const form = overlay.querySelector('#agency-booking-form');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const submitBtn = overlay.querySelector('#btn-submit-booking');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Anfrage wird gesendet...`;
+
+        try {
+            const title = form.elements.eventTitle.value.trim();
+            const date = form.elements.eventDate.value;
+            const location = form.elements.eventLocation.value.trim();
+            const genresStr = form.elements.eventGenres.value.trim();
+            const budget = parseFloat(form.elements.eventBudget.value) || 0;
+            const description = form.elements.eventDescription.value.trim();
+            const contactName = form.elements.contactName.value.trim();
+            const contactEmail = form.elements.contactEmail.value.trim();
+            const contactPhone = form.elements.contactPhone.value.trim();
+
+            const genres = genresStr.split(',').map(s => s.trim()).filter(s => s.length > 0);
+
+            let adminUid = 'info-gigconnact-admin';
+            try {
+                const adminSnapshot = await db.collection('users').where('email', '==', 'info@gigconnact.de').limit(1).get();
+                if (!adminSnapshot.empty) {
+                    adminUid = adminSnapshot.docs[0].id;
+                }
+            } catch (err) {
+                console.error("Admin user lookup failed, falling back:", err);
+            }
+
+            const fullDescription = `
+${description}
+
+---
+ANFRAGE-DETAILS (GIGCONNACT-VERMITTLUNG):
+Ansprechpartner: ${contactName}
+E-Mail: ${contactEmail}
+Telefon: ${contactPhone}
+Referenzierter Künstler-Code: ${musicianId} (${bandName})
+            `.trim();
+
+            const eventId = 'evt_agency_' + Date.now();
+            const newEvent = {
+                id: eventId,
+                creatorId: adminUid,
+                name: title,
+                type: 'Sonstiges',
+                eventTypes: ['Sonstiges'],
+                date: date,
+                dates: [date],
+                eventStartTime: '18:00',
+                eventEndTime: '22:00',
+                location: location,
+                locations: [location],
+                genres: genres,
+                instruments: [],
+                minDuration: 1.0,
+                maxDuration: 4.0,
+                duration: 2.0,
+                minPublikum: 50,
+                maxPublikum: 150,
+                publikum: '50 - 150',
+                budget: budget,
+                minBudget: budget,
+                maxBudget: budget,
+                description: fullDescription,
+                technik: ["Technik ist noch unklar"],
+                company: "GigConnAct Vermittlung",
+                organizerType: "Agentur",
+                contactName: "GigConnAct Team",
+                phone: "+49 170 1234567",
+                email: "info@gigconnact.de",
+                isOnline: true,
+                isAgencyRequest: true,
+                createdAt: new Date().toISOString()
+            };
+
+            await db.collection('events').doc(eventId).set(newEvent);
+            overlay.remove();
+            showAgencySuccessModal(contactEmail);
+
+        } catch (err) {
+            console.error("Agency request submission failed:", err);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `Kostenlose Vermittlungsanfrage senden`;
+            showToast({
+                title: "Fehler beim Senden ⚠️",
+                message: err.message || "Bitte versuche es noch einmal.",
+                type: "error"
+            });
+        }
+    });
+};
+
+function showAgencySuccessModal(email) {
+    const overlay = document.createElement('div');
+    overlay.className = 'custom-video-modal-overlay';
+    overlay.style = "position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); padding:1rem;";
+    
+    overlay.innerHTML = `
+        <div style="width:100%; max-width:440px; background:var(--bg-card); border:1px solid var(--border-glass); border-radius:16px; padding:2.5rem 2rem; text-align:center; box-shadow:0 15px 35px rgba(0,0,0,0.4); position:relative; font-family:var(--font-heading); color:#fff;">
+            <div style="font-size:4rem; color:#10b981; margin-bottom:1.2rem; filter:drop-shadow(0 0 8px rgba(16,185,129,0.3));">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 style="font-size:1.4rem; color:#fff; margin-bottom:0.75rem;">Anfrage gesendet! 🚀</h3>
+            <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.55; margin-bottom:1.8rem;">
+                Vielen Dank! Deine Vermittlungsanfrage ist bei uns eingegangen. Wir prüfen die passenden Acts und senden dir innerhalb der nächsten 5 Werktage per E-Mail an <strong>${email}</strong> unsere handverlesene Auswahl zu.
+            </p>
+            <button id="btn-close-agency-success" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:700; border-radius:10px; background:#10b981; border-color:#10b981; margin:0;">
+                Schließen
+            </button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    
+    overlay.querySelector('#btn-close-agency-success').addEventListener('click', () => {
+        overlay.remove();
+    });
+}
+
 function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
     if (!items || items.length === 0) {
         return `
@@ -19659,6 +19964,9 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
             : 'Professionelle Live-Musik für unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.');
 
         const bandName = item.name || item.title || '';
+        const displayName = (isEvents || (state && state.currentUser))
+            ? bandName
+            : `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 500; display: block; margin-top: 0.15rem; filter: none !important;">(Name geschützt)</span>`;
 
         return `
             <div class="market-tile-card" style="cursor: default; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
@@ -19735,7 +20043,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     <!-- Band/Event Name unter dem Bild (Fett gedruckt) -->
                     <div style="margin-bottom: 0.8rem;">
                         <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; height: 2.4em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">
-                            ${bandName}
+                            ${displayName}
                         </h3>
                     </div>
 
@@ -19880,7 +20188,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 ` : `
                     <!-- 4. Aktions-Button: "Kontaktdaten freischalten" -->
                     <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); ${state && state.currentUser ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : `showModal('auth')`}" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); ${state && state.currentUser ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : `window.showMatchmakingChoiceModal('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')`}" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
                             <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
                         </button>
                     </div>
