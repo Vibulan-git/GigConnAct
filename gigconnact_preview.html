@@ -12359,6 +12359,8 @@ window.toggleFavorite = function(id) {
         } else if (typeof window.handleRouting === 'function') {
             window.handleRouting();
         }
+    }
+};
 // Global success/cancel payment interceptor
 if (window.location.hash.includes('payment=success')) {
     window.isPaymentSuccessPending = true;
