@@ -13538,6 +13538,18 @@ function handleRouting() {
         return;
     }
     
+    // Redirect logged-in users away from the opposite market pages
+    if (state && state.currentUser && state.currentUser.id) {
+        if (state.currentUser.role === 'organizer' && page === 'events') {
+            navigate('musicians');
+            return;
+        }
+        if (state.currentUser.role === 'musician' && page === 'musicians') {
+            navigate('events');
+            return;
+        }
+    }
+
     navigate(page);
 }
 
