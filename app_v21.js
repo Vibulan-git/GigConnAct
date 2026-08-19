@@ -6494,7 +6494,7 @@ function renderMarket(container, type, onNavigate) {
                 const [y, m, dayVal] = d.split('-');
                 const formattedDate = `${dayVal}.${m}.`;
                 return `
-                    <span style="background: ${isEvents ? 'rgba(37, 99, 235, 0.1)' : 'rgba(124, 58, 237, 0.1)'}; color: ${isEvents ? '#2563eb' : '#7c3aed'}; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; user-select: none;">
+                    <span style="background: ${isEvents ? 'rgba(124, 58, 237, 0.1)' : 'rgba(37, 99, 235, 0.1)'}; color: ${isEvents ? '#7c3aed' : '#2563eb'}; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; user-select: none;">
                         ${formattedDate}
                         <i class="fa-solid fa-xmark remove-date-chip" data-date="${d}" style="cursor: pointer; font-size: 0.7rem;"></i>
                     </span>
@@ -14479,6 +14479,13 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
         filterGenres = Array.from(genresGrid.querySelectorAll('input:checked')).map(el => el.value);
     }
 
+    const filterDurationMin = parseFloat(document.getElementById('input-filter-duration-m-min')?.value) || 0.5;
+    const filterDurationMax = parseFloat(document.getElementById('input-filter-duration-m-max')?.value) || 2.0;
+
+    const filterPublikumMin = parseInt(document.getElementById('input-filter-publikum-m-min')?.value) || 0;
+    const filterPublikumMax = parseInt(document.getElementById('input-filter-publikum-m-max')?.value) || 500;
+
+    const filterGageMin = parseFloat(document.getElementById('input-filter-gage-m-min')?.value) || 0;
     const filterGageMax = parseFloat(document.getElementById('input-filter-gage-m-max')?.value) || 5000;
 
     let selectedEventDates = window.selectedFilterDates ? [...window.selectedFilterDates] : [];
@@ -14488,7 +14495,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
         <div class="modal-content">
             <div class="modal-header" style="flex-direction: column; padding: 1.5rem 2rem 1.2rem;">
                 <h3 style="line-height: 1.2; text-align: center; margin: 0; font-family: var(--font-heading); width: 100%;">
-                    <span style="display: block; font-size: 0.95rem; font-weight: 700; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-purple);">GigConnAct-Vermittlung</span>
+                    <span style="display: block; font-size: 0.95rem; font-weight: 700; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; color: #2563eb;">GigConnAct-Vermittlung</span>
                     <span style="display: block; font-size: 1.45rem; font-weight: 900; color: #000000; margin-top: 0.25rem; letter-spacing: 0.5px;">Vermittlung anfordern</span>
                 </h3>
                 <button class="close-modal-btn" id="btn-close-modal">&times;</button>
@@ -14499,7 +14506,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                     Keine Registrierung erforderlich! Bitte fülle das Formular aus. Wir finden risikofrei und passgenau die besten Acts für dein Event.
                 </p>
 
-                <form id="agency-booking-form">
+                <form id="auth-register-form" class="role-organizer-active">
                     <!-- 1. Eventname -->
                     <div class="form-group">
                         <label>Eventname</label>
@@ -14530,7 +14537,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                             <div class="org-calendar-days" id="org-calendar-days-grid"></div>
                         </div>
                         <input type="hidden" name="eventDates" id="input-event-dates" value="${selectedEventDates.join(',')}">
-                        <div id="org-selected-dates-preview" style="font-size:0.75rem; color:#3b82f6; margin-top:0.5rem; font-weight:600;">
+                        <div id="org-selected-dates-preview" style="font-size:0.75rem; color:#2563eb; margin-top:0.5rem; font-weight:600;">
                             Keine Termine ausgewählt
                         </div>
                     </div>
@@ -14622,8 +14629,8 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                         <div class="dual-range-slider" id="slider-org-spieldauer-container">
                             <div class="dual-range-track"></div>
                             <div class="dual-range-active-track" id="track-org-spieldauer"></div>
-                            <input type="range" id="input-org-spieldauer-min" name="orgMinDuration" min="0.5" max="10" step="0.5" value="0.5">
-                            <input type="range" id="input-org-spieldauer-max" name="orgMaxDuration" min="0.5" max="10" step="0.5" value="2.0">
+                            <input type="range" id="input-org-spieldauer-min" name="orgMinDuration" min="0.5" max="10" step="0.5" value="${filterDurationMin}">
+                            <input type="range" id="input-org-spieldauer-max" name="orgMaxDuration" min="0.5" max="10" step="0.5" value="${filterDurationMax}">
                         </div>
                     </div>
 
@@ -14636,8 +14643,8 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                         <div class="dual-range-slider" id="slider-org-publikum-container">
                             <div class="dual-range-track"></div>
                             <div class="dual-range-active-track" id="track-org-publikum"></div>
-                            <input type="range" id="input-org-publikum-min" name="orgMinPublikum" min="0" max="500" step="50" value="0">
-                            <input type="range" id="input-org-publikum-max" name="orgMaxPublikum" min="0" max="500" step="50" value="500">
+                            <input type="range" id="input-org-publikum-min" name="orgMinPublikum" min="0" max="500" step="50" value="${filterPublikumMin}">
+                            <input type="range" id="input-org-publikum-max" name="orgMaxPublikum" min="0" max="500" step="50" value="${filterPublikumMax}">
                         </div>
                     </div>
 
@@ -14666,7 +14673,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                         <div class="dual-range-slider" id="slider-org-gage-container">
                             <div class="dual-range-track"></div>
                             <div class="dual-range-active-track" id="track-org-gage"></div>
-                            <input type="range" id="input-org-gage-min" name="orgMinBudget" min="0" max="5000" step="100" value="0">
+                            <input type="range" id="input-org-gage-min" name="orgMinBudget" min="0" max="5000" step="100" value="${filterGageMin}">
                             <input type="range" id="input-org-gage-max" name="orgMaxBudget" min="0" max="5000" step="100" value="${filterGageMax}">
                         </div>
                     </div>
@@ -14756,7 +14763,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                     </div>
 
                     <div style="display:flex; justify-content:center; margin-top:1.5rem;">
-                        <button type="submit" id="btn-submit-booking" class="btn btn-primary" style="width:100%; margin:0; padding:0.85rem; font-size:1rem; font-weight:800; background:linear-gradient(135deg,#7c3aed 0%,#6d28d9 100%); border-color:#7c3aed;">
+                        <button type="submit" id="btn-submit-booking" class="btn btn-primary" style="width:100%; margin:0; padding:0.85rem; font-size:1rem; font-weight:800; background:linear-gradient(135deg,#1e40af 0%,#2563eb 100%) !important; border-color:#2563eb !important;">
                             Vermittlung anfordern (Kostenlos)
                         </button>
                     </div>
@@ -14923,7 +14930,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
     }
 
     // 8. Submit Handler
-    const form = modalWrapper.querySelector('#agency-booking-form');
+    const form = modalWrapper.querySelector('#auth-register-form');
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -14984,14 +14991,22 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
         submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Anfrage wird gesendet...`;
 
         try {
-            let adminUid = 'info-gigconnact-admin';
+            // Find all UIDs for our admin emails info@gigconnact.de and gigconnact@gmail.com
+            let adminUids = [];
             try {
-                const adminSnapshot = await db.collection('users').where('email', '==', 'info@gigconnact.de').limit(1).get();
+                const adminSnapshot = await db.collection('users')
+                    .where('email', 'in', ['info@gigconnact.de', 'gigconnact@gmail.com'])
+                    .get();
                 if (!adminSnapshot.empty) {
-                    adminUid = adminSnapshot.docs[0].id;
+                    adminSnapshot.forEach(doc => {
+                        adminUids.push(doc.id);
+                    });
                 }
             } catch (err) {
-                console.error("Admin user lookup failed, falling back:", err);
+                console.error("Admin users lookup failed:", err);
+            }
+            if (adminUids.length === 0) {
+                adminUids.push('info-gigconnact-admin');
             }
 
             const orgType = orgTypeSelect.value;
@@ -15001,7 +15016,13 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
             }
 
             const detailDescription = form.querySelector('#textarea-org-desc').value.trim();
-            const fullDescription = `
+            
+            // Save event for each resolved admin UID
+            for (let i = 0; i < adminUids.length; i++) {
+                const uid = adminUids[i];
+                const eventId = 'evt_agency_' + Date.now() + '_' + i;
+                
+                const fullDescription = `
 ${detailDescription}
 
 ---
@@ -15012,47 +15033,48 @@ Telefon: ${form.elements.phone.value.trim()}
 Unternehmen/Organisation: ${compValue}
 Veranstalter-Typ: ${orgType}
 Referenzierter Künstler-Code: ${musicianId} (${bandName})
-            `.trim();
+                `.trim();
 
-            const eventId = 'evt_agency_' + Date.now();
-            const newEvent = {
-                id: eventId,
-                creatorId: adminUid,
-                name: form.elements.eventName.value.trim(),
-                type: checkedEventTypes[0] || 'Sonstiges',
-                eventTypes: checkedEventTypes,
-                date: selectedEventDates[0],
-                dates: selectedEventDates,
-                eventStartTime: form.elements.eventStartTime.value,
-                eventEndTime: form.elements.eventEndTime.value,
-                location: orgLocVal,
-                locations: [orgLocVal],
-                genres: checkedGenres,
-                instruments: checkedInstruments,
-                minDuration: parseFloat(form.elements.orgMinDuration.value) || 0.5,
-                maxDuration: parseFloat(form.elements.orgMaxDuration.value) || 2.0,
-                duration: parseFloat(form.elements.orgMinDuration.value) || 0.5,
-                minPublikum: parseInt(form.querySelector('#input-org-publikum-min')?.value) || 0,
-                maxPublikum: parseInt(form.querySelector('#input-org-publikum-max')?.value) || 500,
-                publikum: `${form.querySelector('#input-org-publikum-min')?.value || 0} - ${form.querySelector('#input-org-publikum-max')?.value || 500}`,
-                budget: parseFloat(form.elements.orgMinBudget.value) || 0,
-                minBudget: parseFloat(form.elements.orgMinBudget.value) || 0,
-                maxBudget: parseFloat(form.elements.orgMaxBudget.value) || 5000,
-                description: fullDescription,
-                technik: checkedTechnik,
-                company: compValue,
-                organizerType: orgType,
-                contactName: "GigConnAct Team",
-                phone: "+49 170 1234567",
-                email: "info@gigconnact.de",
-                isOnline: true,
-                isAgencyRequest: true,
-                createdAt: new Date().toISOString(),
-                photos: window.registrationMedia.organizer.photos || [],
-                videos: window.registrationMedia.organizer.videos || []
-            };
+                const newEvent = {
+                    id: eventId,
+                    creatorId: uid,
+                    name: form.elements.eventName.value.trim(),
+                    type: checkedEventTypes[0] || 'Sonstiges',
+                    eventTypes: checkedEventTypes,
+                    date: selectedEventDates[0],
+                    dates: selectedEventDates,
+                    eventStartTime: form.elements.eventStartTime.value,
+                    eventEndTime: form.elements.eventEndTime.value,
+                    location: orgLocVal,
+                    locations: [orgLocVal],
+                    genres: checkedGenres,
+                    instruments: checkedInstruments,
+                    minDuration: parseFloat(form.elements.orgMinDuration.value) || 0.5,
+                    maxDuration: parseFloat(form.elements.orgMaxDuration.value) || 2.0,
+                    duration: parseFloat(form.elements.orgMinDuration.value) || 0.5,
+                    minPublikum: parseInt(form.querySelector('#input-org-publikum-min')?.value) || 0,
+                    maxPublikum: parseInt(form.querySelector('#input-org-publikum-max')?.value) || 500,
+                    publikum: `${form.querySelector('#input-org-publikum-min')?.value || 0} - ${form.querySelector('#input-org-publikum-max')?.value || 500}`,
+                    budget: parseFloat(form.elements.orgMinBudget.value) || 0,
+                    minBudget: parseFloat(form.elements.orgMinBudget.value) || 0,
+                    maxBudget: parseFloat(form.elements.orgMaxBudget.value) || 5000,
+                    description: fullDescription,
+                    technik: checkedTechnik,
+                    company: compValue,
+                    organizerType: orgType,
+                    contactName: "GigConnAct Team",
+                    phone: "+49 170 1234567",
+                    email: "info@gigconnact.de",
+                    isOnline: true,
+                    isAgencyRequest: true,
+                    createdAt: new Date().toISOString(),
+                    photos: window.registrationMedia.organizer.photos || [],
+                    videos: window.registrationMedia.organizer.videos || []
+                };
 
-            await db.collection('events').doc(eventId).set(newEvent);
+                await db.collection('events').doc(eventId).set(newEvent);
+            }
+
             closeModal();
             showAgencySuccessModal(emailVal);
 
@@ -15191,7 +15213,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
         const bandName = item.name || item.title || '';
         const displayName = (isEvents || (state && state.currentUser))
             ? bandName
-            : `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: #3b82f6; font-size: 0.85rem; margin-left: 0.45rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`;
+            : `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: ${themeColor}; font-size: 0.85rem; margin-left: 0.45rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`;
 
         return `
             <div class="market-tile-card" style="cursor: default; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
