@@ -7134,8 +7134,37 @@ window.toggleFavorite = function(id) {
         } else if (typeof window.handleRouting === 'function') {
             window.handleRouting();
         }
+// Global success/cancel payment interceptor
+if (window.location.hash.includes('payment=success')) {
+    window.isPaymentSuccessPending = true;
+    setTimeout(() => {
+        window.isPaymentSuccessPending = false;
+    }, 10000);
+    showToast({
+        title: "Zahlung erfolgreich! 🎉",
+        message: "Vielen Dank! Dein Tarif wurde erfolgreich freigeschaltet."
+    });
+    // Remove query parameter from hash immediately to keep URL clean
+    window.location.hash = '#/profile';
+} else if (window.location.hash.includes('payment=cancel')) {
+    showToast({
+        title: "Zahlung abgebrochen ℹ",
+        message: "Der Zahlungsvorgang wurde abgebrochen. Du kannst es jederzeit erneut versuchen.",
+        type: "warning"
+    });
+    window.location.hash = '#/profile';
+}
+
+window.handleLogoutRedirect = function() {
+    const role = state && state.currentUser ? state.currentUser.role : null;
+    state.logout();
+    if (role === 'organizer') {
+        window.location.hash = '#/musicians';
+    } else {
+        window.location.hash = '#/events';
     }
 };
+
 // DSGVO Konto-Löschung Helper
 window.deleteCurrentUserAccount = async function() {
     const u = state.currentUser;
@@ -7450,8 +7479,8 @@ function renderProfilePage(container) {
                         </div>
                     </div>
 
-                    <div style="display: flex; justify-content: flex-end;">
-                        <button class="btn btn-primary btn-sm" id="btn-save-subscription-change" style="margin:0; background: #7c3aed; border-color: #7c3aed;">
+                    <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
+                        <button class="btn btn-primary" id="btn-save-subscription-change" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: #7c3aed; border-color: #7c3aed;">
                             <i class="fa-solid fa-circle-arrow-right"></i> Tarifwechsel bestätigen
                         </button>
                     </div>
@@ -7727,7 +7756,7 @@ function renderProfilePage(container) {
 
                 try {
                     saveSubBtn.disabled = true;
-                    saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung zu Stripe...`;
+                    saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
                     
                     const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
                     const res = await createStripeSession({ 
@@ -7765,8 +7794,7 @@ function renderProfilePage(container) {
     const logoutBtn = document.getElementById('btn-profile-logout');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-            state.logout();
-            window.location.hash = '#/';
+            window.handleLogoutRedirect();
         });
     }
 }
@@ -12827,8 +12855,7 @@ function renderSubscriptionExpiredPage(container) {
     const logoutBtn = document.getElementById('btn-expired-logout');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-            state.logout();
-            window.location.hash = '#/';
+            window.handleLogoutRedirect();
         });
     }
 }
@@ -13228,8 +13255,7 @@ function updateNavbar(forceLanding) {
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => {
                 menu.classList.remove('show');
-                state.logout();
-                window.location.hash = '#/';
+                window.handleLogoutRedirect();
             });
         }
 
@@ -13398,8 +13424,7 @@ function renderPaymentPendingScreen(container) {
     const logoutBtn = document.getElementById('btn-pending-logout');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-            state.logout();
-            window.location.hash = '#/';
+            window.handleLogoutRedirect();
         });
     }
 
@@ -13430,7 +13455,7 @@ function handleRouting() {
     // Check if user is logged in but hasn't paid for their subscription
     const paidPlans = ['flex', 'plus', 'pro'];
     if (state && state.currentUser && state.currentUser.role === 'musician' && paidPlans.includes(state.currentUser.subscriptionPlan) && state.currentUser.isPremium !== true) {
-        if (!window.isRegisteringRedirecting) {
+        if (!window.isRegisteringRedirecting && !window.isPaymentSuccessPending) {
             renderPaymentPendingScreen(mainContainer);
             return;
         }
