@@ -18613,7 +18613,7 @@ function handleRouting() {
     
     // Check if user is logged in but hasn't paid for their subscription
     const paidPlans = ['flex', 'plus', 'pro'];
-    if (state && state.currentUser && paidPlans.includes(state.currentUser.subscriptionPlan) && state.currentUser.isPremium !== true) {
+    if (state && state.currentUser && state.currentUser.role === 'musician' && paidPlans.includes(state.currentUser.subscriptionPlan) && state.currentUser.isPremium !== true) {
         renderPaymentPendingScreen(mainContainer);
         return;
     }
