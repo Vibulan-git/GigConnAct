@@ -7531,6 +7531,11 @@ function renderProfilePage(container) {
                     <button class="btn btn-secondary btn-sm" id="btn-cookie-settings-profile" onclick="window.showCookieSettings()" style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
                         <i class="fa-solid fa-cookie-bite"></i> Cookie-Einstellungen anpassen
                     </button>
+                    ${isMusician && (u.stripeCustomerId || ['flex', 'plus', 'pro'].includes(u.subscriptionPlan)) ? `
+                    <button class="btn btn-secondary btn-sm" id="btn-manage-billing" style="margin: 0; display: flex; align-items: center; gap: 0.5rem; background: var(--color-purple); border-color: var(--color-purple);">
+                        <i class="fa-solid fa-credit-card"></i> Zahlungsdaten verwalten
+                    </button>
+                    ` : ''}
                     <button class="btn btn-glass btn-sm" id="btn-delete-useraccount" style="margin: 0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); display: flex; align-items: center; gap: 0.5rem;">
                         <i class="fa-solid fa-trash-can"></i> Konto unwiderruflich löschen
                     </button>
@@ -7815,6 +7820,34 @@ function renderProfilePage(container) {
     }
 
     // DSGVO Daten-Export wird auf Anfrage per E-Mail abgewickelt
+
+    const manageBillingBtn = document.getElementById('btn-manage-billing');
+    if (manageBillingBtn) {
+        manageBillingBtn.addEventListener('click', async () => {
+            manageBillingBtn.disabled = true;
+            manageBillingBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung...`;
+            try {
+                const createPortalSession = firebase.app().functions('europe-west3').httpsCallable('createStripePortalSession');
+                const res = await createPortalSession({
+                    baseUrl: window.location.origin
+                });
+                if (res.data && res.data.url) {
+                    window.location.href = res.data.url;
+                } else {
+                    throw new Error("Portal-URL konnte nicht generiert werden.");
+                }
+            } catch (err) {
+                console.error("Stripe Portal redirect failed:", err);
+                manageBillingBtn.disabled = false;
+                manageBillingBtn.innerHTML = `<i class="fa-solid fa-credit-card"></i> Zahlungsdaten verwalten`;
+                showToast({
+                    title: "Fehler beim Portalaufruf ⚠️",
+                    message: err.message || "Bitte versuche es später noch einmal.",
+                    type: "error"
+                });
+            }
+        });
+    }
 
     // DSGVO Konto-Löschung Helper is now globally defined above renderProfilePage
     const deleteBtn = document.getElementById('btn-delete-useraccount');

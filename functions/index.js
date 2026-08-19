@@ -778,6 +778,7 @@ exports.stripeWebhook = functions
                         subscriptionPlan: planKey,
                         subscriptionCancelled: false,
                         subscriptionId: session.subscription || null,
+                        stripeCustomerId: session.customer || null,
                         subscriptionEndDate: admin.firestore.FieldValue.delete()
                     };
 
@@ -888,6 +889,65 @@ exports.onUserDeleted = functions.region('europe-west3').auth.user().onDelete(as
         } catch (error) {
             console.error(`Error saving trial abuse hash for deleted user ${user.uid}:`, error);
         }
+    }
+});
+
+// ==========================================
+// Stripe Customer Portal Session Generation
+// ==========================================
+exports.createStripePortalSession = functions.region('europe-west3').https.onCall(async (data, context) => {
+    // 1. Ensure user is authenticated
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'Nur angemeldete Nutzer können auf das Zahlungsportal zugreifen.');
+    }
+
+    const { baseUrl } = data;
+    if (!baseUrl) {
+        throw new functions.https.HttpsError('invalid-argument', 'Fehlende return_url (baseUrl).');
+    }
+
+    try {
+        const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+        // 2. Fetch user doc from Firestore
+        const userDocRef = admin.firestore().collection('users').doc(context.auth.uid);
+        const userDoc = await userDocRef.get();
+        if (!userDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Nutzerprofil nicht gefunden.');
+        }
+
+        const userData = userDoc.data();
+        let stripeCustomerId = userData.stripeCustomerId;
+
+        // 3. Fallback: If no stripeCustomerId stored, search by email in Stripe
+        if (!stripeCustomerId) {
+            const email = userData.email;
+            if (email) {
+                const customers = await stripe.customers.list({ email: email.toLowerCase(), limit: 1 });
+                if (customers.data.length > 0) {
+                    stripeCustomerId = customers.data[0].id;
+                    // Cache it in Firestore
+                    await userDocRef.update({ stripeCustomerId: stripeCustomerId });
+                }
+            }
+        }
+
+        // 4. If we still don't have a Stripe Customer ID, they have no payment details yet
+        if (!stripeCustomerId) {
+            throw new functions.https.HttpsError('failed-precondition', 'Keine aktiven Zahlungsdaten bei Stripe gefunden.');
+        }
+
+        // 5. Create Billing Portal Session
+        const session = await stripe.billingPortal.sessions.create({
+            customer: stripeCustomerId,
+            return_url: `${baseUrl}/#/profile`,
+        });
+
+        return { url: session.url };
+
+    } catch (error) {
+        console.error("Stripe Portal Session Error:", error);
+        throw new functions.https.HttpsError('internal', error.message);
     }
 });
 
