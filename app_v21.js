@@ -13374,7 +13374,7 @@ function renderPaymentPendingScreen(container) {
             try {
                 const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
                 const res = await createStripeSession({ 
-                    planKey: state.currentUser.subscriptionPlan,
+                    planKey: state.currentUser.subscriptionPlan || "flex",
                     baseUrl: window.location.origin
                 });
                 if (res.data && res.data.url) {
