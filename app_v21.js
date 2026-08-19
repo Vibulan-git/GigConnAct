@@ -2115,11 +2115,14 @@ class StateManager {
                         }
                         window.localStorage.removeItem('GigConnAct_pending_registration');
                         
+                        // Set registration redirecting flag to prevent early paywall blocker
+                        window.isRegisteringRedirecting = true;
+
                         const isPaidPlan = (pendingReg.subscriptionPlan === 'flex' || pendingReg.subscriptionPlan === 'plus' || pendingReg.subscriptionPlan === 'pro');
                         if (isPaidPlan) {
                             showToast({
                                 title: "Registrierung abgeschlossen! 💳",
-                                message: "Du wirst jetzt zur Stripe-Zahlungsseite weitergeleitet..."
+                                message: "Du wirst jetzt zur sicheren Zahlungsseite weitergeleitet..."
                             });
                             try {
                                 const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
@@ -2132,14 +2135,16 @@ class StateManager {
                                     return;
                                 }
                             } catch (stripeErr) {
+                                window.isRegisteringRedirecting = false;
                                 console.error("Stripe Checkout Redirect failed during passwordless registration:", stripeErr);
                                 showToast({
-                                    title: "Stripe-Weiterleitung fehlgeschlagen ⚠️",
+                                    title: "Weiterleitung fehlgeschlagen ⚠️",
                                     message: stripeErr.message || "Es gab ein Problem bei der Weiterleitung zur Bezahlseite.",
                                     type: "error"
                                 });
                             }
                         } else {
+                            window.isRegisteringRedirecting = false;
                             showToast({
                                 title: "Registrierung abgeschlossen! 🎉",
                                 message: "Dein Profil wurde erfolgreich erstellt."
@@ -2258,9 +2263,10 @@ class StateManager {
                 window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
                 
                 if (redirectToStripe) {
+                    window.isRegisteringRedirecting = true;
                     showToast({
                         title: "Registrierung abgeschlossen! 💳",
-                        message: "Du wirst jetzt zur Stripe-Zahlungsseite weitergeleitet..."
+                        message: "Du wirst jetzt zur sicheren Zahlungsseite weitergeleitet..."
                     });
                     try {
                         const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
@@ -2273,9 +2279,10 @@ class StateManager {
                             return;
                         }
                     } catch (stripeErr) {
+                        window.isRegisteringRedirecting = false;
                         console.error("Stripe Checkout Redirect failed during registration link:", stripeErr);
                         showToast({
-                            title: "Stripe-Weiterleitung fehlgeschlagen ⚠️",
+                            title: "Weiterleitung fehlgeschlagen ⚠️",
                             message: stripeErr.message || "Es gab ein Problem bei der Weiterleitung zur Bezahlseite.",
                             type: "error"
                         });
@@ -8974,7 +8981,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                     <!-- 12. Beschreibung -->
                     <div class="form-group">
-                        <label>Beschreibung</label>
+                        <label>Erzähle kurz etwas über dich</label>
                         <textarea name="description" class="input-field" rows="3" style="resize:vertical;" maxlength="200" required>${musicianObj?.description || ''}</textarea>
                     </div>
 
@@ -9372,7 +9379,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
         }
         const descVal = formData.get('description')?.trim();
         if (!descVal) {
-            showToast({ title: "Validierungsfehler ⚠️", message: "Bitte gib eine kurze Beschreibung über dich/deine Band an." });
+            showToast({ title: "Validierungsfehler ⚠️", message: "Bitte erzähle kurz etwas über dich." });
             markInvalid(form.querySelector('textarea[name="description"]'));
             return;
         }
@@ -9704,7 +9711,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
                     <!-- 12. Beschreibung -->
                     <div class="form-group">
-                        <label>Beschreibung</label>
+                        <label>Erzähle kurz etwas über das Event</label>
                         <textarea name="orgDescription" class="input-field" rows="3" style="resize:vertical;" maxlength="200" required>${eventObj?.description || ''}</textarea>
                     </div>
 
@@ -10061,7 +10068,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
         }
         const descVal = formData.get('orgDescription')?.trim();
         if (!descVal) {
-            showToast({ title: "Validierungsfehler ⚠️", message: "Bitte gib eine kurze Beschreibung deines Events an." });
+            showToast({ title: "Validierungsfehler ⚠️", message: "Bitte erzähle kurz etwas über das Event." });
             markInvalid(form.querySelector('textarea[name="orgDescription"]'));
             return;
         }
@@ -10511,7 +10518,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <!-- 12. Beschreibung -->
                         <div class="form-group">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <label>Beschreibung</label>
+                                <label>Erzähle kurz etwas über dich</label>
                                 <span id="desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 200</span>
                             </div>
                             <textarea name="musDescription" id="textarea-mus-desc" class="input-field" rows="3" maxlength="200" placeholder="Erzähle kurz etwas über dich/eure Band..."></textarea>
@@ -10729,10 +10736,10 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         <!-- 12. Beschreibung -->
                         <div class="form-group">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <label>Beschreibung</label>
+                                <label>Erzähle kurz etwas über das Event</label>
                                 <span id="org-desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 200</span>
                             </div>
-                            <textarea name="orgDescription" id="textarea-org-desc" class="input-field" rows="3" maxlength="200" placeholder="Beschreibe kurz dein Event..."></textarea>
+                            <textarea name="orgDescription" id="textarea-org-desc" class="input-field" rows="3" maxlength="200" placeholder="Erzähle kurz etwas über das Event..."></textarea>
                         </div>
 
                         <!-- Media Section -->
@@ -11707,7 +11714,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             }
             musDescVal = registerForm.querySelector('textarea[name="musDescription"]')?.value.trim();
             if (!musDescVal) {
-                showValidationError(document.getElementById('textarea-mus-desc'), null, 'Bitte gib eine kurze Beschreibung über dich/deine Band an.');
+                showValidationError(document.getElementById('textarea-mus-desc'), null, 'Bitte erzähle kurz etwas über dich.');
                 return;
             }
         } else if (selectedRole === 'organizer') {
@@ -11756,7 +11763,7 @@ function renderAuthModal(wrapper, onSuccessCallback) {
             }
             orgDescVal = registerForm.querySelector('textarea[name="orgDescription"]')?.value.trim();
             if (!orgDescVal) {
-                showValidationError(document.getElementById('textarea-org-desc'), null, 'Bitte gib eine kurze Beschreibung deines Events an.');
+                showValidationError(document.getElementById('textarea-org-desc'), null, 'Bitte erzähle kurz etwas über das Event.');
                 return;
             }
         }
@@ -11997,6 +12004,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
 
                 window.googleRegistrationUser = null;
                 
+                // Set registration redirecting flag to prevent early paywall blocker
+                window.isRegisteringRedirecting = true;
+
                 // Re-enable email in case modal is re-opened later
                 if (registerForm && registerForm.elements.email) {
                     registerForm.elements.email.disabled = false;
@@ -12009,11 +12019,11 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                 if (isPaidPlan) {
                     if (submitBtn) {
                         submitBtn.disabled = true;
-                        submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zu Stripe...`;
+                        submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
                     }
                     showToast({
                         title: "Registrierung abgeschlossen! 💳",
-                        message: "Du wirst jetzt zur Stripe-Zahlungsseite weitergeleitet..."
+                        message: "Du wirst jetzt zur sicheren Zahlungsseite weitergeleitet..."
                     });
                     try {
                         const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
@@ -12026,15 +12036,17 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                             return;
                         }
                     } catch (stripeErr) {
+                        window.isRegisteringRedirecting = false;
                         console.error("Stripe Checkout Redirect failed during registration:", stripeErr);
                         showToast({
-                            title: "Stripe-Weiterleitung fehlgeschlagen ⚠️",
+                            title: "Weiterleitung fehlgeschlagen ⚠️",
                             message: stripeErr.message || "Es gab ein Problem bei der Weiterleitung zur Bezahlseite.",
                             type: "error"
                         });
                     }
                 }
 
+                window.isRegisteringRedirecting = false;
                 closeModal();
 
                 showToast({
@@ -12775,7 +12787,7 @@ function renderSubscriptionExpiredPage(container) {
 
             try {
                 reactivateBtn.disabled = true;
-                reactivateBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung zu Stripe...`;
+                reactivateBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
 
                 const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
                 const res = await createStripeSession({ 
@@ -13308,8 +13320,10 @@ function showValidationError(element, parentSelector, message) {
 }
 
 function renderPaymentPendingScreen(container) {
-    const themeColor = state.currentUser.role === 'musician' ? 'var(--color-purple)' : 'var(--color-cyan)';
-    const btnColor = state.currentUser.role === 'musician' ? 'var(--bg-purple-grad)' : 'var(--bg-cyan-grad)';
+    const themeColor = state.currentUser.role === 'musician' ? '#a78bfa' : '#60a5fa';
+    const btnColor = state.currentUser.role === 'musician' 
+        ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' 
+        : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)';
     
     container.innerHTML = `
         <div class="payment-pending-container" style="max-width: 500px; margin: 4rem auto; padding: 2.5rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
@@ -13337,7 +13351,7 @@ function renderPaymentPendingScreen(container) {
     if (payBtn) {
         payBtn.addEventListener('click', async () => {
             payBtn.disabled = true;
-            payBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zu Stripe...`;
+            payBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
             try {
                 const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
                 const res = await createStripeSession({ 
@@ -13352,7 +13366,7 @@ function renderPaymentPendingScreen(container) {
             } catch (err) {
                 console.error("Pending payment checkout creation failed:", err);
                 showToast({
-                    title: "Stripe-Weiterleitung fehlgeschlagen ⚠️",
+                    title: "Weiterleitung fehlgeschlagen ⚠️",
                     message: err.message || "Es gab ein Problem bei der Weiterleitung zur Bezahlseite.",
                     type: "error"
                 });
@@ -13392,8 +13406,10 @@ function handleRouting() {
     // Check if user is logged in but hasn't paid for their subscription
     const paidPlans = ['flex', 'plus', 'pro'];
     if (state && state.currentUser && state.currentUser.role === 'musician' && paidPlans.includes(state.currentUser.subscriptionPlan) && state.currentUser.isPremium !== true) {
-        renderPaymentPendingScreen(mainContainer);
-        return;
+        if (!window.isRegisteringRedirecting) {
+            renderPaymentPendingScreen(mainContainer);
+            return;
+        }
     }
     
     // Redirect logged-in users away from the landing page
