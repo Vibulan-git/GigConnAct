@@ -673,10 +673,10 @@ exports.createStripeCheckoutSession = functions
 
         // Map plan keys to Price IDs
         const planPriceMap = {
-            'flex': 'price_1U5NyeEPGnhCeJ3ymgmiLzFG',
-            'plus': 'price_1U5O06EPGnhCeJ3y2IJIY3sx',
-            'pro': 'price_1U5O10EPGnhCeJ3ygarInwXi',
-            'premium': 'price_1U5O23EPGnhCeJ3yMOB5XBuQ'
+            'flex': 'price_1U5PcZEOYldr8rIFF1E7EZZ0',
+            'plus': 'price_1U5PcZEOYldr8rIFwAZelf8C',
+            'pro': 'price_1U5PcaEOYldr8rIFEvVpUqod',
+            'premium': 'price_1U5PcZEOYldr8rIFBPlFtXpf'
         };
 
         const priceId = planPriceMap[planKey];
