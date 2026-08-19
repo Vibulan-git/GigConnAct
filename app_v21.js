@@ -11933,15 +11933,19 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                     role: payload.role,
                     firstName: firstName,
                     lastName: lastName,
-                    company: payload.company,
+                    company: payload.company || "Privatperson",
+                    organizerType: payload.organizerType || "",
                     phone: payload.phone,
-                    hidePhone: payload.hidePhone,
+                    hidePhone: payload.hidePhone || false,
                     email: user.email,
-                    favorites: [],
-                    credits: 0,
                     profileId: payload.role === 'musician' ? profileId : null,
                     isPremium: isPromo,
                     subscriptionPlan: payload.subscriptionPlan,
+                    successfulGigs: 0,
+                    contactRequests: 0,
+                    favorites: [],
+                    interests: [],
+                    credits: 0,
                     createdAt: new Date().toISOString()
                 };
 
@@ -12018,7 +12022,9 @@ function renderAuthModal(wrapper, onSuccessCallback) {
                         isOnline: true,
                         photos: payload.photos || [],
                         videos: payload.videos || [],
-                        audio: payload.audios || []
+                        audio: payload.audios || [],
+                        isPremium: newUser.isPremium,
+                        subscriptionPlan: payload.subscriptionPlan || "flex"
                     };
                     await db.collection('users').doc(user.uid).set(newUser);
                     await db.collection('events').doc(profileId).set(newEvent);
