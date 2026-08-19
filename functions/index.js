@@ -895,7 +895,9 @@ exports.onUserDeleted = functions.region('europe-west3').auth.user().onDelete(as
 // ==========================================
 // Stripe Customer Portal Session Generation
 // ==========================================
-exports.createStripePortalSession = functions.region('europe-west3').https.onCall(async (data, context) => {
+exports.createStripePortalSession = functions.region('europe-west3')
+    .runWith({ secrets: ['STRIPE_SECRET_KEY'] })
+    .https.onCall(async (data, context) => {
     // 1. Ensure user is authenticated
     if (!context.auth) {
         throw new functions.https.HttpsError('unauthenticated', 'Nur angemeldete Nutzer können auf das Zahlungsportal zugreifen.');
