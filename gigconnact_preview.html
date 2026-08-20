@@ -6,7 +6,7 @@
     <script>
         window.onerror = function(message, source, lineno, colno, error) {
             // Ignore extension or third-party script errors (where source is undefined or not from our domains)
-            if (!source || (source.indexOf('gigconnact.de') === -1 && source.indexOf('gigconnact.web.app') === -1 && source.indexOf('app_v22.js') === -1 && source.indexOf('app.js') === -1 && source.indexOf('localhost') === -1 && source.indexOf('127.0.0.1') === -1)) {
+            if (!source || (source.indexOf('gigconnact.de') === -1 && source.indexOf('gigconnact.web.app') === -1 && source.indexOf('app_v23.js') === -1 && source.indexOf('app.js') === -1 && source.indexOf('localhost') === -1 && source.indexOf('127.0.0.1') === -1)) {
                 console.warn("Ignored cross-domain/extension error:", message, "Source:", source);
                 return false; 
             }
@@ -5815,6 +5815,18 @@ window.toggleAudioTrack = function(item, audioUrl) {
     }
 };
 
+window.recommendForEvent = function(eventId) {
+    if (!state.events) return;
+    const event = state.events.find(e => e.id === eventId);
+    if (event) {
+        state.recommendationEvent = event;
+        if (event.date) {
+            window.selectedFilterDates = [event.date];
+        }
+        window.location.hash = '#/musicians?showOnlyFavorites=true';
+    }
+};
+
 window.unlockListing = function(targetId, targetName) {
     console.log('[DEBUG] window.unlockListing called with targetId:', targetId, 'targetName:', targetName, 'currentUser:', state.currentUser);
     if (!state.currentUser) {
@@ -10851,6 +10863,10 @@ function renderMarket(container, type, onNavigate) {
     let currentFilterCalDate = new Date();
     let showOnlyTopMatches = false;
     let showOnlyFavorites = false;
+    const urlParams = new URLSearchParams(window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
+    if (urlParams.get('showOnlyFavorites') === 'true' || urlParams.get('fav') === 'true') {
+        showOnlyFavorites = true;
+    }
 
     // Prefill data based on logged-in user profile
     let prefillLocation = '';
@@ -11788,15 +11804,13 @@ function renderMarket(container, type, onNavigate) {
                 if (!adminBannerEl) {
                     adminBannerEl = document.createElement('div');
                     adminBannerEl.id = adminBannerId;
-                    adminBannerEl.className = 'market-single-profile-banner';
-                    adminBannerEl.style.cssText = 'background: rgba(37, 99, 235, 0.15); border: 1px solid rgba(37, 99, 235, 0.3); border-radius: 12px; padding: 1rem; margin-top: 2rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: 100%; box-sizing: border-box;';
+                    adminBannerEl.style.cssText = 'margin-top: 2rem; margin-bottom: 2rem; display: flex; justify-content: center; width: 100%; box-sizing: border-box;';
                     grid.parentNode.appendChild(adminBannerEl);
+                } else {
+                    adminBannerEl.style.cssText = 'margin-top: 2rem; margin-bottom: 2rem; display: flex; justify-content: center; width: 100%; box-sizing: border-box;';
                 }
                 adminBannerEl.innerHTML = `
-                    <span style="color: #ffffff; font-size: 0.9rem; font-weight: 600;">
-                        Du hast <strong>${list.length}</strong> Musiker in den Favoriten. Möchtest du diese als Vorschlagsliste senden?
-                    </span>
-                    <button id="btn-admin-send-recommendations" class="btn btn-primary" style="margin: 0; padding: 0.5rem 1.2rem; font-size: 0.85rem; border-radius: 8px; font-weight: 700; white-space: nowrap; background: #2563eb; border-color: #2563eb;">
+                    <button id="btn-admin-send-recommendations" class="btn btn-primary" style="margin: 0 auto; padding: 0.75rem 2rem; font-size: 0.95rem; border-radius: 8px; font-weight: 700; white-space: nowrap; background: #2563eb; border-color: #2563eb; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; color: #fff; border: 1px solid #2563eb;">
                         <i class="fa-solid fa-paper-plane"></i> Vorschlagsliste senden
                     </button>
                 `;
@@ -12033,6 +12047,23 @@ function renderMarket(container, type, onNavigate) {
         });
     });
 
+    // Update initial text of "alle auswählen / abwählen" toggle links
+    container.querySelectorAll('[onclick*="toggleAllFilterCheckboxes"]').forEach(linkEl => {
+        let section = linkEl.parentElement;
+        while (section && !section.querySelector('.checkbox-tag-grid')) {
+            section = section.parentElement;
+        }
+        if (section) {
+            const checkboxes = section.querySelectorAll('input[type="checkbox"]');
+            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            if (checkedCount === checkboxes.length) {
+                linkEl.textContent = 'alle abwählen';
+            } else {
+                linkEl.textContent = 'alle auswählen';
+            }
+        }
+    });
+
     // Initialize range sliders
     if (isEvents) {
         initDualSlider('slider-filter-duration-container', 'input-filter-duration-min', 'input-filter-duration-max', 'track-filter-duration', 'val-filter-duration', 'Std.', false);
@@ -12127,6 +12158,12 @@ function renderMarket(container, type, onNavigate) {
     });
 
     const btnToggleFavorites = container.querySelector('#btn-toggle-market-favorites');
+    if (btnToggleFavorites && showOnlyFavorites) {
+        btnToggleFavorites.classList.add('active');
+        btnToggleFavorites.style.color = '#ef4444';
+        btnToggleFavorites.style.borderColor = '#ef4444';
+        btnToggleFavorites.style.background = 'rgba(239, 68, 68, 0.1)';
+    }
     btnToggleFavorites?.addEventListener('click', () => {
         if (!state.currentUser) {
             showModal('auth');
@@ -20830,6 +20867,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
 
     return items.map(item => {
         const isUnlocked = state ? ((typeof state.isUnlocked === 'function') ? state.isUnlocked(item.id) : (state.unlockedContacts && state.unlockedContacts.includes(item.id))) : false;
+        const isAdmin = state && state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email);
         
         // Up to 5 photos
         const photos = (item.photos && item.photos.length > 0)
@@ -21087,6 +21125,15 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
                     </div>
                 </div>
+
+                <!-- Admin Propose Musicians Action -->
+                ${(isEvents && isAdmin) ? `
+                <div style="padding: 0 1.3rem 1.1rem; margin-top: -0.2rem;">
+                    <button class="btn btn-primary" onclick="event.stopPropagation(); window.recommendForEvent('${item.id}')" style="width: 100%; background: #2563eb !important; border-color: #2563eb !important; font-weight: 800; padding: 0.75rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; color: #fff; cursor: pointer; border: 1px solid #2563eb;">
+                        <i class="fa-solid fa-paper-plane"></i> Musiker vorschlagen
+                    </button>
+                </div>
+                ` : ''}
 
                 ${isUnlocked ? `
                     <!-- Solid Colored Unlocked Contact Footer Box -->
@@ -22297,8 +22344,15 @@ window.showAdminRecommendationDialog = function(musicianIds) {
     const modalWrapper = document.getElementById('modal-container');
     if (!modalWrapper) return;
 
+    // Helper to filter and sort events (newest first)
+    const sortedEvents = (state.events || []).slice().sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+        return dateB - dateA;
+    });
+
     modalWrapper.innerHTML = `
-        <div class="modal-content" style="max-width: 500px; padding: 2rem; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-glass); font-family: var(--font-body); color: var(--text-main);">
+        <div class="modal-content" style="max-width: 500px; padding: 2rem; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-glass); font-family: var(--font-body); color: var(--text-main); max-height: 90vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                 <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
                     <i class="fa-solid fa-paper-plane" style="color: #2563eb;"></i> Vorschlagsliste senden
@@ -22312,6 +22366,14 @@ window.showAdminRecommendationDialog = function(musicianIds) {
             
             <form id="admin-rec-form">
                 <div class="form-group" style="margin-bottom: 1.2rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Event auswählen (optional)</label>
+                    <select id="select-rec-event" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.6rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600;">
+                        <option value="">-- Event auswählen --</option>
+                        ${sortedEvents.map(e => `<option value="${e.id}">${e.name || e.title || 'Unbekanntes Event'} (${e.location || 'Ohne Ort'})</option>`).join('')}
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.2rem;">
                     <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">E-Mail-Adresse des Veranstalters</label>
                     <input type="email" name="organizerEmail" placeholder="z.B. veranstalter@mail.de" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.6rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600;" required>
                 </div>
@@ -22320,12 +22382,27 @@ window.showAdminRecommendationDialog = function(musicianIds) {
                     <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Name des Events / Anlasses</label>
                     <input type="text" name="eventName" placeholder="z.B. Hochzeit Max & Anna" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.6rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600;" required>
                 </div>
+
+                <div class="form-group" style="margin-bottom: 1.2rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Datum des Events (optional)</label>
+                    <input type="date" name="eventDate" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.6rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600;">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.2rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Betreff der E-Mail</label>
+                    <input type="text" name="emailSubject" placeholder="z.B. Passende Musiker-Vorschläge" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.6rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600;" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.2rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Nachricht an den Veranstalter</label>
+                    <textarea name="customMessage" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.6rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; min-height: 100px; resize: vertical; font-family: inherit;" required></textarea>
+                </div>
                 
                 <div id="admin-rec-error" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
                 
                 <div style="display: flex; justify-content: flex-end; gap: 0.8rem; margin-top: 1.5rem;">
                     <button type="button" id="btn-cancel-rec" class="btn btn-secondary" style="margin: 0; padding: 0.55rem 1.2rem; font-size: 0.85rem; font-weight: 700;">Abbrechen</button>
-                    <button type="submit" class="btn btn-primary" style="margin: 0; padding: 0.55rem 1.5rem; font-size: 0.85rem; font-weight: 700; background: #2563eb; border-color: #2563eb;">Senden</button>
+                    <button type="submit" class="btn btn-primary" style="margin: 0; padding: 0.55rem 1.5rem; font-size: 0.85rem; font-weight: 700; background: #2563eb; border-color: #2563eb; cursor: pointer; color: #fff;">Senden</button>
                 </div>
             </form>
         </div>
@@ -22342,10 +22419,62 @@ window.showAdminRecommendationDialog = function(musicianIds) {
     modalWrapper.querySelector('#btn-cancel-rec').addEventListener('click', closeModal);
 
     const form = modalWrapper.querySelector('#admin-rec-form');
+    const selectEvent = modalWrapper.querySelector('#select-rec-event');
+    const inputEmail = form.elements.organizerEmail;
+    const inputName = form.elements.eventName;
+    const inputDate = form.elements.eventDate;
+    const inputSubject = form.elements.emailSubject;
+    const txtMessage = form.elements.customMessage;
+
+    const defaultMsgTpl = (evtName) => `wir haben passende Musiker für dein Event "${evtName || ''}" gefunden! Klicke auf den Button unten, um dir die Vorschläge anzusehen, Hörproben und Videos abzuspielen und deinen Wunsch-Act unverbindlich anzufragen.`;
+
+    const updateFieldsFromEvent = (evt) => {
+        if (evt) {
+            inputEmail.value = evt.email || '';
+            inputName.value = evt.name || evt.title || '';
+            inputDate.value = evt.date || '';
+            inputSubject.value = `Passende Musiker-Vorschläge für dein Event: ${evt.name || evt.title || ''} 🎵`;
+            txtMessage.value = defaultMsgTpl(evt.name || evt.title || '');
+        } else {
+            inputEmail.value = '';
+            inputName.value = '';
+            inputDate.value = '';
+            inputSubject.value = 'Passende Musiker-Vorschläge für dein Event 🎵';
+            txtMessage.value = defaultMsgTpl('');
+        }
+    };
+
+    if (selectEvent) {
+        selectEvent.addEventListener('change', function() {
+            const val = this.value;
+            const evt = (state.events || []).find(e => e.id === val);
+            updateFieldsFromEvent(evt);
+        });
+    }
+
+    // Prefill from recommendationEvent if set
+    if (state.recommendationEvent) {
+        const evt = state.recommendationEvent;
+        if (selectEvent) {
+            selectEvent.value = evt.id;
+        }
+        updateFieldsFromEvent(evt);
+    } else {
+        // Fallback: Use selected calendar date if available
+        if (window.selectedFilterDates && window.selectedFilterDates.length > 0) {
+            inputDate.value = window.selectedFilterDates[0];
+        }
+        inputSubject.value = 'Passende Musiker-Vorschläge für dein Event 🎵';
+        txtMessage.value = defaultMsgTpl('');
+    }
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const organizerEmail = form.elements.organizerEmail.value.trim();
-        const eventName = form.elements.eventName.value.trim();
+        const organizerEmail = inputEmail.value.trim();
+        const eventName = inputName.value.trim();
+        const eventDate = inputDate.value;
+        const subject = inputSubject.value.trim();
+        const customMessage = txtMessage.value.trim();
         const errDiv = modalWrapper.querySelector('#admin-rec-error');
         errDiv.style.display = 'none';
 
@@ -22358,6 +22487,7 @@ window.showAdminRecommendationDialog = function(musicianIds) {
             const mediationRef = await db.collection('mediations').add({
                 organizerEmail: organizerEmail,
                 eventName: eventName,
+                eventDate: eventDate || null,
                 musicianIds: musicianIds,
                 status: 'pending_selection', // pending_selection, pending_availability, pending_payment, completed, expired
                 createdAt: new Date().toISOString(),
@@ -22366,16 +22496,21 @@ window.showAdminRecommendationDialog = function(musicianIds) {
             });
 
             // 2. Call the Cloud Function to send the recommendation email to the organizer
-            const sendRecommendationListFn = firebase.functions().httpsCallable('sendRecommendationList');
+            const sendRecommendationListFn = firebase.app().functions('europe-west3').httpsCallable('sendRecommendationList');
             const res = await sendRecommendationListFn({
                 mediationId: mediationRef.id,
                 organizerEmail: organizerEmail,
                 eventName: eventName,
+                eventDate: eventDate || null,
                 musicianIds: musicianIds,
-                baseUrl: window.location.origin
+                baseUrl: window.location.origin,
+                subject: subject,
+                customMessage: customMessage
             });
 
             if (res.data && res.data.success) {
+                // Clear recommendationEvent context upon success
+                state.recommendationEvent = null;
                 showToast({
                     title: 'Erfolg!',
                     message: 'Die Vorschlagsliste wurde erfolgreich per E-Mail gesendet.',
@@ -22474,7 +22609,10 @@ window.renderRecommendationPage = function(container, mediationId) {
                 <div style="text-align: center; margin-bottom: 2.5rem;">
                     <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #2563eb; letter-spacing: 1px; background: rgba(37,99,235,0.1); padding: 0.35rem 0.75rem; border-radius: 20px;">Deine Auswahl</span>
                     <h2 style="font-family: var(--font-heading); font-size: 1.85rem; font-weight: 900; color: #ffffff; margin: 0.5rem 0 0.3rem;">Musiker-Vorschläge</h2>
-                    <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">für dein Event: <strong>"${med.eventName}"</strong></p>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">für dein Event: <strong>"${med.eventName}"</strong>${med.eventDate ? ` am <strong>${(() => {
+                        const parts = med.eventDate.split('-');
+                        return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : med.eventDate;
+                    })()}</strong>` : ''}</p>
                 </div>
                 
                 <div class="market-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.5rem;">
@@ -22706,9 +22844,9 @@ window.renderMediationResponsePage = function(container, mediationId) {
                     });
 
                     // Trigger the cloud function directly to send contact details (since webhook won't trigger for 0 €)
-                    const releaseMediationContactsFn = firebase.functions().httpsCallable('releaseMediationContacts');
+                    const releaseMediationContactsFn = firebase.app().functions('europe-west3').httpsCallable('releaseMediationContacts');
                     await releaseMediationContactsFn({ mediationId });
-
+ 
                     window.location.reload();
                 } catch (error) {
                     console.error("Error accepting mediation:", error);
@@ -22719,12 +22857,12 @@ window.renderMediationResponsePage = function(container, mediationId) {
             } else {
                 try {
                     // Call Cloud Function to get Stripe Checkout session for €25 fee
-                    const createMediationPaymentFn = firebase.functions().httpsCallable('createMediationPayment');
+                    const createMediationPaymentFn = firebase.app().functions('europe-west3').httpsCallable('createMediationPayment');
                     const res = await createMediationPaymentFn({
                         mediationId: mediationId,
                         baseUrl: window.location.origin
                     });
-
+ 
                     if (res.data && res.data.url) {
                         window.location.href = res.data.url;
                     } else {
@@ -22738,7 +22876,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
                 }
             }
         });
-
+ 
         container.querySelector('#btn-decline-mediation')?.addEventListener('click', async () => {
             if (!confirm("Bist du sicher, dass du diesen Gig absagen möchtest? Der Veranstalter wird benachrichtigt.")) return;
             
@@ -22751,9 +22889,9 @@ window.renderMediationResponsePage = function(container, mediationId) {
                     status: 'pending_selection',
                     selectedMusicianId: null
                 });
-
+ 
                 // Call cloud function to notify organizer of declinement
-                const notifyMediationDeclinedFn = firebase.functions().httpsCallable('notifyMediationDeclined');
+                const notifyMediationDeclinedFn = firebase.app().functions('europe-west3').httpsCallable('notifyMediationDeclined');
                 await notifyMediationDeclinedFn({ mediationId });
 
                 alert("Absage erfolgreich übermittelt. Vielen Dank.");

@@ -1145,7 +1145,7 @@ exports.sendRecommendationList = functions
             throw new functions.https.HttpsError('permission-denied', 'Nur Administratoren können diese Aktion ausführen.');
         }
 
-        const { mediationId, organizerEmail, eventName, musicianIds, baseUrl } = data;
+        const { mediationId, organizerEmail, eventName, musicianIds, baseUrl, subject, customMessage, eventDate } = data;
         if (!mediationId || !organizerEmail || !eventName || !musicianIds || !baseUrl) {
             throw new functions.https.HttpsError('invalid-argument', 'Fehlende Parameter.');
         }
@@ -1161,8 +1161,22 @@ exports.sendRecommendationList = functions
             }
 
             // 3. E-Mail-Inhalt generieren
-            const subject = `Passende Musiker-Vorschläge für dein Event: ${eventName} 🎵`;
+            const mailSubject = subject || `Passende Musiker-Vorschläge für dein Event: ${eventName} 🎵`;
             const recommendationLink = `${baseUrl}/#/recommendation/${mediationId}`;
+
+            // Format date helper for email body
+            const formatGermanDate = (dateStr) => {
+                if (!dateStr) return '';
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+                }
+                return dateStr;
+            };
+
+            const dateDisplay = eventDate ? ` am ${formatGermanDate(eventDate)}` : '';
+            const defaultMessage = `wir haben passende Musiker für dein Event <strong>"${eventName}"</strong>${dateDisplay} gefunden! Klicke auf den Button unten, um dir die Vorschläge anzusehen, Hörproben und Videos abzuspielen und deinen Wunsch-Act unverbindlich anzufragen.`;
+            const messageHtml = customMessage ? customMessage.replace(/\n/g, '<br>') : defaultMessage;
 
             const listHtml = musicians.map((mus, index) => {
                 const type = mus.type || mus.musicianTypes || 'Act';
@@ -1190,7 +1204,7 @@ exports.sendRecommendationList = functions
                     </div>
                     <h2 style="color: #2563eb; margin-top: 0; font-size: 1.4rem; text-align: center;">Deine Musiker-Vorschläge sind da! 🎵</h2>
                     <p>Hallo,</p>
-                    <p>wir haben passende Musiker für dein Event <strong>"${eventName}"</strong> gefunden! Klicke auf den Button unten, um dir die Vorschläge anzusehen, Hörproben und Videos abzuspielen und deinen Wunsch-Act unverbindlich anzufragen.</p>
+                    <p>${messageHtml}</p>
                     
                     <div style="margin: 25px 0;">
                         ${listHtml}
@@ -1212,7 +1226,7 @@ exports.sendRecommendationList = functions
 
             await sendEmail({ 
                 to: organizerEmail, 
-                subject: subject, 
+                subject: mailSubject, 
                 html: emailHtml,
                 headers: { 'Reply-To': 'info@gigconnact.de' } 
             });
