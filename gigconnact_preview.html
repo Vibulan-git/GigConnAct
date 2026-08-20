@@ -6,7 +6,7 @@
     <script>
         window.onerror = function(message, source, lineno, colno, error) {
             // Ignore extension or third-party script errors (where source is undefined or not from our domains)
-            if (!source || (source.indexOf('gigconnact.de') === -1 && source.indexOf('gigconnact.web.app') === -1 && source.indexOf('app_v21.js') === -1 && source.indexOf('app.js') === -1 && source.indexOf('localhost') === -1 && source.indexOf('127.0.0.1') === -1)) {
+            if (!source || (source.indexOf('gigconnact.de') === -1 && source.indexOf('gigconnact.web.app') === -1 && source.indexOf('app_v22.js') === -1 && source.indexOf('app.js') === -1 && source.indexOf('localhost') === -1 && source.indexOf('127.0.0.1') === -1)) {
                 console.warn("Ignored cross-domain/extension error:", message, "Source:", source);
                 return false; 
             }
@@ -9003,20 +9003,85 @@ class StateManager {
 // ==========================================
 
 function getEstimatedDistance(city1, city2) {
-    const c1 = city1.trim().toLowerCase();
-    const c2 = city2.trim().toLowerCase();
-    if (c1 === c2) return 0;
-    
-    const key = [c1, c2].sort().join("-");
-    const distances = {
-        "augsburg-münchen": 80,
-        "augsburg-stuttgart": 150,
-        "augsburg-nürnberg": 140,
-        "münchen-nürnberg": 170,
-        "münchen-stuttgart": 220,
-        "nürnberg-stuttgart": 210
+    if (!city1 || !city2) return 250;
+
+    const coords = {
+        "berlin": { lat: 52.5200, lon: 13.4050 },
+        "hamburg": { lat: 53.5511, lon: 9.9937 },
+        "münchen": { lat: 48.1351, lon: 11.5820 },
+        "muenchen": { lat: 48.1351, lon: 11.5820 },
+        "köln": { lat: 50.9375, lon: 6.9603 },
+        "koeln": { lat: 50.9375, lon: 6.9603 },
+        "frankfurt": { lat: 50.1109, lon: 8.6821 },
+        "stuttgart": { lat: 48.7758, lon: 9.1829 },
+        "düsseldorf": { lat: 51.2271, lon: 6.7735 },
+        "duesseldorf": { lat: 51.2271, lon: 6.7735 },
+        "dortmund": { lat: 51.5136, lon: 7.4653 },
+        "essen": { lat: 51.4556, lon: 7.0116 },
+        "bremen": { lat: 53.0793, lon: 8.8017 },
+        "leipzig": { lat: 51.3397, lon: 12.3731 },
+        "dresden": { lat: 51.0504, lon: 13.7373 },
+        "hannover": { lat: 52.3759, lon: 9.7320 },
+        "nürnberg": { lat: 49.4521, lon: 11.0767 },
+        "nuernberg": { lat: 49.4521, lon: 11.0767 },
+        "augsburg": { lat: 48.3705, lon: 10.8978 },
+        "bonn": { lat: 50.7374, lon: 7.0982 },
+        "münster": { lat: 51.9607, lon: 7.6261 },
+        "muenster": { lat: 51.9607, lon: 7.6261 },
+        "karlsruhe": { lat: 49.0069, lon: 8.4037 },
+        "mannheim": { lat: 49.4875, lon: 8.4660 }
     };
-    return distances[key] !== undefined ? distances[key] : 250;
+
+    function clean(city) {
+        return city
+            .replace(/\s*\(\d+\)\s*/g, '') // remove zip code in parentheses
+            .replace(/\d+/g, '')            // remove any other numbers
+            .trim()
+            .toLowerCase();
+    }
+
+    const cities1 = city1.split(',').map(clean);
+    const cities2 = city2.split(',').map(clean);
+
+    let minDistance = 250;
+
+    for (const c1 of cities1) {
+        for (const c2 of cities2) {
+            if (c1 === c2) {
+                minDistance = 0;
+                continue;
+            }
+
+            const p1 = coords[c1];
+            const p2 = coords[c2];
+
+            if (p1 && p2) {
+                const R = 6371; // km
+                const dLat = (p2.lat - p1.lat) * Math.PI / 180;
+                const dLon = (p2.lon - p1.lon) * Math.PI / 180;
+                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                          Math.cos(p1.lat * Math.PI / 180) * Math.cos(p2.lat * Math.PI / 180) *
+                          Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                const d = R * c;
+                minDistance = Math.min(minDistance, d);
+            } else {
+                const key = [c1, c2].sort().join("-");
+                const distances = {
+                    "augsburg-münchen": 80,
+                    "augsburg-stuttgart": 150,
+                    "augsburg-nürnberg": 140,
+                    "münchen-nürnberg": 170,
+                    "münchen-stuttgart": 220,
+                    "nürnberg-stuttgart": 210
+                };
+                const d = distances[key] !== undefined ? distances[key] : 250;
+                minDistance = Math.min(minDistance, d);
+            }
+        }
+    }
+
+    return minDistance;
 }
 
 function getWeekdayFromDate(dateStr) {
@@ -10780,12 +10845,89 @@ function renderMarket(container, type, onNavigate) {
     const isEvents = type === 'events';
     const title = isEvents ? 'Event-Markt für Musiker' : 'Musiker-Markt für Veranstalter';
 
-    const items = isEvents ? state.events : state.musicians;
+    const getItems = () => isEvents ? state.events : state.musicians;
     
     let selectedFilterDates = []; window.selectedFilterDates = selectedFilterDates;
     let currentFilterCalDate = new Date();
     let showOnlyTopMatches = false;
     let showOnlyFavorites = false;
+
+    // Prefill data based on logged-in user profile
+    let prefillLocation = '';
+    let prefillGenres = [];
+    let prefillInstruments = [];
+    let prefillMinBudget = 0;
+    let prefillMaxBudget = 5000;
+    let prefillMinDuration = 0.5;
+    let prefillMaxDuration = 10.0;
+    let prefillMinPublikum = 0;
+    let prefillMaxPublikum = 500;
+    let prefillTechnik = [];
+    let prefillMusicianTypes = [];
+    let prefillEventTypes = [];
+    let hasProfile = false;
+
+    if (state.currentUser) {
+        if (isEvents && state.currentUser.role === 'musician') {
+            const myProfile = state.musicians.find(m => m.id === state.activeMusicianId) 
+                || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId);
+            if (myProfile) {
+                hasProfile = true;
+                prefillLocation = myProfile.location || '';
+                prefillGenres = myProfile.genres || [];
+                prefillInstruments = myProfile.instruments || [];
+                prefillMinBudget = myProfile.minBudget || 0;
+                prefillMaxBudget = myProfile.maxBudget || 5000;
+                prefillMinDuration = myProfile.minDuration || 0.5;
+                prefillMaxDuration = myProfile.maxDuration || 10.0;
+                prefillMinPublikum = myProfile.minPublikum || 0;
+                prefillMaxPublikum = myProfile.maxPublikum || 500;
+                prefillTechnik = Array.isArray(myProfile.technik) 
+                    ? myProfile.technik 
+                    : (typeof myProfile.technik === 'string' && myProfile.technik.trim() !== '' ? [myProfile.technik] : []);
+                prefillMusicianTypes = myProfile.type ? [myProfile.type] : [];
+                prefillEventTypes = myProfile.eventTypes || [];
+            }
+        } else if (!isEvents && state.currentUser.role === 'organizer') {
+            const myProfile = state.events.find(e => e.id === state.activeEventId) 
+                || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) 
+                || state.events.find(e => e.creatorId === state.currentUser.id) 
+                || state.events[0];
+            if (myProfile) {
+                hasProfile = true;
+                prefillLocation = myProfile.location || '';
+                prefillGenres = myProfile.genres || [];
+                prefillInstruments = myProfile.instruments || [];
+                prefillMinBudget = myProfile.minBudget || myProfile.budget || 0;
+                prefillMaxBudget = myProfile.maxBudget || myProfile.budget || 5000;
+                prefillMinDuration = myProfile.minDuration || myProfile.duration || 0.5;
+                prefillMaxDuration = myProfile.maxDuration || myProfile.duration || 10.0;
+                prefillMinPublikum = myProfile.minPublikum || 0;
+                prefillMaxPublikum = myProfile.maxPublikum || 500;
+                prefillTechnik = Array.isArray(myProfile.technik) 
+                    ? myProfile.technik 
+                    : (typeof myProfile.technik === 'string' && myProfile.technik.trim() !== '' ? [myProfile.technik] : []);
+                prefillMusicianTypes = myProfile.musicianTypes || (myProfile.musicianType ? [myProfile.musicianType] : []);
+                prefillEventTypes = myProfile.type || myProfile.eventType ? [myProfile.type || myProfile.eventType] : [];
+            }
+        }
+    }
+
+    const currentPrefillHash = JSON.stringify({
+        location: prefillLocation,
+        genres: prefillGenres,
+        instruments: prefillInstruments,
+        minBudget: prefillMinBudget,
+        maxBudget: prefillMaxBudget,
+        minDuration: prefillMinDuration,
+        maxDuration: prefillMaxDuration,
+        minPublikum: prefillMinPublikum,
+        maxPublikum: prefillMaxPublikum,
+        technik: prefillTechnik,
+        musicianTypes: prefillMusicianTypes,
+        eventTypes: prefillEventTypes
+    });
+    window.lastProfilePrefillHash = currentPrefillHash;
 
     container.innerHTML = `
         <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 1rem 5rem; box-sizing: border-box;">
@@ -10795,7 +10937,7 @@ function renderMarket(container, type, onNavigate) {
                 <!-- 1. Ergebnisse als Zahl + Label at the very left -->
                 <div style="display: flex; align-items: center; gap: 0.7rem; flex-shrink: 0; padding-right: 0.5rem; padding-left: 0.5rem;">
                     <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; text-align: center; padding: 0.2rem 0.55rem; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; min-width: 32px; white-space: nowrap; margin: 0; line-height: 1.2; cursor: pointer;" title="Filter öffnen">
-                        ${items.length}
+                        ${getItems().length}
                     </div>
                     <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; white-space: nowrap; letter-spacing: -0.3px; line-height: 1.1; vertical-align: middle;">
                         ${isEvents ? 'Event-Markt' : 'Musiker-Markt'}
@@ -10825,8 +10967,8 @@ function renderMarket(container, type, onNavigate) {
                 <div id="market-filters-wrapper" class="market-filter-card">
                                         <div class="filter-header-sticky" style="display: flex; align-items: center; position: relative; width: calc(100% - 1.2rem) !important;">
                         <!-- Left: Title -->
-                        <span class="filter-header-title" style="flex: 1; text-align: left; font-family: var(--font-heading); font-weight: 900; font-size: 1.1rem; letter-spacing: -0.3px;">
-                            Filter
+                        <span class="filter-header-title" style="flex: 1; text-align: left; font-family: var(--font-heading); font-weight: 900; font-size: 1.1rem; letter-spacing: -0.3px; display: flex; align-items: center; gap: 0.4rem;">
+                            Filter <span id="filter-active-dot" style="display: none; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 8px #22c55e; flex-shrink: 0;"></span>
                         </span>
                         
                         <!-- Center: Sort and Reset -->
@@ -10869,7 +11011,7 @@ function renderMarket(container, type, onNavigate) {
                             <!-- 2. Ort / PLZ -->
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Ort / PLZ</label>
-                                <input type="text" id="filter-location" placeholder="z.B. Köln" class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                                <input type="text" id="filter-location" placeholder="z.B. Köln" class="form-input" value="${prefillLocation}" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <!-- 3. Datum / Kalender -->
@@ -10899,8 +11041,8 @@ function renderMarket(container, type, onNavigate) {
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-event-type-grid">
                                     ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
-                                        <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterEventTypes" value="${t}">
+                                        <label class="tag-pill-checkbox ${prefillEventTypes.includes(t) ? 'active' : ''}">
+                                            <input type="checkbox" name="filterEventTypes" value="${t}" ${prefillEventTypes.includes(t) ? 'checked' : ''}>
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -10917,8 +11059,8 @@ function renderMarket(container, type, onNavigate) {
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-musician-types-grid">
                                     ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
-                                        <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterMusicianTypes" value="${t}">
+                                        <label class="tag-pill-checkbox ${prefillMusicianTypes.includes(t) ? 'active' : ''}">
+                                            <input type="checkbox" name="filterMusicianTypes" value="${t}" ${prefillMusicianTypes.includes(t) ? 'checked' : ''}>
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -10935,8 +11077,8 @@ function renderMarket(container, type, onNavigate) {
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-genres-grid">
                                     ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
-                                        <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterGenres" value="${g}">
+                                        <label class="tag-pill-checkbox ${prefillGenres.includes(g) ? 'active' : ''}">
+                                            <input type="checkbox" name="filterGenres" value="${g}" ${prefillGenres.includes(g) ? 'checked' : ''}>
                                             <span>${g}</span>
                                         </label>
                                     `).join('')}
@@ -10953,8 +11095,8 @@ function renderMarket(container, type, onNavigate) {
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid">
                                     ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
-                                        <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterInstruments" value="${ins}">
+                                        <label class="tag-pill-checkbox ${prefillInstruments.includes(ins) ? 'active' : ''}">
+                                            <input type="checkbox" name="filterInstruments" value="${ins}" ${prefillInstruments.includes(ins) ? 'checked' : ''}>
                                             <span>${ins}</span>
                                         </label>
                                     `).join('')}
@@ -10970,8 +11112,8 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="dual-range-slider" id="slider-filter-duration-container">
                                     <div class="dual-range-track"></div>
                                     <div class="dual-range-active-track" id="track-filter-duration"></div>
-                                    <input type="range" class="form-input" id="input-filter-duration-min" min="0.5" max="10" step="0.5" value="0.5">
-                                    <input type="range" class="form-input" id="input-filter-duration-max" min="0.5" max="10" step="0.5" value="10.0">
+                                    <input type="range" class="form-input" id="input-filter-duration-min" min="0.5" max="10" step="0.5" value="${prefillMinDuration}">
+                                    <input type="range" class="form-input" id="input-filter-duration-max" min="0.5" max="10" step="0.5" value="${prefillMaxDuration}">
                                 </div>
                             </div>
 
@@ -10984,8 +11126,8 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="dual-range-slider" id="slider-filter-publikum-container">
                                     <div class="dual-range-track"></div>
                                     <div class="dual-range-active-track" id="track-filter-publikum"></div>
-                                    <input type="range" class="form-input" id="input-filter-publikum-min" min="0" max="500" step="50" value="0">
-                                    <input type="range" class="form-input" id="input-filter-publikum-max" min="0" max="500" step="50" value="500">
+                                    <input type="range" class="form-input" id="input-filter-publikum-min" min="0" max="500" step="50" value="${prefillMinPublikum}">
+                                    <input type="range" class="form-input" id="input-filter-publikum-max" min="0" max="500" step="50" value="${prefillMaxPublikum}">
                                 </div>
                             </div>
 
@@ -10999,8 +11141,8 @@ function renderMarket(container, type, onNavigate) {
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-technik-grid">
                                     ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
-                                        <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterTechnik" value="${t}">
+                                        <label class="tag-pill-checkbox ${prefillTechnik.includes(t) ? 'active' : ''}">
+                                            <input type="checkbox" name="filterTechnik" value="${t}" ${prefillTechnik.includes(t) ? 'checked' : ''}>
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -11016,8 +11158,8 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="dual-range-slider" id="slider-filter-budget-container">
                                     <div class="dual-range-track"></div>
                                     <div class="dual-range-active-track" id="track-filter-budget"></div>
-                                    <input type="range" class="form-input" id="input-filter-budget-min" min="0" max="5000" step="100" value="0">
-                                    <input type="range" class="form-input" id="input-filter-budget-max" min="0" max="5000" step="100" value="5000">
+                                    <input type="range" class="form-input" id="input-filter-budget-min" min="0" max="5000" step="100" value="${prefillMinBudget}">
+                                    <input type="range" class="form-input" id="input-filter-budget-max" min="0" max="5000" step="100" value="${prefillMaxBudget}">
                                 </div>
                             </div>
 
@@ -11035,7 +11177,7 @@ function renderMarket(container, type, onNavigate) {
                             <!-- 2. Ort & Maximaler Umkreis -->
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Ort</label>
-                                <input type="text" id="filter-location-m" placeholder="z.B. München" class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                                <input type="text" id="filter-location-m" placeholder="z.B. München" class="form-input" value="${prefillLocation}" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
@@ -11073,8 +11215,8 @@ function renderMarket(container, type, onNavigate) {
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-musician-type-grid">
                                     ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
-                                        <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterMusicianTypes" value="${t}">
+                                        <label class="tag-pill-checkbox ${prefillMusicianTypes.includes(t) ? 'active' : ''}">
+                                            <input type="checkbox" name="filterMusicianTypes" value="${t}" ${prefillMusicianTypes.includes(t) ? 'checked' : ''}>
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -11091,8 +11233,8 @@ function renderMarket(container, type, onNavigate) {
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
                                     ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
-                                        <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterEventTypesM" value="${evt}">
+                                        <label class="tag-pill-checkbox ${prefillEventTypes.includes(evt) ? 'active' : ''}">
+                                            <input type="checkbox" name="filterEventTypesM" value="${evt}" ${prefillEventTypes.includes(evt) ? 'checked' : ''}>
                                             <span>${evt}</span>
                                         </label>
                                     `).join('')}
@@ -11109,8 +11251,8 @@ function renderMarket(container, type, onNavigate) {
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-genres-grid-m">
                                     ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
-                                        <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterGenresM" value="${g}">
+                                        <label class="tag-pill-checkbox ${prefillGenres.includes(g) ? 'active' : ''}">
+                                            <input type="checkbox" name="filterGenresM" value="${g}" ${prefillGenres.includes(g) ? 'checked' : ''}>
                                             <span>${g}</span>
                                         </label>
                                     `).join('')}
@@ -11127,8 +11269,8 @@ function renderMarket(container, type, onNavigate) {
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
                                     ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
-                                        <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterInstrumentsM" value="${ins}">
+                                        <label class="tag-pill-checkbox ${prefillInstruments.includes(ins) ? 'active' : ''}">
+                                            <input type="checkbox" name="filterInstrumentsM" value="${ins}" ${prefillInstruments.includes(ins) ? 'checked' : ''}>
                                             <span>${ins}</span>
                                         </label>
                                     `).join('')}
@@ -11144,8 +11286,8 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="dual-range-slider" id="slider-filter-duration-m-container">
                                     <div class="dual-range-track"></div>
                                     <div class="dual-range-active-track" id="track-filter-duration-m"></div>
-                                    <input type="range" class="form-input" id="input-filter-duration-m-min" min="0.5" max="10" step="0.5" value="0.5">
-                                    <input type="range" class="form-input" id="input-filter-duration-m-max" min="0.5" max="10" step="0.5" value="10.0">
+                                    <input type="range" class="form-input" id="input-filter-duration-m-min" min="0.5" max="10" step="0.5" value="${prefillMinDuration}">
+                                    <input type="range" class="form-input" id="input-filter-duration-m-max" min="0.5" max="10" step="0.5" value="${prefillMaxDuration}">
                                 </div>
                             </div>
 
@@ -11158,8 +11300,8 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="dual-range-slider" id="slider-filter-publikum-m-container">
                                     <div class="dual-range-track"></div>
                                     <div class="dual-range-active-track" id="track-filter-publikum-m"></div>
-                                    <input type="range" class="form-input" id="input-filter-publikum-m-min" min="0" max="500" step="50" value="0">
-                                    <input type="range" class="form-input" id="input-filter-publikum-m-max" min="0" max="500" step="50" value="500">
+                                    <input type="range" class="form-input" id="input-filter-publikum-m-min" min="0" max="500" step="50" value="${prefillMinPublikum}">
+                                    <input type="range" class="form-input" id="input-filter-publikum-m-max" min="0" max="500" step="50" value="${prefillMaxPublikum}">
                                 </div>
                             </div>
 
@@ -11173,8 +11315,8 @@ function renderMarket(container, type, onNavigate) {
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-technik-grid-m">
                                     ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
-                                        <label class="tag-pill-checkbox">
-                                            <input type="checkbox" name="filterTechnikM" value="${t}">
+                                        <label class="tag-pill-checkbox ${prefillTechnik.includes(t) ? 'active' : ''}">
+                                            <input type="checkbox" name="filterTechnikM" value="${t}" ${prefillTechnik.includes(t) ? 'checked' : ''}>
                                             <span>${t}</span>
                                         </label>
                                     `).join('')}
@@ -11190,8 +11332,8 @@ function renderMarket(container, type, onNavigate) {
                                 <div class="dual-range-slider" id="slider-filter-gage-m-container">
                                     <div class="dual-range-track"></div>
                                     <div class="dual-range-active-track" id="track-filter-gage-m"></div>
-                                    <input type="range" class="form-input" id="input-filter-gage-m-min" min="0" max="5000" step="100" value="0">
-                                    <input type="range" class="form-input" id="input-filter-gage-m-max" min="0" max="5000" step="100" value="5000">
+                                    <input type="range" class="form-input" id="input-filter-gage-m-min" min="0" max="5000" step="100" value="${prefillMinBudget}">
+                                    <input type="range" class="form-input" id="input-filter-gage-m-max" min="0" max="5000" step="100" value="${prefillMaxBudget}">
                                 </div>
                             </div>
 
@@ -11202,7 +11344,7 @@ function renderMarket(container, type, onNavigate) {
                 <!-- Center Main Section -->
                 <div>
                     <div id="market-items-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 2rem;">
-                        ${renderMarketGridHTML(items, isEvents)}
+                        ${renderMarketGridHTML(getItems(), isEvents)}
                     </div>
                 </div>
             </div>
@@ -11333,8 +11475,8 @@ function renderMarket(container, type, onNavigate) {
     }
 
     function applyAllFiltersAndSort() {
-        let list = [...items];
-        console.log("applyAllFiltersAndSort started. Input items:", list.length, "isEvents:", isEvents);
+        let list = [...getItems()];
+        console.log("applyAllFiltersAndSort started. Input getItems():", list.length, "isEvents:", isEvents);
 
         // Parse profile/event ID from hash query parameter (for direct links from emails)
         const hash = window.location.hash;
@@ -11636,6 +11778,39 @@ function renderMarket(container, type, onNavigate) {
                     bannerEl.style.display = 'none';
                 }
             }
+
+            // Admin recommendation list banner injection
+            const adminBannerId = 'market-admin-fav-banner';
+            let adminBannerEl = container.querySelector('#' + adminBannerId);
+            const isAdmin = state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email);
+            
+            if (!isEvents && showOnlyFavorites && isAdmin && list.length > 0) {
+                if (!adminBannerEl) {
+                    adminBannerEl = document.createElement('div');
+                    adminBannerEl.id = adminBannerId;
+                    adminBannerEl.className = 'market-single-profile-banner';
+                    adminBannerEl.style.cssText = 'background: rgba(37, 99, 235, 0.15); border: 1px solid rgba(37, 99, 235, 0.3); border-radius: 12px; padding: 1rem; margin-top: 2rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: 100%; box-sizing: border-box;';
+                    grid.parentNode.appendChild(adminBannerEl);
+                }
+                adminBannerEl.innerHTML = `
+                    <span style="color: #ffffff; font-size: 0.9rem; font-weight: 600;">
+                        Du hast <strong>${list.length}</strong> Musiker in den Favoriten. Möchtest du diese als Vorschlagsliste senden?
+                    </span>
+                    <button id="btn-admin-send-recommendations" class="btn btn-primary" style="margin: 0; padding: 0.5rem 1.2rem; font-size: 0.85rem; border-radius: 8px; font-weight: 700; white-space: nowrap; background: #2563eb; border-color: #2563eb;">
+                        <i class="fa-solid fa-paper-plane"></i> Vorschlagsliste senden
+                    </button>
+                `;
+                adminBannerEl.style.display = 'flex';
+                
+                // Add event listener to send button
+                adminBannerEl.querySelector('#btn-admin-send-recommendations')?.addEventListener('click', () => {
+                    window.showAdminRecommendationDialog(list.map(m => m.id));
+                });
+            } else {
+                if (adminBannerEl) {
+                    adminBannerEl.style.display = 'none';
+                }
+            }
         }
         
         const countEl = container.querySelector('#market-results-count');
@@ -11651,7 +11826,88 @@ function renderMarket(container, type, onNavigate) {
                 labelEl.textContent = isEvents ? 'Event-Markt' : 'Musiker-Markt';
             }
         }
-        
+
+        // Toggle active styling based on active filters
+        const isFilterActive = (() => {
+            const loc = isEvents 
+                ? (container.querySelector('#filter-location')?.value || '').trim()
+                : (container.querySelector('#filter-location-m')?.value || '').trim();
+            if (loc !== '') return true;
+
+            const kw = isEvents
+                ? (container.querySelector('#filter-keyword')?.value || '').trim()
+                : (container.querySelector('#filter-keyword-m')?.value || '').trim();
+            if (kw !== '') return true;
+
+            if (selectedFilterDates && selectedFilterDates.length > 0) return true;
+
+            const genresGridId = isEvents ? 'filter-genres-grid' : 'filter-genres-grid-m';
+            if (getCheckedValues(genresGridId).length > 0) return true;
+
+            const instGridId = isEvents ? 'filter-instruments-grid' : 'filter-instruments-grid-m';
+            if (getCheckedValues(instGridId).length > 0) return true;
+
+            const typeGridId = isEvents ? 'filter-event-type-grid' : 'filter-musician-type-grid';
+            if (getCheckedValues(typeGridId).length > 0) return true;
+
+            const techGridId = isEvents ? 'filter-technik-grid' : 'filter-technik-grid-m';
+            if (getCheckedValues(techGridId).length > 0) return true;
+
+            if (isEvents) {
+                const minD = parseFloat(container.querySelector('#input-filter-duration-min')?.value || 0.5);
+                const maxD = parseFloat(container.querySelector('#input-filter-duration-max')?.value || 10);
+                if (minD > 0.5 || maxD < 10) return true;
+
+                const minB = parseFloat(container.querySelector('#input-filter-budget-min')?.value || 0);
+                const maxB = parseFloat(container.querySelector('#input-filter-budget-max')?.value || 5000);
+                if (minB > 0 || maxB < 5000) return true;
+
+                const minP = parseInt(container.querySelector('#input-filter-publikum-min')?.value || 0);
+                const maxP = parseInt(container.querySelector('#input-filter-publikum-max')?.value || 500);
+                if (minP > 0 || maxP < 500) return true;
+            } else {
+                const minD = parseFloat(container.querySelector('#input-filter-duration-m-min')?.value || 0.5);
+                const maxD = parseFloat(container.querySelector('#input-filter-duration-m-max')?.value || 10);
+                if (minD > 0.5 || maxD < 10) return true;
+
+                const minB = parseFloat(container.querySelector('#input-filter-gage-m-min')?.value || 0);
+                const maxB = parseFloat(container.querySelector('#input-filter-gage-m-max')?.value || 5000);
+                if (minB > 0 || maxB < 5000) return true;
+
+                const minP = parseInt(container.querySelector('#input-filter-publikum-m-min')?.value || 0);
+                const maxP = parseInt(container.querySelector('#input-filter-publikum-m-max')?.value || 500);
+                if (minP > 0 || maxP < 500) return true;
+
+                const radiusVal = parseInt(container.querySelector('#input-filter-radius-m')?.value || 500);
+                if (radiusVal < 500) return true;
+
+                const selEvtTypes = getCheckedValues('filter-event-types-grid-m');
+                if (selEvtTypes.length > 0) return true;
+            }
+
+            return false;
+        })();
+
+        const toggleBtn = container.querySelector('#btn-toggle-mobile-filters');
+        if (toggleBtn) {
+            if (isFilterActive) {
+                toggleBtn.style.boxShadow = isEvents ? '0 0 14px rgba(124, 58, 237, 0.75)' : '0 0 14px rgba(37, 99, 235, 0.75)';
+                toggleBtn.style.background = isEvents ? 'rgba(124, 58, 237, 0.25)' : 'rgba(37, 99, 235, 0.25)';
+                toggleBtn.style.color = isEvents ? '#c084fc' : '#60a5fa';
+                toggleBtn.style.border = isEvents ? '2px solid #7c3aed' : '2px solid #2563eb';
+            } else {
+                toggleBtn.style.boxShadow = '';
+                toggleBtn.style.background = '';
+                toggleBtn.style.color = '';
+                toggleBtn.style.border = '';
+            }
+        }
+
+        const activeDot = container.querySelector('#filter-active-dot');
+        if (activeDot) {
+            activeDot.style.display = isFilterActive ? 'inline-block' : 'none';
+        }
+
         console.log("applyAllFiltersAndSort finished. Output items count:", list.length, "IDs:", list.map(item => item.id).join(', '));
     }
 
@@ -11905,6 +12161,23 @@ function renderMarket(container, type, onNavigate) {
 
     // Run sorting and filtering initially on page load
     applyAllFiltersAndSort();
+
+    // Re-render dynamically if profile loads late
+    if (!hasProfile) {
+        const unsubscribe = state.subscribe(() => {
+            if (!document.body.contains(container)) {
+                unsubscribe();
+                return;
+            }
+            const currentProfile = isEvents 
+                ? (state.currentUser && (state.musicians.find(m => m.id === state.activeMusicianId) || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId)))
+                : (state.currentUser && (state.events.find(e => e.id === state.activeEventId) || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) || state.events.find(e => e.creatorId === state.currentUser.id)));
+            if (currentProfile) {
+                unsubscribe();
+                renderMarket(container, type, onNavigate);
+            }
+        });
+    }
 }
 
 // Unified Tile Card Renderer - NO EXTRA PAGE & NO POPUP BUTTON!
@@ -13652,6 +13925,20 @@ function renderMyEvents(container) {
             }
         });
     });
+
+    // Auto-open edit modal if query parameter ID is present
+    const hash = window.location.hash;
+    const queryString = hash.split('?')[1] || '';
+    const urlParams = new URLSearchParams(queryString);
+    const targetId = urlParams.get('id');
+    if (targetId) {
+        const event = state.events.find(e => e.id === targetId);
+        if (event) {
+            const cleanHash = window.location.hash.split('?')[0];
+            history.replaceState(null, '', cleanHash);
+            setTimeout(() => showEventModal(event), 50);
+        }
+    }
 }
 
 const activeInsightsProfiles = new Set();
@@ -14096,6 +14383,20 @@ function renderMyMusicians(container) {
             }
         });
     });
+
+    // Auto-open edit modal if query parameter ID is present
+    const hash = window.location.hash;
+    const queryString = hash.split('?')[1] || '';
+    const urlParams = new URLSearchParams(queryString);
+    const targetId = urlParams.get('id');
+    if (targetId) {
+        const musician = state.musicians.find(m => m.id === targetId);
+        if (musician) {
+            const cleanHash = window.location.hash.split('?')[0];
+            history.replaceState(null, '', cleanHash);
+            setTimeout(() => showMusicianModal(musician), 50);
+        }
+    }
 }
 
 function showMusicianModal(musicianObj = null, isDuplication = false) {
@@ -15139,12 +15440,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                         <div id="event-modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
 
-                    <div style="display: flex; align-items: flex-start; gap: 0.5rem; margin-top: 1.2rem; margin-bottom: 0.8rem;">
-                        <input type="checkbox" id="chk-event-publish-consent" style="width: auto; margin-top: 0.25rem; cursor: pointer;" required checked>
-                        <label for="chk-event-publish-consent" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0; line-height: 1.35; text-align: left;">
-                            GigConnAct hat deine Erlaubnis, dein Event auf GigConnAct zu veröffentlichen.
-                        </label>
-                    </div>
+
 
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
                         <button type="submit" class="btn btn-primary" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: #2563eb; border-color: #2563eb;">
@@ -18332,6 +18628,18 @@ function navigate(page) {
         return;
     }
 
+    // Dynamic routing for recommendation and mediation response pages
+    if (page.startsWith('recommendation/')) {
+        const mediationId = page.replace('recommendation/', '');
+        renderRecommendationPage(mainContainer, mediationId);
+        return;
+    }
+    if (page.startsWith('mediation-response/')) {
+        const mediationId = page.replace('mediation-response/', '');
+        renderMediationResponsePage(mainContainer, mediationId);
+        return;
+    }
+
     // Optimize redundant rendering: exit early if page hasn't changed, user session is identical, collection counts are identical, and active profile is identical
     const currentUserId = (state && state.currentUser) ? state.currentUser.id : null;
     const currentUserRole = (state && state.currentUser) ? state.currentUser.role : null;
@@ -18352,6 +18660,31 @@ function navigate(page) {
                 "lastChatTimestamp:", window.lastChatTimestamp, "maxChatTimestamp:", maxChatTimestamp,
                 "lastUpdateVersion:", window.lastUpdateVersion, "currentUpdateVersion:", currentUpdateVersion);
 
+    // Calculate current prefill hash to check if profile content changed
+    let currentPrefillHash = '';
+    if (state && state.currentUser) {
+        const isEv = page === 'events';
+        const myProfile = isEv 
+            ? (state.musicians.find(m => m.id === activeMusicianId) || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId))
+            : (state.events.find(e => e.id === activeEventId) || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) || state.events.find(e => e.creatorId === state.currentUser.id));
+        if (myProfile) {
+            currentPrefillHash = JSON.stringify({
+                location: myProfile.location || '',
+                genres: myProfile.genres || [],
+                instruments: myProfile.instruments || [],
+                minBudget: myProfile.minBudget || myProfile.budget || 0,
+                maxBudget: myProfile.maxBudget || myProfile.budget || 5000,
+                minDuration: myProfile.minDuration || myProfile.duration || 0.5,
+                maxDuration: myProfile.maxDuration || myProfile.duration || 10.0,
+                minPublikum: myProfile.minPublikum || 0,
+                maxPublikum: myProfile.maxPublikum || 500,
+                technik: Array.isArray(myProfile.technik) ? myProfile.technik : (typeof myProfile.technik === 'string' && myProfile.technik.trim() !== '' ? [myProfile.technik] : []),
+                musicianTypes: myProfile.musicianTypes || (myProfile.musicianType ? [myProfile.musicianType] : []),
+                eventTypes: myProfile.type || myProfile.eventType ? [myProfile.type || myProfile.eventType] : []
+            });
+        }
+    }
+
     const isIdentical = page !== '' && 
         window.currentActivePage === page && 
         window.lastUserSessionId === currentUserId && 
@@ -18360,7 +18693,8 @@ function navigate(page) {
         window.lastEventsCount === currentEventsCount &&
         window.lastActiveMusicianId === activeMusicianId &&
         window.lastActiveEventId === activeEventId &&
-        window.lastUpdateVersion === currentUpdateVersion;
+        window.lastUpdateVersion === currentUpdateVersion &&
+        window.lastProfilePrefillHash === currentPrefillHash;
 
     if (page === 'postbox') {
         if (isIdentical && window.lastChatTimestamp === maxChatTimestamp) {
@@ -19041,7 +19375,35 @@ function initGigConnActApp() {
         const isUserSame = window.lastUserSessionId === (state && state.currentUser ? state.currentUser.id : null);
         console.log('[DEBUG] user-state-changed info - currentHash:', currentHash, 'isUserSame:', isUserSame, 'lastUserSessionId:', window.lastUserSessionId);
         
-        if (isUserSame && (currentHash.includes('events') || currentHash.includes('musicians')) && typeof window.marketApplyFilters === 'function') {
+        // Calculate the current profile prefill hash to see if it changed
+        let currentPrefillHash = '';
+        if (state.currentUser) {
+            const isEvents = currentHash.includes('events');
+            const myProfile = isEvents 
+                ? (state.musicians.find(m => m.id === state.activeMusicianId) || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId))
+                : (state.events.find(e => e.id === state.activeEventId) || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) || state.events.find(e => e.creatorId === state.currentUser.id));
+            if (myProfile) {
+                currentPrefillHash = JSON.stringify({
+                    location: myProfile.location || '',
+                    genres: myProfile.genres || [],
+                    instruments: myProfile.instruments || [],
+                    minBudget: myProfile.minBudget || myProfile.budget || 0,
+                    maxBudget: myProfile.maxBudget || myProfile.budget || 5000,
+                    minDuration: myProfile.minDuration || myProfile.duration || 0.5,
+                    maxDuration: myProfile.maxDuration || myProfile.duration || 10.0,
+                    minPublikum: myProfile.minPublikum || 0,
+                    maxPublikum: myProfile.maxPublikum || 500,
+                    technik: Array.isArray(myProfile.technik) ? myProfile.technik : (typeof myProfile.technik === 'string' && myProfile.technik.trim() !== '' ? [myProfile.technik] : []),
+                    musicianTypes: myProfile.musicianTypes || (myProfile.musicianType ? [myProfile.musicianType] : []),
+                    eventTypes: myProfile.type || myProfile.eventType ? [myProfile.type || myProfile.eventType] : []
+                });
+            }
+        }
+
+        const profileChanged = window.lastProfilePrefillHash !== currentPrefillHash;
+        console.log('[DEBUG] user-state-changed: profileChanged =', profileChanged);
+
+        if (!profileChanged && isUserSame && (currentHash.includes('events') || currentHash.includes('musicians')) && typeof window.marketApplyFilters === 'function') {
             console.log('[DEBUG] user-state-changed: calling window.marketApplyFilters()');
             window.marketApplyFilters();
         } else {
@@ -20555,9 +20917,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
                     
                     ${(state.currentUser && item.matchScore >= 70) ? `
-                        <div class="tile-top-match-badge" title="Top Match" style="position: absolute; top: 12px; left: 12px; z-index: 5; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(254, 240, 138, 0.35); border-radius: 12px; padding: 0.25rem 0.55rem; display: flex; align-items: center; gap: 0.3rem; backdrop-filter: blur(4px); pointer-events: none;">
+                        <div class="tile-top-match-badge" title="Top Match" style="position: absolute; top: 12px; left: 12px; z-index: 5; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(254, 240, 138, 0.35); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); pointer-events: none;">
                             <i class="fa-solid fa-star" style="color: #eab308; font-size: 0.85rem; margin: 0;"></i>
-                            <span style="font-size: 0.7rem; font-weight: 800; color: #fef08a; font-family: var(--font-heading); line-height: 1;">${item.matchScore}%</span>
                         </div>
                     ` : ''}
 
@@ -21928,6 +22289,489 @@ window.renderDatenschutzPage = renderDatenschutzPage;
         currentSlider = null;
     });
 })();
+
+// ==========================================
+// Admin Dialog for sending recommendation list
+// ==========================================
+window.showAdminRecommendationDialog = function(musicianIds) {
+    const modalWrapper = document.getElementById('modal-container');
+    if (!modalWrapper) return;
+
+    modalWrapper.innerHTML = `
+        <div class="modal-content" style="max-width: 500px; padding: 2rem; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-glass); font-family: var(--font-body); color: var(--text-main);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-paper-plane" style="color: #2563eb;"></i> Vorschlagsliste senden
+                </h3>
+                <button id="btn-close-rec-modal" style="background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1.2rem; padding: 0.2rem;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.45;">
+                Du sendest eine Liste mit <strong>${musicianIds.length}</strong> Musikern an einen Veranstalter. Die Empfehlungen sind anonymisiert, Hörproben und Videos sind jedoch abspielbar.
+            </p>
+            
+            <form id="admin-rec-form">
+                <div class="form-group" style="margin-bottom: 1.2rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">E-Mail-Adresse des Veranstalters</label>
+                    <input type="email" name="organizerEmail" placeholder="z.B. veranstalter@mail.de" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.6rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600;" required>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 1.2rem;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Name des Events / Anlasses</label>
+                    <input type="text" name="eventName" placeholder="z.B. Hochzeit Max & Anna" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.6rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600;" required>
+                </div>
+                
+                <div id="admin-rec-error" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
+                
+                <div style="display: flex; justify-content: flex-end; gap: 0.8rem; margin-top: 1.5rem;">
+                    <button type="button" id="btn-cancel-rec" class="btn btn-secondary" style="margin: 0; padding: 0.55rem 1.2rem; font-size: 0.85rem; font-weight: 700;">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary" style="margin: 0; padding: 0.55rem 1.5rem; font-size: 0.85rem; font-weight: 700; background: #2563eb; border-color: #2563eb;">Senden</button>
+                </div>
+            </form>
+        </div>
+    `;
+
+    modalWrapper.classList.remove('hidden');
+
+    const closeModal = () => {
+        modalWrapper.classList.add('hidden');
+        modalWrapper.innerHTML = '';
+    };
+
+    modalWrapper.querySelector('#btn-close-rec-modal').addEventListener('click', closeModal);
+    modalWrapper.querySelector('#btn-cancel-rec').addEventListener('click', closeModal);
+
+    const form = modalWrapper.querySelector('#admin-rec-form');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const organizerEmail = form.elements.organizerEmail.value.trim();
+        const eventName = form.elements.eventName.value.trim();
+        const errDiv = modalWrapper.querySelector('#admin-rec-error');
+        errDiv.style.display = 'none';
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Wird gesendet...';
+
+        try {
+            // 1. Create a mediation document in Firestore
+            const mediationRef = await db.collection('mediations').add({
+                organizerEmail: organizerEmail,
+                eventName: eventName,
+                musicianIds: musicianIds,
+                status: 'pending_selection', // pending_selection, pending_availability, pending_payment, completed, expired
+                createdAt: new Date().toISOString(),
+                selectedMusicianId: null,
+                paymentStatus: 'pending'
+            });
+
+            // 2. Call the Cloud Function to send the recommendation email to the organizer
+            const sendRecommendationListFn = firebase.functions().httpsCallable('sendRecommendationList');
+            const res = await sendRecommendationListFn({
+                mediationId: mediationRef.id,
+                organizerEmail: organizerEmail,
+                eventName: eventName,
+                musicianIds: musicianIds,
+                baseUrl: window.location.origin
+            });
+
+            if (res.data && res.data.success) {
+                showToast({
+                    title: 'Erfolg!',
+                    message: 'Die Vorschlagsliste wurde erfolgreich per E-Mail gesendet.',
+                    type: 'success'
+                });
+                closeModal();
+            } else {
+                throw new Error(res.data ? res.data.message : 'Fehler beim Senden der Empfehlungen.');
+            }
+        } catch (error) {
+            console.error("Error sending recommendations:", error);
+            errDiv.textContent = error.message || 'Ein Fehler ist aufgetreten. Bitte versuche es erneut.';
+            errDiv.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Senden';
+        }
+    });
+};
+
+// ==========================================
+// Recommendation page for Organizer
+// ==========================================
+window.renderRecommendationPage = function(container, mediationId) {
+    container.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
+            <img src="discoball.png" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
+            <span>Lade Vorschläge...</span>
+        </div>
+    `;
+
+    db.collection('mediations').doc(mediationId).get().then(async (doc) => {
+        if (!doc.exists) {
+            container.innerHTML = `
+                <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
+                    <i class="fa-solid fa-circle-exclamation" style="font-size: 3rem; color: var(--color-orange); margin-bottom: 1rem;"></i>
+                    <h3 style="color: #fff; margin-bottom: 0.5rem;">Vorschlagsliste nicht gefunden</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Dieser Link ist ungültig oder abgelaufen.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const med = doc.data();
+        
+        // Show status screen if organizer already made a choice
+        if (med.status === 'pending_availability') {
+            container.innerHTML = `
+                <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
+                    <i class="fa-solid fa-clock" style="font-size: 3.5rem; color: #2563eb; margin-bottom: 1.2rem;"></i>
+                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Verfügbarkeit wird geprüft ⏳</h3>
+                    <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.5rem;">
+                        Vielen Dank! Du hast deinen Wunsch-Act ausgewählt. Wir klären nun die Verfügbarkeit und informieren dich sofort per E-Mail, sobald eine Antwort vorliegt.
+                    </p>
+                </div>
+            `;
+            return;
+        }
+        
+        if (med.status === 'pending_payment' || med.status === 'completed') {
+            container.innerHTML = `
+                <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
+                    <i class="fa-solid fa-circle-check" style="font-size: 3.5rem; color: #10b981; margin-bottom: 1.2rem;"></i>
+                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Auswahl abgeschlossen! 🎉</h3>
+                    <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.5rem;">
+                        Die Auswahl für dieses Event ist bereits abgeschlossen. Die Kontaktdaten wurden an deine E-Mail-Adresse versendet.
+                    </p>
+                </div>
+            `;
+            return;
+        }
+
+        if (med.status === 'expired') {
+            container.innerHTML = `
+                <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
+                    <i class="fa-solid fa-ban" style="font-size: 3.5rem; color: var(--color-red); margin-bottom: 1.2rem;"></i>
+                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Link abgelaufen ❌</h3>
+                    <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.5rem;">
+                        Diese Vorschlagsliste ist abgelaufen (Gültigkeitsdauer überschritten). Bitte kontaktiere uns, falls du eine neue Auswahl wünschst.
+                    </p>
+                </div>
+            `;
+            return;
+        }
+
+        // Fetch musician documents
+        const musicians = [];
+        for (const id of med.musicianIds) {
+            const musDoc = await db.collection('musicians').doc(id).get();
+            if (musDoc.exists) {
+                musicians.push({ id: musDoc.id, ...musDoc.data() });
+            }
+        }
+
+        container.innerHTML = `
+            <div style="max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 5rem; font-family: var(--font-body);">
+                <div style="text-align: center; margin-bottom: 2.5rem;">
+                    <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #2563eb; letter-spacing: 1px; background: rgba(37,99,235,0.1); padding: 0.35rem 0.75rem; border-radius: 20px;">Deine Auswahl</span>
+                    <h2 style="font-family: var(--font-heading); font-size: 1.85rem; font-weight: 900; color: #ffffff; margin: 0.5rem 0 0.3rem;">Musiker-Vorschläge</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">für dein Event: <strong>"${med.eventName}"</strong></p>
+                </div>
+                
+                <div class="market-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.5rem;">
+                    ${musicians.map((mus, idx) => {
+                        const photos = (mus.photos && mus.photos.length > 0) ? mus.photos.slice(0, 5) : [mus.image || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80'];
+                        const videos = mus.videos || [];
+                        const audios = mus.audio || [];
+                        const genres = mus.genres || [];
+                        const instruments = mus.instruments || [];
+                        const budget = mus.minBudget !== undefined ? `${mus.minBudget} - ${mus.maxBudget || 5000} €` : 'Auf Anfrage';
+                        
+                        return `
+                            <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
+                                <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 215px; background: #0f172a; overflow: hidden;">
+                                    <span class="tile-gallery-counter" style="position: absolute; bottom: 12px; left: 12px; z-index: 4; font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.75); padding: 0.25rem 0.5rem; border-radius: 6px; backdrop-filter: blur(4px); pointer-events: none;">
+                                        📷 1 / ${photos.length}
+                                    </span>
+                                    <div id="combo-slider-${mus.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
+                                        ${photos.map(img => `<div style="width: 100%; height: 100%; flex-shrink: 0;"><img src="${img}" style="width: 100%; height: 100%; object-fit: cover;"></div>`).join('')}
+                                        ${videos.map((vid, vIdx) => `
+                                            <div style="width: 100%; height: 100%; flex-shrink: 0; background: #000; display: flex; align-items: center; justify-content: center;">
+                                                <video controls style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
+                                                    <source src="${vid.url}" type="video/mp4">
+                                                </video>
+                                            </div>
+                                        `).join('')}
+                                        ${audios.map(aud => `
+                                            <div style="width: 100%; height: 100%; flex-shrink: 0; background: linear-gradient(135deg, #1e1b4b 0%, #311042 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; box-sizing: border-box;">
+                                                <i class="fa-solid fa-music" style="color: #06b6d4; font-size: 1.4rem; margin-bottom: 0.6rem;"></i>
+                                                <span style="font-size: 0.8rem; color: #fff; margin-bottom: 0.5rem;">${aud.title || 'Demo'}</span>
+                                                <audio controls style="width: 85%; height: 32px;" onclick="event.stopPropagation();">
+                                                    <source src="${aud.url}" type="audio/mp3">
+                                                </audio>
+                                            </div>
+                                        `).join('')}
+                                        <div style="width: 100%; height: 100%; flex-shrink: 0; background: #0f172a; padding: 1rem 2.5rem; box-sizing: border-box; text-align: center; display: flex; align-items: center; justify-content: center;">
+                                            <p style="font-size: 0.82rem; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 140px; overflow-y: auto;">${mus.bio || mus.description || ''}</p>
+                                        </div>
+                                    </div>
+                                    <div class="tile-gallery-dots" id="combo-dots-${mus.id}" data-theme="#2563eb" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center;">
+                                        ${Array.from({ length: photos.length + videos.length + audios.length + 1 }).map((_, dIdx) => `
+                                            <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${mus.id}', ${dIdx})" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? '#2563eb' : '#ffffff'}; cursor: pointer;"></span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                                
+                                <div style="padding: 1.2rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; background: var(--bg-card);">
+                                    <div>
+                                        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 0.8rem; line-height: 1.25;">
+                                            Act ${idx + 1}: ${mus.category || 'Musiker'}
+                                        </h3>
+                                        <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.84rem; color: var(--text-main);">
+                                            <div><i class="fa-solid fa-location-dot" style="color: #2563eb; width: 16px; margin-right: 0.4rem;"></i> ${(mus.location || '').split(' (')[0]}</div>
+                                            <div><i class="fa-solid fa-music" style="color: #2563eb; width: 16px; margin-right: 0.4rem;"></i> ${genres.slice(0, 3).join(', ')}</div>
+                                            <div><i class="fa-solid fa-drum" style="color: #2563eb; width: 16px; margin-right: 0.4rem;"></i> ${instruments.slice(0, 3).join(', ')}</div>
+                                            <div><i class="fa-solid fa-coins" style="color: #2563eb; width: 16px; margin-right: 0.4rem;"></i> ${budget}</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="margin-top: 1.25rem;">
+                                        <button onclick="window.selectMediationAct('${mediationId}', '${mus.id}')" class="btn btn-primary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border-color: #2563eb; margin: 0;">
+                                            Diesen Act anfragen
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }).catch(err => {
+        console.error("Error loading recommendation page:", err);
+        container.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--color-red);">Fehler beim Laden der Seite.</div>`;
+    });
+};
+
+window.selectMediationAct = function(mediationId, musicianId) {
+    if (!confirm("Möchtest du diesen Act unverbindlich anfragen? Wir klären die Verfügbarkeit ab.")) return;
+    
+    db.collection('mediations').doc(mediationId).update({
+        selectedMusicianId: musicianId,
+        status: 'pending_availability'
+    }).then(() => {
+        window.location.reload();
+    }).catch(err => {
+        console.error("Error choosing act:", err);
+        alert("Ein Fehler ist aufgetreten: " + err.message);
+    });
+};
+
+// ==========================================
+// Mediation response page for selected Musician
+// ==========================================
+window.renderMediationResponsePage = function(container, mediationId) {
+    container.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
+            <img src="discoball.png" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
+            <span>Lade Anfrage...</span>
+        </div>
+    `;
+
+    db.collection('mediations').doc(mediationId).get().then(async (doc) => {
+        if (!doc.exists) {
+            container.innerHTML = `
+                <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
+                    <i class="fa-solid fa-circle-exclamation" style="font-size: 3rem; color: var(--color-orange); margin-bottom: 1rem;"></i>
+                    <h3 style="color: #fff; margin-bottom: 0.5rem;">Anfrage nicht gefunden</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Dieser Link ist ungültig oder abgelaufen.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const med = doc.data();
+
+        // Check if user is logged in
+        if (!state.currentUser) {
+            container.innerHTML = `
+                <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px; font-family: var(--font-body);">
+                    <i class="fa-solid fa-user-lock" style="font-size: 3.5rem; color: #7c3aed; margin-bottom: 1.2rem;"></i>
+                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Bitte melde dich an</h3>
+                    <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.8rem;">
+                        Um auf diese Vermittlungsanfrage zuzugreifen, musst du mit deinem Musiker-Account eingeloggt sein.
+                    </p>
+                    <button onclick="showModal('auth', () => { window.location.reload(); })" class="btn btn-primary" style="padding: 0.8rem 2rem; font-size: 0.95rem; font-weight: 700; background: #7c3aed; border-color: #7c3aed; margin: 0;">
+                        Einloggen / Registrieren
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        // Ensure the logged in user is actually the selected musician
+        const isSelectedMusician = state.currentUser.role === 'musician' && (
+            state.currentUser.profileId === med.selectedMusicianId || 
+            (state.musicians.some(m => m.id === med.selectedMusicianId && m.creatorId === state.currentUser.id))
+        );
+
+        if (!isSelectedMusician) {
+            container.innerHTML = `
+                <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
+                    <i class="fa-solid fa-circle-xmark" style="font-size: 3.5rem; color: var(--color-red); margin-bottom: 1.2rem;"></i>
+                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Zugriff verweigert</h3>
+                    <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55;">
+                        Diese Anfrage ist für ein anderes Musiker-Profil bestimmt. Bitte logge dich mit dem passenden Musiker-Konto ein.
+                    </p>
+                </div>
+            `;
+            return;
+        }
+
+        if (med.status === 'completed') {
+            container.innerHTML = `
+                <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
+                    <i class="fa-solid fa-circle-check" style="font-size: 3.5rem; color: #10b981; margin-bottom: 1.2rem;"></i>
+                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Erfolgreich vermittelt! 🎉</h3>
+                    <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55;">
+                        Du hast dem Gig bereits zugesagt. Die Kontaktdaten des Veranstalters wurden per E-Mail an dich versendet.
+                    </p>
+                </div>
+            `;
+            return;
+        }
+
+        if (med.status !== 'pending_availability') {
+            container.innerHTML = `
+                <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
+                    <i class="fa-solid fa-circle-exclamation" style="font-size: 3.5rem; color: var(--color-orange); margin-bottom: 1.2rem;"></i>
+                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Nicht mehr verfügbar</h3>
+                    <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55;">
+                        Diese Anfrage ist nicht mehr aktiv oder wurde storniert.
+                    </p>
+                </div>
+            `;
+            return;
+        }
+
+        // Render the response form
+        const isPremium = state.currentUser.isPremium === true;
+
+        container.innerHTML = `
+            <div style="max-width: 600px; margin: 2rem auto 5rem; padding: 2.5rem; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px; font-family: var(--font-body); color: var(--text-main);">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <i class="fa-solid fa-guitar" style="font-size: 3rem; color: #7c3aed; margin-bottom: 0.8rem;"></i>
+                    <h2 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #fff; margin: 0 0 0.4rem;">Vermittlungsangebot! 🎉</h2>
+                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Bestätige deine Verfügbarkeit für das Event:</p>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.2rem; margin-bottom: 2rem;">
+                    <h4 style="margin-top: 0; color: #fff; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.6rem; margin-bottom: 0.8rem;">${med.eventName}</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0 0 0.5rem;">
+                        Wir haben dich dem Veranstalter vorgeschlagen und er hat dich als seinen Wunsch-Act ausgewählt!
+                    </p>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1.5rem; justify-content: center;">
+                    ${isPremium ? `
+                        <button id="btn-accept-mediation" class="btn btn-primary" style="margin: 0; padding: 0.95rem; font-size: 1rem; font-weight: 800; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; border-color: #7c3aed !important; width: 100%;">
+                            <i class="fa-solid fa-circle-check"></i> Gig zusagen & Kontaktdaten freischalten (0 €)
+                        </button>
+                    ` : `
+                        <button id="btn-accept-mediation" class="btn btn-primary" style="margin: 0; padding: 0.95rem; font-size: 1rem; font-weight: 800; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; border-color: #7c3aed !important; width: 100%;">
+                            <i class="fa-solid fa-credit-card"></i> Gig zusagen & 25 € Gebühr zahlen
+                        </button>
+                        <p style="font-size: 0.72rem; color: var(--text-muted); text-align: center; margin: 0; line-height: 1.35;">
+                            * Als Basis-Mitglied fällt bei einer erfolgreichen Vermittlung eine Gebühr von 25 € an. Für Premium-Mitglieder ist die Vermittlung vollkommen gebührenfrei.
+                        </p>
+                    `}
+                    
+                    <button id="btn-decline-mediation" class="btn btn-secondary" style="margin: 0.5rem 0 0; padding: 0.85rem; font-size: 0.9rem; font-weight: 700; width: 100%; border-color: rgba(239, 68, 68, 0.4); color: #ef4444;">
+                        Absagen / Nicht verfügbar
+                    </button>
+                </div>
+            </div>
+        `;
+
+        container.querySelector('#btn-accept-mediation')?.addEventListener('click', async () => {
+            const btn = container.querySelector('#btn-accept-mediation');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verarbeitung läuft...';
+
+            if (isPremium) {
+                try {
+                    // Update status directly to completed
+                    await db.collection('mediations').doc(mediationId).update({
+                        status: 'completed',
+                        paymentStatus: 'free_premium'
+                    });
+
+                    // Trigger the cloud function directly to send contact details (since webhook won't trigger for 0 €)
+                    const releaseMediationContactsFn = firebase.functions().httpsCallable('releaseMediationContacts');
+                    await releaseMediationContactsFn({ mediationId });
+
+                    window.location.reload();
+                } catch (error) {
+                    console.error("Error accepting mediation:", error);
+                    alert("Ein Fehler ist aufgetreten: " + error.message);
+                    btn.disabled = false;
+                    btn.innerHTML = isPremium ? '<i class="fa-solid fa-circle-check"></i> Gig zusagen & Kontaktdaten freischalten (0 €)' : '<i class="fa-solid fa-credit-card"></i> Gig zusagen & 25 € Gebühr zahlen';
+                }
+            } else {
+                try {
+                    // Call Cloud Function to get Stripe Checkout session for €25 fee
+                    const createMediationPaymentFn = firebase.functions().httpsCallable('createMediationPayment');
+                    const res = await createMediationPaymentFn({
+                        mediationId: mediationId,
+                        baseUrl: window.location.origin
+                    });
+
+                    if (res.data && res.data.url) {
+                        window.location.href = res.data.url;
+                    } else {
+                        throw new Error("Zahlungs-Session konnte nicht erstellt werden.");
+                    }
+                } catch (error) {
+                    console.error("Error creating payment:", error);
+                    alert("Ein Fehler ist aufgetreten: " + error.message);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Gig zusagen & 25 € Gebühr zahlen';
+                }
+            }
+        });
+
+        container.querySelector('#btn-decline-mediation')?.addEventListener('click', async () => {
+            if (!confirm("Bist du sicher, dass du diesen Gig absagen möchtest? Der Veranstalter wird benachrichtigt.")) return;
+            
+            const btn = container.querySelector('#btn-decline-mediation');
+            btn.disabled = true;
+            
+            try {
+                // Update mediation status to allow organizer to pick someone else
+                await db.collection('mediations').doc(mediationId).update({
+                    status: 'pending_selection',
+                    selectedMusicianId: null
+                });
+
+                // Call cloud function to notify organizer of declinement
+                const notifyMediationDeclinedFn = firebase.functions().httpsCallable('notifyMediationDeclined');
+                await notifyMediationDeclinedFn({ mediationId });
+
+                alert("Absage erfolgreich übermittelt. Vielen Dank.");
+                window.location.hash = '#/';
+            } catch (error) {
+                console.error("Error declining mediation:", error);
+                alert("Ein Fehler ist aufgetreten: " + error.message);
+                btn.disabled = false;
+            }
+        });
+
+    }).catch(err => {
+        console.error("Error loading response page:", err);
+        container.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--color-red);">Fehler beim Laden der Seite.</div>`;
+    });
+};
+
+
 
 </script>
 
