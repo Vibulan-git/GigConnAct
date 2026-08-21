@@ -17333,16 +17333,6 @@ window.showAdminRecommendationDialog = function(musicianIds) {
                     <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">E-Mail-Adresse des Veranstalters</label>
                     <input type="email" name="organizerEmail" placeholder="z.B. veranstalter@mail.de" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.6rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600;" required>
                 </div>
-                
-                <div class="form-group" style="margin-bottom: 1.2rem;">
-                    <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Name des Events / Anlasses</label>
-                    <input type="text" name="eventName" placeholder="z.B. Hochzeit Max & Anna" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.6rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600;" required>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 1.2rem;">
-                    <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Datum des Events (optional)</label>
-                    <input type="date" name="eventDate" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.6rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600;">
-                </div>
 
                 <div class="form-group" style="margin-bottom: 1.2rem;">
                     <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Betreff der E-Mail</label>
@@ -17376,8 +17366,6 @@ window.showAdminRecommendationDialog = function(musicianIds) {
 
     const form = modalWrapper.querySelector('#admin-rec-form');
     const inputEmail = form.elements.organizerEmail;
-    const inputName = form.elements.eventName;
-    const inputDate = form.elements.eventDate;
     const inputSubject = form.elements.emailSubject;
     const txtMessage = form.elements.customMessage;
 
@@ -17394,55 +17382,38 @@ window.showAdminRecommendationDialog = function(musicianIds) {
 
     const updateFieldsFromEvent = (evt) => {
         if (evt) {
-            inputEmail.value = evt.email || '';
-            inputName.value = evt.name || evt.title || '';
-            inputDate.value = evt.date || '';
+            inputEmail.value = evt.clientEmail || evt.email || '';
             updateSubjectAndMessage();
         } else {
             inputEmail.value = '';
-            inputName.value = '';
-            inputDate.value = '';
             inputSubject.value = 'Passende Musiker-Vorschläge für dein Event 🎵';
             txtMessage.value = defaultMsgTpl('');
         }
     };
 
     const updateSubjectAndMessage = () => {
-        const nameVal = inputName.value.trim();
-        const dateVal = inputDate.value;
+        const nameVal = activeEvt ? (activeEvt.name || activeEvt.title || '') : '';
+        const dateVal = activeEvt ? (activeEvt.date || '') : '';
         const dateStr = dateVal ? formatGermanDate(dateVal) : '';
         const dateSuffix = dateStr ? ` am ${dateStr}` : '';
         
-        if (nameVal) {
-            inputSubject.value = `Passende Musiker-Vorschläge für dein Event: ${nameVal}${dateSuffix} 🎵`;
-            txtMessage.value = defaultMsgTpl(nameVal);
-        } else {
-            inputSubject.value = 'Passende Musiker-Vorschläge für dein Event 🎵';
-            txtMessage.value = defaultMsgTpl('');
-        }
+        inputSubject.value = `Hier ist unsere Musiker-Auswahl für Dein Event: ${nameVal || 'Dein Event'}${dateSuffix}`;
+        txtMessage.value = defaultMsgTpl(nameVal);
     };
-
-    inputName.addEventListener('input', updateSubjectAndMessage);
-    inputDate.addEventListener('change', updateSubjectAndMessage);
-    inputDate.addEventListener('input', updateSubjectAndMessage);
 
     // Prefill from activeEventId first!
     const activeEvt = (state.events || []).find(e => e.id === state.activeEventId) || state.recommendationEvent;
     if (activeEvt) {
         updateFieldsFromEvent(activeEvt);
     } else {
-        // Fallback: Use selected calendar date if available
-        if (window.selectedFilterDates && window.selectedFilterDates.length > 0) {
-            inputDate.value = window.selectedFilterDates[0];
-        }
         updateSubjectAndMessage();
     }
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const organizerEmail = inputEmail.value.trim();
-        const eventName = inputName.value.trim();
-        const eventDate = inputDate.value;
+        const eventName = activeEvt ? (activeEvt.name || activeEvt.title || '') : '';
+        const eventDate = activeEvt ? (activeEvt.date || null) : null;
         const subject = inputSubject.value.trim();
         const customMessage = txtMessage.value.trim();
         const errDiv = modalWrapper.querySelector('#admin-rec-error');
@@ -17564,7 +17535,7 @@ window.renderRecommendationPage = function(container, mediationId) {
             <div style="max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 5rem; font-family: var(--font-body);">
                 <div style="text-align: center; margin-bottom: 2.5rem;">
                     <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #2563eb; letter-spacing: 1px; background: rgba(37,99,235,0.1); padding: 0.35rem 0.75rem; border-radius: 20px;">Deine Auswahl</span>
-                    <h2 style="font-family: var(--font-heading); font-size: 1.85rem; font-weight: 900; color: #ffffff; margin: 0.5rem 0 0.3rem;">Musiker-Vorschläge</h2>
+                    <h2 style="font-family: var(--font-heading); font-size: 1.85rem; font-weight: 900; color: #2563eb; margin: 0.5rem 0 0.3rem;">Musiker-Vorschläge</h2>
                     <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">für dein Event: <strong>"${med.eventName}"</strong>${med.eventDate ? ` am <strong>${(() => {
                         const parts = med.eventDate.split('-');
                         return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : med.eventDate;
@@ -17602,7 +17573,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                         }
 
                         let budgetDisplay = '';
-                        const minB = mus.minBudget !== undefined ? mus.minBudget : mus.price;
+                        const minB = mus.minB !== undefined ? mus.minB : (mus.minBudget !== undefined ? mus.minBudget : mus.price);
                         const maxB = mus.maxBudget;
                         if (minB !== undefined && minB !== null) {
                             const minBStr = typeof minB === 'number' ? minB.toLocaleString('de-DE') : String(minB);
@@ -17693,7 +17664,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                                 <div style="padding: 1.2rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; background: var(--bg-card);">
                                     <div>
                                         <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 0.8rem; line-height: 1.25;">
-                                            Act ${idx + 1}: ${mus.category || 'Musiker'}
+                                            Act ${idx + 1}: <span style="filter: blur(5px); select: none; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> (${mus.category || 'Musiker'})
                                         </h3>
                                         <div style="display: flex; gap: 0.5rem; justify-content: space-between;">
                                             <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); flex: 1;">
@@ -17728,13 +17699,8 @@ window.renderRecommendationPage = function(container, mediationId) {
                                                     <span style="flex: 1;">${instrumentsArr.slice(0, 3).join(', ')}</span>
                                                 </div>
                                             </div>
-                                            <div style="display: flex; flex-direction: column; justify-content: flex-end; padding-left: 0.6rem; border-left: 1px solid var(--border-glass); padding-bottom: 0.1rem; min-width: 46px; box-sizing: border-box; align-items: center;">
-                                                <button onclick="event.stopPropagation(); window.toggleTileDetails('${mus.id}')" style="background: none; border: none; padding: 0; cursor: pointer; color: #2563eb; outline: none; transition: transform 0.2s; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Mehr Details anzeigen/verbergen">
-                                                    <i class="fa-solid fa-circle-plus" id="toggle-icon-${mus.id}" style="font-size: 1.6rem; opacity: 0.85;"></i>
-                                                </button>
-                                            </div>
                                         </div>
-                                        <div id="collapsible-details-${mus.id}" style="display: none; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.75rem;">
+                                        <div id="collapsible-details-${mus.id}" style="display: flex; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.5rem; margin-bottom: 0.75rem;">
                                             <!-- 7. Spielzeit -->
                                             <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
                                                 <i class="fa-solid fa-clock" style="color: #2563eb; width: 16px; text-align: center;"></i>
@@ -17785,7 +17751,7 @@ window.renderRecommendationPage = function(container, mediationId) {
 };
 
 window.requestMediationAct = function(event, mediationId, musicianId) {
-    if (!confirm("Möchtest du diesen Act verbindlich anfragen? Der Musiker erhält sofort eine Benachrichtigung.")) return;
+    if (!confirm("Möchtest du diesen Act verbindlich anfragen? Der Musiker erhält umgehend eine Benachrichtigung. Bei Interesse und entsprechender Verfügbarkeit wird er im selben Prozess zur Zahlung für die erfolgreiche Vermittlung aufgefordert. Für Dich als Veranstalter entstehen weiterhin keine Kosten.")) return;
     
     // Disable and gray out the button immediately to prevent double-clicks
     const btn = event?.currentTarget || event?.target;
