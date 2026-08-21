@@ -3237,6 +3237,8 @@ class StateManager {
     toggleFavorite(id) {
         if (!this.currentUser) return false;
 
+        const isAdmin = this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
+
         let profileId = null;
         let collectionName = null;
         let profileObj = null;
@@ -3246,17 +3248,21 @@ class StateManager {
             collectionName = 'musicians';
             profileObj = this.musicians.find(m => m.id === profileId);
         } else if (this.currentUser.role === 'organizer') {
-            profileId = this.activeEventId;
-            if (!profileId && this.events && this.events.length > 0) {
-                const fallback = this.events.find(e => e.creatorId === this.currentUser.id || e.id === this.currentUser.profileId)
-                    || this.events.find(e => e.creatorId === this.currentUser.id)
-                    || this.events[0];
-                if (fallback) {
-                    profileId = fallback.id;
+            if (isAdmin) {
+                profileId = null;
+            } else {
+                profileId = this.activeEventId;
+                if (!profileId && this.events && this.events.length > 0) {
+                    const fallback = this.events.find(e => e.creatorId === this.currentUser.id || e.id === this.currentUser.profileId)
+                        || this.events.find(e => e.creatorId === this.currentUser.id)
+                        || this.events[0];
+                    if (fallback) {
+                        profileId = fallback.id;
+                    }
                 }
+                collectionName = 'events';
+                profileObj = this.events.find(e => e.id === profileId);
             }
-            collectionName = 'events';
-            profileObj = this.events.find(e => e.id === profileId);
         }
 
         if (!profileId || !collectionName) {
@@ -3299,6 +3305,8 @@ class StateManager {
     isFavorite(id) {
         if (!this.currentUser) return false;
 
+        const isAdmin = this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
+
         let profileId = null;
         let profileObj = null;
 
@@ -3306,16 +3314,20 @@ class StateManager {
             profileId = this.activeMusicianId || this.currentUser.profileId;
             profileObj = this.musicians.find(m => m.id === profileId);
         } else if (this.currentUser.role === 'organizer') {
-            profileId = this.activeEventId;
-            if (!profileId && this.events && this.events.length > 0) {
-                const fallback = this.events.find(e => e.creatorId === this.currentUser.id || e.id === this.currentUser.profileId)
-                    || this.events.find(e => e.creatorId === this.currentUser.id)
-                    || this.events[0];
-                if (fallback) {
-                    profileId = fallback.id;
+            if (isAdmin) {
+                profileId = null;
+            } else {
+                profileId = this.activeEventId;
+                if (!profileId && this.events && this.events.length > 0) {
+                    const fallback = this.events.find(e => e.creatorId === this.currentUser.id || e.id === this.currentUser.profileId)
+                        || this.events.find(e => e.creatorId === this.currentUser.id)
+                        || this.events[0];
+                    if (fallback) {
+                        profileId = fallback.id;
+                    }
                 }
+                profileObj = this.events.find(e => e.id === profileId);
             }
-            profileObj = this.events.find(e => e.id === profileId);
         }
 
         if (!profileId) {
