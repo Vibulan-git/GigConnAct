@@ -1511,24 +1511,26 @@ exports.requestMusician = functions
             await medRef.update(updateData);
 
             // Send email to musician
+            const dateVal = med.eventDate || '';
+            const dateParts = dateVal.split('-');
+            const formattedDate = dateParts.length === 3 ? `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}` : dateVal;
+            const eventLocation = med.eventLocation || '';
+
             const responseLink = `${baseUrl}/#/mediation-response/${mediationId}?musicianId=${musicianId}`;
-            const subject = `Verbindliche Buchungsanfrage für das Event: ${med.eventName} 🚀`;
+            const subject = `Verbindliche Vermittlungsanfrage für das Event: ${med.eventName}${eventLocation ? ` in ${eventLocation}` : ''}${formattedDate ? ` am ${formattedDate}` : ''}`;
             const emailHtml = `
                 <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
                     <div style="text-align: center; margin-bottom: 20px;">
                         <img src="https://gigconnact.de/discoball.png" alt="GigConnAct Logo" style="width: 70px; height: 70px; object-fit: contain;">
                     </div>
-                    <h2 style="color: #7c3aed; margin-top: 0; font-size: 1.4rem; text-align: center;">Verbindliche Buchungsanfrage erhalten! 🚀</h2>
+                    <h2 style="color: #7c3aed; margin-top: 0; font-size: 1.4rem; text-align: center;">Verbindliche Vermittlungsanfrage erhalten! 🚀</h2>
                     <p>Hallo ${musName},</p>
-                    <p>herzlichen Glückwunsch! Du hast eine <strong>verbindliche Buchungsanfrage</strong> für das Event <strong>"${med.eventName}"</strong> erhalten.</p>
-                    <p>Klicke auf den Button unten, um dir die Details anzusehen, den Gig verbindlich zuzusagen und die Buchung abzuschließen:</p>
+                    <p>herzlichen Glückwunsch! Du hast eine verbindliche Vermittlungsanfrage für das Event <strong>"${med.eventName}"</strong>${eventLocation ? ` in <strong>${eventLocation}</strong>` : ''}${formattedDate ? ` am <strong>${formattedDate}</strong>` : ''} erhalten. Hinweis: Dies ist keine Buchungsanfrage. Der Veranstalter hat über den GigConnAct Vermittlungsservice Interesse bekundet, Deine Kontaktdaten zu erhalten. Möglicherweise hat er auch weitere Acts angefragt.</p>
+                    
+                    <p>Klicke auf den Button unten, um dir die Details anzusehen. Bei verbindlichem Interesse Deinerseits erhältst Du über einen entsprechenden Bezahllink die Kontaktdaten des Veranstalters. Mit einem Premium-Account entfallen die Vermittlungsgebühren vollständig.</p>
                     
                     <p style="text-align: center; margin-top: 25px;">
-                        <a href="${responseLink}" style="background: #7c3aed; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; box-shadow: 0 4px 10px rgba(124,58,237,0.25);">Anfrage ansehen & Zusage erteilen</a>
-                    </p>
-                    
-                    <p style="font-size: 0.82rem; color: #718096; line-height: 1.45; margin-top: 20px;">
-                        <strong>Hinweis:</strong> Es handelt sich um ein Vermittlungsangebot. Der erste Act, der zusagt und ggf. die Gebühr bezahlt, erhält den Gig. Danach wird der Link für alle anderen Kandidaten deaktiviert.
+                        <a href="${responseLink}" style="background: #7c3aed; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; box-shadow: 0 4px 10px rgba(124,58,237,0.25);">Details ansehen</a>
                     </p>
                     
                     <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 15px;">

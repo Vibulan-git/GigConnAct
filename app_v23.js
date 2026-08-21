@@ -17429,6 +17429,8 @@ window.showAdminRecommendationDialog = function(musicianIds) {
                 organizerEmail: organizerEmail,
                 eventName: eventName,
                 eventDate: eventDate || null,
+                eventLocation: activeEvt ? (activeEvt.location || activeEvt.ort || '') : '',
+                eventId: activeEvt ? activeEvt.id : null,
                 musicianIds: musicianIds,
                 status: 'pending_selection', // pending_selection, pending_availability, pending_payment, completed, expired
                 createdAt: new Date().toISOString(),
