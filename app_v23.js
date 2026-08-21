@@ -8611,8 +8611,37 @@ function renderOrganizerEventItem(e, isActive) {
         }
     }
 
-    let budgetDisplay = e.budget ? `${e.budget} €` : 'Auf Anfrage';
-    let durationDisplay = e.spieldauer ? `${e.spieldauer} Stunden` : '2 - 4 Stunden';
+    let budgetDisplay = '';
+    const minB = e.minBudget !== undefined ? e.minBudget : e.budget;
+    const maxB = e.maxBudget;
+    if (minB !== undefined && minB !== null) {
+        const minBStr = typeof minB === 'number' ? minB.toLocaleString('de-DE') : String(minB);
+        if (maxB !== undefined && maxB !== null && maxB !== minB) {
+            const maxBStr = typeof maxB === 'number' ? maxB.toLocaleString('de-DE') : String(maxB);
+            budgetDisplay = `${minBStr} - ${maxBStr} €`;
+        } else {
+            budgetDisplay = `${minBStr} €`;
+        }
+    } else {
+        budgetDisplay = 'Auf Anfrage';
+    }
+
+    let durationDisplay = '';
+    const minDur = e.minDuration;
+    const maxDur = e.maxDuration;
+    if (minDur !== undefined && minDur !== null) {
+        const minStr = String(minDur).replace('.', ',');
+        if (maxDur !== undefined && maxDur !== null && maxDur !== minDur) {
+            const maxStr = String(maxDur).replace('.', ',');
+            durationDisplay = `${minStr} - ${maxStr} Stunden`;
+        } else {
+            durationDisplay = `${minStr} Stunden`;
+        }
+    } else {
+        let baseDur = String(e.duration || e.spieldauer || '2 - 4');
+        baseDur = baseDur.replace(/ca\.\s*/gi, '').replace(/\s*Stunden\.?/gi, '').trim();
+        durationDisplay = `${baseDur} Stunden`;
+    }
     
     const techArr = Array.isArray(e.technik) 
         ? e.technik 
@@ -14181,6 +14210,22 @@ function handleRouting() {
     let page = pageWithQuery.split('?')[0];
     if (page === 'top-matches') page = 'matches';
     
+    // Parse query parameters from hash
+    const hashQuery = hash.includes('?') ? hash.split('?')[1] : '';
+    if (hashQuery) {
+        const urlParams = new URLSearchParams(hashQuery);
+        const eventId = urlParams.get('id') || urlParams.get('eventId');
+        if (eventId) {
+            console.log("[DEBUG] Storing activeEventId from URL parameter:", eventId);
+            state.activeEventId = eventId;
+        }
+        const musicianId = urlParams.get('musicianId');
+        if (musicianId) {
+            console.log("[DEBUG] Storing activeMusicianId from URL parameter:", musicianId);
+            state.activeMusicianId = musicianId;
+        }
+    }
+
     // Save target hash for redirect after login if it's a protected route
     const protectedPages = ['matches', 'top-matches', 'dashboard', 'my-musicians', 'my-events', 'postbox', 'credits', 'profile'];
     if ((!state || !state.currentUser) && protectedPages.includes(page)) {
