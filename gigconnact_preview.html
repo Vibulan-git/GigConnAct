@@ -3592,6 +3592,14 @@ body {
     background: transparent !important;
 }
 
+.org-cal-day.past {
+    cursor: not-allowed !important;
+    opacity: 0.25 !important;
+    background: transparent !important;
+    text-decoration: line-through !important;
+    pointer-events: none !important;
+}
+
 .org-selected-dates-preview {
     font-size: 0.72rem;
     line-height: 1.4;
@@ -20670,10 +20678,10 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                         </div>
                     </div>
 
-                    <div style="display: flex; align-items: flex-start; gap: 0.5rem; margin-top: 1.2rem; margin-bottom: 0.8rem;">
-                        <input type="checkbox" id="chk-agency-publish-consent" style="width: auto; margin-top: 0.25rem; cursor: pointer;" required checked>
-                        <label for="chk-agency-publish-consent" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0; line-height: 1.35; text-align: left;">
-                            GigConnAct hat Deine Erlaubnis, Dein Event auf dem Event-Markt zu veröffentlichen.
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-top: 1.5rem; margin-bottom: 1rem;">
+                        <input type="checkbox" id="chk-agency-publish-consent" style="width: 20px; height: 20px; min-width: 20px; cursor: pointer; accent-color: #2563eb;" required checked>
+                        <label for="chk-agency-publish-consent" style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0; line-height: 1.4; text-align: left;">
+                            Ich stimme der <a href="#/datenschutz" target="_blank" onclick="window.open(this.href, '_blank'); return false;" style="color: #2563eb; text-decoration: underline; font-weight: 600;">Datenschutzerklärung</a> von GigConnAct zu.
                         </label>
                     </div>
 
@@ -21022,18 +21030,18 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
 function showAgencySuccessModal(email) {
     const overlay = document.createElement('div');
     overlay.className = 'custom-video-modal-overlay';
-    overlay.style = "position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); padding:1rem;";
+    overlay.style = "position:fixed; inset:0; background:rgba(15,23,42,0.4); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); padding:1rem;";
     
     overlay.innerHTML = `
-        <div style="width:100%; max-width:440px; background:var(--bg-card); border:1px solid var(--border-glass); border-radius:16px; padding:2.5rem 2rem; text-align:center; box-shadow:0 15px 35px rgba(0,0,0,0.4); position:relative; font-family:var(--font-heading); color:#fff;">
-            <div style="font-size:4rem; color:#10b981; margin-bottom:1.2rem; filter:drop-shadow(0 0 8px rgba(16,185,129,0.3));">
+        <div style="width:100%; max-width:440px; background:#ffffff; border:1px solid #cbd5e1; border-radius:16px; padding:2.5rem 2rem; text-align:center; box-shadow:0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); position:relative; font-family:var(--font-heading); color:#0f172a;">
+            <div style="font-size:4rem; color:#10b981; margin-bottom:1.2rem; filter:drop-shadow(0 4px 6px rgba(16,185,129,0.25));">
                 <i class="fa-solid fa-circle-check"></i>
             </div>
-            <h3 style="font-size:1.4rem; color:#fff; margin-bottom:0.75rem;">Anfrage gesendet! 🚀</h3>
-            <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.55; margin-bottom:1.8rem;">
+            <h3 style="font-size:1.4rem; color:#0f172a; margin-bottom:0.75rem; font-weight:800;">Anfrage gesendet! 🚀</h3>
+            <p style="font-size:0.9rem; color:#4b5563; line-height:1.55; margin-bottom:1.8rem; font-family:var(--font-body);">
                 Vielen Dank! Deine Vermittlungsanfrage ist bei uns eingegangen. Wir senden Dir innerhalb der nächsten 5 Werktage eine passende Auswahl an Acts per E-Mail an <strong>${email}</strong> zu. Bitte schau auch in Deinem Spam-Ordner nach.
             </p>
-            <button id="btn-close-agency-success" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:700; border-radius:10px; background:#10b981; border-color:#10b981; margin:0;">
+            <button id="btn-close-agency-success" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:800; border-radius:10px; background:linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important; border-color:#2563eb !important; color:#ffffff !important; margin:0; box-shadow:0 4px 14px rgba(37, 99, 235, 0.3) !important;">
                 Schließen
             </button>
         </div>
@@ -22363,6 +22371,13 @@ function renderDatenschutzPage(container) {
                         <li><strong>Registrierte & eingeloggte Nutzer:</strong> Die vollständigen Profile und Kontaktdaten (Künstlername bzw. Name/Firma, E-Mail-Adresse, Telefonnummer) sind für alle registrierten und angemeldeten Nutzer auf der Plattform einsehbar, sobald sie über ein Benutzerkonto verfügen.</li>
                         <li><strong>Kommunikation (Postbox):</strong> Die über das Postfach geführten Chatverläufe und Nachrichten sind vertraulich und nur für die jeweiligen beiden Kommunikationspartner einsehbar. Zur Unterstützung der Vermittlung wird den Nutzern lediglich ein berechneter Match-Score (Übereinstimmungsgrad) angezeigt.</li>
                     </ul>
+                </p>
+
+                <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Datenverarbeitung im Rahmen von Vermittlungsanfragen (Mediation)</h3>
+                <p>
+                    Wenn Sie über das Vermittlungsformular eine Anfrage für einen passenden Act einreichen, erfassen wir Ihre personenbezogenen Kontaktdaten (Name, E-Mail-Adresse und Telefonnummer). 
+                    Diese Kontaktdaten werden zum Zwecke der Vermittlung verarbeitet und zunächst vertraulich in unserer Datenbank gespeichert. Das erstellte Event-Profil wird auf dem öffentlichen Event-Marktplatz ausschließlich in anonymisierter Form (ohne Ihren Namen, Ihre E-Mail-Adresse oder Ihre Telefonnummer) veröffentlicht.
+                    Sobald ein von uns vorgeschlagener Musiker die Vermittlungsanfrage verbindlich bestätigt (und ggf. die anfallende Gebühr entrichtet hat), werden Ihre Kontaktdaten (Name, Telefonnummer und E-Mail-Adresse) automatisch an diesen Musiker übermittelt, damit eine direkte Kontaktaufnahme zur Buchungsabsprache erfolgen kann. Gleichzeitig erhalten Sie die Kontaktdaten des Musikers. Diese Weitergabe basiert auf Art. 6 Abs. 1 lit. b DSGVO zur Durchführung der Vermittlungsdienstleistung.
                 </p>
 
                 <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem;">4. Datenerfassung auf dieser Website (Technische Dienstleister)</h2>

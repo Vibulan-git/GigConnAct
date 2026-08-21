@@ -3548,6 +3548,14 @@ body {
     background: transparent !important;
 }
 
+.org-cal-day.past {
+    cursor: not-allowed !important;
+    opacity: 0.25 !important;
+    background: transparent !important;
+    text-decoration: line-through !important;
+    pointer-events: none !important;
+}
+
 .org-selected-dates-preview {
     font-size: 0.72rem;
     line-height: 1.4;
