@@ -1254,7 +1254,7 @@ async function releaseMediationContactsInternal(mediationId, musicianId = null) 
     const updateData = {
         status: 'completed',
         selectedMusicianId: finalMusicianId,
-        paymentStatus: med.paymentStatus || 'paid',
+        paymentStatus: (med.paymentStatus && med.paymentStatus !== 'pending') ? med.paymentStatus : 'paid',
         completedAt: new Date().toISOString()
     };
     if (med.musicianStatuses) {
