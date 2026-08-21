@@ -818,9 +818,10 @@ exports.stripeWebhook = functions
 
             if (metadata.type === 'mediation_payment') {
                 const mediationId = metadata.mediationId;
-                console.log(`Processing successful mediation payment for mediation ID: ${mediationId}`);
+                const musicianId = metadata.musicianId || null;
+                console.log(`Processing successful mediation payment for mediation ID: ${mediationId}, musician: ${musicianId}`);
                 try {
-                    await releaseMediationContactsInternal(mediationId);
+                    await releaseMediationContactsInternal(mediationId, musicianId);
                 } catch (medErr) {
                     console.error("Failed to release contacts via Stripe Webhook:", medErr);
                     return res.status(500).send("Mediation release failed");
@@ -1175,27 +1176,8 @@ exports.sendRecommendationList = functions
             };
 
             const dateDisplay = eventDate ? ` am ${formatGermanDate(eventDate)}` : '';
-            const defaultMessage = `wir haben passende Musiker für dein Event <strong>"${eventName}"</strong>${dateDisplay} gefunden! Klicke auf den Button unten, um dir die Vorschläge anzusehen, Hörproben und Videos abzuspielen und deinen Wunsch-Act unverbindlich anzufragen.`;
+            const defaultMessage = `Hallo, wir haben eine passende Auswahl an Musikern für dein Event <strong>"${eventName}"</strong>${dateDisplay} zusammengestellt! Klicke auf den Button unten, um dir die Vorschläge anzusehen, Hörproben und Videos anzuhören und deinen Wunsch-Act direkt verbindlich anzufragen.`;
             const messageHtml = customMessage ? customMessage.replace(/\n/g, '<br>') : defaultMessage;
-
-            const listHtml = musicians.map((mus, index) => {
-                const type = mus.type || mus.musicianTypes || 'Act';
-                const location = (mus.location || '').split(' (')[0];
-                const category = mus.category || (Array.isArray(type) ? type.join(', ') : type);
-                
-                return `
-                    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: #ffffff;">
-                        <h4 style="margin-top: 0; color: #2563eb; font-size: 1.1rem;">Act ${index + 1}: ${category} aus ${location}</h4>
-                        <p style="font-size: 0.85rem; color: #4a5568; line-height: 1.4; margin-bottom: 10px;">
-                            ${mus.bio || mus.description || 'Keine Beschreibung vorhanden.'}
-                        </p>
-                        <p style="font-size: 0.8rem; color: #718096; margin: 0;">
-                            <strong>Genres:</strong> ${Array.isArray(mus.genres) ? mus.genres.join(', ') : (mus.genres || 'Keine')}<br>
-                            <strong>Instrumente:</strong> ${Array.isArray(mus.instruments) ? mus.instruments.join(', ') : (mus.instruments || 'Keine')}
-                        </p>
-                    </div>
-                `;
-            }).join('');
 
             const emailHtml = `
                 <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
@@ -1206,10 +1188,6 @@ exports.sendRecommendationList = functions
                     <p>Hallo,</p>
                     <p>${messageHtml}</p>
                     
-                    <div style="margin: 25px 0;">
-                        ${listHtml}
-                    </div>
-
                     <p style="text-align: center; margin-top: 25px;">
                         <a href="${recommendationLink}" style="background: #2563eb; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; box-shadow: 0 4px 10px rgba(37,99,235,0.25);">Vorschläge anhören & auswählen</a>
                     </p>
@@ -1239,13 +1217,18 @@ exports.sendRecommendationList = functions
     });
 
 // Shared internal helper for releasing mediation contacts
-async function releaseMediationContactsInternal(mediationId) {
+async function releaseMediationContactsInternal(mediationId, musicianId = null) {
     const medRef = admin.firestore().collection('mediations').doc(mediationId);
     const medDoc = await medRef.get();
     if (!medDoc.exists) {
         throw new Error('Vermittlung nicht gefunden.');
     }
     const med = medDoc.data();
+
+    const finalMusicianId = musicianId || med.selectedMusicianId;
+    if (!finalMusicianId) {
+        throw new Error('Kein Musiker ausgewählt.');
+    }
 
     // Check if already completed to avoid duplicate emails
     if (med.status === 'completed' && med.paymentStatus === 'paid') {
@@ -1254,7 +1237,7 @@ async function releaseMediationContactsInternal(mediationId) {
     }
 
     // Load musician details
-    const musDoc = await admin.firestore().collection('musicians').doc(med.selectedMusicianId).get();
+    const musDoc = await admin.firestore().collection('musicians').doc(finalMusicianId).get();
     if (!musDoc.exists) {
         throw new Error('Musiker-Profil nicht gefunden.');
     }
@@ -1268,11 +1251,16 @@ async function releaseMediationContactsInternal(mediationId) {
     const musName = mus.name || mus.title || '';
 
     // Update status to completed
-    await medRef.update({
+    const updateData = {
         status: 'completed',
+        selectedMusicianId: finalMusicianId,
         paymentStatus: med.paymentStatus || 'paid',
         completedAt: new Date().toISOString()
-    });
+    };
+    if (med.musicianStatuses) {
+        updateData[`musicianStatuses.${finalMusicianId}`] = 'accepted';
+    }
+    await medRef.update(updateData);
 
     // 1. Send email to Organizer
     const organizerSubject = `Kontaktdaten freigeschaltet: ${musName} für dein Event: ${med.eventName} 🎉`;
@@ -1336,7 +1324,7 @@ exports.createMediationPayment = functions
             throw new functions.https.HttpsError('unauthenticated', 'Bitte melde dich an.');
         }
 
-        const { mediationId, baseUrl } = data;
+        const { mediationId, musicianId, baseUrl } = data;
         if (!mediationId) {
             throw new functions.https.HttpsError('invalid-argument', 'Fehlende mediationId.');
         }
@@ -1386,11 +1374,12 @@ exports.createMediationPayment = functions
                     },
                     quantity: 1,
                 }],
-                success_url: `${cleanBaseUrl}/#/mediation-response/${mediationId}`,
-                cancel_url: `${cleanBaseUrl}/#/mediation-response/${mediationId}`,
+                success_url: `${cleanBaseUrl}/#/mediation-response/${mediationId}?musicianId=${musicianId || ''}`,
+                cancel_url: `${cleanBaseUrl}/#/mediation-response/${mediationId}?musicianId=${musicianId || ''}`,
                 metadata: {
                     type: 'mediation_payment',
                     mediationId: mediationId,
+                    musicianId: musicianId || '',
                     userId: context.auth.uid
                 }
             };
@@ -1408,13 +1397,13 @@ exports.releaseMediationContacts = functions
     .region('europe-west3')
     .runWith({ secrets: ['RESEND_API_KEY'] })
     .https.onCall(async (data, context) => {
-        const { mediationId } = data;
+        const { mediationId, musicianId } = data;
         if (!mediationId) {
             throw new functions.https.HttpsError('invalid-argument', 'Fehlende mediationId.');
         }
 
         try {
-            await releaseMediationContactsInternal(mediationId);
+            await releaseMediationContactsInternal(mediationId, musicianId || null);
             return { success: true };
         } catch (error) {
             console.error("Error in releaseMediationContacts callable:", error);
@@ -1472,6 +1461,220 @@ exports.notifyMediationDeclined = functions
             return { success: true };
         } catch (error) {
             console.error("Error in notifyMediationDeclined:", error);
+            throw new functions.https.HttpsError('internal', error.message);
+        }
+    });
+
+// HTTPS Callable for Requesting a Musician Verbindlich (sent by Organizer)
+exports.requestMusician = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['RESEND_API_KEY'] })
+    .https.onCall(async (data, context) => {
+        const { mediationId, musicianId, baseUrl } = data;
+        if (!mediationId || !musicianId || !baseUrl) {
+            throw new functions.https.HttpsError('invalid-argument', 'Fehlende Parameter.');
+        }
+
+        try {
+            const medRef = admin.firestore().collection('mediations').doc(mediationId);
+            const medDoc = await medRef.get();
+            if (!medDoc.exists) {
+                throw new functions.https.HttpsError('not-found', 'Vermittlung nicht gefunden.');
+            }
+            const med = medDoc.data();
+
+            if (med.status === 'completed') {
+                throw new functions.https.HttpsError('failed-precondition', 'Diese Vermittlung ist bereits abgeschlossen.');
+            }
+
+            const musDoc = await admin.firestore().collection('musicians').doc(musicianId).get();
+            if (!musDoc.exists) {
+                throw new functions.https.HttpsError('not-found', 'Musiker nicht gefunden.');
+            }
+            const mus = musDoc.data();
+
+            // Fetch musician user details
+            const musUserDoc = await admin.firestore().collection('users').doc(mus.creatorId).get();
+            const musUser = musUserDoc.exists ? musUserDoc.data() : {};
+            const musEmail = musUser.email || mus.email;
+            const musName = mus.name || mus.title || 'Musiker';
+
+            if (!musEmail) {
+                throw new functions.https.HttpsError('failed-precondition', 'Keine E-Mail-Adresse für den Musiker hinterlegt.');
+            }
+
+            // Update mediation document
+            const updateData = {
+                status: 'pending_availability'
+            };
+            updateData[`musicianStatuses.${musicianId}`] = 'pending';
+            await medRef.update(updateData);
+
+            // Send email to musician
+            const responseLink = `${baseUrl}/#/mediation-response/${mediationId}?musicianId=${musicianId}`;
+            const subject = `Verbindliche Buchungsanfrage für das Event: ${med.eventName} 🚀`;
+            const emailHtml = `
+                <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <img src="https://gigconnact.de/discoball.png" alt="GigConnAct Logo" style="width: 70px; height: 70px; object-fit: contain;">
+                    </div>
+                    <h2 style="color: #7c3aed; margin-top: 0; font-size: 1.4rem; text-align: center;">Verbindliche Buchungsanfrage erhalten! 🚀</h2>
+                    <p>Hallo ${musName},</p>
+                    <p>herzlichen Glückwunsch! Du hast eine <strong>verbindliche Buchungsanfrage</strong> für das Event <strong>"${med.eventName}"</strong> erhalten.</p>
+                    <p>Klicke auf den Button unten, um dir die Details anzusehen, den Gig verbindlich zuzusagen und die Buchung abzuschließen:</p>
+                    
+                    <p style="text-align: center; margin-top: 25px;">
+                        <a href="${responseLink}" style="background: #7c3aed; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; box-shadow: 0 4px 10px rgba(124,58,237,0.25);">Anfrage ansehen & Zusage erteilen</a>
+                    </p>
+                    
+                    <p style="font-size: 0.82rem; color: #718096; line-height: 1.45; margin-top: 20px;">
+                        <strong>Hinweis:</strong> Es handelt sich um ein Vermittlungsangebot. Der erste Act, der zusagt und ggf. die Gebühr bezahlt, erhält den Gig. Danach wird der Link für alle anderen Kandidaten deaktiviert.
+                    </p>
+                    
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 15px;">
+                    <p style="font-size: 0.8rem; color: #a0aec0; text-align: center;">GigConnAct — Dein Live-Musik Marktplatz</p>
+                </div>
+            `;
+
+            await sendEmail({ to: musEmail, subject: subject, html: emailHtml, headers: { 'Reply-To': 'info@gigconnact.de' } });
+
+            // Notify Admin
+            const adminSubject = `[VERMITTLUNG ANFRAGE] Musiker ${musName} wurde angefragt für: ${med.eventName}`;
+            const adminHtml = `
+                <p>Der Veranstalter hat eine verbindliche Anfrage an einen Musiker gesendet.</p>
+                <p><strong>Event:</strong> ${med.eventName}</p>
+                <p><strong>Veranstalter:</strong> ${med.organizerEmail}</p>
+                <p><strong>Musiker:</strong> ${musName} (${musEmail})</p>
+                <p><strong>Mediation ID:</strong> ${mediationId}</p>
+            `;
+            await sendEmail({ to: 'info@gigconnact.de', subject: adminSubject, html: adminHtml });
+
+            return { success: true };
+        } catch (error) {
+            console.error("Error in requestMusician callable:", error);
+            throw new functions.https.HttpsError('internal', error.message);
+        }
+    });
+
+// HTTPS Callable for Updating Musician Request Status (Declined, No Response)
+exports.updateMediationMusicianStatus = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['RESEND_API_KEY'] })
+    .https.onCall(async (data, context) => {
+        const { mediationId, musicianId, status, baseUrl } = data;
+        if (!mediationId || !musicianId || !status) {
+            throw new functions.https.HttpsError('invalid-argument', 'Fehlende Parameter.');
+        }
+
+        try {
+            const medRef = admin.firestore().collection('mediations').doc(mediationId);
+            const medDoc = await medRef.get();
+            if (!medDoc.exists) {
+                throw new functions.https.HttpsError('not-found', 'Vermittlung nicht gefunden.');
+            }
+            const med = medDoc.data();
+
+            const musDoc = await admin.firestore().collection('musicians').doc(musicianId).get();
+            if (!musDoc.exists) {
+                throw new functions.https.HttpsError('not-found', 'Musiker nicht gefunden.');
+            }
+            const mus = musDoc.data();
+            const musName = mus.name || mus.title || 'Musiker';
+
+            // Update status of this musician request
+            const updateData = {};
+            updateData[`musicianStatuses.${musicianId}`] = status;
+            await medRef.update(updateData);
+
+            const recLink = `${baseUrl || 'https://www.gigconnact.de'}/#/recommendation/${mediationId}`;
+
+            let emailSubject = '';
+            let emailHtml = '';
+
+            if (status === 'declined') {
+                emailSubject = `Absage zu deiner Musiker-Anfrage für: ${med.eventName} 🎵`;
+                emailHtml = `
+                    <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
+                        <h2 style="color: #ef4444; margin-top: 0; font-size: 1.4rem;">Absage erhalten 🤍</h2>
+                        <p>Hallo,</p>
+                        <p>der Act <strong>"${musName}"</strong> hat deine Buchungsanfrage für das Event <strong>"${med.eventName}"</strong> leider abgelehnt oder ist an dem Termin nicht mehr verfügbar.</p>
+                        <p>Du kannst weiterhin andere Acts aus deiner Vorschlagsliste kontaktieren:</p>
+                        <p style="text-align: center; margin-top: 25px;">
+                            <a href="${recLink}" style="background: #2563eb; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Zurück zur Vorschlagsliste</a>
+                        </p>
+                        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 15px;">
+                        <p style="font-size: 0.8rem; color: #a0aec0; text-align: center;">GigConnAct — Dein Live-Musik Marktplatz</p>
+                    </div>
+                `;
+            } else if (status === 'no_response') {
+                emailSubject = `Keine Rückmeldung von Musiker für: ${med.eventName} ⏳`;
+                emailHtml = `
+                    <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
+                        <h2 style="color: #f59e0b; margin-top: 0; font-size: 1.4rem;">Keine Rückmeldung erhalten ⏳</h2>
+                        <p>Hallo,</p>
+                        <p>der Act <strong>"${musName}"</strong> hat leider nicht auf deine Buchungsanfrage geantwortet. Wir haben die Anfrage zurückgezogen.</p>
+                        <p>Du kannst weiterhin andere Acts aus deiner Vorschlagsliste kontaktieren oder eine neue Suche starten:</p>
+                        <p style="text-align: center; margin-top: 25px;">
+                            <a href="${recLink}" style="background: #2563eb; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Zurück zur Vorschlagsliste</a>
+                        </p>
+                        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 15px;">
+                        <p style="font-size: 0.8rem; color: #a0aec0; text-align: center;">GigConnAct — Dein Live-Musik Marktplatz</p>
+                    </div>
+                `;
+            }
+
+            if (emailSubject && emailHtml) {
+                await sendEmail({ to: med.organizerEmail, subject: emailSubject, html: emailHtml, headers: { 'Reply-To': 'info@gigconnact.de' } });
+            }
+
+            // Send notification to Admin
+            const adminSubject = `[VERMITTLUNG STATUS] Musiker ${status.toUpperCase()} für: ${med.eventName}`;
+            const adminHtml = `
+                <p>Statusänderung für Musikeranfrage.</p>
+                <p><strong>Event:</strong> ${med.eventName}</p>
+                <p><strong>Veranstalter:</strong> ${med.organizerEmail}</p>
+                <p><strong>Musiker:</strong> ${musName}</p>
+                <p><strong>Neuer Status:</strong> ${status}</p>
+                <p><strong>Mediation ID:</strong> ${mediationId}</p>
+            `;
+            await sendEmail({ to: 'info@gigconnact.de', subject: adminSubject, html: adminHtml });
+
+            return { success: true };
+        } catch (error) {
+            console.error("Error in updateMediationMusicianStatus callable:", error);
+            throw new functions.https.HttpsError('internal', error.message);
+        }
+    });
+
+// HTTPS Callable for Requesting More Recommendations (sent by Organizer)
+exports.requestMoreRecommendations = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['RESEND_API_KEY'] })
+    .https.onCall(async (data, context) => {
+        const { mediationId } = data;
+        if (!mediationId) {
+            throw new functions.https.HttpsError('invalid-argument', 'Fehlende mediationId.');
+        }
+
+        try {
+            const medDoc = await admin.firestore().collection('mediations').doc(mediationId).get();
+            if (!medDoc.exists) {
+                throw new functions.https.HttpsError('not-found', 'Vermittlung nicht gefunden.');
+            }
+            const med = medDoc.data();
+
+            const adminSubject = `[WEITERE SUCHE] Veranstalter wünscht weitere Musiker für: ${med.eventName}`;
+            const adminHtml = `
+                <h3>Weitere Vorschläge gewünscht!</h3>
+                <p>Der Veranstalter von Event <strong>"${med.eventName}"</strong> (${med.organizerEmail}) wünscht weitere Musiker-Vorschläge.</p>
+                <p>Bitte suche nach zusätzlichen passenden Acts und füge sie der Vorschlagsliste hinzu.</p>
+                <p><strong>Mediation ID:</strong> ${mediationId}</p>
+            `;
+            await sendEmail({ to: 'info@gigconnact.de', subject: adminSubject, html: adminHtml });
+
+            return { success: true };
+        } catch (error) {
+            console.error("Error in requestMoreRecommendations callable:", error);
             throw new functions.https.HttpsError('internal', error.message);
         }
     });

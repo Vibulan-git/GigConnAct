@@ -8084,6 +8084,7 @@ class StateManager {
             creatorId: this.currentUser.id,
             createdAt: new Date().toISOString(),
             isActive: true,
+            favorites: [],
             ...cleanEventData
         };
 
@@ -8193,6 +8194,7 @@ class StateManager {
             audio: [],
             socialLinks: { spotify: "", youtube: "", instagram: "" },
             isActive: true,
+            favorites: [],
             ...cleanMusicianData
         };
 
@@ -8459,22 +8461,95 @@ class StateManager {
 
     toggleFavorite(id) {
         if (!this.currentUser) return false;
-        let favs = this.currentUser.favorites || [];
+
+        let profileId = null;
+        let collectionName = null;
+        let profileObj = null;
+
+        if (this.currentUser.role === 'musician') {
+            profileId = this.activeMusicianId || this.currentUser.profileId;
+            collectionName = 'musicians';
+            profileObj = this.musicians.find(m => m.id === profileId);
+        } else if (this.currentUser.role === 'organizer') {
+            profileId = this.activeEventId;
+            if (!profileId && this.events && this.events.length > 0) {
+                const fallback = this.events.find(e => e.creatorId === this.currentUser.id || e.id === this.currentUser.profileId)
+                    || this.events.find(e => e.creatorId === this.currentUser.id)
+                    || this.events[0];
+                if (fallback) {
+                    profileId = fallback.id;
+                }
+            }
+            collectionName = 'events';
+            profileObj = this.events.find(e => e.id === profileId);
+        }
+
+        if (!profileId || !collectionName) {
+            let favs = this.currentUser.favorites || [];
+            const idx = favs.indexOf(id);
+            if (idx === -1) {
+                favs = [...favs, id];
+            } else {
+                favs = favs.filter(x => x !== id);
+            }
+            this.currentUser.favorites = favs;
+            db.collection('users').doc(this.currentUser.id).update({ favorites: favs })
+                .catch(err => console.error("toggleFavorite failed:", err));
+            this.saveState();
+            this.notify();
+            document.dispatchEvent(new CustomEvent('user-state-changed'));
+            return true;
+        }
+
+        let favs = (profileObj && profileObj.favorites) ? profileObj.favorites : [];
         const idx = favs.indexOf(id);
         if (idx === -1) {
             favs = [...favs, id];
         } else {
             favs = favs.filter(x => x !== id);
         }
-        this.currentUser.favorites = favs;
-        db.collection('users').doc(this.currentUser.id).update({ favorites: favs })
-            .catch(err => console.error("toggleFavorite failed:", err));
+
+        if (profileObj) {
+            profileObj.favorites = favs;
+        }
+        db.collection(collectionName).doc(profileId).update({ favorites: favs })
+            .catch(err => console.error(`toggleFavorite for ${collectionName} failed:`, err));
+
+        this.saveState();
+        this.notify();
+        document.dispatchEvent(new CustomEvent('user-state-changed'));
         return true;
     }
 
     isFavorite(id) {
-        if (!this.currentUser || !this.currentUser.favorites) return false;
-        return this.currentUser.favorites.includes(id);
+        if (!this.currentUser) return false;
+
+        let profileId = null;
+        let profileObj = null;
+
+        if (this.currentUser.role === 'musician') {
+            profileId = this.activeMusicianId || this.currentUser.profileId;
+            profileObj = this.musicians.find(m => m.id === profileId);
+        } else if (this.currentUser.role === 'organizer') {
+            profileId = this.activeEventId;
+            if (!profileId && this.events && this.events.length > 0) {
+                const fallback = this.events.find(e => e.creatorId === this.currentUser.id || e.id === this.currentUser.profileId)
+                    || this.events.find(e => e.creatorId === this.currentUser.id)
+                    || this.events[0];
+                if (fallback) {
+                    profileId = fallback.id;
+                }
+            }
+            profileObj = this.events.find(e => e.id === profileId);
+        }
+
+        if (!profileId) {
+            if (!this.currentUser.favorites) return false;
+            return this.currentUser.favorites.includes(id);
+        }
+
+        if (!profileObj || !profileObj.favorites) return false;
+        return profileObj.favorites.includes(id);
     }
 
     async initiateContact(targetId, targetName, eventId) {
@@ -9281,12 +9356,18 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
     let matchesCount = 0;
     const musTech = Array.isArray(musician.technik) ? musician.technik : [musician.technik || "Technik ist noch unklar"];
     const evTech = Array.isArray(event.technik) ? event.technik : [event.technik || "Technik ist noch unklar"];
-    const possibleTech = ["Technik vorhanden", "Technik ist noch unklar", "Technik nicht vorhanden"];
-    possibleTech.forEach(opt => {
-        if (musTech.includes(opt) && evTech.includes(opt)) {
-            matchesCount++;
-        }
-    });
+    if (musTech.includes("Technik vorhanden") && evTech.includes("Technik vorhanden")) {
+        matchesCount++;
+    }
+    if (musTech.includes("Technik ist noch unklar") && evTech.includes("Technik ist noch unklar")) {
+        matchesCount++;
+    }
+    if (evTech.includes("Technik nicht vorhanden") && musTech.includes("Technik vorhanden")) {
+        matchesCount++;
+    }
+    if (musTech.includes("Technik nicht vorhanden") && evTech.includes("Technik vorhanden")) {
+        matchesCount++;
+    }
     
     let extraScore = (matchesCount / 3) * 5;
     const totalScore = Math.round(typeScore + ortScore + genresScore + instScore + durScore + budgetScore + eventTypeScore + dateScore + publikumScore + extraScore);
@@ -10521,9 +10602,9 @@ function initDualSlider(containerId, minInputId, maxInputId, trackId, displayId,
                 display.textContent = `${minVal.toFixed(1).replace('.', ',')} - ${maxVal.toFixed(1).replace('.', ',')} Std.`;
             } else if (unit === 'Personen') {
                 if (maxVal >= 500) {
-                    display.textContent = `${minVal} - 500+ Personen`;
+                    display.textContent = `${minVal} - 500+`;
                 } else {
-                    display.textContent = `${minVal} - ${maxVal} Personen`;
+                    display.textContent = `${minVal} - ${maxVal}`;
                 }
             } else {
                 display.textContent = `${minVal} - ${maxVal} ${unit}`;
@@ -10859,7 +10940,7 @@ function renderMarket(container, type, onNavigate) {
 
     const getItems = () => isEvents ? state.events : state.musicians;
     
-    let selectedFilterDates = []; window.selectedFilterDates = selectedFilterDates;
+    let selectedFilterDates = window.selectedFilterDates;
     let currentFilterCalDate = new Date();
     let showOnlyTopMatches = false;
     let showOnlyFavorites = false;
@@ -10889,6 +10970,17 @@ function renderMarket(container, type, onNavigate) {
                 || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId);
             if (myProfile) {
                 hasProfile = true;
+                
+                if (window.lastActiveProfileId !== myProfile.id || selectedFilterDates === null || selectedFilterDates === undefined) {
+                    if (Array.isArray(myProfile.availability)) {
+                        selectedFilterDates = [...myProfile.availability];
+                    } else {
+                        selectedFilterDates = [];
+                    }
+                    window.selectedFilterDates = selectedFilterDates;
+                    window.lastActiveProfileId = myProfile.id;
+                }
+
                 prefillLocation = myProfile.location || '';
                 prefillGenres = myProfile.genres || [];
                 prefillInstruments = myProfile.instruments || [];
@@ -10911,6 +11003,19 @@ function renderMarket(container, type, onNavigate) {
                 || state.events[0];
             if (myProfile) {
                 hasProfile = true;
+
+                if (window.lastActiveProfileId !== myProfile.id || selectedFilterDates === null || selectedFilterDates === undefined) {
+                    if (Array.isArray(myProfile.dates)) {
+                        selectedFilterDates = [...myProfile.dates];
+                    } else if (myProfile.date) {
+                        selectedFilterDates = [myProfile.date];
+                    } else {
+                        selectedFilterDates = [];
+                    }
+                    window.selectedFilterDates = selectedFilterDates;
+                    window.lastActiveProfileId = myProfile.id;
+                }
+
                 prefillLocation = myProfile.location || '';
                 prefillGenres = myProfile.genres || [];
                 prefillInstruments = myProfile.instruments || [];
@@ -10927,6 +11032,11 @@ function renderMarket(container, type, onNavigate) {
                 prefillEventTypes = myProfile.type || myProfile.eventType ? [myProfile.type || myProfile.eventType] : [];
             }
         }
+    }
+
+    if (selectedFilterDates === null || selectedFilterDates === undefined) {
+        selectedFilterDates = [];
+        window.selectedFilterDates = selectedFilterDates;
     }
 
     const currentPrefillHash = JSON.stringify({
@@ -11242,7 +11352,7 @@ function renderMarket(container, type, onNavigate) {
                             <!-- 5. Gesuchte Event-Typen -->
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                                    <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Gesuchte Event-Typen</label>
+                                    <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Event-Typen</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
                                         <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">alle auswählen</span>
                                     </div>
@@ -13122,17 +13232,45 @@ function renderProfilePage(container) {
 
     const form = document.getElementById('profile-details-form');
     if (form) {
+        const profPhoneInput = document.getElementById('prof-phone');
+        if (profPhoneInput) {
+            profPhoneInput.addEventListener('input', (e) => {
+                let val = e.target.value;
+                val = val.replace(/[^0-9\s+]/g, '');
+                if (val.includes('+')) {
+                    const parts = val.split('+');
+                    if (val.startsWith('+')) {
+                        val = '+' + parts.slice(1).join('').replace(/\+/g, '');
+                    } else {
+                        val = parts.join('').replace(/\+/g, '');
+                    }
+                }
+                e.target.value = val.substring(0, 20);
+            });
+        }
+
         form.addEventListener('submit', (e) => {
             e.preventDefault();
+            clearAllValidationErrors(form);
+
             const fName = document.getElementById('prof-firstname').value.trim();
             const lName = document.getElementById('prof-lastname').value.trim();
             const email = document.getElementById('prof-email').value.trim();
-            const phone = document.getElementById('prof-phone').value.trim();
+            const phoneEl = document.getElementById('prof-phone');
+            const phone = phoneEl.value.trim();
             const hidePhone = document.getElementById('prof-hidephone').checked;
 
             const nameReg = /^[a-zA-ZäöüÄÖÜß\s\-]+$/;
             if (!nameReg.test(fName) || !nameReg.test(lName)) {
                 showToast({ title: "Fehler", message: "Der Name darf nur Buchstaben enthalten.", type: "error" });
+                if (!nameReg.test(fName)) markInvalid(document.getElementById('prof-firstname'));
+                if (!nameReg.test(lName)) markInvalid(document.getElementById('prof-lastname'));
+                return;
+            }
+
+            const phoneVal = phone.replace(/\D/g, '');
+            if (phoneVal.length < 5 || phoneVal.length > 16) {
+                showValidationError(phoneEl, null, 'Die Telefonnummer muss zwischen 5 und 16 Ziffern lang sein.');
                 return;
             }
 
@@ -14583,7 +14721,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     <!-- 5. Gesuchte Event-Typen -->
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                            <label style="margin: 0;">Gesuchte Event-Typen</label>
+                            <label style="margin: 0;">Event-Typen</label>
                             <span onclick="window.toggleSelectAll('grid-event-types', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-event-types">
@@ -16151,7 +16289,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         <!-- 5. Gesuchte Event-Typen -->
                         <div class="form-group">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
-                                <label style="margin: 0;">Gesuchte Event-Typen</label>
+                                <label style="margin: 0;">Event-Typen</label>
                                 <span onclick="window.toggleSelectAll('grid-event-types', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                             </div>
                             <div class="checkbox-tag-grid" id="grid-event-types">
@@ -16672,7 +16810,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     <div id="reg-event-publish-consent-container" style="display: none; margin-top: 0.5rem; margin-bottom: 1.2rem;">
                         <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.8rem; line-height: 1.4; color: var(--text-muted); cursor: pointer;">
                             <input type="checkbox" name="eventPublishConsent" oninvalid="this.setCustomValidity('Bitte erteile die Erlaubnis zur Veröffentlichung deines Events.')" oninput="this.setCustomValidity('')" style="width: auto; margin-top: 0.2rem; cursor: pointer; transform: scale(1.2);">
-                            <span>GigConnAct hat deine Erlaubnis, dein Event auf GigConnAct zu veröffentlichen.</span>
+                            <span>GigConnAct hat Deine Erlaubnis, Dein Event auf dem Event-Markt zu veröffentlichen.</span>
                         </label>
                     </div>
 
@@ -17415,11 +17553,21 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         });
     }
 
-    // Phone numbers only sanitizer (max 16 numbers)
+    // Phone numbers sanitizer (max 20 characters, digits, spaces, and leading + only)
     const phoneInput = document.getElementById('input-reg-phone');
     if (phoneInput) {
         phoneInput.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 16);
+            let val = e.target.value;
+            val = val.replace(/[^0-9\s+]/g, '');
+            if (val.includes('+')) {
+                const parts = val.split('+');
+                if (val.startsWith('+')) {
+                    val = '+' + parts.slice(1).join('').replace(/\+/g, '');
+                } else {
+                    val = parts.join('').replace(/\+/g, '');
+                }
+            }
+            e.target.value = val.substring(0, 20);
         });
     }
     registerForm.addEventListener('submit', async (e) => {
@@ -18179,10 +18327,16 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
 
 function navigateAfterLogin() {
     if (state.currentUser) {
-        if (state.currentUser.role === 'musician') {
-            navigate('events');
+        if (window.loginRedirectHash) {
+            const target = window.loginRedirectHash;
+            window.loginRedirectHash = null;
+            window.location.hash = target;
         } else {
-            navigate('musicians');
+            if (state.currentUser.role === 'musician') {
+                navigate('events');
+            } else {
+                navigate('musicians');
+            }
         }
     } else {
         navigate('');
@@ -18700,8 +18854,8 @@ function navigate(page) {
     // Calculate current prefill hash to check if profile content changed
     let currentPrefillHash = '';
     if (state && state.currentUser) {
-        const isEv = page === 'events';
-        const myProfile = isEv 
+        const isMusician = state.currentUser.role === 'musician';
+        const myProfile = isMusician 
             ? (state.musicians.find(m => m.id === activeMusicianId) || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId))
             : (state.events.find(e => e.id === activeEventId) || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) || state.events.find(e => e.creatorId === state.currentUser.id));
         if (myProfile) {
@@ -18883,6 +19037,12 @@ function updateNavbar(forceLanding) {
     const nav = document.getElementById('main-nav');
     const authArea = document.getElementById('auth-area');
     if (!nav || !authArea) return;
+
+    if (window.location.hash.includes('recommendation/')) {
+        nav.innerHTML = '';
+        authArea.innerHTML = '';
+        return;
+    }
 
     const u = state.currentUser;
     const isLanding = forceLanding !== undefined 
@@ -19234,6 +19394,12 @@ function handleRouting() {
     let page = pageWithQuery.split('?')[0];
     if (page === 'top-matches') page = 'matches';
     
+    // Save target hash for redirect after login if it's a protected route
+    const protectedPages = ['matches', 'top-matches', 'dashboard', 'my-musicians', 'my-events', 'postbox', 'credits', 'profile'];
+    if ((!state || !state.currentUser) && protectedPages.includes(page)) {
+        window.loginRedirectHash = hash;
+    }
+    
     // Check if user is half-logged-in (Firebase Auth exists but no Firestore profile)
     if (typeof auth !== 'undefined' && auth.currentUser && (!state || !state.currentUser || !state.currentUser.id)) {
         if (page === '' || page === '/') {
@@ -19414,9 +19580,9 @@ function initGigConnActApp() {
         
         // Calculate the current profile prefill hash to see if it changed
         let currentPrefillHash = '';
-        if (state.currentUser) {
-            const isEvents = currentHash.includes('events');
-            const myProfile = isEvents 
+        if (state && state.currentUser) {
+            const isMusician = state.currentUser.role === 'musician';
+            const myProfile = isMusician 
                 ? (state.musicians.find(m => m.id === state.activeMusicianId) || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId))
                 : (state.events.find(e => e.id === state.activeEventId) || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) || state.events.find(e => e.creatorId === state.currentUser.id));
             if (myProfile) {
@@ -19438,9 +19604,14 @@ function initGigConnActApp() {
         }
 
         const profileChanged = window.lastProfilePrefillHash !== currentPrefillHash;
-        console.log('[DEBUG] user-state-changed: profileChanged =', profileChanged);
+        const activeMusicianIdChanged = window.lastActiveMusicianId !== (state ? state.activeMusicianId : null);
+        const activeEventIdChanged = window.lastActiveEventId !== (state ? state.activeEventId : null);
+        const activeProfileChanged = profileChanged || activeMusicianIdChanged || activeEventIdChanged;
+        console.log('[DEBUG] user-state-changed: profileChanged =', profileChanged, 'activeProfileChanged =', activeProfileChanged);
 
-        if (!profileChanged && isUserSame && (currentHash.includes('events') || currentHash.includes('musicians')) && typeof window.marketApplyFilters === 'function') {
+        const isMarketPage = document.getElementById('market-grid') !== null;
+
+        if (!activeProfileChanged && isUserSame && isMarketPage && typeof window.marketApplyFilters === 'function') {
             console.log('[DEBUG] user-state-changed: calling window.marketApplyFilters()');
             window.marketApplyFilters();
         } else {
@@ -20213,7 +20384,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
     const filterGageMin = parseFloat(document.getElementById('input-filter-gage-m-min')?.value) || 0;
     const filterGageMax = parseFloat(document.getElementById('input-filter-gage-m-max')?.value) || 5000;
 
-    let selectedEventDates = window.selectedFilterDates ? [...window.selectedFilterDates] : [];
+    let selectedEventDates = [];
     let currentCalDate = new Date();
 
     modalWrapper.innerHTML = `
@@ -20306,7 +20477,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                         <div class="checkbox-tag-grid" id="grid-org-musician-types">
                             ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler/Tänzer', 'Sonstige'].map(t => `
                                 <label class="tag-pill-checkbox">
-                                    <input type="checkbox" name="orgMusicianTypes" value="${t}" ${t === 'Band' || t === 'Solokünstler' ? 'checked' : ''}>
+                                    <input type="checkbox" name="orgMusicianTypes" value="${t}">
                                     <span>${t}</span>
                                 </label>
                             `).join('')}
@@ -20490,7 +20661,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                     <div style="display: flex; align-items: flex-start; gap: 0.5rem; margin-top: 1.2rem; margin-bottom: 0.8rem;">
                         <input type="checkbox" id="chk-agency-publish-consent" style="width: auto; margin-top: 0.25rem; cursor: pointer;" required checked>
                         <label for="chk-agency-publish-consent" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0; line-height: 1.35; text-align: left;">
-                            GigConnAct hat deine Erlaubnis, dein Event auf GigConnAct zu veröffentlichen.
+                            GigConnAct hat Deine Erlaubnis, Dein Event auf dem Event-Markt zu veröffentlichen.
                         </label>
                     </div>
 
@@ -20631,6 +20802,24 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
         });
     }
 
+    // Phone numbers sanitizer (max 20 characters, digits, spaces, and leading + only)
+    const modalPhoneInput = modalWrapper.querySelector('#input-reg-phone');
+    if (modalPhoneInput) {
+        modalPhoneInput.addEventListener('input', (e) => {
+            let val = e.target.value;
+            val = val.replace(/[^0-9\s+]/g, '');
+            if (val.includes('+')) {
+                const parts = val.split('+');
+                if (val.startsWith('+')) {
+                    val = '+' + parts.slice(1).join('').replace(/\+/g, '');
+                } else {
+                    val = parts.join('').replace(/\+/g, '');
+                }
+            }
+            e.target.value = val.substring(0, 20);
+        });
+    }
+
     // 7. Organizer Type and Company Toggle
     const orgTypeSelect = modalWrapper.querySelector('#reg-org-type-select');
     const orgCompanyContainer = modalWrapper.querySelector('#reg-org-company-dynamic-container');
@@ -20754,18 +20943,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                 const uid = adminUids[i];
                 const eventId = 'evt_agency_' + Date.now() + '_' + i;
                 
-                const fullDescription = `
-${detailDescription}
-
----
-ANFRAGE-DETAILS (GIGCONNACT-VERMITTLUNG):
-Ansprechpartner: ${fullNameVal}
-E-Mail: ${emailVal}
-Telefon: ${form.elements.phone.value.trim()}
-Unternehmen/Organisation: ${compValue}
-Veranstalter-Typ: ${orgType}
-Referenzierter Künstler-Code: ${musicianId} (${bandName})
-                `.trim();
+                const fullDescription = detailDescription;
 
                 const newEvent = {
                     id: eventId,
@@ -20773,6 +20951,7 @@ Referenzierter Künstler-Code: ${musicianId} (${bandName})
                     name: form.elements.eventName.value.trim(),
                     type: checkedEventTypes[0] || 'Sonstiges',
                     eventTypes: checkedEventTypes,
+                    musicianTypes: checkedMusicianTypes,
                     date: selectedEventDates[0],
                     dates: selectedEventDates,
                     eventStartTime: form.elements.eventStartTime.value,
@@ -20797,6 +20976,11 @@ Referenzierter Künstler-Code: ${musicianId} (${bandName})
                     contactName: "GigConnAct Team",
                     phone: "+49 170 1234567",
                     email: "info@gigconnact.de",
+                    clientName: fullNameVal,
+                    clientEmail: emailVal,
+                    clientPhone: form.elements.phone.value.trim(),
+                    referencedMusicianId: musicianId || '',
+                    referencedMusicianName: bandName || '',
                     isOnline: true,
                     isAgencyRequest: true,
                     createdAt: new Date().toISOString(),
@@ -20835,7 +21019,7 @@ function showAgencySuccessModal(email) {
             </div>
             <h3 style="font-size:1.4rem; color:#fff; margin-bottom:0.75rem;">Anfrage gesendet! 🚀</h3>
             <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.55; margin-bottom:1.8rem;">
-                Vielen Dank! Deine Vermittlungsanfrage ist bei uns eingegangen. Wir prüfen die passenden Acts und senden dir innerhalb der nächsten 5 Werktage per E-Mail an <strong>${email}</strong> unsere handverlesene Auswahl zu.
+                Vielen Dank! Deine Vermittlungsanfrage ist bei uns eingegangen. Wir senden Dir innerhalb der nächsten 5 Werktage eine passende Auswahl an Acts per E-Mail an <strong>${email}</strong> zu. Bitte schau auch in Deinem Spam-Ordner nach.
             </p>
             <button id="btn-close-agency-success" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:700; border-radius:10px; background:#10b981; border-color:#10b981; margin:0;">
                 Schließen
@@ -22344,13 +22528,6 @@ window.showAdminRecommendationDialog = function(musicianIds) {
     const modalWrapper = document.getElementById('modal-container');
     if (!modalWrapper) return;
 
-    // Helper to filter and sort events (newest first)
-    const sortedEvents = (state.events || []).slice().sort((a, b) => {
-        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
-        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
-        return dateB - dateA;
-    });
-
     modalWrapper.innerHTML = `
         <div class="modal-content" style="max-width: 500px; padding: 2rem; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-glass); font-family: var(--font-body); color: var(--text-main); max-height: 90vh; overflow-y: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
@@ -22365,14 +22542,6 @@ window.showAdminRecommendationDialog = function(musicianIds) {
             </p>
             
             <form id="admin-rec-form">
-                <div class="form-group" style="margin-bottom: 1.2rem;">
-                    <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">Event auswählen (optional)</label>
-                    <select id="select-rec-event" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.6rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600;">
-                        <option value="">-- Event auswählen --</option>
-                        ${sortedEvents.map(e => `<option value="${e.id}">${e.name || e.title || 'Unbekanntes Event'} (${e.location || 'Ohne Ort'})</option>`).join('')}
-                    </select>
-                </div>
-
                 <div class="form-group" style="margin-bottom: 1.2rem;">
                     <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">E-Mail-Adresse des Veranstalters</label>
                     <input type="email" name="organizerEmail" placeholder="z.B. veranstalter@mail.de" class="input-field" style="width: 100%; box-sizing: border-box; padding: 0.6rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600;" required>
@@ -22419,22 +22588,29 @@ window.showAdminRecommendationDialog = function(musicianIds) {
     modalWrapper.querySelector('#btn-cancel-rec').addEventListener('click', closeModal);
 
     const form = modalWrapper.querySelector('#admin-rec-form');
-    const selectEvent = modalWrapper.querySelector('#select-rec-event');
     const inputEmail = form.elements.organizerEmail;
     const inputName = form.elements.eventName;
     const inputDate = form.elements.eventDate;
     const inputSubject = form.elements.emailSubject;
     const txtMessage = form.elements.customMessage;
 
-    const defaultMsgTpl = (evtName) => `wir haben passende Musiker für dein Event "${evtName || ''}" gefunden! Klicke auf den Button unten, um dir die Vorschläge anzusehen, Hörproben und Videos abzuspielen und deinen Wunsch-Act unverbindlich anzufragen.`;
+    const formatGermanDate = (dateStr) => {
+        if (!dateStr) return '';
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+            return `${parts[2]}.${parts[1]}.${parts[0]}`;
+        }
+        return dateStr;
+    };
+
+    const defaultMsgTpl = (evtName) => `Hallo, wir haben eine passende Auswahl an Musikern für dein Event "${evtName || ''}" zusammengestellt! Klicke auf den Button unten, um dir die Vorschläge anzusehen, Hörproben und Videos anzuhören und deinen Wunsch-Act direkt verbindlich anzufragen.`;
 
     const updateFieldsFromEvent = (evt) => {
         if (evt) {
             inputEmail.value = evt.email || '';
             inputName.value = evt.name || evt.title || '';
             inputDate.value = evt.date || '';
-            inputSubject.value = `Passende Musiker-Vorschläge für dein Event: ${evt.name || evt.title || ''} 🎵`;
-            txtMessage.value = defaultMsgTpl(evt.name || evt.title || '');
+            updateSubjectAndMessage();
         } else {
             inputEmail.value = '';
             inputName.value = '';
@@ -22444,28 +22620,35 @@ window.showAdminRecommendationDialog = function(musicianIds) {
         }
     };
 
-    if (selectEvent) {
-        selectEvent.addEventListener('change', function() {
-            const val = this.value;
-            const evt = (state.events || []).find(e => e.id === val);
-            updateFieldsFromEvent(evt);
-        });
-    }
-
-    // Prefill from recommendationEvent if set
-    if (state.recommendationEvent) {
-        const evt = state.recommendationEvent;
-        if (selectEvent) {
-            selectEvent.value = evt.id;
+    const updateSubjectAndMessage = () => {
+        const nameVal = inputName.value.trim();
+        const dateVal = inputDate.value;
+        const dateStr = dateVal ? formatGermanDate(dateVal) : '';
+        const dateSuffix = dateStr ? ` am ${dateStr}` : '';
+        
+        if (nameVal) {
+            inputSubject.value = `Passende Musiker-Vorschläge für dein Event: ${nameVal}${dateSuffix} 🎵`;
+            txtMessage.value = defaultMsgTpl(nameVal);
+        } else {
+            inputSubject.value = 'Passende Musiker-Vorschläge für dein Event 🎵';
+            txtMessage.value = defaultMsgTpl('');
         }
-        updateFieldsFromEvent(evt);
+    };
+
+    inputName.addEventListener('input', updateSubjectAndMessage);
+    inputDate.addEventListener('change', updateSubjectAndMessage);
+    inputDate.addEventListener('input', updateSubjectAndMessage);
+
+    // Prefill from activeEventId first!
+    const activeEvt = (state.events || []).find(e => e.id === state.activeEventId) || state.recommendationEvent;
+    if (activeEvt) {
+        updateFieldsFromEvent(activeEvt);
     } else {
         // Fallback: Use selected calendar date if available
         if (window.selectedFilterDates && window.selectedFilterDates.length > 0) {
             inputDate.value = window.selectedFilterDates[0];
         }
-        inputSubject.value = 'Passende Musiker-Vorschläge für dein Event 🎵';
-        txtMessage.value = defaultMsgTpl('');
+        updateSubjectAndMessage();
     }
 
     form.addEventListener('submit', async (e) => {
@@ -22555,21 +22738,7 @@ window.renderRecommendationPage = function(container, mediationId) {
 
         const med = doc.data();
         
-        // Show status screen if organizer already made a choice
-        if (med.status === 'pending_availability') {
-            container.innerHTML = `
-                <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
-                    <i class="fa-solid fa-clock" style="font-size: 3.5rem; color: #2563eb; margin-bottom: 1.2rem;"></i>
-                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Verfügbarkeit wird geprüft ⏳</h3>
-                    <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.5rem;">
-                        Vielen Dank! Du hast deinen Wunsch-Act ausgewählt. Wir klären nun die Verfügbarkeit und informieren dich sofort per E-Mail, sobald eine Antwort vorliegt.
-                    </p>
-                </div>
-            `;
-            return;
-        }
-        
-        if (med.status === 'pending_payment' || med.status === 'completed') {
+        if (med.status === 'completed') {
             container.innerHTML = `
                 <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
                     <i class="fa-solid fa-circle-check" style="font-size: 3.5rem; color: #10b981; margin-bottom: 1.2rem;"></i>
@@ -22620,10 +22789,85 @@ window.renderRecommendationPage = function(container, mediationId) {
                         const photos = (mus.photos && mus.photos.length > 0) ? mus.photos.slice(0, 5) : [mus.image || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80'];
                         const videos = mus.videos || [];
                         const audios = mus.audio || [];
-                        const genres = mus.genres || [];
-                        const instruments = mus.instruments || [];
-                        const budget = mus.minBudget !== undefined ? `${mus.minBudget} - ${mus.maxBudget || 5000} €` : 'Auf Anfrage';
+                        const genresArr = mus.genres || (mus.genre ? [mus.genre] : ['Pop', 'Cover', 'Acoustic']);
+                        const instrumentsArr = mus.instruments || (mus.category ? [mus.category] : ['Gesang', 'Gitarre']);
+                        const techArr = Array.isArray(mus.technik) 
+                            ? mus.technik 
+                            : (typeof mus.technik === 'string' && mus.technik.trim() !== '' ? mus.technik.split(',').map(s => s.trim()) : []);
                         
+                        let dateDisplay = formatMusicianAvailabilityHelper(mus);
+
+                        let durationDisplay = '';
+                        const minDur = mus.minDuration;
+                        const maxDur = mus.maxDuration;
+                        if (minDur !== undefined && minDur !== null) {
+                            const minStr = String(minDur).replace('.', ',');
+                            if (maxDur !== undefined && maxDur !== null && maxDur !== minDur) {
+                                const maxStr = String(maxDur).replace('.', ',');
+                                durationDisplay = `${minStr} - ${maxStr} Stunden`;
+                            } else {
+                                durationDisplay = `${minStr} Stunden`;
+                            }
+                        } else {
+                            let baseDur = String(mus.duration || mus.spieldauer || '2 - 4');
+                            baseDur = baseDur.replace(/ca\.\s*/gi, '').replace(/\s*Stunden\.?/gi, '').trim();
+                            durationDisplay = `${baseDur} Stunden`;
+                        }
+
+                        let budgetDisplay = '';
+                        const minB = mus.minBudget !== undefined ? mus.minBudget : mus.price;
+                        const maxB = mus.maxBudget;
+                        if (minB !== undefined && minB !== null) {
+                            const minBStr = typeof minB === 'number' ? minB.toLocaleString('de-DE') : String(minB);
+                            if (maxB !== undefined && maxB !== null && maxB !== minB) {
+                                const maxBStr = typeof maxB === 'number' ? maxB.toLocaleString('de-DE') : String(maxB);
+                                budgetDisplay = `${minBStr} - ${maxBStr} €`;
+                            } else {
+                                budgetDisplay = `${minBStr} €`;
+                            }
+                        } else {
+                            budgetDisplay = '0 - 5.000 €';
+                        }
+                        
+                        const status = (med.musicianStatuses && med.musicianStatuses[mus.id]) ? med.musicianStatuses[mus.id] : 'none';
+                        let buttonHtml = '';
+                        if (status === 'pending') {
+                            buttonHtml = `
+                                <div style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%;">
+                                    <button class="btn btn-secondary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; margin: 0; background: #4b5563; border-color: #4b5563; color: #d1d5db; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 0.4rem;" disabled>
+                                        Angefragt - Warten auf Antwort
+                                    </button>
+                                    <button onclick="window.markMediationNoResponse('${mediationId}', '${mus.id}')" class="btn btn-glass" style="width: 100%; padding: 0.4rem; font-size: 0.72rem; font-weight: 700; margin: 0; border: 1px solid rgba(245,158,11,0.4); color: #f59e0b; background: rgba(245,158,11,0.05); cursor: pointer; border-radius: 8px;">
+                                        Keine Antwort erhalten?
+                                    </button>
+                                </div>
+                            `;
+                        } else if (status === 'declined') {
+                            buttonHtml = `
+                                <button class="btn btn-secondary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; margin: 0; background: #374151; border: 1px solid #374151; color: #9ca3af; cursor: not-allowed; border-radius: 8px;" disabled>
+                                    Abgesagt
+                                </button>
+                            `;
+                        } else if (status === 'no_response') {
+                            buttonHtml = `
+                                <button class="btn btn-secondary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; margin: 0; background: #374151; border: 1px solid #374151; color: #9ca3af; cursor: not-allowed; border-radius: 8px;" disabled>
+                                    Nicht geantwortet
+                                </button>
+                            `;
+                        } else if (status === 'accepted') {
+                            buttonHtml = `
+                                <button class="btn btn-primary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; margin: 0; background: #10b981; border: 1px solid #10b981; color: #fff; cursor: not-allowed; border-radius: 8px;" disabled>
+                                    Gebucht 🎉
+                                </button>
+                            `;
+                        } else {
+                            buttonHtml = `
+                                <button onclick="window.requestMediationAct(event, '${mediationId}', '${mus.id}')" class="btn btn-primary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border-color: #2563eb; margin: 0; color: #fff; border-radius: 8px; cursor: pointer; border: 1px solid #2563eb;">
+                                    Verbindlich anfragen
+                                </button>
+                            `;
+                        }
+
                         return `
                             <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
                                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 215px; background: #0f172a; overflow: hidden;">
@@ -22664,23 +22908,86 @@ window.renderRecommendationPage = function(container, mediationId) {
                                         <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 0.8rem; line-height: 1.25;">
                                             Act ${idx + 1}: ${mus.category || 'Musiker'}
                                         </h3>
-                                        <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.84rem; color: var(--text-main);">
-                                            <div><i class="fa-solid fa-location-dot" style="color: #2563eb; width: 16px; margin-right: 0.4rem;"></i> ${(mus.location || '').split(' (')[0]}</div>
-                                            <div><i class="fa-solid fa-music" style="color: #2563eb; width: 16px; margin-right: 0.4rem;"></i> ${genres.slice(0, 3).join(', ')}</div>
-                                            <div><i class="fa-solid fa-drum" style="color: #2563eb; width: 16px; margin-right: 0.4rem;"></i> ${instruments.slice(0, 3).join(', ')}</div>
-                                            <div><i class="fa-solid fa-coins" style="color: #2563eb; width: 16px; margin-right: 0.4rem;"></i> ${budget}</div>
+                                        <div style="display: flex; gap: 0.5rem; justify-content: space-between;">
+                                            <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); flex: 1;">
+                                                <!-- 1. Ort -->
+                                                <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                                                    <i class="fa-solid fa-location-dot" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                                                    <span style="flex: 1;">${(mus.location || '').split(' (')[0]}</span>
+                                                </div>
+                                                <!-- 2. Verfügbarkeit -->
+                                                <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                                                    <i class="fa-solid fa-calendar-days" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                                                    <span style="flex: 1;">${dateDisplay}</span>
+                                                </div>
+                                                <!-- 3. Musiker-Typ -->
+                                                <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                                                    <i class="fa-solid fa-guitar" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                                                    <span style="flex: 1;">${mus.type || 'Solo / Band'}</span>
+                                                </div>
+                                                <!-- 4. Event-Typen -->
+                                                <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                                                    <i class="fa-solid fa-calendar-check" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                                                    <span style="flex: 1;">${(mus.eventTypes || ['Hochzeit', 'Geburtstag', 'Firmenfeier']).slice(0, 3).join(', ')}</span>
+                                                </div>
+                                                <!-- 5. Genres -->
+                                                <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                                                    <i class="fa-solid fa-music" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                                                    <span style="flex: 1;">${genresArr.slice(0, 3).join(', ')}</span>
+                                                </div>
+                                                <!-- 6. Instrumente -->
+                                                <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                                                    <i class="fa-solid fa-drum" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                                                    <span style="flex: 1;">${instrumentsArr.slice(0, 3).join(', ')}</span>
+                                                </div>
+                                            </div>
+                                            <div style="display: flex; flex-direction: column; justify-content: flex-end; padding-left: 0.6rem; border-left: 1px solid var(--border-glass); padding-bottom: 0.1rem; min-width: 46px; box-sizing: border-box; align-items: center;">
+                                                <button onclick="event.stopPropagation(); window.toggleTileDetails('${mus.id}')" style="background: none; border: none; padding: 0; cursor: pointer; color: #2563eb; outline: none; transition: transform 0.2s; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Mehr Details anzeigen/verbergen">
+                                                    <i class="fa-solid fa-circle-plus" id="toggle-icon-${mus.id}" style="font-size: 1.6rem; opacity: 0.85;"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div id="collapsible-details-${mus.id}" style="display: none; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.75rem;">
+                                            <!-- 7. Spielzeit -->
+                                            <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
+                                                <i class="fa-solid fa-clock" style="color: #2563eb; width: 16px; text-align: center;"></i>
+                                                <span>${durationDisplay}</span>
+                                            </div>
+                                            <!-- 8. Publikum -->
+                                            <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
+                                                <i class="fa-solid fa-users" style="color: #2563eb; width: 16px; text-align: center;"></i>
+                                                <span>${mus.minPublikum !== undefined && mus.maxPublikum !== undefined ? `${mus.minPublikum} - ${mus.maxPublikum}+` : '0 - 500+'} Personen</span>
+                                            </div>
+                                            <!-- 9. Technik -->
+                                            <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35; font-size: 0.84rem; color: var(--text-main);">
+                                                <i class="fa-solid fa-sliders" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                                                <span style="flex: 1;">${techArr.length > 0 ? techArr.join(', ') : 'nach Vereinbarung'}</span>
+                                            </div>
+                                            <!-- 10. Gage -->
+                                            <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
+                                                <i class="fa-solid fa-coins" style="color: #2563eb; width: 16px; text-align: center;"></i>
+                                                <span>${budgetDisplay}</span>
+                                            </div>
                                         </div>
                                     </div>
                                     
                                     <div style="margin-top: 1.25rem;">
-                                        <button onclick="window.selectMediationAct('${mediationId}', '${mus.id}')" class="btn btn-primary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border-color: #2563eb; margin: 0;">
-                                            Diesen Act anfragen
-                                        </button>
+                                        ${buttonHtml}
                                     </div>
                                 </div>
                             </div>
                         `;
                     }).join('')}
+                </div>
+
+                <!-- Die Auswahl reicht mir nicht Button -->
+                <div style="text-align: center; margin-top: 4rem; border-top: 1px dashed var(--border-glass); padding-top: 2.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem;">
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+                        Ist nicht der passende Act dabei? Kein Problem, wir suchen kostenlos weiter!
+                    </p>
+                    <button onclick="window.requestMoreRecommendations('${mediationId}')" class="btn btn-secondary" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 800; border-color: rgba(255,255,255,0.25); color: #ffffff; background: rgba(255,255,255,0.1); margin: 0; cursor: pointer; border-radius: 8px;">
+                        Die Auswahl reicht mir nicht - bitte weitersuchen
+                    </button>
                 </div>
             </div>
         `;
@@ -22690,17 +22997,82 @@ window.renderRecommendationPage = function(container, mediationId) {
     });
 };
 
-window.selectMediationAct = function(mediationId, musicianId) {
-    if (!confirm("Möchtest du diesen Act unverbindlich anfragen? Wir klären die Verfügbarkeit ab.")) return;
+window.requestMediationAct = function(event, mediationId, musicianId) {
+    if (!confirm("Möchtest du diesen Act verbindlich anfragen? Der Musiker erhält sofort eine Benachrichtigung.")) return;
     
-    db.collection('mediations').doc(mediationId).update({
-        selectedMusicianId: musicianId,
-        status: 'pending_availability'
-    }).then(() => {
-        window.location.reload();
+    // Disable and gray out the button immediately to prevent double-clicks
+    const btn = event?.currentTarget || event?.target;
+    if (btn) {
+        btn.disabled = true;
+        btn.style.background = '#4b5563';
+        btn.style.borderColor = '#4b5563';
+        btn.style.color = '#d1d5db';
+        btn.style.cursor = 'not-allowed';
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verarbeitung...';
+    }
+
+    const requestMusicianFn = firebase.app().functions('europe-west3').httpsCallable('requestMusician');
+    requestMusicianFn({
+        mediationId: mediationId,
+        musicianId: musicianId,
+        baseUrl: window.location.origin
+    }).then(res => {
+        if (res.data && res.data.success) {
+            showToast({
+                title: "Anfrage gesendet! 🚀",
+                message: "Der Musiker wurde verbindlich angefragt."
+            });
+            window.location.reload();
+        } else {
+            alert("Fehler beim Senden der Anfrage.");
+        }
     }).catch(err => {
-        console.error("Error choosing act:", err);
-        alert("Ein Fehler ist aufgetreten: " + err.message);
+        console.error("requestMusician failed:", err);
+        alert("Fehler: " + err.message);
+    });
+};
+
+window.markMediationNoResponse = function(mediationId, musicianId) {
+    if (!confirm("Möchtest du diese Anfrage wegen fehlender Rückmeldung zurückziehen? Wir informieren den Musiker und du kannst andere Acts anfragen.")) return;
+
+    const updateStatusFn = firebase.app().functions('europe-west3').httpsCallable('updateMediationMusicianStatus');
+    updateStatusFn({
+        mediationId: mediationId,
+        musicianId: musicianId,
+        status: 'no_response',
+        baseUrl: window.location.origin
+    }).then(res => {
+        if (res.data && res.data.success) {
+            showToast({
+                title: "Anfrage zurückgezogen ⏳",
+                message: "Der Status wurde aktualisiert."
+            });
+            window.location.reload();
+        } else {
+            alert("Fehler beim Aktualisieren der Anfrage.");
+        }
+    }).catch(err => {
+        console.error("updateStatus failed:", err);
+        alert("Fehler: " + err.message);
+    });
+};
+
+window.requestMoreRecommendations = function(mediationId) {
+    if (!confirm("Möchtest du uns Bescheid geben, dass wir nach weiteren passenden Musikern suchen sollen?")) return;
+
+    const requestMoreFn = firebase.app().functions('europe-west3').httpsCallable('requestMoreRecommendations');
+    requestMoreFn({ mediationId }).then(res => {
+        if (res.data && res.data.success) {
+            showToast({
+                title: "Anfrage gesendet! ✉️",
+                message: "Vielen Dank! Wir suchen nach weiteren passenden Musikern für dich und melden uns bald."
+            });
+        } else {
+            alert("Fehler beim Senden der Anfrage.");
+        }
+    }).catch(err => {
+        console.error("requestMore failed:", err);
+        alert("Fehler: " + err.message);
     });
 };
 
@@ -22728,6 +23100,11 @@ window.renderMediationResponsePage = function(container, mediationId) {
         }
 
         const med = doc.data();
+        
+        // Parse musicianId from URL hash query params
+        const urlParams = new URLSearchParams(window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
+        const queryMusicianId = urlParams.get('musicianId');
+        const targetMusicianId = queryMusicianId || med.selectedMusicianId;
 
         // Check if user is logged in
         if (!state.currentUser) {
@@ -22748,8 +23125,8 @@ window.renderMediationResponsePage = function(container, mediationId) {
 
         // Ensure the logged in user is actually the selected musician
         const isSelectedMusician = state.currentUser.role === 'musician' && (
-            state.currentUser.profileId === med.selectedMusicianId || 
-            (state.musicians.some(m => m.id === med.selectedMusicianId && m.creatorId === state.currentUser.id))
+            state.currentUser.profileId === targetMusicianId || 
+            (state.musicians.some(m => m.id === targetMusicianId && m.creatorId === state.currentUser.id))
         );
 
         if (!isSelectedMusician) {
@@ -22766,25 +23143,51 @@ window.renderMediationResponsePage = function(container, mediationId) {
         }
 
         if (med.status === 'completed') {
+            if (med.selectedMusicianId === targetMusicianId) {
+                container.innerHTML = `
+                    <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
+                        <i class="fa-solid fa-circle-check" style="font-size: 3.5rem; color: #10b981; margin-bottom: 1.2rem;"></i>
+                        <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Erfolgreich vermittelt! 🎉</h3>
+                        <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55;">
+                            Du hast dem Gig bereits zugesagt. Die Kontaktdaten des Veranstalters wurden per E-Mail an dich versendet.
+                        </p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
+                        <i class="fa-solid fa-triangle-exclamation" style="font-size: 3.5rem; color: var(--color-orange); margin-bottom: 1.2rem;"></i>
+                        <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Nicht mehr verfügbar ⏳</h3>
+                        <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55;">
+                            Ein anderer vorgeschlagener Act war schneller und hat diesen Auftritt bereits bestätigt. Die Anfrage ist daher geschlossen.
+                        </p>
+                    </div>
+                `;
+            }
+            return;
+        }
+
+        const myStatus = (med.musicianStatuses && med.musicianStatuses[targetMusicianId]) ? med.musicianStatuses[targetMusicianId] : 'pending';
+        if (myStatus === 'declined') {
             container.innerHTML = `
                 <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
-                    <i class="fa-solid fa-circle-check" style="font-size: 3.5rem; color: #10b981; margin-bottom: 1.2rem;"></i>
-                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Erfolgreich vermittelt! 🎉</h3>
+                    <i class="fa-solid fa-circle-xmark" style="font-size: 3.5rem; color: var(--color-red); margin-bottom: 1.2rem;"></i>
+                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Abgelehnt</h3>
                     <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55;">
-                        Du hast dem Gig bereits zugesagt. Die Kontaktdaten des Veranstalters wurden per E-Mail an dich versendet.
+                        Du hast diese Anfrage bereits abgelehnt.
                     </p>
                 </div>
             `;
             return;
         }
 
-        if (med.status !== 'pending_availability') {
+        if (myStatus === 'no_response') {
             container.innerHTML = `
                 <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
-                    <i class="fa-solid fa-circle-exclamation" style="font-size: 3.5rem; color: var(--color-orange); margin-bottom: 1.2rem;"></i>
-                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Nicht mehr verfügbar</h3>
+                    <i class="fa-solid fa-hourglass-end" style="font-size: 3.5rem; color: var(--color-orange); margin-bottom: 1.2rem;"></i>
+                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Anfrage abgelaufen</h3>
                     <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55;">
-                        Diese Anfrage ist nicht mehr aktiv oder wurde storniert.
+                        Diese Buchungsanfrage ist leider abgelaufen oder wurde zurückgezogen.
                     </p>
                 </div>
             `;
@@ -22811,11 +23214,11 @@ window.renderMediationResponsePage = function(container, mediationId) {
 
                 <div style="display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1.5rem; justify-content: center;">
                     ${isPremium ? `
-                        <button id="btn-accept-mediation" class="btn btn-primary" style="margin: 0; padding: 0.95rem; font-size: 1rem; font-weight: 800; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; border-color: #7c3aed !important; width: 100%;">
+                        <button id="btn-accept-mediation" class="btn btn-primary" style="margin: 0; padding: 0.95rem; font-size: 1rem; font-weight: 800; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; border-color: #7c3aed !important; width: 100%; cursor: pointer; border-radius: 8px;">
                             <i class="fa-solid fa-circle-check"></i> Gig zusagen & Kontaktdaten freischalten (0 €)
                         </button>
                     ` : `
-                        <button id="btn-accept-mediation" class="btn btn-primary" style="margin: 0; padding: 0.95rem; font-size: 1rem; font-weight: 800; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; border-color: #7c3aed !important; width: 100%;">
+                        <button id="btn-accept-mediation" class="btn btn-primary" style="margin: 0; padding: 0.95rem; font-size: 1rem; font-weight: 800; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; border-color: #7c3aed !important; width: 100%; cursor: pointer; border-radius: 8px;">
                             <i class="fa-solid fa-credit-card"></i> Gig zusagen & 25 € Gebühr zahlen
                         </button>
                         <p style="font-size: 0.72rem; color: var(--text-muted); text-align: center; margin: 0; line-height: 1.35;">
@@ -22823,7 +23226,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
                         </p>
                     `}
                     
-                    <button id="btn-decline-mediation" class="btn btn-secondary" style="margin: 0.5rem 0 0; padding: 0.85rem; font-size: 0.9rem; font-weight: 700; width: 100%; border-color: rgba(239, 68, 68, 0.4); color: #ef4444;">
+                    <button id="btn-decline-mediation" class="btn btn-secondary" style="margin: 0.5rem 0 0; padding: 0.85rem; font-size: 0.9rem; font-weight: 700; width: 100%; border-color: rgba(239, 68, 68, 0.4); color: #ef4444; cursor: pointer; border-radius: 8px;">
                         Absagen / Nicht verfügbar
                     </button>
                 </div>
@@ -22838,21 +23241,24 @@ window.renderMediationResponsePage = function(container, mediationId) {
             if (isPremium) {
                 try {
                     // Update status directly to completed
-                    await db.collection('mediations').doc(mediationId).update({
+                    const updateData = {
                         status: 'completed',
-                        paymentStatus: 'free_premium'
-                    });
+                        paymentStatus: 'free_premium',
+                        selectedMusicianId: targetMusicianId
+                    };
+                    updateData[`musicianStatuses.${targetMusicianId}`] = 'accepted';
+                    await db.collection('mediations').doc(mediationId).update(updateData);
 
                     // Trigger the cloud function directly to send contact details (since webhook won't trigger for 0 €)
                     const releaseMediationContactsFn = firebase.app().functions('europe-west3').httpsCallable('releaseMediationContacts');
-                    await releaseMediationContactsFn({ mediationId });
+                    await releaseMediationContactsFn({ mediationId: mediationId, musicianId: targetMusicianId });
  
                     window.location.reload();
                 } catch (error) {
                     console.error("Error accepting mediation:", error);
                     alert("Ein Fehler ist aufgetreten: " + error.message);
                     btn.disabled = false;
-                    btn.innerHTML = isPremium ? '<i class="fa-solid fa-circle-check"></i> Gig zusagen & Kontaktdaten freischalten (0 €)' : '<i class="fa-solid fa-credit-card"></i> Gig zusagen & 25 € Gebühr zahlen';
+                    btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Gig zusagen & Kontaktdaten freischalten (0 €)';
                 }
             } else {
                 try {
@@ -22860,6 +23266,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
                     const createMediationPaymentFn = firebase.app().functions('europe-west3').httpsCallable('createMediationPayment');
                     const res = await createMediationPaymentFn({
                         mediationId: mediationId,
+                        musicianId: targetMusicianId,
                         baseUrl: window.location.origin
                     });
  
@@ -22882,24 +23289,25 @@ window.renderMediationResponsePage = function(container, mediationId) {
             
             const btn = container.querySelector('#btn-decline-mediation');
             btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Wird abgesagt...';
             
             try {
-                // Update mediation status to allow organizer to pick someone else
-                await db.collection('mediations').doc(mediationId).update({
-                    status: 'pending_selection',
-                    selectedMusicianId: null
+                // Call cloud function to notify organizer of declinement and update status
+                const updateStatusFn = firebase.app().functions('europe-west3').httpsCallable('updateMediationMusicianStatus');
+                await updateStatusFn({
+                    mediationId: mediationId,
+                    musicianId: targetMusicianId,
+                    status: 'declined',
+                    baseUrl: window.location.origin
                 });
  
-                // Call cloud function to notify organizer of declinement
-                const notifyMediationDeclinedFn = firebase.app().functions('europe-west3').httpsCallable('notifyMediationDeclined');
-                await notifyMediationDeclinedFn({ mediationId });
-
                 alert("Absage erfolgreich übermittelt. Vielen Dank.");
                 window.location.hash = '#/';
             } catch (error) {
                 console.error("Error declining mediation:", error);
                 alert("Ein Fehler ist aufgetreten: " + error.message);
                 btn.disabled = false;
+                btn.innerHTML = 'Absagen / Nicht verfügbar';
             }
         });
 
@@ -22908,8 +23316,6 @@ window.renderMediationResponsePage = function(container, mediationId) {
         container.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--color-red);">Fehler beim Laden der Seite.</div>`;
     });
 };
-
-
 
 </script>
 
