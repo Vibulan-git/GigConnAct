@@ -1262,8 +1262,66 @@ async function releaseMediationContactsInternal(mediationId, musicianId = null) 
     }
     await medRef.update(updateData);
 
+    // Fetch event details for the email Kachel
+    let eventData = null;
+    let eventLocation = med.eventLocation || '';
+    let formattedDate = '';
+    let durationDisplay = '';
+    let budgetDisplay = '';
+    let techArr = [];
+
+    if (med.eventDate) {
+        const dateParts = med.eventDate.split('-');
+        formattedDate = dateParts.length === 3 ? `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}` : med.eventDate;
+    }
+
+    if (med.eventId) {
+        const eventDoc = await admin.firestore().collection('events').doc(med.eventId).get();
+        if (eventDoc.exists) {
+            eventData = eventDoc.data();
+            eventLocation = eventLocation || eventData.location || eventData.ort || '';
+            
+            // Duration
+            const minDur = eventData.minDuration;
+            const maxDur = eventData.maxDuration;
+            if (minDur !== undefined && minDur !== null) {
+                const minStr = String(minDur).replace('.', ',');
+                if (maxDur !== undefined && maxDur !== null && maxDur !== minDur) {
+                    const maxStr = String(maxDur).replace('.', ',');
+                    durationDisplay = `${minStr} - ${maxStr} Stunden`;
+                } else {
+                    durationDisplay = `${minStr} Stunden`;
+                }
+            } else {
+                let baseDur = String(eventData.duration || eventData.spieldauer || '2 - 4');
+                baseDur = baseDur.replace(/ca\.\s*/gi, '').replace(/\s*Stunden\.?/gi, '').trim();
+                durationDisplay = `${baseDur} Stunden`;
+            }
+
+            // Budget
+            const minB = eventData.minBudget !== undefined ? eventData.minBudget : eventData.price;
+            const maxB = eventData.maxBudget;
+            if (minB !== undefined && minB !== null) {
+                const minBStr = typeof minB === 'number' ? minB.toLocaleString('de-DE') : String(minB);
+                if (maxB !== undefined && maxB !== null && maxB !== minB) {
+                    const maxBStr = typeof maxB === 'number' ? maxB.toLocaleString('de-DE') : String(maxB);
+                    budgetDisplay = `${minBStr} - ${maxBStr} €`;
+                } else {
+                    budgetDisplay = `${minBStr} €`;
+                }
+            } else {
+                budgetDisplay = '0 - 5.000 €';
+            }
+
+            // Tech
+            techArr = Array.isArray(eventData.technik) 
+                ? eventData.technik 
+                : (typeof eventData.technik === 'string' && eventData.technik.trim() !== '' ? eventData.technik.split(',').map(s => s.trim()) : []);
+        }
+    }
+
     // 1. Send email to Organizer
-    const organizerSubject = `Kontaktdaten freigeschaltet: ${musName} für dein Event: ${med.eventName} 🎉`;
+    const organizerSubject = `Vermittlung erfolgreich: Kontaktdaten von ${musName} für "${med.eventName}" 🎉`;
     const organizerHtml = `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
             <h2 style="color: #2563eb; margin-top: 0; font-size: 1.4rem;">Kontaktdaten freigeschaltet! 🎉</h2>
@@ -1284,16 +1342,38 @@ async function releaseMediationContactsInternal(mediationId, musicianId = null) 
     await sendEmail({ to: med.organizerEmail, subject: organizerSubject, html: organizerHtml, headers: { 'Reply-To': 'info@gigconnact.de' } });
 
     // 2. Send email to Musician
-    const musicianSubject = `Buchung bestätigt: Kontaktdaten des Veranstalters für "${med.eventName}" 🚀`;
+    const musicianSubject = `Vermittlung erfolgreich: Kontaktdaten des Veranstalters für "${med.eventName}" 🚀`;
     const musicianHtml = `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
-            <h2 style="color: #7c3aed; margin-top: 0; font-size: 1.4rem;">Buchung bestätigt! 🚀</h2>
+            <h2 style="color: #7c3aed; margin-top: 0; font-size: 1.4rem; text-align: center;">Vermittlung erfolgreich! 🎉</h2>
             <p>Hallo ${musName},</p>
-            <p>herzlichen Glückwunsch! Die Buchung für das Event <strong>"${med.eventName}"</strong> ist offiziell bestätigt. Bitte nimm zeitnah Kontakt mit dem Veranstalter auf:</p>
+            <p>herzlichen Glückwunsch! Die Vermittlung für das Event <strong>"${med.eventName}"</strong> ist erfolgreich abgeschlossen. Bitte nimm zeitnah Kontakt mit dem Veranstalter auf:</p>
             
-            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                <h3 style="margin-top: 0; color: #0f172a; font-size: 1.1rem;">Veranstalter-Kontakt</h3>
-                <p style="margin: 5px 0; font-size: 0.9rem;"><strong>E-Mail:</strong> <a href="mailto:${med.organizerEmail}" style="color: #7c3aed;">${med.organizerEmail}</a></p>
+            <!-- EVENT-KACHEL MIT KONTAKTDATEN -->
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin: 20px 0; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: left;">
+                <div style="background: #7c3aed; padding: 15px; color: #ffffff;">
+                    <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: bold; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 10px;">${eventData ? (eventData.eventType || 'Event') : 'Event'}</span>
+                    <h3 style="margin: 5px 0 0 0; font-size: 1.2rem; font-weight: bold; color: #ffffff;">${med.eventName}</h3>
+                </div>
+                <div style="padding: 15px; font-size: 0.9rem; line-height: 1.5; color: #4a5568;">
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">📍 Ort:</strong> ${eventLocation}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">📅 Datum:</strong> ${formattedDate}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">🎸 Gesuchter Act-Typ:</strong> ${eventData ? (Array.isArray(eventData.musicianTypes) ? eventData.musicianTypes.join(', ') : (eventData.musicianTypes || 'Solo / Band')) : 'Solo / Band'}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">🎵 Genres:</strong> ${eventData && eventData.genres ? eventData.genres.join(', ') : 'Alle'}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">⏱️ Spielzeit:</strong> ${durationDisplay}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">👥 Publikum:</strong> ${eventData && eventData.minPublikum !== undefined && eventData.maxPublikum !== undefined ? `${eventData.minPublikum} - ${eventData.maxPublikum}+ Personen` : '0 - 500+ Personen'}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">🎛️ Technik:</strong> ${techArr.length > 0 ? techArr.join(', ') : 'nach Vereinbarung'}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">💰 Budget:</strong> ${budgetDisplay}</p>
+                    ${eventData && eventData.description ? `<p style="margin: 6px 0; font-style: italic; color: #718096; border-top: 1px dashed #e2e8f0; padding-top: 8px;">"${eventData.description}"</p>` : ''}
+                    
+                    <!-- KONTAKTDATEN -->
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #7c3aed; background: rgba(124,58,237,0.03); padding: 12px; border-radius: 8px;">
+                        <h4 style="margin: 0 0 8px 0; color: #7c3aed; font-size: 1rem;">📞 Kontaktdaten des Veranstalters:</h4>
+                        <p style="margin: 4px 0;"><strong>Name:</strong> ${eventData ? (eventData.contactName || 'Nicht angegeben') : 'Nicht angegeben'}</p>
+                        <p style="margin: 4px 0;"><strong>Telefon:</strong> ${eventData ? (eventData.phone || 'Nicht angegeben') : 'Nicht angegeben'}</p>
+                        <p style="margin: 4px 0;"><strong>E-Mail:</strong> <a href="mailto:${med.organizerEmail}" style="color: #7c3aed; font-weight: bold; text-decoration: none;">${med.organizerEmail}</a></p>
+                    </div>
+                </div>
             </div>
             
             <p>Wir wünschen dir viel Erfolg bei diesem Gig!</p>
