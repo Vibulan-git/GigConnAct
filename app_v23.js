@@ -18027,8 +18027,10 @@ window.renderMediationResponsePage = function(container, mediationId) {
                 if (eventDoc.exists) {
                     const eventData = { id: eventDoc.id, ...eventDoc.data() };
                     const photos = (eventData.photos && eventData.photos.length > 0)
-                        ? eventData.photos.slice(0, 5)
+                        ? eventData.photos
                         : [eventData.image || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'];
+                    const videos = eventData.videos || [];
+                    const totalSlides = photos.length + videos.length + 1; // +1 for description slide
                     
                     let dateDisplay = formatEventDateWithTime(eventData);
                     
@@ -18070,50 +18072,84 @@ window.renderMediationResponsePage = function(container, mediationId) {
 
                     eventHtml = `
                         <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; overflow: hidden; margin-bottom: 2rem; box-shadow: var(--shadow-sm); text-align: left;">
-                            <div style="height: 180px; width: 100%; position: relative; background: #0f172a;">
-                                <img src="${photos[0]}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.85;">
-                                <div style="position: absolute; bottom: 15px; left: 15px; right: 15px;">
-                                    <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 20px; background: #7c3aed; color: #fff; font-size: 0.72rem; font-weight: 800; margin-bottom: 0.4rem;">
-                                        ${eventData.eventType || 'Event'}
-                                    </span>
-                                    <h4 style="margin: 0; color: #fff; font-size: 1.15rem; font-weight: 800; text-shadow: 0 1px 3px rgba(0,0,0,0.6);">${eventData.name || eventData.title || ''}</h4>
+                            <!-- Gallery slider -->
+                            <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 215px; background: #0f172a; overflow: hidden;">
+                                <span class="tile-gallery-counter" style="position: absolute; bottom: 12px; left: 12px; z-index: 4; font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.75); padding: 0.25rem 0.5rem; border-radius: 6px; backdrop-filter: blur(4px); pointer-events: none;">
+                                    📷 1 / ${totalSlides}
+                                </span>
+                                <div id="combo-slider-${eventData.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
+                                    ${photos.map(img => `<div style="width: 100%; height: 100%; flex-shrink: 0;"><img src="${img}" style="width: 100%; height: 100%; object-fit: cover;"></div>`).join('')}
+                                    ${videos.map((vid, vIdx) => `
+                                        <div style="width: 100%; height: 100%; flex-shrink: 0; background: #000; display: flex; align-items: center; justify-content: center;">
+                                            <video controls style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
+                                                <source src="${vid.url}" type="video/mp4">
+                                            </video>
+                                        </div>
+                                    `).join('')}
+                                    <div style="width: 100%; height: 100%; flex-shrink: 0; background: #0f172a; padding: 1rem 2.5rem; box-sizing: border-box; text-align: center; display: flex; align-items: center; justify-content: center;">
+                                        <p style="font-size: 0.82rem; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 140px; overflow-y: auto;">${eventData.description || 'Keine Beschreibung vorhanden.'}</p>
+                                    </div>
+                                </div>
+                                <div class="tile-gallery-dots" id="combo-dots-${eventData.id}" data-theme="#7c3aed" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center;">
+                                    ${Array.from({ length: totalSlides }).map((_, dIdx) => `
+                                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${eventData.id}', ${dIdx})" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? '#7c3aed' : '#ffffff'}; cursor: pointer;"></span>
+                                    `).join('')}
                                 </div>
                             </div>
+
                             <div style="padding: 1.2rem; font-size: 0.86rem; line-height: 1.5; color: var(--text-main); display: flex; flex-direction: column; gap: 0.6rem;">
+                                <!-- Event-Name in black -->
+                                <h4 style="margin: 0; color: #000000; font-size: 1.25rem; font-weight: 800; margin-bottom: 0.4rem;">${eventData.name || eventData.title || ''}</h4>
+
+                                <!-- 1. Ort -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-location-dot" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">${(eventData.location || '').split(' (')[0]}</span>
+                                    <span style="flex: 1;">Ort: ${(eventData.location || '').split(' (')[0]}</span>
                                 </div>
+                                <!-- 2. Datum -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-calendar-days" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">${dateDisplay}</span>
+                                    <span style="flex: 1;">Datum: ${dateDisplay}</span>
                                 </div>
+                                <!-- 3. Anlass -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
-                                    <i class="fa-solid fa-guitar" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">Gesucht: ${Array.isArray(eventData.musicianTypes) ? eventData.musicianTypes.join(', ') : (eventData.musicianTypes || 'Solo / Band')}</span>
+                                    <i class="fa-solid fa-calendar-check" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
+                                    <span style="flex: 1;">Anlass: ${eventData.type || eventData.eventType || 'Event'}</span>
                                 </div>
+                                <!-- 4. Musikrichtung / Genres -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-music" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">Genres: ${(eventData.genres || []).join(', ') || 'Alle'}</span>
+                                    <span style="flex: 1;">Musikrichtung: ${(eventData.genres || []).join(', ') || 'Alle'}</span>
                                 </div>
+                                <!-- 5. Instrumente -->
+                                <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
+                                    <i class="fa-solid fa-drum" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
+                                    <span style="flex: 1;">Gesuchte Instrumente: ${Array.isArray(eventData.instruments) ? eventData.instruments.join(', ') : 'Keine Vorgabe'}</span>
+                                </div>
+                                <!-- 6. Spielzeit -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-clock" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
                                     <span style="flex: 1;">Spielzeit: ${durationDisplay}</span>
                                 </div>
+                                <!-- 7. Besetzung / Musiker-Typ -->
+                                <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
+                                    <i class="fa-solid fa-guitar" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
+                                    <span style="flex: 1;">Besetzung: ${Array.isArray(eventData.musicianTypes) ? eventData.musicianTypes.join(', ') : (eventData.musicianTypes || 'Solo / Band')}</span>
+                                </div>
+                                <!-- 8. Publikum -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-users" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">Gäste: ${eventData.minPublikum !== undefined && eventData.maxPublikum !== undefined ? `${eventData.minPublikum} - ${eventData.maxPublikum}+` : '0 - 500+'} Personen</span>
+                                    <span style="flex: 1;">Publikum: ${eventData.minPublikum !== undefined && eventData.maxPublikum !== undefined ? `${eventData.minPublikum} - ${eventData.maxPublikum}+` : '0 - 500+'} Personen</span>
                                 </div>
+                                <!-- 9. Technik -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-sliders" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
                                     <span style="flex: 1;">Technik: ${techArr.length > 0 ? techArr.join(', ') : 'nach Vereinbarung'}</span>
                                 </div>
+                                <!-- 10. Gage -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-coins" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">Budget: ${budgetDisplay}</span>
-                                </div>
-                                <div style="border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 0.6rem; margin-top: 0.2rem;">
-                                    <p style="margin: 0; color: var(--text-muted); font-style: italic;">"${eventData.description || 'Keine Beschreibung vorhanden.'}"</p>
+                                    <span style="flex: 1;">Gage: ${budgetDisplay}</span>
                                 </div>
                             </div>
                         </div>
@@ -18141,30 +18177,29 @@ window.renderMediationResponsePage = function(container, mediationId) {
         container.innerHTML = `
             <div style="max-width: 600px; margin: 2rem auto 5rem; padding: 2.5rem; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px; font-family: var(--font-body); color: var(--text-main);">
                 <div style="text-align: center; margin-bottom: 2rem;">
-                    <i class="fa-solid fa-guitar" style="font-size: 3rem; color: #7c3aed; margin-bottom: 0.8rem;"></i>
-                    <h2 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #fff; margin: 0 0 0.4rem;">Vermittlungsangebot! 🎉</h2>
-                    <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Bestätige deine Verfügbarkeit für das Event:</p>
+                    <h2 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #fff; margin: 0;">Vermittlungsanfrage</h2>
                 </div>
 
                 ${eventHtml}
 
                 <div style="display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1.5rem; justify-content: center;">
+                    <button id="btn-decline-mediation" class="btn btn-secondary" style="margin: 0; padding: 0.85rem; font-size: 0.9rem; font-weight: 700; width: 100%; border-color: #7c3aed; color: #7c3aed; background: #ffffff; cursor: pointer; border-radius: 8px; border: 1.5px solid #7c3aed;">
+                        Absagen
+                    </button>
+
                     ${isPremiumFree ? `
                         <button id="btn-accept-mediation" class="btn btn-primary" style="margin: 0; padding: 0.95rem; font-size: 1rem; font-weight: 800; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; border-color: #7c3aed !important; width: 100%; cursor: pointer; border-radius: 8px;">
-                            <i class="fa-solid fa-circle-check"></i> Gig zusagen & Kontaktdaten freischalten (0 €)
+                            <i class="fa-solid fa-circle-check"></i> Verbindlich zusagen (0 €)
                         </button>
                     ` : `
                         <button id="btn-accept-mediation" class="btn btn-primary" style="margin: 0; padding: 0.95rem; font-size: 1rem; font-weight: 800; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; border-color: #7c3aed !important; width: 100%; cursor: pointer; border-radius: 8px;">
-                            <i class="fa-solid fa-credit-card"></i> Gig zusagen & 25 € Gebühr zahlen
+                            <i class="fa-solid fa-credit-card"></i> Verbindlich zusagen
                         </button>
-                        <p style="font-size: 0.72rem; color: var(--text-muted); text-align: center; margin: 0; line-height: 1.35;">
-                            * Bei einer erfolgreichen Vermittlung fällt für Standard- und Pro-Mitglieder eine Gebühr von 25 € an. Für Premium-Mitglieder ist die Vermittlung vollkommen gebührenfrei.
-                        </p>
                     `}
                     
-                    <button id="btn-decline-mediation" class="btn btn-secondary" style="margin: 0.5rem 0 0; padding: 0.85rem; font-size: 0.9rem; font-weight: 700; width: 100%; border-color: rgba(239, 68, 68, 0.4); color: #ef4444; cursor: pointer; border-radius: 8px;">
-                        Absagen / Nicht verfügbar
-                    </button>
+                    <p style="font-size: 0.72rem; color: var(--text-muted); text-align: center; margin: 0.2rem 0 0; line-height: 1.35;">
+                        *Mit dem Klick auf den Button „Verbindlich zusagen“ können – abhängig vom gewählten Tarif – Vermittlungsgebühren entstehen: Flex = 35 €; Plus = 30 €; Pro = 25 €; Premium = 0 €.
+                    </p>
                 </div>
             </div>
         `;
@@ -18194,7 +18229,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
                     console.error("Error accepting mediation:", error);
                     alert("Ein Fehler ist aufgetreten: " + error.message);
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Gig zusagen & Kontaktdaten freischalten (0 €)';
+                    btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Verbindlich zusagen (0 €)';
                 }
             } else {
                 try {
@@ -18215,7 +18250,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
                     console.error("Error creating payment:", error);
                     alert("Zahlungsfehler: " + error.message);
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Gig zusagen & 25 € Gebühr zahlen';
+                    btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Verbindlich zusagen';
                 }
             }
         });
