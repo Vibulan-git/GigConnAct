@@ -1189,7 +1189,7 @@ exports.sendRecommendationList = functions
                     <p>${messageHtml}</p>
                     
                     <p style="text-align: center; margin-top: 25px;">
-                        <a href="${recommendationLink}" style="background: #2563eb; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; box-shadow: 0 4px 10px rgba(37,99,235,0.25);">Vorschläge anhören & auswählen</a>
+                        <a href="${recommendationLink}" style="background: #2563eb; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; box-shadow: 0 4px 10px rgba(37,99,235,0.25);">Musiker-Vorschläge anschauen</a>
                     </p>
                     
                     <p style="font-size: 0.8rem; color: #718096; margin-top: 20px; text-align: center;">
@@ -1610,7 +1610,7 @@ exports.requestMusician = functions
                     <p>Klicke auf den Button unten, um dir die Details anzusehen. Bei verbindlichem Interesse Deinerseits erhältst Du über einen entsprechenden Bezahllink die Kontaktdaten des Veranstalters. Mit einem Premium-Account entfallen die Vermittlungsgebühren vollständig.</p>
                     
                     <p style="text-align: center; margin-top: 25px;">
-                        <a href="${responseLink}" style="background: #7c3aed; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; box-shadow: 0 4px 10px rgba(124,58,237,0.25);">Details ansehen</a>
+                        <a href="${responseLink}" style="background: #7c3aed; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; box-shadow: 0 4px 10px rgba(124,58,237,0.25);">Zur Vermittlungsanfrage</a>
                     </p>
                     
                     <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 15px;">

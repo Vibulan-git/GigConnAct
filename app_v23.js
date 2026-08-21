@@ -17664,11 +17664,11 @@ window.renderRecommendationPage = function(container, mediationId) {
                         if (status === 'pending') {
                             buttonHtml = `
                                 <div style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%;">
-                                    <button class="btn btn-secondary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; margin: 0; background: #4b5563; border-color: #4b5563; color: #d1d5db; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 0.4rem;" disabled>
-                                        Angefragt - Warten auf Antwort
-                                    </button>
                                     <button onclick="window.markMediationNoResponse('${mediationId}', '${mus.id}')" class="btn btn-glass" style="width: 100%; padding: 0.4rem; font-size: 0.72rem; font-weight: 700; margin: 0; border: 1px solid rgba(245,158,11,0.4); color: #f59e0b; background: rgba(245,158,11,0.05); cursor: pointer; border-radius: 8px;">
-                                        Keine Antwort erhalten?
+                                        Keine Antwort seit 1 Woche
+                                    </button>
+                                    <button class="btn btn-secondary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; margin: 0; background: #4b5563; border-color: #4b5563; color: #d1d5db; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 0.4rem;" disabled>
+                                        Angefragt
                                     </button>
                                 </div>
                             `;
