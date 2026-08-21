@@ -767,7 +767,7 @@ const initialMusicians = [
         bluffName: "Heisse Elektro-Pop Coverband",
         type: "Band",
         location: "Hamburg",
-        radius: 150, // in km
+        radius: 350, // in km
         genres: ["Pop", "Electro", "Rock"],
         instruments: ["Gesang", "Synthesizer", "E-Gitarre", "Schlagzeug"],
         minDuration: 2,
@@ -804,7 +804,7 @@ const initialMusicians = [
         bluffName: "Klassische & Pop-Pianistin",
         type: "Solo",
         location: "München",
-        radius: 80,
+        radius: 350,
         genres: ["Klassik", "Pop", "Jazz"],
         instruments: ["Klavier", "Keyboard"],
         minDuration: 1,
@@ -835,7 +835,7 @@ const initialMusicians = [
         bluffName: "Professional Club & Event DJ",
         type: "DJ",
         location: "Köln",
-        radius: 200,
+        radius: 350,
         genres: ["Electro", "HipHop", "Charts", "Pop"],
         instruments: ["Turntables", "Mischpult"],
         minDuration: 4,
@@ -866,7 +866,7 @@ const initialMusicians = [
         bluffName: "Charmantes Akustik-Duo",
         type: "Duo",
         location: "Frankfurt",
-        radius: 120,
+        radius: 350,
         genres: ["Pop", "Jazz", "Folk"],
         instruments: ["Akustikgitarre", "Gesang", "Cajon"],
         minDuration: 2,
@@ -897,7 +897,7 @@ const initialMusicians = [
         bluffName: "Klassische Rock & Hard Rock Coverband",
         type: "Band",
         location: "Berlin",
-        radius: 150,
+        radius: 350,
         genres: ["Rock", "Metal", "Blues"],
         instruments: ["Gesang", "E-Gitarre", "Bass", "Schlagzeug"],
         minDuration: 3,
@@ -928,7 +928,7 @@ const initialMusicians = [
         bluffName: "Premium Jazz-Saxophonist",
         type: "Solo",
         location: "Stuttgart",
-        radius: 100,
+        radius: 350,
         genres: ["Jazz", "Blues", "Pop"],
         instruments: ["Saxophon", "Gesang"],
         minDuration: 1.5,
@@ -3254,8 +3254,7 @@ class StateManager {
                 profileId = this.activeEventId;
                 if (!profileId && this.events && this.events.length > 0) {
                     const fallback = this.events.find(e => e.creatorId === this.currentUser.id || e.id === this.currentUser.profileId)
-                        || this.events.find(e => e.creatorId === this.currentUser.id)
-                        || this.events[0];
+                        || this.events.find(e => e.creatorId === this.currentUser.id);
                     if (fallback) {
                         profileId = fallback.id;
                     }
@@ -3320,8 +3319,7 @@ class StateManager {
                 profileId = this.activeEventId;
                 if (!profileId && this.events && this.events.length > 0) {
                     const fallback = this.events.find(e => e.creatorId === this.currentUser.id || e.id === this.currentUser.profileId)
-                        || this.events.find(e => e.creatorId === this.currentUser.id)
-                        || this.events[0];
+                        || this.events.find(e => e.creatorId === this.currentUser.id);
                     if (fallback) {
                         profileId = fallback.id;
                     }
@@ -5826,6 +5824,14 @@ function renderMarket(container, type, onNavigate) {
         window.selectedFilterDates = selectedFilterDates;
     }
 
+    if (selectedFilterDates && selectedFilterDates.length > 0) {
+        const sortedDates = [...selectedFilterDates].sort();
+        const firstSelectedDate = new Date(sortedDates[0]);
+        if (!isNaN(firstSelectedDate.getTime())) {
+            currentFilterCalDate = firstSelectedDate;
+        }
+    }
+
     const currentPrefillHash = JSON.stringify({
         location: prefillLocation,
         genres: prefillGenres,
@@ -6484,7 +6490,22 @@ function renderMarket(container, type, onNavigate) {
             const cleanQuery = locInput.split(' (')[0].toLowerCase().trim();
             list = list.filter(item => {
                 const itemLoc = (item.location || '').split(' (')[0].toLowerCase().trim();
-                return itemLoc.includes(cleanQuery);
+                if (itemLoc.includes(cleanQuery)) return true;
+                
+                // If filtering musicians for an organizer event location
+                if (!isEvents) {
+                    const dist = getEstimatedDistance(item.location, locInput);
+                    const radius = item.radius || 150;
+                    if (dist <= radius) return true;
+                } else {
+                    // If filtering events for a musician location
+                    const dist = getEstimatedDistance(item.location, locInput);
+                    const activeMus = state.musicians.find(m => m.id === state.activeMusicianId) 
+                        || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId);
+                    const musRadius = activeMus ? (activeMus.radius || 150) : 150;
+                    if (dist <= musRadius) return true;
+                }
+                return false;
             });
         }
 
@@ -17376,10 +17397,6 @@ window.showAdminRecommendationDialog = function(musicianIds) {
                 <button id="btn-close-rec-modal" style="background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1.2rem; padding: 0.2rem;"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.45;">
-                Du sendest eine Liste mit <strong>${musicianIds.length}</strong> Musikern an einen Veranstalter. Die Empfehlungen sind anonymisiert, Hörproben und Videos sind jedoch abspielbar.
-            </p>
-            
             <form id="admin-rec-form">
                 <div class="form-group" style="margin-bottom: 1.2rem;">
                     <label style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem;">E-Mail-Adresse des Veranstalters</label>
@@ -17430,7 +17447,7 @@ window.showAdminRecommendationDialog = function(musicianIds) {
         return dateStr;
     };
 
-    const defaultMsgTpl = (evtName) => `Hallo, wir haben eine passende Auswahl an Musikern für dein Event "${evtName || ''}" zusammengestellt! Klicke auf den Button unten, um dir die Vorschläge anzusehen, Hörproben und Videos anzuhören und deinen Wunsch-Act direkt verbindlich anzufragen.`;
+    const defaultMsgTpl = (clientName, evtName) => `Hallo ${clientName || 'Veranstalter'},\n\nwir haben eine passende Auswahl an Musikern für Dein Event "${evtName || ''}" zusammengestellt! Klicke auf den Button unten, um Dir die Vorschläge anzusehen, Hörproben und Videos anzuhören und Deinen Wunsch-Act direkt verbindlich anzufragen.`;
 
     const updateFieldsFromEvent = (evt) => {
         if (evt) {
@@ -17439,7 +17456,7 @@ window.showAdminRecommendationDialog = function(musicianIds) {
         } else {
             inputEmail.value = '';
             inputSubject.value = 'Passende Musiker-Vorschläge für dein Event 🎵';
-            txtMessage.value = defaultMsgTpl('');
+            txtMessage.value = defaultMsgTpl('Veranstalter', '');
         }
     };
 
@@ -17448,9 +17465,10 @@ window.showAdminRecommendationDialog = function(musicianIds) {
         const dateVal = activeEvt ? (activeEvt.date || '') : '';
         const dateStr = dateVal ? formatGermanDate(dateVal) : '';
         const dateSuffix = dateStr ? ` am ${dateStr}` : '';
+        const clientNameVal = activeEvt ? (activeEvt.clientName || activeEvt.contactName || 'Veranstalter') : 'Veranstalter';
         
         inputSubject.value = `Hier ist unsere Musiker-Auswahl für Dein Event: ${nameVal || 'Dein Event'}${dateSuffix}`;
-        txtMessage.value = defaultMsgTpl(nameVal);
+        txtMessage.value = defaultMsgTpl(clientNameVal, nameVal);
     };
 
     // Prefill from activeEventId first!
