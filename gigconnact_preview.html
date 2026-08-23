@@ -21106,7 +21106,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                 musicianIds: top5MusicianIds,
                 baseUrl: window.location.origin,
                 subject: `Hier ist unsere Musiker-Auswahl für Dein Event: ${tempEventForMatch.name}${dateStr}`,
-                customMessage: `Hallo ${fullNameVal},\n\nwir haben eine passende Auswahl an Musikern für Dein Event "${tempEventForMatch.name}" zusammengestellt! Klicke auf den Button unten, um Dir die Vorschläge anzusehen, Hörproben und Videos anzuhören und Deinen Wunsch-Act direkt unverbindlich anzufragen.`
+                customMessage: `Hallo ${fullNameVal},\n\nwir haben eine passende Auswahl an Musikern für Dein Event "${tempEventForMatch.name}" zusammengestellt! Klicke auf den Button unten, um Dir die Vorschläge inkl. Fotos, Videos und Hörproben anzusehen. Du kannst mehrere Wunsch-Acts über GigConnAct-Vermittlungen anzufragen. Wir übernehmen für Dich die Kontaktaufnahme zu den Musikern.`
             });
 
             closeModal();
@@ -22731,7 +22731,7 @@ window.showAdminRecommendationDialog = function(musicianIds) {
         return dateStr;
     };
 
-    const defaultMsgTpl = (clientName, evtName) => `Hallo ${clientName || 'Veranstalter'},\n\nwir haben eine passende Auswahl an Musikern für Dein Event "${evtName || ''}" zusammengestellt! Klicke auf den Button unten, um Dir die Vorschläge anzusehen, Hörproben und Videos anzuhören und Deinen Wunsch-Act direkt unverbindlich anzufragen.`;
+    const defaultMsgTpl = (clientName, evtName) => `Hallo ${clientName || 'Veranstalter'},\n\nwir haben eine passende Auswahl an Musikern für Dein Event "${evtName || ''}" zusammengestellt! Klicke auf den Button unten, um Dir die Vorschläge inkl. Fotos, Videos und Hörproben anzusehen. Du kannst mehrere Wunsch-Acts über GigConnAct-Vermittlungen anzufragen. Wir übernehmen für Dich die Kontaktaufnahme zu den Musikern.`;
 
     const updateFieldsFromEvent = (evt) => {
         if (evt) {
@@ -22898,6 +22898,13 @@ window.renderRecommendationPage = function(container, mediationId) {
                     })()}</strong>` : ''}</p>
                 </div>
                 
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <div style="display: inline-block; background: rgba(37, 99, 235, 0.08); border: 1px dashed rgba(37, 99, 235, 0.35); padding: 0.8rem 1.5rem; border-radius: 10px; font-size: 0.92rem; color: #fff; font-weight: 700;">
+                        <i class="fa-solid fa-paper-plane" style="color: #2563eb; margin-right: 0.5rem;"></i>
+                        Wir senden für Dich die Anfrage an die Musiker, die dich interessieren.
+                    </div>
+                </div>
+
                 <div class="market-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.5rem;">
                     ${musicians.map((mus, idx) => {
                         const photos = (mus.photos && mus.photos.length > 0) ? mus.photos.slice(0, 5) : [mus.image || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80'];
@@ -22976,8 +22983,8 @@ window.renderRecommendationPage = function(container, mediationId) {
                             `;
                         } else {
                             buttonHtml = `
-                                <button onclick="window.requestMediationAct(event, '${mediationId}', '${mus.id}')" class="btn btn-primary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border-color: #2563eb; margin: 0; color: #fff; border-radius: 8px; cursor: pointer; border: 1px solid #2563eb;">
-                                    Unverbindlich anfragen
+                                <button onclick="window.requestMediationAct(event, '${mediationId}', '${mus.id}')" class="btn btn-primary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; background: #2563eb; border-color: #2563eb; margin: 0; color: #fff; border-radius: 8px; cursor: pointer; border: 1px solid #2563eb;">
+                                    Anfrage senden
                                 </button>
                             `;
                         }

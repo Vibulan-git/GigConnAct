@@ -1200,7 +1200,7 @@ exports.sendRecommendationList = functions
                     <p>${messageHtml}</p>
                     
                     <p style="text-align: center; margin-top: 25px;">
-                        <a href="${recommendationLink}" style="background: #2563eb; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; box-shadow: 0 4px 10px rgba(37,99,235,0.25);">Musiker-Vorschläge anschauen</a>
+                        <a href="${recommendationLink}" style="background: #2563eb; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; box-shadow: 0 4px 10px rgba(37,99,235,0.25);">Meine Vorschläge</a>
                     </p>
                     
                     <p style="font-size: 0.8rem; color: #718096; margin-top: 20px; text-align: center;">
