@@ -1608,15 +1608,15 @@ exports.requestMusician = functions
             const eventLocation = med.eventLocation || '';
 
             const responseLink = `${baseUrl}/#/mediation-response/${mediationId}?musicianId=${musicianId}`;
-            const subject = `Unverbindliche Vermittlungsanfrage für das Event: ${med.eventName}${eventLocation ? ` in ${eventLocation}` : ''}${formattedDate ? ` am ${formattedDate}` : ''}`;
+            const subject = `Vermittlungsanfrage für das Event: ${med.eventName}${eventLocation ? ` in ${eventLocation}` : ''}${formattedDate ? ` am ${formattedDate}` : ''}`;
             const emailHtml = `
                 <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
                     <div style="text-align: center; margin-bottom: 20px;">
                         <img src="https://gigconnact.de/discoball.png" alt="GigConnAct Logo" style="width: 70px; height: 70px; object-fit: contain;">
                     </div>
-                    <h2 style="color: #7c3aed; margin-top: 0; font-size: 1.4rem; text-align: center;">Unverbindliche Vermittlungsanfrage erhalten! 🚀</h2>
+                    <h2 style="color: #7c3aed; margin-top: 0; font-size: 1.4rem; text-align: center;">Vermittlungsanfrage erhalten! 🚀</h2>
                     <p>Hallo ${musName},</p>
-                    <p>herzlichen Glückwunsch! Du hast eine unverbindliche Vermittlungsanfrage für das Event <strong>"${med.eventName}"</strong>${eventLocation ? ` in <strong>${eventLocation}</strong>` : ''}${formattedDate ? ` am <strong>${formattedDate}</strong>` : ''} erhalten. Hinweis: Dies ist keine Buchungsanfrage. Der Veranstalter hat über den GigConnAct Vermittlungsservice Interesse bekundet, Deine Kontaktdaten zu erhalten. Möglicherweise hat er auch weitere Acts angefragt.</p>
+                    <p>herzlichen Glückwunsch! Du hast eine Vermittlungsanfrage für das Event <strong>"${med.eventName}"</strong>${eventLocation ? ` in <strong>${eventLocation}</strong>` : ''}${formattedDate ? ` am <strong>${formattedDate}</strong>` : ''} erhalten. Hinweis: Dies ist keine Buchungsanfrage. Der Veranstalter hat über GigConnAct-Vermittlungen Interesse bekundet, Deine Kontaktdaten zu erhalten.</p>
                     
                     <p>Klicke auf den Button unten, um dir die Details anzusehen. Bei verbindlichem Interesse Deinerseits erhältst Du über einen entsprechenden Bezahllink die Kontaktdaten des Veranstalters. Mit einem Premium-Account entfallen die Vermittlungsgebühren vollständig.</p>
                     
@@ -1806,7 +1806,7 @@ exports.sendMediationReminder = functions
             const eventLocation = med.eventLocation || '';
 
             const responseLink = `${baseUrl}/#/mediation-response/${mediationId}?musicianId=${musicianId}`;
-            const subject = `Erinnerung: Unverbindliche Vermittlungsanfrage für: ${med.eventName}`;
+            const subject = `Erinnerung: Vermittlungsanfrage für: ${med.eventName}`;
             
             const emailHtml = `
                 <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
@@ -1815,7 +1815,7 @@ exports.sendMediationReminder = functions
                     </div>
                     <h2 style="color: #7c3aed; margin-top: 0; font-size: 1.4rem; text-align: center;">Erinnerung an Deine Vermittlungsanfrage! ⏰</h2>
                     <p>Hallo ${musName},</p>
-                    <p>du hast eine ausstehende unverbindliche Vermittlungsanfrage für das Event <strong>"${med.eventName}"</strong>${eventLocation ? ` in <strong>${eventLocation}</strong>` : ''}${formattedDate ? ` am <strong>${formattedDate}</strong>` : ''} erhalten, auf die du noch nicht geantwortet hast.</p>
+                    <p>du hast eine ausstehende Vermittlungsanfrage für das Event <strong>"${med.eventName}"</strong>${eventLocation ? ` in <strong>${eventLocation}</strong>` : ''}${formattedDate ? ` am <strong>${formattedDate}</strong>` : ''} erhalten, auf die du noch nicht geantwortet hast.</p>
                     
                     <p>Der Veranstalter wartet auf Deine Rückmeldung. Bitte klicke auf den Button unten, um das Event anzusehen und verbindlich zuzusagen oder abzusagen.</p>
                     
