@@ -1137,21 +1137,32 @@ exports.sendRecommendationList = functions
     .region('europe-west3')
     .runWith({ secrets: ['RESEND_API_KEY'] })
     .https.onCall(async (data, context) => {
-        // 1. Authentifizierung & Admin-Prüfung
-        if (!context.auth) {
-            throw new functions.https.HttpsError('unauthenticated', 'Bitte melde dich an.');
-        }
-        const adminEmails = ['info@gigconnact.de', 'gigconnact@gmail.com'];
-        if (!adminEmails.includes(context.auth.token.email)) {
-            throw new functions.https.HttpsError('permission-denied', 'Nur Administratoren können diese Aktion ausführen.');
-        }
-
         const { mediationId, organizerEmail, eventName, musicianIds, baseUrl, subject, customMessage, eventDate } = data;
         if (!mediationId || !organizerEmail || !eventName || !musicianIds || !baseUrl) {
             throw new functions.https.HttpsError('invalid-argument', 'Fehlende Parameter.');
         }
 
+        // Validate calling authorization: either admin is logged in OR it is a valid matching mediation check
+        let isAdmin = false;
+        if (context.auth) {
+            const adminEmails = ['info@gigconnact.de', 'gigconnact@gmail.com'];
+            if (adminEmails.includes(context.auth.token.email)) {
+                isAdmin = true;
+            }
+        }
+
         try {
+            // Verify mediation document to prevent unauthorized email spam
+            const medDoc = await admin.firestore().collection('mediations').doc(mediationId).get();
+            if (!medDoc.exists) {
+                throw new functions.https.HttpsError('not-found', 'Vermittlung nicht gefunden.');
+            }
+            const medData = medDoc.data();
+            
+            // If not admin, the organizerEmail must match the database document to allow calling
+            if (!isAdmin && medData.organizerEmail !== organizerEmail) {
+                throw new functions.https.HttpsError('permission-denied', 'Keine Berechtigung für diese Aktion.');
+            }
             // 2. Musiker-Details laden
             const musicians = [];
             for (const id of musicianIds) {

@@ -10431,7 +10431,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
                     <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien</h4>
                     <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
-                        Füge Fotos und Videos für dein Event hinzu, um es attraktiver zu gestalten.
+                        Füge Fotos für dein Event hinzu, um es attraktiver zu gestalten.
                     </p>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
@@ -10441,15 +10441,6 @@ function showEventModal(eventObj = null, isDuplication = false) {
                             </button>
                         </div>
                         <div id="event-modal-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 1.2rem;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 500 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></label>
-                            <button type="button" id="btn-event-modal-add-video" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
-                        </div>
-                        <div id="event-modal-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
 
 
@@ -11460,7 +11451,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
                         <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien</h4>
                         <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
-                            Füge Fotos und Videos für dein Event hinzu, um es attraktiver zu gestalten.
+                            Füge Fotos für dein Event hinzu, um es attraktiver zu gestalten.
                         </p>
 
                         <div class="form-group" style="margin-bottom: 1.2rem;">
@@ -11472,18 +11463,9 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                             </div>
                             <div id="reg-organizer-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                         </div>
-                        <div class="form-group" style="margin-bottom: 1.2rem;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 500 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></label>
-                                <button type="button" onclick="window.addRegMedia('organizer', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
-                                    <i class="fa-solid fa-plus"></i>
-                                </button>
-                            </div>
-                            <div id="reg-organizer-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
-                        </div>
                         <div style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.15); padding: 0.8rem; border-radius: 8px; font-size:0.75rem; color: var(--text-main); margin-top:0.5rem; margin-bottom: 1.5rem; display: flex; gap: 0.5rem; align-items: flex-start;">
                             <i class="fa-solid fa-circle-info" style="color: #2563eb; margin-top: 2px;"></i>
-                            <span>Fotos und Videos können auch zu einem späteren Zeitpunkt im Profil hinzugefügt und geändert werden.</span>
+                            <span>Fotos können auch zu einem späteren Zeitpunkt im Profil hinzugefügt und geändert werden.</span>
                         </div>
                     </div>
 
@@ -15168,7 +15150,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         <div style="font-size:2rem; color:#7c3aed; margin-bottom:0.75rem; text-align:center;">
                             <i class="fa-solid fa-wand-magic-sparkles"></i>
                         </div>
-                        <h4 style="font-size:1.05rem; font-weight:700; margin:0 0 0.75rem; text-align:center;">2. GigConnAct-Vermittlung</h4>
+                        <h4 style="font-size:1.05rem; font-weight:700; margin:0 0 0.75rem; text-align:center;">2. Vermittlungsanfrage</h4>
                         <ul style="font-size:0.8rem; color:var(--text-muted); padding-left:1.1rem; margin:0 0 1.5rem; line-height:1.6;">
                             <li>Keine Registrierung oder Account erforderlich</li>
                             <li>Wir suchen, prüfen und senden dir 1–3 passende Acts innerhalb von 5 Werktagen</li>
@@ -15176,7 +15158,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         </ul>
                     </div>
                     <button id="btn-choice-agency" class="btn btn-primary" style="width:100%; margin:0; padding:0.75rem; font-size:0.85rem; font-weight:700; background:#7c3aed; border-color:#7c3aed;">
-                        Vermittlung anfordern
+                        Vermittlungsanfrage starten
                     </button>
                 </div>
             </div>
@@ -15244,16 +15226,13 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
         <div class="modal-content">
             <div class="modal-header" style="flex-direction: column; padding: 1.5rem 2rem 1.2rem;">
                 <h3 style="line-height: 1.2; text-align: center; margin: 0; font-family: var(--font-heading); width: 100%;">
-                    <span style="display: block; font-size: 0.95rem; font-weight: 700; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; color: #2563eb;">GigConnAct-Vermittlung</span>
-                    <span style="display: block; font-size: 1.45rem; font-weight: 900; color: #000000; margin-top: 0.25rem; letter-spacing: 0.5px;">Vermittlung anfordern</span>
+                    <span style="display: block; font-size: 0.95rem; font-weight: 700; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; color: #2563eb;">GigConnAct</span>
+                    <span style="display: block; font-size: 1.45rem; font-weight: 900; color: #000000; margin-top: 0.25rem; letter-spacing: 0.5px;">Vermittlungsanfrage</span>
                 </h3>
                 <button class="close-modal-btn" id="btn-close-modal">&times;</button>
             </div>
             
             <div class="modal-body" style="padding: 1.5rem 2rem; max-height: 70vh; overflow-y: auto;">
-                <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.45; text-align: center;">
-                    Keine Registrierung erforderlich! Bitte fülle das Formular aus. Wir finden risikofrei und passgenau die besten Acts für dein Event.
-                </p>
 
                 <form id="auth-register-form" class="role-organizer-active">
                     <!-- 1. Eventname -->
@@ -15440,7 +15419,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                     <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
                     <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien</h4>
                     <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
-                        Füge Fotos und Videos für dein Event hinzu, um es attraktiver zu gestalten.
+                        Füge Fotos für dein Event hinzu, um es attraktiver zu gestalten.
                     </p>
 
                     <div class="form-group" style="margin-bottom: 1.2rem;">
@@ -15451,15 +15430,6 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                             </button>
                         </div>
                         <div id="reg-organizer-photos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 1.2rem;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 500 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></label>
-                            <button type="button" onclick="window.addRegMedia('organizer', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(37, 99, 235, 0.3); color:#2563eb;">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
-                        </div>
-                        <div id="reg-organizer-videos-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
 
                     <!-- Personal Details -->
@@ -15504,9 +15474,10 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                         <div class="form-group">
                             <label>Telefonnummer</label>
                             <input type="text" name="phone" id="input-reg-phone" class="input-field" maxlength="20" placeholder="z.B. 01761234567" required>
-                            <div style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.4rem;">
-                                <input type="checkbox" name="hidePhone" id="input-reg-hidephone" checked style="width: auto; margin: 0; cursor: pointer;">
-                                <label for="input-reg-hidephone" style="font-size: 0.75rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0;">Telefonnummer verbergen</label>
+                            <input type="checkbox" name="hidePhone" style="display:none;" checked>
+                            <div style="margin-top: 0.6rem; background: rgba(37, 99, 235, 0.05); border: 1px dashed rgba(37, 99, 235, 0.2); padding: 0.75rem; border-radius: 8px; font-size: 0.75rem; color: var(--text-main); line-height: 1.45; text-align: left; display: flex; gap: 0.4rem; align-items: flex-start;">
+                                <i class="fa-solid fa-shield-halved" style="color: #2563eb; margin-top: 2px; flex-shrink: 0;"></i>
+                                <span>Deine Kontaktdaten (Telefonnummer & E-Mail) werden eventuell nur den Musikern geschickt, denen du auch eine Anfrage senden möchtest. Erst bei einer erfolgreichen Vermittlung werden die Kontaktdaten vollständig freigegeben.</span>
                             </div>
                         </div>
                     </div>
@@ -16887,6 +16858,7 @@ window.showMediaModal = function(itemId, isEvents) {
                     </div>
                 </div>
 
+                ${!isEvents ? `
                 <!-- Section: Videos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
@@ -16908,6 +16880,7 @@ window.showMediaModal = function(itemId, isEvents) {
                         `).join('')}
                     </div>
                 </div>
+                ` : ''}
 
                 <!-- Section: Audios -->
                 ${!isEvents ? `
