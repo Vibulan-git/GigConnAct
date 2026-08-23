@@ -1332,7 +1332,7 @@ async function releaseMediationContactsInternal(mediationId, musicianId = null) 
         }
     }
 
-    const orgName = eventData ? (eventData.contactName || '') : '';
+    const orgName = eventData ? (eventData.clientName || eventData.contactName || '') : '';
     const clientName = orgName ? orgName.trim().split(' ')[0] : 'Veranstalter';
 
     // 1. Send email to Organizer
@@ -1343,10 +1343,26 @@ async function releaseMediationContactsInternal(mediationId, musicianId = null) 
             <p>Hallo ${clientName},</p>
             <p>der von Dir ausgewählte Act "${musName}" hat Interesse bekundet, auf Deinem Event "${med.eventName}" zu spielen! Hier sind die Kontaktdaten, damit Ihr die weiteren Details direkt besprechen könnt:</p>
             
-            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                <h3 style="margin-top: 0; color: #0f172a; font-size: 1.1rem;">${musName}</h3>
-                <p style="margin: 5px 0; font-size: 0.9rem;"><strong>E-Mail:</strong> <a href="mailto:${musEmail}" style="color: #2563eb;">${musEmail}</a></p>
-                <p style="margin: 5px 0; font-size: 0.9rem;"><strong>Telefon:</strong> ${musPhone}</p>
+            <!-- MUSIKER-KACHEL MIT KONTAKTDATEN -->
+            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; margin: 20px 0; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: left;">
+                <div style="background: #2563eb; padding: 15px; color: #ffffff;">
+                    <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: bold; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 10px;">${mus.type || 'Musiker'}</span>
+                    <h3 style="margin: 5px 0 0 0; font-size: 1.2rem; font-weight: bold; color: #ffffff;">${musName}</h3>
+                </div>
+                <div style="padding: 15px; font-size: 0.9rem; line-height: 1.5; color: #4a5568;">
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">📍 Standort:</strong> ${mus.location || 'Nicht angegeben'}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">🎵 Genres:</strong> ${(mus.genres || []).join(', ') || 'Alle'}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">🎸 Instrumente:</strong> ${(mus.instruments || []).join(', ') || 'Keine Angabe'}</p>
+                    ${mus.description ? `<p style="margin: 6px 0; font-style: italic; color: #718096; border-top: 1px dashed #e2e8f0; padding-top: 8px;">"${mus.description}"</p>` : ''}
+                    
+                    <!-- KONTAKTDATEN -->
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #2563eb; background: rgba(37,99,235,0.03); padding: 12px; border-radius: 8px;">
+                        <h4 style="margin: 0 0 8px 0; color: #2563eb; font-size: 1rem;">📞 Kontaktdaten des Musikers:</h4>
+                        <p style="margin: 4px 0;"><strong>Name:</strong> ${musName}</p>
+                        <p style="margin: 4px 0;"><strong>Telefon:</strong> ${musPhone}</p>
+                        <p style="margin: 4px 0;"><strong>E-Mail:</strong> <a href="mailto:${musEmail}" style="color: #2563eb; font-weight: bold; text-decoration: none;">${musEmail}</a></p>
+                    </div>
+                </div>
             </div>
             
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
@@ -1385,9 +1401,9 @@ async function releaseMediationContactsInternal(mediationId, musicianId = null) 
                     <!-- KONTAKTDATEN -->
                     <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #7c3aed; background: rgba(124,58,237,0.03); padding: 12px; border-radius: 8px;">
                         <h4 style="margin: 0 0 8px 0; color: #7c3aed; font-size: 1rem;">📞 Kontaktdaten des Veranstalters:</h4>
-                        <p style="margin: 4px 0;"><strong>Name:</strong> ${eventData ? (eventData.contactName || 'Nicht angegeben') : 'Nicht angegeben'}</p>
-                        <p style="margin: 4px 0;"><strong>Telefon:</strong> ${eventData ? (eventData.phone || 'Nicht angegeben') : 'Nicht angegeben'}</p>
-                        <p style="margin: 4px 0;"><strong>E-Mail:</strong> <a href="mailto:${med.organizerEmail}" style="color: #7c3aed; font-weight: bold; text-decoration: none;">${med.organizerEmail}</a></p>
+                        <p style="margin: 4px 0;"><strong>Name:</strong> ${eventData ? (eventData.clientName || eventData.contactName || 'Nicht angegeben') : 'Nicht angegeben'}</p>
+                        <p style="margin: 4px 0;"><strong>Telefon:</strong> ${eventData ? (eventData.clientPhone || eventData.phone || 'Nicht angegeben') : 'Nicht angegeben'}</p>
+                        <p style="margin: 4px 0;"><strong>E-Mail:</strong> <a href="mailto:${eventData && eventData.clientEmail ? eventData.clientEmail : med.organizerEmail}" style="color: #7c3aed; font-weight: bold; text-decoration: none;">${eventData && eventData.clientEmail ? eventData.clientEmail : med.organizerEmail}</a></p>
                     </div>
                 </div>
             </div>
