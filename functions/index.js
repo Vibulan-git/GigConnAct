@@ -799,7 +799,7 @@ exports.createStripeCheckoutSession = functions
 // ==========================================
 exports.stripeWebhook = functions
     .region('europe-west3')
-    .runWith({ secrets: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET'] })
+    .runWith({ secrets: ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'RESEND_API_KEY'] })
     .https.onRequest(async (req, res) => {
         const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
         const sig = req.headers['stripe-signature'];
@@ -1241,9 +1241,9 @@ async function releaseMediationContactsInternal(mediationId, musicianId = null) 
         throw new Error('Kein Musiker ausgewählt.');
     }
 
-    // Check if already completed to avoid duplicate emails
-    if (med.status === 'completed' && med.paymentStatus === 'paid') {
-        console.log(`Mediation ${mediationId} is already completed, skipping email sending.`);
+    // Check if already completed and contacts released to avoid duplicate emails
+    if (med.status === 'completed' && med.paymentStatus === 'paid' && med.contactsReleased === true) {
+        console.log(`Mediation ${mediationId} is already completed and contacts released, skipping email sending.`);
         return;
     }
 
@@ -1261,11 +1261,12 @@ async function releaseMediationContactsInternal(mediationId, musicianId = null) 
     const musPhone = musUser.phone || mus.phone || 'Nicht angegeben';
     const musName = mus.name || mus.title || '';
 
-    // Update status to completed
+    // Update status to completed and set contactsReleased to true
     const updateData = {
         status: 'completed',
         selectedMusicianId: finalMusicianId,
         paymentStatus: (med.paymentStatus && med.paymentStatus !== 'pending') ? med.paymentStatus : 'paid',
+        contactsReleased: true,
         completedAt: new Date().toISOString()
     };
     if (med.musicianStatuses) {
