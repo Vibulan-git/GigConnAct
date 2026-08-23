@@ -1332,13 +1332,16 @@ async function releaseMediationContactsInternal(mediationId, musicianId = null) 
         }
     }
 
+    const orgName = eventData ? (eventData.contactName || '') : '';
+    const clientName = orgName ? orgName.trim().split(' ')[0] : 'Veranstalter';
+
     // 1. Send email to Organizer
     const organizerSubject = `Vermittlung erfolgreich: Kontaktdaten von ${musName} für "${med.eventName}" 🎉`;
     const organizerHtml = `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
             <h2 style="color: #2563eb; margin-top: 0; font-size: 1.4rem;">Kontaktdaten freigeschaltet! 🎉</h2>
-            <p>Hallo,</p>
-            <p>der von dir ausgewählte Act <strong>"${musName}"</strong> hat dem Auftritt zugesagt! Hier sind die Kontaktdaten, damit ihr die weiteren Details direkt besprechen könnt:</p>
+            <p>Hallo ${clientName},</p>
+            <p>der von Dir ausgewählte Act "${musName}" hat Interesse bekundet, auf Deinem Event "${med.eventName}" zu spielen! Hier sind die Kontaktdaten, damit Ihr die weiteren Details direkt besprechen könnt:</p>
             
             <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 15px; margin: 20px 0;">
                 <h3 style="margin-top: 0; color: #0f172a; font-size: 1.1rem;">${musName}</h3>
@@ -1346,9 +1349,10 @@ async function releaseMediationContactsInternal(mediationId, musicianId = null) 
                 <p style="margin: 5px 0; font-size: 0.9rem;"><strong>Telefon:</strong> ${musPhone}</p>
             </div>
             
-            <p>Wir wünschen euch ein fantastisches Event! Bei Fragen stehen wir dir jederzeit gerne zur Verfügung.</p>
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-            <p style="font-size: 0.8rem; color: #a0aec0; text-align: center;">GigConnAct — Dein Live-Musik Marktplatz</p>
+            <div style="text-align: center; margin-top: 20px;">
+                <img src="https://gigconnact.de/discoball.png" alt="GigConnAct Logo" style="width: 50px; height: 50px; object-fit: contain;">
+            </div>
         </div>
     `;
     await sendEmail({ to: med.organizerEmail, subject: organizerSubject, html: organizerHtml, headers: { 'Reply-To': 'info@gigconnact.de' } });
@@ -1390,7 +1394,9 @@ async function releaseMediationContactsInternal(mediationId, musicianId = null) 
             
             <p>Wir wünschen dir viel Erfolg bei diesem Gig!</p>
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-            <p style="font-size: 0.8rem; color: #a0aec0; text-align: center;">GigConnAct — Dein Live-Musik Marktplatz</p>
+            <div style="text-align: center; margin-top: 20px;">
+                <img src="https://gigconnact.de/discoball.png" alt="GigConnAct Logo" style="width: 50px; height: 50px; object-fit: contain;">
+            </div>
         </div>
     `;
     await sendEmail({ to: musEmail, subject: musicianSubject, html: musicianHtml, headers: { 'Reply-To': 'info@gigconnact.de' } });
