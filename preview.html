@@ -11946,36 +11946,7 @@ function renderMarket(container, type, onNavigate) {
                 }
             }
 
-            // Admin recommendation list banner injection
-            const adminBannerId = 'market-admin-fav-banner';
-            let adminBannerEl = container.querySelector('#' + adminBannerId);
-            const isAdmin = state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email);
-            
-            if (!isEvents && showOnlyFavorites && isAdmin && list.length > 0) {
-                if (!adminBannerEl) {
-                    adminBannerEl = document.createElement('div');
-                    adminBannerEl.id = adminBannerId;
-                    adminBannerEl.style.cssText = 'margin-top: 2rem; margin-bottom: 2rem; display: flex; justify-content: center; width: 100%; box-sizing: border-box;';
-                    grid.parentNode.appendChild(adminBannerEl);
-                } else {
-                    adminBannerEl.style.cssText = 'margin-top: 2rem; margin-bottom: 2rem; display: flex; justify-content: center; width: 100%; box-sizing: border-box;';
-                }
-                adminBannerEl.innerHTML = `
-                    <button id="btn-admin-send-recommendations" class="btn btn-primary" style="margin: 0 auto; padding: 0.75rem 2rem; font-size: 0.95rem; border-radius: 8px; font-weight: 700; white-space: nowrap; background: #2563eb; border-color: #2563eb; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; color: #fff; border: 1px solid #2563eb;">
-                        <i class="fa-solid fa-paper-plane"></i> Vorschlagsliste senden
-                    </button>
-                `;
-                adminBannerEl.style.display = 'flex';
-                
-                // Add event listener to send button
-                adminBannerEl.querySelector('#btn-admin-send-recommendations')?.addEventListener('click', () => {
-                    window.showAdminRecommendationDialog(list.map(m => m.id));
-                });
-            } else {
-                if (adminBannerEl) {
-                    adminBannerEl.style.display = 'none';
-                }
-            }
+            // Admin recommendation list banner is no longer needed because the proposals page loads dynamically from event.favorites
         }
         
         const countEl = container.querySelector('#market-results-count');
@@ -22878,9 +22849,25 @@ window.renderRecommendationPage = function(container, mediationId) {
             return;
         }
 
+        // Fetch the corresponding event document to get the real-time favorites list
+        let musicianIds = med.musicianIds || [];
+        if (med.eventId) {
+            try {
+                const eventDoc = await db.collection('events').doc(med.eventId).get();
+                if (eventDoc.exists) {
+                    const eventData = eventDoc.data();
+                    if (Array.isArray(eventData.favorites)) {
+                        musicianIds = eventData.favorites;
+                    }
+                }
+            } catch (eventErr) {
+                console.warn("Could not load real-time favorites from event, falling back to mediation musicianIds:", eventErr);
+            }
+        }
+
         // Fetch musician documents
         const musicians = [];
-        for (const id of med.musicianIds) {
+        for (const id of musicianIds) {
             const musDoc = await db.collection('musicians').doc(id).get();
             if (musDoc.exists) {
                 musicians.push({ id: musDoc.id, ...musDoc.data() });
@@ -22901,7 +22888,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                 <div style="text-align: center; margin-bottom: 2rem;">
                     <div style="display: inline-block; background: rgba(37, 99, 235, 0.08); border: 1px dashed rgba(37, 99, 235, 0.35); padding: 0.8rem 1.5rem; border-radius: 10px; font-size: 0.92rem; color: #fff; font-weight: 700;">
                         <i class="fa-solid fa-paper-plane" style="color: #2563eb; margin-right: 0.5rem;"></i>
-                        Wir senden für Dich die Anfrage an die Musiker, die dich interessieren.
+                        Wenn du auf den Button "Anfrage senden" klickst, nehmen wir den Kontakt zum ausgewählten Act auf.
                     </div>
                 </div>
 
