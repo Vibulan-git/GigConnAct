@@ -21024,21 +21024,53 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
 
             const detailDescription = form.querySelector('#textarea-org-desc').value.trim();
             
+            // 1. Calculate top 5 matching musicians
+            const activeMusicians = (state.musicians || []).filter(m => m.isActive !== false);
+            
+            const tempEventForMatch = {
+                name: form.elements.eventName.value.trim(),
+                type: checkedEventTypes[0] || 'Sonstiges',
+                eventTypes: checkedEventTypes,
+                musicianTypes: checkedMusicianTypes,
+                date: selectedEventDates[0] || null,
+                dates: selectedEventDates,
+                location: orgLocVal,
+                genres: checkedGenres,
+                instruments: checkedInstruments,
+                minDuration: parseFloat(form.elements.orgMinDuration.value) || 0.5,
+                maxDuration: parseFloat(form.elements.orgMaxDuration.value) || 2.0,
+                duration: parseFloat(form.elements.orgMinDuration.value) || 0.5,
+                minPublikum: parseInt(form.querySelector('#input-org-publikum-min')?.value) || 0,
+                maxPublikum: parseInt(form.querySelector('#input-org-publikum-max')?.value) || 500,
+                budget: parseFloat(form.elements.orgMinBudget.value) || 0,
+                minBudget: parseFloat(form.elements.orgMinBudget.value) || 0,
+                maxBudget: parseFloat(form.elements.orgMaxBudget.value) || 5000,
+                technik: checkedTechnik
+            };
+
+            const scoredMusicians = activeMusicians.map(m => {
+                const match = calculateMatch(m, tempEventForMatch, 'organizer');
+                return { id: m.id, score: match.score };
+            });
+
+            scoredMusicians.sort((a, b) => b.score - a.score);
+            const top5MusicianIds = scoredMusicians.slice(0, 5).map(m => m.id);
+
+            const eventIds = adminUids.map((_, idx) => 'evt_agency_' + Date.now() + '_' + idx);
+
             // Save event for each resolved admin UID
             for (let i = 0; i < adminUids.length; i++) {
                 const uid = adminUids[i];
-                const eventId = 'evt_agency_' + Date.now() + '_' + i;
+                const eventId = eventIds[i];
                 
-                const fullDescription = detailDescription;
-
                 const newEvent = {
                     id: eventId,
                     creatorId: uid,
-                    name: form.elements.eventName.value.trim(),
-                    type: checkedEventTypes[0] || 'Sonstiges',
+                    name: tempEventForMatch.name,
+                    type: tempEventForMatch.type,
                     eventTypes: checkedEventTypes,
                     musicianTypes: checkedMusicianTypes,
-                    date: selectedEventDates[0],
+                    date: tempEventForMatch.date,
                     dates: selectedEventDates,
                     eventStartTime: form.elements.eventStartTime.value,
                     eventEndTime: form.elements.eventEndTime.value,
@@ -21046,16 +21078,16 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                     locations: [orgLocVal],
                     genres: checkedGenres,
                     instruments: checkedInstruments,
-                    minDuration: parseFloat(form.elements.orgMinDuration.value) || 0.5,
-                    maxDuration: parseFloat(form.elements.orgMaxDuration.value) || 2.0,
-                    duration: parseFloat(form.elements.orgMinDuration.value) || 0.5,
-                    minPublikum: parseInt(form.querySelector('#input-org-publikum-min')?.value) || 0,
-                    maxPublikum: parseInt(form.querySelector('#input-org-publikum-max')?.value) || 500,
-                    publikum: `${form.querySelector('#input-org-publikum-min')?.value || 0} - ${form.querySelector('#input-org-publikum-max')?.value || 500}`,
-                    budget: parseFloat(form.elements.orgMinBudget.value) || 0,
-                    minBudget: parseFloat(form.elements.orgMinBudget.value) || 0,
-                    maxBudget: parseFloat(form.elements.orgMaxBudget.value) || 5000,
-                    description: fullDescription,
+                    minDuration: tempEventForMatch.minDuration,
+                    maxDuration: tempEventForMatch.maxDuration,
+                    duration: tempEventForMatch.duration,
+                    minPublikum: tempEventForMatch.minPublikum,
+                    maxPublikum: tempEventForMatch.maxPublikum,
+                    publikum: `${tempEventForMatch.minPublikum} - ${tempEventForMatch.maxPublikum}`,
+                    budget: tempEventForMatch.budget,
+                    minBudget: tempEventForMatch.minBudget,
+                    maxBudget: tempEventForMatch.maxBudget,
+                    description: detailDescription,
                     technik: checkedTechnik,
                     company: compValue,
                     organizerType: orgType,
@@ -21071,11 +21103,40 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                     isAgencyRequest: true,
                     createdAt: new Date().toISOString(),
                     photos: window.registrationMedia.organizer.photos || [],
-                    videos: window.registrationMedia.organizer.videos || []
+                    videos: window.registrationMedia.organizer.videos || [],
+                    favorites: top5MusicianIds
                 };
 
                 await db.collection('events').doc(eventId).set(newEvent);
             }
+
+            // 2. Automatically create the mediation document linked to the first event copy
+            const mediationRef = await db.collection('mediations').add({
+                organizerEmail: emailVal,
+                eventName: tempEventForMatch.name,
+                eventDate: tempEventForMatch.date || null,
+                eventLocation: orgLocVal || '',
+                eventId: eventIds[0],
+                musicianIds: top5MusicianIds,
+                status: 'pending_selection',
+                createdAt: new Date().toISOString(),
+                selectedMusicianId: null,
+                paymentStatus: 'pending'
+            });
+
+            // 3. Call the Cloud Function to send the recommendation email to the organizer
+            const sendRecommendationListFn = firebase.app().functions('europe-west3').httpsCallable('sendRecommendationList');
+            const dateStr = tempEventForMatch.date ? ` am ${tempEventForMatch.date.split('-').reverse().join('.')}` : '';
+            await sendRecommendationListFn({
+                mediationId: mediationRef.id,
+                organizerEmail: emailVal,
+                eventName: tempEventForMatch.name,
+                eventDate: tempEventForMatch.date || null,
+                musicianIds: top5MusicianIds,
+                baseUrl: window.location.origin,
+                subject: `Hier ist unsere Musiker-Auswahl für Dein Event: ${tempEventForMatch.name}${dateStr}`,
+                customMessage: `Hallo ${fullNameVal},\n\nwir haben eine passende Auswahl an Musikern für Dein Event "${tempEventForMatch.name}" zusammengestellt! Klicke auf den Button unten, um Dir die Vorschläge anzusehen, Hörproben und Videos anzuhören und Deinen Wunsch-Act direkt unverbindlich anzufragen.`
+            });
 
             closeModal();
             showAgencySuccessModal(emailVal);
@@ -21138,6 +21199,12 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
     return items.map(item => {
         const isUnlocked = state ? ((typeof state.isUnlocked === 'function') ? state.isUnlocked(item.id) : (state.unlockedContacts && state.unlockedContacts.includes(item.id))) : false;
         const isAdmin = state && state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email);
+        const isMediation = isEvents && (
+            item.isAgencyRequest === true || 
+            item.email === 'info@gigconnact.de' || 
+            item.clientEmail === 'info@gigconnact.de' ||
+            item.creatorId === 'info-gigconnact-admin'
+        );
         
         // Up to 5 photos
         const photos = (item.photos && item.photos.length > 0)
@@ -21224,7 +21291,11 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
                     
-                    ${(state.currentUser && item.matchScore >= 70) ? `
+                    ${isMediation ? `
+                        <div class="tile-mediation-badge" title="Vermittlung über GigConnAct" style="position: absolute; top: 12px; left: 12px; z-index: 5; background: #2563eb; color: #fff; padding: 0.35rem 0.6rem; border-radius: 6px; font-weight: 800; font-size: 0.68rem; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 0.35rem; pointer-events: none;">
+                            <i class="fa-solid fa-handshake"></i> Vermittlung
+                        </div>
+                    ` : (state.currentUser && item.matchScore >= 70) ? `
                         <div class="tile-top-match-badge" title="Top Match" style="position: absolute; top: 12px; left: 12px; z-index: 5; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(254, 240, 138, 0.35); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); pointer-events: none;">
                             <i class="fa-solid fa-star" style="color: #eab308; font-size: 0.85rem; margin: 0;"></i>
                         </div>
@@ -21405,7 +21476,14 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 </div>
                 ` : ''}
 
-                ${isUnlocked ? `
+                ${isMediation ? `
+                    <!-- 4. Aktions-Button: "Vermittlung" -->
+                    <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; width: 100%; box-sizing: border-box;">
+                        <span style="display: flex; width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; border-radius: 10px; background: rgba(37, 99, 235, 0.1); border: 1.5px solid #2563eb; color: #2563eb; cursor: default; box-sizing: border-box; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-handshake"></i> Vermittlung
+                        </span>
+                    </div>
+                ` : isUnlocked ? `
                     <!-- Solid Colored Unlocked Contact Footer Box -->
                     <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 1rem 1.3rem; background: ${footerGradient}; color: #ffffff; display: flex; flex-direction: column; gap: 0.8rem; border-radius: 0 0 18px 18px;">
                         <!-- Row of circular action buttons -->
@@ -22680,7 +22758,7 @@ window.showAdminRecommendationDialog = function(musicianIds) {
         return dateStr;
     };
 
-    const defaultMsgTpl = (clientName, evtName) => `Hallo ${clientName || 'Veranstalter'},\n\nwir haben eine passende Auswahl an Musikern für Dein Event "${evtName || ''}" zusammengestellt! Klicke auf den Button unten, um Dir die Vorschläge anzusehen, Hörproben und Videos anzuhören und Deinen Wunsch-Act direkt verbindlich anzufragen.`;
+    const defaultMsgTpl = (clientName, evtName) => `Hallo ${clientName || 'Veranstalter'},\n\nwir haben eine passende Auswahl an Musikern für Dein Event "${evtName || ''}" zusammengestellt! Klicke auf den Button unten, um Dir die Vorschläge anzusehen, Hörproben und Videos anzuhören und Deinen Wunsch-Act direkt unverbindlich anzufragen.`;
 
     const updateFieldsFromEvent = (evt) => {
         if (evt) {
@@ -22897,7 +22975,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                         if (status === 'pending') {
                             buttonHtml = `
                                 <div style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%;">
-                                    <button onclick="window.markMediationNoResponse('${mediationId}', '${mus.id}')" class="btn btn-glass" style="width: 100%; padding: 0.4rem; font-size: 0.72rem; font-weight: 700; margin: 0; border: 1px solid rgba(245,158,11,0.4); color: #f59e0b; background: rgba(245,158,11,0.05); cursor: pointer; border-radius: 8px;">
+                                    <button onclick="window.sendMediationReminder(event, '${mediationId}', '${mus.id}')" class="btn btn-glass" style="width: 100%; padding: 0.4rem; font-size: 0.72rem; font-weight: 700; margin: 0; border: 1px solid rgba(245,158,11,0.4); color: #f59e0b; background: rgba(245,158,11,0.05); cursor: pointer; border-radius: 8px;">
                                         Keine Antwort seit 1 Woche
                                     </button>
                                     <button class="btn btn-secondary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; margin: 0; background: #4b5563; border-color: #4b5563; color: #d1d5db; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 0.4rem;" disabled>
@@ -22926,7 +23004,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                         } else {
                             buttonHtml = `
                                 <button onclick="window.requestMediationAct(event, '${mediationId}', '${mus.id}')" class="btn btn-primary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border-color: #2563eb; margin: 0; color: #fff; border-radius: 8px; cursor: pointer; border: 1px solid #2563eb;">
-                                    Verbindlich anfragen
+                                    Unverbindlich anfragen
                                 </button>
                             `;
                         }
@@ -23038,14 +23116,19 @@ window.renderRecommendationPage = function(container, mediationId) {
                     }).join('')}
                 </div>
 
-                <!-- Die Auswahl reicht mir nicht Button -->
+                <!-- Die Auswahl reicht mir nicht & Dieses Event entfernen Buttons -->
                 <div style="text-align: center; margin-top: 4rem; border-top: 1px dashed var(--border-glass); padding-top: 2.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem;">
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
-                        Ist nicht der passende Act dabei? Kein Problem, wir suchen kostenlos weiter!
+                    <div style="display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap;">
+                        <button onclick="window.requestMoreRecommendations('${mediationId}')" class="btn btn-secondary" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 800; border-color: #2563eb; color: #ffffff; background: #2563eb; margin: 0; cursor: pointer; border-radius: 8px;">
+                            Weitere Vorschläge erhalten
+                        </button>
+                        <button onclick="window.removeMediationEvent('${mediationId}')" class="btn btn-secondary" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 800; border-color: #ef4444; color: #ef4444; background: #ffffff; margin: 0; cursor: pointer; border-radius: 8px; border: 1.5px solid #ef4444;">
+                            Dieses Event entfernen
+                        </button>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.4rem;">
+                        Du kannst zu jeder Zeit weitere Musiker-Vorschläge anfragen.
                     </p>
-                    <button onclick="window.requestMoreRecommendations('${mediationId}')" class="btn btn-secondary" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 800; border-color: rgba(255,255,255,0.25); color: #ffffff; background: rgba(255,255,255,0.1); margin: 0; cursor: pointer; border-radius: 8px;">
-                        Die Auswahl reicht mir nicht - bitte weitersuchen
-                    </button>
                 </div>
             </div>
         `;
@@ -23056,7 +23139,7 @@ window.renderRecommendationPage = function(container, mediationId) {
 };
 
 window.requestMediationAct = function(event, mediationId, musicianId) {
-    if (!confirm("Möchtest du diesen Act verbindlich anfragen? Der Musiker erhält umgehend eine Benachrichtigung. Bei Interesse und entsprechender Verfügbarkeit wird er im selben Prozess zur Zahlung für die erfolgreiche Vermittlung aufgefordert. Für Dich als Veranstalter entstehen weiterhin keine Kosten.")) return;
+    if (!confirm("Möchtest du diesen Act unverbindlich anfragen? Der Musiker erhält umgehend eine Benachrichtigung. Bei Interesse und entsprechender Verfügbarkeit wird er im selben Prozess zur Zahlung für die erfolgreiche Vermittlung aufgefordert. Für Dich als Veranstalter entstehen weiterhin keine Kosten.")) return;
     
     // Disable and gray out the button immediately to prevent double-clicks
     const btn = event?.currentTarget || event?.target;
@@ -23078,7 +23161,7 @@ window.requestMediationAct = function(event, mediationId, musicianId) {
         if (res.data && res.data.success) {
             showToast({
                 title: "Anfrage gesendet! 🚀",
-                message: "Der Musiker wurde verbindlich angefragt."
+                message: "Der Musiker wurde unverbindlich angefragt."
             });
             window.location.reload();
         } else {
@@ -23090,47 +23173,156 @@ window.requestMediationAct = function(event, mediationId, musicianId) {
     });
 };
 
-window.markMediationNoResponse = function(mediationId, musicianId) {
-    if (!confirm("Möchtest du diese Anfrage wegen fehlender Rückmeldung zurückziehen? Wir informieren den Musiker und du kannst andere Acts anfragen.")) return;
+window.sendMediationReminder = function(event, mediationId, musicianId) {
+    if (!confirm("Möchtest du dem Musiker eine Erinnerungs-E-Mail senden?")) return;
 
-    const updateStatusFn = firebase.app().functions('europe-west3').httpsCallable('updateMediationMusicianStatus');
-    updateStatusFn({
+    // Show loading spinner on the button
+    const btn = event?.currentTarget || event?.target;
+    let oldText = "";
+    if (btn) {
+        btn.disabled = true;
+        oldText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sende...';
+    }
+
+    const sendReminderFn = firebase.app().functions('europe-west3').httpsCallable('sendMediationReminder');
+    sendReminderFn({
         mediationId: mediationId,
         musicianId: musicianId,
-        status: 'no_response',
         baseUrl: window.location.origin
     }).then(res => {
         if (res.data && res.data.success) {
             showToast({
-                title: "Anfrage zurückgezogen ⏳",
-                message: "Der Status wurde aktualisiert."
+                title: "Erinnerung gesendet! ⏰",
+                message: "Eine Erinnerungs-E-Mail wurde erfolgreich an den Musiker gesendet."
             });
-            window.location.reload();
         } else {
-            alert("Fehler beim Aktualisieren der Anfrage.");
+            alert("Fehler beim Senden der Erinnerung.");
         }
     }).catch(err => {
-        console.error("updateStatus failed:", err);
+        console.error("sendMediationReminder failed:", err);
         alert("Fehler: " + err.message);
+    }).finally(() => {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = oldText;
+        }
     });
 };
 
 window.requestMoreRecommendations = function(mediationId) {
-    if (!confirm("Möchtest du uns Bescheid geben, dass wir nach weiteren passenden Musikern suchen sollen?")) return;
+    if (!confirm("Möchtest du weitere Musiker-Vorschläge erhalten? Wir fügen automatisch die nächsten 5 passenden Acts für dich hinzu.")) return;
 
-    const requestMoreFn = firebase.app().functions('europe-west3').httpsCallable('requestMoreRecommendations');
-    requestMoreFn({ mediationId }).then(res => {
-        if (res.data && res.data.success) {
-            showToast({
-                title: "Anfrage gesendet! ✉️",
-                message: "Vielen Dank! Wir suchen nach weiteren passenden Musikern für dich und melden uns bald."
-            });
-        } else {
-            alert("Fehler beim Senden der Anfrage.");
+    db.collection('mediations').doc(mediationId).get().then(async (doc) => {
+        if (!doc.exists) {
+            alert("Fehler: Vermittlung nicht gefunden.");
+            return;
         }
+        const med = doc.data();
+        
+        // 1. Get all active musicians
+        const activeMusicians = (state.musicians || []).filter(m => m.isActive !== false);
+        
+        // 2. Exclude musicians already in med.musicianIds
+        const existingIds = med.musicianIds || [];
+        const remainingMusicians = activeMusicians.filter(m => !existingIds.includes(m.id));
+        
+        if (remainingMusicians.length === 0) {
+            alert("Es sind keine weiteren passenden Musiker auf dem Marktplatz verfügbar.");
+            return;
+        }
+        
+        // Fetch event details to calculate match scores
+        let eventData = null;
+        if (med.eventId) {
+            const eventDoc = await db.collection('events').doc(med.eventId).get();
+            if (eventDoc.exists) {
+                eventData = eventDoc.data();
+            }
+        }
+        
+        if (!eventData) {
+            alert("Event-Daten konnten nicht geladen werden.");
+            return;
+        }
+        
+        // 3. Score remaining musicians against the event
+        const scored = remainingMusicians.map(m => {
+            const match = calculateMatch(m, eventData, 'organizer');
+            return { id: m.id, score: match.score };
+        });
+        
+        // 4. Sort descending
+        scored.sort((a, b) => b.score - a.score);
+        
+        // 5. Pick top 5 remaining
+        const new5Ids = scored.slice(0, 5).map(m => m.id);
+        const updatedIds = [...existingIds, ...new5Ids];
+        
+        // 6. Update mediation document
+        await db.collection('mediations').doc(mediationId).update({ musicianIds: updatedIds });
+        
+        // 7. Update favorites list on both event duplicate documents
+        if (med.eventId) {
+            const parts = med.eventId.split('_');
+            if (parts.length === 4 && parts[0] === 'evt' && parts[1] === 'agency') {
+                const basePrefix = parts[0] + '_' + parts[1] + '_' + parts[2];
+                const dup1 = basePrefix + '_0';
+                const dup2 = basePrefix + '_1';
+                await db.collection('events').doc(dup1).update({ favorites: updatedIds }).catch(() => {});
+                await db.collection('events').doc(dup2).update({ favorites: updatedIds }).catch(() => {});
+            } else {
+                await db.collection('events').doc(med.eventId).update({ favorites: updatedIds }).catch(() => {});
+            }
+        }
+        
+        // 8. Send notification email to admin in the background
+        const requestMoreFn = firebase.app().functions('europe-west3').httpsCallable('requestMoreRecommendations');
+        await requestMoreFn({ mediationId }).catch(err => console.error("Admin notification failed:", err));
+
+        showToast({
+            title: "Vorschläge hinzugefügt! ✉️",
+            message: "Wir haben 5 weitere Musiker-Vorschläge für dich freigeschaltet."
+        });
+        window.location.reload();
     }).catch(err => {
-        console.error("requestMore failed:", err);
-        alert("Fehler: " + err.message);
+        console.error("Error requesting more recommendations:", err);
+        alert("Fehler beim Abrufen weiterer Vorschläge: " + err.message);
+    });
+};
+
+window.removeMediationEvent = function(mediationId) {
+    if (!confirm("Bist du sicher, dass du dieses Event und die Vermittlungsanfrage entfernen möchtest? Das Event wird vom Event-Markt gelöscht und der Link wird dauerhaft deaktiviert.")) return;
+    
+    db.collection('mediations').doc(mediationId).get().then(async (doc) => {
+        if (!doc.exists) {
+            alert("Vermittlung nicht gefunden.");
+            return;
+        }
+        const med = doc.data();
+        
+        // 1. Update mediation status to expired
+        await db.collection('mediations').doc(mediationId).update({ status: 'expired' });
+        
+        // 2. Delete event duplicate documents
+        if (med.eventId) {
+            const parts = med.eventId.split('_');
+            if (parts.length === 4 && parts[0] === 'evt' && parts[1] === 'agency') {
+                const basePrefix = parts[0] + '_' + parts[1] + '_' + parts[2];
+                const dup1 = basePrefix + '_0';
+                const dup2 = basePrefix + '_1';
+                await db.collection('events').doc(dup1).delete().catch(() => {});
+                await db.collection('events').doc(dup2).delete().catch(() => {});
+            } else {
+                await db.collection('events').doc(med.eventId).delete().catch(() => {});
+            }
+        }
+        
+        alert("Das Event wurde erfolgreich entfernt.");
+        window.location.reload();
+    }).catch(err => {
+        console.error("Error removing mediation event:", err);
+        alert("Fehler beim Entfernen des Events.");
     });
 };
 

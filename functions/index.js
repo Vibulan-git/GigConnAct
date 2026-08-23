@@ -1176,7 +1176,7 @@ exports.sendRecommendationList = functions
             };
 
             const dateDisplay = eventDate ? ` am ${formatGermanDate(eventDate)}` : '';
-            const defaultMessage = `Hallo, wir haben eine passende Auswahl an Musikern für dein Event <strong>"${eventName}"</strong>${dateDisplay} zusammengestellt! Klicke auf den Button unten, um dir die Vorschläge anzusehen, Hörproben und Videos anzuhören und deinen Wunsch-Act direkt verbindlich anzufragen.`;
+            const defaultMessage = `Hallo, wir haben eine passende Auswahl an Musikern für dein Event <strong>"${eventName}"</strong>${dateDisplay} zusammengestellt! Klicke auf den Button unten, um dir die Vorschläge anzusehen, Hörproben und Videos anzuhören und deinen Wunsch-Act direkt unverbindlich anzufragen.`;
             const messageHtml = customMessage ? customMessage.replace(/\n/g, '<br>') : defaultMessage;
 
             const emailHtml = `
@@ -1597,15 +1597,15 @@ exports.requestMusician = functions
             const eventLocation = med.eventLocation || '';
 
             const responseLink = `${baseUrl}/#/mediation-response/${mediationId}?musicianId=${musicianId}`;
-            const subject = `Verbindliche Vermittlungsanfrage für das Event: ${med.eventName}${eventLocation ? ` in ${eventLocation}` : ''}${formattedDate ? ` am ${formattedDate}` : ''}`;
+            const subject = `Unverbindliche Vermittlungsanfrage für das Event: ${med.eventName}${eventLocation ? ` in ${eventLocation}` : ''}${formattedDate ? ` am ${formattedDate}` : ''}`;
             const emailHtml = `
                 <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
                     <div style="text-align: center; margin-bottom: 20px;">
                         <img src="https://gigconnact.de/discoball.png" alt="GigConnAct Logo" style="width: 70px; height: 70px; object-fit: contain;">
                     </div>
-                    <h2 style="color: #7c3aed; margin-top: 0; font-size: 1.4rem; text-align: center;">Verbindliche Vermittlungsanfrage erhalten! 🚀</h2>
+                    <h2 style="color: #7c3aed; margin-top: 0; font-size: 1.4rem; text-align: center;">Unverbindliche Vermittlungsanfrage erhalten! 🚀</h2>
                     <p>Hallo ${musName},</p>
-                    <p>herzlichen Glückwunsch! Du hast eine verbindliche Vermittlungsanfrage für das Event <strong>"${med.eventName}"</strong>${eventLocation ? ` in <strong>${eventLocation}</strong>` : ''}${formattedDate ? ` am <strong>${formattedDate}</strong>` : ''} erhalten. Hinweis: Dies ist keine Buchungsanfrage. Der Veranstalter hat über den GigConnAct Vermittlungsservice Interesse bekundet, Deine Kontaktdaten zu erhalten. Möglicherweise hat er auch weitere Acts angefragt.</p>
+                    <p>herzlichen Glückwunsch! Du hast eine unverbindliche Vermittlungsanfrage für das Event <strong>"${med.eventName}"</strong>${eventLocation ? ` in <strong>${eventLocation}</strong>` : ''}${formattedDate ? ` am <strong>${formattedDate}</strong>` : ''} erhalten. Hinweis: Dies ist keine Buchungsanfrage. Der Veranstalter hat über den GigConnAct Vermittlungsservice Interesse bekundet, Deine Kontaktdaten zu erhalten. Möglicherweise hat er auch weitere Acts angefragt.</p>
                     
                     <p>Klicke auf den Button unten, um dir die Details anzusehen. Bei verbindlichem Interesse Deinerseits erhältst Du über einen entsprechenden Bezahllink die Kontaktdaten des Veranstalters. Mit einem Premium-Account entfallen die Vermittlungsgebühren vollständig.</p>
                     
@@ -1623,7 +1623,7 @@ exports.requestMusician = functions
             // Notify Admin
             const adminSubject = `[VERMITTLUNG ANFRAGE] Musiker ${musName} wurde angefragt für: ${med.eventName}`;
             const adminHtml = `
-                <p>Der Veranstalter hat eine verbindliche Anfrage an einen Musiker gesendet.</p>
+                <p>Der Veranstalter hat eine unverbindliche Anfrage an einen Musiker gesendet.</p>
                 <p><strong>Event:</strong> ${med.eventName}</p>
                 <p><strong>Veranstalter:</strong> ${med.organizerEmail}</p>
                 <p><strong>Musiker:</strong> ${musName} (${musEmail})</p>
@@ -1757,6 +1757,81 @@ exports.requestMoreRecommendations = functions
             return { success: true };
         } catch (error) {
             console.error("Error in requestMoreRecommendations callable:", error);
+            throw new functions.https.HttpsError('internal', error.message);
+        }
+    });
+
+// HTTPS Callable for Sending Reminder Email to Musician
+exports.sendMediationReminder = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['RESEND_API_KEY'] })
+    .https.onCall(async (data, context) => {
+        const { mediationId, musicianId, baseUrl } = data;
+        if (!mediationId || !musicianId || !baseUrl) {
+            throw new functions.https.HttpsError('invalid-argument', 'Fehlende Parameter.');
+        }
+
+        try {
+            // 1. Fetch mediation details
+            const medDoc = await admin.firestore().collection('mediations').doc(mediationId).get();
+            if (!medDoc.exists) {
+                throw new functions.https.HttpsError('not-found', 'Vermittlung nicht gefunden.');
+            }
+            const med = medDoc.data();
+
+            // 2. Fetch musician details
+            const musDoc = await admin.firestore().collection('musicians').doc(musicianId).get();
+            if (!musDoc.exists) {
+                throw new functions.https.HttpsError('not-found', 'Musiker nicht gefunden.');
+            }
+            const mus = musDoc.data();
+            const musName = mus.name || mus.title || 'Musiker';
+            const musEmail = mus.email || '';
+
+            // 3. Resolve availability date formatting
+            const dateVal = med.eventDate || '';
+            const dateParts = dateVal.split('-');
+            const formattedDate = dateParts.length === 3 ? `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}` : dateVal;
+            const eventLocation = med.eventLocation || '';
+
+            const responseLink = `${baseUrl}/#/mediation-response/${mediationId}?musicianId=${musicianId}`;
+            const subject = `Erinnerung: Unverbindliche Vermittlungsanfrage für: ${med.eventName}`;
+            
+            const emailHtml = `
+                <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <img src="https://gigconnact.de/discoball.png" alt="GigConnAct Logo" style="width: 70px; height: 70px; object-fit: contain;">
+                    </div>
+                    <h2 style="color: #7c3aed; margin-top: 0; font-size: 1.4rem; text-align: center;">Erinnerung an Deine Vermittlungsanfrage! ⏰</h2>
+                    <p>Hallo ${musName},</p>
+                    <p>du hast eine ausstehende unverbindliche Vermittlungsanfrage für das Event <strong>"${med.eventName}"</strong>${eventLocation ? ` in <strong>${eventLocation}</strong>` : ''}${formattedDate ? ` am <strong>${formattedDate}</strong>` : ''} erhalten, auf die du noch nicht geantwortet hast.</p>
+                    
+                    <p>Der Veranstalter wartet auf Deine Rückmeldung. Bitte klicke auf den Button unten, um das Event anzusehen und verbindlich zuzusagen oder abzusagen.</p>
+                    
+                    <p style="text-align: center; margin-top: 25px;">
+                        <a href="${responseLink}" style="background: #7c3aed; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; box-shadow: 0 4px 10px rgba(124,58,237,0.25);">Zur Vermittlungsanfrage</a>
+                    </p>
+                    
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 15px;">
+                    <p style="font-size: 0.8rem; color: #a0aec0; text-align: center;">GigConnAct — Dein Live-Musik Marktplatz</p>
+                </div>
+            `;
+
+            await sendEmail({ to: musEmail, subject: subject, html: emailHtml, headers: { 'Reply-To': 'info@gigconnact.de' } });
+
+            // Notify Admin
+            const adminSubject = `[VERMITTLUNG REMINDER] Erinnerung gesendet an ${musName}`;
+            const adminHtml = `
+                <p>Es wurde eine automatische Erinnerung an den Musiker gesendet.</p>
+                <p><strong>Event:</strong> ${med.eventName}</p>
+                <p><strong>Musiker:</strong> ${musName} (${musEmail})</p>
+                <p><strong>Mediation ID:</strong> ${mediationId}</p>
+            `;
+            await sendEmail({ to: 'info@gigconnact.de', subject: adminSubject, html: adminHtml });
+
+            return { success: true };
+        } catch (error) {
+            console.error("Error in sendMediationReminder callable:", error);
             throw new functions.https.HttpsError('internal', error.message);
         }
     });
