@@ -20667,7 +20667,11 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
 
                     <!-- Personal Details -->
                     <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
-                    <h4 style="font-family: var(--font-heading); font-size:1rem; margin-bottom:1rem; color:var(--text-main);"><i class="fa-solid fa-user-lock"></i> Persönliche Kontaktdaten</h4>
+                    <h4 style="font-family: var(--font-heading); font-size:1rem; margin-bottom:0.5rem; color:var(--text-main);"><i class="fa-solid fa-user-lock"></i> Persönliche Kontaktdaten</h4>
+                    <div style="margin-bottom: 1.2rem; background: rgba(37, 99, 235, 0.05); border: 1px dashed rgba(37, 99, 235, 0.2); padding: 0.75rem; border-radius: 8px; font-size: 0.75rem; color: var(--text-main); line-height: 1.45; text-align: left; display: flex; gap: 0.4rem; align-items: flex-start;">
+                        <i class="fa-solid fa-shield-halved" style="color: #2563eb; margin-top: 2px; flex-shrink: 0;"></i>
+                        <span>Deine Kontaktdaten werden ausschließlich Musikern angezeigt, an die du eine Anfrage senden möchtest. Erst nach einer erfolgreichen Vermittlung werden die Kontaktdaten vollständig freigegeben.</span>
+                    </div>
 
                     <div class="form-group" id="reg-organizer-type-container">
                         <label>Veranstalter-Typ</label>
@@ -20708,10 +20712,6 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                             <label>Telefonnummer</label>
                             <input type="text" name="phone" id="input-reg-phone" class="input-field" maxlength="20" placeholder="z.B. 01761234567" required>
                             <input type="checkbox" name="hidePhone" style="display:none;" checked>
-                            <div style="margin-top: 0.6rem; background: rgba(37, 99, 235, 0.05); border: 1px dashed rgba(37, 99, 235, 0.2); padding: 0.75rem; border-radius: 8px; font-size: 0.75rem; color: var(--text-main); line-height: 1.45; text-align: left; display: flex; gap: 0.4rem; align-items: flex-start;">
-                                <i class="fa-solid fa-shield-halved" style="color: #2563eb; margin-top: 2px; flex-shrink: 0;"></i>
-                                <span>Deine Kontaktdaten (Telefonnummer & E-Mail) werden eventuell nur den Musikern geschickt, denen du auch eine Anfrage senden möchtest. Erst bei einer erfolgreichen Vermittlung werden die Kontaktdaten vollständig freigegeben.</span>
-                            </div>
                         </div>
                     </div>
 
@@ -21137,7 +21137,7 @@ function showAgencySuccessModal(email) {
             </div>
             <h3 style="font-size:1.4rem; color:#0f172a; margin-bottom:0.75rem; font-weight:800;">Anfrage gesendet! 🚀</h3>
             <p style="font-size:0.9rem; color:#4b5563; line-height:1.55; margin-bottom:1.8rem; font-family:var(--font-body);">
-                Vielen Dank! Deine Vermittlungsanfrage ist bei uns eingegangen. Wir senden Dir innerhalb der nächsten 5 Werktage eine passende Auswahl an Acts per E-Mail an <strong>${email}</strong> zu. Bitte schau auch in Deinem Spam-Ordner nach.
+                Vielen Dank! Deine Vermittlungsanfrage ist bei uns eingegangen. Die erste Auswahl an passenden Acts wurde Dir soeben an Deine Mail-Adresse gesendet. Bitte schau auch in Deinem Spam-Ordner nach.
             </p>
             <button id="btn-close-agency-success" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:800; border-radius:10px; background:linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important; border-color:#2563eb !important; color:#ffffff !important; margin:0; box-shadow:0 4px 14px rgba(37, 99, 235, 0.3) !important;">
                 Schließen
