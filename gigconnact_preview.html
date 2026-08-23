@@ -23496,52 +23496,52 @@ window.renderMediationResponsePage = function(container, mediationId) {
                                 <!-- 1. Ort -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-location-dot" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">Ort: ${(eventData.location || '').split(' (')[0]}</span>
+                                    <span style="flex: 1;">${(eventData.location || '').split(' (')[0]}</span>
                                 </div>
                                 <!-- 2. Datum -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-calendar-days" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">Datum: ${dateDisplay}</span>
+                                    <span style="flex: 1;">${dateDisplay}</span>
                                 </div>
                                 <!-- 3. Anlass -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-calendar-check" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">Anlass: ${eventData.type || eventData.eventType || 'Event'}</span>
+                                    <span style="flex: 1;">${eventData.type || eventData.eventType || 'Event'}</span>
                                 </div>
                                 <!-- 4. Musikrichtung / Genres -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-music" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">Musikrichtung: ${(eventData.genres || []).join(', ') || 'Alle'}</span>
+                                    <span style="flex: 1;">${(eventData.genres || []).join(', ') || 'Alle'}</span>
                                 </div>
                                 <!-- 5. Instrumente -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-drum" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">Gesuchte Instrumente: ${Array.isArray(eventData.instruments) ? eventData.instruments.join(', ') : 'Keine Vorgabe'}</span>
+                                    <span style="flex: 1;">${Array.isArray(eventData.instruments) ? eventData.instruments.join(', ') : 'Keine Vorgabe'}</span>
                                 </div>
                                 <!-- 6. Spielzeit -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-clock" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">Spielzeit: ${durationDisplay}</span>
+                                    <span style="flex: 1;">${durationDisplay}</span>
                                 </div>
                                 <!-- 7. Besetzung / Musiker-Typ -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-guitar" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">Besetzung: ${Array.isArray(eventData.musicianTypes) ? eventData.musicianTypes.join(', ') : (eventData.musicianTypes || 'Solo / Band')}</span>
+                                    <span style="flex: 1;">${Array.isArray(eventData.musicianTypes) ? eventData.musicianTypes.join(', ') : (eventData.musicianTypes || 'Solo / Band')}</span>
                                 </div>
                                 <!-- 8. Publikum -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-users" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">Publikum: ${eventData.minPublikum !== undefined && eventData.maxPublikum !== undefined ? `${eventData.minPublikum} - ${eventData.maxPublikum}+` : '0 - 500+'} Personen</span>
+                                    <span style="flex: 1;">${eventData.minPublikum !== undefined && eventData.maxPublikum !== undefined ? `${eventData.minPublikum} - ${eventData.maxPublikum}+` : '0 - 500+'} Personen</span>
                                 </div>
                                 <!-- 9. Technik -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-sliders" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">Technik: ${techArr.length > 0 ? techArr.join(', ') : 'nach Vereinbarung'}</span>
+                                    <span style="flex: 1;">${techArr.length > 0 ? techArr.join(', ') : 'nach Vereinbarung'}</span>
                                 </div>
                                 <!-- 10. Gage -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-coins" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">Gage: ${budgetDisplay}</span>
+                                    <span style="flex: 1;">${budgetDisplay}</span>
                                 </div>
                             </div>
                         </div>
@@ -23575,22 +23575,22 @@ window.renderMediationResponsePage = function(container, mediationId) {
                 ${eventHtml}
 
                 <div style="display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1.5rem; justify-content: center;">
-                    <button id="btn-decline-mediation" class="btn btn-secondary" style="margin: 0; padding: 0.85rem; font-size: 0.9rem; font-weight: 700; width: 100%; border-color: #7c3aed; color: #7c3aed; background: #ffffff; cursor: pointer; border-radius: 8px; border: 1.5px solid #7c3aed;">
-                        Absagen
-                    </button>
-
                     ${isPremiumFree ? `
                         <button id="btn-accept-mediation" class="btn btn-primary" style="margin: 0; padding: 0.95rem; font-size: 1rem; font-weight: 800; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; border-color: #7c3aed !important; width: 100%; cursor: pointer; border-radius: 8px;">
-                            <i class="fa-solid fa-circle-check"></i> Verbindlich zusagen (0 €)
+                            Kontaktdaten erhalten (0 €)
                         </button>
                     ` : `
                         <button id="btn-accept-mediation" class="btn btn-primary" style="margin: 0; padding: 0.95rem; font-size: 1rem; font-weight: 800; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; border-color: #7c3aed !important; width: 100%; cursor: pointer; border-radius: 8px;">
-                            <i class="fa-solid fa-credit-card"></i> Verbindlich zusagen
+                            Kontaktdaten erhalten
                         </button>
                     `}
+
+                    <button id="btn-decline-mediation" class="btn btn-secondary" style="margin: 0; padding: 0.85rem; font-size: 0.9rem; font-weight: 700; width: 100%; border-color: #7c3aed; color: #7c3aed; background: #ffffff; cursor: pointer; border-radius: 8px; border: 1.5px solid #7c3aed;">
+                        Absagen
+                    </button>
                     
                     <p style="font-size: 0.72rem; color: var(--text-muted); text-align: center; margin: 0.2rem 0 0; line-height: 1.35;">
-                        *Mit dem Klick auf den Button „Verbindlich zusagen“ können – abhängig vom gewählten Tarif – Vermittlungsgebühren entstehen: Flex = 35 €; Plus = 30 €; Pro = 25 €; Premium = 0 €.
+                        *Mit dem Klick auf den Button „Kontaktdaten erhalten“ können – abhängig vom gewählten Tarif – Vermittlungsgebühren entstehen: Flex = 35 €; Plus = 30 €; Pro = 25 €; Premium = 0 €.
                     </p>
                 </div>
             </div>
@@ -23621,7 +23621,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
                     console.error("Error accepting mediation:", error);
                     alert("Ein Fehler ist aufgetreten: " + error.message);
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Verbindlich zusagen (0 €)';
+                    btn.innerHTML = 'Kontaktdaten erhalten (0 €)';
                 }
             } else {
                 try {
@@ -23642,7 +23642,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
                     console.error("Error creating payment:", error);
                     alert("Zahlungsfehler: " + error.message);
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Verbindlich zusagen';
+                    btn.innerHTML = 'Kontaktdaten erhalten';
                 }
             }
         });
