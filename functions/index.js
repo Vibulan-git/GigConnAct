@@ -1434,13 +1434,21 @@ exports.createMediationPayment = functions
     .region('europe-west3')
     .runWith({ secrets: ['STRIPE_SECRET_KEY'] })
     .https.onCall(async (data, context) => {
-        if (!context.auth) {
-            throw new functions.https.HttpsError('unauthenticated', 'Bitte melde dich an.');
-        }
-
         const { mediationId, musicianId, baseUrl } = data;
         if (!mediationId) {
             throw new functions.https.HttpsError('invalid-argument', 'Fehlende mediationId.');
+        }
+
+        let targetUid = context.auth ? context.auth.uid : null;
+        if (!targetUid && musicianId) {
+            const musDoc = await admin.firestore().collection('musicians').doc(musicianId).get();
+            if (musDoc.exists) {
+                targetUid = musDoc.data().creatorId || null;
+            }
+        }
+
+        if (!targetUid) {
+            throw new functions.https.HttpsError('unauthenticated', 'Kein gültiger Musiker zugeordnet.');
         }
 
         const fallbackBaseUrl = 'https://www.gigconnact.de';
@@ -1459,7 +1467,7 @@ exports.createMediationPayment = functions
             const med = medDoc.data();
 
             // Get user email and subscription plan
-            const userDoc = await admin.firestore().collection('users').doc(context.auth.uid).get();
+            const userDoc = await admin.firestore().collection('users').doc(targetUid).get();
             const userData = userDoc.exists ? userDoc.data() : {};
             const email = userData.email || null;
             const planKey = userData.subscriptionPlan || 'flex';

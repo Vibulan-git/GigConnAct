@@ -18090,40 +18090,26 @@ window.renderMediationResponsePage = function(container, mediationId) {
         const queryMusicianId = urlParams.get('musicianId');
         const targetMusicianId = queryMusicianId || med.selectedMusicianId;
 
-        // Check if user is logged in
-        if (!state.currentUser) {
-            container.innerHTML = `
-                <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px; font-family: var(--font-body);">
-                    <i class="fa-solid fa-user-lock" style="font-size: 3.5rem; color: #7c3aed; margin-bottom: 1.2rem;"></i>
-                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Bitte melde dich an</h3>
-                    <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.8rem;">
-                        Um auf diese Vermittlungsanfrage zuzugreifen, musst du mit deinem Musiker-Account eingeloggt sein.
-                    </p>
-                    <button onclick="showModal('auth', () => { window.location.reload(); })" class="btn btn-primary" style="padding: 0.8rem 2rem; font-size: 0.95rem; font-weight: 700; background: #7c3aed; border-color: #7c3aed; margin: 0;">
-                        Einloggen / Registrieren
-                    </button>
-                </div>
-            `;
-            return;
-        }
-
-        // Ensure the logged in user is actually the selected musician
-        const isSelectedMusician = state.currentUser.role === 'musician' && (
-            state.currentUser.profileId === targetMusicianId || 
-            (state.musicians.some(m => m.id === targetMusicianId && m.creatorId === state.currentUser.id))
-        );
-
-        if (!isSelectedMusician) {
-            container.innerHTML = `
-                <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
-                    <i class="fa-solid fa-circle-xmark" style="font-size: 3.5rem; color: var(--color-red); margin-bottom: 1.2rem;"></i>
-                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Zugriff verweigert</h3>
-                    <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55;">
-                        Diese Anfrage ist für ein anderes Musiker-Profil bestimmt. Bitte logge dich mit dem passenden Musiker-Konto ein.
-                    </p>
-                </div>
-            `;
-            return;
+        // Load musician user details to check for premium status
+        let isPremiumFree = false;
+        if (state.currentUser && state.currentUser.profileId === targetMusicianId) {
+            isPremiumFree = state.currentUser.subscriptionPlan === 'premium' && state.currentUser.isPremium === true;
+        } else {
+            try {
+                const musDoc = await db.collection('musicians').doc(targetMusicianId).get();
+                if (musDoc.exists) {
+                    const musData = musDoc.data();
+                    if (musData.creatorId) {
+                        const userDoc = await db.collection('users').doc(musData.creatorId).get();
+                        if (userDoc.exists) {
+                            const userData = userDoc.data();
+                            isPremiumFree = userData.subscriptionPlan === 'premium' && userData.isPremium === true;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Could not load musician user plan:", err);
+            }
         }
 
         if (med.status === 'completed') {
@@ -18331,7 +18317,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
         }
 
         // Render the response form
-        const isPremiumFree = state.currentUser.subscriptionPlan === 'premium' && state.currentUser.isPremium === true;
+        isPremiumFree = isPremiumFree || (state.currentUser && state.currentUser.subscriptionPlan === 'premium' && state.currentUser.isPremium === true);
 
         container.innerHTML = `
             <div style="max-width: 600px; margin: 2rem auto 5rem; padding: 2.5rem; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px; font-family: var(--font-body); color: var(--text-main);">
