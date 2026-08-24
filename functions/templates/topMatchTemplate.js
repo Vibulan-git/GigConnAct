@@ -1,7 +1,7 @@
 /**
  * Template für die täglichen Top-Matches
  */
-module.exports = function getTopMatchEmailHtml({ userName, role, profileName, matches }) {
+module.exports = function getTopMatchEmailHtml({ userName, role, profileName, matches, profileId }) {
     const isOrganizer = role === 'organizer';
     const brandColor = isOrganizer ? '#0ea5e9' : '#7c3aed';
     const themeColor = isOrganizer ? '#2563eb' : '#7c3aed';
@@ -140,20 +140,20 @@ module.exports = function getTopMatchEmailHtml({ userName, role, profileName, ma
                         <!-- 1. Ort -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">📍</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Ort:</b> ${loc}</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;">${loc}</td>
                         </tr>
 
                         <!-- 2. Datum / Verfügbarkeit -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">📅</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>${isOrganizer ? 'Verfügbarkeit' : 'Datum'}:</b> ${dateStr}</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;">${dateStr}</td>
                         </tr>
 
                         <!-- 3. Musiker-Typ / Event-Typ -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🎸</td>
                             <td style="padding: 5px 0; font-family: Arial, sans-serif;">
-                                <b>${isOrganizer ? 'Musiker-Typ' : 'Event-Typ'}:</b> ${isOrganizer ? (m.type || m.category || 'Solo / Band') : (m.type || m.eventType || 'Event')}
+                                ${isOrganizer ? (m.type || m.category || 'Solo / Band') : (m.type || m.eventType || 'Event')}
                             </td>
                         </tr>
 
@@ -161,44 +161,44 @@ module.exports = function getTopMatchEmailHtml({ userName, role, profileName, ma
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">📋</td>
                             <td style="padding: 5px 0; font-family: Arial, sans-serif;">
-                                <b>${isOrganizer ? 'Event-Typen (Gesucht)' : 'Gesucht'}:</b> ${isOrganizer ? (m.eventTypes && m.eventTypes.length > 0 ? m.eventTypes.join(', ') : 'Hochzeit, Geburtstag, Firmenfeier') : musicianTypes}
+                                ${isOrganizer ? (m.eventTypes && m.eventTypes.length > 0 ? m.eventTypes.join(', ') : 'Hochzeit, Geburtstag, Firmenfeier') : musicianTypes}
                             </td>
                         </tr>
 
                         <!-- 5. Genres -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🎵</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Genres:</b> ${m.genres && m.genres.length > 0 ? m.genres.join(', ') : 'Nach Absprache'}</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;">${m.genres && m.genres.length > 0 ? m.genres.join(', ') : 'Nach Absprache'}</td>
                         </tr>
 
                         <!-- 6. Instrumente -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🥁</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Instrumente:</b> ${instrumentsDisplay}</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;">${instrumentsDisplay}</td>
                         </tr>
 
                         <!-- 7. Spielzeit -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🕒</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Spieldauer:</b> ${durationDisplay}</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;">${durationDisplay}</td>
                         </tr>
 
                         <!-- 8. Publikum -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">👥</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Gäste:</b> ${publikumDisplay}</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;">${publikumDisplay}</td>
                         </tr>
 
                         <!-- 9. Technik -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">🔊</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif;"><b>Technik:</b> ${techDisplay}</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif;">${techDisplay}</td>
                         </tr>
 
                         <!-- 10. Gage / Budget -->
                         <tr>
                             <td style="padding: 5px 0; width: 26px; vertical-align: top; font-size: 1rem;">💰</td>
-                            <td style="padding: 5px 0; font-family: Arial, sans-serif; font-weight: 600;"><b>${isOrganizer ? 'Gage' : 'Budget'}:</b> ${budgetDisplay}</td>
+                            <td style="padding: 5px 0; font-family: Arial, sans-serif; font-weight: 600;">${budgetDisplay}</td>
                         </tr>
                     </table>
                     
@@ -206,11 +206,11 @@ module.exports = function getTopMatchEmailHtml({ userName, role, profileName, ma
                     <div style="border-top: 1px solid #f1f5f9; padding-top: 14px; font-size: 0.84rem; color: #475569; line-height: 1.5; font-family: Arial, sans-serif; margin-bottom: 16px;">
                         ${shortDesc}
                     </div>
-
+ 
                     <!-- Direct Link Button inside Card -->
                     <div style="text-align: center; border-top: 1px solid #f1f5f9; padding-top: 14px;">
-                        <a href="https://gigconnact.de/#/${isOrganizer ? 'musicians' : 'events'}?id=${m.id}" style="background: ${themeColor}; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 0.85rem; display: inline-block; box-shadow: 0 3px 8px rgba(0,0,0,0.1); width: calc(100% - 40px); box-sizing: border-box;">
-                            Profil auf GigConnAct anzeigen & kontaktieren
+                        <a href="https://gigconnact.de/#/${isOrganizer ? 'musicians' : 'events'}?id=${m.id}${isOrganizer ? (profileId ? `&eventId=${profileId}` : '') : (profileId ? `&musicianId=${profileId}` : '')}" style="background: ${themeColor}; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 0.85rem; display: inline-block; box-shadow: 0 3px 8px rgba(0,0,0,0.1); width: calc(100% - 40px); box-sizing: border-box;">
+                            ${isOrganizer ? 'Zum Profil' : 'Zum Event-Profil'}
                         </a>
                     </div>
                 </div>

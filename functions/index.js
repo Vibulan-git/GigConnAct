@@ -483,7 +483,8 @@ exports.dailyTopMatchesCheck = functions
                         userName: userDetails.name,
                         role: 'musician',
                         profileName: musician.name || musician.title || '',
-                        matches: topMatches
+                        matches: topMatches,
+                        profileId: musician.id
                     });
                     await sendEmail({ 
                         to: userDetails.email, 
@@ -518,7 +519,8 @@ exports.dailyTopMatchesCheck = functions
                             userName: userDetails.name,
                             role: 'organizer',
                             profileName: event.name || event.title || '',
-                            matches: topMatches
+                            matches: topMatches,
+                            profileId: event.id
                         });
                         await sendEmail({ 
                             to: userDetails.email, 

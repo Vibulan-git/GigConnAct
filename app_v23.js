@@ -14200,10 +14200,12 @@ function handleRouting() {
         }
     }
 
-    // Save target hash for redirect after login if it's a protected route
-    const protectedPages = ['matches', 'top-matches', 'dashboard', 'my-musicians', 'my-events', 'postbox', 'credits', 'profile'];
-    if ((!state || !state.currentUser) && protectedPages.includes(page)) {
-        window.loginRedirectHash = hash;
+    // Save target hash for redirect after login for all routes if unauthenticated (excluding landing/auth pages)
+    if (!state || !state.currentUser) {
+        const noRedirectPages = ['', '/', 'login', 'register', 'auth', 'signout'];
+        if (!noRedirectPages.includes(page)) {
+            window.loginRedirectHash = hash;
+        }
     }
     
     // Check if user is half-logged-in (Firebase Auth exists but no Firestore profile)
