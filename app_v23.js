@@ -15084,8 +15084,8 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                 <i class="fa-solid fa-xmark"></i>
             </button>
  
-            <h3 style="font-size:1.35rem; font-weight:900; text-align:center; margin:0.8rem 0 2.2rem; color:#2563eb; line-height:1.4; padding:0 1.5rem;">
-                Wie möchtest du mit dem Künstler in Verbindung treten?
+            <h3 style="font-size:1.45rem; font-weight:900; text-align:center; margin:0.8rem 0 2rem; color:#2563eb; line-height:1.4; padding:0 1.5rem;">
+                Kontaktaufnahme wählen
             </h3>
  
             <div class="choice-cards-container">
@@ -15106,7 +15106,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                     .choice-cards-container {
                         display: flex !important;
                         flex-direction: column !important;
-                        gap: 1.5rem;
+                        gap: 0.8rem !important;
                         align-items: stretch;
                         position: relative;
                     }
@@ -15145,9 +15145,10 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         .choice-cards-container {
                             flex-direction: row !important;
                             align-items: stretch;
+                            gap: 0.8rem !important;
                         }
                         .separator-oder {
-                            min-width: 60px;
+                            min-width: 40px;
                             position: relative;
                         }
                         .separator-oder::before {
@@ -15168,7 +15169,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         }
                         .separator-oder {
                             position: relative;
-                            padding: 0.5rem 0;
+                            padding: 0.3rem 0;
                         }
                         .separator-oder::before {
                             content: '';
@@ -15189,17 +15190,34 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         <div style="font-size:2rem; color:#2563eb; margin-bottom:0.75rem; text-align:center;">
                             <i class="fa-solid fa-user-plus"></i>
                         </div>
-                        <h4 style="font-size:1.05rem; font-weight:800; margin:0 0 0.75rem; text-align:center; color:#0f172a;">Direkter Kontakt</h4>
-                        <ul style="font-size:0.8rem; color:#475569; padding-left:1.1rem; margin:0 0 1.5rem; line-height:1.6;">
-                            <li>Freie Auswahl aus allen Musikern</li>
-                            <li>Direkter Kontakt zu allen Acts</li>
-                            <li>Kontaktdaten direkt sichtbar → Anfragen senden & erhalten</li>
-                            <li>Registrierung in 2 Minuten</li>
-                            <li>Unverbindlich & kostenlos</li>
+                        <h4 style="font-size:1.15rem; font-weight:800; margin:0 0 0.15rem; text-align:center; color:#0f172a;">Direkter Kontakt</h4>
+                        <div style="font-size:0.8rem; color:#64748b; font-weight:700; text-align:center; margin-bottom:1.2rem; text-transform:uppercase; letter-spacing:0.5px;">mit Account</div>
+                        
+                        <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0 0 1.5rem; line-height:1.7;">
+                            <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                <i class="fa-solid fa-magnifying-glass" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                <span>Freie Auswahl aus allen Musikern</span>
+                            </li>
+                            <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                <i class="fa-solid fa-comments" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                <span>Direkter Kontakt zu allen Acts</span>
+                            </li>
+                            <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                <i class="fa-solid fa-eye" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                <span>Kontaktdaten direkt sichtbar → Anfragen senden & erhalten</span>
+                            </li>
+                            <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                <i class="fa-solid fa-clock" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                <span>Registrierung in 2 Minuten</span>
+                            </li>
+                            <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                <i class="fa-solid fa-gift" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                <span>Unverbindlich & kostenlos</span>
+                            </li>
                         </ul>
                     </div>
                     <button id="btn-choice-register" class="btn btn-primary" style="width:100%; margin:0; padding:0.75rem; font-size:0.85rem; font-weight:700; background:#2563eb; border-color:#2563eb; border-radius:8px;">
-                        Kostenlos registrieren
+                        Registrieren
                     </button>
                 </div>
  
@@ -15214,17 +15232,34 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         <div style="font-size:2rem; color:#2563eb; margin-bottom:0.75rem; text-align:center;">
                             <i class="fa-solid fa-wand-magic-sparkles"></i>
                         </div>
-                        <h4 style="font-size:1.05rem; font-weight:800; margin:0 0 0.75rem; text-align:center; color:#0f172a;">Vermittlungsanfrage</h4>
-                        <ul style="font-size:0.8rem; color:#475569; padding-left:1.1rem; margin:0 0 1.5rem; line-height:1.6;">
-                            <li>Passende Musiker-Vorschläge direkt erhalten</li>
-                            <li>GigConnAct kontaktiert Deine Wunsch-Acts für Dich</li>
-                            <li>Kontaktdaten zunächst verborgen → Bei beidseitigem Interesse werden sie freigeschaltet</li>
-                            <li>Keine Registrierung erforderlich</li>
-                            <li>Unverbindlich & kostenlos</li>
+                        <h4 style="font-size:1.15rem; font-weight:800; margin:0 0 0.15rem; text-align:center; color:#0f172a;">Vermittlung</h4>
+                        <div style="font-size:0.8rem; color:#64748b; font-weight:700; text-align:center; margin-bottom:1.2rem; text-transform:uppercase; letter-spacing:0.5px;">ohne Account</div>
+                        
+                        <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0 0 1.5rem; line-height:1.7;">
+                            <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                <i class="fa-solid fa-envelope-open-text" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                <span>Passende Musiker-Vorschläge direkt erhalten</span>
+                            </li>
+                            <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                <i class="fa-solid fa-handshake" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                <span>GigConnAct kontaktiert Deine Wunsch-Acts für Dich</span>
+                            </li>
+                            <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                <i class="fa-solid fa-lock" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                <span>Freischaltung bei beidseitigem Interesse</span>
+                            </li>
+                            <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                <i class="fa-solid fa-user-slash" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                <span>Keine Registrierung erforderlich</span>
+                            </li>
+                            <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                <i class="fa-solid fa-gift" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                <span>Unverbindlich & kostenlos</span>
+                            </li>
                         </ul>
                     </div>
                     <button id="btn-choice-agency" class="btn btn-primary" style="width:100%; margin:0; padding:0.75rem; font-size:0.85rem; font-weight:700; background:#2563eb; border-color:#2563eb; border-radius:8px;">
-                        Vermittlungsanfrage starten
+                        Vermittlung starten
                     </button>
                 </div>
             </div>
