@@ -15097,7 +15097,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         background: #ffffff;
                         border: 1px solid #cbd5e1;
                         border-radius: 18px;
-                        padding: 2.8rem 2rem 2rem;
+                        padding: 3.2rem 2rem 2rem;
                         box-shadow: 0 15px 35px rgba(0,0,0,0.15);
                         position: relative;
                         font-family: var(--font-heading);
@@ -15142,6 +15142,18 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         z-index: 2;
                         position: relative;
                     }
+                    .btn-choice-action {
+                        width: 100%;
+                        margin: 0;
+                        padding: 0.75rem 0.4rem !important;
+                        font-size: 0.95rem !important;
+                        font-weight: 800 !important;
+                        background: #2563eb !important;
+                        border-color: #2563eb !important;
+                        border-radius: 8px;
+                        box-shadow: none;
+                        white-space: nowrap !important;
+                    }
                     @media (min-width: 768px) {
                         .choice-cards-container {
                             flex-direction: row !important;
@@ -15165,7 +15177,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                     }
                     @media (max-width: 767px) {
                         .choice-modal-box {
-                            padding: 2.2rem 1rem 1.5rem !important;
+                            padding: 3.5rem 1rem 1.5rem !important;
                             margin: 1rem auto !important;
                         }
                         .separator-oder {
@@ -15181,6 +15193,14 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                             width: 1px;
                             background: #cbd5e1;
                             z-index: 1;
+                        }
+                        .btn-choice-action {
+                            font-size: 0.88rem !important;
+                        }
+                    }
+                    @media (max-width: 360px) {
+                        .btn-choice-action {
+                            font-size: 0.82rem !important;
                         }
                     }
                 </style>
@@ -15209,7 +15229,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                             </li>
                         </ul>
                     </div>
-                    <button id="btn-choice-register" class="btn btn-primary" style="width:100%; margin:0; padding:0.75rem; font-size:0.85rem; font-weight:700; background:#2563eb !important; border-color:#2563eb !important; border-radius:8px; box-shadow:none;">
+                    <button id="btn-choice-register" class="btn btn-primary btn-choice-action">
                         Kostenlose Registrierung
                     </button>
                 </div>
@@ -15239,11 +15259,11 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                             </li>
                             <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
                                 <i class="fa-solid fa-lock" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
-                                <span>Kontaktdaten nicht sichtbar → Freischaltung bei beidseitigem Interesse</span>
+                                <span>Kontaktdaten nicht sichtbar → Freischaltung bei Interesse</span>
                             </li>
                         </ul>
                     </div>
-                    <button id="btn-choice-agency" class="btn btn-primary" style="width:100%; margin:0; padding:0.75rem; font-size:0.85rem; font-weight:700; background:#2563eb !important; border-color:#2563eb !important; border-radius:8px; box-shadow:none;">
+                    <button id="btn-choice-agency" class="btn btn-primary btn-choice-action">
                         Kostenlose Vermittlung
                     </button>
                 </div>
