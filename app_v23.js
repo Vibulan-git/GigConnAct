@@ -595,6 +595,7 @@ window.recommendForEvent = function(eventId) {
     const event = state.events.find(e => e.id === eventId);
     if (event) {
         state.recommendationEvent = event;
+        state.activeEventId = eventId;
         if (event.date) {
             window.selectedFilterDates = [event.date];
         }
@@ -3248,7 +3249,7 @@ class StateManager {
 
         if (isAdmin) {
             if (isMusicianId) {
-                profileId = this.activeEventId || null;
+                profileId = this.activeEventId || (this.recommendationEvent ? this.recommendationEvent.id : null);
                 collectionName = 'events';
                 if (profileId) {
                     profileObj = (this.events || []).find(e => e.id === profileId);
@@ -3331,7 +3332,7 @@ class StateManager {
 
         if (isAdmin) {
             if (isMusicianId) {
-                profileId = this.activeEventId || null;
+                profileId = this.activeEventId || (this.recommendationEvent ? this.recommendationEvent.id : null);
                 if (profileId) {
                     profileObj = (this.events || []).find(e => e.id === profileId);
                 }
