@@ -1913,6 +1913,9 @@ class StateManager {
                     if (typeof auth !== 'undefined' && !auth.currentUser) return;
                     if (doc.exists) {
                         this.currentUser = doc.data();
+                        if (this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
+                            this.currentUser.role = 'organizer';
+                        }
                         if (this.currentUser.role === 'musician') {
                             this.activeMusicianId = this.activeMusicianId && this.musicians.some(m => m.id === this.activeMusicianId)
                                 ? this.activeMusicianId
@@ -1965,6 +1968,9 @@ class StateManager {
                         if (typeof auth !== 'undefined' && !auth.currentUser) return;
                         if (doc.exists) {
                             this.currentUser = doc.data();
+                            if (this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
+                                this.currentUser.role = 'organizer';
+                            }
                             if (this.currentUser.role === 'musician') {
                                 this.activeMusicianId = this.activeMusicianId && this.musicians.some(m => m.id === this.activeMusicianId)
                                     ? this.activeMusicianId
@@ -2394,6 +2400,9 @@ class StateManager {
         try {
             const storedUser = localStorage.getItem('GigConnAct_current_user');
             this.currentUser = storedUser ? JSON.parse(storedUser) : null;
+            if (this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
+                this.currentUser.role = 'organizer';
+            }
             if (this.currentUser && this.currentUser.role === 'musician') {
                 if (this.currentUser.credits === undefined) this.currentUser.credits = 5;
                 if (this.currentUser.unlockedContacts === undefined) this.currentUser.unlockedContacts = [];
@@ -3549,6 +3558,9 @@ class StateManager {
         const snapshot = await db.collection('users').where('email', '==', email.toLowerCase()).limit(1).get();
         if (!snapshot.empty) {
             this.currentUser = snapshot.docs[0].data();
+            if (this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
+                this.currentUser.role = 'organizer';
+            }
             if (this.currentUser.role === 'musician') {
                 this.activeMusicianId = this.activeMusicianId && this.musicians.some(m => m.id === this.activeMusicianId)
                     ? this.activeMusicianId
@@ -5818,11 +5830,12 @@ function renderMarket(container, type, onNavigate) {
                 prefillEventTypes = myProfile.eventTypes || [];
             }
         } else if (!isEvents && state.currentUser.role === 'organizer') {
+            const isAdmin = state && state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email);
             const myProfile = state.events.find(e => e.id === state.activeEventId) 
                 || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) 
                 || state.events.find(e => e.creatorId === state.currentUser.id) 
                 || state.events[0];
-            if (myProfile) {
+            if (myProfile && !isAdmin) {
                 hasProfile = true;
 
                 if (window.lastActiveProfileId !== myProfile.id || selectedFilterDates === null || selectedFilterDates === undefined) {
@@ -6518,183 +6531,185 @@ function renderMarket(container, type, onNavigate) {
             list = list.filter(item => state.isFavorite(item.id));
         }
 
-        // 1. Ort Filter
-        const locInput = isEvents 
-            ? (container.querySelector('#filter-location')?.value || '').trim().toLowerCase()
-            : (container.querySelector('#filter-location-m')?.value || '').trim().toLowerCase();
-        if (locInput) {
-            const cleanQuery = locInput.split(' (')[0].toLowerCase().trim();
-            list = list.filter(item => {
-                const itemLoc = (item.location || '').split(' (')[0].toLowerCase().trim();
-                if (itemLoc.includes(cleanQuery)) return true;
-                
-                // If filtering musicians for an organizer event location
-                if (!isEvents) {
-                    const dist = getEstimatedDistance(item.location, locInput);
-                    const radius = item.radius || 150;
-                    if (dist <= radius) return true;
-                } else {
-                    // If filtering events for a musician location
-                    const dist = getEstimatedDistance(item.location, locInput);
-                    const activeMus = state.musicians.find(m => m.id === state.activeMusicianId) 
-                        || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId);
-                    const musRadius = activeMus ? (activeMus.radius || 150) : 150;
-                    if (dist <= musRadius) return true;
-                }
-                return false;
-            });
-        }
+        if (!showOnlyFavorites) {
+            // 1. Ort Filter
+            const locInput = isEvents 
+                ? (container.querySelector('#filter-location')?.value || '').trim().toLowerCase()
+                : (container.querySelector('#filter-location-m')?.value || '').trim().toLowerCase();
+            if (locInput) {
+                const cleanQuery = locInput.split(' (')[0].toLowerCase().trim();
+                list = list.filter(item => {
+                    const itemLoc = (item.location || '').split(' (')[0].toLowerCase().trim();
+                    if (itemLoc.includes(cleanQuery)) return true;
+                    
+                    // If filtering musicians for an organizer event location
+                    if (!isEvents) {
+                        const dist = getEstimatedDistance(item.location, locInput);
+                        const radius = item.radius || 150;
+                        if (dist <= radius) return true;
+                    } else {
+                        // If filtering events for a musician location
+                        const dist = getEstimatedDistance(item.location, locInput);
+                        const activeMus = state.musicians.find(m => m.id === state.activeMusicianId) 
+                            || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId);
+                        const musRadius = activeMus ? (activeMus.radius || 150) : 150;
+                        if (dist <= musRadius) return true;
+                    }
+                    return false;
+                });
+            }
 
-        // 1.5. Datum Filter (Date Filter) - Multi-Date selection
-        if (selectedFilterDates && selectedFilterDates.length > 0) {
-            list = list.filter(item => {
-                if (isEvents) {
-                    return selectedFilterDates.includes(item.date);
-                } else {
-                    if (!item.availability) return true;
-                    return selectedFilterDates.some(dateVal => {
-                        if (Array.isArray(item.availability)) {
-                            if (item.availability.includes(dateVal)) return true;
-                            const weekday = getWeekdayFromDate(dateVal);
-                            return item.availability.includes(weekday);
-                        } else if (item.availability && typeof item.availability === 'object') {
-                            const weekdayRaw = getWeekdayFromDate(dateVal);
-                            const eventWeekday = weekdayRaw ? weekdayRaw.toLowerCase() : '';
-                            if (eventWeekday && item.availability[eventWeekday] !== undefined) {
-                                return !!item.availability[eventWeekday].available;
-                            } else {
-                                const isModified = item.availability.modifiedDates && item.availability.modifiedDates.includes(dateVal);
-                                if (item.availability.defaultState === 'all-selected') {
-                                    return !isModified;
+            // 1.5. Datum Filter (Date Filter) - Multi-Date selection
+            if (selectedFilterDates && selectedFilterDates.length > 0) {
+                list = list.filter(item => {
+                    if (isEvents) {
+                        return selectedFilterDates.includes(item.date);
+                    } else {
+                        if (!item.availability) return true;
+                        return selectedFilterDates.some(dateVal => {
+                            if (Array.isArray(item.availability)) {
+                                if (item.availability.includes(dateVal)) return true;
+                                const weekday = getWeekdayFromDate(dateVal);
+                                return item.availability.includes(weekday);
+                            } else if (item.availability && typeof item.availability === 'object') {
+                                const weekdayRaw = getWeekdayFromDate(dateVal);
+                                const eventWeekday = weekdayRaw ? weekdayRaw.toLowerCase() : '';
+                                if (eventWeekday && item.availability[eventWeekday] !== undefined) {
+                                    return !!item.availability[eventWeekday].available;
                                 } else {
-                                    return isModified;
+                                    const isModified = item.availability.modifiedDates && item.availability.modifiedDates.includes(dateVal);
+                                    if (item.availability.defaultState === 'all-selected') {
+                                        return !isModified;
+                                    } else {
+                                        return isModified;
+                                    }
                                 }
                             }
-                        }
-                        return true;
+                            return true;
+                        });
+                    }
+                });
+            }
+
+            // 2. Suchbegriffe Filter
+            const kw = isEvents
+                ? (container.querySelector('#filter-keyword')?.value || '').trim().toLowerCase()
+                : (container.querySelector('#filter-keyword-m')?.value || '').trim().toLowerCase();
+            if (kw) {
+                list = list.filter(item => {
+                    const fullText = [item.name, item.title, item.bio, item.description, item.location, item.category, item.eventType, item.type, ...(item.genres||[]), ...(item.instruments||[])].join(' ').toLowerCase();
+                    return fullText.includes(kw);
+                });
+            }
+
+            // 3. Genres Filter
+            const genresGridId = isEvents ? 'filter-genres-grid' : 'filter-genres-grid-m';
+            const selGenres = getCheckedValues(genresGridId);
+            if (selGenres.length > 0) {
+                list = list.filter(item => {
+                    const itemG = item.genres || [];
+                    return selGenres.some(g => itemG.some(ig => ig.toLowerCase().includes(g.toLowerCase())));
+                });
+            }
+
+            // 4. Instrumente Filter
+            const instGridId = isEvents ? 'filter-instruments-grid' : 'filter-instruments-grid-m';
+            const selInst = getCheckedValues(instGridId);
+            if (selInst.length > 0) {
+                list = list.filter(item => {
+                    const itemI = item.instruments || [];
+                    return selInst.some(inst => itemI.some(i => i.toLowerCase().includes(inst.toLowerCase())));
+                });
+            }
+
+            // 5. Musiker-Typ / Event-Typ
+            const typeGridId = isEvents ? 'filter-event-type-grid' : 'filter-musician-type-grid';
+            const selType = getCheckedValues(typeGridId);
+            if (selType.length > 0) {
+                list = list.filter(item => {
+                    const val = (item.type || item.eventType || '');
+                    return selType.some(t => val.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(val.toLowerCase()));
+                });
+            }
+
+            // 5.5. Gesuchte Musiker-Typen Filter (for Event-Markt only)
+            if (isEvents) {
+                const musTypesGridId = 'filter-musician-types-grid';
+                const selMusTypes = getCheckedValues(musTypesGridId);
+                if (selMusTypes.length > 0) {
+                    list = list.filter(item => {
+                        const itemTypes = item.musicianTypes || (item.musicianType ? item.musicianType.split(',').map(s => s.trim()) : []);
+                        return selMusTypes.some(t => itemTypes.some(it => it.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(it.toLowerCase())));
                     });
                 }
-            });
-        }
+            }
 
-        // 2. Suchbegriffe Filter
-        const kw = isEvents
-            ? (container.querySelector('#filter-keyword')?.value || '').trim().toLowerCase()
-            : (container.querySelector('#filter-keyword-m')?.value || '').trim().toLowerCase();
-        if (kw) {
-            list = list.filter(item => {
-                const fullText = [item.name, item.title, item.bio, item.description, item.location, item.category, item.eventType, item.type, ...(item.genres||[]), ...(item.instruments||[])].join(' ').toLowerCase();
-                return fullText.includes(kw);
-            });
-        }
-
-        // 3. Genres Filter
-        const genresGridId = isEvents ? 'filter-genres-grid' : 'filter-genres-grid-m';
-        const selGenres = getCheckedValues(genresGridId);
-        if (selGenres.length > 0) {
-            list = list.filter(item => {
-                const itemG = item.genres || [];
-                return selGenres.some(g => itemG.some(ig => ig.toLowerCase().includes(g.toLowerCase())));
-            });
-        }
-
-        // 4. Instrumente Filter
-        const instGridId = isEvents ? 'filter-instruments-grid' : 'filter-instruments-grid-m';
-        const selInst = getCheckedValues(instGridId);
-        if (selInst.length > 0) {
-            list = list.filter(item => {
-                const itemI = item.instruments || [];
-                return selInst.some(inst => itemI.some(i => i.toLowerCase().includes(inst.toLowerCase())));
-            });
-        }
-
-        // 5. Musiker-Typ / Event-Typ
-        const typeGridId = isEvents ? 'filter-event-type-grid' : 'filter-musician-type-grid';
-        const selType = getCheckedValues(typeGridId);
-        if (selType.length > 0) {
-            list = list.filter(item => {
-                const val = (item.type || item.eventType || '');
-                return selType.some(t => val.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(val.toLowerCase()));
-            });
-        }
-
-        // 5.5. Gesuchte Musiker-Typen Filter (for Event-Markt only)
-        if (isEvents) {
-            const musTypesGridId = 'filter-musician-types-grid';
-            const selMusTypes = getCheckedValues(musTypesGridId);
-            if (selMusTypes.length > 0) {
+            // 6. Technik Filter
+            const techGridId = isEvents ? 'filter-technik-grid' : 'filter-technik-grid-m';
+            const selTechnik = getCheckedValues(techGridId);
+            if (selTechnik.length > 0) {
                 list = list.filter(item => {
-                    const itemTypes = item.musicianTypes || (item.musicianType ? item.musicianType.split(',').map(s => s.trim()) : []);
-                    return selMusTypes.some(t => itemTypes.some(it => it.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(it.toLowerCase())));
+                    const rawVal = item.technik || item.equipment || '';
+                    const itemTechArr = Array.isArray(rawVal) 
+                        ? rawVal 
+                        : (typeof rawVal === 'string' && rawVal.trim() !== '' ? [rawVal] : []);
+                    
+                    return selTechnik.some(t => 
+                        itemTechArr.some(it => it.trim().toLowerCase() === t.trim().toLowerCase())
+                    );
                 });
             }
-        }
 
-        // 6. Technik Filter
-        const techGridId = isEvents ? 'filter-technik-grid' : 'filter-technik-grid-m';
-        const selTechnik = getCheckedValues(techGridId);
-        if (selTechnik.length > 0) {
+            // 7. Spieldauer Filter (Dual Slider)
+            const minD = parseFloat(container.querySelector(isEvents ? '#input-filter-duration-min' : '#input-filter-duration-m-min')?.value || 0.5);
+            const maxD = parseFloat(container.querySelector(isEvents ? '#input-filter-duration-max' : '#input-filter-duration-m-max')?.value || 10);
             list = list.filter(item => {
-                const rawVal = item.technik || item.equipment || '';
-                const itemTechArr = Array.isArray(rawVal) 
-                    ? rawVal 
-                    : (typeof rawVal === 'string' && rawVal.trim() !== '' ? [rawVal] : []);
-                
-                return selTechnik.some(t => 
-                    itemTechArr.some(it => it.trim().toLowerCase() === t.trim().toLowerCase())
-                );
+                if (isEvents) {
+                    const itemMinD = parseFloat(item.minDuration !== undefined ? item.minDuration : item.duration) || 0.5;
+                    const itemMaxD = parseFloat(item.maxDuration !== undefined ? item.maxDuration : item.duration) || 24;
+                    return itemMaxD >= minD && itemMinD <= maxD;
+                } else {
+                    const itemMinD = parseFloat(item.minDuration) || 0.5;
+                    const itemMaxD = parseFloat(item.maxDuration) || 24;
+                    return itemMaxD >= minD && itemMinD <= maxD;
+                }
             });
-        }
 
-        // 7. Spieldauer Filter (Dual Slider)
-        const minD = parseFloat(container.querySelector(isEvents ? '#input-filter-duration-min' : '#input-filter-duration-m-min')?.value || 0.5);
-        const maxD = parseFloat(container.querySelector(isEvents ? '#input-filter-duration-max' : '#input-filter-duration-m-max')?.value || 10);
-        list = list.filter(item => {
-            if (isEvents) {
-                const itemMinD = parseFloat(item.minDuration !== undefined ? item.minDuration : item.duration) || 0.5;
-                const itemMaxD = parseFloat(item.maxDuration !== undefined ? item.maxDuration : item.duration) || 24;
-                return itemMaxD >= minD && itemMinD <= maxD;
-            } else {
-                const itemMinD = parseFloat(item.minDuration) || 0.5;
-                const itemMaxD = parseFloat(item.maxDuration) || 24;
-                return itemMaxD >= minD && itemMinD <= maxD;
+            // 8. Budget / Gage Filter (Dual Slider)
+            const minB = parseFloat(container.querySelector(isEvents ? '#input-filter-budget-min' : '#input-filter-gage-m-min')?.value || 0);
+            const maxB = parseFloat(container.querySelector(isEvents ? '#input-filter-budget-max' : '#input-filter-gage-m-max')?.value || 5000);
+            list = list.filter(item => {
+                const itemMinB = parseFloat(item.minBudget !== undefined ? item.minBudget : (isEvents ? item.budget : item.price)) || 0;
+                const itemMaxB = parseFloat(item.maxBudget !== undefined ? item.maxBudget : (isEvents ? item.budget : item.price)) || 5000;
+                return itemMaxB >= minB && itemMinB <= maxB;
+            });
+
+            // 9. Besucheranzahl / Publikum Filter (Dual Slider)
+            const minP = parseInt(container.querySelector(isEvents ? '#input-filter-publikum-min' : '#input-filter-publikum-m-min')?.value || 0);
+            const maxP = parseInt(container.querySelector(isEvents ? '#input-filter-publikum-max' : '#input-filter-publikum-m-max')?.value || 500);
+            list = list.filter(item => {
+                const itemMinP = parseInt(item.minPublikum) || 0;
+                const itemMaxP = parseInt(item.maxPublikum) || 500;
+                return itemMaxP >= minP && itemMinP <= maxP;
+            });
+
+            // 10. Umkreis Filter (for Musiker-Markt only)
+            if (!isEvents) {
+                const radiusVal = parseInt(container.querySelector('#input-filter-radius-m')?.value || 500);
+                if (radiusVal < 500) {
+                    list = list.filter(item => (item.radius || 0) <= radiusVal);
+                }
             }
-        });
 
-        // 8. Budget / Gage Filter (Dual Slider)
-        const minB = parseFloat(container.querySelector(isEvents ? '#input-filter-budget-min' : '#input-filter-gage-m-min')?.value || 0);
-        const maxB = parseFloat(container.querySelector(isEvents ? '#input-filter-budget-max' : '#input-filter-gage-m-max')?.value || 5000);
-        list = list.filter(item => {
-            const itemMinB = parseFloat(item.minBudget !== undefined ? item.minBudget : (isEvents ? item.budget : item.price)) || 0;
-            const itemMaxB = parseFloat(item.maxBudget !== undefined ? item.maxBudget : (isEvents ? item.budget : item.price)) || 5000;
-            return itemMaxB >= minB && itemMinB <= maxB;
-        });
-
-        // 9. Besucheranzahl / Publikum Filter (Dual Slider)
-        const minP = parseInt(container.querySelector(isEvents ? '#input-filter-publikum-min' : '#input-filter-publikum-m-min')?.value || 0);
-        const maxP = parseInt(container.querySelector(isEvents ? '#input-filter-publikum-max' : '#input-filter-publikum-m-max')?.value || 500);
-        list = list.filter(item => {
-            const itemMinP = parseInt(item.minPublikum) || 0;
-            const itemMaxP = parseInt(item.maxPublikum) || 500;
-            return itemMaxP >= minP && itemMinP <= maxP;
-        });
-
-        // 10. Umkreis Filter (for Musiker-Markt only)
-        if (!isEvents) {
-            const radiusVal = parseInt(container.querySelector('#input-filter-radius-m')?.value || 500);
-            if (radiusVal < 500) {
-                list = list.filter(item => (item.radius || 0) <= radiusVal);
-            }
-        }
-
-        // 11. Gesuchte Event-Typen Filter (for Musiker-Markt only)
-        if (!isEvents) {
-            const selEvtTypes = getCheckedValues('filter-event-types-grid-m');
-            if (selEvtTypes.length > 0) {
-                list = list.filter(item => {
-                    const types = item.eventTypes || [];
-                    return selEvtTypes.some(t => types.some(it => it.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(it.toLowerCase())));
-                });
+            // 11. Gesuchte Event-Typen Filter (for Musiker-Markt only)
+            if (!isEvents) {
+                const selEvtTypes = getCheckedValues('filter-event-types-grid-m');
+                if (selEvtTypes.length > 0) {
+                    list = list.filter(item => {
+                        const types = item.eventTypes || [];
+                        return selEvtTypes.some(t => types.some(it => it.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(it.toLowerCase())));
+                    });
+                }
             }
         }
 
