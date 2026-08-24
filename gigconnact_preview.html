@@ -20821,7 +20821,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 0.75rem; margin-top: 1.5rem; margin-bottom: 1rem;">
-                        <input type="checkbox" id="chk-agency-publish-consent" style="width: 20px; height: 20px; min-width: 20px; cursor: pointer; accent-color: #2563eb;" required checked>
+                        <input type="checkbox" id="chk-agency-publish-consent" style="width: 20px; height: 20px; min-width: 20px; cursor: pointer; accent-color: #2563eb;" required>
                         <label for="chk-agency-publish-consent" style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0; line-height: 1.4; text-align: left;">
                             Ich stimme der <a href="#/datenschutz" target="_blank" onclick="window.open(this.href, '_blank'); return false;" style="color: #2563eb; text-decoration: underline; font-weight: 600;">Datenschutzerklärung</a> von GigConnAct zu.
                         </label>
@@ -20829,7 +20829,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
 
                     <div style="display:flex; justify-content:center; margin-top:1.5rem;">
                         <button type="submit" id="btn-submit-booking" class="btn btn-primary" style="width:100%; margin:0; padding:0.85rem; font-size:1rem; font-weight:800; background:linear-gradient(135deg,#1e40af 0%,#2563eb 100%) !important; border-color:#2563eb !important;">
-                            Vermittlung anfordern (Kostenlos)
+                            Vermittlung anfragen
                         </button>
                     </div>
                 </form>
@@ -21220,7 +21220,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
         } catch (err) {
             console.error("Agency request submission failed:", err);
             submitBtn.disabled = false;
-            submitBtn.innerHTML = `Vermittlung anfordern (Kostenlos)`;
+            submitBtn.innerHTML = `Vermittlung anfragen`;
             showToast({
                 title: "Fehler beim Senden ⚠️",
                 message: err.message || "Bitte versuche es noch einmal.",
