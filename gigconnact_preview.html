@@ -9718,7 +9718,7 @@ function renderHowItWorksContentHTML(type) {
             <!-- Market Switch CTA Button (Moved above Passende Veranstalter / Musiker card) -->
             <div style="margin-bottom: 2rem; text-align: center; width: 100%; box-sizing: border-box;">
                 <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: 100%; max-width: 100%; box-sizing: border-box; margin: 0 auto; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;" onmouseover="this.style.transform='scale(1.015)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')">
-                    ${isMusician ? 'Event-Markt' : 'Musiker-Markt'}
+                    ${isMusician ? 'Events' : 'Musiker'}
                 </button>
             </div>
 
@@ -9953,7 +9953,7 @@ function renderLandingPage(container, onNavigate) {
                 <!-- Headline: Event-Markt -->
                 <div style="text-align: center; margin-bottom: 2.0rem; padding: 0 1rem;">
                     <h2 onclick="window.onNavigate('events')" style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5.8vw, 4.2rem); font-weight: 900; color: #0f172a; margin: 0; line-height: 1.15; letter-spacing: -1.5px; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#7c3aed'; this.querySelector('.arrow-icon').style.transform='translateX(6px)';" onmouseout="this.style.color='#0f172a'; this.querySelector('.arrow-icon').style.transform='translateX(0)';">
-                        Der Event-Markt<br>
+                        Events<br>
                         <span style="color: #7c3aed; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;">Für Musiker<i class="fa-solid fa-arrow-right-long arrow-icon" style="font-size: 0.55em; transition: transform 0.2s; vertical-align: middle;"></i></span>
                     </h2>
                 </div>
@@ -10069,7 +10069,7 @@ function renderLandingPage(container, onNavigate) {
                 <!-- Headline: Musiker-Markt -->
                 <div style="text-align: center; margin-bottom: 2.0rem; padding: 0 1rem;">
                     <h2 onclick="window.onNavigate('musicians')" style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5.8vw, 4.2rem); font-weight: 900; color: #0f172a; margin: 0; line-height: 1.15; letter-spacing: -1.5px; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'; this.querySelector('.arrow-icon').style.transform='translateX(6px)';" onmouseout="this.style.color='#0f172a'; this.querySelector('.arrow-icon').style.transform='translateX(0)';">
-                        Der Musiker-Markt<br>
+                        Musiker<br>
                         <span style="color: #2563eb; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;">Für Veranstalter<i class="fa-solid fa-arrow-right-long arrow-icon" style="font-size: 0.55em; transition: transform 0.2s; vertical-align: middle;"></i></span>
                     </h2>
                 </div>
@@ -10954,7 +10954,7 @@ function initAllLocationAutocompletes() {
 
 function renderMarket(container, type, onNavigate) {
     const isEvents = type === 'events';
-    const title = isEvents ? 'Event-Markt für Musiker' : 'Musiker-Markt für Veranstalter';
+    const title = isEvents ? 'Events für Musiker' : 'Musiker für Veranstalter';
 
     const getItems = () => isEvents ? state.events : state.musicians;
     
@@ -11092,7 +11092,7 @@ function renderMarket(container, type, onNavigate) {
                         ${getItems().length}
                     </div>
                     <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; white-space: nowrap; letter-spacing: -0.3px; line-height: 1.1; vertical-align: middle;">
-                        ${isEvents ? 'Event-Markt' : 'Musiker-Markt'}
+                        ${isEvents ? 'Events' : 'Musiker'}
                     </span>
                 </div>
 
@@ -11959,7 +11959,7 @@ function renderMarket(container, type, onNavigate) {
             } else if (showOnlyFavorites) {
                 labelEl.textContent = 'Favoriten';
             } else {
-                labelEl.textContent = isEvents ? 'Event-Markt' : 'Musiker-Markt';
+                labelEl.textContent = isEvents ? 'Events' : 'Musiker';
             }
         }
 
@@ -14190,7 +14190,7 @@ function renderMusicianInsightsPanel(m) {
     const eventListHtml = resolvedApps.length === 0 ? `
         <div style="padding:1.5rem; text-align:center; color:var(--text-muted); font-size:0.8rem; background:#ffffff; border: 1px solid var(--border-glass); border-radius:var(--radius-sm);">
             <i class="fa-solid fa-envelope-open" style="font-size:1.8rem; color:var(--border-glass); margin-bottom:0.5rem; display:block;"></i>
-            Keine kontaktierten Events für dieses Profil gefunden. Bewirb dich auf dem Event-Marktplatz!
+            Keine kontaktierten Events für dieses Profil gefunden. Bewirb dich unter Events!
         </div>
     ` : `
         <div style="display:flex; flex-direction:column; gap:0.6rem;">
@@ -19107,7 +19107,7 @@ function updateNavbar(forceLanding) {
         const isMusician = u.role === 'musician';
         const marketIcon = isMusician ? 'fa-calendar-days' : 'fa-guitar';
         const marketLink = isMusician ? '#/events' : '#/musicians';
-        const marketTitle = isMusician ? 'Event-Markt' : 'Musiker-Markt';
+        const marketTitle = isMusician ? 'Events' : 'Musiker';
         
         const isMarketActive = isMusician 
             ? (window.location.hash === '#/events' || window.location.hash.startsWith('#/events'))
@@ -23376,7 +23376,7 @@ window.requestMoreRecommendations = function(mediationId) {
 };
 
 window.removeMediationEvent = function(mediationId) {
-    if (!confirm("Bist du sicher, dass du dieses Event und die Vermittlungsanfrage entfernen möchtest? Das Event wird vom Event-Markt gelöscht und der Link wird dauerhaft deaktiviert.")) return;
+    if (!confirm("Bist du sicher, dass du dieses Event und die Vermittlungsanfrage entfernen möchtest? Das Event wird von der Plattform gelöscht und der Link wird dauerhaft deaktiviert.")) return;
     
     db.collection('mediations').doc(mediationId).get().then(async (doc) => {
         if (!doc.exists) {
