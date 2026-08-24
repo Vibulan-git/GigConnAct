@@ -3206,7 +3206,10 @@ class StateManager {
         
         // Dynamically correct activeMusicianId and activeEventId if collections are loaded and there's a mismatch
         if (this.currentUser) {
-            if (this.currentUser.role === 'musician' && this.musicians && this.musicians.length > 0) {
+            const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
+            if (isAdmin) {
+                // Skip auto-correction for admins to preserve selected profile context
+            } else if (this.currentUser.role === 'musician' && this.musicians && this.musicians.length > 0) {
                 const userProfiles = this.musicians.filter(m => m.creatorId === this.currentUser.id);
                 if (userProfiles.length > 0) {
                     const isValid = userProfiles.some(m => m.id === this.activeMusicianId);
@@ -8398,10 +8401,14 @@ function renderMatchesPage(container) {
         const isMusician = u.role === 'musician';
         
         let profiles = [];
+        const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
         if (isMusician) {
             profiles = state.musicians.filter(m => m.creatorId === u.id);
         } else {
-            profiles = state.events.filter(e => e.creatorId === u.id);
+            profiles = state.events.filter(e => 
+                e.creatorId === u.id || 
+                (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
+            );
         }
         
         let selectedId = isMusician ? state.activeMusicianId : state.activeEventId;
@@ -8816,7 +8823,11 @@ function renderOrganizerEventItem(e, isActive) {
 function renderMyEvents(container) {
     if (!state.currentUser) return;
     const u = state.currentUser;
-    const allMyEvents = state.events.filter(e => e.creatorId === u.id);
+    const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
+    const allMyEvents = state.events.filter(e => 
+        e.creatorId === u.id || 
+        (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
+    );
     const activeEvents = allMyEvents.filter(e => isEventActive(e));
     const deactivatedEvents = allMyEvents.filter(e => !isEventActive(e));
     
@@ -13917,12 +13928,16 @@ function updateNavbar(forceLanding) {
         // Fetch user profiles to generate persistent profile switcher in header
         let userProfiles = [];
         let activeProfileId = '';
+        const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
         if (isMusician) {
             userProfiles = state.musicians.filter(m => m.creatorId === u.id);
             activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || '');
             if (activeProfileId) state.activeMusicianId = activeProfileId;
         } else {
-            userProfiles = state.events.filter(e => e.creatorId === u.id);
+            userProfiles = state.events.filter(e => 
+                e.creatorId === u.id || 
+                (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
+            );
             activeProfileId = state.activeEventId || (userProfiles[0]?.id || '');
             if (activeProfileId) state.activeEventId = activeProfileId;
         }
@@ -14520,12 +14535,16 @@ function renderPostbox(container) {
     }
 
     let activeProfileId = '';
+    const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
     if (isMusician) {
         userProfiles = state.musicians.filter(m => m.creatorId === u.id);
         activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || u.profileId);
         state.activeMusicianId = activeProfileId;
     } else {
-        userProfiles = state.events.filter(e => e.creatorId === u.id);
+        userProfiles = state.events.filter(e => 
+            e.creatorId === u.id || 
+            (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
+        );
         activeProfileId = state.activeEventId || (userProfiles[0]?.id || u.id);
         state.activeEventId = activeProfileId;
     }
