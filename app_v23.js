@@ -15075,39 +15075,127 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
     const overlay = document.createElement('div');
     overlay.id = 'agency-choice-modal';
     overlay.className = 'custom-video-modal-overlay';
-    overlay.style = "position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); padding:1rem;";
+    overlay.style = "position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:99999; display:flex; align-items:flex-start; justify-content:center; backdrop-filter:blur(6px); padding:1rem; overflow-y:auto;";
     
     overlay.innerHTML = `
-        <div style="width:100%; max-width:680px; background:#ffffff; border:1px solid #cbd5e1; border-radius:18px; padding:2rem; box-shadow:0 15px 35px rgba(0,0,0,0.15); position:relative; font-family:var(--font-heading); color:#0f172a;">
+        <div class="choice-modal-box">
             
-            <button id="btn-close-choice-modal" style="position:absolute; top:1.2rem; right:1.2rem; background:transparent; border:none; color:#64748b; cursor:pointer; font-size:1.4rem;">
+            <button id="btn-close-choice-modal" style="position:absolute; top:1.2rem; right:1.2rem; background:transparent; border:none; color:#64748b; cursor:pointer; font-size:1.4rem; z-index: 10;">
                 <i class="fa-solid fa-xmark"></i>
             </button>
  
-            <h3 style="font-size:1.35rem; font-weight:900; text-align:center; margin:0.8rem 0 2.2rem; color:#2563eb; line-height:1.4; padding:0 1rem;">
+            <h3 style="font-size:1.35rem; font-weight:900; text-align:center; margin:0.8rem 0 2.2rem; color:#2563eb; line-height:1.4; padding:0 1.5rem;">
                 Wie möchtest du mit dem Künstler in Verbindung treten?
             </h3>
  
-            <div class="choice-cards-container" style="display:grid; grid-template-columns:1fr; gap:1.5rem;">
+            <div class="choice-cards-container">
                 <style>
-                    @media (min-width: 576px) {
+                    .choice-modal-box {
+                        width: 100%;
+                        max-width: 740px;
+                        background: #ffffff;
+                        border: 1px solid #cbd5e1;
+                        border-radius: 18px;
+                        padding: 2.2rem 2rem;
+                        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+                        position: relative;
+                        font-family: var(--font-heading);
+                        color: #0f172a;
+                        margin: 2rem auto;
+                    }
+                    .choice-cards-container {
+                        display: flex !important;
+                        flex-direction: column !important;
+                        gap: 1.5rem;
+                        align-items: stretch;
+                        position: relative;
+                    }
+                    .choice-card-wrapper {
+                        flex: 1;
+                        background: #f8fafc;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 12px;
+                        padding: 1.5rem;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+                    }
+                    .separator-oder {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    .separator-oder span {
+                        background: #ffffff;
+                        color: #2563eb;
+                        font-weight: 800;
+                        font-size: 0.85rem;
+                        border: 1px solid #cbd5e1;
+                        border-radius: 50%;
+                        width: 42px;
+                        height: 42px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+                        z-index: 2;
+                        position: relative;
+                    }
+                    @media (min-width: 768px) {
                         .choice-cards-container {
-                            grid-template-columns: 1fr 1fr !important;
+                            flex-direction: row !important;
+                            align-items: stretch;
+                        }
+                        .separator-oder {
+                            min-width: 60px;
+                            position: relative;
+                        }
+                        .separator-oder::before {
+                            content: '';
+                            position: absolute;
+                            top: 50%;
+                            left: 0;
+                            right: 0;
+                            height: 1px;
+                            background: #cbd5e1;
+                            z-index: 1;
+                        }
+                    }
+                    @media (max-width: 767px) {
+                        .choice-modal-box {
+                            padding: 1.5rem 1rem !important;
+                            margin: 1rem auto !important;
+                        }
+                        .separator-oder {
+                            position: relative;
+                            padding: 0.5rem 0;
+                        }
+                        .separator-oder::before {
+                            content: '';
+                            position: absolute;
+                            left: 50%;
+                            top: 0;
+                            bottom: 0;
+                            width: 1px;
+                            background: #cbd5e1;
+                            z-index: 1;
                         }
                     }
                 </style>
  
                 <!-- Weg 1: Selbst kontaktieren -->
-                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between;">
+                <div class="choice-card-wrapper">
                     <div>
                         <div style="font-size:2rem; color:#2563eb; margin-bottom:0.75rem; text-align:center;">
                             <i class="fa-solid fa-user-plus"></i>
                         </div>
                         <h4 style="font-size:1.05rem; font-weight:800; margin:0 0 0.75rem; text-align:center; color:#0f172a;">Direkter Kontakt</h4>
                         <ul style="font-size:0.8rem; color:#475569; padding-left:1.1rem; margin:0 0 1.5rem; line-height:1.6;">
-                            <li>Kostenloses Veranstalter-Konto erstellen</li>
-                            <li>Beliebig viele Musiker selbst anfragen und Verträge aushandeln</li>
-                            <li>Direkte Kommunikation im Chat</li>
+                            <li>Freie Auswahl aus allen Musikern</li>
+                            <li>Direkter Kontakt zu allen Acts</li>
+                            <li>Kontaktdaten direkt sichtbar → Anfragen senden & erhalten</li>
+                            <li>Registrierung in 2 Minuten</li>
+                            <li>Unverbindlich & kostenlos</li>
                         </ul>
                     </div>
                     <button id="btn-choice-register" class="btn btn-primary" style="width:100%; margin:0; padding:0.75rem; font-size:0.85rem; font-weight:700; background:#2563eb; border-color:#2563eb; border-radius:8px;">
@@ -15115,17 +15203,24 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                     </button>
                 </div>
  
+                <!-- ODER Separator -->
+                <div class="separator-oder">
+                    <span>ODER</span>
+                </div>
+ 
                 <!-- Weg 2: GigConnAct-Vermittlung -->
-                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between; position:relative;">
+                <div class="choice-card-wrapper">
                     <div>
                         <div style="font-size:2rem; color:#2563eb; margin-bottom:0.75rem; text-align:center;">
                             <i class="fa-solid fa-wand-magic-sparkles"></i>
                         </div>
                         <h4 style="font-size:1.05rem; font-weight:800; margin:0 0 0.75rem; text-align:center; color:#0f172a;">Vermittlungsanfrage</h4>
                         <ul style="font-size:0.8rem; color:#475569; padding-left:1.1rem; margin:0 0 1.5rem; line-height:1.6;">
-                            <li>Keine Registrierung oder Account erforderlich</li>
-                            <li>Wir suchen, prüfen und senden dir 1–3 passende Acts innerhalb von 5 Werktagen</li>
-                            <li>Provision erst fällig bei erfolgreichem Auftritt</li>
+                            <li>Passende Musiker-Vorschläge direkt erhalten</li>
+                            <li>GigConnAct kontaktiert Deine Wunsch-Acts für Dich</li>
+                            <li>Kontaktdaten zunächst verborgen → Bei beidseitigem Interesse werden sie freigeschaltet</li>
+                            <li>Keine Registrierung erforderlich</li>
+                            <li>Unverbindlich & kostenlos</li>
                         </ul>
                     </div>
                     <button id="btn-choice-agency" class="btn btn-primary" style="width:100%; margin:0; padding:0.75rem; font-size:0.85rem; font-weight:700; background:#2563eb; border-color:#2563eb; border-radius:8px;">
