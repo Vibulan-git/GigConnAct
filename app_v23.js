@@ -1843,7 +1843,7 @@ class StateManager {
 
         db.collection('musicians').onSnapshot(snapshot => {
             const list = [];
-            snapshot.forEach(doc => list.push(doc.data()));
+            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
             this.musicians = list;
             this.updateVersion = (this.updateVersion || 0) + 1;
             musiciansLoaded = true;
@@ -1857,7 +1857,7 @@ class StateManager {
 
         db.collection('events').onSnapshot(snapshot => {
             const list = [];
-            snapshot.forEach(doc => list.push(doc.data()));
+            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
             this.events = list;
             this.updateVersion = (this.updateVersion || 0) + 1;
             eventsLoaded = true;
@@ -1871,7 +1871,7 @@ class StateManager {
 
         db.collection('chats').onSnapshot(snapshot => {
             const list = [];
-            snapshot.forEach(doc => list.push(doc.data()));
+            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
             this.chats = list;
             this.updateVersion = (this.updateVersion || 0) + 1;
             chatsLoaded = true;
@@ -1885,7 +1885,7 @@ class StateManager {
 
         db.collection('interests').onSnapshot(snapshot => {
             const list = [];
-            snapshot.forEach(doc => list.push(doc.data()));
+            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
             this.interests = list;
             this.updateVersion = (this.updateVersion || 0) + 1;
             interestsLoaded = true;
@@ -3244,8 +3244,8 @@ class StateManager {
         let collectionName = null;
         let profileObj = null;
 
-        const isMusicianId = (this.musicians || []).some(m => m.id === id);
-        const isEventId = (this.events || []).some(e => e.id === id);
+        const isMusicianId = id.startsWith('mus_') || id.startsWith('musician_') || (this.musicians || []).some(m => m.id === id);
+        const isEventId = id.startsWith('evt_') || id.startsWith('event_') || (this.events || []).some(e => e.id === id);
 
         if (isAdmin) {
             if (isMusicianId) {
@@ -3327,8 +3327,8 @@ class StateManager {
         let profileId = null;
         let profileObj = null;
 
-        const isMusicianId = (this.musicians || []).some(m => m.id === id);
-        const isEventId = (this.events || []).some(e => e.id === id);
+        const isMusicianId = id.startsWith('mus_') || id.startsWith('musician_') || (this.musicians || []).some(m => m.id === id);
+        const isEventId = id.startsWith('evt_') || id.startsWith('event_') || (this.events || []).some(e => e.id === id);
 
         if (isAdmin) {
             if (isMusicianId) {
