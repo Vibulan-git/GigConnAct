@@ -15330,12 +15330,11 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
 
     modalWrapper.innerHTML = `
         <div class="modal-content">
-            <div class="modal-header" style="flex-direction: column; padding: 1.5rem 2rem 1.2rem;">
+            <div class="modal-header" style="flex-direction: column; padding: 2.2rem 2rem 1.2rem; position: relative;">
                 <h3 style="line-height: 1.2; text-align: center; margin: 0; font-family: var(--font-heading); width: 100%;">
-                    <span style="display: block; font-size: 0.95rem; font-weight: 700; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; color: #2563eb;">GigConnAct</span>
-                    <span style="display: block; font-size: 1.45rem; font-weight: 900; color: #000000; margin-top: 0.25rem; letter-spacing: 0.5px;">Vermittlungsanfrage</span>
+                    <span style="display: block; font-size: 1.45rem; font-weight: 900; color: #000000; letter-spacing: 0.5px;">Vermittlungsanfrage</span>
                 </h3>
-                <button class="close-modal-btn" id="btn-close-modal">&times;</button>
+                <button class="close-modal-btn" id="btn-close-modal" style="position: absolute; top: 1.2rem; right: 1.2rem; font-size: 1.8rem; line-height: 1; padding: 0; border: none; background: transparent; cursor: pointer; color: #64748b;">&times;</button>
             </div>
             
             <div class="modal-body" style="padding: 1.5rem 2rem; max-height: 70vh; overflow-y: auto;">
