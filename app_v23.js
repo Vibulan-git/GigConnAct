@@ -5830,12 +5830,11 @@ function renderMarket(container, type, onNavigate) {
                 prefillEventTypes = myProfile.eventTypes || [];
             }
         } else if (!isEvents && state.currentUser.role === 'organizer') {
-            const isAdmin = state && state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email);
             const myProfile = state.events.find(e => e.id === state.activeEventId) 
                 || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) 
                 || state.events.find(e => e.creatorId === state.currentUser.id) 
                 || state.events[0];
-            if (myProfile && !isAdmin) {
+            if (myProfile) {
                 hasProfile = true;
 
                 if (window.lastActiveProfileId !== myProfile.id || selectedFilterDates === null || selectedFilterDates === undefined) {
@@ -15935,7 +15934,11 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
             const detailDescription = form.querySelector('#textarea-org-desc').value.trim();
             
             // 1. Calculate top 5 matching musicians
-            const activeMusicians = (state.musicians || []).filter(m => m.isActive !== false);
+            let allMusicians = state.musicians || [];
+            if (allMusicians.length < 5) {
+                allMusicians = typeof generateRemainingMusicians !== 'undefined' ? generateRemainingMusicians(initialMusicians) : initialMusicians;
+            }
+            const activeMusicians = allMusicians.filter(m => m.isActive !== false);
             
             const tempEventForMatch = {
                 name: form.elements.eventName.value.trim(),
@@ -16377,14 +16380,6 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     </div>
                 </div>
 
-                <!-- Admin Propose Musicians Action -->
-                ${(isEvents && isAdmin) ? `
-                <div style="padding: 0 1.3rem 1.1rem; margin-top: -0.2rem;">
-                    <button class="btn btn-primary" onclick="event.stopPropagation(); window.recommendForEvent('${item.id}')" style="width: 100%; background: #2563eb !important; border-color: #2563eb !important; font-weight: 800; padding: 0.75rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; color: #fff; cursor: pointer; border: 1px solid #2563eb;">
-                        <i class="fa-solid fa-paper-plane"></i> Musiker vorschlagen
-                    </button>
-                </div>
-                ` : ''}
 
                 ${isMediation ? `
                     <!-- 4. Aktions-Button: "Vermittlung" -->
@@ -18150,7 +18145,11 @@ window.requestMoreRecommendations = function(mediationId) {
         const med = doc.data();
         
         // 1. Get all active musicians
-        const activeMusicians = (state.musicians || []).filter(m => m.isActive !== false);
+        let allMusicians = state.musicians || [];
+        if (allMusicians.length < 5) {
+            allMusicians = typeof generateRemainingMusicians !== 'undefined' ? generateRemainingMusicians(initialMusicians) : initialMusicians;
+        }
+        const activeMusicians = allMusicians.filter(m => m.isActive !== false);
         
         // 2. Exclude musicians already in med.musicianIds
         const existingIds = med.musicianIds || [];
