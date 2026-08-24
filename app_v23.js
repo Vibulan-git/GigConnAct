@@ -15205,7 +15205,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         </ul>
                     </div>
                     <button id="btn-choice-register" class="btn btn-primary" style="width:100%; margin:0; padding:0.75rem; font-size:0.85rem; font-weight:700; background:#2563eb !important; border-color:#2563eb !important; border-radius:8px; box-shadow:none;">
-                        Kostenlos registrieren
+                        Kostenlose Registrierung
                     </button>
                 </div>
  
@@ -15226,20 +15226,20 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0 0 1.5rem; line-height:1.7;">
                             <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
                                 <i class="fa-solid fa-envelope-open-text" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
-                                <span>Passende Musiker-Vorschläge direkt erhalten</span>
+                                <span>Musiker-Vorschläge direkt erhalten</span>
                             </li>
                             <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
                                 <i class="fa-solid fa-handshake" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
-                                <span>GigConnAct kontaktiert Deine Wunsch-Acts für Dich</span>
+                                <span>GigConnAct kontaktiert Acts</span>
                             </li>
                             <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
                                 <i class="fa-solid fa-lock" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
-                                <span>Freischaltung bei beidseitigem Interesse</span>
+                                <span>Kontaktdaten nicht sichtbar → Freischaltung bei beidseitigem Interesse</span>
                             </li>
                         </ul>
                     </div>
                     <button id="btn-choice-agency" class="btn btn-primary" style="width:100%; margin:0; padding:0.75rem; font-size:0.85rem; font-weight:700; background:#2563eb !important; border-color:#2563eb !important; border-radius:8px; box-shadow:none;">
-                        Kostenlos Vermittlung anfragen
+                        Kostenlose Vermittlung
                     </button>
                 </div>
             </div>
