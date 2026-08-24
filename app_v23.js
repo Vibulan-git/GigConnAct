@@ -3249,7 +3249,7 @@ class StateManager {
             profileObj = this.musicians.find(m => m.id === profileId);
         } else if (this.currentUser.role === 'organizer') {
             if (isAdmin) {
-                profileId = null;
+                profileId = this.activeEventId || null;
             } else {
                 profileId = this.activeEventId;
                 if (!profileId && this.events && this.events.length > 0) {
@@ -3259,6 +3259,8 @@ class StateManager {
                         profileId = fallback.id;
                     }
                 }
+            }
+            if (profileId) {
                 collectionName = 'events';
                 profileObj = this.events.find(e => e.id === profileId);
             }
@@ -3314,7 +3316,7 @@ class StateManager {
             profileObj = this.musicians.find(m => m.id === profileId);
         } else if (this.currentUser.role === 'organizer') {
             if (isAdmin) {
-                profileId = null;
+                profileId = this.activeEventId || null;
             } else {
                 profileId = this.activeEventId;
                 if (!profileId && this.events && this.events.length > 0) {
@@ -3324,6 +3326,8 @@ class StateManager {
                         profileId = fallback.id;
                     }
                 }
+            }
+            if (profileId) {
                 profileObj = this.events.find(e => e.id === profileId);
             }
         }
