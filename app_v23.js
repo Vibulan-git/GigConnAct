@@ -3243,14 +3243,29 @@ class StateManager {
         let collectionName = null;
         let profileObj = null;
 
-        if (this.currentUser.role === 'musician') {
-            profileId = this.activeMusicianId || this.currentUser.profileId;
-            collectionName = 'musicians';
-            profileObj = this.musicians.find(m => m.id === profileId);
-        } else if (this.currentUser.role === 'organizer') {
-            if (isAdmin) {
+        const isMusicianId = (this.musicians || []).some(m => m.id === id);
+        const isEventId = (this.events || []).some(e => e.id === id);
+
+        if (isAdmin) {
+            if (isMusicianId) {
                 profileId = this.activeEventId || null;
-            } else {
+                collectionName = 'events';
+                if (profileId) {
+                    profileObj = (this.events || []).find(e => e.id === profileId);
+                }
+            } else if (isEventId) {
+                profileId = this.activeMusicianId || this.currentUser.profileId || null;
+                collectionName = 'musicians';
+                if (profileId) {
+                    profileObj = (this.musicians || []).find(m => m.id === profileId);
+                }
+            }
+        } else {
+            if (this.currentUser.role === 'musician') {
+                profileId = this.activeMusicianId || this.currentUser.profileId;
+                collectionName = 'musicians';
+                profileObj = this.musicians.find(m => m.id === profileId);
+            } else if (this.currentUser.role === 'organizer') {
                 profileId = this.activeEventId;
                 if (!profileId && this.events && this.events.length > 0) {
                     const fallback = this.events.find(e => e.creatorId === this.currentUser.id || e.id === this.currentUser.profileId)
@@ -3259,10 +3274,10 @@ class StateManager {
                         profileId = fallback.id;
                     }
                 }
-            }
-            if (profileId) {
-                collectionName = 'events';
-                profileObj = this.events.find(e => e.id === profileId);
+                if (profileId) {
+                    collectionName = 'events';
+                    profileObj = this.events.find(e => e.id === profileId);
+                }
             }
         }
 
@@ -3311,13 +3326,26 @@ class StateManager {
         let profileId = null;
         let profileObj = null;
 
-        if (this.currentUser.role === 'musician') {
-            profileId = this.activeMusicianId || this.currentUser.profileId;
-            profileObj = this.musicians.find(m => m.id === profileId);
-        } else if (this.currentUser.role === 'organizer') {
-            if (isAdmin) {
+        const isMusicianId = (this.musicians || []).some(m => m.id === id);
+        const isEventId = (this.events || []).some(e => e.id === id);
+
+        if (isAdmin) {
+            if (isMusicianId) {
                 profileId = this.activeEventId || null;
-            } else {
+                if (profileId) {
+                    profileObj = (this.events || []).find(e => e.id === profileId);
+                }
+            } else if (isEventId) {
+                profileId = this.activeMusicianId || this.currentUser.profileId || null;
+                if (profileId) {
+                    profileObj = (this.musicians || []).find(m => m.id === profileId);
+                }
+            }
+        } else {
+            if (this.currentUser.role === 'musician') {
+                profileId = this.activeMusicianId || this.currentUser.profileId;
+                profileObj = this.musicians.find(m => m.id === profileId);
+            } else if (this.currentUser.role === 'organizer') {
                 profileId = this.activeEventId;
                 if (!profileId && this.events && this.events.length > 0) {
                     const fallback = this.events.find(e => e.creatorId === this.currentUser.id || e.id === this.currentUser.profileId)
@@ -3326,9 +3354,9 @@ class StateManager {
                         profileId = fallback.id;
                     }
                 }
-            }
-            if (profileId) {
-                profileObj = this.events.find(e => e.id === profileId);
+                if (profileId) {
+                    profileObj = this.events.find(e => e.id === profileId);
+                }
             }
         }
 
