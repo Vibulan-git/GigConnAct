@@ -19139,7 +19139,7 @@ function updateNavbar(forceLanding) {
         const isMusician = u.role === 'musician';
         const marketIcon = isMusician ? 'fa-calendar-days' : 'fa-guitar';
         const marketLink = isMusician ? '#/events' : '#/musicians';
-        const marketTitle = isMusician ? 'Events' : 'Musiker';
+        const marketTitle = isMusician ? 'Event-Markt' : 'Musiker-Markt';
         
         const isMarketActive = isMusician 
             ? (window.location.hash === '#/events' || window.location.hash.startsWith('#/events'))
