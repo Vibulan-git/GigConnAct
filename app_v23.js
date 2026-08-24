@@ -7281,7 +7281,12 @@ window.openItemDetailModal = function(id, isEvents) {
                             ${isEvents ? (item.eventType || 'Event') : (item.type || item.category || 'Musiker')}
                         </span>
                         <h2 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: #ffffff; margin: 0;">
-                            ${item.name || item.title || ''}
+                            ${(state && state.currentUser)
+                                ? (item.name || item.title || '')
+                                : isEvents
+                                    ? `<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span> <i class="fa-solid fa-lock" style="color: #7c3aed; font-size: 1.5rem; margin-left: 0.6rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
+                                    : `<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: ${roleColor}; font-size: 1.5rem; margin-left: 0.6rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
+                            }
                         </h2>
                     </div>
                 </div>
@@ -16100,9 +16105,11 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
             : 'Professionelle Live-Musik für unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.');
 
         const bandName = item.name || item.title || '';
-        const displayName = (isEvents || (state && state.currentUser))
+        const displayName = (state && state.currentUser)
             ? bandName
-            : `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: ${themeColor}; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`;
+            : isEvents
+                ? `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span> <i class="fa-solid fa-lock" style="color: #7c3aed; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
+                : `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: ${themeColor}; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`;
 
         return `
             <div class="market-tile-card" style="cursor: default; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
