@@ -15978,7 +15978,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                 musicianIds: top5MusicianIds,
                 baseUrl: window.location.origin,
                 subject: `Hier ist unsere Musiker-Auswahl für Dein Event: ${tempEventForMatch.name}${dateStr}`,
-                customMessage: `Hallo ${fullNameVal},\n\nwir haben eine passende Auswahl an Musikern für Dein Event "${tempEventForMatch.name}" zusammengestellt! Klicke auf den Button unten, um Dir die Vorschläge inkl. Fotos, Videos und Hörproben anzusehen. Du kannst mehrere Wunsch-Acts über GigConnAct-Vermittlungen anzufragen. Wir übernehmen für Dich die Kontaktaufnahme zu den Musikern.`
+                customMessage: `Wir haben eine passende Auswahl an Musikern für Dein Event "${tempEventForMatch.name}" zusammengestellt! Klicke auf den Button unten, um Dir die Vorschläge inkl. Fotos, Videos und Hörproben anzusehen. Du kannst mehrere Wunsch-Acts über GigConnAct-Vermittlungen anfragen. Wir übernehmen für Dich die Kontaktaufnahme zu den Musikern.`
             });
 
             closeModal();
@@ -16009,7 +16009,7 @@ function showAgencySuccessModal(email) {
             </div>
             <h3 style="font-size:1.4rem; color:#0f172a; margin-bottom:0.75rem; font-weight:800;">Anfrage gesendet! 🚀</h3>
             <p style="font-size:0.9rem; color:#4b5563; line-height:1.55; margin-bottom:1.8rem; font-family:var(--font-body);">
-                Vielen Dank! Deine Vermittlungsanfrage ist bei uns eingegangen. Die erste Auswahl an passenden Acts wurde Dir soeben an Deine Mail-Adresse gesendet. Bitte schau auch in Deinem Spam-Ordner nach.
+                Vielen Dank! Deine Vermittlungsanfrage ist bei uns eingegangen. Aufgrund der intelligenten GigConnAct Matching-Logik hast Du soeben bereits die ersten Musiker-Vorschläge an Deine E-Mail-Adresse erhalten. Bitte schau auch in Deinem Spam-Ordner nach.
             </p>
             <button id="btn-close-agency-success" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:800; border-radius:10px; background:linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important; border-color:#2563eb !important; color:#ffffff !important; margin:0; box-shadow:0 4px 14px rgba(37, 99, 235, 0.3) !important;">
                 Schließen
@@ -17605,7 +17605,7 @@ window.showAdminRecommendationDialog = function(musicianIds) {
         return dateStr;
     };
 
-    const defaultMsgTpl = (clientName, evtName) => `Hallo ${clientName || 'Veranstalter'},\n\nwir haben eine passende Auswahl an Musikern für Dein Event "${evtName || ''}" zusammengestellt! Klicke auf den Button unten, um Dir die Vorschläge inkl. Fotos, Videos und Hörproben anzusehen. Du kannst mehrere Wunsch-Acts über GigConnAct-Vermittlungen anzufragen. Wir übernehmen für Dich die Kontaktaufnahme zu den Musikern.`;
+    const defaultMsgTpl = (clientName, evtName) => `wir haben eine passende Auswahl an Musikern für Dein Event "${evtName || ''}" zusammengestellt! Klicke auf den Button unten, um Dir die Vorschläge inkl. Fotos, Videos und Hörproben anzusehen. Du kannst mehrere Wunsch-Acts über GigConnAct-Vermittlungen anfragen. Wir übernehmen für Dich die Kontaktaufnahme zu den Musikern.`;
 
     const updateFieldsFromEvent = (evt) => {
         if (evt) {
@@ -17789,9 +17789,8 @@ window.renderRecommendationPage = function(container, mediationId) {
                 </div>
                 
                 <div style="text-align: center; margin-bottom: 2rem;">
-                    <div style="display: inline-block; background: rgba(37, 99, 235, 0.08); border: 1px dashed rgba(37, 99, 235, 0.35); padding: 0.8rem 1.5rem; border-radius: 10px; font-size: 0.92rem; color: #fff; font-weight: 700;">
-                        <i class="fa-solid fa-paper-plane" style="color: #2563eb; margin-right: 0.5rem;"></i>
-                        Sobald Du auf „Anfrage senden“ klickst, nehmen wir den Kontakt zum ausgewählten Act auf.
+                    <div style="display: inline-block; background: #1e3a8a; border: 1px solid #2563eb; padding: 0.85rem 1.5rem; border-radius: 10px; font-size: 0.92rem; color: #ffffff; font-weight: 700; max-width: 680px; text-align: left; line-height: 1.55;">
+                        <strong>Hinweis:</strong> Sobald Du auf "Anfrage senden" klickst, nehmen wir den Kontakt zu den ausgewählten Acts auf. Du kannst zu jeder Zeit weitere Musiker-Vorschläge über "Weitere Vorschläge" erhalten.
                     </div>
                 </div>
 
@@ -17873,7 +17872,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                             `;
                         } else {
                             buttonHtml = `
-                                <button onclick="window.requestMediationAct(event, '${mediationId}', '${mus.id}')" class="btn btn-primary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; background: #2563eb; border-color: #2563eb; margin: 0; color: #fff; border-radius: 8px; cursor: pointer; border: 1px solid #2563eb;">
+                                <button onclick="window.requestMediationAct(event, '${mediationId}', '${mus.id}')" class="btn btn-primary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; background: #2563eb !important; border-color: #2563eb !important; margin: 0; color: #fff !important; border-radius: 8px; cursor: pointer; border: 1px solid #2563eb !important;">
                                     Anfrage senden
                                 </button>
                             `;
@@ -17917,7 +17916,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                                 <div style="padding: 1.2rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; background: var(--bg-card);">
                                     <div>
                                         <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 0.8rem; line-height: 1.25;">
-                                            Act ${idx + 1}: <span style="filter: blur(5px); select: none; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> (${mus.category || 'Musiker'})
+                                            Act ${idx + 1}: <span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #7c3aed; font-size: 1rem; vertical-align: middle; margin-right: 0.5rem; filter: none !important;" title="Name geschützt"></i> (${mus.category || 'Musiker'})
                                         </h3>
                                         <div style="display: flex; gap: 0.5rem; justify-content: space-between;">
                                             <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); flex: 1;">
@@ -17989,16 +17988,13 @@ window.renderRecommendationPage = function(container, mediationId) {
                 <!-- Die Auswahl reicht mir nicht & Dieses Event entfernen Buttons -->
                 <div style="text-align: center; margin-top: 4rem; border-top: 1px dashed var(--border-glass); padding-top: 2.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem;">
                     <div style="display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap;">
-                        <button onclick="window.requestMoreRecommendations('${mediationId}')" class="btn btn-secondary" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 800; border-color: #2563eb; color: #ffffff; background: #2563eb; margin: 0; cursor: pointer; border-radius: 8px;">
+                        <button onclick="window.requestMoreRecommendations('${mediationId}')" class="btn btn-secondary" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 800; border-color: #2563eb !important; color: #ffffff !important; background: #2563eb !important; margin: 0; cursor: pointer; border-radius: 8px;">
                             Weitere Vorschläge erhalten
                         </button>
-                        <button onclick="window.removeMediationEvent('${mediationId}')" class="btn btn-secondary" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 800; border-color: #ef4444; color: #ffffff; background: #ef4444; margin: 0; cursor: pointer; border-radius: 8px; border: 1px solid #ef4444;">
+                        <button onclick="window.removeMediationEvent('${mediationId}')" class="btn btn-secondary" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 800; border-color: #ef4444 !important; color: #ffffff !important; background: #ef4444 !important; margin: 0; cursor: pointer; border-radius: 8px; border: 1px solid #ef4444 !important;">
                             Event entfernen
                         </button>
                     </div>
-                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.4rem;">
-                        Du kannst zu jeder Zeit weitere Musiker-Vorschläge anfragen.
-                    </p>
                 </div>
             </div>
         `;
