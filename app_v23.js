@@ -1778,6 +1778,8 @@ class StateManager {
         }
         this.interests = [];
         this.favorites = [];
+        this.musiciansFetched = false;
+        this.eventsFetched = false;
         this.initialLoadDone = false;
         this.initFirebaseData();
     }
@@ -1869,11 +1871,11 @@ class StateManager {
     }
 
     async fetchMusicians() {
-        if (this.loadingMusicians) return;
+        if (this.loadingMusicians || this.musiciansFetched) return;
         this.loadingMusicians = true;
         try {
             console.log("[DEBUG] StateManager.fetchMusicians() called");
-            const snapshot = await db.collection('musicians').where('isActive', '==', true).get();
+            const snapshot = await db.collection('musicians').where('isActive', '==', true).limit(150).get();
             const list = [];
             snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
             
@@ -1885,6 +1887,7 @@ class StateManager {
                     this.musicians.push(item);
                 }
             });
+            this.musiciansFetched = true;
             this.loadingMusicians = false;
             this.updateVersion = (this.updateVersion || 0) + 1;
             this.notify();
@@ -1895,11 +1898,11 @@ class StateManager {
     }
 
     async fetchEvents() {
-        if (this.loadingEvents) return;
+        if (this.loadingEvents || this.eventsFetched) return;
         this.loadingEvents = true;
         try {
             console.log("[DEBUG] StateManager.fetchEvents() called");
-            const snapshot = await db.collection('events').where('isOnline', '==', true).get();
+            const snapshot = await db.collection('events').where('isOnline', '==', true).limit(150).get();
             const list = [];
             snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
             
@@ -1911,6 +1914,7 @@ class StateManager {
                     this.events.push(item);
                 }
             });
+            this.eventsFetched = true;
             this.loadingEvents = false;
             this.updateVersion = (this.updateVersion || 0) + 1;
             this.notify();
