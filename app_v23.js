@@ -14493,9 +14493,9 @@ function updateNavbar(forceLanding) {
             </button>
         `;
         document.getElementById('btn-login-trigger').addEventListener('click', () => {
-            const currentHash = window.location.hash;
+            const currentHash = window.location.hash || '';
             let roleParam = null;
-            if (currentHash === '#/events') {
+            if (currentHash === '#/events' || currentHash.startsWith('#/events') || currentHash.includes('/events')) {
                 roleParam = 'organizer_only';
             }
             showModal('auth', () => {
