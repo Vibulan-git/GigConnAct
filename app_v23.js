@@ -1627,6 +1627,7 @@ function generateRemainingMusicians(existing) {
             videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
             audio: [],
             technik,
+            isActive: true,
             createdAt: new Date(Date.now() - i * 6 * 60 * 60 * 1000).toISOString()
         });
     }
@@ -2587,6 +2588,9 @@ class StateManager {
                 }
             });
             this.musicians = generateRemainingMusicians(base).map(m => {
+                if (m.isActive === undefined) {
+                    m.isActive = true;
+                }
                 // Ensure minPublikum and maxPublikum exist on all musicians
                 if (m.minPublikum === undefined || m.minPublikum === null) {
                     m.minPublikum = [20, 50, 100, 150, 200, 300][(m.id.charCodeAt(m.id.length - 1) || 0) % 6];
@@ -8388,7 +8392,7 @@ function renderProfilePage(container) {
             });
         }
 
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             clearAllValidationErrors(form);
 
@@ -8411,6 +8415,24 @@ function renderProfilePage(container) {
             if (phoneVal.length < 5 || phoneVal.length > 16) {
                 showValidationError(phoneEl, null, 'Die Telefonnummer muss zwischen 5 und 16 Ziffern lang sein.');
                 return;
+            }
+
+            const emailLower = email.toLowerCase().trim();
+            if (emailLower !== u.email.toLowerCase()) {
+                try {
+                    const snap = await db.collection('users').where('email', '==', emailLower).limit(1).get();
+                    if (!snap.empty) {
+                        showToast({
+                            title: "E-Mail bereits vergeben ⚠️",
+                            message: "Diese E-Mail-Adresse wird bereits von einem anderen Benutzerkonto verwendet.",
+                            type: "error"
+                        });
+                        markInvalid(document.getElementById('prof-email'));
+                        return;
+                    }
+                } catch (err) {
+                    console.error("Failed to check if email is in use:", err);
+                }
             }
 
             u.firstName = fName;
