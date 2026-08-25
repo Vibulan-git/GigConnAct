@@ -15670,7 +15670,7 @@ window.renderMatchmakingChoicePage = function(container) {
                         <div>
                             <div style="margin-bottom: 0.8rem; width: 100%;">
                                 <div style="display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; text-align: left; line-height: 1.25;">
-                                    <h4 style="font-size: 1.15rem; font-weight: 800; margin: 0; color: #0f172a; white-space: nowrap;">Direkter Kontakt</h4>
+                                    <h4 style="font-size: 1.15rem; font-weight: 800; margin: 0; color: #0f172a; white-space: nowrap;">Direktkontakt</h4>
                                     <span style="font-size: 0.9rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">mit Account</span>
                                 </div>
                             </div>
@@ -15682,7 +15682,7 @@ window.renderMatchmakingChoicePage = function(container) {
                                 </li>
                                 <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
                                     <i class="fa-solid fa-comments" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
-                                    <span>Direkter Kontakt zu allen Acts</span>
+                                    <span>Direktkontakt zu allen Acts</span>
                                 </li>
                                 <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
                                     <i class="fa-solid fa-eye" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
@@ -16828,7 +16828,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     `
                         <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
                             <button class="btn btn-primary" onclick="event.stopPropagation(); ${state && state.currentUser ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : (isEvents ? `showModal('auth', null, 'musician')` : (isMediation ? `window.showAgencyBookingForm('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : `showModal('auth', null, 'organizer')`))}" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
-                                <i class="fa-solid fa-lock"></i> ${isEvents ? 'Direkter Kontakt' : (isMediation ? 'Vermittlung' : 'Direkter Kontakt')}
+                                <i class="fa-solid fa-lock"></i> ${isEvents ? 'Kontaktdaten freischalten' : (isMediation ? 'Vermittlung' : 'Kontaktdaten freischalten')}
                             </button>
                         </div>
                     `
