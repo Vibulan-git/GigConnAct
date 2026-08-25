@@ -15594,7 +15594,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                     .choice-cards-container {
                         display: flex !important;
                         flex-direction: column !important;
-                        gap: 0.8rem !important;
+                        gap: 0.35rem !important;
                         align-items: stretch;
                         position: relative;
                     }
@@ -15603,7 +15603,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         background: #eff6ff;
                         border: 2px solid #2563eb;
                         border-radius: 12px;
-                        padding: 1.5rem;
+                        padding: 1.1rem;
                         display: flex;
                         flex-direction: column;
                         justify-content: space-between;
@@ -15645,10 +15645,10 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         .choice-cards-container {
                             flex-direction: row !important;
                             align-items: stretch;
-                            gap: 0.8rem !important;
+                            gap: 0.35rem !important;
                         }
                         .separator-oder {
-                            min-width: 40px;
+                            min-width: 15px;
                             position: relative;
                         }
                         .separator-oder::before {
@@ -15705,7 +15705,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                             </div>
                         </div>
                         
-                        <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0 0 1.5rem; line-height:1.7;">
+                        <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0 0 0.6rem; line-height:1.7;">
                             <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
                                 <i class="fa-solid fa-magnifying-glass" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
                                 <span>Freie Auswahl aus allen Musikern</span>
@@ -15743,7 +15743,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                             </div>
                         </div>
                         
-                        <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0 0 1.5rem; line-height:1.7;">
+                        <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0 0 0.6rem; line-height:1.7;">
                             <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
                                 <i class="fa-solid fa-envelope-open-text" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
                                 <span>Musiker-Vorschläge direkt erhalten</span>
