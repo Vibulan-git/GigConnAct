@@ -1,0 +1,475 @@
+{
+  "endpoints": {
+    "onNewChatMessage": {
+      "platform": "gcfv1",
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "eventTrigger": {
+        "eventType": "providers/cloud.firestore/eventTypes/document.write",
+        "eventFilters": {
+          "resource": "projects/gigconnact/databases/(default)/documents/chats/{chatId}"
+        },
+        "retry": false
+      },
+      "labels": {},
+      "entryPoint": "onNewChatMessage"
+    },
+    "dailyRadiusAlertsCheck": {
+      "platform": "gcfv1",
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "scheduleTrigger": {
+        "schedule": "0 17 * * *",
+        "retryConfig": {
+          "retryCount": null,
+          "maxDoublings": null,
+          "maxRetryDuration": null,
+          "maxBackoffDuration": null,
+          "minBackoffDuration": null
+        },
+        "timeZone": "Europe/Berlin"
+      },
+      "labels": {},
+      "entryPoint": "dailyRadiusAlertsCheck"
+    },
+    "dailyTopMatchesCheck": {
+      "platform": "gcfv1",
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "scheduleTrigger": {
+        "schedule": "0 8 * * *",
+        "retryConfig": {
+          "retryCount": null,
+          "maxDoublings": null,
+          "maxRetryDuration": null,
+          "maxBackoffDuration": null,
+          "minBackoffDuration": null
+        },
+        "timeZone": "Europe/Berlin"
+      },
+      "labels": {},
+      "entryPoint": "dailyTopMatchesCheck"
+    },
+    "sendCustomVerificationEmail": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "sendCustomVerificationEmail"
+    },
+    "sendCustomPasswordResetEmail": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "sendCustomPasswordResetEmail"
+    },
+    "sendCustomSignInEmail": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "sendCustomSignInEmail"
+    },
+    "createStripeCheckoutSession": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "STRIPE_SECRET_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "createStripeCheckoutSession"
+    },
+    "stripeWebhook": {
+      "platform": "gcfv1",
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "STRIPE_SECRET_KEY"
+        },
+        {
+          "key": "STRIPE_WEBHOOK_SECRET"
+        },
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "httpsTrigger": {},
+      "entryPoint": "stripeWebhook"
+    },
+    "onUserDeleted": {
+      "platform": "gcfv1",
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "eventTrigger": {
+        "eventType": "providers/firebase.auth/eventTypes/user.delete",
+        "eventFilters": {
+          "resource": "projects/gigconnact"
+        },
+        "retry": false
+      },
+      "labels": {},
+      "entryPoint": "onUserDeleted"
+    },
+    "createStripePortalSession": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "STRIPE_SECRET_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "createStripePortalSession"
+    },
+    "onMusicianProfileCreated": {
+      "platform": "gcfv1",
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "eventTrigger": {
+        "eventType": "providers/cloud.firestore/eventTypes/document.create",
+        "eventFilters": {
+          "resource": "projects/gigconnact/databases/(default)/documents/musicians/{musicianId}"
+        },
+        "retry": false
+      },
+      "labels": {},
+      "entryPoint": "onMusicianProfileCreated"
+    },
+    "onEventProfileCreated": {
+      "platform": "gcfv1",
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "eventTrigger": {
+        "eventType": "providers/cloud.firestore/eventTypes/document.create",
+        "eventFilters": {
+          "resource": "projects/gigconnact/databases/(default)/documents/events/{eventId}"
+        },
+        "retry": false
+      },
+      "labels": {},
+      "entryPoint": "onEventProfileCreated"
+    },
+    "sendRecommendationList": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "sendRecommendationList"
+    },
+    "createMediationPayment": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "STRIPE_SECRET_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "createMediationPayment"
+    },
+    "releaseMediationContacts": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "releaseMediationContacts"
+    },
+    "notifyMediationDeclined": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "notifyMediationDeclined"
+    },
+    "requestMusician": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "requestMusician"
+    },
+    "updateMediationMusicianStatus": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "updateMediationMusicianStatus"
+    },
+    "requestMoreRecommendations": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "requestMoreRecommendations"
+    },
+    "sendMediationReminder": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "sendMediationReminder"
+    }
+  },
+  "specVersion": "v1alpha1",
+  "requiredAPIs": [
+    {
+      "api": "cloudscheduler.googleapis.com",
+      "reason": "Needed for scheduled functions."
+    }
+  ]
+}
