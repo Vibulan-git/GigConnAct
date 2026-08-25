@@ -6852,9 +6852,11 @@ function renderMarket(container, type, onNavigate) {
             const techGrid = container.querySelector('#' + techGridId);
             if (techGrid && getCheckedValues(techGridId).length > 0) return true;
 
-            const contactTypeGridId = isEvents ? 'filter-contact-type-grid' : 'filter-contact-type-grid-m';
-            const contactTypeGrid = container.querySelector('#' + contactTypeGridId);
-            if (contactTypeGrid && getCheckedValues(contactTypeGridId).length !== 2) return true;
+            if (!isEvents) {
+                const contactTypeGridId = 'filter-contact-type-grid-m';
+                const contactTypeGrid = container.querySelector('#' + contactTypeGridId);
+                if (contactTypeGrid && getCheckedValues(contactTypeGridId).length !== 2) return true;
+            }
 
             if (isEvents) {
                 const minD = parseFloat(container.querySelector('#input-filter-duration-min')?.value || 0.5);
@@ -6965,27 +6967,29 @@ function renderMarket(container, type, onNavigate) {
                 });
             }
 
-            // 2.1. Kontakt-Typ Filter (Direkt / Vermittlung)
-            const contactTypeGridId = isEvents ? 'filter-contact-type-grid' : 'filter-contact-type-grid-m';
-            const contactTypeGrid = container.querySelector('#' + contactTypeGridId);
-            if (contactTypeGrid) {
-                const selContactTypes = getCheckedValues(contactTypeGridId);
-                list = list.filter(item => {
-                    const itemIsMediation = isEvents && (
-                        item.isAgencyRequest === true || 
-                        item.email === 'info@gigconnact.de' || 
-                        item.clientEmail === 'info@gigconnact.de' || 
-                        item.creatorId === 'info-gigconnact-admin'
-                    );
-                    const isMediationSelected = selContactTypes.includes('mediation');
-                    const isDirectSelected = selContactTypes.includes('direct');
-                    
-                    if (itemIsMediation) {
-                        return isMediationSelected;
-                    } else {
-                        return isDirectSelected;
-                    }
-                });
+            // 2.1. Kontakt-Typ Filter (Direkt / Vermittlung) - ONLY for musicians!
+            if (!isEvents) {
+                const contactTypeGridId = 'filter-contact-type-grid-m';
+                const contactTypeGrid = container.querySelector('#' + contactTypeGridId);
+                if (contactTypeGrid) {
+                    const selContactTypes = getCheckedValues(contactTypeGridId);
+                    list = list.filter(item => {
+                        const itemIsMediation = (
+                            item.isAgencyRequest === true || 
+                            item.email === 'info@gigconnact.de' || 
+                            item.clientEmail === 'info@gigconnact.de' || 
+                            item.creatorId === 'info-gigconnact-admin'
+                        );
+                        const isMediationSelected = selContactTypes.includes('mediation');
+                        const isDirectSelected = selContactTypes.includes('direct');
+                        
+                        if (itemIsMediation) {
+                            return isMediationSelected;
+                        } else {
+                            return isDirectSelected;
+                        }
+                    });
+                }
             }
 
             // 3. Genres Filter
@@ -14476,22 +14480,28 @@ function updateNavbar(forceLanding) {
     } else {
         nav.className = 'main-nav';
         nav.innerHTML = '';
-        authArea.innerHTML = `
-            <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger" title="Einloggen / Registrieren" style="padding: 0; display: inline-flex; align-items: center; justify-content: center; width: 75px; height: 40px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.15);">
-                <i class="fa-solid fa-right-to-bracket header-login-icon" style="margin: 0; font-size: 1.35rem;"></i>
-            </button>
-        `;
-        
-        document.getElementById('btn-login-trigger').addEventListener('click', () => {
-            const currentHashAfter = window.location.hash || '';
-            let roleParam = null;
-            if (currentHashAfter === '#/events' || currentHashAfter.startsWith('#/events') || currentHashAfter.includes('/events')) {
-                roleParam = 'organizer_only';
-            }
-            showModal('auth', () => {
-                navigateAfterLogin();
-            }, roleParam);
-        });
+        const currentHash = window.location.hash || '';
+        const isMatchmakingChoice = currentHash === '#/matchmaking-choice' || currentHash.startsWith('#/matchmaking-choice') || currentHash.includes('/matchmaking-choice');
+        if (isMatchmakingChoice) {
+            authArea.innerHTML = '';
+        } else {
+            authArea.innerHTML = `
+                <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger" title="Einloggen / Registrieren" style="padding: 0; display: inline-flex; align-items: center; justify-content: center; width: 75px; height: 40px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.15);">
+                    <i class="fa-solid fa-right-to-bracket header-login-icon" style="margin: 0; font-size: 1.35rem;"></i>
+                </button>
+            `;
+            
+            document.getElementById('btn-login-trigger').addEventListener('click', () => {
+                const currentHashAfter = window.location.hash || '';
+                let roleParam = null;
+                if (currentHashAfter === '#/events' || currentHashAfter.startsWith('#/events') || currentHashAfter.includes('/events')) {
+                    roleParam = 'organizer_only';
+                }
+                showModal('auth', () => {
+                    navigateAfterLogin();
+                }, roleParam);
+            });
+        }
     }
 }
 
@@ -16501,7 +16511,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
     return items.map(item => {
         const isUnlocked = state ? ((typeof state.isUnlocked === 'function') ? state.isUnlocked(item.id) : (state.unlockedContacts && state.unlockedContacts.includes(item.id))) : false;
         const isAdmin = state && state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email);
-        const isMediation = isEvents && (
+        const isMediation = !isEvents && (
             item.isAgencyRequest === true || 
             item.email === 'info@gigconnact.de' || 
             item.clientEmail === 'info@gigconnact.de' ||
