@@ -6166,7 +6166,7 @@ function renderMarket(container, type, onNavigate) {
     window.lastProfilePrefillHash = currentPrefillHash;
 
     container.innerHTML = `
-        <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 1rem 5rem; box-sizing: border-box;">
+        <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0px 5rem; box-sizing: border-box;">
             
             <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.35rem; margin-bottom: 0.75rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0px; -webkit-overflow-scrolling: touch;">
                 
