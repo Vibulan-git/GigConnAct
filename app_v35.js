@@ -15676,16 +15676,16 @@ window.renderMatchmakingChoicePage = function(container) {
                             </div>
                             
                             <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0; line-height:1.7;">
-                                <li style="margin-bottom:0.6rem; display:flex; align-items:center;">
-                                    <i class="fa-solid fa-magnifying-glass" style="color:#2563eb; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                    <i class="fa-solid fa-magnifying-glass" style="color:#2563eb; margin-top:0.15rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
                                     <span>Freie Auswahl aus allen Musikern</span>
                                 </li>
-                                <li style="margin-bottom:0.6rem; display:flex; align-items:center;">
-                                    <i class="fa-solid fa-comments" style="color:#2563eb; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                    <i class="fa-solid fa-comments" style="color:#2563eb; margin-top:0.15rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
                                     <span>Direktkontakt zu allen Acts</span>
                                 </li>
-                                <li style="margin-bottom:0.6rem; display:flex; align-items:center;">
-                                    <i class="fa-solid fa-eye" style="color:#2563eb; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                    <i class="fa-solid fa-eye" style="color:#2563eb; margin-top:0.15rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
                                     <span>Kontaktdaten direkt sichtbar → Anfragen senden & erhalten</span>
                                 </li>
                             </ul>
@@ -15711,16 +15711,16 @@ window.renderMatchmakingChoicePage = function(container) {
                             </div>
                             
                             <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0; line-height:1.7;">
-                                <li style="margin-bottom:0.6rem; display:flex; align-items:center;">
-                                    <i class="fa-solid fa-envelope-open-text" style="color:#2563eb; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                    <i class="fa-solid fa-envelope-open-text" style="color:#2563eb; margin-top:0.15rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
                                     <span>Musiker-Vorschläge direkt erhalten</span>
                                 </li>
-                                <li style="margin-bottom:0.6rem; display:flex; align-items:center;">
-                                    <i class="fa-solid fa-handshake" style="color:#2563eb; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                    <i class="fa-solid fa-handshake" style="color:#2563eb; margin-top:0.15rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
                                     <span>GigConnAct kontaktiert Acts</span>
                                 </li>
-                                <li style="margin-bottom:0.6rem; display:flex; align-items:center;">
-                                    <i class="fa-solid fa-lock" style="color:#2563eb; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                    <i class="fa-solid fa-lock" style="color:#2563eb; margin-top:0.15rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
                                     <span>Kontaktdaten nicht sichtbar → Freischaltung bei Interesse</span>
                                 </li>
                             </ul>
