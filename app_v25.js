@@ -14473,10 +14473,10 @@ function updateNavbar(forceLanding) {
         nav.className = 'main-nav';
         nav.innerHTML = '';
         const currentHash = window.location.hash || '';
-        const isMarketPage = currentHash === '#/events' || currentHash.startsWith('#/events') || currentHash.includes('/events') || currentHash === '#/musicians' || currentHash.startsWith('#/musicians') || currentHash.includes('/musicians');
+        const isMusiciansPage = currentHash === '#/musicians' || currentHash.startsWith('#/musicians') || currentHash.includes('/musicians');
         
         let mediationBtnHtml = '';
-        if (isMarketPage) {
+        if (isMusiciansPage) {
             mediationBtnHtml = `
                 <button class="btn btn-primary" id="btn-header-agency" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: none !important; font-weight: 800; border-radius: 12px; height: 40px; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; padding: 0 1rem; color: #fff; margin-right: 0.5rem; white-space: nowrap;">
                     <i class="fa-solid fa-handshake"></i> Vermittlung
@@ -14491,7 +14491,7 @@ function updateNavbar(forceLanding) {
             </button>
         `;
         
-        if (isMarketPage) {
+        if (isMusiciansPage) {
             const agencyBtn = document.getElementById('btn-header-agency');
             if (agencyBtn) {
                 agencyBtn.addEventListener('click', () => {
@@ -15575,12 +15575,12 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
     const overlay = document.createElement('div');
     overlay.id = 'agency-choice-modal';
     overlay.className = 'custom-video-modal-overlay';
-    overlay.style = "position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:99999; display:flex; align-items:flex-start; justify-content:center; backdrop-filter:blur(6px); padding:1rem; overflow-y:auto;";
+    overlay.style = "position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:99999; display:flex; align-items:flex-start; justify-content:center; backdrop-filter:blur(6px); padding:0.2rem 1rem 1rem; overflow-y:auto;";
     
     overlay.innerHTML = `
         <div class="choice-modal-box">
             
-            <button id="btn-close-choice-modal" style="position:absolute; bottom:1.2rem; right:1.5rem; background:transparent; border:none; color:#64748b; cursor:pointer; font-size:1.4rem; z-index: 10;">
+            <button id="btn-close-choice-modal" style="position:absolute; bottom:0.7rem; right:1.2rem; background:transparent; border:none; color:#64748b; cursor:pointer; font-size:1.4rem; z-index: 10;">
                 <i class="fa-solid fa-xmark"></i>
             </button>
  
@@ -15592,12 +15592,12 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         background: #ffffff;
                         border: 1px solid #cbd5e1;
                         border-radius: 18px;
-                        padding: 1.2rem 1.5rem 3.4rem;
+                        padding: 0.8rem 1.2rem 2.8rem;
                         box-shadow: 0 15px 35px rgba(0,0,0,0.15);
                         position: relative;
                         font-family: var(--font-heading);
                         color: #0f172a;
-                        margin: 1rem auto;
+                        margin: 0 auto;
                     }
                     .choice-cards-container {
                         display: flex !important;
@@ -15611,7 +15611,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         background: #eff6ff;
                         border: 2px solid #2563eb;
                         border-radius: 12px;
-                        padding: 1.1rem;
+                        padding: 0.85rem 1rem;
                         display: flex;
                         flex-direction: column;
                         justify-content: space-between;
@@ -15672,8 +15672,8 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                     }
                     @media (max-width: 767px) {
                         .choice-modal-box {
-                            padding: 3.5rem 1rem 1.5rem !important;
-                            margin: 1rem auto !important;
+                            padding: 1rem 1rem 2.8rem !important;
+                            margin: 0.2rem auto !important;
                         }
                         .btn-choice-action {
                             font-size: 0.88rem !important;
