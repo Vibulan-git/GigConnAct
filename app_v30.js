@@ -14016,7 +14016,7 @@ window.updateBodyBackground = function(page) {
     
     if (page === 'events') {
         gradient = 'linear-gradient(to right, #f3e8ff 0%, #faf5ff 50%, #f3e8ff 100%)'; // purple symmetric (softer)
-    } else if (page === 'musicians') {
+    } else if (page === 'musicians' || page === 'matchmaking-choice') {
         gradient = 'linear-gradient(to right, #e0f2fe 0%, #f0f9ff 50%, #e0f2fe 100%)'; // blue symmetric (softer)
     } else if (['postbox', 'dashboard', 'my-musicians', 'my-events', 'matches', 'profile', 'credits'].includes(page)) {
         const role = (state && state.currentUser) ? state.currentUser.role : null;
@@ -15561,17 +15561,9 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
 
 window.renderMatchmakingChoicePage = function(container) {
     container.innerHTML = `
-        <div class="choice-page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; padding: 2rem 1rem; font-family: var(--font-heading); color: #0f172a; box-sizing: border-box;">
+        <div class="choice-page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.5rem 1rem; font-family: var(--font-heading); color: #0f172a; box-sizing: border-box; width: 100%;">
             
-            <div class="choice-modal-box" style="position: relative; width: 100%; max-width: 680px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 18px; padding: 2.2rem 2rem 2.2rem; box-shadow: 0 15px 35px rgba(0,0,0,0.1); margin: 0 auto;">
-                
-                <button id="btn-close-choice-page" style="position:absolute; top:1.2rem; right:1.5rem; background:transparent; border:none; color:#64748b; cursor:pointer; font-size:1.6rem; z-index: 10;" title="Zurück">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-                
-                <h3 style="font-size: 1.4rem; font-weight: 900; color: #0f172a; text-align: center; margin-top: 0; margin-bottom: 2rem; padding-right: 2rem; line-height: 1.2;">
-                    Wie möchtest du Kontakt aufnehmen?
-                </h3>
+            <div class="choice-modal-box" style="position: relative; width: 100%; max-width: 1200px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 18px; padding: 1.5rem 1.5rem; box-shadow: 0 15px 35px rgba(0,0,0,0.1); margin: 0 auto;">
                 
                 <div class="choice-cards-container">
                     <style>
@@ -15732,10 +15724,6 @@ window.renderMatchmakingChoicePage = function(container) {
             </div>
         </div>
     `;
-
-    container.querySelector('#btn-close-choice-page').addEventListener('click', () => {
-        window.history.back();
-    });
 
     container.querySelector('#btn-choice-register').addEventListener('click', () => {
         const mId = window.lastSelectedMusicianId;
