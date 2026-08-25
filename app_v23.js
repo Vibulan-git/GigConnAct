@@ -6141,7 +6141,7 @@ function renderMarket(container, type, onNavigate) {
                                         <div class="filter-header-sticky" style="display: flex; align-items: center; position: relative; width: calc(100% - 1.2rem) !important;">
                         <!-- Left: Title -->
                         <span class="filter-header-title" style="flex: 1; text-align: left; font-family: var(--font-heading); font-weight: 900; font-size: 1.1rem; letter-spacing: -0.3px; display: flex; align-items: center; gap: 0.4rem;">
-                            <i class="fa-solid fa-sliders" id="desktop-filter-icon" style="transition: color 0.3s ease;"></i> Filter <span id="filter-active-dot" style="display: none; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 8px #22c55e; flex-shrink: 0;"></span>
+                            <i class="fa-solid fa-sliders" id="desktop-filter-icon" style="transition: color 0.3s ease;"></i> Filter
                         </span>
                         
                         <!-- Center: Sort and Reset -->
@@ -6178,7 +6178,18 @@ function renderMarket(container, type, onNavigate) {
                             <!-- 1. SUCHBEGRIFFE FELD (WEISSES EINGABEFELD) -->
                             <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Suchbegriffe</label>
-                                <input type="text" id="filter-keyword" placeholder="z.B. Hochzeit, Sax, Rock..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                                <input type="text" id="filter-keyword" placeholder="z.B. Hochzeit, Sax, Rock..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.6rem;">
+                                
+                                <div class="checkbox-tag-grid" id="filter-contact-type-grid" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <label class="tag-pill-checkbox active">
+                                        <input type="checkbox" name="filterContactType" value="direct" checked>
+                                        <span>Direkter Kontakt</span>
+                                    </label>
+                                    <label class="tag-pill-checkbox active">
+                                        <input type="checkbox" name="filterContactType" value="mediation" checked>
+                                        <span>Vermittlung</span>
+                                    </label>
+                                </div>
                             </div>
 
                             <!-- 2. Ort / PLZ -->
@@ -6344,7 +6355,18 @@ function renderMarket(container, type, onNavigate) {
                             <!-- 1. SUCHBEGRIFFE FELD (WEISSES EINGABEFELD) -->
                             <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Suchbegriffe</label>
-                                <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                                <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.6rem;">
+                                
+                                <div class="checkbox-tag-grid" id="filter-contact-type-grid-m" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <label class="tag-pill-checkbox active">
+                                        <input type="checkbox" name="filterContactTypeM" value="direct" checked>
+                                        <span>Direkter Kontakt</span>
+                                    </label>
+                                    <label class="tag-pill-checkbox active">
+                                        <input type="checkbox" name="filterContactTypeM" value="mediation" checked>
+                                        <span>Vermittlung</span>
+                                    </label>
+                                </div>
                             </div>
 
                             <!-- 2. Ort & Maximaler Umkreis -->
@@ -6815,6 +6837,29 @@ function renderMarket(container, type, onNavigate) {
                 });
             }
 
+            // 2.1. Kontakt-Typ Filter (Direkt / Vermittlung)
+            const contactTypeGridId = isEvents ? 'filter-contact-type-grid' : 'filter-contact-type-grid-m';
+            const contactTypeGrid = container.querySelector('#' + contactTypeGridId);
+            if (contactTypeGrid) {
+                const selContactTypes = getCheckedValues(contactTypeGridId);
+                list = list.filter(item => {
+                    const itemIsMediation = (
+                        item.isAgencyRequest === true || 
+                        item.email === 'info@gigconnact.de' || 
+                        item.clientEmail === 'info@gigconnact.de' || 
+                        item.creatorId === 'info-gigconnact-admin'
+                    );
+                    const isMediationSelected = selContactTypes.includes('mediation');
+                    const isDirectSelected = selContactTypes.includes('direct');
+                    
+                    if (itemIsMediation) {
+                        return isMediationSelected;
+                    } else {
+                        return isDirectSelected;
+                    }
+                });
+            }
+
             // 3. Genres Filter
             const genresGridId = isEvents ? 'filter-genres-grid' : 'filter-genres-grid-m';
             const selGenres = getCheckedValues(genresGridId);
@@ -7108,12 +7153,6 @@ function renderMarket(container, type, onNavigate) {
             }
         }
 
-        const activeDot = container.querySelector('#filter-active-dot');
-        if (activeDot) {
-            activeDot.style.display = isFilterActive ? 'inline-block' : 'none';
-        }
-        isFilterActiveCurrently = isFilterActive;
-        updateFilterIconGlow(isFilterActiveCurrently);
         isFilterActiveCurrently = isFilterActive;
         updateFilterIconGlow(isFilterActiveCurrently);
 
@@ -7285,8 +7324,13 @@ function renderMarket(container, type, onNavigate) {
         renderFilterCalendar();
         
         container.querySelectorAll('.tag-pill-checkbox input').forEach(el => {
-            el.checked = false;
-            el.parentElement.classList.remove('active');
+            if (el.name === 'filterContactType' || el.name === 'filterContactTypeM') {
+                el.checked = true;
+                el.parentElement.classList.add('active');
+            } else {
+                el.checked = false;
+                el.parentElement.classList.remove('active');
+            }
         });
         container.querySelectorAll('.checkbox-tag-grid').forEach(grid => {
             grid.removeAttribute('data-interacted');
@@ -7828,31 +7872,7 @@ window.revealMarketContact = async function(itemId, type, value, clickedBtn) {
     container.setAttribute('data-type', type);
     container.style.display = 'block';
 
-    let displayVal = value;
-    const eventObj = state.events.find(e => e.id === itemId);
-    if (eventObj && type !== 'chat') {
-        container.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Lade Kontaktdaten...`;
-        try {
-            const userDoc = await db.collection('users').doc(eventObj.creatorId).get();
-            if (userDoc.exists) {
-                const userData = userDoc.data();
-                if (type === 'phone') {
-                    displayVal = (userData.hidePhone && !(state && state.currentUser && (eventObj.creatorId === state.currentUser.id)))
-                        ? 'Vom Nutzer ausgeblendet'
-                        : (userData.phone || '+49 170 1234567');
-                } else if (type === 'email') {
-                    displayVal = userData.email || 'kontakt@gigconnact.de';
-                } else if (type === 'name') {
-                    displayVal = userData.fullName || userData.name || 'Demo Kontakt';
-                } else if (type === 'company') {
-                    displayVal = userData.company || 'Privatperson';
-                }
-            }
-        } catch (err) {
-            console.error("Error loading event creator contact details:", err);
-        }
-    }
-
+    const displayVal = value;
     let contentHtml = '';
     if (type === 'chat') {
         const parts = value.split('|');
@@ -16473,11 +16493,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
                     
-                    ${isMediation ? `
-                        <div class="tile-mediation-badge" title="Vermittlung über GigConnAct" style="position: absolute; top: 12px; left: 12px; z-index: 5; background: #2563eb; color: #fff; padding: 0.35rem 0.6rem; border-radius: 6px; font-weight: 800; font-size: 0.68rem; text-transform: uppercase; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 0.35rem; pointer-events: none;">
-                            <i class="fa-solid fa-handshake"></i> Vermittlung
-                        </div>
-                    ` : (state.currentUser && item.matchScore >= 70) ? `
+                    ${(state.currentUser && item.matchScore >= 70) ? `
                         <div class="tile-top-match-badge" title="Top Match" style="position: absolute; top: 12px; left: 12px; z-index: 5; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(254, 240, 138, 0.35); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); pointer-events: none;">
                             <i class="fa-solid fa-star" style="color: #eab308; font-size: 0.85rem; margin: 0;"></i>
                         </div>
@@ -16651,9 +16667,9 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 ${isMediation ? `
                     <!-- 4. Aktions-Button: "Vermittlung" -->
                     <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; width: 100%; box-sizing: border-box;">
-                        <span style="display: flex; width: 100%; padding: 0.8rem; font-size: 0.88rem; font-weight: 800; border-radius: 10px; background: rgba(124, 58, 237, 0.1); border: 1.5px solid #7c3aed; color: #7c3aed; cursor: default; box-sizing: border-box; align-items: center; justify-content: center; gap: 0.5rem;">
-                            <i class="fa-solid fa-handshake"></i> Vermittlung
-                        </span>
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); alert('Vermittlung: Kontaktdaten bleiben geschützt. Bei erfolgreicher Vermittlung erhalten beide Seiten die Kontaktdaten des jeweils anderen. Der Erstkontakt erfolgt ausschließlich durch den Veranstalter.');" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
+                            <i class="fa-solid fa-handshake" style="font-size: 1.15rem;"></i>
+                        </button>
                     </div>
                 ` : isUnlocked ? `
                     <!-- Solid Colored Unlocked Contact Footer Box -->

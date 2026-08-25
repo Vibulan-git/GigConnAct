@@ -4552,9 +4552,10 @@ input[type="range"].input-field {
 /* Active states for filter buttons, overriding transparent white themes */
 .theme-organizer .market-controls-row .market-control-toggle.active#btn-toggle-market-top-matches,
 .theme-musician .market-controls-row .market-control-toggle.active#btn-toggle-market-top-matches {
-    background: rgba(234, 179, 8, 0.18) !important;
-    border-color: #eab308 !important;
-    color: #eab308 !important;
+    background: rgba(253, 224, 71, 0.25) !important;
+    border-color: #fde047 !important;
+    color: #fde047 !important;
+    box-shadow: 0 0 12px rgba(253, 224, 71, 0.45) !important;
 }
 
 .theme-organizer .market-controls-row .market-control-toggle.active#btn-toggle-market-favorites,
@@ -4566,7 +4567,8 @@ input[type="range"].input-field {
 
 .theme-organizer .market-controls-row .market-control-toggle.active#btn-toggle-market-top-matches i,
 .theme-musician .market-controls-row .market-control-toggle.active#btn-toggle-market-top-matches i {
-    color: #eab308 !important;
+    color: #fde047 !important;
+    text-shadow: 0 0 8px rgba(253, 224, 71, 0.6) !important;
 }
 
 .theme-organizer .market-controls-row .market-control-toggle.active#btn-toggle-market-favorites i,
