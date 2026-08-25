@@ -1827,75 +1827,202 @@ class StateManager {
             return;
         }
 
-        // 2. Real-time snapshot listeners
+        // 2. Load initial static active musicians/events once with a limit (instead of real-time snapshot on everything)
         let musiciansLoaded = false;
         let eventsLoaded = false;
-        let chatsLoaded = false;
-        let interestsLoaded = false;
-        
+        let chatsLoaded = true; // no longer loaded globally at start
+        let interestsLoaded = true; // no longer loaded globally at start
+
         const checkInitialLoad = () => {
-            if (musiciansLoaded && eventsLoaded && chatsLoaded && interestsLoaded && !this.initialLoadDone) {
+            if (musiciansLoaded && eventsLoaded && !this.initialLoadDone) {
                 console.log("[DEBUG] Firestore initial load completed!");
                 this.initialLoadDone = true;
                 this.notify();
             }
         };
 
-        db.collection('musicians').onSnapshot(snapshot => {
+        db.collection('musicians').where('isActive', '==', true).limit(50).get().then(snapshot => {
             const list = [];
             snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
             this.musicians = list;
-            this.updateVersion = (this.updateVersion || 0) + 1;
             musiciansLoaded = true;
             this.notify();
             checkInitialLoad();
-        }, err => {
-            console.error("Musicians snapshot error:", err);
+        }).catch(err => {
+            console.error("Musicians initial load error:", err);
             musiciansLoaded = true;
             checkInitialLoad();
         });
 
-        db.collection('events').onSnapshot(snapshot => {
+        db.collection('events').where('isOnline', '==', true).limit(50).get().then(snapshot => {
             const list = [];
             snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
             this.events = list;
-            this.updateVersion = (this.updateVersion || 0) + 1;
             eventsLoaded = true;
             this.notify();
             checkInitialLoad();
-        }, err => {
-            console.error("Events snapshot error:", err);
+        }).catch(err => {
+            console.error("Events initial load error:", err);
             eventsLoaded = true;
             checkInitialLoad();
         });
+    }
 
-        db.collection('chats').onSnapshot(snapshot => {
+    async fetchMusicians() {
+        if (this.loadingMusicians) return;
+        this.loadingMusicians = true;
+        try {
+            console.log("[DEBUG] StateManager.fetchMusicians() called");
+            const snapshot = await db.collection('musicians').where('isActive', '==', true).get();
             const list = [];
             snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-            this.chats = list;
+            
+            list.forEach(item => {
+                const idx = this.musicians.findIndex(m => m.id === item.id);
+                if (idx > -1) {
+                    this.musicians[idx] = item;
+                } else {
+                    this.musicians.push(item);
+                }
+            });
+            this.loadingMusicians = false;
             this.updateVersion = (this.updateVersion || 0) + 1;
-            chatsLoaded = true;
             this.notify();
-            checkInitialLoad();
-        }, err => {
-            console.error("Chats snapshot error:", err);
-            chatsLoaded = true;
-            checkInitialLoad();
-        });
+        } catch (e) {
+            console.error("Error fetching musicians:", e);
+            this.loadingMusicians = false;
+        }
+    }
 
-        db.collection('interests').onSnapshot(snapshot => {
+    async fetchEvents() {
+        if (this.loadingEvents) return;
+        this.loadingEvents = true;
+        try {
+            console.log("[DEBUG] StateManager.fetchEvents() called");
+            const snapshot = await db.collection('events').where('isOnline', '==', true).get();
             const list = [];
             snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-            this.interests = list;
+            
+            list.forEach(item => {
+                const idx = this.events.findIndex(e => e.id === item.id);
+                if (idx > -1) {
+                    this.events[idx] = item;
+                } else {
+                    this.events.push(item);
+                }
+            });
+            this.loadingEvents = false;
             this.updateVersion = (this.updateVersion || 0) + 1;
-            interestsLoaded = true;
             this.notify();
-            checkInitialLoad();
-        }, err => {
-            console.error("Interests snapshot error:", err);
-            interestsLoaded = true;
-            checkInitialLoad();
-        });
+        } catch (e) {
+            console.error("Error fetching events:", e);
+            this.loadingEvents = false;
+        }
+    }
+
+    async fetchUserOwnData() {
+        if (!this.currentUser) return;
+        const uid = this.currentUser.id;
+        try {
+            console.log("[DEBUG] StateManager.fetchUserOwnData() called for uid:", uid);
+            const musSnapshot = await db.collection('musicians').where('creatorId', '==', uid).get();
+            musSnapshot.forEach(doc => {
+                const data = { id: doc.id, ...doc.data() };
+                const idx = this.musicians.findIndex(m => m.id === data.id);
+                if (idx > -1) {
+                    this.musicians[idx] = data;
+                } else {
+                    this.musicians.push(data);
+                }
+            });
+
+            const evtSnapshot = await db.collection('events').where('creatorId', '==', uid).get();
+            evtSnapshot.forEach(doc => {
+                const data = { id: doc.id, ...doc.data() };
+                const idx = this.events.findIndex(e => e.id === data.id);
+                if (idx > -1) {
+                    this.events[idx] = data;
+                } else {
+                    this.events.push(data);
+                }
+            });
+            this.updateVersion = (this.updateVersion || 0) + 1;
+            this.notify();
+        } catch (e) {
+            console.error("Error fetching user own data:", e);
+        }
+    }
+
+    getUserProfileAndEventIds() {
+        if (!this.currentUser) return [];
+        const uid = this.currentUser.id;
+        const ids = [uid];
+        if (this.currentUser.profileId) ids.push(this.currentUser.profileId);
+        this.musicians.filter(m => m.creatorId === uid).forEach(m => ids.push(m.id));
+        this.events.filter(e => e.creatorId === uid).forEach(e => ids.push(e.id));
+        return [...new Set(ids)].sort();
+    }
+
+    setupUserRealtimeListeners() {
+        if (!this.currentUser) return;
+        
+        if (this.chatsUnsubscribe) {
+            this.chatsUnsubscribe();
+            this.chatsUnsubscribe = null;
+        }
+        if (this.interestsUnsubscribe) {
+            this.interestsUnsubscribe();
+            this.interestsUnsubscribe = null;
+        }
+
+        const uid = this.currentUser.id;
+        const myIds = this.getUserProfileAndEventIds();
+
+        console.log("[DEBUG] StateManager.setupUserRealtimeListeners() for IDs:", myIds);
+
+        // 1. Scoped Chats Listener
+        this.chatsUnsubscribe = db.collection('chats')
+            .where('participants', 'array-contains-any', myIds)
+            .onSnapshot(snapshot => {
+                const list = [];
+                snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+                this.chats = list;
+                this.updateVersion = (this.updateVersion || 0) + 1;
+                this.notify();
+            }, err => {
+                console.error("Chats scoped snapshot error:", err);
+            });
+
+        // 2. Scoped Interests Listener
+        const isMusician = this.currentUser.role === 'musician';
+        let interestsQuery = null;
+
+        if (isMusician) {
+            const musIds = this.musicians.filter(m => m.creatorId === uid).map(m => m.id);
+            if (this.currentUser.profileId) musIds.push(this.currentUser.profileId);
+            const uniqueMusIds = [...new Set(musIds)];
+            if (uniqueMusIds.length > 0) {
+                interestsQuery = db.collection('interests').where('musicianId', 'in', uniqueMusIds);
+            }
+        } else {
+            const evtIds = this.events.filter(e => e.creatorId === uid).map(e => e.id);
+            const uniqueEvtIds = [...new Set(evtIds)];
+            if (uniqueEvtIds.length > 0) {
+                interestsQuery = db.collection('interests').where('eventId', 'in', uniqueEvtIds);
+            }
+        }
+
+        if (interestsQuery) {
+            this.interestsUnsubscribe = interestsQuery.onSnapshot(snapshot => {
+                const list = [];
+                snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+                this.interests = list;
+                this.updateVersion = (this.updateVersion || 0) + 1;
+                this.notify();
+            }, err => {
+                console.error("Interests scoped snapshot error:", err);
+            });
+        }
     }
 
     setupAuthListener() {
@@ -1916,6 +2043,9 @@ class StateManager {
                         if (this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
                             this.currentUser.role = 'organizer';
                         }
+                        
+                        await this.fetchUserOwnData();
+
                         if (this.currentUser.role === 'musician') {
                             this.activeMusicianId = this.activeMusicianId && this.musicians.some(m => m.id === this.activeMusicianId)
                                 ? this.activeMusicianId
@@ -1975,6 +2105,9 @@ class StateManager {
                             if (this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
                                 this.currentUser.role = 'organizer';
                             }
+                            
+                            await this.fetchUserOwnData();
+
                             if (this.currentUser.role === 'musician') {
                                 this.activeMusicianId = this.activeMusicianId && this.musicians.some(m => m.id === this.activeMusicianId)
                                     ? this.activeMusicianId
@@ -1995,7 +2128,7 @@ class StateManager {
                                     role: 'organizer',
                                     createdAt: new Date().toISOString()
                                 };
-                                await userDocRef.set(newAdminUser);
+                                  await userDocRef.set(newAdminUser);
                             } else {
                                 window.googleRegistrationUser = firebaseUser;
                                 showModal('auth');
@@ -2027,6 +2160,19 @@ class StateManager {
             } else {
                 console.log("No Firebase user logged in.");
                 this.currentUser = null;
+                this.chats = [];
+                this.interests = [];
+                
+                if (this.chatsUnsubscribe) {
+                    this.chatsUnsubscribe();
+                    this.chatsUnsubscribe = null;
+                }
+                if (this.interestsUnsubscribe) {
+                    this.interestsUnsubscribe();
+                    this.interestsUnsubscribe = null;
+                }
+                this.lastUserIdsJson = null;
+                
                 this.notify();
             }
         });
@@ -3228,6 +3374,13 @@ class StateManager {
     notify() {
         console.log("[DEBUG] State notify() triggered. activeMusicianId:", this.activeMusicianId, "activeEventId:", this.activeEventId);
         
+        if (this.currentUser) {
+            const currentIdsJson = JSON.stringify(this.getUserProfileAndEventIds());
+            if (this.lastUserIdsJson !== currentIdsJson) {
+                this.lastUserIdsJson = currentIdsJson;
+                this.setupUserRealtimeListeners();
+            }
+        }
         // Dynamically correct activeMusicianId and activeEventId if collections are loaded and there's a mismatch
         if (this.currentUser) {
             const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
@@ -5793,6 +5946,14 @@ function renderMarket(container, type, onNavigate) {
     let showOnlyTopMatches = false;
     let showOnlyFavorites = false;
     let isFilterActiveCurrently = false;
+    let displayedItemsCount = 12;
+
+    // Trigger on-demand load from Firestore
+    if (isEvents) {
+        state.fetchEvents();
+    } else {
+        state.fetchMusicians();
+    }
 
     function updateFilterIconGlow(isActive) {
         const desktopIcon = container.querySelector('#desktop-filter-icon');
@@ -6486,7 +6647,10 @@ function renderMarket(container, type, onNavigate) {
         updateSlider();
     }
 
-    function applyAllFiltersAndSort() {
+    function applyAllFiltersAndSort(resetPagination = true) {
+        if (resetPagination) {
+            displayedItemsCount = 12;
+        }
         let list = [...getItems()];
         console.log("[DEBUG_APPLY_FILTERS_START] items count:", list.length, "isEvents:", isEvents, "showOnlyTopMatches:", showOnlyTopMatches, "showOnlyFavorites:", showOnlyFavorites);
         console.log("applyAllFiltersAndSort started. Input getItems():", list.length, "isEvents:", isEvents);
@@ -6777,8 +6941,46 @@ function renderMarket(container, type, onNavigate) {
         }
 
         const grid = container.querySelector('#market-items-grid');
+        const isLoading = isEvents ? state.loadingEvents : state.loadingMusicians;
         if (grid) {
-            grid.innerHTML = renderMarketGridHTML(list, isEvents);
+            if (list.length === 0 && isLoading) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem;">
+                        <img src="discoball.png" style="width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(124,58,237,0.25)); animation: spin 5s linear infinite;" alt="Laden...">
+                        <p style="color: var(--text-muted); margin-top: 1rem; font-weight: 600;">Lade Profile...</p>
+                    </div>
+                `;
+            } else {
+                const slicedList = list.slice(0, displayedItemsCount);
+                grid.innerHTML = renderMarketGridHTML(slicedList, isEvents);
+
+                // Manage "Mehr anzeigen" button
+                let loadMoreContainer = container.querySelector('#market-load-more-container');
+                if (list.length > displayedItemsCount) {
+                    if (!loadMoreContainer) {
+                        loadMoreContainer = document.createElement('div');
+                        loadMoreContainer.id = 'market-load-more-container';
+                        loadMoreContainer.style.cssText = 'grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 2rem; margin-bottom: 2rem; width: 100%;';
+                        grid.parentNode.appendChild(loadMoreContainer);
+                    }
+                    const themeColor = isEvents ? '#7c3aed' : '#2563eb';
+                    loadMoreContainer.innerHTML = `
+                        <button class="btn btn-primary" id="btn-market-load-more" style="padding: 0.85rem 2.5rem; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, ${themeColor} 0%, #1e40af 100%) !important; border-color: ${themeColor} !important; cursor: pointer; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s;">
+                            Mehr anzeigen
+                        </button>
+                    `;
+                    loadMoreContainer.querySelector('#btn-market-load-more').onclick = (e) => {
+                        e.preventDefault();
+                        displayedItemsCount += 12;
+                        applyAllFiltersAndSort(false);
+                    };
+                    loadMoreContainer.style.display = 'flex';
+                } else {
+                    if (loadMoreContainer) {
+                        loadMoreContainer.style.display = 'none';
+                    }
+                }
+            }
 
             // Banner injection if displaying a specific profile/event from an email match
             const bannerContainerId = 'market-single-profile-banner';
@@ -7203,6 +7405,14 @@ function renderMarket(container, type, onNavigate) {
             }
         });
     }
+
+    const unsubscribeMarket = state.subscribe(() => {
+        if (!document.body.contains(container)) {
+            unsubscribeMarket();
+            return;
+        }
+        applyAllFiltersAndSort(false);
+    });
 }
 
 // Unified Tile Card Renderer - NO EXTRA PAGE & NO POPUP BUTTON!
@@ -18603,7 +18813,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
                 <div style="text-align: center; margin-bottom: 2rem;">
                     <h2 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #7c3aed; margin: 0 0 1rem 0;">Vermittlungsanfrage</h2>
                     <p style="font-size: 0.88rem; color: #7c3aed; line-height: 1.45; text-align: center; font-weight: 600; margin: 0 auto 1.5rem; max-width: 500px; background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.2); padding: 0.75rem 1rem; border-radius: 8px;">
-                        Dies ist keine Buchungsanfrage. Der Veranstalter hat über GigConnAct-Vermittlungen Interesse bekundet, Deine Kontaktdaten zu erhalten. Möglicherweise hat diese Anfrage auch weitere Musiker erreicht.
+                        <i class="fa-solid fa-circle-exclamation" style="margin-right: 0.5rem; font-size: 1.1rem; vertical-align: middle;"></i>Dies ist keine Buchungsanfrage. Der Veranstalter hat über GigConnAct-Vermittlungen Interesse bekundet, Deine Kontaktdaten zu erhalten. Möglicherweise erhalten weitere Musiker die gleiche Anfrage.
                     </p>
                 </div>
 
