@@ -792,17 +792,17 @@ exports.createStripeCheckoutSession = functions
                 }
             }
 
-            const disableAllTrialsForTesting = true; // Set to false when ready to re-enable trials!
+            const disableAllTrialsForTesting = false; // Set to false when ready to re-enable trials!
 
             // Set trial period dynamically based on the plan configuration if they haven't had a trial yet
             if (!disableAllTrialsForTesting && !hasHadTrial) {
                 if (planKey === 'premium') {
                     sessionParams.subscription_data = {
-                        trial_period_days: 90
+                        trial_period_days: 3
                     };
                 } else if (planKey === 'flex' || planKey === 'plus' || planKey === 'pro') {
                     sessionParams.subscription_data = {
-                        trial_period_days: 30
+                        trial_period_days: 1
                     };
                 }
             }

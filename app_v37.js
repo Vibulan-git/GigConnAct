@@ -8185,10 +8185,10 @@ function renderProfilePage(container) {
 
     const getPlanDetails = (planKey) => {
         switch (planKey) {
-            case 'plus': return { title: 'Plus', priceText: '7,99 € / Monat', details: '6 Monate Vertragslaufzeit, 1. Monat kostenlos' };
-            case 'pro': return { title: 'Pro', priceText: '5,99 € / Monat', details: '12 Monate Vertragslaufzeit, 1. Monat kostenlos' };
-            case 'premium': return { title: 'Premium', priceText: '4,99 € / Monat', details: '12 Monate Vertragslaufzeit, 3 Monate kostenlos' };
-            default: return { title: 'Flex', priceText: '9,99 € / Monat', details: '1 Monat Vertragslaufzeit, 1. Monat kostenlos' };
+            case 'plus': return { title: 'Plus', priceText: '7,99 € / Monat', details: '6 Monate Vertragslaufzeit, 1 Tag kostenlos' };
+            case 'pro': return { title: 'Pro', priceText: '5,99 € / Monat', details: '12 Monate Vertragslaufzeit, 1 Tag kostenlos' };
+            case 'premium': return { title: 'Premium', priceText: '4,99 € / Jahr', details: '12 Monate Vertragslaufzeit, 3 Tage kostenlos' };
+            default: return { title: 'Flex', priceText: '9,99 € / Monat', details: '1 Monat Vertragslaufzeit, 1 Tag kostenlos' };
         }
     };
     
@@ -8365,10 +8365,10 @@ function renderProfilePage(container) {
                         <div class="subscription-card ${activePlan === "premium" ? "active" : ""}" data-plan="premium" data-price="4.99">
                             <div class="selected-badge" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;">Spare 59 %</div>
                             <h5>Premium</h5>
-                            <div class="price">4,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
+                            <div class="price">4,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Jahr</span></div>
                             <div class="subscription-gift-box">
                                 <i class="fa-solid fa-gift"></i>
-                                <div class="gift-title">3 Monate kostenlos</div>
+                                <div class="gift-title">3 Tage kostenlos</div>
                             </div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
                                 <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
@@ -12022,10 +12022,10 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                             <div class="subscription-card" data-plan="premium" data-price="4.99">
                                 <div class="selected-badge" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;">Spare 59 %</div>
                                 <h5>Premium</h5>
-                                <div class="price">4,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
+                                <div class="price">4,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Jahr</span></div>
                                 <div class="subscription-gift-box">
                                     <i class="fa-solid fa-gift"></i>
-                                    <div class="gift-title">3 Monate kostenlos</div>
+                                    <div class="gift-title">3 Tage kostenlos</div>
                                 </div>
                                 <ul class="plan-features">
                                     <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
@@ -12811,7 +12811,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 }
 
                 isPromoCodeApplied = true;
-                promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif freigeschaltet (3 Monate kostenfrei, danach 4,99 €/Monat).";
+                promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif freigeschaltet (3 Tage kostenfrei, danach 4,99 €/Jahr).";
                 promoStatus.style.color = "#10b981";
                 promoStatus.style.display = "block";
                 promoInput.disabled = true;
@@ -13904,8 +13904,8 @@ function renderSubscriptionExpiredPage(container) {
         switch (planKey) {
             case 'plus': return { title: 'Plus', priceText: '7,99 € / Monat', price: '7.99', details: '6 Monate Vertragslaufzeit, 1. Monat kostenlos' };
             case 'pro': return { title: 'Pro', priceText: '5,99 € / Monat', price: '5.99', details: '12 Monate Vertragslaufzeit, 1. Monat kostenlos' };
-            case 'premium': return { title: 'Premium', priceText: '4,99 € / Monat', price: '4.99', details: '12 Monate Vertragslaufzeit, 3 Monate kostenlos' };
-            default: return { title: 'Flex', priceText: '9,99 € / Monat', price: '9.99', details: '1 Monat Vertragslaufzeit, 1. Monat kostenlos' };
+            case 'premium': return { title: 'Premium', priceText: '4,99 € / Jahr', price: '4.99', details: '12 Monate Vertragslaufzeit, 3 Tage kostenlos' };
+            default: return { title: 'Flex', priceText: '9,99 € / Monat', price: '9.99', details: '1 Monat Vertragslaufzeit, 1 Tag kostenlos' };
         }
     };
     
@@ -13944,7 +13944,7 @@ function renderSubscriptionExpiredPage(container) {
                 <div id="expired-promo-code-box" style="display: none; margin-bottom: 1.5rem; background: rgba(124, 58, 237, 0.05); border: 1px dashed var(--color-purple); padding: 1rem; border-radius: var(--radius-md);">
                     <h5 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--color-purple);"><i class="fa-brands fa-instagram"></i> Story-Aktion Premium-Tarif</h5>
                     <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem;">
-                        Gib deinen Gutscheincode ein, um den Premium-Tarif für 4,99 € freizuschalten:
+                        Gib deinen Gutscheincode ein, um den Premium-Tarif für 4,99 €/Jahr freizuschalten:
                     </p>
                     <div style="display: flex; gap: 0.5rem;">
                         <input type="text" id="expired-promo-code" class="input-field" placeholder="Gutscheincode" style="margin:0; text-transform: uppercase;">
@@ -14015,7 +14015,7 @@ function renderSubscriptionExpiredPage(container) {
             const code = promoInput.value.trim().toUpperCase();
             if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code) || window.gcaPromoCodes.includes(code)) {
                 isPromoApplied = true;
-                promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif (4,99 €) freigeschaltet.";
+                promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif (4,99 €/Jahr) freigeschaltet.";
                 promoStatus.style.color = "#10b981";
                 promoStatus.style.display = "block";
                 promoInput.disabled = true;
