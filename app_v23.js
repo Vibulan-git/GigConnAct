@@ -16246,7 +16246,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
         const displayName = (state && state.currentUser)
             ? bandName
             : isEvents
-                ? `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span> <i class="fa-solid fa-lock" style="color: #2563eb; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
+                ? `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span> <i class="fa-solid fa-lock" style="color: #7c3aed; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
                 : `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: #2563eb; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`;
 
         return `
@@ -18601,12 +18601,19 @@ window.renderMediationResponsePage = function(container, mediationId) {
         container.innerHTML = `
             <div style="max-width: 600px; margin: 2rem auto 5rem; padding: 2.5rem; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px; font-family: var(--font-body); color: var(--text-main);">
                 <div style="text-align: center; margin-bottom: 2rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #fff; margin: 0;">Vermittlungsanfrage</h2>
+                    <h2 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #7c3aed; margin: 0 0 1rem 0;">Vermittlungsanfrage</h2>
+                    <p style="font-size: 0.88rem; color: #7c3aed; line-height: 1.45; text-align: center; font-weight: 600; margin: 0 auto 1.5rem; max-width: 500px; background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.2); padding: 0.75rem 1rem; border-radius: 8px;">
+                        Dies ist keine Buchungsanfrage. Der Veranstalter hat über GigConnAct-Vermittlungen Interesse bekundet, Deine Kontaktdaten zu erhalten. Möglicherweise hat diese Anfrage auch weitere Musiker erreicht.
+                    </p>
                 </div>
 
                 ${eventHtml}
 
                 <div style="display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1.5rem; justify-content: center;">
+                    <button id="btn-decline-mediation" class="btn btn-secondary" style="margin: 0; padding: 0.85rem; font-size: 0.95rem; font-weight: 700; width: 100%; border-color: #7c3aed !important; color: #7c3aed !important; background: #ffffff !important; cursor: pointer; border-radius: 8px; border: 2px solid #7c3aed !important; transition: all 0.2s;">
+                        Absagen
+                    </button>
+
                     ${isPremiumFree ? `
                         <button id="btn-accept-mediation" class="btn btn-primary" style="margin: 0; padding: 0.95rem; font-size: 1rem; font-weight: 800; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; border-color: #7c3aed !important; width: 100%; cursor: pointer; border-radius: 8px;">
                             Kontaktdaten erhalten (0 €)
@@ -18616,10 +18623,6 @@ window.renderMediationResponsePage = function(container, mediationId) {
                             Kontaktdaten erhalten
                         </button>
                     `}
-
-                    <button id="btn-decline-mediation" class="btn btn-secondary" style="margin: 0; padding: 0.85rem; font-size: 0.9rem; font-weight: 700; width: 100%; border-color: #7c3aed; color: #7c3aed; background: #ffffff; cursor: pointer; border-radius: 8px; border: 1.5px solid #7c3aed;">
-                        Absagen
-                    </button>
                     
                     <p style="font-size: 0.72rem; color: var(--text-muted); text-align: center; margin: 0.2rem 0 0; line-height: 1.35;">
                         *Mit dem Klick auf den Button „Kontaktdaten erhalten“ können – abhängig vom gewählten Tarif – Vermittlungsgebühren entstehen: Flex = 35 €; Plus = 30 €; Pro = 25 €; Premium = 0 €.

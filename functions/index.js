@@ -1524,7 +1524,7 @@ exports.createMediationPayment = functions
                     type: 'mediation_payment',
                     mediationId: mediationId,
                     musicianId: musicianId || '',
-                    userId: context.auth.uid
+                    userId: context.auth ? context.auth.uid : targetUid
                 }
             };
 
