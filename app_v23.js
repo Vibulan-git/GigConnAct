@@ -11469,7 +11469,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     </div>
                     <div id="magic-error-msg" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
                     <div id="magic-success-container" style="display:none; margin-bottom: 1.5rem;"></div>
-                    <button type="submit" class="btn btn-primary" id="btn-send-magic" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: none;">
+                    <button type="submit" class="btn btn-primary" id="btn-send-magic" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: none !important;">
                         Anmeldelink senden
                     </button>
                 </form>
