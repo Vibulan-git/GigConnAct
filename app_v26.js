@@ -5417,7 +5417,7 @@ function renderLandingPage(container, onNavigate) {
     });
 
     document.getElementById('btn-hero-organizer')?.addEventListener('click', () => {
-        onNavigate('musicians');
+        window.showMatchmakingChoiceModal();
     });
 
     document.getElementById('btn-benefits-to-events')?.addEventListener('click', () => {
@@ -14472,33 +14472,11 @@ function updateNavbar(forceLanding) {
     } else {
         nav.className = 'main-nav';
         nav.innerHTML = '';
-        const currentHash = window.location.hash || '';
-        const isMusiciansPage = currentHash === '#/musicians' || currentHash.startsWith('#/musicians') || currentHash.includes('/musicians');
-        
-        let mediationBtnHtml = '';
-        if (isMusiciansPage) {
-            mediationBtnHtml = `
-                <button class="btn btn-primary" id="btn-header-agency" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: none !important; font-weight: 800; border-radius: 12px; height: 40px; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; padding: 0 1rem; color: #fff; margin-right: 0.5rem; white-space: nowrap;">
-                    <i class="fa-solid fa-handshake"></i> Vermittlung
-                </button>
-            `;
-        }
-        
         authArea.innerHTML = `
-            ${mediationBtnHtml}
             <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger" title="Einloggen / Registrieren" style="padding: 0; display: inline-flex; align-items: center; justify-content: center; width: 75px; height: 40px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.15);">
                 <i class="fa-solid fa-right-to-bracket header-login-icon" style="margin: 0; font-size: 1.35rem;"></i>
             </button>
         `;
-        
-        if (isMusiciansPage) {
-            const agencyBtn = document.getElementById('btn-header-agency');
-            if (agencyBtn) {
-                agencyBtn.addEventListener('click', () => {
-                    window.showAgencyBookingForm();
-                });
-            }
-        }
         
         document.getElementById('btn-login-trigger').addEventListener('click', () => {
             const currentHashAfter = window.location.hash || '';
@@ -15763,7 +15741,13 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
 
     overlay.querySelector('#btn-choice-register').addEventListener('click', () => {
         overlay.remove();
-        showModal('auth', null, 'organizer');
+        const currentHash = window.location.hash || '';
+        const isMusiciansPage = currentHash === '#/musicians' || currentHash.startsWith('#/musicians') || currentHash.includes('/musicians');
+        if (!isMusiciansPage) {
+            window.location.hash = '#/musicians';
+        } else {
+            showModal('auth', null, 'organizer');
+        }
     });
 
     overlay.querySelector('#btn-choice-agency').addEventListener('click', () => {
