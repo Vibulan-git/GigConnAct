@@ -15572,7 +15572,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
     overlay.innerHTML = `
         <div class="choice-modal-box">
             
-            <button id="btn-close-choice-modal" style="position:absolute; top:1.2rem; right:1.2rem; background:transparent; border:none; color:#64748b; cursor:pointer; font-size:1.4rem; z-index: 10;">
+            <button id="btn-close-choice-modal" style="position:absolute; bottom:1.2rem; right:1.5rem; background:transparent; border:none; color:#64748b; cursor:pointer; font-size:1.4rem; z-index: 10;">
                 <i class="fa-solid fa-xmark"></i>
             </button>
  
@@ -15584,7 +15584,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         background: #ffffff;
                         border: 1px solid #cbd5e1;
                         border-radius: 18px;
-                        padding: 3.2rem 2rem 2rem;
+                        padding: 1.5rem 1.5rem 3.6rem;
                         box-shadow: 0 15px 35px rgba(0,0,0,0.15);
                         position: relative;
                         font-family: var(--font-heading);
@@ -15695,13 +15695,13 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                 <!-- Weg 1: Selbst kontaktieren -->
                 <div class="choice-card-wrapper">
                     <div>
-                        <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.2rem;">
-                            <div style="font-size: 2rem; color: #2563eb; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fa-solid fa-user-plus"></i>
-                            </div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.8rem; margin-bottom: 1.2rem; width: 100%;">
                             <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; line-height: 1.25;">
                                 <h4 style="font-size: 1.05rem; font-weight: 800; margin: 0; color: #0f172a;">Direkter Kontakt</h4>
                                 <div style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.1rem;">mit Account</div>
+                            </div>
+                            <div style="font-size: 2rem; color: #2563eb; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; margin-top: -0.25rem;">
+                                <i class="fa-solid fa-user-plus"></i>
                             </div>
                         </div>
                         
@@ -15733,13 +15733,13 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                 <!-- Weg 2: GigConnAct-Vermittlung -->
                 <div class="choice-card-wrapper">
                     <div>
-                        <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.2rem;">
-                            <div style="font-size: 2rem; color: #2563eb; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                            </div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.8rem; margin-bottom: 1.2rem; width: 100%;">
                             <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; line-height: 1.25;">
                                 <h4 style="font-size: 1.05rem; font-weight: 800; margin: 0; color: #0f172a;">Vermittlung</h4>
                                 <div style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.1rem;">ohne Account</div>
+                            </div>
+                            <div style="font-size: 2rem; color: #2563eb; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; margin-top: -0.25rem;">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
                             </div>
                         </div>
                         
