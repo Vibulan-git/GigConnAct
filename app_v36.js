@@ -8065,6 +8065,25 @@ window.deleteCurrentUserAccount = async function() {
             await db.collection('events').doc(e.id).delete();
         }
 
+        // Write email hash to used_trials to prevent trial abuse
+        if (u.email) {
+            try {
+                const normEmail = u.email.trim().toLowerCase();
+                const encoder = new TextEncoder();
+                const data = encoder.encode(normEmail);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const emailHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                
+                await db.collection('used_trials').doc(emailHash).set({
+                    hashedAt: new Date().toISOString()
+                });
+                console.log("[DEBUG] Stored used_trials hash client-side on account deletion.");
+            } catch (hashErr) {
+                console.error("Failed to write to used_trials on account deletion:", hashErr);
+            }
+        }
+
         // Delete user from users collection
         await db.collection('users').doc(u.id).delete();
 
@@ -12764,9 +12783,33 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
     const promoStatus = document.getElementById('promo-status-msg');
 
     if (promoBtn && promoInput && promoStatus) {
-        promoBtn.addEventListener('click', () => {
+        promoBtn.addEventListener('click', async () => {
             const code = promoInput.value.trim().toUpperCase();
             if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code) || window.gcaPromoCodes.includes(code)) {
+                // Check if email has already used trial/promo
+                const currentEmail = (window.googleRegistrationUser?.email || registerForm?.elements?.email?.value || '').trim();
+                if (currentEmail) {
+                    try {
+                        const normEmail = currentEmail.toLowerCase();
+                        const encoder = new TextEncoder();
+                        const data = encoder.encode(normEmail);
+                        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                        const hashArray = Array.from(new Uint8Array(hashBuffer));
+                        const emailHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                        
+                        const doc = await db.collection('used_trials').doc(emailHash).get();
+                        if (doc.exists) {
+                            isPromoCodeApplied = false;
+                            promoStatus.textContent = "❌ Dieser Gutscheincode kann für diese E-Mail-Adresse nicht verwendet werden (Testphase bereits genutzt).";
+                            promoStatus.style.color = "#ef4444";
+                            promoStatus.style.display = "block";
+                            return;
+                        }
+                    } catch (err) {
+                        console.error("Error checking used_trials in promo code validation:", err);
+                    }
+                }
+
                 isPromoCodeApplied = true;
                 promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif freigeschaltet (3 Monate kostenfrei, danach 4,99 €/Monat).";
                 promoStatus.style.color = "#10b981";
@@ -12843,6 +12886,26 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         if (selectedPlan === 'premium' && !isPromoCodeApplied) {
             showValidationError(document.getElementById('input-promo-code'), null, "Bitte gib einen gültigen Gutscheincode ein, um den Premium-Tarif freizuschalten.");
             return;
+        }
+
+        // Check if email has already used trial/promo
+        if (selectedPlan === 'premium' && isPromoCodeApplied) {
+            try {
+                const normEmail = email.toLowerCase();
+                const encoder = new TextEncoder();
+                const data = encoder.encode(normEmail);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const emailHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                
+                const doc = await db.collection('used_trials').doc(emailHash).get();
+                if (doc.exists) {
+                    showValidationError(document.getElementById('reg-promo-code'), null, "Dieser Gutscheincode kann für diese E-Mail-Adresse nicht verwendet werden (Testphase bereits genutzt).");
+                    return;
+                }
+            } catch (err) {
+                console.error("Error checking used_trials in registration submit:", err);
+            }
         }
 
         const emailValidation = validateEmailAddress(email);
