@@ -1923,42 +1923,46 @@ class StateManager {
                         } else if (this.currentUser.role === 'organizer') {
                             this.activeEventId = this.activeEventId && this.events.some(e => e.id === this.activeEventId)
                                 ? this.activeEventId
-                                : (this.events.find(e => e.creatorId === this.currentUser.id)?.id || null);
+                                : (this.events.find(e => e.creatorId === this.currentUser.id || (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email) && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.clientEmail === 'gigconnact@gmail.com')))?.id || null);
                         }
                         this.notify();
                     } else {
                         console.warn("Logged in user has no document in Firestore 'users' collection.");
-                        window.googleRegistrationUser = firebaseUser;
-                        setTimeout(() => {
-                            if (typeof auth !== 'undefined' && !auth.currentUser) return;
-                            const currentHash = window.location.hash || '';
-                            if (currentHash.includes('datenschutz') || currentHash.includes('impressum')) {
-                                console.log("Skipping auth modal popup on legal pages.");
-                                return;
-                            }
-                            showModal('auth');
-                            const registerForm = document.getElementById('auth-register-form');
-                            if (registerForm) {
-                                if (registerForm.elements.email) {
-                                    registerForm.elements.email.value = firebaseUser.email || '';
-                                    registerForm.elements.email.disabled = true;
-                                    registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
-                                    registerForm.elements.email.style.cursor = 'not-allowed';
+                        if (firebaseUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(firebaseUser.email)) {
+                            console.log("[DEBUG] Auto-creating Firestore user document for admin/organizer:", firebaseUser.email);
+                            const newAdminUser = {
+                                id: firebaseUser.uid,
+                                email: firebaseUser.email,
+                                role: 'organizer',
+                                createdAt: new Date().toISOString()
+                            };
+                            await userDocRef.set(newAdminUser);
+                        } else {
+                            window.googleRegistrationUser = firebaseUser;
+                            setTimeout(() => {
+                                if (typeof auth !== 'undefined' && !auth.currentUser) return;
+                                const currentHash = window.location.hash || '';
+                                if (currentHash.includes('datenschutz') || currentHash.includes('impressum')) {
+                                    console.log("Skipping auth modal popup on legal pages.");
+                                    return;
                                 }
-                                if (registerForm.elements.fullName && firebaseUser.displayName) {
-                                    registerForm.elements.fullName.value = firebaseUser.displayName;
+                                showModal('auth');
+                                const registerForm = document.getElementById('auth-register-form');
+                                if (registerForm) {
+                                    if (registerForm.elements.email) {
+                                        registerForm.elements.email.value = firebaseUser.email || '';
+                                        registerForm.elements.email.disabled = true;
+                                        registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
+                                        registerForm.elements.email.style.cursor = 'not-allowed';
+                                    }
+                                    if (registerForm.elements.fullName && firebaseUser.displayName) {
+                                        registerForm.elements.fullName.value = firebaseUser.displayName;
+                                    }
                                 }
-                            }
-                            const registerTabBtn = document.getElementById('tab-register-btn');
-                            if (registerTabBtn) registerTabBtn.click();
-                            
-                            /*
-                            showToast({
-                                title: "Registrierung abschließen",
-                                message: "Bitte vervollständige deine Angaben, um deinen Account zu erstellen."
-                            });
-                            */
-                        }, 500);
+                                const registerTabBtn = document.getElementById('tab-register-btn');
+                                if (registerTabBtn) registerTabBtn.click();
+                            }, 500);
+                        }
                     }
                 }, async (err) => {
                     if (typeof auth !== 'undefined' && !auth.currentUser) return;
@@ -1978,27 +1982,38 @@ class StateManager {
                             } else if (this.currentUser.role === 'organizer') {
                                 this.activeEventId = this.activeEventId && this.events.some(e => e.id === this.activeEventId)
                                     ? this.activeEventId
-                                    : (this.events.find(e => e.creatorId === this.currentUser.id)?.id || null);
+                                    : (this.events.find(e => e.creatorId === this.currentUser.id || (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email) && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.clientEmail === 'gigconnact@gmail.com')))?.id || null);
                             }
                             this.notify();
                         } else {
                             console.warn("Logged in user has no document in Firestore 'users' collection (HTTP fallback).");
-                            window.googleRegistrationUser = firebaseUser;
-                            showModal('auth');
-                            const registerForm = document.getElementById('auth-register-form');
-                            if (registerForm) {
-                                if (registerForm.elements.email) {
-                                    registerForm.elements.email.value = firebaseUser.email || '';
-                                    registerForm.elements.email.disabled = true;
-                                    registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
-                                    registerForm.elements.email.style.cursor = 'not-allowed';
+                            if (firebaseUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(firebaseUser.email)) {
+                                console.log("[DEBUG] Auto-creating Firestore user document for admin/organizer (HTTP fallback):", firebaseUser.email);
+                                const newAdminUser = {
+                                    id: firebaseUser.uid,
+                                    email: firebaseUser.email,
+                                    role: 'organizer',
+                                    createdAt: new Date().toISOString()
+                                };
+                                await userDocRef.set(newAdminUser);
+                            } else {
+                                window.googleRegistrationUser = firebaseUser;
+                                showModal('auth');
+                                const registerForm = document.getElementById('auth-register-form');
+                                if (registerForm) {
+                                    if (registerForm.elements.email) {
+                                        registerForm.elements.email.value = firebaseUser.email || '';
+                                        registerForm.elements.email.disabled = true;
+                                        registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
+                                        registerForm.elements.email.style.cursor = 'not-allowed';
+                                    }
+                                    if (registerForm.elements.fullName && firebaseUser.displayName) {
+                                        registerForm.elements.fullName.value = firebaseUser.displayName;
+                                    }
                                 }
-                                if (registerForm.elements.fullName && firebaseUser.displayName) {
-                                    registerForm.elements.fullName.value = firebaseUser.displayName;
-                                }
+                                const registerTabBtn = document.getElementById('tab-register-btn');
+                                if (registerTabBtn) registerTabBtn.click();
                             }
-                            const registerTabBtn = document.getElementById('tab-register-btn');
-                            if (registerTabBtn) registerTabBtn.click();
                         }
                     } catch (getErr) {
                         if (typeof auth !== 'undefined' && !auth.currentUser) return;
@@ -5777,6 +5792,31 @@ function renderMarket(container, type, onNavigate) {
     let currentFilterCalDate = new Date();
     let showOnlyTopMatches = false;
     let showOnlyFavorites = false;
+    let isFilterActiveCurrently = false;
+
+    function updateFilterIconGlow(isActive) {
+        const desktopIcon = container.querySelector('#desktop-filter-icon');
+        const mobileIcon = container.querySelector('#mobile-filter-icon');
+        if (isActive) {
+            if (desktopIcon) {
+                desktopIcon.style.setProperty('color', '#22c55e', 'important');
+                desktopIcon.style.textShadow = '0 0 10px rgba(34, 197, 94, 0.8)';
+            }
+            if (mobileIcon) {
+                mobileIcon.style.setProperty('color', '#22c55e', 'important');
+                mobileIcon.style.textShadow = '0 0 10px rgba(34, 197, 94, 0.8)';
+            }
+        } else {
+            if (desktopIcon) {
+                desktopIcon.style.color = '';
+                desktopIcon.style.textShadow = '';
+            }
+            if (mobileIcon) {
+                mobileIcon.style.color = '';
+                mobileIcon.style.textShadow = '';
+            }
+        }
+    }
     const urlParams = new URLSearchParams(window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
     if (urlParams.get('showOnlyFavorites') === 'true' || urlParams.get('fav') === 'true') {
         showOnlyFavorites = true;
@@ -5798,7 +5838,7 @@ function renderMarket(container, type, onNavigate) {
     let hasProfile = false;
     console.log("[DEBUG_RENDER_MARKET_INIT] hasProfile:", hasProfile, "currentUser:", state.currentUser ? state.currentUser.email : null, "isEvents:", isEvents);
 
-    if (false && state.currentUser) {
+    if (state.currentUser) {
         if (isEvents && state.currentUser.role === 'musician') {
             const myProfile = state.musicians.find(m => m.id === state.activeMusicianId) 
                 || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId);
@@ -5913,7 +5953,7 @@ function renderMarket(container, type, onNavigate) {
 
                 <!-- 2. Filter -->
                 <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; flex-shrink: 0; cursor: pointer; margin-left: auto;" title="Filter öffnen">
-                    <i class="fa-solid fa-sliders" style="font-size: 1.05rem; margin: 0;"></i>
+                    <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 1.05rem; margin: 0; transition: color 0.3s ease;"></i>
                 </button>
  
                 <!-- 3. Stern (Nur Top-Matches anzeigen) -->
@@ -5935,7 +5975,7 @@ function renderMarket(container, type, onNavigate) {
                                         <div class="filter-header-sticky" style="display: flex; align-items: center; position: relative; width: calc(100% - 1.2rem) !important;">
                         <!-- Left: Title -->
                         <span class="filter-header-title" style="flex: 1; text-align: left; font-family: var(--font-heading); font-weight: 900; font-size: 1.1rem; letter-spacing: -0.3px; display: flex; align-items: center; gap: 0.4rem;">
-                            Filter <span id="filter-active-dot" style="display: none; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 8px #22c55e; flex-shrink: 0;"></span>
+                            <i class="fa-solid fa-sliders" id="desktop-filter-icon" style="transition: color 0.3s ease;"></i> Filter <span id="filter-active-dot" style="display: none; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 8px #22c55e; flex-shrink: 0;"></span>
                         </span>
                         
                         <!-- Center: Sort and Reset -->
@@ -6331,7 +6371,10 @@ function renderMarket(container, type, onNavigate) {
         overlay?.classList.toggle('open', isOpen);
         this.innerHTML = isOpen 
             ? `<i class="fa-solid fa-xmark" style="font-size: 1.1rem; margin: 0;"></i>` 
-            : `<i class="fa-solid fa-sliders" style="font-size: 1.05rem; margin: 0;"></i>`;
+            : `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 1.05rem; margin: 0; transition: color 0.3s ease;"></i>`;
+        if (!isOpen) {
+            updateFilterIconGlow(isFilterActiveCurrently);
+        }
     });
 
     const closeBtnM = container.querySelector('#btn-close-filters-m');
@@ -6340,7 +6383,8 @@ function renderMarket(container, type, onNavigate) {
         overlay?.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {
-            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" style="font-size: 1.05rem; margin: 0;"></i>`;
+            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 1.05rem; margin: 0; transition: color 0.3s ease;"></i>`;
+            updateFilterIconGlow(isFilterActiveCurrently);
         }
     });
 
@@ -6357,7 +6401,8 @@ function renderMarket(container, type, onNavigate) {
         overlay.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {
-            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" style="font-size: 1.05rem; margin: 0;"></i>`;
+            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 1.05rem; margin: 0; transition: color 0.3s ease;"></i>`;
+            updateFilterIconGlow(isFilterActiveCurrently);
         }
     });
 
@@ -6860,6 +6905,10 @@ function renderMarket(container, type, onNavigate) {
         if (activeDot) {
             activeDot.style.display = isFilterActive ? 'inline-block' : 'none';
         }
+        isFilterActiveCurrently = isFilterActive;
+        updateFilterIconGlow(isFilterActiveCurrently);
+        isFilterActiveCurrently = isFilterActive;
+        updateFilterIconGlow(isFilterActiveCurrently);
 
         console.log("applyAllFiltersAndSort finished. Output items count:", list.length, "IDs:", list.map(item => item.id).join(', '));
     }
@@ -17814,13 +17863,14 @@ window.renderRecommendationPage = function(container, mediationId) {
 
         // Fetch the corresponding event document to get the real-time favorites list
         let musicianIds = med.musicianIds || [];
+        let mediationEvent = null;
         if (med.eventId) {
             try {
                 const eventDoc = await db.collection('events').doc(med.eventId).get();
                 if (eventDoc.exists) {
-                    const eventData = eventDoc.data();
-                    if (Array.isArray(eventData.favorites)) {
-                        musicianIds = eventData.favorites;
+                    mediationEvent = { id: eventDoc.id, ...eventDoc.data() };
+                    if (Array.isArray(mediationEvent.favorites)) {
+                        musicianIds = mediationEvent.favorites;
                     }
                 }
             } catch (eventErr) {
@@ -17856,6 +17906,15 @@ window.renderRecommendationPage = function(container, mediationId) {
 
                 <div class="market-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.5rem;">
                     ${musicians.map((mus, idx) => {
+                        let matchScoreVal = 95;
+                        if (mediationEvent) {
+                            matchScoreVal = calculateMatch(mus, mediationEvent, 'organizer').score;
+                        } else {
+                            const hash = mus.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                            matchScoreVal = 75 + Math.abs(hash % 24);
+                        }
+                        mus.matchScore = matchScoreVal;
+
                         const photos = (mus.photos && mus.photos.length > 0) ? mus.photos.slice(0, 5) : [mus.image || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80'];
                         const videos = mus.videos || [];
                         const audios = mus.audio || [];
@@ -17944,6 +18003,17 @@ window.renderRecommendationPage = function(container, mediationId) {
                                     <span class="tile-gallery-counter" style="position: absolute; bottom: 12px; left: 12px; z-index: 4; font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.75); padding: 0.25rem 0.5rem; border-radius: 6px; backdrop-filter: blur(4px); pointer-events: none;">
                                         📷 1 / ${photos.length}
                                     </span>
+                                    
+                                    ${mus.matchScore >= 70 ? `
+                                    <div class="tile-top-match-badge" title="Top Match" style="position: absolute; top: 12px; left: 12px; z-index: 5; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(254, 240, 138, 0.35); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); pointer-events: none;">
+                                        <i class="fa-solid fa-star" style="color: #eab308; font-size: 0.85rem;"></i>
+                                    </div>
+                                    ` : ''}
+                                    
+                                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: #fff; padding: 0.35rem 0.45rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 48px;">
+                                        <span style="font-size: 0.95rem; font-weight: 900;">${mus.matchScore}%</span>
+                                        <span style="font-size: 0.45rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
+                                    </div>
                                     <div id="combo-slider-${mus.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
                                         ${photos.map(img => `<div style="width: 100%; height: 100%; flex-shrink: 0;"><img src="${img}" style="width: 100%; height: 100%; object-fit: cover;"></div>`).join('')}
                                         ${videos.map((vid, vIdx) => `
@@ -17975,7 +18045,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                                 
                                 <div style="padding: 1.2rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; background: var(--bg-card);">
                                     <div>
-                                        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 0.8rem; line-height: 1.25;">Act ${idx + 1}: <span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.5rem; filter: none !important;" title="Name geschützt"></i> (${mus.category || 'Musiker'})</h3>
+                                        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 0.8rem; line-height: 1.25;"><span style="filter: blur(5.5px); color: #ffffff !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.5rem; filter: none !important;" title="Name geschützt"></i> (${mus.category || 'Musiker'})</h3>
                                         <div style="display: flex; gap: 0.5rem; justify-content: space-between;">
                                             <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); flex: 1;">
                                                 <!-- 1. Ort -->
@@ -18008,6 +18078,21 @@ window.renderRecommendationPage = function(container, mediationId) {
                                                     <i class="fa-solid fa-drum" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                                                     <span style="flex: 1;">${instrumentsArr.slice(0, 3).join(', ')}</span>
                                                 </div>
+                                            </div>
+                                            
+                                            <!-- Right Column: Heart (Favorite Button) stacked vertically -->
+                                            <div style="display: flex; flex-direction: column; justify-content: flex-end; padding-left: 0.6rem; border-left: 1px solid var(--border-glass); padding-bottom: 0.1rem; min-width: 46px; box-sizing: border-box; align-items: center; justify-content: center;">
+                                                <button onclick="event.stopPropagation(); window.toggleFavorite('${mus.id}')" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none; width: 28px; height: 28px;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
+                                                    ${(state && typeof state.isFavorite === 'function' && state.isFavorite(mus.id)) ? `
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444" width="26" height="26" style="display: block;">
+                                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                                        </svg>
+                                                    ` : `
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" width="26" height="26" style="display: block;">
+                                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                                        </svg>
+                                                    `}
+                                                </button>
                                             </div>
                                         </div>
                                         <div id="collapsible-details-${mus.id}" style="display: flex; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.5rem; margin-bottom: 0.75rem;">
