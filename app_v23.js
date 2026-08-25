@@ -1986,47 +1986,99 @@ class StateManager {
         console.log("[DEBUG] StateManager.setupUserRealtimeListeners() for IDs:", myIds);
 
         // 1. Scoped Chats Listener
-        this.chatsUnsubscribe = db.collection('chats')
-            .where('participants', 'array-contains-any', myIds)
-            .onSnapshot(snapshot => {
-                const list = [];
-                snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-                this.chats = list;
-                this.updateVersion = (this.updateVersion || 0) + 1;
-                this.notify();
-            }, err => {
-                console.error("Chats scoped snapshot error:", err);
-            });
+        if (myIds.length <= 10) {
+            this.chatsUnsubscribe = db.collection('chats')
+                .where('participants', 'array-contains-any', myIds)
+                .onSnapshot(snapshot => {
+                    const list = [];
+                    snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+                    this.chats = list;
+                    this.updateVersion = (this.updateVersion || 0) + 1;
+                    this.notify();
+                }, err => {
+                    console.error("Chats scoped snapshot error:", err);
+                });
+        } else {
+            console.log("[DEBUG] myIds size > 10 (" + myIds.length + "). Falling back to client-side filtering for chats.");
+            this.chatsUnsubscribe = db.collection('chats')
+                .limit(200)
+                .onSnapshot(snapshot => {
+                    const list = [];
+                    snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+                    this.chats = list.filter(chat => chat.participants && chat.participants.some(pid => myIds.includes(pid)));
+                    this.updateVersion = (this.updateVersion || 0) + 1;
+                    this.notify();
+                }, err => {
+                    console.error("Chats fallback snapshot error:", err);
+                });
+        }
 
         // 2. Scoped Interests Listener
         const isMusician = this.currentUser.role === 'musician';
-        let interestsQuery = null;
 
         if (isMusician) {
             const musIds = this.musicians.filter(m => m.creatorId === uid).map(m => m.id);
             if (this.currentUser.profileId) musIds.push(this.currentUser.profileId);
             const uniqueMusIds = [...new Set(musIds)];
             if (uniqueMusIds.length > 0) {
-                interestsQuery = db.collection('interests').where('musicianId', 'in', uniqueMusIds);
+                if (uniqueMusIds.length <= 10) {
+                    this.interestsUnsubscribe = db.collection('interests')
+                        .where('musicianId', 'in', uniqueMusIds)
+                        .onSnapshot(snapshot => {
+                            const list = [];
+                            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+                            this.interests = list;
+                            this.updateVersion = (this.updateVersion || 0) + 1;
+                            this.notify();
+                        }, err => {
+                            console.error("Interests scoped snapshot error:", err);
+                        });
+                } else {
+                    console.log("[DEBUG] uniqueMusIds size > 10 (" + uniqueMusIds.length + "). Falling back to client-side filtering for interests.");
+                    this.interestsUnsubscribe = db.collection('interests')
+                        .limit(200)
+                        .onSnapshot(snapshot => {
+                            const list = [];
+                            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+                            this.interests = list.filter(i => uniqueMusIds.includes(i.musicianId));
+                            this.updateVersion = (this.updateVersion || 0) + 1;
+                            this.notify();
+                        }, err => {
+                            console.error("Interests fallback snapshot error:", err);
+                        });
+                }
             }
         } else {
             const evtIds = this.events.filter(e => e.creatorId === uid).map(e => e.id);
             const uniqueEvtIds = [...new Set(evtIds)];
             if (uniqueEvtIds.length > 0) {
-                interestsQuery = db.collection('interests').where('eventId', 'in', uniqueEvtIds);
+                if (uniqueEvtIds.length <= 10) {
+                    this.interestsUnsubscribe = db.collection('interests')
+                        .where('eventId', 'in', uniqueEvtIds)
+                        .onSnapshot(snapshot => {
+                            const list = [];
+                            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+                            this.interests = list;
+                            this.updateVersion = (this.updateVersion || 0) + 1;
+                            this.notify();
+                        }, err => {
+                            console.error("Interests scoped snapshot error:", err);
+                        });
+                } else {
+                    console.log("[DEBUG] uniqueEvtIds size > 10 (" + uniqueEvtIds.length + "). Falling back to client-side filtering for interests.");
+                    this.interestsUnsubscribe = db.collection('interests')
+                        .limit(200)
+                        .onSnapshot(snapshot => {
+                            const list = [];
+                            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+                            this.interests = list.filter(i => uniqueEvtIds.includes(i.eventId));
+                            this.updateVersion = (this.updateVersion || 0) + 1;
+                            this.notify();
+                        }, err => {
+                            console.error("Interests fallback snapshot error:", err);
+                        });
+                }
             }
-        }
-
-        if (interestsQuery) {
-            this.interestsUnsubscribe = interestsQuery.onSnapshot(snapshot => {
-                const list = [];
-                snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-                this.interests = list;
-                this.updateVersion = (this.updateVersion || 0) + 1;
-                this.notify();
-            }, err => {
-                console.error("Interests scoped snapshot error:", err);
-            });
         }
     }
 
