@@ -893,6 +893,21 @@ exports.stripeWebhook = functions
                                 subscriptionPlan: planKey
                             });
                         }
+                        
+                        // Hash email and save to used_trials to prevent any future trial abuse if they cancel or delete later
+                        const email = userData.email;
+                        if (email) {
+                            const crypto = require('crypto');
+                            const emailHash = crypto.createHash('sha256').update(String(email).trim().toLowerCase()).digest('hex');
+                            try {
+                                await admin.firestore().collection('used_trials').doc(emailHash).set({
+                                    hashedAt: admin.firestore.FieldValue.serverTimestamp()
+                                });
+                                console.log(`Saved trial abuse hash for subscribed user ${userId}`);
+                            } catch (hashErr) {
+                                console.error(`Error saving trial abuse hash for subscribed user ${userId}:`, hashErr);
+                            }
+                        }
                     }
                     console.log(`Successfully updated user ${userId} and their profiles to Premium.`);
                 } catch (dbErr) {
