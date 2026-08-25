@@ -6073,7 +6073,7 @@ function renderMarket(container, type, onNavigate) {
         }
     }
 
-    if (selectedFilterDates === null || selectedFilterDates === undefined) {
+    if (!state.currentUser || selectedFilterDates === null || selectedFilterDates === undefined) {
         selectedFilterDates = [];
         window.selectedFilterDates = selectedFilterDates;
     }
@@ -6774,7 +6774,79 @@ function renderMarket(container, type, onNavigate) {
             list = list.filter(item => state.isFavorite(item.id));
         }
 
-        if (!showOnlyFavorites) {
+        // Toggle active styling based on active filters
+        const isFilterActive = (() => {
+            const loc = isEvents 
+                ? (container.querySelector('#filter-location')?.value || '').trim()
+                : (container.querySelector('#filter-location-m')?.value || '').trim();
+            if (loc !== '') return true;
+
+            const kw = isEvents
+                ? (container.querySelector('#filter-keyword')?.value || '').trim()
+                : (container.querySelector('#filter-keyword-m')?.value || '').trim();
+            if (kw !== '') return true;
+
+            if (selectedFilterDates && selectedFilterDates.length > 0) return true;
+
+            const genresGridId = isEvents ? 'filter-genres-grid' : 'filter-genres-grid-m';
+            const genresGrid = container.querySelector('#' + genresGridId);
+            if (genresGrid && getCheckedValues(genresGridId).length > 0) return true;
+
+            const instGridId = isEvents ? 'filter-instruments-grid' : 'filter-instruments-grid-m';
+            const instGrid = container.querySelector('#' + instGridId);
+            if (instGrid && getCheckedValues(instGridId).length > 0) return true;
+
+            const typeGridId = isEvents ? 'filter-event-type-grid' : 'filter-musician-type-grid';
+            const typeGrid = container.querySelector('#' + typeGridId);
+            if (typeGrid && getCheckedValues(typeGridId).length > 0) return true;
+
+            const techGridId = isEvents ? 'filter-technik-grid' : 'filter-technik-grid-m';
+            const techGrid = container.querySelector('#' + techGridId);
+            if (techGrid && getCheckedValues(techGridId).length > 0) return true;
+
+            const contactTypeGridId = isEvents ? 'filter-contact-type-grid' : 'filter-contact-type-grid-m';
+            const contactTypeGrid = container.querySelector('#' + contactTypeGridId);
+            if (contactTypeGrid && getCheckedValues(contactTypeGridId).length !== 2) return true;
+
+            if (isEvents) {
+                const minD = parseFloat(container.querySelector('#input-filter-duration-min')?.value || 0.5);
+                const maxD = parseFloat(container.querySelector('#input-filter-duration-max')?.value || 10);
+                if (minD > 0.5 || maxD < 10) return true;
+
+                const minB = parseFloat(container.querySelector('#input-filter-budget-min')?.value || 0);
+                const maxB = parseFloat(container.querySelector('#input-filter-budget-max')?.value || 5000);
+                if (minB > 0 || maxB < 5000) return true;
+
+                const minP = parseInt(container.querySelector('#input-filter-publikum-min')?.value || 0);
+                const maxP = parseInt(container.querySelector('#input-filter-publikum-max')?.value || 500);
+                if (minP > 0 || maxP < 500) return true;
+
+                const musTypesGrid = container.querySelector('#filter-musician-types-grid');
+                if (musTypesGrid && getCheckedValues('filter-musician-types-grid').length > 0) return true;
+            } else {
+                const minD = parseFloat(container.querySelector('#input-filter-duration-m-min')?.value || 0.5);
+                const maxD = parseFloat(container.querySelector('#input-filter-duration-m-max')?.value || 10);
+                if (minD > 0.5 || maxD < 10) return true;
+
+                const minB = parseFloat(container.querySelector('#input-filter-gage-m-min')?.value || 0);
+                const maxB = parseFloat(container.querySelector('#input-filter-gage-m-max')?.value || 5000);
+                if (minB > 0 || maxB < 5000) return true;
+
+                const minP = parseInt(container.querySelector('#input-filter-publikum-m-min')?.value || 0);
+                const maxP = parseInt(container.querySelector('#input-filter-publikum-m-max')?.value || 500);
+                if (minP > 0 || maxP < 500) return true;
+
+                const radiusVal = parseInt(container.querySelector('#input-filter-radius-m')?.value || 500);
+                if (radiusVal < 500) return true;
+
+                const evtTypesGrid = container.querySelector('#filter-event-types-grid-m');
+                if (evtTypesGrid && getCheckedValues('filter-event-types-grid-m').length > 0) return true;
+            }
+
+            return false;
+        })();
+
+        if (!showOnlyFavorites && isFilterActive) {
             // 1. Ort Filter
             const locInput = isEvents 
                 ? (container.querySelector('#filter-location')?.value || '').trim().toLowerCase()
@@ -7085,66 +7157,7 @@ function renderMarket(container, type, onNavigate) {
             }
         }
 
-        // Toggle active styling based on active filters
-        const isFilterActive = (() => {
-            const loc = isEvents 
-                ? (container.querySelector('#filter-location')?.value || '').trim()
-                : (container.querySelector('#filter-location-m')?.value || '').trim();
-            if (loc !== '') return true;
 
-            const kw = isEvents
-                ? (container.querySelector('#filter-keyword')?.value || '').trim()
-                : (container.querySelector('#filter-keyword-m')?.value || '').trim();
-            if (kw !== '') return true;
-
-            if (selectedFilterDates && selectedFilterDates.length > 0) return true;
-
-            const genresGridId = isEvents ? 'filter-genres-grid' : 'filter-genres-grid-m';
-            if (getCheckedValues(genresGridId).length > 0) return true;
-
-            const instGridId = isEvents ? 'filter-instruments-grid' : 'filter-instruments-grid-m';
-            if (getCheckedValues(instGridId).length > 0) return true;
-
-            const typeGridId = isEvents ? 'filter-event-type-grid' : 'filter-musician-type-grid';
-            if (getCheckedValues(typeGridId).length > 0) return true;
-
-            const techGridId = isEvents ? 'filter-technik-grid' : 'filter-technik-grid-m';
-            if (getCheckedValues(techGridId).length > 0) return true;
-
-            if (isEvents) {
-                const minD = parseFloat(container.querySelector('#input-filter-duration-min')?.value || 0.5);
-                const maxD = parseFloat(container.querySelector('#input-filter-duration-max')?.value || 10);
-                if (minD > 0.5 || maxD < 10) return true;
-
-                const minB = parseFloat(container.querySelector('#input-filter-budget-min')?.value || 0);
-                const maxB = parseFloat(container.querySelector('#input-filter-budget-max')?.value || 5000);
-                if (minB > 0 || maxB < 5000) return true;
-
-                const minP = parseInt(container.querySelector('#input-filter-publikum-min')?.value || 0);
-                const maxP = parseInt(container.querySelector('#input-filter-publikum-max')?.value || 500);
-                if (minP > 0 || maxP < 500) return true;
-            } else {
-                const minD = parseFloat(container.querySelector('#input-filter-duration-m-min')?.value || 0.5);
-                const maxD = parseFloat(container.querySelector('#input-filter-duration-m-max')?.value || 10);
-                if (minD > 0.5 || maxD < 10) return true;
-
-                const minB = parseFloat(container.querySelector('#input-filter-gage-m-min')?.value || 0);
-                const maxB = parseFloat(container.querySelector('#input-filter-gage-m-max')?.value || 5000);
-                if (minB > 0 || maxB < 5000) return true;
-
-                const minP = parseInt(container.querySelector('#input-filter-publikum-m-min')?.value || 0);
-                const maxP = parseInt(container.querySelector('#input-filter-publikum-m-max')?.value || 500);
-                if (minP > 0 || maxP < 500) return true;
-
-                const radiusVal = parseInt(container.querySelector('#input-filter-radius-m')?.value || 500);
-                if (radiusVal < 500) return true;
-
-                const selEvtTypes = getCheckedValues('filter-event-types-grid-m');
-                if (selEvtTypes.length > 0) return true;
-            }
-
-            return false;
-        })();
 
         const toggleBtn = container.querySelector('#btn-toggle-mobile-filters');
         if (toggleBtn) {
@@ -7747,7 +7760,7 @@ window.openItemDetailModal = function(id, isEvents) {
                             <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.2rem;">${isEvents ? 'Anzahl der GÃ¤ste' : 'PublikumsgrÃ¶ÃŸe'}</span>
                             <strong style="font-size: 0.9rem; color: #fff;">
                                 <i class="fa-solid fa-users" style="color: ${roleColor};"></i> 
-                                ${item.minPublikum !== undefined && item.maxPublikum !== undefined ? `${item.minPublikum} - ${item.maxPublikum}+` : (isEvents ? '50 - 150' : '0 - 500+')}
+                                ${formatPublikumHelper(item.minPublikum, item.maxPublikum, isEvents ? '50 - 150' : '0 - 500+')}
                             </strong>
                         </div>
 
@@ -7875,7 +7888,7 @@ window.revealMarketContact = async function(itemId, type, value, clickedBtn) {
     
     container.style.background = 'rgba(255,255,255,0.15)';
     container.style.padding = '0.55rem';
-    container.style.width = '100%';
+    container.style.setProperty('width', '100%', 'important');
     container.style.boxSizing = 'border-box';
     container.setAttribute('data-type', type);
     container.style.display = 'block';
@@ -7889,12 +7902,12 @@ window.revealMarketContact = async function(itemId, type, value, clickedBtn) {
         const evId = parts[2] || '';
         
         contentHtml = `
-            <div style="display: flex; align-items: center; justify-content: center;">
+            <div style="display: flex; align-items: center; justify-content: center; width: 100%;">
                 <span onclick="event.stopPropagation(); window.handleChatButtonClick(this)" 
                       data-rec-id="${recId}"
                       data-rec-name="${recName}"
                       data-ev-id="${evId}"
-                      style="font-weight: 800; color: #ffffff; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: opacity 0.2s;"
+                      style="font-weight: 800; color: #ffffff; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: opacity 0.2s; width: 100%; justify-content: center;"
                       onmouseover="this.style.opacity='0.85';"
                       onmouseout="this.style.opacity='1';"
                       title="Chat im Postfach öffnen">
@@ -7904,7 +7917,7 @@ window.revealMarketContact = async function(itemId, type, value, clickedBtn) {
         `;
     } else {
         contentHtml = `
-            <div style="display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap; width: 100%;">
                 <span style="font-weight: 600; color: #ffffff; font-size: 0.9rem; user-select: all;">${displayVal}</span>
                 ${(displayVal !== 'Vom Nutzer ausgeblendet' && displayVal !== '[Vom Nutzer ausgeblendet]') ? `
                     <button onclick="event.stopPropagation(); navigator.clipboard.writeText('${displayVal}'); this.innerHTML='<i class=\\'fa-solid fa-check\\'></i>'; setTimeout(() => this.innerHTML='<i class=\\'fa-solid fa-copy\\'></i>', 1800);" 
@@ -9576,7 +9589,7 @@ function renderMyMusicianItem(m, isActive) {
                         <!-- 8. Publikum -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${m.minPublikum !== undefined && m.maxPublikum !== undefined ? `${m.minPublikum} - ${m.maxPublikum}+` : '0 - 500+'} Personen</span>
+                            <span>${formatPublikumHelper(m.minPublikum, m.maxPublikum, '0 - 500+')} Personen</span>
                         </div>
                         <!-- 9. Technik -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
@@ -15388,6 +15401,12 @@ function renderPostbox(container) {
     renderView();
 }
 
+function formatPublikumHelper(min, max, fallback) {
+    const cleanMin = (min !== undefined && min !== null) ? String(min).replace(/[^\d]/g, '').trim() : '';
+    const cleanMax = (max !== undefined && max !== null) ? String(max).replace(/[^\d]/g, '').trim() : '';
+    return (cleanMin !== '' && cleanMax !== '') ? `${cleanMin} - ${cleanMax}+` : fallback;
+}
+
 function formatTruncatedValue(val, themeColor, itemId, uniqueType) {
     if (!val) return 'Keine Angabe';
     
@@ -16654,7 +16673,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <!-- 8. Publikum/Gäste (Anzahl in Personen) -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
                             <i class="fa-solid fa-users" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${item.minPublikum !== undefined && item.maxPublikum !== undefined ? `${item.minPublikum} - ${item.maxPublikum}+` : (isEvents ? '50 - 150' : '0 - 500+')} Personen</span>
+                            <span style="flex: 1;">${formatPublikumHelper(item.minPublikum, item.maxPublikum, isEvents ? '50 - 150' : '0 - 500+')} Personen</span>
                         </div>
 
                         <!-- 9. Technik -->
@@ -16676,7 +16695,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     isMediation ? `
                         <!-- Unlocked Mediation button -->
                         <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; width: 100%; box-sizing: border-box;">
-                            <button class="btn btn-primary" onclick="event.stopPropagation(); alert('Vermittlung: Kontaktdaten bleiben geschützt. Bei erfolgreicher Vermittlung erhalten beide Seiten die Kontaktdaten des jeweils anderen. Der Erstkontakt erfolgt ausschließlich durch den Veranstalter.');" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
+                            <button class="btn btn-primary" onclick="event.stopPropagation(); alert('Kontaktdaten bleiben geschützt. Bei erfolgreicher Vermittlung erhalten beide Seiten die Kontaktdaten des jeweils anderen. Der Erstkontakt erfolgt ausschließlich durch den Veranstalter.');" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
                                 <i class="fa-solid fa-handshake" style="font-size: 1.15rem;"></i> Vermittlung
                             </button>
                         </div>
@@ -18348,7 +18367,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                                             <!-- 8. Publikum -->
                                             <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
                                                 <i class="fa-solid fa-users" style="color: #2563eb; width: 16px; text-align: center;"></i>
-                                                <span>${mus.minPublikum !== undefined && mus.maxPublikum !== undefined ? `${mus.minPublikum} - ${mus.maxPublikum}+` : '0 - 500+'} Personen</span>
+                                                <span>${formatPublikumHelper(mus.minPublikum, mus.maxPublikum, '0 - 500+')} Personen</span>
                                             </div>
                                             <!-- 9. Technik -->
                                             <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35; font-size: 0.84rem; color: var(--text-main);">
@@ -18807,7 +18826,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
                                 <!-- 8. Publikum -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
                                     <i class="fa-solid fa-users" style="color: #7c3aed; width: 16px; margin-top: 0.15rem; text-align: center;"></i>
-                                    <span style="flex: 1;">${eventData.minPublikum !== undefined && eventData.maxPublikum !== undefined ? `${eventData.minPublikum} - ${eventData.maxPublikum}+` : '0 - 500+'} Personen</span>
+                                    <span style="flex: 1;">${formatPublikumHelper(eventData.minPublikum, eventData.maxPublikum, '0 - 500+')} Personen</span>
                                 </div>
                                 <!-- 9. Technik -->
                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem;">
