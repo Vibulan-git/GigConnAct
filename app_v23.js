@@ -4725,7 +4725,7 @@ function renderLandingPage(container, onNavigate) {
                 </video>
 
                 <!-- Dark overlay gradient -->
-                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.78) 0%, rgba(30, 58, 138, 0.72) 50%, rgba(124, 58, 237, 0.68) 100%); z-index: 2;"></div>
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(124, 58, 237, 0.82) 100%); z-index: 2;"></div>
 
                 <!-- 1/3: Large Logo -->
                 <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0 0.8rem; box-sizing: border-box;">
@@ -5120,7 +5120,7 @@ function renderLandingPage(container, onNavigate) {
                         <div style="display: flex; flex-direction: column; gap: 0.35rem;">
                             <h3 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin: 0;">Vibulan Sivanathan</h3>
                             <div style="display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.3px;">
-                                <span style="color: var(--text-muted);">Gründer von GigConnAct</span>
+                                <span style="color: var(--text-muted);">Inhaber von GigConnAct</span>
                                 <span style="color: var(--text-muted);">Sänger von <a href="https://miamipink.de/" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: underline; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">MIAMI PINK</a></span>
                             </div>
                         </div>
@@ -5796,8 +5796,9 @@ function renderMarket(container, type, onNavigate) {
     let prefillMusicianTypes = [];
     let prefillEventTypes = [];
     let hasProfile = false;
+    console.log("[DEBUG_RENDER_MARKET_INIT] hasProfile:", hasProfile, "currentUser:", state.currentUser ? state.currentUser.email : null, "isEvents:", isEvents);
 
-    if (state.currentUser) {
+    if (false && state.currentUser) {
         if (isEvents && state.currentUser.role === 'musician') {
             const myProfile = state.musicians.find(m => m.id === state.activeMusicianId) 
                 || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId);
@@ -5832,8 +5833,7 @@ function renderMarket(container, type, onNavigate) {
         } else if (!isEvents && state.currentUser.role === 'organizer') {
             const myProfile = state.events.find(e => e.id === state.activeEventId) 
                 || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) 
-                || state.events.find(e => e.creatorId === state.currentUser.id) 
-                || state.events[0];
+                || state.events.find(e => e.creatorId === state.currentUser.id);
             if (myProfile) {
                 hasProfile = true;
 
@@ -6443,6 +6443,7 @@ function renderMarket(container, type, onNavigate) {
 
     function applyAllFiltersAndSort() {
         let list = [...getItems()];
+        console.log("[DEBUG_APPLY_FILTERS_START] items count:", list.length, "isEvents:", isEvents, "showOnlyTopMatches:", showOnlyTopMatches, "showOnlyFavorites:", showOnlyFavorites);
         console.log("applyAllFiltersAndSort started. Input getItems():", list.length, "isEvents:", isEvents);
 
         // Parse profile/event ID from hash query parameter (for direct links from emails)
@@ -6485,8 +6486,7 @@ function renderMarket(container, type, onNavigate) {
             } else if (state.currentUser.role === 'organizer') {
                 const myProfile = state.events.find(e => e.id === state.activeEventId) 
                     || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) 
-                    || state.events.find(e => e.creatorId === state.currentUser.id) 
-                    || state.events[0];
+                    || state.events.find(e => e.creatorId === state.currentUser.id);
                 if (myProfile) {
                     list.forEach(item => {
                         if (!isEvents) {
@@ -7335,7 +7335,7 @@ window.openItemDetailModal = function(id, isEvents) {
                                 ? (item.name || item.title || '')
                                 : isEvents
                                     ? `<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span> <i class="fa-solid fa-lock" style="color: #7c3aed; font-size: 1.5rem; margin-left: 0.6rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
-                                    : `<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: ${roleColor}; font-size: 1.5rem; margin-left: 0.6rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
+                                    : `<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: #2563eb; font-size: 1.5rem; margin-left: 0.6rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
                             }
                         </h2>
                     </div>
@@ -14634,7 +14634,7 @@ function renderPostbox(container) {
                     }
                 }
             </style>
-            <div class="portal-layout" style="display: flex !important; flex-direction: row !important; gap: 1.5rem; height: calc(100vh - 180px); min-height: 600px; width: 100%;">
+            <div class="portal-layout ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="display: flex !important; flex-direction: row !important; gap: 1.5rem; height: calc(100vh - 180px); min-height: 600px; width: 100%;">
                 
                 <!-- Left Sidebar: Categories & Chat Threads List -->
                 <div class="postbox-sidebar" style="width: 340px; flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); height: 100%;">
@@ -16198,7 +16198,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
             ? bandName
             : isEvents
                 ? `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span> <i class="fa-solid fa-lock" style="color: #2563eb; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
-                : `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: ${themeColor}; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`;
+                : `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: #2563eb; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`;
 
         return `
             <div class="market-tile-card" style="cursor: default; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
@@ -16384,7 +16384,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 ${isMediation ? `
                     <!-- 4. Aktions-Button: "Vermittlung" -->
                     <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; width: 100%; box-sizing: border-box;">
-                        <span style="display: flex; width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; border-radius: 10px; background: rgba(37, 99, 235, 0.1); border: 1.5px solid #2563eb; color: #2563eb; cursor: default; box-sizing: border-box; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <span style="display: flex; width: 100%; padding: 0.8rem; font-size: 0.88rem; font-weight: 800; border-radius: 10px; background: rgba(124, 58, 237, 0.1); border: 1.5px solid #7c3aed; color: #7c3aed; cursor: default; box-sizing: border-box; align-items: center; justify-content: center; gap: 0.5rem;">
                             <i class="fa-solid fa-handshake"></i> Vermittlung
                         </span>
                     </div>

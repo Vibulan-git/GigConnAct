@@ -383,41 +383,61 @@ exports.onNewChatMessage = functions
     });
 
 // ==========================================
-// REGEL 3: Neues Event im Umkreis (Nur für Musiker)
+// REGEL 3: Neues Event im Umkreis (Jeden Tag um 17:00 Uhr Berliner Zeit)
 // ==========================================
-exports.onNewEventRadiusAlert = functions
+exports.dailyRadiusAlertsCheck = functions
     .region('europe-west3')
     .runWith({ secrets: ['RESEND_API_KEY'] })
-    .firestore.document('events/{eventId}')
-    .onCreate(async (snapshot, context) => {
-        const event = snapshot.data();
-        if (!event || event.isActive === false) return null;
+    .pubsub.schedule('0 17 * * *')
+    .timeZone('Europe/Berlin')
+    .onRun(async (context) => {
+        const now = new Date();
+        const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
-        // Alle Musiker laden
+        // 1. Alle aktiven Musiker und Events laden
         const musiciansSnapshot = await admin.firestore().collection('musicians').get();
+        const eventsSnapshot = await admin.firestore().collection('events').get();
+
         const musicians = [];
         musiciansSnapshot.forEach(doc => {
             const data = doc.data();
-            if (data.isActive !== false) {
-                musicians.push(data);
-            }
+            if (data.isActive !== false) musicians.push(data);
         });
 
-        const mailPromises = musicians.map(async (musician) => {
-            // Distanz berechnen
-            const distance = getEstimatedDistance(musician.location, event.location);
-            const travelRadius = musician.radius || 100; // Default 100km
+        const events = [];
+        eventsSnapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.isActive !== false) events.push(data);
+        });
 
-            // Liegt das Event im Radius des Musikers?
-            if (distance <= travelRadius) {
+        // Neue Gigs (in den letzten 24 Stunden erstellt)
+        const newEvents = events.filter(e => e.createdAt && new Date(e.createdAt) >= oneDayAgo);
+        
+        if (newEvents.length === 0) {
+            console.log("Keine neuen Events in den letzten 24 Stunden.");
+            return null;
+        }
+
+        console.log(`Starte täglichen Umkreis-Check um 17:00 Uhr. Neue Events: ${newEvents.length}`);
+
+        const mailPromises = musicians.map(async (musician) => {
+            const matchedEvents = [];
+            
+            newEvents.forEach(event => {
+                const distance = getEstimatedDistance(musician.location, event.location);
+                const travelRadius = musician.radius || 100; // Default 100km
+                if (distance <= travelRadius) {
+                    matchedEvents.push({ ...event, distance });
+                }
+            });
+
+            if (matchedEvents.length > 0) {
                 const userDetails = await getUserDetails(musician.id); // musician.id entspricht user.uid
                 if (userDetails && userDetails.email) {
-                    const subject = `Neuer Gig in deiner Umgebung! 📍 (${event.title || 'Neues Event'})`;
+                    const subject = `Neues Event in deiner Umgebung! 📍`;
                     const html = getRadiusEventEmailHtml({
-                        musicianName: userDetails.name,
-                        event: event,
-                        distance: distance,
-                        role: 'musician'
+                        userName: userDetails.name,
+                        matches: matchedEvents
                     });
                     return sendEmail({ to: userDetails.email, subject, html });
                 }
