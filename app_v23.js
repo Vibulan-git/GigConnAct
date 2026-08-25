@@ -11475,7 +11475,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 </form>
 
                 <form id="auth-register-form" class="hidden">
-                    <div class="role-picker-container" style="margin-bottom: 1.5rem;">
+                    <div class="role-picker-container" style="margin-bottom: 1.5rem; ${defaultRole === 'organizer_only' ? 'display: none !important;' : ''}">
                         <div class="role-picker">
                             <div class="role-card active musician-role" id="role-picker-mus">
                                 <i class="fa-solid fa-guitar"></i>
@@ -12269,7 +12269,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
     const pickerOrg = document.getElementById('role-picker-org');
     const fieldsMus = document.getElementById('reg-fields-musician');
     const fieldsOrg = document.getElementById('reg-fields-organizer');
-    let selectedRole = defaultRole || 'musician';
+    let selectedRole = (defaultRole === 'organizer_only' || defaultRole === 'organizer') ? 'organizer' : 'musician';
 
     // State arrays for organizer dates
     let selectedEventDates = [];
@@ -14493,9 +14493,14 @@ function updateNavbar(forceLanding) {
             </button>
         `;
         document.getElementById('btn-login-trigger').addEventListener('click', () => {
+            const currentHash = window.location.hash;
+            let roleParam = null;
+            if (currentHash === '#/events') {
+                roleParam = 'organizer_only';
+            }
             showModal('auth', () => {
                 navigateAfterLogin();
-            });
+            }, roleParam);
         });
     }
 }
