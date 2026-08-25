@@ -13996,7 +13996,6 @@ function navigate(page) {
         window.lastEventsCount === currentEventsCount &&
         window.lastActiveMusicianId === activeMusicianId &&
         window.lastActiveEventId === activeEventId &&
-        window.lastUpdateVersion === currentUpdateVersion &&
         window.lastProfilePrefillHash === currentPrefillHash;
 
     if (page === 'postbox') {
@@ -14743,7 +14742,7 @@ function initGigConnActApp() {
         const activeProfileChanged = profileChanged || activeMusicianIdChanged || activeEventIdChanged;
         console.log('[DEBUG] user-state-changed: profileChanged =', profileChanged, 'activeProfileChanged =', activeProfileChanged);
 
-        const isMarketPage = document.getElementById('market-grid') !== null;
+        const isMarketPage = document.getElementById('market-items-grid') !== null;
 
         if (!activeProfileChanged && isUserSame && isMarketPage && typeof window.marketApplyFilters === 'function') {
             console.log('[DEBUG] user-state-changed: calling window.marketApplyFilters()');
