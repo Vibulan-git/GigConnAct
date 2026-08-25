@@ -6178,8 +6178,12 @@ function renderMarket(container, type, onNavigate) {
                             <!-- 1. SUCHBEGRIFFE FELD (WEISSES EINGABEFELD) -->
                             <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Suchbegriffe</label>
-                                <input type="text" id="filter-keyword" placeholder="z.B. Hochzeit, Sax, Rock..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.6rem;">
-                                
+                                <input type="text" id="filter-keyword" placeholder="z.B. Hochzeit, Sax, Rock..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                            </div>
+
+                            <!-- Kontakt-Typ Filter -->
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Kontakt-Typ</label>
                                 <div class="checkbox-tag-grid" id="filter-contact-type-grid" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                     <label class="tag-pill-checkbox active">
                                         <input type="checkbox" name="filterContactType" value="direct" checked>
@@ -6355,8 +6359,12 @@ function renderMarket(container, type, onNavigate) {
                             <!-- 1. SUCHBEGRIFFE FELD (WEISSES EINGABEFELD) -->
                             <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Suchbegriffe</label>
-                                <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.6rem;">
-                                
+                                <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                            </div>
+
+                            <!-- Kontakt-Typ Filter -->
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Kontakt-Typ</label>
                                 <div class="checkbox-tag-grid" id="filter-contact-type-grid-m" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                     <label class="tag-pill-checkbox active">
                                         <input type="checkbox" name="filterContactTypeM" value="direct" checked>
@@ -6843,7 +6851,7 @@ function renderMarket(container, type, onNavigate) {
             if (contactTypeGrid) {
                 const selContactTypes = getCheckedValues(contactTypeGridId);
                 list = list.filter(item => {
-                    const itemIsMediation = (
+                    const itemIsMediation = isEvents && (
                         item.isAgencyRequest === true || 
                         item.email === 'info@gigconnact.de' || 
                         item.clientEmail === 'info@gigconnact.de' || 
@@ -16664,57 +16672,59 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 </div>
 
 
-                ${isMediation ? `
-                    <!-- 4. Aktions-Button: "Vermittlung" -->
-                    <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; width: 100%; box-sizing: border-box;">
-                        <button class="btn btn-primary" onclick="event.stopPropagation(); alert('Vermittlung: Kontaktdaten bleiben geschützt. Bei erfolgreicher Vermittlung erhalten beide Seiten die Kontaktdaten des jeweils anderen. Der Erstkontakt erfolgt ausschließlich durch den Veranstalter.');" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
-                            <i class="fa-solid fa-handshake" style="font-size: 1.15rem;"></i>
-                        </button>
-                    </div>
-                ` : isUnlocked ? `
-                    <!-- Solid Colored Unlocked Contact Footer Box -->
-                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 1rem 1.3rem; background: ${footerGradient}; color: #ffffff; display: flex; flex-direction: column; gap: 0.8rem; border-radius: 0 0 18px 18px;">
-                        <!-- Row of circular action buttons -->
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 1.2rem;">
-                            <!-- Organizer Type Button -->
-                            <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'company', '${(item.company || 'Privatperson').replace(/'/g, "\\'")}', this)" 
-                                    title="Veranstalter-Typ anzeigen">
-                                <i class="fa-solid fa-building"></i>
-                            </button>
-
-                            <!-- Contact Name Button -->
-                            <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'name', '${(item.contactName || 'Demo Kontakt').replace(/'/g, "\\'")}', this)" 
-                                    title="Vor- und Nachname anzeigen">
-                                <i class="fa-solid fa-user"></i>
-                            </button>
-
-                            <!-- Phone Button -->
-                            <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'phone', '${(item.hidePhone && !(state && state.currentUser && (item.creatorId === state.currentUser.id || item.id === state.currentUser.profileId))) ? 'Vom Nutzer ausgeblendet' : (item.phone || '+49 170 1234567')}', this)" 
-                                    title="Telefonnummer anzeigen">
-                                <i class="fa-solid fa-phone"></i>
-                            </button>
-
-                            <!-- Email Button -->
-                            <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'email', '${item.email || 'kontakt@gigconnact.de'}', this)" 
-                                    title="E-Mail-Adresse anzeigen">
-                                <i class="fa-solid fa-envelope"></i>
-                            </button>
-
-                            <!-- Chat / Message Button -->
-                            <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'chat', '${isEvents ? item.creatorId : item.id}|${(item.name || item.title || '').replace(/'/g, "\\'")}|${isEvents ? item.id : ''}', this)" 
-                                    title="Nachricht schreiben">
-                                <i class="fa-solid fa-comments"></i>
+                ${isUnlocked ? (
+                    isMediation ? `
+                        <!-- Unlocked Mediation button -->
+                        <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; width: 100%; box-sizing: border-box;">
+                            <button class="btn btn-primary" onclick="event.stopPropagation(); alert('Vermittlung: Kontaktdaten bleiben geschützt. Bei erfolgreicher Vermittlung erhalten beide Seiten die Kontaktdaten des jeweils anderen. Der Erstkontakt erfolgt ausschließlich durch den Veranstalter.');" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
+                                <i class="fa-solid fa-handshake" style="font-size: 1.15rem;"></i> Vermittlung
                             </button>
                         </div>
+                    ` : `
+                        <!-- Solid Colored Unlocked Contact Footer Box -->
+                        <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 1rem 1.3rem; background: ${footerGradient}; color: #ffffff; display: flex; flex-direction: column; gap: 0.8rem; border-radius: 0 0 18px 18px;">
+                            <!-- Row of circular action buttons -->
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 1.2rem;">
+                                <!-- Organizer Type Button -->
+                                <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'company', '${(item.company || 'Privatperson').replace(/'/g, "\\'")}', this)" 
+                                        title="Veranstalter-Typ anzeigen">
+                                    <i class="fa-solid fa-building"></i>
+                                </button>
 
-                        <!-- Reveal panel for contact data -->
-                        <div id="contact-reveal-${item.id}" style="display: none; width: 100%; box-sizing: border-box; text-align: center; font-size: 0.82rem; padding: 0.55rem; background: rgba(255,255,255,0.15); border-radius: 8px; animation: fadeIn 0.2s; word-break: break-all;"></div>
-                    </div>
-                ` : `
-                    <!-- 4. Aktions-Button: "Kontaktdaten freischalten" -->
+                                <!-- Contact Name Button -->
+                                <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'name', '${(item.contactName || 'Demo Kontakt').replace(/'/g, "\\'")}', this)" 
+                                        title="Vor- und Nachname anzeigen">
+                                    <i class="fa-solid fa-user"></i>
+                                </button>
+
+                                <!-- Phone Button -->
+                                <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'phone', '${(item.hidePhone && !(state && state.currentUser && (item.creatorId === state.currentUser.id || item.id === state.currentUser.profileId))) ? 'Vom Nutzer ausgeblendet' : (item.phone || '+49 170 1234567')}', this)" 
+                                        title="Telefonnummer anzeigen">
+                                    <i class="fa-solid fa-phone"></i>
+                                </button>
+
+                                <!-- Email Button -->
+                                <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'email', '${item.email || 'kontakt@gigconnact.de'}', this)" 
+                                        title="E-Mail-Adresse anzeigen">
+                                    <i class="fa-solid fa-envelope"></i>
+                                </button>
+
+                                <!-- Chat / Message Button -->
+                                <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'chat', '${isEvents ? item.creatorId : item.id}|${(item.name || item.title || '').replace(/'/g, "\\'")}|${isEvents ? item.id : ''}', this)" 
+                                        title="Nachricht schreiben">
+                                    <i class="fa-solid fa-comments"></i>
+                                </button>
+                            </div>
+
+                            <!-- Reveal panel for contact data -->
+                            <div id="contact-reveal-${item.id}" style="display: none; width: 100%; box-sizing: border-box; text-align: center; font-size: 0.82rem; padding: 0.55rem; background: rgba(255,255,255,0.15); border-radius: 8px; animation: fadeIn 0.2s; word-break: break-all;"></div>
+                        </div>
+                    `
+                ) : `
+                    <!-- 4. Aktions-Button: "Direkter Kontakt" oder "Vermittlung" mit Schloss-Icon -->
                     <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
                         <button class="btn btn-primary" onclick="event.stopPropagation(); ${state && state.currentUser ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : (isEvents ? `showModal('auth', null, 'musician')` : `window.showMatchmakingChoiceModal('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')`)}" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
-                            <i class="fa-solid fa-lock"></i> Kontaktdaten freischalten
+                            <i class="fa-solid fa-lock"></i> ${isMediation ? 'Vermittlung' : 'Direkter Kontakt'}
                         </button>
                     </div>
                 `}
