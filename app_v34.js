@@ -15669,9 +15669,9 @@ window.renderMatchmakingChoicePage = function(container) {
                     <div class="choice-card-wrapper">
                         <div>
                             <div style="margin-bottom: 0.8rem; width: 100%;">
-                                <div style="display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; text-align: left; line-height: 1.25;">
-                                    <h4 style="font-size: 1.15rem; font-weight: 800; margin: 0; color: #0f172a; white-space: nowrap;">Direktkontakt</h4>
-                                    <span style="font-size: 0.9rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">mit Account</span>
+                                <div style="display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: nowrap; text-align: left; line-height: 1.25;">
+                                    <h4 style="font-size: clamp(0.95rem, 4vw, 1.15rem); font-weight: 800; margin: 0; color: #0f172a; white-space: nowrap;">Direktkontakt</h4>
+                                    <span style="font-size: clamp(0.75rem, 3.2vw, 0.9rem); color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">mit Account</span>
                                 </div>
                             </div>
                             
@@ -15704,9 +15704,9 @@ window.renderMatchmakingChoicePage = function(container) {
                     <div class="choice-card-wrapper">
                         <div>
                             <div style="margin-bottom: 0.8rem; width: 100%;">
-                                <div style="display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; text-align: left; line-height: 1.25;">
-                                    <h4 style="font-size: 1.15rem; font-weight: 800; margin: 0; color: #0f172a; white-space: nowrap;">Vermittlung</h4>
-                                    <span style="font-size: 0.9rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">ohne Account</span>
+                                <div style="display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: nowrap; text-align: left; line-height: 1.25;">
+                                    <h4 style="font-size: clamp(0.95rem, 4vw, 1.15rem); font-weight: 800; margin: 0; color: #0f172a; white-space: nowrap;">Vermittlung</h4>
+                                    <span style="font-size: clamp(0.75rem, 3.2vw, 0.9rem); color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">ohne Account</span>
                                 </div>
                             </div>
                             
