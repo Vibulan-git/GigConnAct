@@ -1963,8 +1963,15 @@ class StateManager {
         const uid = this.currentUser.id;
         const ids = [uid];
         if (this.currentUser.profileId) ids.push(this.currentUser.profileId);
+        
+        const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
+        
         this.musicians.filter(m => m.creatorId === uid).forEach(m => ids.push(m.id));
-        this.events.filter(e => e.creatorId === uid).forEach(e => ids.push(e.id));
+        this.events.filter(e => 
+            e.creatorId === uid ||
+            (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
+        ).forEach(e => ids.push(e.id));
+        
         return [...new Set(ids)].sort();
     }
 
@@ -15077,8 +15084,9 @@ function renderPostbox(container) {
                             </div>
                         ` : currentCategoryChats.map(c => {
                             const isSelected = c.id === activeChatId;
-                            const isSys = c.participants.includes('system');
-                            const counterpartyId = c.participants.find(id => id !== currentUserId) || c.participants[0];
+                            const participants = Array.isArray(c.participants) ? c.participants : [];
+                            const isSys = participants.includes('system');
+                            const counterpartyId = participants.find(id => id !== currentUserId) || participants[0] || '';
 
                             let name = "System";
                             let avatar = "https://picsum.photos/id/1025/100/100";
@@ -15244,8 +15252,9 @@ function renderPostbox(container) {
                             <p style="max-width: 360px; font-size: 0.85rem;">Klicke links auf eine Nachricht, um den Verlauf zu sehen und zu antworten.</p>
                         </div>
                     ` : (() => {
-                        const isSys = activeChat.participants.includes('system');
-                        const counterpartyId = activeChat.participants.find(id => id !== currentUserId) || activeChat.participants[0];
+                        const participants = Array.isArray(activeChat.participants) ? activeChat.participants : [];
+                        const isSys = participants.includes('system');
+                        const counterpartyId = participants.find(id => id !== currentUserId) || participants[0] || '';
                         let name = "System";
                         let avatar = "https://picsum.photos/id/1025/100/100";
 
