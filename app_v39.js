@@ -12073,12 +12073,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         </label>
                     </div>
 
-                    <div id="reg-event-publish-consent-container" style="display: none; margin-top: 0.5rem; margin-bottom: 1.2rem;">
-                        <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.8rem; line-height: 1.4; color: var(--text-muted); cursor: pointer;">
-                            <input type="checkbox" name="eventPublishConsent" oninvalid="this.setCustomValidity('Bitte erteile die Erlaubnis zur Veröffentlichung deines Events.')" oninput="this.setCustomValidity('')" style="width: auto; margin-top: 0.2rem; cursor: pointer; transform: scale(1.2);">
-                            <span>GigConnAct hat Deine Erlaubnis, Dein Event auf dem Event-Markt zu veröffentlichen.</span>
-                        </label>
-                    </div>
+
 
                     <div id="register-error-msg" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
                     <button type="submit" class="btn btn-secondary" style="width: 100%;">
