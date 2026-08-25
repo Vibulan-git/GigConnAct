@@ -14720,9 +14720,13 @@ function initGigConnActApp() {
         let currentPrefillHash = '';
         if (state && state.currentUser) {
             const isMusician = state.currentUser.role === 'musician';
+            const musicians = state.musicians || [];
+            const events = state.events || [];
+            const activeMusicianId = state.activeMusicianId || '';
+            const activeEventId = state.activeEventId || '';
             const myProfile = isMusician 
-                ? (state.musicians.find(m => m.id === state.activeMusicianId) || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId))
-                : (state.events.find(e => e.id === state.activeEventId) || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) || state.events.find(e => e.creatorId === state.currentUser.id));
+                ? (musicians.find(m => m && m.id === activeMusicianId) || musicians.find(m => m && (m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId)))
+                : (events.find(e => e && e.id === activeEventId) || events.find(e => e && (e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId)) || events.find(e => e && e.creatorId === state.currentUser.id));
             if (myProfile) {
                 currentPrefillHash = JSON.stringify({
                     location: myProfile.location || '',
