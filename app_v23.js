@@ -15575,7 +15575,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                 <style>
                     .choice-modal-box {
                         width: 100%;
-                        max-width: 740px;
+                        max-width: 640px;
                         background: #ffffff;
                         border: 1px solid #cbd5e1;
                         border-radius: 18px;
@@ -15690,11 +15690,15 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                 <!-- Weg 1: Selbst kontaktieren -->
                 <div class="choice-card-wrapper">
                     <div>
-                        <div style="font-size:2rem; color:#2563eb; margin-bottom:0.75rem; text-align:center;">
-                            <i class="fa-solid fa-user-plus"></i>
+                        <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.2rem;">
+                            <div style="font-size: 2rem; color: #2563eb; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fa-solid fa-user-plus"></i>
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; line-height: 1.25;">
+                                <h4 style="font-size: 1.05rem; font-weight: 800; margin: 0; color: #0f172a;">Direkter Kontakt</h4>
+                                <div style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.1rem;">mit Account</div>
+                            </div>
                         </div>
-                        <h4 style="font-size:1.15rem; font-weight:800; margin:0 0 0.15rem; text-align:center; color:#0f172a;">Direkter Kontakt</h4>
-                        <div style="font-size:0.8rem; color:#64748b; font-weight:700; text-align:center; margin-bottom:1.2rem; text-transform:uppercase; letter-spacing:0.5px;">mit Account</div>
                         
                         <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0 0 1.5rem; line-height:1.7;">
                             <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
@@ -15712,7 +15716,7 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         </ul>
                     </div>
                     <button id="btn-choice-register" class="btn btn-primary btn-choice-action">
-                        Kostenlose Registrierung
+                        Kostenlose Anmeldung
                     </button>
                 </div>
  
@@ -15724,11 +15728,15 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                 <!-- Weg 2: GigConnAct-Vermittlung -->
                 <div class="choice-card-wrapper">
                     <div>
-                        <div style="font-size:2rem; color:#2563eb; margin-bottom:0.75rem; text-align:center;">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.2rem;">
+                            <div style="font-size: 2rem; color: #2563eb; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; line-height: 1.25;">
+                                <h4 style="font-size: 1.05rem; font-weight: 800; margin: 0; color: #0f172a;">Vermittlung</h4>
+                                <div style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.1rem;">ohne Account</div>
+                            </div>
                         </div>
-                        <h4 style="font-size:1.15rem; font-weight:800; margin:0 0 0.15rem; text-align:center; color:#0f172a;">Vermittlung</h4>
-                        <div style="font-size:0.8rem; color:#64748b; font-weight:700; text-align:center; margin-bottom:1.2rem; text-transform:uppercase; letter-spacing:0.5px;">ohne Account</div>
                         
                         <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0 0 1.5rem; line-height:1.7;">
                             <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
