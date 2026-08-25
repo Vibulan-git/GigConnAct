@@ -8471,9 +8471,28 @@ function renderProfilePage(container) {
 
             const emailLower = email.toLowerCase().trim();
             if (emailLower !== u.email.toLowerCase()) {
+                // 1. Check local cache (case-insensitive) for musicians and events
+                const isMusicianUsed = state.musicians.some(m => m.id !== u.profileId && m.email && m.email.toLowerCase() === emailLower);
+                const isEventUsed = state.events.some(e => e.id !== u.profileId && e.creatorId !== u.id && ((e.email && e.email.toLowerCase() === emailLower) || (e.clientEmail && e.clientEmail.toLowerCase() === emailLower)));
+                
+                if (isMusicianUsed || isEventUsed) {
+                    showToast({
+                        title: "E-Mail bereits vergeben ⚠️",
+                        message: "Diese E-Mail-Adresse wird bereits von einem anderen Profil verwendet.",
+                        type: "error"
+                    });
+                    markInvalid(document.getElementById('prof-email'));
+                    return;
+                }
+
+                // 2. Check remote Firestore users collection (supporting both exact and lowercase match)
                 try {
-                    const snap = await db.collection('users').where('email', '==', emailLower).limit(1).get();
-                    if (!snap.empty) {
+                    const exactEmail = email.trim();
+                    const snap1 = db.collection('users').where('email', '==', emailLower).limit(1).get();
+                    const snap2 = db.collection('users').where('email', '==', exactEmail).limit(1).get();
+                    const [res1, res2] = await Promise.all([snap1, snap2]);
+                    
+                    if (!res1.empty || !res2.empty) {
                         showToast({
                             title: "E-Mail bereits vergeben ⚠️",
                             message: "Diese E-Mail-Adresse wird bereits von einem anderen Benutzerkonto verwendet.",
