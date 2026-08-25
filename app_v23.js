@@ -16855,17 +16855,29 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
                     `
                 ) : (
-                    (!isEvents && !(state && state.currentUser)) ? `
-                        <!-- Guest Musician Card: Two Buttons side-by-side -->
-                        <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; display: flex; gap: 0.5rem; width: 100%; box-sizing: border-box;">
-                            <button class="btn btn-primary" onclick="event.stopPropagation(); window.showMatchmakingChoiceModal('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')" style="flex: 1; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem 0.4rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.35rem; font-size: 0.78rem; box-shadow: ${btnBoxShadow} !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Direkter Kontakt">
-                                <i class="fa-solid fa-lock"></i> Direkter Kontakt
-                            </button>
-                            <button class="btn btn-primary" onclick="event.stopPropagation(); window.showMatchmakingChoiceModal('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')" style="flex: 1; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem 0.4rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.35rem; font-size: 0.78rem; box-shadow: ${btnBoxShadow} !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Vermittlung">
-                                <i class="fa-solid fa-lock"></i> Vermittlung
-                            </button>
-                        </div>
-                    ` : `
+                    !(state && state.currentUser) ? (
+                        isEvents ? `
+                            <!-- Guest Event Card: Two Buttons side-by-side -->
+                            <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; display: flex; gap: 0.5rem; width: 100%; box-sizing: border-box;">
+                                <button class="btn btn-primary" onclick="event.stopPropagation(); window.showMatchmakingChoiceModal('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')" style="flex: 1; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border-color: #2563eb !important; font-weight: 800; padding: 0.8rem 0.4rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.35rem; font-size: 0.78rem; box-shadow: ${btnBoxShadow} !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Vermittlung">
+                                    <i class="fa-solid fa-handshake"></i> Vermittlung
+                                </button>
+                                <button class="btn btn-primary" onclick="event.stopPropagation(); showModal('auth', null, 'musician')" style="flex: 1; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border-color: #2563eb !important; font-weight: 800; padding: 0.8rem 0.4rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.35rem; font-size: 0.78rem; box-shadow: ${btnBoxShadow} !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Direkter Kontakt">
+                                    <i class="fa-solid fa-lock"></i> Direkter Kontakt
+                                </button>
+                            </div>
+                        ` : `
+                            <!-- Guest Musician Card: Two Buttons side-by-side -->
+                            <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; display: flex; gap: 0.5rem; width: 100%; box-sizing: border-box;">
+                                <button class="btn btn-primary" onclick="event.stopPropagation(); window.showMatchmakingChoiceModal('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')" style="flex: 1; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem 0.4rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.35rem; font-size: 0.78rem; box-shadow: ${btnBoxShadow} !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Direkter Kontakt">
+                                    <i class="fa-solid fa-lock"></i> Direkter Kontakt
+                                </button>
+                                <button class="btn btn-primary" onclick="event.stopPropagation(); window.showMatchmakingChoiceModal('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')" style="flex: 1; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem 0.4rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.35rem; font-size: 0.78rem; box-shadow: ${btnBoxShadow} !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Vermittlung">
+                                    <i class="fa-solid fa-lock"></i> Vermittlung
+                                </button>
+                            </div>
+                        `
+                    ) : `
                         <!-- Default Locked Button -->
                         <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
                             <button class="btn btn-primary" onclick="event.stopPropagation(); ${state && state.currentUser ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : (isEvents ? `showModal('auth', null, 'musician')` : `window.showMatchmakingChoiceModal('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')`)}" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
