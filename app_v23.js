@@ -15592,12 +15592,12 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         background: #ffffff;
                         border: 1px solid #cbd5e1;
                         border-radius: 18px;
-                        padding: 1.5rem 1.5rem 3.6rem;
+                        padding: 1.2rem 1.5rem 3.4rem;
                         box-shadow: 0 15px 35px rgba(0,0,0,0.15);
                         position: relative;
                         font-family: var(--font-heading);
                         color: #0f172a;
-                        margin: 2rem auto;
+                        margin: 1rem auto;
                     }
                     .choice-cards-container {
                         display: flex !important;
@@ -15620,22 +15620,20 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         display: flex;
                         align-items: center;
                         justify-content: center;
+                        margin: 0.2rem 0;
+                        color: #64748b;
+                        font-weight: 800;
+                        font-size: 0.75rem;
+                        position: relative;
+                    }
+                    .separator-oder::before, .separator-oder::after {
+                        content: '';
+                        flex: 1;
+                        height: 1px;
+                        background: #e2e8f0;
                     }
                     .separator-oder span {
-                        background: #ffffff;
-                        color: #2563eb;
-                        font-weight: 800;
-                        font-size: 0.85rem;
-                        border: 1px solid #cbd5e1;
-                        border-radius: 50%;
-                        width: 42px;
-                        height: 42px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        box-shadow: 0 3px 8px rgba(0,0,0,0.06);
-                        z-index: 2;
-                        position: relative;
+                        padding: 0 0.5rem;
                     }
                     .btn-choice-action {
                         width: 100%;
@@ -15649,45 +15647,33 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                         box-shadow: none;
                         white-space: nowrap !important;
                     }
-                    @media (min-width: 768px) {
+                    @media (min-width: 769px) {
                         .choice-cards-container {
                             flex-direction: row !important;
-                            align-items: stretch;
-                            gap: 0.35rem !important;
+                            align-items: stretch !important;
                         }
                         .separator-oder {
-                            min-width: 15px;
-                            position: relative;
+                            flex-direction: column;
+                            margin: 0 0.2rem;
+                            width: 15px;
                         }
-                        .separator-oder::before {
-                            content: '';
-                            position: absolute;
-                            top: 50%;
-                            left: 0;
-                            right: 0;
-                            height: 1px;
-                            background: #cbd5e1;
+                        .separator-oder::before, .separator-oder::after {
+                            width: 1px;
+                            height: 100%;
+                            background: #e2e8f0;
+                        }
+                        .separator-oder span {
+                            padding: 0.5rem 0;
                             z-index: 1;
+                        }
+                        .btn-choice-action {
+                            font-size: 0.88rem !important;
                         }
                     }
                     @media (max-width: 767px) {
                         .choice-modal-box {
                             padding: 3.5rem 1rem 1.5rem !important;
                             margin: 1rem auto !important;
-                        }
-                        .separator-oder {
-                            position: relative;
-                            padding: 0.3rem 0;
-                        }
-                        .separator-oder::before {
-                            content: '';
-                            position: absolute;
-                            left: 50%;
-                            top: 0;
-                            bottom: 0;
-                            width: 1px;
-                            background: #cbd5e1;
-                            z-index: 1;
                         }
                         .btn-choice-action {
                             font-size: 0.88rem !important;
@@ -15703,17 +15689,14 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                 <!-- Weg 1: Selbst kontaktieren -->
                 <div class="choice-card-wrapper">
                     <div>
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.8rem; margin-bottom: 1.2rem; width: 100%;">
-                            <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; line-height: 1.25;">
-                                <h4 style="font-size: 1.05rem; font-weight: 800; margin: 0; color: #0f172a;">Direkter Kontakt</h4>
-                                <div style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.1rem;">mit Account</div>
-                            </div>
-                            <div style="font-size: 2rem; color: #2563eb; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; margin-top: -0.25rem;">
-                                <i class="fa-solid fa-user-plus"></i>
+                        <div style="margin-bottom: 0.8rem; width: 100%;">
+                            <div style="display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; text-align: left; line-height: 1.25;">
+                                <h4 style="font-size: 1.15rem; font-weight: 800; margin: 0; color: #0f172a; white-space: nowrap;">Direkter Kontakt</h4>
+                                <span style="font-size: 0.9rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">mit Account</span>
                             </div>
                         </div>
                         
-                        <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0 0 0.6rem; line-height:1.7;">
+                        <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0 0 0.5rem; line-height:1.7;">
                             <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
                                 <i class="fa-solid fa-magnifying-glass" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
                                 <span>Freie Auswahl aus allen Musikern</span>
@@ -15728,8 +15711,8 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                             </li>
                         </ul>
                     </div>
-                    <button id="btn-choice-register" class="btn btn-primary btn-choice-action">
-                        Kostenlose Anmeldung
+                    <button id="btn-choice-register" class="btn btn-primary btn-choice-action" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%;">
+                        <i class="fa-solid fa-user-plus" style="color: #ffffff; font-size: 1rem;"></i> Kostenlose Anmeldung
                     </button>
                 </div>
  
@@ -15741,17 +15724,14 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                 <!-- Weg 2: GigConnAct-Vermittlung -->
                 <div class="choice-card-wrapper">
                     <div>
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.8rem; margin-bottom: 1.2rem; width: 100%;">
-                            <div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; line-height: 1.25;">
-                                <h4 style="font-size: 1.05rem; font-weight: 800; margin: 0; color: #0f172a;">Vermittlung</h4>
-                                <div style="font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.1rem;">ohne Account</div>
-                            </div>
-                            <div style="font-size: 2rem; color: #2563eb; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; margin-top: -0.25rem;">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <div style="margin-bottom: 0.8rem; width: 100%;">
+                            <div style="display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; text-align: left; line-height: 1.25;">
+                                <h4 style="font-size: 1.15rem; font-weight: 800; margin: 0; color: #0f172a; white-space: nowrap;">Vermittlung</h4>
+                                <span style="font-size: 0.9rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">ohne Account</span>
                             </div>
                         </div>
                         
-                        <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0 0 0.6rem; line-height:1.7;">
+                        <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0 0 0.5rem; line-height:1.7;">
                             <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
                                 <i class="fa-solid fa-envelope-open-text" style="color:#2563eb; margin-top:0.25rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
                                 <span>Musiker-Vorschläge direkt erhalten</span>
@@ -15766,8 +15746,8 @@ window.showMatchmakingChoiceModal = function(musicianId, bandName) {
                             </li>
                         </ul>
                     </div>
-                    <button id="btn-choice-agency" class="btn btn-primary btn-choice-action">
-                        Kostenlose Vermittlung
+                    <button id="btn-choice-agency" class="btn btn-primary btn-choice-action" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%;">
+                        <i class="fa-solid fa-wand-magic-sparkles" style="color: #ffffff; font-size: 1rem;"></i> Kostenlose Vermittlung
                     </button>
                 </div>
             </div>
