@@ -2043,7 +2043,7 @@ class StateManager {
                 this.userDocUnsubscribe = userDocRef.onSnapshot(async (doc) => {
                     if (typeof auth !== 'undefined' && !auth.currentUser) return;
                     if (doc.exists) {
-                        this.currentUser = doc.data();
+                        this.currentUser = { id: doc.id, ...doc.data() };
                         if (this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
                             this.currentUser.role = 'organizer';
                         }
@@ -2105,7 +2105,7 @@ class StateManager {
                         const doc = await userDocRef.get();
                         if (typeof auth !== 'undefined' && !auth.currentUser) return;
                         if (doc.exists) {
-                            this.currentUser = doc.data();
+                            this.currentUser = { id: doc.id, ...doc.data() };
                             if (this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
                                 this.currentUser.role = 'organizer';
                             }
@@ -3729,7 +3729,8 @@ class StateManager {
     async loginAsDemoUser(email) {
         const snapshot = await db.collection('users').where('email', '==', email.toLowerCase()).limit(1).get();
         if (!snapshot.empty) {
-            this.currentUser = snapshot.docs[0].data();
+            const doc = snapshot.docs[0];
+            this.currentUser = { id: doc.id, ...doc.data() };
             if (this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
                 this.currentUser.role = 'organizer';
             }
