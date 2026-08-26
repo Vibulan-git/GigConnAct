@@ -5129,8 +5129,8 @@ input[type="range"].input-field {
     align-items: center;
 }
 .carousel-dot {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     background: #ffffff !important;
     opacity: 0.95 !important;

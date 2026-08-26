@@ -9128,7 +9128,7 @@ function renderOrganizerEventItem(e, isActive) {
                 <!-- Dots container inside the slider -->
                 <div class="tile-gallery-dots" id="combo-dots-${e.id}" data-theme="${dotActiveColor}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
                     ${Array.from({ length: photos.length + 1 }).map((_, dIdx) => `
-                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${e.id}', ${dIdx})" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? dotActiveColor : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + dotActiveColor : '0 1px 2px rgba(0,0,0,0.2)'}; cursor: pointer;"></span>
+                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${e.id}', ${dIdx})" style="width: 10px; height: 10px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? dotActiveColor : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + dotActiveColor : '0 1px 2px rgba(0,0,0,0.2)'}; cursor: pointer;"></span>
                     `).join('')}
                 </div>
                 
@@ -9601,7 +9601,7 @@ function renderMyMusicianItem(m, isActive) {
                 <!-- Dots container inside the slider -->
                 <div class="tile-gallery-dots" id="combo-dots-${m.id}" data-theme="${dotActiveColor}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
                     ${Array.from({ length: photos.length + videoSources.length + audios.length + 1 }).map((_, dIdx) => `
-                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${m.id}', ${dIdx})" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? dotActiveColor : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + dotActiveColor : '0 1px 2px rgba(0,0,0,0.2)'}; cursor: pointer;"></span>
+                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${m.id}', ${dIdx})" style="width: 10px; height: 10px; border-radius: 50%; background: ${dIdx === 0 ? dotActiveColor : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? dotActiveColor : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + dotActiveColor : '0 1px 2px rgba(0,0,0,0.2)'}; cursor: pointer;"></span>
                     `).join('')}
                 </div>
                 
@@ -16727,7 +16727,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     <!-- Dots container inside the slider -->
                     <div class="tile-gallery-dots" id="combo-dots-${item.id}" data-theme="${isEvents ? '#7c3aed' : '#2563eb'}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
                         ${Array.from({ length: photos.length + videos.length + audios.length + 1 }).map((_, dIdx) => `
-                            <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${item.id}', ${dIdx})" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? (isEvents ? '#7c3aed' : '#2563eb') : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? (isEvents ? '#7c3aed' : '#2563eb') : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + (isEvents ? '#7c3aed' : '#2563eb') : '0 1px 2px rgba(0,0,0,0.2)'}; cursor: pointer;"></span>
+                            <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${item.id}', ${dIdx})" style="width: 10px; height: 10px; border-radius: 50%; background: ${dIdx === 0 ? (isEvents ? '#7c3aed' : '#2563eb') : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? (isEvents ? '#7c3aed' : '#2563eb') : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + (isEvents ? '#7c3aed' : '#2563eb') : '0 1px 2px rgba(0,0,0,0.2)'}; cursor: pointer;"></span>
                         `).join('')}
                     </div>
                 </div>
@@ -18445,7 +18445,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                                     </div>
                                     <div class="tile-gallery-dots" id="combo-dots-${mus.id}" data-theme="#2563eb" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center;">
                                         ${Array.from({ length: photos.length + videos.length + audios.length + 1 }).map((_, dIdx) => `
-                                            <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${mus.id}', ${dIdx})" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? '#2563eb' : '#ffffff'}; cursor: pointer;"></span>
+                                            <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${mus.id}', ${dIdx})" style="width: 10px; height: 10px; border-radius: 50%; background: ${dIdx === 0 ? '#2563eb' : '#ffffff'}; cursor: pointer;"></span>
                                         `).join('')}
                                     </div>
                                 </div>
@@ -18923,7 +18923,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
                                 </div>
                                 <div class="tile-gallery-dots" id="combo-dots-${eventData.id}" data-theme="#7c3aed" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center;">
                                     ${Array.from({ length: totalSlides }).map((_, dIdx) => `
-                                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${eventData.id}', ${dIdx})" style="width: 6px; height: 6px; border-radius: 50%; background: ${dIdx === 0 ? '#7c3aed' : '#ffffff'}; cursor: pointer;"></span>
+                                        <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${eventData.id}', ${dIdx})" style="width: 10px; height: 10px; border-radius: 50%; background: ${dIdx === 0 ? '#7c3aed' : '#ffffff'}; cursor: pointer;"></span>
                                     `).join('')}
                                 </div>
                             </div>
