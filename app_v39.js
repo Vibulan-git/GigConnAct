@@ -6064,6 +6064,7 @@ function renderMarket(container, type, onNavigate) {
     let prefillTechnik = [];
     let prefillMusicianTypes = [];
     let prefillEventTypes = [];
+    let prefillRadius = 150;
     let hasProfile = false;
     console.log("[DEBUG_RENDER_MARKET_INIT] hasProfile:", hasProfile, "currentUser:", state.currentUser ? state.currentUser.email : null, "isEvents:", isEvents);
 
@@ -6085,6 +6086,7 @@ function renderMarket(container, type, onNavigate) {
                 }
 
                 prefillLocation = myProfile.location || '';
+                prefillRadius = myProfile.radius || 150;
                 prefillGenres = myProfile.genres || [];
                 prefillInstruments = myProfile.instruments || [];
                 prefillMinBudget = myProfile.minBudget || 0;
@@ -6248,6 +6250,14 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Ort / PLZ</label>
                                 <input type="text" id="filter-location" placeholder="z.B. Köln" class="form-input" value="${prefillLocation}" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
+                            </div>
+
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
+                                <div class="slider-value-display" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Maximaler Umkreis</label>
+                                    <span id="val-filter-radius" style="font-size: 0.85rem; font-weight: 700; color: #7c3aed;">${prefillRadius} km</span>
+                                </div>
+                                <input type="range" class="form-input" id="input-filter-radius" min="0" max="500" step="10" value="${prefillRadius}" style="width: 100%; accent-color: #7c3aed;">
                             </div>
 
                             <!-- 3. Datum / Kalender -->
@@ -6871,6 +6881,9 @@ function renderMarket(container, type, onNavigate) {
                 const maxP = parseInt(container.querySelector('#input-filter-publikum-max')?.value || 500);
                 if (minP > 0 || maxP < 500) return true;
 
+                const radiusVal = parseInt(container.querySelector('#input-filter-radius')?.value || prefillRadius);
+                if (radiusVal !== prefillRadius) return true;
+
                 const musTypesGrid = container.querySelector('#filter-musician-types-grid');
                 if (musTypesGrid && getCheckedValues('filter-musician-types-grid').length > 0) return true;
             } else {
@@ -6918,7 +6931,9 @@ function renderMarket(container, type, onNavigate) {
                         const activeMus = state.musicians.find(m => m.id === state.activeMusicianId) 
                             || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId);
                         const musRadius = activeMus ? (activeMus.radius || 150) : 150;
-                        if (dist <= musRadius) return true;
+                        const radiusInput = container.querySelector('#input-filter-radius');
+                        const selectedRadius = radiusInput ? parseInt(radiusInput.value) : musRadius;
+                        if (dist <= selectedRadius) return true;
                     }
                     return false;
                 });
@@ -7371,8 +7386,15 @@ function renderMarket(container, type, onNavigate) {
         }
     });
 
-    // Initialize range sliders
     if (isEvents) {
+        const radiusInput = container.querySelector('#input-filter-radius');
+        const radiusDisplay = container.querySelector('#val-filter-radius');
+        if (radiusInput && radiusDisplay) {
+            radiusInput.addEventListener('input', () => {
+                radiusDisplay.textContent = radiusInput.value + ' km';
+                applyAllFiltersAndSort();
+            });
+        }
         initDualSlider('slider-filter-duration-container', 'input-filter-duration-min', 'input-filter-duration-max', 'track-filter-duration', 'val-filter-duration', 'Std.', false);
         initDualSlider('slider-filter-budget-container', 'input-filter-budget-min', 'input-filter-budget-max', 'track-filter-budget', 'val-filter-budget', '€', true);
         initDualSlider('slider-filter-publikum-container', 'input-filter-publikum-min', 'input-filter-publikum-max', 'track-filter-publikum', 'val-filter-publikum', 'Personen', false);
@@ -7430,7 +7452,10 @@ function renderMarket(container, type, onNavigate) {
         const radiusSlider = container.querySelector('#input-filter-radius-m');
         if (radiusSlider) radiusSlider.value = radiusSlider.max;
 
-        container.querySelectorAll('.dual-range-slider input[type="range"], #input-filter-radius-m').forEach(el => {
+        const radiusSliderEv = container.querySelector('#input-filter-radius');
+        if (radiusSliderEv) radiusSliderEv.value = prefillRadius;
+
+        container.querySelectorAll('.dual-range-slider input[type="range"], #input-filter-radius-m, #input-filter-radius').forEach(el => {
             el.dispatchEvent(new Event('input'));
         });
 
