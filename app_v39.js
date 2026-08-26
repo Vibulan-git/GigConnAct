@@ -6929,7 +6929,7 @@ function renderMarket(container, type, onNavigate) {
                         // If filtering events for a musician location
                         const dist = getEstimatedDistance(item.location, locInput);
                         const activeMus = state.musicians.find(m => m.id === state.activeMusicianId) 
-                            || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId);
+                            || (state.currentUser ? state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId) : null);
                         const musRadius = activeMus ? (activeMus.radius || 150) : 150;
                         const radiusInput = container.querySelector('#input-filter-radius');
                         const selectedRadius = radiusInput ? parseInt(radiusInput.value) : musRadius;
