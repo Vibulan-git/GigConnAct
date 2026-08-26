@@ -6064,7 +6064,7 @@ function renderMarket(container, type, onNavigate) {
     let prefillTechnik = [];
     let prefillMusicianTypes = [];
     let prefillEventTypes = [];
-    let prefillRadius = 150;
+    let prefillRadius = 500;
     let hasProfile = false;
     console.log("[DEBUG_RENDER_MARKET_INIT] hasProfile:", hasProfile, "currentUser:", state.currentUser ? state.currentUser.email : null, "isEvents:", isEvents);
 
