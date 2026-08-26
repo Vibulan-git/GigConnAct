@@ -6264,6 +6264,21 @@ function renderMarket(container, type, onNavigate) {
                                 <input type="text" id="filter-keyword" placeholder="z.B. Hochzeit, Sax, Rock..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
+                            <!-- Kontakt-Typ Filter -->
+                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Kontakt-Typ</label>
+                                <div class="checkbox-tag-grid" id="filter-contact-type-grid" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <label class="tag-pill-checkbox active">
+                                        <input type="checkbox" name="filterContactType" value="direct" checked>
+                                        <span>Direktkontakt</span>
+                                    </label>
+                                    <label class="tag-pill-checkbox active">
+                                        <input type="checkbox" name="filterContactType" value="mediation" checked>
+                                        <span>Vermittlung</span>
+                                    </label>
+                                </div>
+                            </div>
+
                             <!-- 2. Ort / PLZ -->
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Ort / PLZ</label>
@@ -6438,20 +6453,7 @@ function renderMarket(container, type, onNavigate) {
                                 <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
-                            <!-- Kontakt-Typ Filter -->
-                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Kontakt-Typ</label>
-                                <div class="checkbox-tag-grid" id="filter-contact-type-grid-m" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                    <label class="tag-pill-checkbox active">
-                                        <input type="checkbox" name="filterContactTypeM" value="direct" checked>
-                                        <span>Direkter Kontakt</span>
-                                    </label>
-                                    <label class="tag-pill-checkbox active">
-                                        <input type="checkbox" name="filterContactTypeM" value="mediation" checked>
-                                        <span>Vermittlung</span>
-                                    </label>
-                                </div>
-                            </div>
+
 
                             <!-- 2. Ort & Maximaler Umkreis -->
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
@@ -7131,9 +7133,9 @@ function renderMarket(container, type, onNavigate) {
                 });
             }
 
-            // 2.1. Kontakt-Typ Filter (Direkt / Vermittlung) - ONLY for musicians!
-            if (!isEvents) {
-                const contactTypeGridId = 'filter-contact-type-grid-m';
+            // 2.1. Kontakt-Typ Filter (Direkt / Vermittlung) - ONLY for events!
+            if (isEvents) {
+                const contactTypeGridId = 'filter-contact-type-grid';
                 const contactTypeGrid = container.querySelector('#' + contactTypeGridId);
                 if (contactTypeGrid) {
                     const selContactTypes = getCheckedValues(contactTypeGridId);
@@ -9480,25 +9482,7 @@ function renderMyEventsContent(container) {
     );
     const activeEvents = allMyEvents.filter(e => isEventActive(e));
     const deactivatedEvents = allMyEvents.filter(e => !isEventActive(e));
-    
-    const totalInterestsExpressedByMe = state.interests?.filter(i => allMyEvents.some(e => e.id === i.eventId) && i.organizerInterested).length || 0;
-    const totalNoInterestsByMe = state.interests?.filter(i => allMyEvents.some(e => e.id === i.eventId) && i.organizerNoInterest).length || 0;
-    
-    let totalPerfectMatches = 0;
-    allMyEvents.forEach(e => {
-        state.interests?.forEach(i => {
-            if (i.eventId === e.id && i.musicianInterested && i.organizerInterested) {
-                totalPerfectMatches++;
-            }
-        });
-    });
 
-    const totalContactedByMe = state.chats?.filter(c => 
-        c.participants.includes(u.id) && 
-        c.participants.some(p => p.startsWith('mus_'))
-    ).length || 0;
-
-    const successPercent = totalInterestsExpressedByMe > 0 ? Math.round((totalPerfectMatches / totalInterestsExpressedByMe) * 100) : 0;
 
     container.innerHTML = `
         <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;"><!-- Active Events -->
@@ -16817,7 +16801,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
     return items.map(item => {
         const isUnlocked = state ? ((typeof state.isUnlocked === 'function') ? state.isUnlocked(item.id) : (state.unlockedContacts && state.unlockedContacts.includes(item.id))) : false;
         const isAdmin = state && state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email);
-        const isMediation = !isEvents && (
+        const isMediation = (
             item.isAgencyRequest === true || 
             item.email === 'info@gigconnact.de' || 
             item.clientEmail === 'info@gigconnact.de' ||
@@ -17134,7 +17118,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     `
                         <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
                             <button class="btn btn-primary" onclick="event.stopPropagation(); ${state && state.currentUser ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : (isEvents ? `showModal('auth', null, 'musician')` : (isMediation ? `window.showAgencyBookingForm('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : `showModal('auth', null, 'organizer')`))}" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
-                                <i class="fa-solid fa-lock"></i> ${isEvents ? 'Kontaktdaten freischalten' : (isMediation ? 'Vermittlung' : 'Kontaktdaten freischalten')}
+                                <i class="fa-solid fa-lock"></i> ${isEvents ? (isMediation ? 'Vermittlung' : 'Direktkontakt') : (isMediation ? 'Vermittlung' : 'Kontaktdaten freischalten')}
                             </button>
                         </div>
                     `
