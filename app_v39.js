@@ -6812,6 +6812,12 @@ function renderMarket(container, type, onNavigate) {
                         virtualProfile.musicianTypes = checkedTypes;
                     }
 
+                    // 4.5 Event Types
+                    const checkedEventTypes = getCheckedValues('filter-event-type-grid');
+                    if (checkedEventTypes.length > 0) {
+                        virtualProfile.eventTypes = checkedEventTypes;
+                    }
+
                     // 5. Spieldauer (Duration)
                     const minD = parseFloat(container.querySelector('#input-filter-duration-min')?.value || 0.5);
                     const maxD = parseFloat(container.querySelector('#input-filter-duration-max')?.value || 10);
