@@ -6775,15 +6775,75 @@ function renderMarket(container, type, onNavigate) {
             list = list.filter(item => item.id === targetId);
         }
 
-        // Pre-calculate matchScore for every item in list based on logged in user profile
+        // Pre-calculate matchScore for every item in list based on logged in user profile (dynamically adjusted by active filters)
         if (state.currentUser) {
             if (state.currentUser.role === 'musician') {
                 const myProfile = state.musicians.find(m => m.id === state.activeMusicianId) 
                     || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId);
                 if (myProfile) {
+                    const virtualProfile = { ...myProfile };
+
+                    // 1. Location and Radius
+                    const locVal = (container.querySelector('#filter-location')?.value || '').trim();
+                    if (locVal) {
+                        virtualProfile.location = locVal;
+                    }
+                    const radiusInput = container.querySelector('#input-filter-radius');
+                    if (radiusInput) {
+                        virtualProfile.radius = parseInt(radiusInput.value);
+                    }
+
+                    // 2. Genres
+                    const checkedGenres = getCheckedValues('filter-genres-grid');
+                    if (checkedGenres.length > 0) {
+                        virtualProfile.genres = checkedGenres;
+                    }
+
+                    // 3. Instruments
+                    const checkedInst = getCheckedValues('filter-instruments-grid');
+                    if (checkedInst.length > 0) {
+                        virtualProfile.instruments = checkedInst;
+                    }
+
+                    // 4. Musician Types
+                    const checkedTypes = getCheckedValues('filter-musician-types-grid');
+                    if (checkedTypes.length > 0) {
+                        virtualProfile.type = checkedTypes.join(', ');
+                        virtualProfile.musicianTypes = checkedTypes;
+                    }
+
+                    // 5. Spieldauer (Duration)
+                    const minD = parseFloat(container.querySelector('#input-filter-duration-min')?.value || 0.5);
+                    const maxD = parseFloat(container.querySelector('#input-filter-duration-max')?.value || 10);
+                    virtualProfile.minDuration = minD;
+                    virtualProfile.maxDuration = maxD;
+
+                    // 6. Gage (Budget)
+                    const minB = parseFloat(container.querySelector('#input-filter-budget-min')?.value || 0);
+                    const maxB = parseFloat(container.querySelector('#input-filter-budget-max')?.value || 5000);
+                    virtualProfile.minBudget = minB;
+                    virtualProfile.maxBudget = maxB;
+
+                    // 7. Besucheranzahl (Publikum)
+                    const minP = parseInt(container.querySelector('#input-filter-publikum-min')?.value || 0);
+                    const maxP = parseInt(container.querySelector('#input-filter-publikum-max')?.value || 500);
+                    virtualProfile.minPublikum = minP;
+                    virtualProfile.maxPublikum = maxP;
+
+                    // 8. Technik
+                    const checkedTech = getCheckedValues('filter-technik-grid');
+                    if (checkedTech.length > 0) {
+                        virtualProfile.technik = checkedTech;
+                    }
+
+                    // 9. Availability / Dates
+                    if (selectedFilterDates && selectedFilterDates.length > 0) {
+                        virtualProfile.availability = selectedFilterDates;
+                    }
+
                     list.forEach(item => {
                         if (isEvents) {
-                            item.matchScore = calculateMatch(myProfile, item, 'musician').score;
+                            item.matchScore = calculateMatch(virtualProfile, item, 'musician').score;
                         } else {
                             let hash = 0;
                             const idStr = String(item.id);
@@ -6808,9 +6868,74 @@ function renderMarket(container, type, onNavigate) {
                     || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) 
                     || state.events.find(e => e.creatorId === state.currentUser.id);
                 if (myProfile) {
+                    const virtualEvent = { ...myProfile };
+
+                    // 1. Location and Radius
+                    const locVal = (container.querySelector('#filter-location-m')?.value || '').trim();
+                    if (locVal) {
+                        virtualEvent.location = locVal;
+                    }
+                    const radiusInput = container.querySelector('#input-filter-radius-m');
+                    if (radiusInput) {
+                        virtualEvent.radius = parseInt(radiusInput.value);
+                    }
+
+                    // 2. Genres
+                    const checkedGenres = getCheckedValues('filter-genres-grid-m');
+                    if (checkedGenres.length > 0) {
+                        virtualEvent.genres = checkedGenres;
+                    }
+
+                    // 3. Instruments
+                    const checkedInst = getCheckedValues('filter-instruments-grid-m');
+                    if (checkedInst.length > 0) {
+                        virtualEvent.instruments = checkedInst;
+                    }
+
+                    // 4. Musician Types (Gesuchte Musiker-Typen)
+                    const checkedTypes = getCheckedValues('filter-musician-type-grid');
+                    if (checkedTypes.length > 0) {
+                        virtualEvent.musicianTypes = checkedTypes;
+                    }
+
+                    // 5. Event Types (Gesuchte Event-Typen)
+                    const checkedEventTypes = getCheckedValues('filter-event-types-grid-m');
+                    if (checkedEventTypes.length > 0) {
+                        virtualEvent.eventTypes = checkedEventTypes;
+                    }
+
+                    // 6. Spieldauer (Duration)
+                    const minD = parseFloat(container.querySelector('#input-filter-duration-m-min')?.value || 0.5);
+                    const maxD = parseFloat(container.querySelector('#input-filter-duration-m-max')?.value || 10);
+                    virtualEvent.minDuration = minD;
+                    virtualEvent.maxDuration = maxD;
+
+                    // 7. Gage (Budget)
+                    const minB = parseFloat(container.querySelector('#input-filter-gage-m-min')?.value || 0);
+                    const maxB = parseFloat(container.querySelector('#input-filter-gage-m-max')?.value || 5000);
+                    virtualEvent.minBudget = minB;
+                    virtualEvent.maxBudget = maxB;
+
+                    // 8. Besucheranzahl (Publikum)
+                    const minP = parseInt(container.querySelector('#input-filter-publikum-m-min')?.value || 0);
+                    const maxP = parseInt(container.querySelector('#input-filter-publikum-m-max')?.value || 500);
+                    virtualEvent.minPublikum = minP;
+                    virtualEvent.maxPublikum = maxP;
+
+                    // 9. Technik
+                    const checkedTech = getCheckedValues('filter-technik-grid-m');
+                    if (checkedTech.length > 0) {
+                        virtualEvent.technik = checkedTech;
+                    }
+
+                    // 10. Date
+                    if (selectedFilterDates && selectedFilterDates.length > 0) {
+                        virtualEvent.date = selectedFilterDates[0];
+                    }
+
                     list.forEach(item => {
                         if (!isEvents) {
-                            item.matchScore = calculateMatch(item, myProfile, 'organizer').score;
+                            item.matchScore = calculateMatch(item, virtualEvent, 'organizer').score;
                         } else {
                             let hash = 0;
                             const idStr = String(item.id);
