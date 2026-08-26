@@ -7326,6 +7326,37 @@ function renderMarket(container, type, onNavigate) {
                         loadMoreContainer.style.display = 'none';
                     }
                 }
+
+                // Manage bottom reset button
+                let bottomResetContainer = container.querySelector('#market-bottom-reset-container');
+                const showBottomReset = isFilterActiveCurrently || list.length === 0;
+
+                if (showBottomReset) {
+                    if (!bottomResetContainer) {
+                        bottomResetContainer = document.createElement('div');
+                        bottomResetContainer.id = 'market-bottom-reset-container';
+                        bottomResetContainer.style.cssText = 'grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 1.5rem; margin-bottom: 2rem; width: 100%;';
+                        grid.parentNode.appendChild(bottomResetContainer);
+                    }
+                    const themeColor = isEvents ? '#7c3aed' : '#2563eb';
+                    bottomResetContainer.innerHTML = `
+                        <button class="btn btn-secondary" id="btn-market-bottom-reset" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: ${themeColor}; border: 2px solid ${themeColor}; background: transparent; transition: all 0.2s;">
+                            <i class="fa-solid fa-rotate-right"></i> Filter zurücksetzen
+                        </button>
+                    `;
+                    bottomResetContainer.querySelector('#btn-market-bottom-reset').onclick = (e) => {
+                        e.preventDefault();
+                        const resetBtn = container.querySelector('#btn-reset-filters');
+                        if (resetBtn) {
+                            resetBtn.click();
+                        }
+                    };
+                    bottomResetContainer.style.display = 'flex';
+                } else {
+                    if (bottomResetContainer) {
+                        bottomResetContainer.style.display = 'none';
+                    }
+                }
             }
 
             // Banner injection if displaying a specific profile/event from an email match
