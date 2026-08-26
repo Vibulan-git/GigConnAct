@@ -5712,9 +5712,16 @@ function setupLocationAutocomplete(input, onSelect) {
     let debounceTimer;
     let suggestionsContainer = document.createElement('div');
     let extraClass = '';
-    if (input.id === 'input-mus-location-search') {
+    const isMusicianTheme = (
+        input.name?.includes('mus') ||
+        input.id?.includes('mus') ||
+        input.id === 'filter-location' ||
+        input.closest('.theme-musician') ||
+        input.closest('.portal-layout.theme-musician')
+    );
+    if (isMusicianTheme) {
         extraClass = ' musician-suggestions';
-    } else if (input.id === 'input-org-location-search') {
+    } else {
         extraClass = ' organizer-suggestions';
     }
     suggestionsContainer.className = 'autocomplete-suggestions hidden' + extraClass;
@@ -5729,6 +5736,12 @@ function setupLocationAutocomplete(input, onSelect) {
         suggestionsContainer.classList.add('hidden');
         activeIndex = -1;
         input.dataset.lastValidVal = val;
+        
+        input.dataset.justSelected = "true";
+        setTimeout(() => {
+            delete input.dataset.justSelected;
+        }, 400);
+
         if (onSelect) {
             onSelect(val);
         } else {
@@ -5845,6 +5858,10 @@ function setupLocationAutocomplete(input, onSelect) {
                 activeIndex = -1;
 
                 suggestionsContainer.querySelectorAll('.autocomplete-suggestion').forEach(item => {
+                    item.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        selectSuggestion(item);
+                    });
                     item.addEventListener('click', () => {
                         selectSuggestion(item);
                     });
@@ -5920,6 +5937,7 @@ function setupLocationAutocomplete(input, onSelect) {
 
     input.addEventListener('blur', () => {
         setTimeout(() => {
+            if (input.dataset.justSelected === "true") return;
             const val = input.value.trim();
             if (!val) {
                 input.dataset.lastValidVal = '';
