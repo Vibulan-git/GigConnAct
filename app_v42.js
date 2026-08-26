@@ -14501,23 +14501,12 @@ function navigate(page) {
             }
             break;
         case 'my-musicians':
-            if (!state.currentUser) {
-                navigate('');
-                showModal('auth');
-            } else {
-                renderMyMusicians(mainContainer);
-                setActiveLink('link-my-musicians');
-                window.location.hash = '#/my-musicians';
-            }
-            break;
         case 'my-events':
             if (!state.currentUser) {
                 navigate('');
                 showModal('auth');
             } else {
-                renderMyEvents(mainContainer);
-                setActiveLink('link-my-events');
-                window.location.hash = '#/my-events';
+                navigate('profile');
             }
             break;
         case 'postbox':
@@ -14685,11 +14674,7 @@ function updateNavbar(forceLanding) {
                             ` : ''}
                         </a>
                         
-                        <!-- Meine Musiker / Meine Events Link -->
-                        <a href="${isMusician ? '#/my-musicians' : '#/my-events'}" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${window.location.hash === (isMusician ? '#/my-musicians' : '#/my-events') ? 'active' : ''}" id="dropdown-link-my-tab">
-                            <i class="fa-solid ${isMusician ? 'fa-guitar' : 'fa-calendar-check'}"></i>
-                            <span>${isMusician ? 'Meine Musiker' : 'Meine Events'}</span>
-                        </a>
+
                         
                         <a href="#/profile" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile">
                             <i class="fa-solid fa-user-gear"></i>
