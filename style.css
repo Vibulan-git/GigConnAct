@@ -3363,6 +3363,16 @@ body {
     --market-primary-rgb: 37, 99, 235;
 }
 
+#musician-editor-form {
+    --market-primary: #7c3aed;
+    --market-primary-rgb: 124, 58, 237;
+}
+
+#event-editor-form {
+    --market-primary: #2563eb;
+    --market-primary-rgb: 37, 99, 235;
+}
+
 /* Card layout for criteria form groups inside the registration form */
 #auth-register-form .form-group,
 #musician-editor-form .form-group {
