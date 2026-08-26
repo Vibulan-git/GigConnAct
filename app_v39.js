@@ -6322,7 +6322,7 @@ function renderMarket(container, type, onNavigate) {
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-musician-types-grid">
-                                    ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler und Tänzer', 'Sonstige'].map(t => `
+                                    ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler', 'Tänzer', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox ${prefillMusicianTypes.includes(t) ? 'active' : ''}">
                                             <input type="checkbox" name="filterMusicianTypes" value="${t}" ${prefillMusicianTypes.includes(t) ? 'checked' : ''}>
                                             <span>${t}</span>
@@ -6493,7 +6493,7 @@ function renderMarket(container, type, onNavigate) {
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-musician-type-grid">
-                                    ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler und Tänzer', 'Sonstige'].map(t => `
+                                    ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler', 'Tänzer', 'Sonstige'].map(t => `
                                         <label class="tag-pill-checkbox ${prefillMusicianTypes.includes(t) ? 'active' : ''}">
                                             <input type="checkbox" name="filterMusicianTypes" value="${t}" ${prefillMusicianTypes.includes(t) ? 'checked' : ''}>
                                             <span>${t}</span>
@@ -8413,6 +8413,7 @@ function renderProfilePage(container) {
 
     container.innerHTML = `
         <div class="portal-layout ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="display:flex; flex-direction:column; gap:2rem; max-width: 800px; margin: 0 auto; padding: 1rem 0;">
+            <div id="profile-my-items-container"></div>
             <div class="profile-section-card">
                 <h3 style="color: ${themeColor}; margin-top: 0; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.6rem;">
                     <i class="fa-solid fa-address-card ${themeClass}"></i> Persönliche Kontaktdaten
@@ -9027,6 +9028,15 @@ function renderProfilePage(container) {
             window.handleLogoutRedirect();
         });
     }
+
+    const myItemsContainer = container.querySelector('#profile-my-items-container');
+    if (myItemsContainer) {
+        if (isMusician) {
+            renderMyMusiciansContent(myItemsContainer);
+        } else {
+            renderMyEventsContent(myItemsContainer);
+        }
+    }
 }
 
 
@@ -9457,6 +9467,10 @@ function renderOrganizerEventItem(e, isActive) {
 }
 
 function renderMyEvents(container) {
+    renderMyEventsContent(container);
+}
+
+function renderMyEventsContent(container) {
     if (!state.currentUser) return;
     const u = state.currentUser;
     const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
@@ -9941,6 +9955,10 @@ function renderMyMusicianItem(m, isActive) {
     `;
 }
 function renderMyMusicians(container) {
+    renderMyMusiciansContent(container);
+}
+
+function renderMyMusiciansContent(container) {
     if (!state.currentUser) return;
     const u = state.currentUser;
     const allMyMusicians = state.musicians.filter(m => m.creatorId === u.id);
@@ -10199,7 +10217,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                             <span onclick="window.toggleSelectAll('grid-musician-types', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-musician-types">
-                            ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler und Tänzer', 'Sonstige'].map(t => {
+                            ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler', 'Tänzer', 'Sonstige'].map(t => {
                                 const isChecked = currentTypes.includes(t);
                                 return `
                                     <label class="tag-pill-checkbox">
@@ -10964,7 +10982,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                             <span onclick="window.toggleSelectAll('grid-org-musician-types', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-musician-types">
-                            ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler und Tänzer', 'Sonstige'].map(t => {
+                            ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler', 'Tänzer', 'Sonstige'].map(t => {
                                 const isChecked = currentMusicianTypes.includes(t);
                                 return `
                                     <label class="tag-pill-checkbox">
@@ -11761,7 +11779,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 <span onclick="window.toggleSelectAll('grid-musician-types', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                             </div>
                             <div class="checkbox-tag-grid" id="grid-musician-types">
-                                ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler und Tänzer', 'Sonstige'].map(t => `
+                                ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler', 'Tänzer', 'Sonstige'].map(t => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="musicianTypes" value="${t}">
                                         <span>${t}</span>
@@ -11994,7 +12012,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 <span onclick="window.toggleSelectAll('grid-org-musician-types', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                             </div>
                             <div class="checkbox-tag-grid" id="grid-org-musician-types">
-                                ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler und Tänzer', 'Sonstige'].map(t => `
+                                ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler', 'Tänzer', 'Sonstige'].map(t => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgMusicianTypes" value="${t}">
                                         <span>${t}</span>
@@ -16144,7 +16162,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                             <span onclick="window.toggleSelectAll('grid-org-musician-types', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-musician-types">
-                            ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler und Tänzer', 'Sonstige'].map(t => `
+                            ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler', 'Tänzer', 'Sonstige'].map(t => `
                                 <label class="tag-pill-checkbox">
                                     <input type="checkbox" name="orgMusicianTypes" value="${t}">
                                     <span>${t}</span>
