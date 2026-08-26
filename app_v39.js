@@ -7257,6 +7257,10 @@ function renderMarket(container, type, onNavigate) {
         });
     });
     
+    if (typeof initAllLocationAutocompletes === 'function') {
+        initAllLocationAutocompletes();
+    }
+    
     // Bind change/input event to text inputs
     container.querySelectorAll('.form-input:not([type="checkbox"]):not([type="range"])').forEach(el => {
         el.addEventListener('input', applyAllFiltersAndSort);
