@@ -1519,18 +1519,19 @@ async function releaseMediationContactsInternal(mediationId, musicianId = null) 
             <!-- EVENT-KACHEL MIT KONTAKTDATEN -->
             <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin: 20px 0; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: left;">
                 <div style="background: #7c3aed; padding: 15px; color: #ffffff;">
-                    <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: bold; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 10px;">${eventData ? (eventData.eventType || 'Event') : 'Event'}</span>
-                    <h3 style="margin: 5px 0 0 0; font-size: 1.2rem; font-weight: bold; color: #ffffff;">${med.eventName}</h3>
+                    <h3 style="margin: 0; font-size: 1.2rem; font-weight: bold; color: #ffffff;">${med.eventName}</h3>
                 </div>
                 <div style="padding: 15px; font-size: 0.9rem; line-height: 1.5; color: #4a5568;">
-                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">📍 Ort:</strong> ${eventLocation}</p>
-                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">📅 Datum:</strong> ${formattedDate}</p>
-                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">🎸 Gesuchter Act-Typ:</strong> ${eventData ? (Array.isArray(eventData.musicianTypes) ? eventData.musicianTypes.join(', ') : (eventData.musicianTypes || 'Solo / Band')) : 'Solo / Band'}</p>
-                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">🎵 Genres:</strong> ${eventData && eventData.genres ? eventData.genres.join(', ') : 'Alle'}</p>
-                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">⏱️ Spielzeit:</strong> ${durationDisplay}</p>
-                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">👥 Publikum:</strong> ${eventData && eventData.minPublikum !== undefined && eventData.maxPublikum !== undefined ? `${eventData.minPublikum} - ${eventData.maxPublikum}+ Personen` : '0 - 500+ Personen'}</p>
-                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">🎛️ Technik:</strong> ${techArr.length > 0 ? techArr.join(', ') : 'nach Vereinbarung'}</p>
-                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">💰 Budget:</strong> ${budgetDisplay}</p>
+                    <p style="margin: 6px 0;"><span style="font-size: 1.15rem; width: 30px; display: inline-block; text-align: center; vertical-align: middle; margin-right: 0.35rem;">🎉</span> ${eventData ? (eventData.type || eventData.eventType || 'Nicht angegeben') : 'Nicht angegeben'}</p>
+                    <p style="margin: 6px 0;"><span style="font-size: 1.15rem; width: 30px; display: inline-block; text-align: center; vertical-align: middle; margin-right: 0.35rem;">📍</span> ${eventLocation}</p>
+                    <p style="margin: 6px 0;"><span style="font-size: 1.15rem; width: 30px; display: inline-block; text-align: center; vertical-align: middle; margin-right: 0.35rem;">📅</span> ${formattedDate}</p>
+                    <p style="margin: 6px 0;"><span style="font-size: 1.15rem; width: 30px; display: inline-block; text-align: center; vertical-align: middle; margin-right: 0.35rem;">🎸</span> ${eventData ? (Array.isArray(eventData.musicianTypes) ? eventData.musicianTypes.join(', ') : (eventData.musicianTypes || 'Nicht angegeben')) : 'Nicht angegeben'}</p>
+                    <p style="margin: 6px 0;"><span style="font-size: 1.15rem; width: 30px; display: inline-block; text-align: center; vertical-align: middle; margin-right: 0.35rem;">🎵</span> ${eventData && eventData.genres ? (Array.isArray(eventData.genres) ? eventData.genres.join(', ') : eventData.genres) : 'Alle'}</p>
+                    <p style="margin: 6px 0;"><span style="font-size: 1.15rem; width: 30px; display: inline-block; text-align: center; vertical-align: middle; margin-right: 0.35rem;">🎻</span> ${eventData && eventData.instruments ? (Array.isArray(eventData.instruments) ? eventData.instruments.join(', ') : eventData.instruments) : 'Nicht angegeben'}</p>
+                    <p style="margin: 6px 0;"><span style="font-size: 1.15rem; width: 30px; display: inline-block; text-align: center; vertical-align: middle; margin-right: 0.35rem;">⏱️</span> ${durationDisplay}</p>
+                    <p style="margin: 6px 0;"><span style="font-size: 1.15rem; width: 30px; display: inline-block; text-align: center; vertical-align: middle; margin-right: 0.35rem;">👥</span> ${eventData && eventData.minPublikum !== undefined && eventData.maxPublikum !== undefined ? `${eventData.minPublikum} - ${eventData.maxPublikum}+ Personen` : '0 - 500+ Personen'}</p>
+                    <p style="margin: 6px 0;"><span style="font-size: 1.15rem; width: 30px; display: inline-block; text-align: center; vertical-align: middle; margin-right: 0.35rem;">🎛️</span> ${techArr.length > 0 ? techArr.join(', ') : 'nach Vereinbarung'}</p>
+                    <p style="margin: 6px 0;"><span style="font-size: 1.15rem; width: 30px; display: inline-block; text-align: center; vertical-align: middle; margin-right: 0.35rem;">💰</span> ${budgetDisplay}</p>
                     ${eventData && eventData.description ? `<p style="margin: 6px 0; font-style: italic; color: #718096; border-top: 1px dashed #e2e8f0; padding-top: 8px;">"${eventData.description}"</p>` : ''}
                     
                     <!-- KONTAKTDATEN -->
