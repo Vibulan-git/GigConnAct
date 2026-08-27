@@ -2260,9 +2260,18 @@ class StateManager {
         if (window.isSignInLinkProcessing) return;
         if (auth.isSignInWithEmailLink(window.location.href)) {
             if (auth.currentUser) {
-                console.log("User already logged in, skipping email link sign-in.");
-                window.history.replaceState({}, document.title, window.location.origin + window.location.pathname + window.location.hash);
-                return;
+                const loggedInEmail = auth.currentUser.email;
+                const linkEmail = window.localStorage.getItem('emailForSignIn');
+                
+                if (linkEmail && loggedInEmail && linkEmail.toLowerCase() === loggedInEmail.toLowerCase() && state.currentUser && state.currentUser.id === auth.currentUser.uid) {
+                    console.log("User already logged in with valid profile, skipping link verification.");
+                    window.history.replaceState({}, document.title, window.location.origin + window.location.pathname + window.location.hash);
+                    return;
+                }
+                
+                console.log("Signing out stale user session before link verification.");
+                await auth.signOut();
+                state.currentUser = null;
             }
             window.isSignInLinkProcessing = true;
             let email = window.localStorage.getItem('emailForSignIn');
@@ -8389,7 +8398,13 @@ window.deleteCurrentUserAccount = async function() {
         // Delete Authentication account
         const firebaseUser = auth.currentUser;
         if (firebaseUser) {
-            await firebaseUser.delete();
+            try {
+                await firebaseUser.delete();
+            } catch (authDelErr) {
+                console.warn("Auth account deletion failed, forcing signout to clear session:", authDelErr);
+                await auth.signOut();
+                throw authDelErr;
+            }
         }
 
         // Clean local fallback users list
@@ -13734,6 +13749,7 @@ function renderVerificationModal(wrapper, onSuccessCallback) {
                 <p style="margin-bottom:1.5rem; line-height: 1.5; color: var(--text-muted);">
                     Wir haben eine E-Mail zur Registrierung an <strong>${pendingUser.email || 'deine E-Mail'}</strong> gesendet.<br><br>
                     Bitte überprüfe dein E-Mail-Postfach (und deinen Spam-Ordner) und klicke auf den Bestätigungslink in der E-Mail, um die Registrierung abzuschließen.
+                    ${pendingUser.subscriptionPlan && ['flex', 'plus', 'pro'].includes(pendingUser.subscriptionPlan) ? `<br><br><strong style="color: #c084fc;">Hinweis zur Bezahlung:</strong> Da du einen kostenpflichtigen Tarif gewählt hast, wirst du direkt nach Klick auf den E-Mail-Bestätigungslink automatisch zur sicheren Zahlungsseite (Stripe) weitergeleitet, um dein Abonnement zu aktivieren.` : ''}
                 </p>
                 <div style="margin-top: 2rem;">
                     <button class="btn btn-secondary btn-sm" id="btn-close-verification-modal">
