@@ -2279,6 +2279,10 @@ class StateManager {
 
                 if (userDoc.exists) {
                     console.log("Existing user signed in successfully!");
+                    state.currentUser = { id: userDoc.id, ...userDoc.data() };
+                    if (state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email)) {
+                        state.currentUser.role = 'organizer';
+                    }
                     window.history.replaceState({}, document.title, window.location.pathname);
                 } else {
                     const pendingRegStr = window.localStorage.getItem('GigConnAct_pending_registration');
