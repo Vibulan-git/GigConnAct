@@ -14852,7 +14852,9 @@ function updateNavbar(forceLanding) {
                 const currentHashAfter = window.location.hash || '';
                 let roleParam = null;
                 if (currentHashAfter === '#/events' || currentHashAfter.startsWith('#/events') || currentHashAfter.includes('/events')) {
-                    roleParam = 'organizer_only';
+                    roleParam = 'musician';
+                } else if (currentHashAfter === '#/musicians' || currentHashAfter.startsWith('#/musicians') || currentHashAfter.includes('/musicians')) {
+                    roleParam = 'organizer';
                 }
                 showModal('auth', () => {
                     navigateAfterLogin();
