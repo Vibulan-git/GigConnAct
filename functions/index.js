@@ -762,13 +762,17 @@ exports.createStripeCheckoutSession = functions
         try {
             const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
             
-            // Get user email
+            // Get user email, current plan, and customer ID
             const userDoc = await admin.firestore().collection('users').doc(context.auth.uid).get();
-            const email = userDoc.exists ? userDoc.data().email : null;
+            const userData = userDoc.exists ? userDoc.data() : {};
+            const email = userData.email || null;
+            const stripeCustomerId = userData.stripeCustomerId || null;
+            const currentPlan = userData.subscriptionPlan || null;
+            const subscriptionId = userData.subscriptionId || null;
+            const subscriptionStatus = userData.subscriptionStatus || null;
 
             const sessionParams = {
                 mode: 'subscription',
-                customer_email: email || undefined,
                 line_items: [{
                     price: priceId,
                     quantity: 1,
@@ -780,6 +784,12 @@ exports.createStripeCheckoutSession = functions
                     planKey: planKey
                 }
             };
+
+            if (stripeCustomerId) {
+                sessionParams.customer = stripeCustomerId;
+            } else if (email) {
+                sessionParams.customer_email = email;
+            }
 
             // Check if email has already had a trial by hashing the email and checking in Firestore 'used_trials'
             let hasHadTrial = false;
@@ -794,8 +804,15 @@ exports.createStripeCheckoutSession = functions
 
             const disableAllTrialsForTesting = false; // Set to false when ready to re-enable trials!
 
-            // Set trial period dynamically based on the plan configuration if they haven't had a trial yet
-            if (!disableAllTrialsForTesting && !hasHadTrial) {
+            // Set trial period dynamically based on the plan configuration:
+            // - If the user has never had a trial, they get one.
+            // - If the user has an active subscription, and they are changing their plan (Tarifwechsel), they get a trial for the new plan.
+            const hasActiveSubscription = subscriptionId && (subscriptionStatus === 'active' || subscriptionStatus === 'trialing');
+            const isPlanChange = hasActiveSubscription && currentPlan && currentPlan !== planKey;
+
+            const allowTrial = !disableAllTrialsForTesting && (!hasHadTrial || isPlanChange);
+
+            if (allowTrial) {
                 if (planKey === 'premium') {
                     sessionParams.subscription_data = {
                         trial_period_days: 3
@@ -881,7 +898,22 @@ exports.stripeWebhook = functions
                     
                     // Update user doc in Firestore
                     const userRef = admin.firestore().collection('users').doc(userId);
+                    
+                    // Fetch current user data before updating to retrieve the old subscription ID
+                    const userDocBefore = await userRef.get();
+                    const oldSubscriptionId = userDocBefore.exists ? (userDocBefore.data().subscriptionId || null) : null;
+
                     await userRef.update(updateData);
+
+                    // Cancel old subscription if it exists and is different from the new one to prevent double billing
+                    if (oldSubscriptionId && oldSubscriptionId !== session.subscription) {
+                        try {
+                            await stripe.subscriptions.cancel(oldSubscriptionId);
+                            console.log(`Cancelled old subscription ${oldSubscriptionId} for user ${userId} due to plan change.`);
+                        } catch (cancelErr) {
+                            console.error(`Failed to cancel old subscription ${oldSubscriptionId}:`, cancelErr);
+                        }
+                    }
 
                     // Also check if there's a musician profile and update it too
                     const userDoc = await userRef.get();
