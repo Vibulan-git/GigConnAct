@@ -7054,6 +7054,10 @@ function renderMarket(container, type, onNavigate) {
                 const radiusVal = parseInt(container.querySelector('#input-filter-radius')?.value || prefillRadius);
                 if (radiusVal !== prefillRadius) return true;
 
+                const contactTypeGridId = 'filter-contact-type-grid';
+                const contactTypeGrid = container.querySelector('#' + contactTypeGridId);
+                if (contactTypeGrid && getCheckedValues(contactTypeGridId).length !== 2) return true;
+
                 const musTypesGrid = container.querySelector('#filter-musician-types-grid');
                 if (musTypesGrid && getCheckedValues('filter-musician-types-grid').length > 0) return true;
             } else {
@@ -7603,6 +7607,16 @@ function renderMarket(container, type, onNavigate) {
                     grid.dataset.interacted = "true";
                 }
             }
+            applyAllFiltersAndSort();
+        });
+    });
+
+    // Text inputs listener for keyword search and location search
+    container.querySelectorAll('#filter-keyword, #filter-keyword-m, #filter-location, #filter-location-m').forEach(input => {
+        input.addEventListener('input', () => {
+            applyAllFiltersAndSort();
+        });
+        input.addEventListener('change', () => {
             applyAllFiltersAndSort();
         });
     });
