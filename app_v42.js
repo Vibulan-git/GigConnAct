@@ -8603,14 +8603,10 @@ function renderProfilePage(container) {
                             <div class="selected-badge">Beliebt</div>
                             <h5>Flex</h5>
                             <div class="price">9,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
-                            <div class="subscription-gift-box">
-                                <i class="fa-solid fa-gift"></i>
-                                <div class="gift-title">1 Monat kostenlos</div>
-                            </div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
                                 <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
-                                <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar<br>(auch in der Testphase)</span></li>
+                                <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                 <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "flex" ? "Aktueller Tarif" : (selectedPlan === "flex" ? "Ausgewählt" : "Auswählen")}</button>
@@ -8620,14 +8616,10 @@ function renderProfilePage(container) {
                             <div class="selected-badge">Spare 20 %</div>
                             <h5>Plus</h5>
                             <div class="price">7,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
-                            <div class="subscription-gift-box">
-                                <i class="fa-solid fa-gift"></i>
-                                <div class="gift-title">1 Monat kostenlos</div>
-                            </div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
                                 <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
-                                <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar<br>(auch in der Testphase)</span></li>
+                                <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                 <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "plus" ? "Aktueller Tarif" : (selectedPlan === "plus" ? "Ausgewählt" : "Auswählen")}</button>
@@ -8637,14 +8629,10 @@ function renderProfilePage(container) {
                             <div class="selected-badge">Spare 40 %</div>
                             <h5>Pro</h5>
                             <div class="price">5,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
-                            <div class="subscription-gift-box">
-                                <i class="fa-solid fa-gift"></i>
-                                <div class="gift-title">1 Monat kostenlos</div>
-                            </div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
                                 <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
-                                <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar<br>(auch in der Testphase)</span></li>
+                                <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                 <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "pro" ? "Aktueller Tarif" : (selectedPlan === "pro" ? "Ausgewählt" : "Auswählen")}</button>
@@ -8654,14 +8642,10 @@ function renderProfilePage(container) {
                             <div class="selected-badge" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;">Spare 59 %</div>
                             <h5>Premium</h5>
                             <div class="price">4,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
-                            <div class="subscription-gift-box">
-                                <i class="fa-solid fa-gift"></i>
-                                <div class="gift-title">3 Tage kostenlos</div>
-                            </div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
                                 <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
-                                <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar<br>(auch in der Testphase)</span></li>
+                                <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                 <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "premium" ? "Aktueller Tarif" : (selectedPlan === "premium" ? "Ausgewählt" : "Auswählen")}</button>
