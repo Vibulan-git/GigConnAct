@@ -9023,11 +9023,10 @@ function renderProfilePage(container) {
                         saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Tarif wird gewechselt...`;
                         const changePlan = firebase.app().functions('europe-west3').httpsCallable('changeStripeSubscriptionPlan');
                         const res = await changePlan({ planKey: selectedPlan });
-                        
                         if (res.data && res.data.success) {
                             showToast({
                                 title: "Tarif gewechselt! 🎉",
-                                message: "Dein Tarif wurde erfolgreich geändert und das Restguthaben wird automatisch verrechnet."
+                                message: "Dein Tarif wurde erfolgreich geändert und die Differenz wird automatisch verrechnet."
                             });
                             
                             u.subscriptionPlan = selectedPlan;
