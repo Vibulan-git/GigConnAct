@@ -4312,7 +4312,7 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
             ortScore = 10;
         }
     } else { // organizer
-        const eventRadius = event.radius || 100;
+        const eventRadius = event.radius !== undefined ? event.radius : (musician.radius || 100);
         if (distance <= eventRadius) {
             ortScore = 10;
         }
@@ -6047,6 +6047,7 @@ function renderMarket(container, type, onNavigate) {
     let showOnlyFavorites = false;
     let isFilterActiveCurrently = false;
     let displayedItemsCount = 12;
+    let showMoreMatchesUnfiltered = false;
 
     // Trigger on-demand load from Firestore
     if (isEvents) {
@@ -6774,7 +6775,10 @@ function renderMarket(container, type, onNavigate) {
         updateSlider();
     }
 
-    function applyAllFiltersAndSort(resetPagination = true) {
+    function applyAllFiltersAndSort(resetPagination = true, keepUnfilteredState = false) {
+        if (!keepUnfilteredState) {
+            showMoreMatchesUnfiltered = false;
+        }
         if (resetPagination) {
             displayedItemsCount = 12;
         }
@@ -7074,6 +7078,8 @@ function renderMarket(container, type, onNavigate) {
             return false;
         })();
 
+        const unfilteredList = [...list];
+
         if (!showOnlyFavorites && isFilterActive) {
             // 1. Ort Filter
             const locInput = isEvents 
@@ -7313,7 +7319,13 @@ function renderMarket(container, type, onNavigate) {
                     </div>
                 `;
             } else {
-                const slicedList = list.slice(0, displayedItemsCount);
+                let slicedList = list.slice(0, displayedItemsCount);
+                if (showMoreMatchesUnfiltered && isFilterActiveCurrently) {
+                    const excludedList = unfilteredList.filter(item => !list.some(listItem => listItem.id === item.id));
+                    excludedList.sort((a, b) => (b.matchScore !== undefined ? b.matchScore : 95) - (a.matchScore !== undefined ? a.matchScore : 95));
+                    const top10Excluded = excludedList.slice(0, 10);
+                    slicedList = [...slicedList, ...top10Excluded];
+                }
                 grid.innerHTML = renderMarketGridHTML(slicedList, isEvents);
 
                 // Manage "Mehr anzeigen" button
@@ -7334,7 +7346,7 @@ function renderMarket(container, type, onNavigate) {
                     loadMoreContainer.querySelector('#btn-market-load-more').onclick = (e) => {
                         e.preventDefault();
                         displayedItemsCount += 12;
-                        applyAllFiltersAndSort(false);
+                        applyAllFiltersAndSort(false, true);
                     };
                     loadMoreContainer.style.display = 'flex';
                 } else {
@@ -7343,7 +7355,7 @@ function renderMarket(container, type, onNavigate) {
                     }
                 }
 
-                // Manage bottom reset button
+                // Manage bottom reset button & Weitere Ergebnisse button
                 let bottomResetContainer = container.querySelector('#market-bottom-reset-container');
                 const showBottomReset = isFilterActiveCurrently || list.length === 0;
 
@@ -7351,17 +7363,40 @@ function renderMarket(container, type, onNavigate) {
                     if (!bottomResetContainer) {
                         bottomResetContainer = document.createElement('div');
                         bottomResetContainer.id = 'market-bottom-reset-container';
-                        bottomResetContainer.style.cssText = 'grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 1.5rem; margin-bottom: 2rem; width: 100%;';
+                        bottomResetContainer.style.cssText = 'grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 1.5rem; margin-bottom: 2rem; width: 100%; gap: 1rem; flex-wrap: wrap; align-items: center;';
                         grid.parentNode.appendChild(bottomResetContainer);
                     }
                     const themeColor = isEvents ? '#7c3aed' : '#2563eb';
-                    bottomResetContainer.innerHTML = `
-                        <button class="btn btn-secondary" id="btn-market-bottom-reset" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: ${themeColor}; border: 2px solid ${themeColor}; background: transparent; transition: all 0.2s;">
+                    
+                    let buttonsHtml = '';
+                    if (isFilterActiveCurrently && !showMoreMatchesUnfiltered) {
+                        buttonsHtml += `
+                            <button id="btn-market-show-more-unfiltered" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: #ffffff; border: 2px solid ${themeColor}; background: ${themeColor}; transition: all 0.2s; margin: 0;">
+                                <i class="fa-solid fa-plus"></i> Weitere Ergebnisse
+                            </button>
+                        `;
+                    }
+                    
+                    buttonsHtml += `
+                        <button class="btn btn-secondary" id="btn-market-bottom-reset" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: ${themeColor}; border: 2px solid ${themeColor}; background: transparent; transition: all 0.2s; margin: 0;">
                             <i class="fa-solid fa-rotate-right"></i> Filter zurücksetzen
                         </button>
                     `;
+                    
+                    bottomResetContainer.innerHTML = buttonsHtml;
+                    
+                    const btnShowMoreUnfiltered = bottomResetContainer.querySelector('#btn-market-show-more-unfiltered');
+                    if (btnShowMoreUnfiltered) {
+                        btnShowMoreUnfiltered.onclick = (e) => {
+                            e.preventDefault();
+                            showMoreMatchesUnfiltered = true;
+                            applyAllFiltersAndSort(false, true);
+                        };
+                    }
+                    
                     bottomResetContainer.querySelector('#btn-market-bottom-reset').onclick = (e) => {
                         e.preventDefault();
+                        showMoreMatchesUnfiltered = false;
                         const resetBtn = container.querySelector('#btn-reset-filters');
                         if (resetBtn) {
                             resetBtn.click();
@@ -7660,6 +7695,7 @@ function renderMarket(container, type, onNavigate) {
         });
 
         sortSelects.forEach(sel => sel.value = 'match');
+        showMoreMatchesUnfiltered = false;
         applyAllFiltersAndSort();
     });
 
