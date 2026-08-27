@@ -1716,7 +1716,7 @@ exports.requestMusician = functions
                     </div>
                     <h2 style="color: #7c3aed; margin-top: 0; font-size: 1.4rem; text-align: center;">Vermittlungsanfrage erhalten! 🚀</h2>
                     <p>Hallo ${musName},</p>
-                    <p>herzlichen Glückwunsch! Du hast eine Vermittlungsanfrage für das Event <strong>"${med.eventName}"</strong>${eventLocation ? ` in <strong>${eventLocation}</strong>` : ''}${formattedDate ? ` am <strong>${formattedDate}</strong>` : ''} erhalten. Hinweis: Dies ist keine Buchungsanfrage. Der Veranstalter hat über GigConnAct-Vermittlungen Interesse bekundet, Deine Kontaktdaten zu erhalten.</p>
+                    <p>herzlichen Glückwunsch! Du hast eine Vermittlungsanfrage für das Event <strong>"${med.eventName}"</strong>${eventLocation ? ` in <strong>${eventLocation}</strong>` : ''}${formattedDate ? ` am <strong>${formattedDate}</strong>` : ''} erhalten. Hinweis: Dies ist keine Buchungsanfrage. Der Veranstalter hat über GigConnAct-Vermittlungen Interesse bekundet, Deine Kontaktdaten zu erhalten. Möglicherweise erhalten weitere Musiker die gleiche Anfrage.</p>
                     
                     <p>Klicke auf den Button unten, um dir die Details anzusehen. Bei verbindlichem Interesse Deinerseits erhältst Du über einen entsprechenden Bezahllink die Kontaktdaten des Veranstalters. Mit einem Premium-Account entfallen die Vermittlungsgebühren vollständig.</p>
                     
