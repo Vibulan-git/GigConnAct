@@ -943,6 +943,108 @@ exports.updateSubscriptionCancelState = functions
     });
 
 // ==========================================
+// Stripe Subscription Plan In-Place Update
+// ==========================================
+exports.changeStripeSubscriptionPlan = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['STRIPE_SECRET_KEY'] })
+    .https.onCall(async (data, context) => {
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'Bitte melde dich an.');
+        }
+
+        const { planKey } = data;
+        if (!planKey) {
+            throw new functions.https.HttpsError('invalid-argument', 'Kein Tarif angegeben.');
+        }
+
+        const planPriceMap = {
+            'flex': 'price_1U5PcZEOYldr8rIFF1E7EZZ0',
+            'plus': 'price_1U68OyEOYldr8rIFWZ5Wolht',
+            'pro': 'price_1U68NzEOYldr8rIFk4IGeuy3',
+            'premium': 'price_1U5PcZEOYldr8rIFBPlFtXpf'
+        };
+
+        const priceId = planPriceMap[planKey];
+        if (!priceId) {
+            throw new functions.https.HttpsError('invalid-argument', 'Ungültiger Tarif angegeben.');
+        }
+
+        const uid = context.auth.uid;
+
+        try {
+            const userDoc = await admin.firestore().collection('users').doc(uid).get();
+            if (!userDoc.exists) {
+                throw new functions.https.HttpsError('not-found', 'Benutzerprofil nicht gefunden.');
+            }
+            const userData = userDoc.data();
+            const subscriptionId = userData.subscriptionId;
+
+            if (!subscriptionId) {
+                // Mock user: Update Firestore locally
+                const updateData = {
+                    isPremium: true,
+                    subscriptionPlan: planKey,
+                    subscriptionCancelled: false,
+                    subscriptionEndDate: admin.firestore.FieldValue.delete()
+                };
+                await admin.firestore().collection('users').doc(uid).update(updateData);
+
+                if (userData.profileId && userData.role === 'musician') {
+                    await admin.firestore().collection('musicians').doc(userData.profileId).update({
+                        isPremium: true,
+                        subscriptionPlan: planKey
+                    });
+                }
+
+                return { success: true, mocked: true };
+            }
+
+            const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+            const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+            const subItemId = subscription.items.data[0].id;
+
+            const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
+                items: [{
+                    id: subItemId,
+                    price: priceId,
+                }],
+                proration_behavior: 'create_prorations'
+            });
+
+            const updateData = {
+                isPremium: true,
+                subscriptionPlan: planKey,
+                subscriptionCancelled: updatedSubscription.cancel_at_period_end,
+                subscriptionPeriodStart: updatedSubscription.current_period_start,
+                subscriptionPeriodEnd: updatedSubscription.current_period_end,
+                subscriptionStatus: updatedSubscription.status,
+                subscriptionEndDate: updatedSubscription.cancel_at_period_end
+                    ? new Date(updatedSubscription.current_period_end * 1000).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                    : admin.firestore.FieldValue.delete()
+            };
+
+            await admin.firestore().collection('users').doc(uid).update(updateData);
+
+            if (userData.profileId && userData.role === 'musician') {
+                await admin.firestore().collection('musicians').doc(userData.profileId).update({
+                    isPremium: true,
+                    subscriptionPlan: planKey
+                });
+            }
+
+            return {
+                success: true,
+                mocked: false,
+                subscriptionPeriodEnd: updatedSubscription.current_period_end
+            };
+        } catch (error) {
+            console.error("Failed to change Stripe subscription plan in-place:", error);
+            throw new functions.https.HttpsError('internal', error.message || 'Fehler beim Wechseln des Tarifs.');
+        }
+    });
+
+// ==========================================
 // Stripe Webhook Handler
 // ==========================================
 exports.stripeWebhook = functions

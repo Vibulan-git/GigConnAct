@@ -9018,21 +9018,61 @@ function renderProfilePage(container) {
 
                 try {
                     saveSubBtn.disabled = true;
-                    saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
                     
-                    const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
-                    const res = await createStripeSession({ 
-                        planKey: selectedPlan,
-                        baseUrl: window.location.origin
-                    });
-
-                    if (res.data && res.data.url) {
-                        window.location.href = res.data.url;
+                    if (u.subscriptionId) {
+                        saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Tarif wird gewechselt...`;
+                        const changePlan = firebase.app().functions('europe-west3').httpsCallable('changeStripeSubscriptionPlan');
+                        const res = await changePlan({ planKey: selectedPlan });
+                        
+                        if (res.data && res.data.success) {
+                            showToast({
+                                title: "Tarif gewechselt! 🎉",
+                                message: "Dein Tarif wurde erfolgreich geändert und das Restguthaben wird automatisch verrechnet."
+                            });
+                            
+                            u.subscriptionPlan = selectedPlan;
+                            u.isPremium = true;
+                            u.subscriptionCancelled = false;
+                            delete u.subscriptionEndDate;
+                            if (res.data.subscriptionPeriodEnd) {
+                                u.subscriptionPeriodEnd = res.data.subscriptionPeriodEnd;
+                            }
+                            
+                            const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+                            const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+                            if (idx !== -1) {
+                                registeredUsers[idx].subscriptionPlan = selectedPlan;
+                                registeredUsers[idx].isPremium = true;
+                                registeredUsers[idx].subscriptionCancelled = false;
+                                delete registeredUsers[idx].subscriptionEndDate;
+                                if (res.data.subscriptionPeriodEnd) {
+                                    registeredUsers[idx].subscriptionPeriodEnd = res.data.subscriptionPeriodEnd;
+                                }
+                                localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                            }
+                            
+                            state.saveState();
+                            renderProfilePage(container);
+                            updateNavbar();
+                        } else {
+                            throw new Error("Tarifwechsel konnte nicht durchgeführt werden.");
+                        }
                     } else {
-                        throw new Error("Zahlungs-URL konnte nicht generiert werden.");
+                        saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
+                        const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
+                        const res = await createStripeSession({ 
+                            planKey: selectedPlan,
+                            baseUrl: window.location.origin
+                        });
+
+                        if (res.data && res.data.url) {
+                            window.location.href = res.data.url;
+                        } else {
+                            throw new Error("Zahlungs-URL konnte nicht generiert werden.");
+                        }
                     }
                 } catch (err) {
-                    console.error("Stripe Checkout Redirect failed:", err);
+                    console.error("Subscription update failed:", err);
                     saveSubBtn.disabled = false;
                     saveSubBtn.innerHTML = `Tarif wechseln`;
                     showToast({
