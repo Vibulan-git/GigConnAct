@@ -3276,7 +3276,7 @@ body {
 .subscription-card .price {
     font-size: 1.2rem;
     font-weight: 800;
-    color: #a855f7;
+    color: #7c3aed;
     margin: 0.25rem 0;
 }
 
@@ -3356,7 +3356,7 @@ body {
 }
 
 .plan-features li i {
-    color: #a855f7;
+    color: #7c3aed;
     font-size: 0.8rem;
     margin-top: 0.15rem;
 }
@@ -3366,7 +3366,7 @@ body {
 }
 
 .subscription-card.active .plan-features li i {
-    color: #a855f7;
+    color: #7c3aed;
 }
 
 #auth-register-form.role-musician-active {
@@ -4888,12 +4888,12 @@ input[type="range"].input-field {
 }
 .subscription-gift-box i {
     font-size: 1rem;
-    color: #a855f7;
+    color: #7c3aed;
 }
 .subscription-gift-box .gift-title {
     font-size: 0.72rem;
     font-weight: 700;
-    color: #a855f7;
+    color: #7c3aed;
 }
 .subscription-gift-box .gift-sub {
     font-size: 0.58rem;
