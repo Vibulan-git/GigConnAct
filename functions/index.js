@@ -1011,44 +1011,32 @@ exports.changeStripeSubscriptionPlan = functions
             const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
             const subscription = await stripe.subscriptions.retrieve(subscriptionId);
             const subItemId = subscription.items.data[0].id;
+            const baseUrl = data.baseUrl || 'https://www.gigconnact.de';
 
-            const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
-                items: [{
-                    id: subItemId,
-                    price: priceId,
-                }],
-                proration_behavior: 'create_prorations'
+            const session = await stripe.billingPortal.sessions.create({
+                customer: userData.stripeCustomerId || subscription.customer,
+                return_url: `${baseUrl}/#/profile?payment=success`,
+                flow: {
+                    type: 'subscription_update_confirm',
+                    subscription_update_confirm: {
+                        subscription: subscriptionId,
+                        items: [{
+                            id: subItemId,
+                            price: priceId,
+                            quantity: 1
+                        }]
+                    }
+                }
             });
-
-            const updateData = {
-                isPremium: true,
-                subscriptionPlan: planKey,
-                subscriptionCancelled: updatedSubscription.cancel_at_period_end,
-                subscriptionPeriodStart: updatedSubscription.current_period_start,
-                subscriptionPeriodEnd: updatedSubscription.current_period_end,
-                subscriptionStatus: updatedSubscription.status,
-                subscriptionEndDate: updatedSubscription.cancel_at_period_end
-                    ? new Date(updatedSubscription.current_period_end * 1000).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
-                    : admin.firestore.FieldValue.delete()
-            };
-
-            await admin.firestore().collection('users').doc(uid).update(updateData);
-
-            if (userData.profileId && userData.role === 'musician') {
-                await admin.firestore().collection('musicians').doc(userData.profileId).update({
-                    isPremium: true,
-                    subscriptionPlan: planKey
-                });
-            }
 
             return {
                 success: true,
                 mocked: false,
-                subscriptionPeriodEnd: updatedSubscription.current_period_end
+                url: session.url
             };
         } catch (error) {
-            console.error("Failed to change Stripe subscription plan in-place:", error);
-            throw new functions.https.HttpsError('internal', error.message || 'Fehler beim Wechseln des Tarifs.');
+            console.error("Failed to change Stripe subscription plan via portal:", error);
+            throw new functions.https.HttpsError('internal', error.message || 'Fehler beim Initiieren des Tarifwechsels.');
         }
     });
 
@@ -1205,15 +1193,43 @@ exports.stripeWebhook = functions
             const userId = subscription.metadata ? subscription.metadata.userId : null;
             if (userId) {
                 try {
-                    await admin.firestore().collection('users').doc(userId).update({
+                    const planPriceMap = {
+                        'price_1U5PcZEOYldr8rIFF1E7EZZ0': 'flex',
+                        'price_1U68OyEOYldr8rIFWZ5Wolht': 'plus',
+                        'price_1U68NzEOYldr8rIFk4IGeuy3': 'pro',
+                        'price_1U5PcZEOYldr8rIFBPlFtXpf': 'premium'
+                    };
+                    const priceId = subscription.items && subscription.items.data && subscription.items.data[0] && subscription.items.data[0].price
+                        ? subscription.items.data[0].price.id
+                        : null;
+                    const planKey = planPriceMap[priceId];
+
+                    const updateFields = {
                         subscriptionPeriodStart: subscription.current_period_start,
                         subscriptionPeriodEnd: subscription.current_period_end,
                         subscriptionTrialStart: subscription.trial_start || null,
                         subscriptionTrialEnd: subscription.trial_end || null,
                         subscriptionStatus: subscription.status,
                         subscriptionCancelled: subscription.cancel_at_period_end
-                    });
-                    console.log(`Successfully updated subscription timestamps for user ${userId} on customer.subscription.updated`);
+                    };
+                    if (planKey) {
+                        updateFields.subscriptionPlan = planKey;
+                    }
+
+                    await admin.firestore().collection('users').doc(userId).update(updateFields);
+
+                    // Sync to musician profile if applicable
+                    const userDoc = await admin.firestore().collection('users').doc(userId).get();
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        if (userData.profileId && userData.role === 'musician' && planKey) {
+                            await admin.firestore().collection('musicians').doc(userData.profileId).update({
+                                subscriptionPlan: planKey
+                            });
+                        }
+                    }
+
+                    console.log(`Successfully updated subscription fields and plan (${planKey || 'unknown'}) for user ${userId} on customer.subscription.updated`);
                 } catch (dbErr) {
                     console.error(`Failed to update user profile in Firestore on customer.subscription.updated:`, dbErr);
                 }

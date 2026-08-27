@@ -9037,37 +9037,38 @@ function renderProfilePage(container) {
                     if (u.subscriptionId) {
                         saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Tarif wird gewechselt...`;
                         const changePlan = firebase.app().functions('europe-west3').httpsCallable('changeStripeSubscriptionPlan');
-                        const res = await changePlan({ planKey: selectedPlan });
+                        const res = await changePlan({ 
+                            planKey: selectedPlan,
+                            baseUrl: window.location.origin
+                        });
                         if (res.data && res.data.success) {
-                            showToast({
-                                title: "Tarif gewechselt! 🎉",
-                                message: "Dein Tarif wurde erfolgreich geändert und die Differenz wird automatisch verrechnet."
-                            });
-                            
-                            u.subscriptionPlan = selectedPlan;
-                            u.isPremium = true;
-                            u.subscriptionCancelled = false;
-                            delete u.subscriptionEndDate;
-                            if (res.data.subscriptionPeriodEnd) {
-                                u.subscriptionPeriodEnd = res.data.subscriptionPeriodEnd;
-                            }
-                            
-                            const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-                            const idx = registeredUsers.findIndex(usr => usr.id === u.id);
-                            if (idx !== -1) {
-                                registeredUsers[idx].subscriptionPlan = selectedPlan;
-                                registeredUsers[idx].isPremium = true;
-                                registeredUsers[idx].subscriptionCancelled = false;
-                                delete registeredUsers[idx].subscriptionEndDate;
-                                if (res.data.subscriptionPeriodEnd) {
-                                    registeredUsers[idx].subscriptionPeriodEnd = res.data.subscriptionPeriodEnd;
+                            if (res.data.mocked) {
+                                showToast({
+                                    title: "Tarif gewechselt! 🎉",
+                                    message: "Dein Tarif wurde erfolgreich geändert."
+                                });
+                                
+                                u.subscriptionPlan = selectedPlan;
+                                u.isPremium = true;
+                                u.subscriptionCancelled = false;
+                                delete u.subscriptionEndDate;
+                                
+                                const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+                                const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+                                if (idx !== -1) {
+                                    registeredUsers[idx].subscriptionPlan = selectedPlan;
+                                    registeredUsers[idx].isPremium = true;
+                                    registeredUsers[idx].subscriptionCancelled = false;
+                                    delete registeredUsers[idx].subscriptionEndDate;
+                                    localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
                                 }
-                                localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                                
+                                state.saveState();
+                                renderProfilePage(container);
+                                updateNavbar();
+                            } else if (res.data.url) {
+                                window.location.href = res.data.url;
                             }
-                            
-                            state.saveState();
-                            renderProfilePage(container);
-                            updateNavbar();
                         } else {
                             throw new Error("Tarifwechsel konnte nicht durchgeführt werden.");
                         }
