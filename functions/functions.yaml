@@ -173,6 +173,27 @@
       "callableTrigger": {},
       "entryPoint": "createStripeCheckoutSession"
     },
+    "updateSubscriptionCancelState": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "STRIPE_SECRET_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "updateSubscriptionCancelState"
+    },
     "stripeWebhook": {
       "platform": "gcfv1",
       "availableMemoryMb": null,
