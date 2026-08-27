@@ -211,7 +211,7 @@ function getEstimatedDistance(city1, city2) {
 function calculateMatch(musician, event, searcherRole = 'musician') {
     if (!musician || !event) return 0;
 
-    // 1. Musiker-Typ (20 %)
+    // 1. Musiker-Typ (25 %)
     let typeScore = 0;
     const eventTypesRaw = event.musicianTypes || [];
     const eventTypes = Array.isArray(eventTypesRaw) 
@@ -224,20 +224,20 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
         : (typeof musTypesRaw === 'string' ? musTypesRaw.split(',').map(t => t.trim().toLowerCase()) : []);
 
     if (eventTypes.some(t => musTypes.includes(t))) {
-        typeScore = 20;
+        typeScore = 25;
     }
 
-    // 2. Ort (10 %)
+    // 2. Ort (5 %)
     let ortScore = 0;
     const distance = getEstimatedDistance(musician.location, event.location);
     if (searcherRole === 'musician') {
         if (distance <= (musician.radius || 100)) {
-            ortScore = 10;
+            ortScore = 5;
         }
     } else { // organizer
         const eventRadius = event.radius || 100;
         if (distance <= eventRadius) {
-            ortScore = 10;
+            ortScore = 5;
         }
     }
 
@@ -250,13 +250,13 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
         genresScore = (commonGenres.length / evGenres.length) * 20;
     }
 
-    // 4. Instrumente (5 %)
+    // 4. Instrumente (10 %)
     let instScore = 0;
     const evInst = event.instruments || [];
     const musInst = musician.instruments || [];
     if (evInst.length > 0) {
         const commonInst = evInst.filter(i => musInst.some(mi => String(mi).toLowerCase() === String(i).toLowerCase()));
-        instScore = (commonInst.length / evInst.length) * 5;
+        instScore = (commonInst.length / evInst.length) * 10;
     }
 
     // 5. Spielzeit (5 %)
@@ -311,7 +311,35 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
     // 8. Verfügbarkeit / Datum (5 %) - Default 5%
     let dateScore = 5; 
 
-    const totalScore = typeScore + ortScore + genresScore + instScore + durScore + budgetScore + eventTypeScore + dateScore;
+    // 9. Publikum (5 %)
+    let publikumScore = 0;
+    const evMinP = event.minPublikum || 0;
+    const evMaxP = event.maxPublikum !== undefined ? event.maxPublikum : (event.minPublikum || 500);
+    const musMinP = musician.minPublikum || 0;
+    const musMaxP = musician.maxPublikum !== undefined ? musician.maxPublikum : (musician.minPublikum || 500);
+    if (evMinP >= musMinP && evMaxP <= musMaxP) {
+        publikumScore = 5;
+    }
+
+    // 10. Weitere Kriterien (5 %)
+    let matchesCount = 0;
+    const musTech = Array.isArray(musician.technik) ? musician.technik : [musician.technik || "Technik ist noch unklar"];
+    const evTech = Array.isArray(event.technik) ? event.technik : [event.technik || "Technik ist noch unklar"];
+    if (musTech.includes("Technik vorhanden") && evTech.includes("Technik vorhanden")) {
+        matchesCount++;
+    }
+    if (musTech.includes("Technik ist noch unklar") && evTech.includes("Technik ist noch unklar")) {
+        matchesCount++;
+    }
+    if (evTech.includes("Technik nicht vorhanden") && musTech.includes("Technik vorhanden")) {
+        matchesCount++;
+    }
+    if (musTech.includes("Technik nicht vorhanden") && evTech.includes("Technik vorhanden")) {
+        matchesCount++;
+    }
+    let extraScore = (matchesCount / 3) * 5;
+
+    const totalScore = typeScore + ortScore + genresScore + instScore + durScore + budgetScore + eventTypeScore + dateScore + publikumScore + extraScore;
     return Math.round(totalScore);
 }
 
