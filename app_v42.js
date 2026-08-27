@@ -15025,8 +15025,8 @@ function handleRouting() {
         }
     }
     
-    // Redirect logged-in users away from the landing page
-    if (state && state.currentUser && state.currentUser.id && (page === '' || page === '/')) {
+    // Redirect logged-in users away from the landing and matchmaking-choice pages
+    if (state && state.currentUser && state.currentUser.id && (page === '' || page === '/' || page === 'matchmaking-choice')) {
         if (state.currentUser.role === 'musician') {
             navigate('events');
         } else {
