@@ -743,7 +743,16 @@ exports.sendCustomSignInEmail = functions
             };
 
             const link = await admin.auth().generateSignInWithEmailLink(email, actionCodeSettings);
-            const html = getSignInEmailHtml({ link, name, isNewUser, role });
+
+            // Generate a secure 6-digit code for copy-paste mobile logins
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            await admin.firestore().collection('loginCodes').doc(email.toLowerCase()).set({
+                code: code,
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes from now
+            });
+
+            const html = getSignInEmailHtml({ link, name, isNewUser, role, code });
             
             const subject = isNewUser 
                 ? 'Dein Registrierungs-Link für GigConnAct' 
@@ -758,6 +767,74 @@ exports.sendCustomSignInEmail = functions
             return { success: true };
         } catch (error) {
             console.error("Failed to generate/send sign-in link:", error);
+            throw new functions.https.HttpsError('internal', error.message);
+        }
+    });
+
+exports.verifyLoginCode = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+        const email = data.email;
+        const code = data.code;
+
+        if (!email || !code) {
+            throw new functions.https.HttpsError('invalid-argument', 'E-Mail und Code müssen angegeben werden.');
+        }
+
+        const emailLower = email.toLowerCase().trim();
+        const codeClean = code.toString().trim();
+
+        try {
+            const codeRef = admin.firestore().collection('loginCodes').doc(emailLower);
+            const codeDoc = await codeRef.get();
+
+            if (!codeDoc.exists) {
+                return { success: false, message: 'Ungültiger oder abgelaufener Login-Code.' };
+            }
+
+            const codeData = codeDoc.data();
+            
+            // Check expiry
+            const expiresAt = codeData.expiresAt.toDate();
+            if (new Date() > expiresAt) {
+                await codeRef.delete().catch(()=>{});
+                return { success: false, message: 'Der Login-Code ist abgelaufen.' };
+            }
+
+            // Check code value
+            if (codeData.code !== codeClean) {
+                return { success: false, message: 'Der eingegebene Login-Code ist falsch.' };
+            }
+
+            // Delete the verified code
+            await codeRef.delete().catch(()=>{});
+
+            // Find the user document in Firestore to get the Firebase Auth UID
+            let userSnapshot = await admin.firestore().collection('users').where('email', '==', emailLower).get();
+            if (userSnapshot.empty) {
+                userSnapshot = await admin.firestore().collection('users').where('email', '==', email).get();
+            }
+
+            let uid;
+            if (!userSnapshot.empty) {
+                uid = userSnapshot.docs[0].id;
+            } else {
+                // If the user document doesn't exist, we look for them in Firebase Auth
+                try {
+                    const userRecord = await admin.auth().getUserByEmail(emailLower);
+                    uid = userRecord.uid;
+                } catch (authErr) {
+                    // Create a new Firebase Auth user on the fly if needed
+                    const userRecord = await admin.auth().createUser({ email: emailLower });
+                    uid = userRecord.uid;
+                }
+            }
+
+            // Generate a secure custom authentication token for this user
+            const customToken = await admin.auth().createCustomToken(uid);
+            return { success: true, customToken: customToken };
+        } catch (error) {
+            console.error("Failed to verify login code:", error);
             throw new functions.https.HttpsError('internal', error.message);
         }
     });
