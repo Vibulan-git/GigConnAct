@@ -1848,7 +1848,14 @@ class StateManager {
         db.collection('musicians').where('isActive', '==', true).limit(50).get().then(snapshot => {
             const list = [];
             snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-            this.musicians = list;
+            list.forEach(item => {
+                const idx = this.musicians.findIndex(m => m.id === item.id);
+                if (idx > -1) {
+                    this.musicians[idx] = item;
+                } else {
+                    this.musicians.push(item);
+                }
+            });
             musiciansLoaded = true;
             this.notify();
             checkInitialLoad();
@@ -1861,7 +1868,14 @@ class StateManager {
         db.collection('events').where('isOnline', '==', true).limit(50).get().then(snapshot => {
             const list = [];
             snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-            this.events = list;
+            list.forEach(item => {
+                const idx = this.events.findIndex(e => e.id === item.id);
+                if (idx > -1) {
+                    this.events[idx] = item;
+                } else {
+                    this.events.push(item);
+                }
+            });
             eventsLoaded = true;
             this.notify();
             checkInitialLoad();
@@ -2316,7 +2330,15 @@ class StateManager {
                     window.history.replaceState({}, document.title, window.location.origin + window.location.pathname + window.location.hash);
                 } else {
                     const pendingRegStr = window.localStorage.getItem('GigConnAct_pending_registration');
-                    const pendingReg = pendingRegStr ? JSON.parse(pendingRegStr) : null;
+                    let pendingReg = pendingRegStr ? JSON.parse(pendingRegStr) : null;
+
+                    if (!pendingReg || pendingReg.email.toLowerCase() !== email.toLowerCase()) {
+                        console.log("Pending registration not found in localStorage or email mismatch. Fetching from Firestore...");
+                        const pendingDoc = await db.collection('pendingRegistrations').doc(email.toLowerCase()).get();
+                        if (pendingDoc.exists) {
+                            pendingReg = pendingDoc.data();
+                        }
+                    }
 
                     if (pendingReg && pendingReg.email.toLowerCase() === email.toLowerCase()) {
                         console.log("Completing registration for new user:", email);
@@ -2421,6 +2443,7 @@ class StateManager {
                             await db.collection('events').doc(profileId).set(newEvent);
                         }
                         window.localStorage.removeItem('GigConnAct_pending_registration');
+                        db.collection('pendingRegistrations').doc(email.toLowerCase()).delete().catch(()=>{});
                         
                         // Set registration redirecting flag to prevent early paywall blocker
                         window.isRegisteringRedirecting = true;
@@ -4039,6 +4062,9 @@ class StateManager {
             if (emailExistsLocal || !snapshot.empty) {
                 return { success: false, message: "Diese E-Mail-Adresse wird bereits verwendet." };
             }
+
+            // Save pending registration payload to Firestore for cross-device support (e.g. mobile mail links)
+            await db.collection('pendingRegistrations').doc(emailLower).set(payload);
 
             const sendCustomSignInEmail = firebase.app().functions('europe-west3').httpsCallable('sendCustomSignInEmail');
             await sendCustomSignInEmail({
