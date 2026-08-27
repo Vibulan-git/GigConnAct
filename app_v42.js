@@ -8569,8 +8569,12 @@ function renderProfilePage(container) {
                         </div>
                         
                         <div style="font-size: 0.8rem; color: var(--text-muted); display: grid; grid-template-columns: auto 1fr; gap: 0.35rem 1.5rem; line-height: 1.4;">
-                            <span>Kostenlose Testphase:</span>
-                            <span style="color: var(--text-main); font-weight: 600;">${activePlan === 'premium' ? '3 Monate' : '1 Monat'}</span>
+                            <span>Vertragsstart:</span>
+                            <span style="color: var(--text-main); font-weight: 600;">
+                                ${u.subscriptionTrialEnd 
+                                    ? formatDate(u.subscriptionTrialEnd) 
+                                    : (u.subscriptionPeriodStart ? formatDate(u.subscriptionPeriodStart) : 'Sofort')}
+                            </span>
                             
                             <span>Vertragslaufzeit:</span>
                             <span style="color: var(--text-main); font-weight: 600;">${activePlan === 'plus' ? '6 Monate' : (activePlan === 'pro' || activePlan === 'premium' ? '12 Monate' : '1 Monat')}</span>
