@@ -18493,9 +18493,9 @@ window.renderRecommendationPage = function(container, mediationId) {
             container.innerHTML = `
                 <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
                     <i class="fa-solid fa-circle-check" style="font-size: 3.5rem; color: #10b981; margin-bottom: 1.2rem;"></i>
-                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Auswahl abgeschlossen! 🎉</h3>
+                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Auswahl abgeschlossen!</h3>
                     <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.5rem;">
-                        Die Auswahl für dieses Event ist bereits abgeschlossen. Die Kontaktdaten wurden an deine E-Mail-Adresse versendet.
+                        Die Kontaktdaten wurden an deine E-Mail-Adresse versendet.
                     </p>
                 </div>
             `;
