@@ -18521,13 +18521,10 @@ window.renderRecommendationPage = function(container, mediationId) {
                 <div style="text-align: center; margin-bottom: 2.5rem;">
                     <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #2563eb; letter-spacing: 1px; background: rgba(37,99,235,0.1); padding: 0.35rem 0.75rem; border-radius: 20px;">Deine Auswahl</span>
                     <h2 style="font-family: var(--font-heading); font-size: 1.85rem; font-weight: 900; color: #2563eb; margin: 0.5rem 0 0.3rem;">Musiker-Vorschläge</h2>
-                    <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">für dein Event: <strong>"${med.eventName}"</strong>${med.eventDate ? ` am <strong>${(() => {
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0 0 1.5rem 0;">für dein Event: <strong>"${med.eventName}"</strong>${med.eventDate ? ` am <strong>${(() => {
                         const parts = med.eventDate.split('-');
                         return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : med.eventDate;
                     })()}</strong>` : ''}</p>
-                </div>
-                
-                <div style="text-align: center; margin-bottom: 2rem;">
                     <div style="display: inline-block; background: #2563eb; border: 1px solid #2563eb; padding: 0.85rem 1.5rem; border-radius: 10px; font-size: 0.92rem; color: #ffffff; font-weight: 700; max-width: 680px; text-align: left; line-height: 1.55;">
                         <i class="fa-solid fa-circle-exclamation" style="color: #ffffff; margin-right: 0.5rem; font-size: 1.1rem; vertical-align: middle;"></i>Sobald Du auf "Anfrage senden" klickst, nehmen wir den Kontakt zu den ausgewählten Acts auf. Du kannst zu jeder Zeit weitere Musiker-Vorschläge über "Weitere Vorschläge" erhalten.
                     </div>
@@ -18674,7 +18671,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                                 
                                 <div style="padding: 1.2rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; background: var(--bg-card);">
                                     <div>
-                                        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0 0 0.8rem; line-height: 1.25;"><span style="filter: blur(5.5px); color: #ffffff !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.5rem; filter: none !important;" title="Name geschützt"></i> (${mus.category || 'Musiker'})</h3>
+                                        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.8rem; line-height: 1.25;"><span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.5rem; filter: none !important;" title="Name geschützt"></i> (${mus.category || 'Musiker'})</h3>
                                         <div style="display: flex; gap: 0.5rem; justify-content: space-between;">
                                             <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); flex: 1;">
                                                 <!-- 1. Ort -->
@@ -18707,21 +18704,6 @@ window.renderRecommendationPage = function(container, mediationId) {
                                                     <i class="fa-solid fa-drum" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                                                     <span style="flex: 1;">${instrumentsArr.slice(0, 3).join(', ')}</span>
                                                 </div>
-                                            </div>
-                                            
-                                            <!-- Right Column: Heart (Favorite Button) stacked vertically -->
-                                            <div style="display: flex; flex-direction: column; justify-content: flex-end; padding-left: 0.6rem; border-left: 1px solid var(--border-glass); padding-bottom: 0.1rem; min-width: 46px; box-sizing: border-box; align-items: center; justify-content: center;">
-                                                <button onclick="event.stopPropagation(); window.toggleFavorite('${mus.id}')" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none; width: 28px; height: 28px;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
-                                                    ${(state && typeof state.isFavorite === 'function' && state.isFavorite(mus.id)) ? `
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444" width="26" height="26" style="display: block;">
-                                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                                        </svg>
-                                                    ` : `
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" width="26" height="26" style="display: block;">
-                                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                                        </svg>
-                                                    `}
-                                                </button>
                                             </div>
                                         </div>
                                         <div id="collapsible-details-${mus.id}" style="display: flex; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.5rem; margin-bottom: 0.75rem;">
@@ -18763,7 +18745,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                         <button onclick="window.requestMoreRecommendations('${mediationId}')" class="btn btn-secondary" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 800; border-color: #2563eb !important; color: #ffffff !important; background: #2563eb !important; margin: 0; cursor: pointer; border-radius: 8px;">
                             Weitere Vorschläge
                         </button>
-                        <button onclick="window.removeMediationEvent('${mediationId}')" class="btn btn-secondary" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 800; border-color: #ef4444 !important; color: #ffffff !important; background: #ef4444 !important; margin: 0; cursor: pointer; border-radius: 8px; border: 1px solid #ef4444 !important;">
+                        <button onclick="window.removeMediationEvent('${mediationId}')" class="btn btn-secondary" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 800; border-color: #2563eb !important; color: #2563eb !important; background: #ffffff !important; margin: 0; cursor: pointer; border-radius: 8px; border: 1px solid #2563eb !important;">
                             Event entfernen
                         </button>
                     </div>
