@@ -8874,7 +8874,14 @@ function renderProfilePage(container) {
                     if (u.subscriptionPeriodEnd) {
                         end = new Date(u.subscriptionPeriodEnd * 1000);
                     } else {
-                        end.setDate(end.getDate() + 30);
+                        const plan = u.subscriptionPlan || 'flex';
+                        if (plan === 'plus') {
+                            end.setDate(end.getDate() + 180); // 6 Monate
+                        } else if (plan === 'pro' || plan === 'premium') {
+                            end.setDate(end.getDate() + 365); // 12 Monate
+                        } else {
+                            end.setDate(end.getDate() + 30); // 1 Monat (Flex)
+                        }
                     }
                     const endStr = end.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
                     u.subscriptionEndDate = endStr;
