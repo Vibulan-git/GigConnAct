@@ -8870,8 +8870,12 @@ function renderProfilePage(container) {
                 if (confirm(confirmMsg)) {
                     u.subscriptionCancelled = true;
                     
-                    const end = new Date();
-                    end.setDate(end.getDate() + 30);
+                    let end = new Date();
+                    if (u.subscriptionPeriodEnd) {
+                        end = new Date(u.subscriptionPeriodEnd * 1000);
+                    } else {
+                        end.setDate(end.getDate() + 30);
+                    }
                     const endStr = end.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
                     u.subscriptionEndDate = endStr;
                     
