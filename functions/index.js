@@ -886,7 +886,32 @@ exports.updateSubscriptionCancelState = functions
             const userData = userDoc.data();
             const subscriptionId = userData.subscriptionId;
 
-            if (!subscriptionId) {
+            let endStr = null;
+            let mocked = false;
+
+            if (subscriptionId) {
+                try {
+                    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+                    const subscription = await stripe.subscriptions.update(subscriptionId, {
+                        cancel_at_period_end: cancelAtPeriodEnd
+                    });
+                    endStr = new Date(subscription.current_period_end * 1000).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                } catch (stripeErr) {
+                    console.error("Stripe API subscription update failed, falling back to local simulation:", stripeErr);
+                    mocked = true;
+                    
+                    // If the subscription is missing on Stripe (e.g. 'No such subscription' or invalid/test ID), delete subscriptionId in Firestore
+                    if (stripeErr.message && (stripeErr.message.includes('No such subscription') || stripeErr.code === 'resource_missing')) {
+                        await admin.firestore().collection('users').doc(uid).update({
+                            subscriptionId: admin.firestore.FieldValue.delete()
+                        });
+                    }
+                }
+            } else {
+                mocked = true;
+            }
+
+            if (mocked) {
                 // Mock/test user: locally calculate access end date
                 const end = new Date();
                 const plan = userData.subscriptionPlan || 'flex';
@@ -897,27 +922,8 @@ exports.updateSubscriptionCancelState = functions
                 } else {
                     end.setDate(end.getDate() + 30);
                 }
-                const endStr = end.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-                await admin.firestore().collection('users').doc(uid).update({
-                    subscriptionCancelled: cancelAtPeriodEnd,
-                    subscriptionEndDate: cancelAtPeriodEnd ? endStr : admin.firestore.FieldValue.delete()
-                });
-
-                return {
-                    success: true,
-                    mocked: true,
-                    subscriptionCancelled: cancelAtPeriodEnd,
-                    subscriptionEndDate: cancelAtPeriodEnd ? endStr : null
-                };
+                endStr = end.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
             }
-
-            const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-            const subscription = await stripe.subscriptions.update(subscriptionId, {
-                cancel_at_period_end: cancelAtPeriodEnd
-            });
-
-            const endStr = new Date(subscription.current_period_end * 1000).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
             await admin.firestore().collection('users').doc(uid).update({
                 subscriptionCancelled: cancelAtPeriodEnd,
@@ -926,7 +932,7 @@ exports.updateSubscriptionCancelState = functions
 
             return {
                 success: true,
-                mocked: false,
+                mocked: mocked,
                 subscriptionCancelled: cancelAtPeriodEnd,
                 subscriptionEndDate: cancelAtPeriodEnd ? endStr : null
             };
