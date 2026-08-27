@@ -7372,7 +7372,7 @@ function renderMarket(container, type, onNavigate) {
                     const themeColor = isEvents ? '#7c3aed' : '#2563eb';
                     
                     let buttonsHtml = '';
-                    if (isFilterActiveCurrently && !showMoreMatchesUnfiltered) {
+                    if (isFilterActiveCurrently && !showMoreMatchesUnfiltered && state.currentUser && !showOnlyFavorites) {
                         buttonsHtml += `
                             <button id="btn-market-show-more-unfiltered" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: #ffffff; border: 2px solid ${themeColor}; background: ${themeColor}; transition: all 0.2s; margin: 0;">
                                 <i class="fa-solid fa-plus"></i> Weitere Ergebnisse
