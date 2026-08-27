@@ -6309,7 +6309,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Maximaler Umkreis</label>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Max. Umkreis</label>
                                     <span id="val-filter-radius" style="font-size: 0.85rem; font-weight: 700; color: #7c3aed;">${prefillRadius >= 500 ? '500+ km' : prefillRadius + ' km'}</span>
                                 </div>
                                 <input type="range" class="form-input" id="input-filter-radius" min="0" max="500" step="10" value="${prefillRadius}" style="width: 100%; accent-color: #7c3aed;">
@@ -6477,7 +6477,7 @@ function renderMarket(container, type, onNavigate) {
 
 
 
-                            <!-- 2. Ort & Maximaler Umkreis -->
+                            <!-- 2. Ort & Max. Umkreis -->
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Ort</label>
                                 <input type="text" id="filter-location-m" placeholder="z.B. München" class="form-input" value="${prefillLocation}" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
@@ -6485,7 +6485,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Maximaler Umkreis</label>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Max. Umkreis</label>
                                     <span id="val-filter-radius-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">500+ km</span>
                                 </div>
                                 <input type="range" class="form-input" id="input-filter-radius-m" min="0" max="500" step="50" value="500" style="width: 100%; accent-color: #2563eb;">
