@@ -13749,7 +13749,6 @@ function renderVerificationModal(wrapper, onSuccessCallback) {
                 <p style="margin-bottom:1.5rem; line-height: 1.5; color: var(--text-muted);">
                     Wir haben eine E-Mail zur Registrierung an <strong>${pendingUser.email || 'deine E-Mail'}</strong> gesendet.<br><br>
                     Bitte überprüfe dein E-Mail-Postfach (und deinen Spam-Ordner) und klicke auf den Bestätigungslink in der E-Mail, um die Registrierung abzuschließen.
-                    ${pendingUser.subscriptionPlan && ['flex', 'plus', 'pro'].includes(pendingUser.subscriptionPlan) ? `<br><br><strong style="color: #c084fc;">Hinweis zur Bezahlung:</strong> Da du einen kostenpflichtigen Tarif gewählt hast, wirst du direkt nach Klick auf den E-Mail-Bestätigungslink automatisch zur sicheren Zahlungsseite (Stripe) weitergeleitet, um dein Abonnement zu aktivieren.` : ''}
                 </p>
                 <div style="margin-top: 2rem;">
                     <button class="btn btn-secondary btn-sm" id="btn-close-verification-modal">
