@@ -18671,7 +18671,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                                 
                                 <div style="padding: 1.2rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; background: var(--bg-card);">
                                     <div>
-                                        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.8rem; line-height: 1.25;"><span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.5rem; filter: none !important;" title="Name geschützt"></i> (${mus.category || 'Musiker'})</h3>
+                                        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.8rem; line-height: 1.25;"><span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.5rem; filter: none !important;" title="Name geschützt"></i></h3>
                                         <div style="display: flex; gap: 0.5rem; justify-content: space-between;">
                                             <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); flex: 1;">
                                                 <!-- 1. Ort -->
@@ -18742,7 +18742,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                 <!-- Die Auswahl reicht mir nicht & Dieses Event entfernen Buttons -->
                 <div style="text-align: center; margin-top: 4rem; border-top: 1px dashed var(--border-glass); padding-top: 2.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem;">
                     <div style="display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap;">
-                        <button onclick="window.requestMoreRecommendations('${mediationId}')" class="btn btn-secondary" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 800; border-color: #2563eb !important; color: #ffffff !important; background: #2563eb !important; margin: 0; cursor: pointer; border-radius: 8px;">
+                        <button onclick="window.requestMoreRecommendations(event, '${mediationId}')" class="btn btn-secondary" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 800; border-color: #2563eb !important; color: #ffffff !important; background: #2563eb !important; margin: 0; cursor: pointer; border-radius: 8px;">
                             Weitere Vorschläge
                         </button>
                         <button onclick="window.removeMediationEvent('${mediationId}')" class="btn btn-secondary" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 800; border-color: #2563eb !important; color: #2563eb !important; background: #ffffff !important; margin: 0; cursor: pointer; border-radius: 8px; border: 1px solid #2563eb !important;">
@@ -18830,12 +18830,26 @@ window.sendMediationReminder = function(event, mediationId, musicianId) {
     });
 };
 
-window.requestMoreRecommendations = function(mediationId) {
+window.requestMoreRecommendations = function(event, mediationId) {
     if (!confirm("Möchtest du weitere Musiker-Vorschläge erhalten? Wir fügen automatisch die nächsten 5 passenden Acts für dich hinzu.")) return;
+
+    const btn = event?.currentTarget || event?.target;
+    let oldText = "";
+    if (btn) {
+        btn.disabled = true;
+        oldText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Lädt...';
+        btn.style.cursor = 'not-allowed';
+    }
 
     db.collection('mediations').doc(mediationId).get().then(async (doc) => {
         if (!doc.exists) {
             alert("Fehler: Vermittlung nicht gefunden.");
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = oldText;
+                btn.style.cursor = 'pointer';
+            }
             return;
         }
         const med = doc.data();
@@ -18853,6 +18867,11 @@ window.requestMoreRecommendations = function(mediationId) {
         
         if (remainingMusicians.length === 0) {
             alert("Es sind keine weiteren passenden Musiker auf dem Marktplatz verfügbar.");
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = oldText;
+                btn.style.cursor = 'pointer';
+            }
             return;
         }
         
@@ -18867,6 +18886,11 @@ window.requestMoreRecommendations = function(mediationId) {
         
         if (!eventData) {
             alert("Event-Daten konnten nicht geladen werden.");
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = oldText;
+                btn.style.cursor = 'pointer';
+            }
             return;
         }
         
@@ -18912,6 +18936,11 @@ window.requestMoreRecommendations = function(mediationId) {
     }).catch(err => {
         console.error("Error requesting more recommendations:", err);
         alert("Fehler beim Abrufen weiterer Vorschläge: " + err.message);
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = oldText;
+            btn.style.cursor = 'pointer';
+        }
     });
 };
 
