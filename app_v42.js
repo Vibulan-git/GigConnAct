@@ -8622,9 +8622,6 @@ function renderProfilePage(container) {
                                 <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
-                            <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "flex" ? "Aktueller Tarif" : (selectedPlan === "flex" ? "Ausgewählt" : "Auswählen")}</button>
-                            </div>
                         </div>
                         <div class="subscription-card ${activePlan === "plus" ? "active" : ""}" data-plan="plus" data-price="7.99">
                             <h5>Plus</h5>
@@ -8634,9 +8631,6 @@ function renderProfilePage(container) {
                                 <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
-                            <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "plus" ? "Aktueller Tarif" : (selectedPlan === "plus" ? "Ausgewählt" : "Auswählen")}</button>
-                            </div>
                         </div>
                         <div class="subscription-card ${activePlan === "pro" ? "active" : ""}" data-plan="pro" data-price="5.99">
                             <h5>Pro</h5>
@@ -8646,9 +8640,6 @@ function renderProfilePage(container) {
                                 <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
-                            <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "pro" ? "Aktueller Tarif" : (selectedPlan === "pro" ? "Ausgewählt" : "Auswählen")}</button>
-                            </div>
                         </div>
                         <div class="subscription-card ${activePlan === "premium" ? "active" : ""}" data-plan="premium" data-price="4.99">
                             <h5>Premium</h5>
@@ -8658,9 +8649,6 @@ function renderProfilePage(container) {
                                 <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
-                            <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
-                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "premium" ? "Aktueller Tarif" : (selectedPlan === "premium" ? "Ausgewählt" : "Auswählen")}</button>
-                            </div>
                         </div>
                     </div><div id="profile-promo-code-box" style="display: none; margin-bottom: 1.5rem; background: rgba(124, 58, 237, 0.05); border: 1px dashed var(--color-purple); padding: 1rem; border-radius: var(--radius-md);">
                         <h5 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--color-purple);"><i class="fa-brands fa-instagram"></i> Premium-Freischaltung</h5>
@@ -8980,16 +8968,7 @@ function renderProfilePage(container) {
                 card.classList.add("active");
                 selectedPlan = card.getAttribute("data-plan");
 
-                // Dynamically update card buttons text in profile edit
-                subCards.forEach(c => {
-                    const btn = c.querySelector(".btn-sub-select");
-                    if (btn) {
-                        const plan = c.getAttribute("data-plan");
-                        btn.textContent = plan === activePlan
-                            ? "Aktueller Tarif"
-                            : (c.classList.contains("active") ? "Ausgewählt" : "Auswählen");
-                    }
-                });
+
 
                 if (selectedPlan === "premium" && !isPromoApplied) {
                     promoBox.style.display = 'block';
