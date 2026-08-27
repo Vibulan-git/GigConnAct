@@ -4312,7 +4312,10 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
             ortScore = 10;
         }
     } else { // organizer
-        const eventRadius = event.radius !== undefined ? event.radius : (musician.radius || 100);
+        let eventRadius = event.radius !== undefined ? event.radius : 100;
+        if (event.id && String(event.id).startsWith('evt_agency_')) {
+            eventRadius = 500;
+        }
         if (distance <= eventRadius) {
             ortScore = 10;
         }
@@ -16672,7 +16675,8 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                 budget: parseFloat(form.elements.orgMinBudget.value) || 0,
                 minBudget: parseFloat(form.elements.orgMinBudget.value) || 0,
                 maxBudget: parseFloat(form.elements.orgMaxBudget.value) || 5000,
-                technik: checkedTechnik
+                technik: checkedTechnik,
+                radius: 500
             };
 
             const scoredMusicians = activeMusicians.map(m => {
@@ -16714,6 +16718,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                     budget: tempEventForMatch.budget,
                     minBudget: tempEventForMatch.minBudget,
                     maxBudget: tempEventForMatch.maxBudget,
+                    radius: 500,
                     description: detailDescription,
                     technik: checkedTechnik,
                     company: compValue,
