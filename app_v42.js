@@ -9428,69 +9428,55 @@ function renderOrganizerEventItem(e, isActive) {
                         ${!isActive ? ' <span style="background:rgba(249,115,22,0.1); color:var(--color-orange); font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;"><i class="fa-solid fa-pause"></i> Pausiert</span>' : ''}
                     </h3>
 
-                    <!-- 2-Column Layout matching market: Left = first 6 fields, Right = Plus expand button -->
-                    <div style="display: flex; gap: 0.5rem; justify-content: space-between;">
-                        <!-- Left Column: first 6 fields -->
-                        <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); flex: 1;">
-                            <!-- 1. Ort -->
-                            <div style="display: flex; align-items: center; gap: 0.6rem;">
-                                <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                                <span>${window.normalizeCityName(e.location)}</span>
-                            </div>
-                            <!-- 2. Datum -->
-                            <div style="display: flex; align-items: center; gap: 0.6rem;">
-                                <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                                <span>${formattedDate}</span>
-                            </div>
-                            <!-- 3. Event-Typ -->
-                            <div style="display: flex; align-items: center; gap: 0.6rem;">
-                                <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                                <span>${e.type}</span>
-                            </div>
-                            <!-- 4. Gesucht (Musiker-Typen) -->
-                            <div style="display: flex; align-items: center; gap: 0.6rem;">
-                                <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                                <span>${formatTruncatedValue((Array.isArray(e.musicianTypes) && e.musicianTypes.length > 0) ? e.musicianTypes : (typeof e.musicianTypes === 'string' && e.musicianTypes.trim() !== '' ? e.musicianTypes : (e.musicianType || 'Solo / Band')), themeColor, e.id, 'musiciantype')}</span>
-                            </div>
-                            <!-- 5. Genres -->
-                            <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                                <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                                <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, e.id, 'genres')}</span>
-                            </div>
-                            <!-- 6. Instrumente -->
-                            <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                                <i class="fa-solid fa-drum" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                                <span style="flex: 1;">${formatTruncatedValue(e.instruments || (e.category ? [e.category] : ['Gesang', 'Gitarre']), themeColor, e.id, 'instruments')}</span>
-                            </div>
+                    <!-- Single column list with all 10 fields fully visible -->
+                    <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
+                        <!-- 1. Ort -->
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>${window.normalizeCityName(e.location)}</span>
                         </div>
-
-                        <!-- Right Column: Plus (Expand Button) -->
-                        <div style="display: flex; flex-direction: column; justify-content: flex-end; padding-left: 0.6rem; border-left: 1px solid var(--border-glass); padding-bottom: 0.1rem; min-width: 46px; box-sizing: border-box; align-items: center;">
-                            <button onclick="event.stopPropagation(); window.toggleTileDetails('${e.id}')" style="background: none; border: none; padding: 0; cursor: pointer; color: ${themeColor}; outline: none; transition: transform 0.2s; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Mehr Details anzeigen/verbergen">
-                                <i class="fa-solid fa-circle-plus" id="toggle-icon-${e.id}" style="font-size: 1.6rem; opacity: 0.85;"></i>
-                            </button>
+                        <!-- 2. Datum -->
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>${formattedDate}</span>
                         </div>
-                    </div>
-
-                    <!-- Collapsible details wrapper -->
-                    <div id="collapsible-details-${e.id}" style="display: none; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.75rem;">
+                        <!-- 3. Event-Typ -->
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>${e.type}</span>
+                        </div>
+                        <!-- 4. Gesucht (Musiker-Typen) -->
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <span>${formatTruncatedValue((Array.isArray(e.musicianTypes) && e.musicianTypes.length > 0) ? e.musicianTypes : (typeof e.musicianTypes === 'string' && e.musicianTypes.trim() !== '' ? e.musicianTypes : (e.musicianType || 'Solo / Band')), themeColor, e.id, 'musiciantype')}</span>
+                        </div>
+                        <!-- 5. Genres -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                            <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, e.id, 'genres')}</span>
+                        </div>
+                        <!-- 6. Instrumente -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                            <i class="fa-solid fa-drum" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(e.instruments || (e.category ? [e.category] : ['Gesang', 'Gitarre']), themeColor, e.id, 'instruments')}</span>
+                        </div>
                         <!-- 7. Spielzeit -->
-                        <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>${durationDisplay}</span>
                         </div>
                         <!-- 8. Publikum -->
-                        <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>${e.minPublikum !== undefined && e.maxPublikum !== undefined ? `${e.minPublikum} - ${e.maxPublikum}+` : '50 - 150'} Personen</span>
                         </div>
                         <!-- 9. Technik -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35; font-size: 0.84rem; color: var(--text-main);">
+                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, e.id, 'tech') : 'nach Vereinbarung'}</span>
                         </div>
                         <!-- 10. Gage/Budget -->
-                        <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-coins" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>${budgetDisplay}</span>
                         </div>
