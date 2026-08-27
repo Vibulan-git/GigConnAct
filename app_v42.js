@@ -8880,85 +8880,91 @@ function renderProfilePage(container) {
             cancelBtn.addEventListener('click', async () => {
                 const confirmMsg = "Möchtest du dein Abonnement wirklich zum nächstmöglichen Zeitpunkt kündigen? Du verlierst damit nach Ablauf des Zeitraums den direkten Zugang.\n\nHinweis: Dein Profil bleibt nach Ablauf inaktiv gespeichert, damit du es später einfach reaktivieren kannst. Du kannst dein Konto und alle Daten jederzeit dauerhaft über die Funktion 'Konto unwiderruflich löschen' entfernen.";
                 if (confirm(confirmMsg)) {
-                    u.subscriptionCancelled = true;
+                    cancelBtn.disabled = true;
+                    cancelBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Kündigung läuft...`;
                     
-                    let end = new Date();
-                    if (u.subscriptionPeriodEnd) {
-                        end = new Date(u.subscriptionPeriodEnd * 1000);
-                    } else {
-                        const plan = u.subscriptionPlan || 'flex';
-                        if (plan === 'plus') {
-                            end.setDate(end.getDate() + 180); // 6 Monate
-                        } else if (plan === 'pro' || plan === 'premium') {
-                            end.setDate(end.getDate() + 365); // 12 Monate
-                        } else {
-                            end.setDate(end.getDate() + 30); // 1 Monat (Flex)
-                        }
-                    }
-                    const endStr = end.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                    u.subscriptionEndDate = endStr;
-                    
-                    const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-                    const idx = registeredUsers.findIndex(usr => usr.id === u.id);
-                    if (idx !== -1) {
-                        registeredUsers[idx].subscriptionCancelled = true;
-                        registeredUsers[idx].subscriptionEndDate = endStr;
-                        localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
-                    }
-                    
-                    if (typeof db !== 'undefined' && u.id) {
-                        try {
-                            await db.collection('users').doc(u.id).update({
-                                subscriptionCancelled: true,
-                                subscriptionEndDate: endStr
+                    try {
+                        const updateCancelState = firebase.app().functions('europe-west3').httpsCallable('updateSubscriptionCancelState');
+                        const res = await updateCancelState({ cancelAtPeriodEnd: true });
+                        
+                        if (res.data && res.data.success) {
+                            const endStr = res.data.subscriptionEndDate;
+                            u.subscriptionCancelled = true;
+                            if (endStr) {
+                                u.subscriptionEndDate = endStr;
+                            }
+                            
+                            const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+                            const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+                            if (idx !== -1) {
+                                registeredUsers[idx].subscriptionCancelled = true;
+                                if (endStr) registeredUsers[idx].subscriptionEndDate = endStr;
+                                localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                            }
+                            
+                            state.saveState();
+                            showToast({
+                                title: "Abo gekündigt ℹ",
+                                message: `Dein Abonnement wurde gekündigt. Du hast bis zum ${endStr || 'Ablauf des Abrechnungszeitraums'} vollen Zugriff.`
                             });
-                        } catch (err) {
-                            console.error("Firestore user sub cancel update error:", err);
                         }
+                    } catch (err) {
+                        console.error("Subscription cancellation failed:", err);
+                        showToast({
+                            title: "Kündigung fehlgeschlagen ⚠️",
+                            message: err.message || "Es gab ein Problem bei der Kündigung deines Abonnements.",
+                            type: "error"
+                        });
+                    } finally {
+                        cancelBtn.disabled = false;
+                        cancelBtn.innerHTML = `<i class="fa-solid fa-ban"></i> Abo kündigen`;
+                        renderProfilePage(container);
+                        updateNavbar();
                     }
-                    
-                    state.saveState();
-                    showToast({
-                        title: "Abo gekündigt ℹ",
-                        message: `Dein Abonnement wurde gekündigt. Du hast bis zum ${endStr} vollen Zugriff.`
-                    });
-                    renderProfilePage(container);
-                    updateNavbar();
                 }
             });
         }
 
         if (reactivateBtn) {
             reactivateBtn.addEventListener('click', async () => {
-                u.subscriptionCancelled = false;
-                delete u.subscriptionEndDate;
+                reactivateBtn.disabled = true;
+                reactivateBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Reaktivierung läuft...`;
                 
-                const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-                const idx = registeredUsers.findIndex(usr => usr.id === u.id);
-                if (idx !== -1) {
-                    registeredUsers[idx].subscriptionCancelled = false;
-                    delete registeredUsers[idx].subscriptionEndDate;
-                    localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
-                }
-                
-                if (typeof db !== 'undefined' && u.id) {
-                    try {
-                        await db.collection('users').doc(u.id).update({
-                            subscriptionCancelled: false,
-                            subscriptionEndDate: firebase.firestore.FieldValue.delete()
+                try {
+                    const updateCancelState = firebase.app().functions('europe-west3').httpsCallable('updateSubscriptionCancelState');
+                    const res = await updateCancelState({ cancelAtPeriodEnd: false });
+                    
+                    if (res.data && res.data.success) {
+                        u.subscriptionCancelled = false;
+                        delete u.subscriptionEndDate;
+                        
+                        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+                        const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+                        if (idx !== -1) {
+                            registeredUsers[idx].subscriptionCancelled = false;
+                            delete registeredUsers[idx].subscriptionEndDate;
+                            localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                        }
+                        
+                        state.saveState();
+                        showToast({
+                            title: "Abo reaktiviert! 🎉",
+                            message: "Deine automatische Abonnement-Verlängerung ist wieder aktiv."
                         });
-                    } catch (err) {
-                        console.error("Firestore user sub reactivate update error:", err);
                     }
+                } catch (err) {
+                    console.error("Subscription reactivation failed:", err);
+                    showToast({
+                        title: "Reaktivierung fehlgeschlagen ⚠️",
+                        message: err.message || "Es gab ein Problem bei der Reaktivierung deines Abonnements.",
+                        type: "error"
+                    });
+                } finally {
+                    reactivateBtn.disabled = false;
+                    reactivateBtn.innerHTML = `<i class="fa-solid fa-arrow-rotate-right"></i> Abo reaktivieren`;
+                    renderProfilePage(container);
+                    updateNavbar();
                 }
-                
-                state.saveState();
-                showToast({
-                    title: "Abo reaktiviert! 🎉",
-                    message: "Deine automatische Abonnement-Verlängerung ist wieder aktiv."
-                });
-                renderProfilePage(container);
-                updateNavbar();
             });
         }
 

@@ -865,6 +865,78 @@ exports.createStripeCheckoutSession = functions
     });
 
 // ==========================================
+// Stripe Subscription Cancel State Update
+// ==========================================
+exports.updateSubscriptionCancelState = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['STRIPE_SECRET_KEY'] })
+    .https.onCall(async (data, context) => {
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'Bitte melde dich an.');
+        }
+
+        const { cancelAtPeriodEnd } = data;
+        const uid = context.auth.uid;
+
+        try {
+            const userDoc = await admin.firestore().collection('users').doc(uid).get();
+            if (!userDoc.exists) {
+                throw new functions.https.HttpsError('not-found', 'Benutzerprofil nicht gefunden.');
+            }
+            const userData = userDoc.data();
+            const subscriptionId = userData.subscriptionId;
+
+            if (!subscriptionId) {
+                // Mock/test user: locally calculate access end date
+                const end = new Date();
+                const plan = userData.subscriptionPlan || 'flex';
+                if (plan === 'plus') {
+                    end.setDate(end.getDate() + 180);
+                } else if (plan === 'pro' || plan === 'premium') {
+                    end.setDate(end.getDate() + 365);
+                } else {
+                    end.setDate(end.getDate() + 30);
+                }
+                const endStr = end.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+                await admin.firestore().collection('users').doc(uid).update({
+                    subscriptionCancelled: cancelAtPeriodEnd,
+                    subscriptionEndDate: cancelAtPeriodEnd ? endStr : admin.firestore.FieldValue.delete()
+                });
+
+                return {
+                    success: true,
+                    mocked: true,
+                    subscriptionCancelled: cancelAtPeriodEnd,
+                    subscriptionEndDate: cancelAtPeriodEnd ? endStr : null
+                };
+            }
+
+            const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+            const subscription = await stripe.subscriptions.update(subscriptionId, {
+                cancel_at_period_end: cancelAtPeriodEnd
+            });
+
+            const endStr = new Date(subscription.current_period_end * 1000).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+            await admin.firestore().collection('users').doc(uid).update({
+                subscriptionCancelled: cancelAtPeriodEnd,
+                subscriptionEndDate: cancelAtPeriodEnd ? endStr : admin.firestore.FieldValue.delete()
+            });
+
+            return {
+                success: true,
+                mocked: false,
+                subscriptionCancelled: cancelAtPeriodEnd,
+                subscriptionEndDate: cancelAtPeriodEnd ? endStr : null
+            };
+        } catch (error) {
+            console.error("Failed to update subscription cancel state:", error);
+            throw new functions.https.HttpsError('internal', error.message || 'Fehler beim Aktualisieren des Kündigungsstatus.');
+        }
+    });
+
+// ==========================================
 // Stripe Webhook Handler
 // ==========================================
 exports.stripeWebhook = functions
