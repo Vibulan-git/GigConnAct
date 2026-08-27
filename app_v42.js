@@ -8602,16 +8602,7 @@ function renderProfilePage(container) {
                         </div>
                         <div id="prof-promo-status-msg" style="font-size: 0.7rem; margin-top: 0.4rem; display: none;"></div>
                         
-                        <!-- Stripe-Verbindung (wird eingeblendet bei richtigem Code) -->
-                        <div id="prof-stripe-connect-container" style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(37, 99, 235, 0.05); border: 1px solid #2563eb; border-radius: var(--radius-md); text-align: left;">
-                            <h6 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: #2563eb; display: flex; align-items: center; gap: 0.4rem;"><i class="fa-brands fa-stripe" style="font-size: 1.2rem;"></i> Stripe Verbindung</h6>
-                            <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.35;">
-                                Dein Gutscheincode ist gültig! Verbinde jetzt dein Konto mit Stripe, um die Premium-Buchung abzuschließen. Die Stripe-Schnittstelle wird nächste Woche aktiviert.
-                            </p>
-                            <button type="button" class="btn btn-primary btn-sm" style="background: #2563eb; border-color: #2563eb; display: flex; align-items: center; gap: 0.5rem; width: 100%; justify-content: center; cursor: not-allowed; opacity: 0.75;" disabled>
-                                <i class="fa-brands fa-stripe"></i> Mit Stripe verbinden (Ab nächste Woche)
-                            </button>
-                        </div>
+                        <!-- Stripe-Verbindung entfernt, da Checkout direkt genutzt wird -->
                     </div>
 
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
@@ -8935,8 +8926,7 @@ function renderProfilePage(container) {
                     promoInput.disabled = true;
                     promoBtn.disabled = true;
                     
-                    const stripeBox = document.getElementById('prof-stripe-connect-container');
-                    if (stripeBox) stripeBox.style.display = 'block';
+                    // Stripe Connect Box entfernt
                 } else {
                     isPromoApplied = false;
                     promoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Story-Beitrag.";
