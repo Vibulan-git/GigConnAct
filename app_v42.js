@@ -7101,8 +7101,9 @@ function renderMarket(container, type, onNavigate) {
                     // If filtering musicians for an organizer event location
                     if (!isEvents) {
                         const dist = getEstimatedDistance(item.location, locInput);
-                        const radius = item.radius || 150;
-                        if (dist <= radius) return true;
+                        const radiusInput = container.querySelector('#input-filter-radius-m');
+                        const selectedRadius = radiusInput ? parseInt(radiusInput.value) : 500;
+                        if (dist <= selectedRadius) return true;
                     } else {
                         // If filtering events for a musician location
                         const dist = getEstimatedDistance(item.location, locInput);
