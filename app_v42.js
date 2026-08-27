@@ -7079,14 +7079,35 @@ function renderMarket(container, type, onNavigate) {
 
         if (!showOnlyFavorites && isFilterActive) {
             // 1. Ort Filter
-            const locInput = isEvents 
+            const rawLocInput = isEvents 
                 ? (container.querySelector('#filter-location')?.value || '').trim().toLowerCase()
                 : (container.querySelector('#filter-location-m')?.value || '').trim().toLowerCase();
+            
+            let locInput = rawLocInput;
+            if (!locInput && state.currentUser) {
+                if (isEvents) {
+                    const activeMus = state.musicians.find(m => m.id === state.activeMusicianId) 
+                        || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId);
+                    if (activeMus && activeMus.location) {
+                        locInput = activeMus.location.toLowerCase();
+                    }
+                } else {
+                    const activeEvt = state.events.find(e => e.id === state.activeEventId) 
+                        || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId)
+                        || state.events.find(e => e.creatorId === state.currentUser.id);
+                    if (activeEvt && activeEvt.location) {
+                        locInput = activeEvt.location.toLowerCase();
+                    }
+                }
+            }
+
             if (locInput) {
-                const cleanQuery = locInput.split(' (')[0].toLowerCase().trim();
+                const cleanQuery = rawLocInput ? rawLocInput.split(' (')[0].toLowerCase().trim() : '';
                 list = list.filter(item => {
-                    const itemLoc = (item.location || '').split(' (')[0].toLowerCase().trim();
-                    if (itemLoc.includes(cleanQuery)) return true;
+                    if (cleanQuery) {
+                        const itemLoc = (item.location || '').split(' (')[0].toLowerCase().trim();
+                        if (itemLoc.includes(cleanQuery)) return true;
+                    }
                     
                     // If filtering musicians for an organizer event location
                     if (!isEvents) {
