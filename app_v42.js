@@ -8596,11 +8596,9 @@ function renderProfilePage(container) {
                 </div>
 
                 <div id="sub-management-options" style="margin-top: 1rem;">
-                    <h4 style="font-family: var(--font-heading); font-size: 0.95rem; margin-bottom: 0.8rem; color: var(--text-main);">Tarif wechseln (Upgrade / Downgrade)</h4>
                     
                     <div class="subscription-cards" style="margin-bottom: 1.5rem;">
                         <div class="subscription-card ${activePlan === "flex" ? "active" : ""}" data-plan="flex" data-price="9.99">
-                            <div class="selected-badge">Beliebt</div>
                             <h5>Flex</h5>
                             <div class="price">9,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
@@ -8613,7 +8611,6 @@ function renderProfilePage(container) {
                             </div>
                         </div>
                         <div class="subscription-card ${activePlan === "plus" ? "active" : ""}" data-plan="plus" data-price="7.99">
-                            <div class="selected-badge">Spare 20 %</div>
                             <h5>Plus</h5>
                             <div class="price">7,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
@@ -8626,7 +8623,6 @@ function renderProfilePage(container) {
                             </div>
                         </div>
                         <div class="subscription-card ${activePlan === "pro" ? "active" : ""}" data-plan="pro" data-price="5.99">
-                            <div class="selected-badge">Spare 40 %</div>
                             <h5>Pro</h5>
                             <div class="price">5,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
@@ -8639,7 +8635,6 @@ function renderProfilePage(container) {
                             </div>
                         </div>
                         <div class="subscription-card ${activePlan === "premium" ? "active" : ""}" data-plan="premium" data-price="4.99">
-                            <div class="selected-badge" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;">Spare 59 %</div>
                             <h5>Premium</h5>
                             <div class="price">4,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
