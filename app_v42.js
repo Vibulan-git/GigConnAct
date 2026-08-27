@@ -7553,19 +7553,48 @@ function renderMarket(container, type, onNavigate) {
             daysHtml += `<div class="filter-cal-day empty"></div>`;
         }
 
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+        const prevBtn = container.querySelector('#btn-filter-cal-prev');
+        if (prevBtn) {
+            const prevMonthDate = new Date(year, month - 1, 1);
+            const targetMonthStart = new Date(prevMonthDate.getFullYear(), prevMonthDate.getMonth(), 1);
+            const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            if (targetMonthStart < currentMonthStart) {
+                prevBtn.style.opacity = '0.2';
+                prevBtn.style.cursor = 'not-allowed';
+                prevBtn.style.pointerEvents = 'none';
+            } else {
+                prevBtn.style.opacity = '1';
+                prevBtn.style.cursor = 'pointer';
+                prevBtn.style.pointerEvents = 'auto';
+            }
+        }
+
         for (let day = 1; day <= totalDays; day++) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const isSelected = selectedFilterDates.includes(dateStr);
-            daysHtml += `
-                <div class="filter-cal-day ${isSelected ? 'selected' : ''}" data-date="${dateStr}">
-                    ${day}
-                </div>
-            `;
+            const isPast = dateStr < todayStr;
+            if (isPast) {
+                daysHtml += `
+                    <div class="filter-cal-day disabled" style="opacity: 0.35; text-decoration: line-through; cursor: not-allowed; pointer-events: none;" data-date="${dateStr}">
+                        ${day}
+                    </div>
+                `;
+            } else {
+                daysHtml += `
+                    <div class="filter-cal-day ${isSelected ? 'selected' : ''}" data-date="${dateStr}">
+                        ${day}
+                    </div>
+                `;
+            }
         }
 
         calendarDaysGrid.innerHTML = daysHtml;
 
-        calendarDaysGrid.querySelectorAll('.filter-cal-day:not(.empty)').forEach(cell => {
+        calendarDaysGrid.querySelectorAll('.filter-cal-day:not(.empty):not(.disabled)').forEach(cell => {
             cell.addEventListener('click', (e) => {
                 const dateVal = e.currentTarget.getAttribute('data-date');
                 const idx = selectedFilterDates.indexOf(dateVal);
@@ -7607,6 +7636,13 @@ function renderMarket(container, type, onNavigate) {
     }
 
     container.querySelector('#btn-filter-cal-prev')?.addEventListener('click', () => {
+        const today = new Date();
+        const prevMonthDate = new Date(currentFilterCalDate.getFullYear(), currentFilterCalDate.getMonth() - 1, 1);
+        const targetMonthStart = new Date(prevMonthDate.getFullYear(), prevMonthDate.getMonth(), 1);
+        const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        if (targetMonthStart < currentMonthStart) {
+            return;
+        }
         currentFilterCalDate.setMonth(currentFilterCalDate.getMonth() - 1);
         renderFilterCalendar();
     });
@@ -11235,6 +11271,22 @@ function showEventModal(eventObj = null, isDuplication = false) {
         today.setHours(0,0,0,0);
         const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
+        const prevBtn = document.getElementById('modal-btn-cal-prev');
+        if (prevBtn) {
+            const prevMonthDate = new Date(year, month - 1, 1);
+            const targetMonthStart = new Date(prevMonthDate.getFullYear(), prevMonthDate.getMonth(), 1);
+            const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            if (targetMonthStart < currentMonthStart) {
+                prevBtn.style.opacity = '0.2';
+                prevBtn.style.cursor = 'not-allowed';
+                prevBtn.style.pointerEvents = 'none';
+            } else {
+                prevBtn.style.opacity = '1';
+                prevBtn.style.cursor = 'pointer';
+                prevBtn.style.pointerEvents = 'auto';
+            }
+        }
+
         let daysHtml = '';
         for (let i = 0; i < adjustedFirstDayIndex; i++) {
             daysHtml += `<div class="org-cal-day empty"></div>`;
@@ -11288,6 +11340,13 @@ function showEventModal(eventObj = null, isDuplication = false) {
     if (calendarPrevBtn) {
         calendarPrevBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            const today = new Date();
+            const prevMonthDate = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() - 1, 1);
+            const targetMonthStart = new Date(prevMonthDate.getFullYear(), prevMonthDate.getMonth(), 1);
+            const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            if (targetMonthStart < currentMonthStart) {
+                return;
+            }
             currentCalDate.setMonth(currentCalDate.getMonth() - 1);
             renderOrganizerCalendar();
         });
@@ -12875,6 +12934,22 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         today.setHours(0,0,0,0);
         const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
+        const prevBtn = document.getElementById('btn-cal-prev');
+        if (prevBtn) {
+            const prevMonthDate = new Date(year, month - 1, 1);
+            const targetMonthStart = new Date(prevMonthDate.getFullYear(), prevMonthDate.getMonth(), 1);
+            const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            if (targetMonthStart < currentMonthStart) {
+                prevBtn.style.opacity = '0.2';
+                prevBtn.style.cursor = 'not-allowed';
+                prevBtn.style.pointerEvents = 'none';
+            } else {
+                prevBtn.style.opacity = '1';
+                prevBtn.style.cursor = 'pointer';
+                prevBtn.style.pointerEvents = 'auto';
+            }
+        }
+
         let daysHtml = '';
 
         for (let i = 0; i < adjustedFirstDayIndex; i++) {
@@ -12933,6 +13008,13 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
     if (calendarPrevBtn) {
         calendarPrevBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            const today = new Date();
+            const prevMonthDate = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() - 1, 1);
+            const targetMonthStart = new Date(prevMonthDate.getFullYear(), prevMonthDate.getMonth(), 1);
+            const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            if (targetMonthStart < currentMonthStart) {
+                return;
+            }
             currentCalDate.setMonth(currentCalDate.getMonth() - 1);
             renderOrganizerCalendar();
         });
@@ -16475,14 +16557,31 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
         }
 
         const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
+        today.setHours(0,0,0,0);
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+        const prevBtn = modalWrapper.querySelector('#btn-cal-prev');
+        if (prevBtn) {
+            const prevMonthDate = new Date(year, month - 1, 1);
+            const targetMonthStart = new Date(prevMonthDate.getFullYear(), prevMonthDate.getMonth(), 1);
+            const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            if (targetMonthStart < currentMonthStart) {
+                prevBtn.style.opacity = '0.2';
+                prevBtn.style.cursor = 'not-allowed';
+                prevBtn.style.pointerEvents = 'none';
+            } else {
+                prevBtn.style.opacity = '1';
+                prevBtn.style.cursor = 'pointer';
+                prevBtn.style.pointerEvents = 'auto';
+            }
+        }
 
         for (let day = 1; day <= totalDays; day++) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const isSelected = selectedEventDates.includes(dateStr);
             const isPast = dateStr < todayStr;
             daysHtml += `
-                <div class="org-cal-day${isSelected ? ' selected' : ''}${isPast ? ' past' : ''}" data-date="${dateStr}">
+                <div class="org-cal-day${isSelected ? ' selected' : ''}${isPast ? ' past' : ''}" data-date="${dateStr}" style="${isPast ? 'opacity: 0.35; text-decoration: line-through; pointer-events: none; cursor: not-allowed;' : ''}">
                     ${day}
                 </div>
             `;
@@ -16526,6 +16625,13 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
     if (calendarPrevBtn) {
         calendarPrevBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            const today = new Date();
+            const prevMonthDate = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() - 1, 1);
+            const targetMonthStart = new Date(prevMonthDate.getFullYear(), prevMonthDate.getMonth(), 1);
+            const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            if (targetMonthStart < currentMonthStart) {
+                return;
+            }
             currentCalDate.setMonth(currentCalDate.getMonth() - 1);
             renderModalOrganizerCalendar();
         });
