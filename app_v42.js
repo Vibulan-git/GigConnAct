@@ -15286,6 +15286,19 @@ function initGigConnActApp() {
     // Check cookie consent settings (GDPR)
     if (typeof checkCookieConsent === 'function') checkCookieConsent();
 
+    // Detect In-App Browsers (like Gmail, Outlook, Instagram, FB)
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const isInApp = (ua.indexOf('FBAN') > -1) || (ua.indexOf('FBAV') > -1) || (ua.indexOf('Instagram') > -1) || (ua.indexOf('GSA') > -1) || (ua.indexOf('Gmail') > -1) || (ua.indexOf('Outlook') > -1) || (ua.indexOf('Messenger') > -1);
+    if (isInApp) {
+        setTimeout(() => {
+            showToast({
+                title: "In-App-Browser erkannt 📱",
+                message: "Bitte tippe oben/unten rechts auf das Menü (...) und wähle 'In Safari öffnen' oder 'In Chrome öffnen', damit dein Login dauerhaft gespeichert bleibt.",
+                duration: 12000
+            });
+        }, 1500);
+    }
+
     document.addEventListener('click', (e) => {
         const menu = document.getElementById('profile-dropdown-menu');
         const trigger = document.getElementById('btn-profile-dropdown');
