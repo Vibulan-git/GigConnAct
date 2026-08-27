@@ -8285,6 +8285,7 @@ window.revealMarketContact = async function(itemId, type, value, clickedBtn) {
     container.style.background = 'rgba(255,255,255,0.15)';
     container.style.padding = '0.55rem';
     container.style.setProperty('width', '100%', 'important');
+    container.style.setProperty('align-self', 'stretch', 'important');
     container.style.boxSizing = 'border-box';
     container.setAttribute('data-type', type);
     container.style.display = 'block';
@@ -8303,7 +8304,7 @@ window.revealMarketContact = async function(itemId, type, value, clickedBtn) {
                       data-rec-id="${recId}"
                       data-rec-name="${recName}"
                       data-ev-id="${evId}"
-                      style="font-weight: 800; color: #ffffff; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: opacity 0.2s; width: 100%; justify-content: center;"
+                      style="font-weight: 800; color: #ffffff; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: opacity 0.2s; width: 100%;"
                       onmouseover="this.style.opacity='0.85';"
                       onmouseout="this.style.opacity='1';"
                       title="Chat im Postfach öffnen">
@@ -17297,7 +17298,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                             </div>
 
                             <!-- Reveal panel for contact data -->
-                            <div id="contact-reveal-${item.id}" style="display: none; width: 100%; box-sizing: border-box; text-align: center; font-size: 0.82rem; padding: 0.55rem; background: rgba(255,255,255,0.15); border-radius: 8px; animation: fadeIn 0.2s; word-break: break-all;"></div>
+                            <div id="contact-reveal-${item.id}" style="display: none; width: 100%; align-self: stretch; box-sizing: border-box; text-align: center; font-size: 0.82rem; padding: 0.55rem; background: rgba(255,255,255,0.15); border-radius: 8px; animation: fadeIn 0.2s; word-break: break-all;"></div>
                         </div>
                     `
                 ) : (
