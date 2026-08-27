@@ -2257,12 +2257,22 @@ class StateManager {
     }
 
     async handleSignInWithEmailLink() {
+        if (window.isSignInLinkProcessing) return;
         if (auth.isSignInWithEmailLink(window.location.href)) {
+            if (auth.currentUser) {
+                console.log("User already logged in, skipping email link sign-in.");
+                window.history.replaceState({}, document.title, window.location.origin + window.location.pathname + window.location.hash);
+                return;
+            }
+            window.isSignInLinkProcessing = true;
             let email = window.localStorage.getItem('emailForSignIn');
             if (!email) {
                 email = window.prompt('Bitte gib deine E-Mail-Adresse zur Bestätigung ein:');
             }
-            if (!email) return;
+            if (!email) {
+                window.isSignInLinkProcessing = false;
+                return;
+            }
 
             showToast({
                 title: "Anmeldung läuft... 🔄",
@@ -2283,7 +2293,7 @@ class StateManager {
                     if (state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email)) {
                         state.currentUser.role = 'organizer';
                     }
-                    window.history.replaceState({}, document.title, window.location.pathname);
+                    window.history.replaceState({}, document.title, window.location.origin + window.location.pathname + window.location.hash);
                 } else {
                     const pendingRegStr = window.localStorage.getItem('GigConnAct_pending_registration');
                     const pendingReg = pendingRegStr ? JSON.parse(pendingRegStr) : null;
@@ -2537,7 +2547,7 @@ class StateManager {
                     }
                 }
                 
-                window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
+                window.history.replaceState({}, document.title, window.location.origin + window.location.pathname + window.location.hash);
                 
                 if (redirectToStripe) {
                     window.isRegisteringRedirecting = true;
@@ -2572,6 +2582,8 @@ class StateManager {
                     title: "Anmeldung fehlgeschlagen ❌",
                     message: "Der Link ist ungültig oder abgelaufen."
                 });
+            } finally {
+                window.isSignInLinkProcessing = false;
             }
         }
     }
