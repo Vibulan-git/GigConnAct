@@ -9958,7 +9958,7 @@ function renderMyMusiciansContent(container) {
             <!-- Active Musicians -->
             <div class="profile-section-card" style="padding-top: 1.2rem;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom: 1px solid var(--border-glass); padding-bottom:0.6rem; flex-wrap: wrap; gap:1rem;">
-                    <h3 style="margin:0; color:var(--color-purple);"><i class="fa-solid fa-guitar"></i> Aktive Musiker-Profile (${activeMusicians.length})</h3>
+                    <h3 style="margin:0; color:#2563eb;"><i class="fa-solid fa-guitar"></i> Aktive Musiker-Profile (${activeMusicians.length})</h3>
                 </div>
                 
                 <div class="my-musicians-list">
@@ -18104,8 +18104,9 @@ function renderDatenschutzPage(container) {
                 <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Datenverarbeitung im Rahmen von Vermittlungsanfragen (Mediation)</h3>
                 <p>
                     Wenn Sie über das Vermittlungsformular eine Anfrage für einen passenden Act einreichen, erfassen wir Ihre personenbezogenen Kontaktdaten (Name, E-Mail-Adresse und Telefonnummer). 
-                    Diese Kontaktdaten werden zum Zwecke der Vermittlung verarbeitet und zunächst vertraulich in unserer Datenbank gespeichert. Das erstellte Event-Profil wird auf dem öffentlichen Event-Marktplatz ausschließlich in anonymisierter Form (ohne Ihren Namen, Ihre E-Mail-Adresse oder Ihre Telefonnummer) veröffentlicht.
-                    Sobald ein von uns vorgeschlagener Musiker die Vermittlungsanfrage verbindlich bestätigt (und ggf. die anfallende Gebühr entrichtet hat), werden Ihre Kontaktdaten (Name, Telefonnummer und E-Mail-Adresse) automatisch an diesen Musiker übermittelt, damit eine direkte Kontaktaufnahme zur Buchungsabsprache erfolgen kann. Gleichzeitig erhalten Sie die Kontaktdaten des Musikers. Diese Weitergabe basiert auf Art. 6 Abs. 1 lit. b DSGVO zur Durchführung der Vermittlungsdienstleistung.
+                    Deine Kontaktdaten bleiben geschützt und sind nicht öffentlich einsehbar. Sie werden ausschließlich an Musiker weitergegeben, an denen du Interesse zeigst. Das erstellte Event-Profil wird auf dem öffentlichen Event-Marktplatz ausschließlich in anonymisierter Form (ohne Ihren Namen, Ihre E-Mail-Adresse oder Ihre Telefonnummer) veröffentlicht.
+                    Erst bei beidseitigem Interesse (erfolgreiche Vermittlung, nachdem ein vorgeschlagener Musiker die Vermittlungsanfrage verbindlich bestätigt und ggf. die anfallende Gebühr entrichtet hat) werden die vollständigen Kontaktdaten (Name, Telefonnummer und E-Mail-Adresse) gegenseitig freigegeben und automatisch übermittelt, damit eine direkte Kontaktaufnahme zur Buchungsabsprache erfolgen kann.
+                    Für Musiker gilt entsprechend, dass deren Kontaktdaten ebenfalls erst bei beidseitigem Interesse (nach Bestätigung der Vermittlung) an den Veranstalter übermittelt werden. Diese Weitergabe basiert auf Art. 6 Abs. 1 lit. b DSGVO zur Durchführung der Vermittlungsdienstleistung.
                 </p>
 
                 <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem;">4. Datenerfassung auf dieser Website (Technische Dienstleister)</h2>
