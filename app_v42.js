@@ -4063,7 +4063,10 @@ class StateManager {
             const emailExistsLocal = this.musicians.some(m => m.email && m.email.toLowerCase() === emailLower) || 
                                      this.events.some(e => e.email && e.email.toLowerCase() === emailLower);
             
-            const snapshot = await db.collection('users').where('email', '==', email).get();
+            let snapshot = await db.collection('users').where('email', '==', emailLower).get();
+            if (snapshot.empty) {
+                snapshot = await db.collection('users').where('email', '==', email).get();
+            }
             const isExisting = emailExistsLocal || !snapshot.empty;
             
             if (!isExisting) {
@@ -14524,10 +14527,12 @@ function navigate(page) {
         window.updateBodyBackground(page);
     }
 
-    if (state && (!state.initialLoadDone || !state.authInitialized)) {
+    const noInitialLoadRequired = ['', '/', 'login', 'register', 'impressum', 'datenschutz'];
+    const needsLoad = !noInitialLoadRequired.includes(page);
+
+    if (state && ((needsLoad && !state.initialLoadDone) || !state.authInitialized)) {
         mainContainer.innerHTML = `
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
-                <!-- Spinning high-quality brand PNG Discoball as loading indicator -->
                 <img src="discoball.svg" style="width: 80px; height: 80px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(124,58,237,0.25)); animation: spin 5s linear infinite;" alt="Laden...">
             </div>
         `;

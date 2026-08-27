@@ -664,7 +664,10 @@ exports.sendCustomPasswordResetEmail = functions
 
             // Query user role and name from Firestore
             try {
-                const userSnapshot = await admin.firestore().collection('users').where('email', '==', email.toLowerCase()).get();
+                let userSnapshot = await admin.firestore().collection('users').where('email', '==', email.toLowerCase()).get();
+                if (userSnapshot.empty) {
+                    userSnapshot = await admin.firestore().collection('users').where('email', '==', email).get();
+                }
                 if (!userSnapshot.empty) {
                     const userData = userSnapshot.docs[0].data();
                     role = userData.role || role;
@@ -717,7 +720,10 @@ exports.sendCustomSignInEmail = functions
         // Query user role and name from Firestore if existing user
         if (email) {
             try {
-                const userSnapshot = await admin.firestore().collection('users').where('email', '==', email.toLowerCase()).get();
+                let userSnapshot = await admin.firestore().collection('users').where('email', '==', email.toLowerCase()).get();
+                if (userSnapshot.empty) {
+                    userSnapshot = await admin.firestore().collection('users').where('email', '==', email).get();
+                }
                 if (!userSnapshot.empty) {
                     const userData = userSnapshot.docs[0].data();
                     role = userData.role || role;
