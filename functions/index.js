@@ -1404,6 +1404,66 @@ async function releaseMediationContactsInternal(mediationId, musicianId = null) 
     const orgName = eventData ? (eventData.clientName || eventData.contactName || '') : '';
     const clientName = orgName ? orgName.trim().split(' ')[0] : 'Veranstalter';
 
+    // Format musician profile details (10 criteria)
+    const musTypeDisplay = mus.type || mus.musicianType || 'Nicht angegeben';
+    const musLocationDisplay = mus.location || 'Nicht angegeben';
+    const musRadiusDisplay = mus.radius ? `${mus.radius} km` : 'Nicht angegeben';
+    const musGenresDisplay = (Array.isArray(mus.genres) ? mus.genres.join(', ') : (mus.genres || 'Nicht angegeben'));
+    const musInstrumentsDisplay = (Array.isArray(mus.instruments) ? mus.instruments.join(', ') : (mus.instruments || 'Nicht angegeben'));
+    
+    let musDurationDisplay = 'Nicht angegeben';
+    if (mus.minDuration !== undefined && mus.minDuration !== null) {
+        const minStr = String(mus.minDuration).replace('.', ',');
+        if (mus.maxDuration !== undefined && mus.maxDuration !== null && mus.maxDuration !== mus.minDuration) {
+            const maxStr = String(mus.maxDuration).replace('.', ',');
+            musDurationDisplay = `${minStr} - ${maxStr} Stunden`;
+        } else {
+            musDurationDisplay = `${minStr} Stunden`;
+        }
+    }
+
+    let musPublikumDisplay = 'Nicht angegeben';
+    if (mus.minPublikum !== undefined && mus.minPublikum !== null) {
+        if (mus.maxPublikum !== undefined && mus.maxPublikum !== null) {
+            musPublikumDisplay = `${mus.minPublikum} - ${mus.maxPublikum} Personen`;
+        } else {
+            musPublikumDisplay = `${mus.minPublikum} Personen`;
+        }
+    }
+
+    const musTechArr = Array.isArray(mus.technik) ? mus.technik : (typeof mus.technik === 'string' && mus.technik.trim() !== '' ? mus.technik.split(',').map(s => s.trim()) : []);
+    const musTechDisplay = musTechArr.length > 0 ? musTechArr.join(', ') : 'nach Vereinbarung';
+
+    let musGageDisplay = 'Nicht angegeben';
+    if (mus.minBudget !== undefined && mus.minBudget !== null) {
+        const minBStr = typeof mus.minBudget === 'number' ? mus.minBudget.toLocaleString('de-DE') : String(mus.minBudget);
+        if (mus.maxBudget !== undefined && mus.maxBudget !== null && mus.maxBudget !== mus.minBudget) {
+            const maxBStr = typeof mus.maxBudget === 'number' ? mus.maxBudget.toLocaleString('de-DE') : String(mus.maxBudget);
+            musGageDisplay = `${minBStr} - ${maxBStr} €`;
+        } else {
+            musGageDisplay = `ab ${minBStr} €`;
+        }
+    }
+
+    let musAvailDisplay = 'Nicht angegeben';
+    if (mus.availability) {
+        if (Array.isArray(mus.availability)) {
+            musAvailDisplay = mus.availability.join(', ');
+        } else if (typeof mus.availability === 'object') {
+            const days = [];
+            const weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+            const weekdaysDe = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
+            weekdays.forEach((day, idx) => {
+                if (mus.availability[day] && mus.availability[day].available) {
+                    days.push(weekdaysDe[idx]);
+                }
+            });
+            if (days.length > 0) {
+                musAvailDisplay = days.join(', ');
+            }
+        }
+    }
+
     // 1. Send email to Organizer
     const organizerSubject = `Vermittlung erfolgreich: Kontaktdaten von ${musName} für "${med.eventName}" 🎉`;
     const organizerHtml = `
@@ -1415,13 +1475,19 @@ async function releaseMediationContactsInternal(mediationId, musicianId = null) 
             <!-- MUSIKER-KACHEL MIT KONTAKTDATEN -->
             <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; margin: 20px 0; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: left;">
                 <div style="background: #2563eb; padding: 15px; color: #ffffff;">
-                    <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: bold; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 10px;">${mus.type || 'Musiker'}</span>
-                    <h3 style="margin: 5px 0 0 0; font-size: 1.2rem; font-weight: bold; color: #ffffff;">${musName}</h3>
+                    <h3 style="margin: 0; font-size: 1.2rem; font-weight: bold; color: #ffffff;">${musName}</h3>
                 </div>
                 <div style="padding: 15px; font-size: 0.9rem; line-height: 1.5; color: #4a5568;">
-                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">📍 Standort:</strong> ${mus.location || 'Nicht angegeben'}</p>
-                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">🎵 Genres:</strong> ${(mus.genres || []).join(', ') || 'Alle'}</p>
-                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">🎸 Instrumente:</strong> ${(mus.instruments || []).join(', ') || 'Keine Angabe'}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">🎸 Act-Typ:</strong> ${musTypeDisplay}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">📍 Standort:</strong> ${musLocationDisplay}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">🚗 Reiseradius:</strong> ${musRadiusDisplay}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">🎵 Genres:</strong> ${musGenresDisplay}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">🎻 Instrumente:</strong> ${musInstrumentsDisplay}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">⏱️ Spielzeit:</strong> ${musDurationDisplay}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">👥 Publikum:</strong> ${musPublikumDisplay}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">🎛️ Technik:</strong> ${musTechDisplay}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">💰 Gage:</strong> ${musGageDisplay}</p>
+                    <p style="margin: 6px 0;"><strong style="width: 140px; display: inline-block;">📅 Verfügbarkeit:</strong> ${musAvailDisplay}</p>
                     ${mus.description ? `<p style="margin: 6px 0; font-style: italic; color: #718096; border-top: 1px dashed #e2e8f0; padding-top: 8px;">"${mus.description}"</p>` : ''}
                     
                     <!-- KONTAKTDATEN -->
