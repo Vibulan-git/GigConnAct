@@ -6310,7 +6310,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Maximaler Umkreis</label>
-                                    <span id="val-filter-radius" style="font-size: 0.85rem; font-weight: 700; color: #7c3aed;">${prefillRadius} km</span>
+                                    <span id="val-filter-radius" style="font-size: 0.85rem; font-weight: 700; color: #7c3aed;">${prefillRadius >= 500 ? '500+ km' : prefillRadius + ' km'}</span>
                                 </div>
                                 <input type="range" class="form-input" id="input-filter-radius" min="0" max="500" step="10" value="${prefillRadius}" style="width: 100%; accent-color: #7c3aed;">
                             </div>
@@ -6486,7 +6486,7 @@ function renderMarket(container, type, onNavigate) {
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
                                     <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Maximaler Umkreis</label>
-                                    <span id="val-filter-radius-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">500 km</span>
+                                    <span id="val-filter-radius-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">500+ km</span>
                                 </div>
                                 <input type="range" class="form-input" id="input-filter-radius-m" min="0" max="500" step="50" value="500" style="width: 100%; accent-color: #2563eb;">
                             </div>
@@ -7103,7 +7103,7 @@ function renderMarket(container, type, onNavigate) {
                         const dist = getEstimatedDistance(item.location, locInput);
                         const radiusInput = container.querySelector('#input-filter-radius-m');
                         const selectedRadius = radiusInput ? parseInt(radiusInput.value) : 500;
-                        if (dist <= selectedRadius) return true;
+                        if (selectedRadius >= 500 || dist <= selectedRadius) return true;
                     } else {
                         // If filtering events for a musician location
                         const dist = getEstimatedDistance(item.location, locInput);
@@ -7112,7 +7112,7 @@ function renderMarket(container, type, onNavigate) {
                         const musRadius = activeMus ? (activeMus.radius || 150) : 150;
                         const radiusInput = container.querySelector('#input-filter-radius');
                         const selectedRadius = radiusInput ? parseInt(radiusInput.value) : musRadius;
-                        if (dist <= selectedRadius) return true;
+                        if (selectedRadius >= 500 || dist <= selectedRadius) return true;
                     }
                     return false;
                 });
@@ -7613,7 +7613,7 @@ function renderMarket(container, type, onNavigate) {
         const radiusDisplay = container.querySelector('#val-filter-radius');
         if (radiusInput && radiusDisplay) {
             radiusInput.addEventListener('input', () => {
-                radiusDisplay.textContent = radiusInput.value + ' km';
+                radiusDisplay.textContent = parseInt(radiusInput.value) >= 500 ? '500+ km' : radiusInput.value + ' km';
                 applyAllFiltersAndSort();
             });
         }
@@ -7625,7 +7625,7 @@ function renderMarket(container, type, onNavigate) {
         const radiusDisplay = container.querySelector('#val-filter-radius-m');
         if (radiusInput && radiusDisplay) {
             radiusInput.addEventListener('input', () => {
-                radiusDisplay.textContent = radiusInput.value + ' km';
+                radiusDisplay.textContent = parseInt(radiusInput.value) >= 500 ? '500+ km' : radiusInput.value + ' km';
                 applyAllFiltersAndSort();
             });
         }
