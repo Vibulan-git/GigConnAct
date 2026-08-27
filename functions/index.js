@@ -833,6 +833,14 @@ exports.createStripeCheckoutSession = functions
                 }
             }
 
+            if (hasHadTrial) {
+                sessionParams.custom_text = {
+                    submit: {
+                        message: "Hinweis: Da für diese E-Mail-Adresse bereits eine kostenlose Testphase genutzt wurde, entfällt der Testzeitraum für diese Buchung."
+                    }
+                };
+            }
+
             const disableAllTrialsForTesting = false; // Set to false when ready to re-enable trials!
 
             // Set trial period dynamically based on the plan configuration:
@@ -1135,6 +1143,39 @@ exports.stripeWebhook = functions
                                 isPremium: true,
                                 subscriptionPlan: planKey
                             });
+
+                            try {
+                                const musicianDoc = await admin.firestore().collection('musicians').doc(userData.profileId).get();
+                                if (musicianDoc.exists) {
+                                    const musicianData = musicianDoc.data();
+                                    const name = musicianData.contactName || musicianData.name || `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || 'Nutzer';
+                                    const email = userData.email;
+                                    if (email) {
+                                        const musicianSubject = `Willkommen bei GigConnAct! Dein Musiker-Profil wurde erstellt 🎸`;
+                                        const musicianHtml = `
+                                            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
+                                                <div style="text-align: center; margin-bottom: 20px;">
+                                                    <img src="https://gigconnact.de/discoball.png" alt="GigConnAct Logo" style="width: 70px; height: 70px; object-fit: contain;">
+                                                </div>
+                                                <h2 style="color: #7c3aed; margin-top: 0; font-size: 1.5rem; text-align: center;">Profil erfolgreich erstellt! 🎉</h2>
+                                                <p>Hallo ${name},</p>
+                                                <p>Dein Musiker-Profil <strong>"${musicianData.name}"</strong> ist jetzt online.</p>
+                                                <p>Veranstalter können dich ab sofort auf unserem Marktplatz finden. Zudem prüfen wir täglich neue Ausschreibungen und informieren dich automatisch über passende Top-Matches in deiner Nähe.</p>
+                                                <p>Wir wünschen dir viel Erfolg und fantastische Gigs!</p>
+                                                <p style="margin-top: 25px; text-align: center;">
+                                                    <a href="https://gigconnact.de/#/dashboard?id=${userData.profileId}" style="background: #7c3aed; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Profil verwalten</a>
+                                                </p>
+                                                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 15px;">
+                                                <p style="font-size: 0.8rem; color: #a0aec0; text-align: center;">GigConnAct — Dein Live-Musik Marktplatz</p>
+                                            </div>
+                                        `;
+                                        await sendEmail({ to: email, subject: musicianSubject, html: musicianHtml });
+                                        console.log(`Sent welcome email to paid musician ${userData.email}`);
+                                    }
+                                }
+                            } catch (mailErr) {
+                                console.error("Failed to send welcome email in Stripe webhook:", mailErr);
+                            }
                         }
                         
                         // Hash email and save to used_trials to prevent any future trial abuse if they cancel or delete later
@@ -1310,7 +1351,7 @@ exports.onMusicianProfileCreated = functions
         const email = musician.email || (userDetails ? userDetails.email : null);
         const name = musician.contactName || musician.name || (userDetails ? userDetails.name : 'Nutzer');
 
-        if (email) {
+        if (email && musician.isPremium === true) {
             // 1. Mail an den Musiker
             const musicianSubject = `Willkommen bei GigConnAct! Dein Musiker-Profil wurde erstellt 🎸`;
             const musicianHtml = `
