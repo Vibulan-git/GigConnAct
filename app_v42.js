@@ -7122,7 +7122,8 @@ function renderMarket(container, type, onNavigate) {
             if (selectedFilterDates && selectedFilterDates.length > 0) {
                 list = list.filter(item => {
                     if (isEvents) {
-                        return selectedFilterDates.includes(item.date);
+                        const eventWeekday = getWeekdayFromDate(item.date);
+                        return selectedFilterDates.includes(item.date) || (eventWeekday && selectedFilterDates.includes(eventWeekday));
                     } else {
                         if (!item.availability) return true;
                         return selectedFilterDates.some(dateVal => {
