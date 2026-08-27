@@ -1782,6 +1782,7 @@ class StateManager {
         this.musiciansFetched = false;
         this.eventsFetched = false;
         this.initialLoadDone = false;
+        this.authInitialized = false;
         this.initFirebaseData();
     }
 
@@ -2119,6 +2120,7 @@ class StateManager {
                                 ? this.activeEventId
                                 : (this.events.find(e => e.creatorId === this.currentUser.id || (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email) && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.clientEmail === 'gigconnact@gmail.com')))?.id || null);
                         }
+                        this.authInitialized = true;
                         this.notify();
                     } else {
                         console.warn("Logged in user has no document in Firestore 'users' collection.");
@@ -2131,6 +2133,8 @@ class StateManager {
                                 createdAt: new Date().toISOString()
                             };
                             await userDocRef.set(newAdminUser);
+                            this.authInitialized = true;
+                            this.notify();
                         } else {
                             window.googleRegistrationUser = firebaseUser;
                             setTimeout(() => {
@@ -2156,6 +2160,8 @@ class StateManager {
                                 const registerTabBtn = document.getElementById('tab-register-btn');
                                 if (registerTabBtn) registerTabBtn.click();
                             }, 500);
+                            this.authInitialized = true;
+                            this.notify();
                         }
                     }
                 }, async (err) => {
@@ -2181,6 +2187,7 @@ class StateManager {
                                     ? this.activeEventId
                                     : (this.events.find(e => e.creatorId === this.currentUser.id || (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email) && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.clientEmail === 'gigconnact@gmail.com')))?.id || null);
                             }
+                            this.authInitialized = true;
                             this.notify();
                         } else {
                             console.warn("Logged in user has no document in Firestore 'users' collection (HTTP fallback).");
@@ -2192,7 +2199,9 @@ class StateManager {
                                     role: 'organizer',
                                     createdAt: new Date().toISOString()
                                 };
-                                  await userDocRef.set(newAdminUser);
+                                await userDocRef.set(newAdminUser);
+                                this.authInitialized = true;
+                                this.notify();
                             } else {
                                 window.googleRegistrationUser = firebaseUser;
                                 showModal('auth');
@@ -2210,6 +2219,8 @@ class StateManager {
                                 }
                                 const registerTabBtn = document.getElementById('tab-register-btn');
                                 if (registerTabBtn) registerTabBtn.click();
+                                this.authInitialized = true;
+                                this.notify();
                             }
                         }
                     } catch (getErr) {
@@ -2219,6 +2230,8 @@ class StateManager {
                             title: "Datenbank-Verbindungsfehler",
                             message: "Das Profil konnte nicht geladen werden. Bitte prüfe deine Internetverbindung."
                         });
+                        this.authInitialized = true;
+                        this.notify();
                     }
                 });
             } else {
@@ -2237,6 +2250,7 @@ class StateManager {
                 }
                 this.lastUserIdsJson = null;
                 
+                this.authInitialized = true;
                 this.notify();
             }
         });
@@ -14322,7 +14336,7 @@ function navigate(page) {
         window.updateBodyBackground(page);
     }
 
-    if (state && !state.initialLoadDone) {
+    if (state && (!state.initialLoadDone || !state.authInitialized)) {
         mainContainer.innerHTML = `
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
                 <!-- Spinning high-quality brand PNG Discoball as loading indicator -->
