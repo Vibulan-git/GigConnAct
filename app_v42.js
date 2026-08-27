@@ -7327,40 +7327,19 @@ function renderMarket(container, type, onNavigate) {
                     </div>
                 `;
             } else {
-                let slicedList = list.slice(0, displayedItemsCount);
+                let displayList = [...list];
                 if (showMoreMatchesUnfiltered && isFilterActiveCurrently) {
                     const excludedList = unfilteredList.filter(item => !list.some(listItem => listItem.id === item.id));
                     excludedList.sort((a, b) => (b.matchScore !== undefined ? b.matchScore : 95) - (a.matchScore !== undefined ? a.matchScore : 95));
                     const top10Excluded = excludedList.slice(0, 10);
-                    slicedList = [...slicedList, ...top10Excluded];
+                    displayList = [...displayList, ...top10Excluded];
                 }
-                grid.innerHTML = renderMarketGridHTML(slicedList, isEvents);
+                grid.innerHTML = renderMarketGridHTML(displayList, isEvents);
 
-                // Manage "Mehr anzeigen" button
+                // Ensure "Mehr anzeigen" button container is hidden if it exists
                 let loadMoreContainer = container.querySelector('#market-load-more-container');
-                if (list.length > displayedItemsCount) {
-                    if (!loadMoreContainer) {
-                        loadMoreContainer = document.createElement('div');
-                        loadMoreContainer.id = 'market-load-more-container';
-                        loadMoreContainer.style.cssText = 'grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 2rem; margin-bottom: 2rem; width: 100%;';
-                        grid.parentNode.appendChild(loadMoreContainer);
-                    }
-                    const themeColor = isEvents ? '#7c3aed' : '#2563eb';
-                    loadMoreContainer.innerHTML = `
-                        <button class="btn btn-primary" id="btn-market-load-more" style="padding: 0.85rem 2.5rem; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, ${themeColor} 0%, #1e40af 100%) !important; border-color: ${themeColor} !important; cursor: pointer; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s;">
-                            Mehr anzeigen
-                        </button>
-                    `;
-                    loadMoreContainer.querySelector('#btn-market-load-more').onclick = (e) => {
-                        e.preventDefault();
-                        displayedItemsCount += 12;
-                        applyAllFiltersAndSort(false, true);
-                    };
-                    loadMoreContainer.style.display = 'flex';
-                } else {
-                    if (loadMoreContainer) {
-                        loadMoreContainer.style.display = 'none';
-                    }
+                if (loadMoreContainer) {
+                    loadMoreContainer.style.display = 'none';
                 }
 
                 // Manage bottom reset button & Weitere Ergebnisse button
