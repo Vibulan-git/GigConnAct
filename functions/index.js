@@ -732,7 +732,7 @@ exports.sendCustomSignInEmail = functions
 
         try {
             const actionCodeSettings = {
-                url: 'https://www.gigconnact.de/',
+                url: `https://www.gigconnact.de/?email=${encodeURIComponent(email)}`,
                 handleCodeInApp: true
             };
 

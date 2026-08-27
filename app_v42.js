@@ -2276,6 +2276,17 @@ class StateManager {
             window.isSignInLinkProcessing = true;
             let email = window.localStorage.getItem('emailForSignIn');
             if (!email) {
+                const urlParams = new URLSearchParams(window.location.search);
+                email = urlParams.get('email');
+            }
+            if (!email) {
+                const hashParts = window.location.hash.split('?');
+                if (hashParts.length > 1) {
+                    const hashParams = new URLSearchParams(hashParts[1]);
+                    email = hashParams.get('email');
+                }
+            }
+            if (!email) {
                 email = window.prompt('Bitte gib deine E-Mail-Adresse zur Bestätigung ein:');
             }
             if (!email) {
@@ -5006,7 +5017,7 @@ function renderLandingPage(container, onNavigate) {
                 <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0 0.8rem; box-sizing: border-box;">
                     <!-- Large PNG Disco Ball (nested wrapper to keep entry animations, but static without rotation) -->
                     <div class="${logoClass}" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible;">
-                        <img src="discoball.png" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.55)); opacity: 1; pointer-events: none;">
+                        <img src="discoball.svg" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.55)); opacity: 1; pointer-events: none;">
                     </div>
                     <div class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.2rem); font-weight: 900; letter-spacing: -1.5px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                         GigConnAct
@@ -5418,7 +5429,7 @@ function renderLandingPage(container, onNavigate) {
                 <div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
                     <!-- Brand / Name with PNG Disco Ball -->
                     <div style="display: flex; align-items: center; gap: 0.6rem; justify-content: center; margin-bottom: 0.5rem;">
-                        <img src="discoball.png" alt="GigConnAct Logo" style="width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(124,58,237,0.15));">
+                        <img src="discoball.svg" alt="GigConnAct Logo" style="width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(124,58,237,0.15));">
                         <div style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">
                             GigConnAct
                         </div>
@@ -7366,7 +7377,7 @@ function renderMarket(container, type, onNavigate) {
             if (list.length === 0 && isLoading) {
                 grid.innerHTML = `
                     <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem;">
-                        <img src="discoball.png" style="width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(124,58,237,0.25)); animation: spin 5s linear infinite;" alt="Laden...">
+                        <img src="discoball.svg" style="width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(124,58,237,0.25)); animation: spin 5s linear infinite;" alt="Laden...">
                         <p style="color: var(--text-muted); margin-top: 1rem; font-weight: 600;">Lade Profile...</p>
                     </div>
                 `;
@@ -14517,7 +14528,7 @@ function navigate(page) {
         mainContainer.innerHTML = `
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
                 <!-- Spinning high-quality brand PNG Discoball as loading indicator -->
-                <img src="discoball.png" style="width: 80px; height: 80px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(124,58,237,0.25)); animation: spin 5s linear infinite;" alt="Laden...">
+                <img src="discoball.svg" style="width: 80px; height: 80px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(124,58,237,0.25)); animation: spin 5s linear infinite;" alt="Laden...">
             </div>
         `;
         return;
@@ -18643,7 +18654,7 @@ window.showAdminRecommendationDialog = function(musicianIds) {
 window.renderRecommendationPage = function(container, mediationId) {
     container.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
-            <img src="discoball.png" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
+            <img src="discoball.svg" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
             <span>Lade Vorschläge...</span>
         </div>
     `;
@@ -19183,7 +19194,7 @@ window.removeMediationEvent = function(mediationId) {
 window.renderMediationResponsePage = function(container, mediationId) {
     container.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
-            <img src="discoball.png" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
+            <img src="discoball.svg" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
             <span>Lade Anfrage...</span>
         </div>
     `;
