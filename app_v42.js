@@ -7647,7 +7647,13 @@ function renderMarket(container, type, onNavigate) {
     }
 
     resetBtn?.addEventListener('click', () => {
-        container.querySelectorAll('input[type="text"]').forEach(el => el.value = '');
+        container.querySelectorAll('input[type="text"]').forEach(el => {
+            if (el.id === 'filter-location' || el.id === 'filter-location-m') {
+                el.value = prefillLocation;
+            } else {
+                el.value = '';
+            }
+        });
         
         selectedFilterDates = []; window.selectedFilterDates = selectedFilterDates;
         renderFilterCalendar();
