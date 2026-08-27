@@ -152,22 +152,6 @@
       "callableTrigger": {},
       "entryPoint": "sendCustomSignInEmail"
     },
-    "verifyLoginCode": {
-      "platform": "gcfv1",
-      "labels": {},
-      "availableMemoryMb": null,
-      "timeoutSeconds": null,
-      "minInstances": null,
-      "maxInstances": null,
-      "ingressSettings": null,
-      "serviceAccountEmail": null,
-      "vpc": null,
-      "region": [
-        "europe-west3"
-      ],
-      "callableTrigger": {},
-      "entryPoint": "verifyLoginCode"
-    },
     "createStripeCheckoutSession": {
       "platform": "gcfv1",
       "labels": {},

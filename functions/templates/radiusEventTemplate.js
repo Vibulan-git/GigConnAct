@@ -159,7 +159,7 @@ module.exports = function getRadiusEventEmailHtml({ userName, matches }) {
                     <!-- Direct Link Button -->
                     <div style="text-align: center; border-top: 1px solid #f1f5f9; padding-top: 14px;">
                         <a href="https://gigconnact.de/#/events?id=${event.id}" style="background: ${brandColor}; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 0.85rem; display: inline-block; box-shadow: 0 3px 8px rgba(0,0,0,0.1); width: calc(100% - 40px); box-sizing: border-box;">
-                            Details ansehen & bewerben
+                            Profil anzeigen
                         </a>
                     </div>
                 </div>
@@ -183,9 +183,6 @@ module.exports = function getRadiusEventEmailHtml({ userName, matches }) {
                 ${listHtml}
             </div>
             
-            <p style="margin-top: 25px; text-align: center;">
-                <a href="https://gigconnact.de/#/events" style="background: ${brandColor}; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 0.9rem; display: inline-block; box-shadow: 0 4px 10px rgba(124,58,237,0.25);">Jetzt auf GigConnAct ansehen</a>
-            </p>
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 15px;">
             <p style="font-size: 0.78rem; color: #94a3b8; text-align: center; margin: 0;">GigConnAct — Dein Live-Musik Marktplatz</p>
         </div>

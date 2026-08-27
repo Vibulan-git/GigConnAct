@@ -12665,71 +12665,13 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     <div style="text-align: center; color: var(--color-green); font-size: 1.8rem; margin-bottom: 0.5rem;">
                         <i class="fa-solid fa-circle-check"></i>
                     </div>
-                    <h4 style="text-align: center; margin: 0 0 0.5rem; font-family: var(--font-heading); color: var(--text-main);">Anmeldelink & Code gesendet!</h4>
+                    <h4 style="text-align: center; margin: 0 0 0.5rem; font-family: var(--font-heading); color: var(--text-main);">Anmeldelink gesendet!</h4>
                     <p style="text-align: center; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.4;">
-                        Wir haben einen sicheren Link sowie einen 6-stelligen Login-Code an <strong>${email}</strong> gesendet.<br><br>
-                        Klicke entweder auf den Link in der E-Mail oder gib den Code hier ein, um dich direkt anzumelden:
+                        Wir haben einen sicheren Link an <strong>${email}</strong> gesendet.<br><br>
+                        Bitte überprüfe dein E-Mail-Postfach (und deinen Spam-Ordner) und klicke auf den Bestätigungslink in der E-Mail, um dich anzumelden.
                     </p>
-                    <div class="form-group" style="margin-bottom: 0.75rem;">
-                        <input type="text" id="login-otp-code" class="input-field" placeholder="z.B. 123456" style="text-align: center; font-size: 1.25rem; font-weight: 800; letter-spacing: 4px;" maxlength="6">
-                        <div id="otp-error-msg" class="text-red" style="font-size:0.8rem; margin-top: 0.5rem; display:none; text-align: center;"></div>
-                    </div>
-                    <button type="button" id="btn-verify-otp" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: none !important;">
-                        Code verifizieren & einloggen
-                    </button>
                 `;
                 successContainer.style.display = 'block';
-
-                const verifyBtn = document.getElementById('btn-verify-otp');
-                const otpInput = document.getElementById('login-otp-code');
-                const otpErr = document.getElementById('otp-error-msg');
-
-                if (verifyBtn && otpInput) {
-                    verifyBtn.addEventListener('click', async () => {
-                        const codeVal = otpInput.value.trim();
-                        if (codeVal.length !== 6) {
-                            if (otpErr) {
-                                otpErr.innerText = "Bitte gib den 6-stelligen Code ein.";
-                                otpErr.style.display = 'block';
-                            }
-                            return;
-                        }
-                        if (otpErr) otpErr.style.display = 'none';
-                        verifyBtn.disabled = true;
-                        verifyBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Code wird geprüft...`;
-
-                        try {
-                            const verifyLoginCode = firebase.app().functions('europe-west3').httpsCallable('verifyLoginCode');
-                            const otpRes = await verifyLoginCode({ email: email, code: codeVal });
-
-                            if (otpRes.data && otpRes.data.success) {
-                                verifyBtn.innerHTML = `<i class="fa-solid fa-check"></i> Erfolgreich eingeloggt`;
-                                await auth.signInWithCustomToken(otpRes.data.customToken);
-                                closeModal();
-                                if (typeof onSuccessCallback === 'function') {
-                                    onSuccessCallback();
-                                } else {
-                                    handleRouting();
-                                }
-                            } else {
-                                verifyBtn.disabled = false;
-                                verifyBtn.innerHTML = `Code verifizieren & einloggen`;
-                                if (otpErr) {
-                                    otpErr.innerText = otpRes.data.message || "Falscher Code.";
-                                    otpErr.style.display = 'block';
-                                }
-                            }
-                        } catch (otpErrDetail) {
-                            console.error("OTP Verification failed:", otpErrDetail);
-                            verifyBtn.disabled = false;
-                            verifyBtn.innerHTML = `Code verifizieren & einloggen`;
-                            if (otpErr) {
-                                otpErr.innerText = otpErrDetail.message || "Fehler bei der Code-Prüfung.";
-                                otpErr.style.display = 'block';
-                            }
-                        }
-                    });
-                }
             }
         });
     }
