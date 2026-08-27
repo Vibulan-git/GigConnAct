@@ -4462,17 +4462,7 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
     let extraScore = (matchesCount / 3) * 5;
     const totalScore = Math.round(typeScore + ortScore + genresScore + instScore + durScore + budgetScore + eventTypeScore + dateScore + publikumScore + extraScore);
 
-    let finalScore = 0;
-    if (totalScore > 0) {
-        finalScore = Math.round(65 + (Math.min(100, totalScore) / 100) * 33);
-    } else {
-        let hash = 0;
-        const idStr = String(musician.id) + String(event.id);
-        for (let i = 0; i < idStr.length; i++) {
-            hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        finalScore = 55 + Math.abs(hash % 16);
-    }
+    const finalScore = Math.min(100, Math.max(0, totalScore));
 
     const breakdown = {
         type: typeScore > 0,
