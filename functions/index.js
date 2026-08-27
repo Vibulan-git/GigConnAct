@@ -166,7 +166,7 @@ function getEstimatedDistance(city1, city2) {
     const cities1 = city1.split(',').map(clean);
     const cities2 = city2.split(',').map(clean);
 
-    let minDistance = 250;
+    let minDistance = Infinity;
 
     for (const c1 of cities1) {
         for (const c2 of cities2) {
@@ -204,6 +204,9 @@ function getEstimatedDistance(city1, city2) {
         }
     }
 
+    if (minDistance === Infinity) {
+        return 250;
+    }
     return minDistance;
 }
 
