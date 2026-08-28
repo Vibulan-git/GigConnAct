@@ -1770,13 +1770,29 @@ class StateManager {
         this.musicians = [];
         this.events = [];
         this.chats = [];
+        
+        // Hydrate state synchronously from localStorage cache to enable instant rendering without spinners
         try {
+            const storedUser = localStorage.getItem('GigConnAct_current_user');
+            if (storedUser) {
+                this.currentUser = JSON.parse(storedUser);
+            }
+            const storedEvents = localStorage.getItem('GigConnAct_events');
+            if (storedEvents) {
+                this.events = JSON.parse(storedEvents);
+            }
+            const storedMusicians = localStorage.getItem('GigConnAct_musicians');
+            if (storedMusicians) {
+                this.musicians = JSON.parse(storedMusicians);
+            }
             const storedRead = localStorage.getItem('GigConnAct_read_chats');
             const parsed = storedRead ? JSON.parse(storedRead) : {};
             this.readChats = (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
         } catch (e) {
+            console.warn("Failed to hydrate StateManager from localStorage cache:", e);
             this.readChats = {};
         }
+
         this.interests = [];
         this.favorites = [];
         this.musiciansFetched = false;
@@ -6920,13 +6936,9 @@ function renderMarket(container, type, onNavigate) {
         const queryString = hash.split('?')[1] || '';
         const urlParams = new URLSearchParams(queryString);
         const targetId = urlParams.get('id') || urlParams.get('profileId');
+        let targetItem = null;
         if (targetId) {
-            const targetIndex = list.findIndex(item => item && item.id === targetId);
-            if (targetIndex > -1) {
-                const targetItem = list[targetIndex];
-                list.splice(targetIndex, 1);
-                list.unshift(targetItem);
-            }
+            targetItem = list.find(item => item && item.id === targetId);
         }
 
         // Pre-calculate matchScore for every item in list based on logged in user profile (dynamically adjusted by active filters)
@@ -7467,6 +7479,14 @@ function renderMarket(container, type, onNavigate) {
             list.sort((a, b) => (parseInt(a.distance || 50) - parseInt(b.distance || 50)));
         } else if (sortVal === 'name') {
             list.sort((a, b) => (isEvents ? a.title : a.name).localeCompare(isEvents ? b.title : b.name));
+        }
+
+        if (targetId && targetItem) {
+            const listIndex = list.findIndex(item => item && item.id === targetId);
+            if (listIndex > -1) {
+                list.splice(listIndex, 1);
+            }
+            list.unshift(targetItem);
         }
 
         const grid = container.querySelector('#market-items-grid');
@@ -14645,14 +14665,7 @@ function navigate(page) {
     const noInitialLoadRequired = ['', '/', 'login', 'register', 'impressum', 'datenschutz'];
     const needsLoad = !noInitialLoadRequired.includes(page);
 
-    if (state && !state.authInitialized) {
-        mainContainer.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
-                <img src="discoball.svg" style="width: 80px; height: 80px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(124,58,237,0.25)); animation: spin 5s linear infinite;" alt="Laden...">
-            </div>
-        `;
-        return;
-    }
+    // Full-page blocking loading spinner removed to enable instant SPA routing and rendering from cache
 
     // Check if subscription has expired (DSGVO Variant A)
     if (state && state.currentUser && isSubscriptionExpired(state.currentUser)) {
