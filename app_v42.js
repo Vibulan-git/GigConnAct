@@ -15312,7 +15312,10 @@ function handleRouting() {
 
     const hash = window.location.hash;
     let pageWithQuery = hash.replace('#/', '').replace('#', '');
-    let page = pageWithQuery.split('?')[0];
+    let page = pageWithQuery.split('?')[0].toLowerCase();
+    if (page.endsWith('/')) {
+        page = page.slice(0, -1);
+    }
     if (page === 'top-matches') page = 'matches';
     
     // Parse query parameters from hash
@@ -15320,13 +15323,13 @@ function handleRouting() {
     let targetId = '';
     if (hashQuery) {
         const urlParams = new URLSearchParams(hashQuery);
-        const eventId = urlParams.get('id') || urlParams.get('eventId');
+        const eventId = urlParams.get('id') || urlParams.get('eventId') || urlParams.get('profileId');
         if (eventId) {
             console.log("[DEBUG] Storing activeEventId from URL parameter:", eventId);
             state.activeEventId = eventId;
             targetId = eventId;
         }
-        const musicianId = urlParams.get('musicianId') || urlParams.get('id');
+        const musicianId = urlParams.get('musicianId') || urlParams.get('id') || urlParams.get('profileId');
         if (musicianId && !targetId) {
             console.log("[DEBUG] Storing activeMusicianId from URL parameter:", musicianId);
             state.activeMusicianId = musicianId;
@@ -15337,7 +15340,10 @@ function handleRouting() {
     // Rewrite old email deep-links pointing to /#/events or /#/musicians to /#/matches
     if (targetId && (page === 'events' || page === 'musicians')) {
         console.log(`[DEBUG] Rewriting old deep-link page ${page} to matches for target ${targetId}`);
-        const newHash = hash.replace('#/events', '#/matches').replace('#/musicians', '#/matches').replace('#events', '#matches').replace('#musicians', '#matches');
+        const newHash = hash.replace(/#\/events/i, '#/matches')
+                            .replace(/#\/musicians/i, '#/matches')
+                            .replace(/#events/i, '#matches')
+                            .replace(/#musicians/i, '#matches');
         window.location.hash = newHash;
         return;
     }
