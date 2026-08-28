@@ -1956,8 +1956,10 @@ class StateManager {
         if (!id) return null;
         try {
             console.log(`[DEBUG] StateManager.fetchSingleItem() called for collection ${collectionName}, id: ${id}`);
-            const doc = await db.collection(collectionName).doc(id).get();
-            if (doc.exists) {
+            // Use query filter instead of doc().get() to work around "get" vs "list" Firestore security rules restrictions
+            const snapshot = await db.collection(collectionName).where(firebase.firestore.FieldPath.documentId(), '==', id).get();
+            if (!snapshot.empty) {
+                const doc = snapshot.docs[0];
                 const item = { id: doc.id, ...doc.data() };
                 const array = collectionName === 'events' ? this.events : this.musicians;
                 const idx = array.findIndex(x => x.id === item.id);
