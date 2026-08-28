@@ -5043,6 +5043,8 @@ input[type="range"].input-field {
 /* Disable pointer cursor on all tile cards as detail modals are disabled */
 .market-tile-card {
     cursor: default !important;
+    will-change: transform !important;
+    transform: translateZ(0) !important;
 }
 
 /* Hide gallery counter / badge in the bottom-left of cards */
