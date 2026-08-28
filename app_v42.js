@@ -15355,17 +15355,35 @@ function handleRouting() {
     let targetId = '';
     if (hashQuery) {
         const urlParams = new URLSearchParams(hashQuery);
-        const eventId = urlParams.get('id') || urlParams.get('eventId') || urlParams.get('profileId');
-        if (eventId) {
-            console.log("[DEBUG] Storing activeEventId from URL parameter:", eventId);
-            state.activeEventId = eventId;
-            targetId = eventId;
+        const isMusicianPage = page === 'musicians';
+        
+        const rawId = urlParams.get('id') || urlParams.get('profileId');
+        if (rawId) {
+            targetId = rawId;
         }
-        const musicianId = urlParams.get('musicianId') || urlParams.get('id') || urlParams.get('profileId');
-        if (musicianId && !targetId) {
-            console.log("[DEBUG] Storing activeMusicianId from URL parameter:", musicianId);
-            state.activeMusicianId = musicianId;
-            targetId = musicianId;
+
+        if (isMusicianPage) {
+            // Target is a musician profile, active profile is an event (for organizers)
+            const eventId = urlParams.get('eventId');
+            if (eventId) {
+                console.log("[DEBUG] Storing activeEventId from URL parameter:", eventId);
+                state.activeEventId = eventId;
+            }
+            if (rawId) {
+                console.log("[DEBUG] Storing activeMusicianId (target) from URL parameter:", rawId);
+                state.activeMusicianId = rawId;
+            }
+        } else {
+            // Target is an event profile, active profile is a musician (for musicians)
+            const musicianId = urlParams.get('musicianId');
+            if (musicianId) {
+                console.log("[DEBUG] Storing activeMusicianId from URL parameter:", musicianId);
+                state.activeMusicianId = musicianId;
+            }
+            if (rawId) {
+                console.log("[DEBUG] Storing activeEventId (target) from URL parameter:", rawId);
+                state.activeEventId = rawId;
+            }
         }
     }
 
