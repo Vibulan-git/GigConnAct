@@ -15334,6 +15334,14 @@ function handleRouting() {
         }
     }
 
+    // Rewrite old email deep-links pointing to /#/events or /#/musicians to /#/matches
+    if (targetId && (page === 'events' || page === 'musicians')) {
+        console.log(`[DEBUG] Rewriting old deep-link page ${page} to matches for target ${targetId}`);
+        const newHash = hash.replace('#/events', '#/matches').replace('#/musicians', '#/matches').replace('#events', '#matches').replace('#musicians', '#matches');
+        window.location.hash = newHash;
+        return;
+    }
+
     // Save target hash for redirect after login for all routes if unauthenticated (excluding landing/auth pages)
     if (!state || !state.currentUser) {
         const noRedirectPages = ['', '/', 'login', 'register', 'auth', 'signout'];
