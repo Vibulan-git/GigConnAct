@@ -2670,11 +2670,25 @@ class StateManager {
                     }, 500);
                 } else {
                     // EXISTING USER: Logged in!
+                    // Populate state immediately to avoid race condition/automatic logout in handleRouting
+                    this.currentUser = { id: userDoc.id, ...userDoc.data() };
+                    if (this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
+                        this.currentUser.role = 'organizer';
+                    }
+                    await this.fetchUserOwnData();
+                    this.authInitialized = true;
+                    this.notify();
+
                     showToast({
                         title: "Erfolgreich angemeldet!",
                         message: `Willkommen zurück, ${user.displayName || user.email}!`
                     });
-                    handleRouting();
+                    
+                    if (typeof navigateAfterLogin === 'function') {
+                        navigateAfterLogin();
+                    } else {
+                        handleRouting();
+                    }
                 }
             }
         } catch (err) {
@@ -13780,84 +13794,83 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             const originalHtml = googleBtn.innerHTML;
             googleBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Google-Anmeldung...';
             
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            if (isMobile) {
-                auth.signInWithRedirect(provider)
-                    .catch((err) => {
-                        console.error("Google Redirect Error:", err);
+            // Try signInWithPopup first on all devices to bypass ITP / 3rd-party cookie issues on redirects.
+            auth.signInWithPopup(provider)
+                .then(async (result) => {
+                    googleBtn.disabled = false;
+                    googleBtn.innerHTML = originalHtml;
+                    
+                    if (result && result.user) {
+                        const user = result.user;
+                        console.log("Google popup sign-in successful:", user.email);
+                        
+                        const userDoc = await db.collection('users').doc(user.uid).get();
+                        if (!userDoc.exists) {
+                            // NEW USER: Redirect to register page!
+                            window.googleRegistrationUser = user;
+                            closeModal();
+                            showModal('auth');
+                            const registerForm = document.getElementById('auth-register-form');
+                            if (registerForm) {
+                                if (registerForm.elements.email) {
+                                    registerForm.elements.email.value = user.email || '';
+                                    registerForm.elements.email.disabled = true;
+                                    registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
+                                    registerForm.elements.email.style.cursor = 'not-allowed';
+                                }
+                                if (registerForm.elements.fullName && user.displayName) {
+                                    registerForm.elements.fullName.value = user.displayName;
+                                }
+                            }
+                            const registerTabBtn = document.getElementById('tab-register-btn');
+                            if (registerTabBtn) registerTabBtn.click();
+                        } else {
+                            // EXISTING USER: Logged in!
+                            state.currentUser = { id: userDoc.id, ...userDoc.data() };
+                            if (state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email)) {
+                                state.currentUser.role = 'organizer';
+                            }
+                            await state.fetchUserOwnData();
+                            state.authInitialized = true;
+                            state.notify();
+
+                            closeModal();
+                            showToast({
+                                title: "Erfolgreich angemeldet!",
+                                message: `Willkommen zurück, ${user.displayName || user.email}!`
+                            });
+                            navigateAfterLogin();
+                        }
+                    }
+                })
+                .catch((err) => {
+                    console.error("Google Popup Error:", err);
+                    // Fallback to redirect if popup is blocked, cancelled, or not supported in this environment
+                    if (
+                        err.code === 'auth/popup-blocked' || 
+                        err.code === 'auth/cancelled-popup-request' || 
+                        err.code === 'auth/operation-not-supported-in-this-environment'
+                    ) {
+                        console.log("Falling back to signInWithRedirect...");
+                        auth.signInWithRedirect(provider)
+                            .catch((redirectErr) => {
+                                console.error("Google Redirect Fallback Error:", redirectErr);
+                                googleBtn.disabled = false;
+                                googleBtn.innerHTML = originalHtml;
+                                showToast({
+                                    title: "Google-Anmeldung fehlgeschlagen",
+                                    message: redirectErr.message || "Es gab ein Problem bei der Anmeldung."
+                                });
+                            });
+                    } else {
                         googleBtn.disabled = false;
                         googleBtn.innerHTML = originalHtml;
                         showToast({
                             title: "Google-Anmeldung fehlgeschlagen",
                             message: err.message || "Es gab ein Problem bei der Anmeldung."
                         });
-                    });
-            } else {
-                auth.signInWithPopup(provider)
-                    .then(async (result) => {
-                        googleBtn.disabled = false;
-                        googleBtn.innerHTML = originalHtml;
-                        
-                        if (result && result.user) {
-                            const user = result.user;
-                            console.log("Google popup sign-in successful:", user.email);
-                            
-                            const userDoc = await db.collection('users').doc(user.uid).get();
-                            if (!userDoc.exists) {
-                                // NEW USER: Redirect to register page!
-                                window.googleRegistrationUser = user;
-                                closeModal();
-                                showModal('auth');
-                                const registerForm = document.getElementById('auth-register-form');
-                                if (registerForm) {
-                                    if (registerForm.elements.email) {
-                                        registerForm.elements.email.value = user.email || '';
-                                        registerForm.elements.email.disabled = true;
-                                        registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
-                                        registerForm.elements.email.style.cursor = 'not-allowed';
-                                    }
-                                    if (registerForm.elements.fullName && user.displayName) {
-                                        registerForm.elements.fullName.value = user.displayName;
-                                    }
-                                }
-                                const registerTabBtn = document.getElementById('tab-register-btn');
-                                if (registerTabBtn) registerTabBtn.click();
-                            } else {
-                                // EXISTING USER: Logged in!
-                                state.currentUser = userDoc.data();
-                                closeModal();
-                                showToast({
-                                    title: "Erfolgreich angemeldet!",
-                                    message: `Willkommen zurück, ${user.displayName || user.email}!`
-                                });
-                                navigateAfterLogin();
-                            }
-                        }
-                    })
-                    .catch((err) => {
-                        console.error("Google Popup Error:", err);
-                        // Fallback to redirect if popup is blocked
-                        if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
-                            auth.signInWithRedirect(provider)
-                                .catch((redirectErr) => {
-                                    console.error("Google Redirect Fallback Error:", redirectErr);
-                                    googleBtn.disabled = false;
-                                    googleBtn.innerHTML = originalHtml;
-                                    showToast({
-                                        title: "Google-Anmeldung fehlgeschlagen",
-                                        message: redirectErr.message || "Es gab ein Problem bei der Anmeldung."
-                                    });
-                                });
-                        } else {
-                            googleBtn.disabled = false;
-                            googleBtn.innerHTML = originalHtml;
-                            showToast({
-                                title: "Google-Anmeldung fehlgeschlagen",
-                                message: err.message || "Es gab ein Problem bei der Anmeldung."
-                            });
-                        }
-                    });
-            }
+                    }
+                });
         });
     }
 }
