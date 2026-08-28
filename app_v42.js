@@ -12,6 +12,9 @@ const firebaseConfig = {
 // Initialize Firebase (Compat)
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+db.enablePersistence().catch((err) => {
+    console.warn("Firestore persistence error:", err.code);
+});
 const auth = firebase.auth();
 
 window.gcaPromoCodes = [
@@ -3812,8 +3815,8 @@ class StateManager {
             return { success: false, message: "Kein Empfänger für diesen Chat definiert." };
         }
 
-        let chat = this.chats.find(c => 
-            c.participants.includes(senderId) && c.participants.includes(recipientId)
+        let chat = (this.chats || []).find(c => 
+            c && c.participants && c.participants.includes(senderId) && c.participants.includes(recipientId)
         );
 
         const newId = chat ? chat.id : "chat_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
@@ -15963,7 +15966,7 @@ function renderPostbox(container) {
                                                 </div>
                                             </div>
                                         ` : `
-                                            <form class="chat-send-form-mobile" style="display: flex; gap: 0.4rem; margin-top: 0.2rem;">
+                                            <form class="chat-send-form-mobile" data-chat-id="${c.id}" style="display: flex; gap: 0.4rem; margin-top: 0.2rem;">
                                                 <input type="text" class="input-field chat-message-input-mobile" placeholder="${isSys ? 'Nicht möglich' : 'Schreibe...'}" ${isSys ? 'disabled' : ''} required style="flex: 1; margin: 0; height: 36px; font-size: 0.8rem; padding: 0.5rem; border-radius: 8px;">
                                                 <button type="submit" class="btn btn-primary" ${isSys ? 'disabled' : ''} style="margin: 0; padding: 0 0.8rem; height: 36px; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; justify-content: center;">
                                                     <i class="fa-solid fa-paper-plane"></i>
@@ -16174,20 +16177,25 @@ function renderPostbox(container) {
         const sendForm = container.querySelector('#chat-send-form');
         if (sendForm) {
             sendForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const input = container.querySelector('#chat-message-input');
-                const text = input.value.trim();
-                if (!text || !activeChat) return;
+                try {
+                    e.preventDefault();
+                    const input = container.querySelector('#chat-message-input');
+                    const text = input.value.trim();
+                    if (!text || !activeChat) return;
 
-                const counterpartyId = activeChat.participants.find(id => id !== currentUserId) || activeChat.participants[0];
-                const res = await state.sendMessage(counterpartyId, text, activeChat.eventId);
-                if (res && !res.success) {
-                    showToast({
-                        title: "Fehler beim Senden ⚠️",
-                        message: res.message || "Nachricht konnte nicht gespeichert werden."
-                    });
-                } else {
-                    input.value = '';
+                    const participants = activeChat.participants || [];
+                    const counterpartyId = participants.find(id => id !== currentUserId) || participants[0];
+                    const res = await state.sendMessage(counterpartyId, text, activeChat.eventId);
+                    if (res && !res.success) {
+                        showToast({
+                            title: "Fehler beim Senden ⚠️",
+                            message: res.message || "Nachricht konnte nicht gespeichert werden."
+                        });
+                    } else {
+                        input.value = '';
+                    }
+                } catch (sendErr) {
+                    console.error("Desktop sendMessage error:", sendErr);
                 }
             });
         }
@@ -16195,20 +16203,29 @@ function renderPostbox(container) {
         // Send message form handler (Mobile Accordion)
         container.querySelectorAll('.chat-send-form-mobile').forEach(form => {
             form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const input = form.querySelector('.chat-message-input-mobile');
-                const text = input.value.trim();
-                if (!text || !activeChat) return;
+                try {
+                    e.preventDefault();
+                    const chatId = form.getAttribute('data-chat-id');
+                    const chat = (state.chats || []).find(c => c && c.id === chatId);
+                    if (!chat) return;
 
-                const counterpartyId = activeChat.participants.find(id => id !== currentUserId) || activeChat.participants[0];
-                const res = await state.sendMessage(counterpartyId, text, activeChat.eventId);
-                if (res && !res.success) {
-                    showToast({
-                        title: "Fehler beim Senden ⚠️",
-                        message: res.message || "Nachricht konnte nicht gespeichert werden."
-                    });
-                } else {
-                    input.value = '';
+                    const input = form.querySelector('.chat-message-input-mobile');
+                    const text = input.value.trim();
+                    if (!text) return;
+
+                    const participants = chat.participants || [];
+                    const counterpartyId = participants.find(id => id !== currentUserId) || participants[0];
+                    const res = await state.sendMessage(counterpartyId, text, chat.eventId);
+                    if (res && !res.success) {
+                        showToast({
+                            title: "Fehler beim Senden ⚠️",
+                            message: res.message || "Nachricht konnte nicht gespeichert werden."
+                        });
+                    } else {
+                        input.value = '';
+                    }
+                } catch (sendErr) {
+                    console.error("Mobile sendMessage error:", sendErr);
                 }
             });
         });
