@@ -7493,12 +7493,6 @@ function renderMarket(container, type, onNavigate) {
                     setTimeout(() => {
                         const card = document.getElementById(`collapsible-details-${targetId}`);
                         if (card) {
-                            // Expand it if it's not already expanded
-                            if (card.style.display === 'none' || card.style.display === '') {
-                                if (typeof window.toggleTileDetails === 'function') {
-                                    window.toggleTileDetails(targetId);
-                                }
-                            }
                             // Scroll it into view
                             const tileCard = card.closest('.market-tile-card');
                             if (tileCard) {
@@ -15268,17 +15262,20 @@ function handleRouting() {
     
     // Parse query parameters from hash
     const hashQuery = hash.includes('?') ? hash.split('?')[1] : '';
+    let targetId = '';
     if (hashQuery) {
         const urlParams = new URLSearchParams(hashQuery);
         const eventId = urlParams.get('id') || urlParams.get('eventId');
         if (eventId) {
             console.log("[DEBUG] Storing activeEventId from URL parameter:", eventId);
             state.activeEventId = eventId;
+            targetId = eventId;
         }
-        const musicianId = urlParams.get('musicianId');
-        if (musicianId) {
+        const musicianId = urlParams.get('musicianId') || urlParams.get('id');
+        if (musicianId && !targetId) {
             console.log("[DEBUG] Storing activeMusicianId from URL parameter:", musicianId);
             state.activeMusicianId = musicianId;
+            targetId = musicianId;
         }
     }
 
@@ -15288,6 +15285,14 @@ function handleRouting() {
         if (!noRedirectPages.includes(page)) {
             window.loginRedirectHash = hash;
         }
+    }
+
+    // Force login if target ID (deep link) is present but user is unauthenticated
+    if (state && state.authInitialized && targetId && !state.currentUser) {
+        console.log("[DEBUG] Target ID present but user unauthenticated. Redirecting to landing and opening auth modal.");
+        navigate('');
+        showModal('auth');
+        return;
     }
     
     // Check if user is half-logged-in (Firebase Auth exists but no Firestore profile)
