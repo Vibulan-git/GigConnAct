@@ -14709,17 +14709,23 @@ function navigate(page) {
     switch (page) {
         case 'matchmaking-choice':
             window.renderMatchmakingChoicePage(mainContainer);
-            window.location.hash = '#/matchmaking-choice';
+            if (!window.location.hash.startsWith('#/matchmaking-choice')) {
+                window.location.hash = '#/matchmaking-choice';
+            }
             break;
         case 'events':
             renderMarket(mainContainer, 'events', navigate);
             setActiveLink('link-events');
-            window.location.hash = '#/events';
+            if (!window.location.hash.startsWith('#/events')) {
+                window.location.hash = '#/events';
+            }
             break;
         case 'musicians':
             renderMarket(mainContainer, 'musicians', navigate);
             setActiveLink('link-musicians');
-            window.location.hash = '#/musicians';
+            if (!window.location.hash.startsWith('#/musicians')) {
+                window.location.hash = '#/musicians';
+            }
             break;
         case 'matches':
         case 'top-matches':
@@ -14730,7 +14736,9 @@ function navigate(page) {
                 state.clearUnreadMatches();
                 renderMatchesPage(mainContainer);
                 setActiveLink('link-matches');
-                window.location.hash = '#/matches';
+                if (!window.location.hash.startsWith('#/matches')) {
+                    window.location.hash = '#/matches';
+                }
             }
             break;
         case 'dashboard':
@@ -14740,11 +14748,15 @@ function navigate(page) {
             } else if (state.currentUser.role === 'organizer') {
                 renderMyEvents(mainContainer);
                 setActiveLink('link-dashboard');
-                window.location.hash = '#/dashboard';
+                if (!window.location.hash.startsWith('#/dashboard')) {
+                    window.location.hash = '#/dashboard';
+                }
             } else {
                 renderMyMusicians(mainContainer);
                 setActiveLink('link-dashboard');
-                window.location.hash = '#/dashboard';
+                if (!window.location.hash.startsWith('#/dashboard')) {
+                    window.location.hash = '#/dashboard';
+                }
             }
             break;
         case 'my-musicians':
@@ -14764,7 +14776,9 @@ function navigate(page) {
                 window.postboxJustOpened = true;
                 renderPostbox(mainContainer);
                 setActiveLink('link-postbox');
-                window.location.hash = '#/postbox';
+                if (!window.location.hash.startsWith('#/postbox')) {
+                    window.location.hash = '#/postbox';
+                }
             }
             break;
         case 'credits':
@@ -14774,7 +14788,9 @@ function navigate(page) {
             } else {
                 renderCreditsPage(mainContainer);
                 setActiveLink('link-credits');
-                window.location.hash = '#/credits';
+                if (!window.location.hash.startsWith('#/credits')) {
+                    window.location.hash = '#/credits';
+                }
             }
             break;
         case 'verify-email':
@@ -14792,7 +14808,9 @@ function navigate(page) {
                 showModal('auth');
             } else {
                 renderProfilePage(mainContainer);
-                window.location.hash = '#/profile';
+                if (!window.location.hash.startsWith('#/profile')) {
+                    window.location.hash = '#/profile';
+                }
             }
             break;
         default:
