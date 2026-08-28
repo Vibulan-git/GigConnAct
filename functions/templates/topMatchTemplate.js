@@ -209,7 +209,7 @@ module.exports = function getTopMatchEmailHtml({ userName, role, profileName, ma
  
                     <!-- Direct Link Button inside Card -->
                     <div style="text-align: center; border-top: 1px solid #f1f5f9; padding-top: 14px;">
-                        <a href="https://gigconnact.de/#/matches?id=${m.id}${isOrganizer ? (profileId ? `&eventId=${profileId}` : '') : (profileId ? `&musicianId=${profileId}` : '')}" style="background: ${themeColor}; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 0.85rem; display: inline-block; box-shadow: 0 3px 8px rgba(0,0,0,0.1); width: calc(100% - 40px); box-sizing: border-box;">
+                        <a href="https://gigconnact.de/#/${isOrganizer ? 'musicians' : 'events'}?id=${m.id}${isOrganizer ? (profileId ? `&eventId=${profileId}` : '') : (profileId ? `&musicianId=${profileId}` : '')}" style="background: ${themeColor}; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 0.85rem; display: inline-block; box-shadow: 0 3px 8px rgba(0,0,0,0.1); width: calc(100% - 40px); box-sizing: border-box;">
                             ${isOrganizer ? 'Zum Profil' : 'Zum Event-Profil'}
                         </a>
                     </div>

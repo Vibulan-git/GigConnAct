@@ -6193,8 +6193,9 @@ function renderMarket(container, type, onNavigate) {
     const hashForSingleFetch = window.location.hash;
     const queryStringForSingleFetch = hashForSingleFetch.split('?')[1] || '';
     const urlParamsForSingleFetch = new URLSearchParams(queryStringForSingleFetch);
-    const targetIdForSingleFetch = urlParamsForSingleFetch.get('id') || urlParamsForSingleFetch.get('profileId');
+    const targetIdForSingleFetch = urlParamsForSingleFetch.get('id') || urlParamsForSingleFetch.get('profileId') || urlParamsForSingleFetch.get('eventId');
     if (targetIdForSingleFetch) {
+        showOnlyTopMatches = true;
         const itemExists = getItems().some(item => item && item.id === targetIdForSingleFetch);
         if (!itemExists && typeof state.fetchSingleItem === 'function') {
             state.fetchSingleItem(isEvents ? 'events' : 'musicians', targetIdForSingleFetch);
@@ -7943,6 +7944,12 @@ function renderMarket(container, type, onNavigate) {
     });
 
     const btnToggleTopMatches = container.querySelector('#btn-toggle-market-top-matches');
+    if (btnToggleTopMatches && showOnlyTopMatches) {
+        btnToggleTopMatches.classList.add('active');
+        btnToggleTopMatches.style.color = '#eab308';
+        btnToggleTopMatches.style.borderColor = '#eab308';
+        btnToggleTopMatches.style.background = 'rgba(234, 179, 8, 0.1)';
+    }
     btnToggleTopMatches?.addEventListener('click', () => {
         if (!state.currentUser) {
             showModal('auth');
@@ -15362,13 +15369,12 @@ function handleRouting() {
         }
     }
 
-    // Rewrite old email deep-links pointing to /#/events or /#/musicians to /#/matches
-    if (targetId && (page === 'events' || page === 'musicians')) {
-        console.log(`[DEBUG] Rewriting old deep-link page ${page} to matches for target ${targetId}`);
-        const newHash = hash.replace(/#\/events/i, '#/matches')
-                            .replace(/#\/musicians/i, '#/matches')
-                            .replace(/#events/i, '#matches')
-                            .replace(/#musicians/i, '#matches');
+    // Redirect matches deep links back to marketplace pages
+    if (page === 'matches' && targetId) {
+        const isEvt = String(targetId).startsWith('evt_');
+        const targetPage = isEvt ? 'events' : 'musicians';
+        console.log(`[DEBUG] Redirecting matches deep link to ${targetPage} for target ${targetId}`);
+        const newHash = hash.replace(/#\/matches/i, `#/${targetPage}`).replace(/#matches/i, `#${targetPage}`);
         window.location.hash = newHash;
         return;
     }
