@@ -14716,14 +14716,14 @@ function navigate(page) {
         case 'events':
             renderMarket(mainContainer, 'events', navigate);
             setActiveLink('link-events');
-            if (!window.location.hash.startsWith('#/events')) {
+            if (!window.location.hash.startsWith('#/events') && !window.location.hash.startsWith('#events')) {
                 window.location.hash = '#/events';
             }
             break;
         case 'musicians':
             renderMarket(mainContainer, 'musicians', navigate);
             setActiveLink('link-musicians');
-            if (!window.location.hash.startsWith('#/musicians')) {
+            if (!window.location.hash.startsWith('#/musicians') && !window.location.hash.startsWith('#musicians')) {
                 window.location.hash = '#/musicians';
             }
             break;
@@ -15191,7 +15191,7 @@ function handleRouting() {
     if (!mainContainer) return;
 
     const hash = window.location.hash;
-    let pageWithQuery = hash.replace('#/', '');
+    let pageWithQuery = hash.replace('#/', '').replace('#', '');
     let page = pageWithQuery.split('?')[0];
     if (page === 'top-matches') page = 'matches';
     
