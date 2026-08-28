@@ -9346,6 +9346,18 @@ function renderMatchesPage(container) {
         if (!state.currentUser) return;
         const u = state.currentUser;
         const isMusician = u.role === 'musician';
+
+        const hash = window.location.hash;
+        const queryString = hash.split('?')[1] || '';
+        const urlParams = new URLSearchParams(queryString);
+        const targetId = urlParams.get('id') || urlParams.get('profileId');
+        if (targetId) {
+            const list = isMusician ? state.events : state.musicians;
+            const itemExists = list.some(item => item && item.id === targetId);
+            if (!itemExists && typeof state.fetchSingleItem === 'function') {
+                state.fetchSingleItem(isMusician ? 'events' : 'musicians', targetId);
+            }
+        }
         
         let profiles = [];
         const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
@@ -9473,7 +9485,7 @@ function renderMatchesPage(container) {
             return { item, match };
         });
 
-        const topMatches = candidatesWithMatches.filter(cand => cand.match.score >= 70);
+        const topMatches = candidatesWithMatches.filter(cand => cand.match.score >= 70 || (targetId && cand.item.id === targetId));
 
         const sortVal = selectSort?.value || 'match';
         topMatches.sort((a, b) => {
@@ -9503,6 +9515,15 @@ function renderMatchesPage(container) {
             return 0;
         });
 
+        if (targetId) {
+            const targetIndex = topMatches.findIndex(cand => cand.item && cand.item.id === targetId);
+            if (targetIndex > -1) {
+                const targetCand = topMatches[targetIndex];
+                topMatches.splice(targetIndex, 1);
+                topMatches.unshift(targetCand);
+            }
+        }
+
         if (document.getElementById('top-matches-count')) {
             document.getElementById('top-matches-count').textContent = topMatches.length;
         }
@@ -9526,6 +9547,27 @@ function renderMatchesPage(container) {
                     return cand.item;
                 });
                 topGrid.innerHTML = renderMarketGridHTML(items, isEventMarket);
+
+                if (targetId) {
+                    setTimeout(() => {
+                        const card = document.getElementById(`collapsible-details-${targetId}`);
+                        if (card) {
+                            // Scroll it into view
+                            const tileCard = card.closest('.market-tile-card');
+                            if (tileCard) {
+                                tileCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                // Highlight effect (glow)
+                                tileCard.style.outline = '3px solid var(--color-purple)';
+                                tileCard.style.outlineOffset = '4px';
+                                tileCard.style.borderRadius = '16px';
+                                setTimeout(() => {
+                                    tileCard.style.transition = 'outline 1.5s ease-out';
+                                    tileCard.style.outline = '3px solid transparent';
+                                }, 3000);
+                            }
+                        }
+                    }, 300);
+                }
             }
         }
     };
