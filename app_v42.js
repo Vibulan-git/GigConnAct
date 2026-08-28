@@ -6921,7 +6921,12 @@ function renderMarket(container, type, onNavigate) {
         const urlParams = new URLSearchParams(queryString);
         const targetId = urlParams.get('id') || urlParams.get('profileId');
         if (targetId) {
-            list = list.filter(item => item.id === targetId);
+            const targetIndex = list.findIndex(item => item && item.id === targetId);
+            if (targetIndex > -1) {
+                const targetItem = list[targetIndex];
+                list.splice(targetIndex, 1);
+                list.unshift(targetItem);
+            }
         }
 
         // Pre-calculate matchScore for every item in list based on logged in user profile (dynamically adjusted by active filters)
@@ -7484,6 +7489,33 @@ function renderMarket(container, type, onNavigate) {
                 }
                 grid.innerHTML = renderMarketGridHTML(displayList, isEvents);
 
+                if (targetId) {
+                    setTimeout(() => {
+                        const card = document.getElementById(`collapsible-details-${targetId}`);
+                        if (card) {
+                            // Expand it if it's not already expanded
+                            if (card.style.display === 'none' || card.style.display === '') {
+                                if (typeof window.toggleTileDetails === 'function') {
+                                    window.toggleTileDetails(targetId);
+                                }
+                            }
+                            // Scroll it into view
+                            const tileCard = card.closest('.market-tile-card');
+                            if (tileCard) {
+                                tileCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                // Highlight effect (glow)
+                                tileCard.style.outline = '3px solid var(--color-purple)';
+                                tileCard.style.outlineOffset = '4px';
+                                tileCard.style.borderRadius = '16px';
+                                setTimeout(() => {
+                                    tileCard.style.transition = 'outline 1.5s ease-out';
+                                    tileCard.style.outline = '3px solid transparent';
+                                }, 3000);
+                            }
+                        }
+                    }, 300);
+                }
+
                 // Ensure "Mehr anzeigen" button container is hidden if it exists
                 let loadMoreContainer = container.querySelector('#market-load-more-container');
                 if (loadMoreContainer) {
@@ -7548,7 +7580,7 @@ function renderMarket(container, type, onNavigate) {
             // Banner injection if displaying a specific profile/event from an email match
             const bannerContainerId = 'market-single-profile-banner';
             let bannerEl = container.querySelector('#' + bannerContainerId);
-            if (targetId && list.length > 0) {
+            if (targetId && list.length > 0 && false) {
                 const matchedItem = list[0];
                 const name = matchedItem.name || matchedItem.title || 'Profil';
                 if (!bannerEl) {
