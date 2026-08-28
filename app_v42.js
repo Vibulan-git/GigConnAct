@@ -1787,12 +1787,23 @@ class StateManager {
     }
 
     async initFirebaseData() {
+        const timeoutId = setTimeout(() => {
+            if (!this.initialLoadDone) {
+                console.warn("[WARNING] initFirebaseData initial load timed out. Forcing ready state.");
+                this.loadState();
+                this.initialLoadDone = true;
+                this.notify();
+            }
+        }, 3500);
+
         try {
             await this.loadStateFromFirestore();
             this.setupAuthListener();
             this.handleSignInWithEmailLink();
             await this.handleGoogleRedirectResult();
+            clearTimeout(timeoutId);
         } catch (e) {
+            clearTimeout(timeoutId);
             console.error("Firebase init failed, falling back to mock localStorage:", e);
             this.loadState();
             this.initialLoadDone = true;
@@ -14569,7 +14580,7 @@ function navigate(page) {
     const noInitialLoadRequired = ['', '/', 'login', 'register', 'impressum', 'datenschutz'];
     const needsLoad = !noInitialLoadRequired.includes(page);
 
-    if (state && ((needsLoad && !state.initialLoadDone) || !state.authInitialized)) {
+    if (state && !state.authInitialized) {
         mainContainer.innerHTML = `
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
                 <img src="discoball.svg" style="width: 80px; height: 80px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(124,58,237,0.25)); animation: spin 5s linear infinite;" alt="Laden...">
