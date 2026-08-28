@@ -7511,21 +7511,31 @@ function renderMarket(container, type, onNavigate) {
 
                 if (targetId) {
                     setTimeout(() => {
-                        const card = document.getElementById(`collapsible-details-${targetId}`);
-                        if (card) {
-                            // Scroll it into view
-                            const tileCard = card.closest('.market-tile-card');
-                            if (tileCard) {
-                                tileCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                // Highlight effect (glow)
-                                tileCard.style.outline = '3px solid var(--color-purple)';
-                                tileCard.style.outlineOffset = '4px';
-                                tileCard.style.borderRadius = '16px';
-                                setTimeout(() => {
-                                    tileCard.style.transition = 'outline 1.5s ease-out';
-                                    tileCard.style.outline = '3px solid transparent';
-                                }, 3000);
+                        try {
+                            const card = document.getElementById(`collapsible-details-${targetId}`);
+                            if (card) {
+                                // Scroll it into view
+                                const tileCard = card.closest('.market-tile-card');
+                                if (tileCard) {
+                                    try {
+                                        tileCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    } catch (scrollErr) {
+                                        try {
+                                            tileCard.scrollIntoView();
+                                        } catch (scrollErr2) {}
+                                    }
+                                    // Highlight effect (glow)
+                                    tileCard.style.outline = '3px solid var(--color-purple)';
+                                    tileCard.style.outlineOffset = '4px';
+                                    tileCard.style.borderRadius = '16px';
+                                    setTimeout(() => {
+                                        tileCard.style.transition = 'outline 1.5s ease-out';
+                                        tileCard.style.outline = '3px solid transparent';
+                                    }, 3000);
+                                }
                             }
+                        } catch (cardErr) {
+                            console.error("Failed to scroll target marketplace item into view:", cardErr);
                         }
                     }, 300);
                 }
@@ -9343,6 +9353,7 @@ function renderProfilePage(container) {
 
 
 function renderMatchesPage(container) {
+    try {
         if (!state.currentUser) return;
         const u = state.currentUser;
         const isMusician = u.role === 'musician';
@@ -9550,21 +9561,31 @@ function renderMatchesPage(container) {
 
                 if (targetId) {
                     setTimeout(() => {
-                        const card = document.getElementById(`collapsible-details-${targetId}`);
-                        if (card) {
-                            // Scroll it into view
-                            const tileCard = card.closest('.market-tile-card');
-                            if (tileCard) {
-                                tileCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                // Highlight effect (glow)
-                                tileCard.style.outline = '3px solid var(--color-purple)';
-                                tileCard.style.outlineOffset = '4px';
-                                tileCard.style.borderRadius = '16px';
-                                setTimeout(() => {
-                                    tileCard.style.transition = 'outline 1.5s ease-out';
-                                    tileCard.style.outline = '3px solid transparent';
-                                }, 3000);
+                        try {
+                            const card = document.getElementById(`collapsible-details-${targetId}`);
+                            if (card) {
+                                // Scroll it into view
+                                const tileCard = card.closest('.market-tile-card');
+                                if (tileCard) {
+                                    try {
+                                        tileCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    } catch (scrollErr) {
+                                        try {
+                                            tileCard.scrollIntoView();
+                                        } catch (scrollErr2) {}
+                                    }
+                                    // Highlight effect (glow)
+                                    tileCard.style.outline = '3px solid var(--color-purple)';
+                                    tileCard.style.outlineOffset = '4px';
+                                    tileCard.style.borderRadius = '16px';
+                                    setTimeout(() => {
+                                        tileCard.style.transition = 'outline 1.5s ease-out';
+                                        tileCard.style.outline = '3px solid transparent';
+                                    }, 3000);
+                                }
                             }
+                        } catch (cardErr) {
+                            console.error("Failed to scroll target match into view:", cardErr);
                         }
                     }, 300);
                 }
@@ -9594,10 +9615,14 @@ function renderMatchesPage(container) {
             navigate(isMusician ? 'events' : 'musicians');
         });
     }
+    } catch (matchesErr) {
+        console.error("Error inside renderMatchesPage:", matchesErr);
+    }
 }
 
 
 function isEventActive(e) {
+    if (!e) return false;
     if (e.musicianFound || e.isCanceled) return false;
     if (e.isActive === false) return false;
     if (!e.date) return false;
