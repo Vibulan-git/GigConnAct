@@ -3583,7 +3583,6 @@ class StateManager {
     }
 
     notify() {
-        console.log("[DEBUG] State notify() triggered. activeMusicianId:", this.activeMusicianId, "activeEventId:", this.activeEventId);
         
         if (this.currentUser) {
             const currentIdsJson = JSON.stringify(this.getUserProfileAndEventIds());
