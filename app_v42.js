@@ -5403,14 +5403,14 @@ function renderLandingPage(container, onNavigate) {
     container.innerHTML = `
         <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem; margin: 0; width: 100%;">
             
-            <!-- 1. Fullscreen 100vh Hero Background Section -->
-            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 14vh 1.5rem 3.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); background-color: #0d0e12;">
+            <!-- 1. Fullscreen 100vh Hero Background Section (Centered content, naturally stacked) -->
+            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 6vh 1.5rem 3rem; gap: clamp(1.2rem, 3.5vw, 2rem); border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); background-color: #0d0e12; box-sizing: border-box;">
                 
                 <!-- Dark overlay gradient -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(124, 58, 237, 0.82) 100%); z-index: 2;"></div>
 
-                <!-- 1/3: Restored Logo -->
-                <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 4.5vh auto 0; padding: 0 0.8rem; box-sizing: border-box;">
+                <!-- 1/4: Logo -->
+                <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 3vh auto 0; padding: 0 0.8rem; box-sizing: border-box;">
                     <!-- Large PNG Disco Ball (nested wrapper to keep entry animations, but static without rotation) -->
                     <div class="${logoClass}" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible;">
                         <img src="discoball.svg" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.55)); opacity: 1; pointer-events: none;">
@@ -5419,8 +5419,39 @@ function renderLandingPage(container, onNavigate) {
                         GigConnAct
                     </div>
                 </div>
-<!-- 2/3: CTA Buttons -->
-                <div class="hero-cta-buttons" style="position: relative; z-index: 3; margin: -2rem auto 0; gap: 2rem;">
+
+                <!-- 2/4: Slogan (Subtitle) -->
+                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.3rem; width: 100%; margin: 0 auto;">
+                    <span style="font-family: var(--font-heading); font-size: clamp(1.4rem, 3.8vw, 2.3rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: inline-block;">
+                        Die Vermittlungsplattform
+                    </span>
+                    <span style="font-family: var(--font-heading); font-size: clamp(2.6rem, 7.0vw, 4.3rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: inline-block;">
+                        für Live-Musik
+                    </span>
+                </div>
+
+                <!-- 3/4: Infinite Scrolling Category Marquee (animating area) -->
+                <div class="logo-marquee-wrapper" style="position: relative; z-index: 3; margin: 0 auto; width: 100%; max-width: 800px; mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);">
+                    <div class="logo-marquee-track" style="animation-duration: 22s; gap: 1.2rem;">
+                        <!-- Set 1 -->
+                        <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-ring" style="color: #c084fc;"></i> Hochzeiten</span>
+                        <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-cake-candles" style="color: #60a5fa;"></i> Geburtstage</span>
+                        <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-briefcase" style="color: #34d399;"></i> Firmenfeiern</span>
+                        <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-city" style="color: #fbbf24;"></i> Stadtfeste</span>
+                        <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-glass-cheers" style="color: #f472b6;"></i> Private Feiern</span>
+                        <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-guitar" style="color: #a78bfa;"></i> Und Co.</span>
+                        <!-- Set 2 -->
+                        <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-ring" style="color: #c084fc;"></i> Hochzeiten</span>
+                        <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-cake-candles" style="color: #60a5fa;"></i> Geburtstage</span>
+                        <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-briefcase" style="color: #34d399;"></i> Firmenfeiern</span>
+                        <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-city" style="color: #fbbf24;"></i> Stadtfeste</span>
+                        <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-glass-cheers" style="color: #f472b6;"></i> Private Feiern</span>
+                        <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-guitar" style="color: #a78bfa;"></i> Und Co.</span>
+                    </div>
+                </div>
+
+                <!-- 4/4: CTA Buttons -->
+                <div class="hero-cta-buttons" style="position: relative; z-index: 3; margin: 0 auto; gap: 2rem;">
                     <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
                         <i class="fa-solid fa-guitar" style="font-size: 3.2rem;"></i>
                         <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Musiker</span>
@@ -5431,40 +5462,6 @@ function renderLandingPage(container, onNavigate) {
                         <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Veranstalter</span>
                         <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Ich suche Acts</span>
                     </button>
-                </div>
-
-                <!-- 3/3: Subtitle and Categories Marquee -->
-                <div style="position: relative; z-index: 3; max-width: 1000px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2rem; margin: -4.5rem auto 0;">
-                    
-                    <!-- White text block (equally wide lines, first line slightly larger) -->
-                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.3rem; width: 100%; margin-top: 1rem;">
-                        <span style="font-family: var(--font-heading); font-size: clamp(1.4rem, 3.8vw, 2.3rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: inline-block;">
-                            Die Vermittlungsplattform
-                        </span>
-                        <span style="font-family: var(--font-heading); font-size: clamp(2.6rem, 7.0vw, 4.3rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: inline-block;">
-                            für Live-Musik
-                        </span>
-                    </div>
-
-                    <!-- Infinite Scrolling Category Marquee -->
-                    <div class="logo-marquee-wrapper" style="margin-top: 1rem; margin-bottom: -1.5rem; z-index: 3; width: 100%; max-width: 800px; mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);">
-                        <div class="logo-marquee-track" style="animation-duration: 22s; gap: 1.2rem;">
-                            <!-- Set 1 -->
-                            <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-ring" style="color: #c084fc;"></i> Hochzeiten</span>
-                            <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-cake-candles" style="color: #60a5fa;"></i> Geburtstage</span>
-                            <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-briefcase" style="color: #34d399;"></i> Firmenfeiern</span>
-                            <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-city" style="color: #fbbf24;"></i> Stadtfeste</span>
-                            <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-glass-cheers" style="color: #f472b6;"></i> Private Feiern</span>
-                            <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-guitar" style="color: #a78bfa;"></i> Und Co.</span>
-                            <!-- Set 2 -->
-                            <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-ring" style="color: #c084fc;"></i> Hochzeiten</span>
-                            <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-cake-candles" style="color: #60a5fa;"></i> Geburtstage</span>
-                            <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-briefcase" style="color: #34d399;"></i> Firmenfeiern</span>
-                            <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-city" style="color: #fbbf24;"></i> Stadtfeste</span>
-                            <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-glass-cheers" style="color: #f472b6;"></i> Private Feiern</span>
-                            <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-guitar" style="color: #a78bfa;"></i> Und Co.</span>
-                        </div>
-                    </div>
                 </div>
             </div>
 
