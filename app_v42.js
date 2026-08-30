@@ -4896,22 +4896,179 @@ window.toggleFlowCard = function(cardIndex) {
 
 function renderHowItWorksContentHTML(type) {
     const isMusician = type === 'musician';
-    
-    // Config values
-    const topIcon = isMusician ? 'fa-lock' : 'fa-lock';
-    const middleIcon = isMusician ? 'fa-arrow-trend-up' : 'fa-microphone';
-    const middleSlogan = isMusician ? 'MEHR<br>GIGS' : 'DEIN<br>ACT';
-    
-    // Theme colors
     const themeColor = isMusician ? '#7c3aed' : '#2563eb';
-    const themeBg = isMusician ? 'rgba(124, 58, 237, 0.04)' : 'rgba(37, 99, 235, 0.04)';
-    const themeBorder = isMusician ? 'rgba(124, 58, 237, 0.15)' : 'rgba(37, 99, 235, 0.15)';
     const themeBadgeBg = isMusician ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)';
     const themeBadgeBorder = isMusician ? 'rgba(167, 139, 250, 0.35)' : 'rgba(96, 165, 250, 0.35)';
+    const middleIcon = isMusician ? 'fa-arrow-trend-up' : 'fa-microphone';
+    const middleSlogan = isMusician ? 'MEHR<br>GIGS' : 'DEIN<br>ACT';
 
+    if (isMusician) {
+        return `
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 900px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem; font-family: var(--font-heading);">
+                
+                <!-- Market Switch CTA Button -->
+                <div style="margin-bottom: 2rem; text-align: center; width: 100%; box-sizing: border-box;">
+                    <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: 100%; max-width: 100%; box-sizing: border-box; margin: 0 auto; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;" onmouseover="this.style.transform='scale(1.015)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('events')">
+                        Events
+                    </button>
+                </div>
+
+                <!-- 1. Top Card: KOSTENLOS ENTDECKEN -->
+                <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.2rem 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                        <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                            <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
+                        </div>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                            🔎 Kostenlos entdecken
+                        </h4>
+                    </div>
+                    <div style="font-size: 0.95rem; color: #475569; font-weight: 700; margin: 0.1rem 0 0.3rem;">
+                        Passende Events finden
+                    </div>
+                    <!-- Badges (Ort, Datum, Eventart) -->
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.2rem;">
+                        <span style="background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; padding: 0.35rem 0.75rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+                            📍 Ort
+                        </span>
+                        <span style="background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; padding: 0.35rem 0.75rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+                            📅 Datum
+                        </span>
+                        <span style="background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; padding: 0.35rem 0.75rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+                            🎉 Eventart
+                        </span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; font-style: italic;">
+                        Frei zugänglicher Event-Markt
+                    </div>
+                </div>
+
+                <!-- Connector Arrow 1 -->
+                <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                        <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;"></i>
+                    </div>
+                </div>
+
+                <!-- 2. Middle Card: MUSIKER-ACCOUNT -->
+                <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.5rem; display: flex; align-items: center; justify-content: center; gap: 1rem; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: center; flex-direction: column;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; justify-content: center;">
+                        <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                            <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
+                        </div>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                            🔓 Musiker-Account
+                        </h4>
+                    </div>
+                    <div style="font-size: 0.95rem; color: #64748b; font-weight: 700; margin: 0;">
+                        Preiswertes Abo
+                    </div>
+                </div>
+
+                <!-- Connector Arrow 2 (Splitting paths indicator) -->
+                <div class="split-connector-wrapper" style="width: 100%; display: flex; flex-direction: column; align-items: center; margin: 0.25rem 0; position: relative;">
+                    <style>
+                        .split-line-draw {
+                            width: 50%;
+                            height: 20px;
+                            border-left: 2px dashed ${themeColor};
+                            border-right: 2px dashed ${themeColor};
+                            border-top: 2px dashed ${themeColor};
+                            margin-top: 5px;
+                        }
+                        .split-arrows-draw {
+                            width: 50%;
+                            display: flex;
+                            justify-content: space-between;
+                            margin-top: -2px;
+                        }
+                        .split-arrows-draw i {
+                            color: ${themeColor};
+                            font-size: 0.85rem;
+                            background: #ffffff;
+                            border-radius: 50%;
+                            padding: 2px;
+                            margin-top: -5px;
+                        }
+                    </style>
+                    <div style="width: 2px; height: 12px; background: ${themeColor};"></div>
+                    <div class="split-line-draw"></div>
+                    <div class="split-arrows-draw">
+                        <i class="fa-solid fa-arrow-down" style="margin-left: -7px;"></i>
+                        <i class="fa-solid fa-arrow-down" style="margin-right: -7px;"></i>
+                    </div>
+                </div>
+
+                <!-- 3. Split Cards (Direkt & Vermittlung) -->
+                <div style="width: 100%; display: flex; flex-direction: row; gap: 1rem; align-items: stretch; justify-content: space-between; margin-top: 0.25rem; flex-wrap: wrap;">
+                    
+                    <!-- Left Path: DIREKT -->
+                    <div style="flex: 1 1 280px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.2rem; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.02); gap: 0.6rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                                <i class="fa-solid fa-envelope" style="color: ${themeColor}; font-size: 0.9rem;"></i>
+                            </div>
+                            <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                                📩 Direkt
+                            </h4>
+                        </div>
+                        <p style="font-size: 0.9rem; color: #64748b; margin: 0; font-weight: 700; line-height: 1.4;">
+                            Kontaktdaten freischalten<br>& kontaktieren
+                        </p>
+                    </div>
+
+                    <!-- Right Path: VERMITTLUNG -->
+                    <div style="flex: 1 1 280px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.2rem; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.02); gap: 0.6rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                                <i class="fa-solid fa-wand-magic-sparkles" style="color: ${themeColor}; font-size: 0.9rem;"></i>
+                            </div>
+                            <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                                ✨ Vermittlung
+                            </h4>
+                        </div>
+                        <p style="font-size: 0.9rem; color: #64748b; margin: 0; font-weight: 700; line-height: 1.4;">
+                            Anfragen von<br>Veranstaltern erhalten
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- Connector Arrow 3 (Combining paths indicator) -->
+                <div class="combine-connector-wrapper" style="width: 100%; display: flex; flex-direction: column; align-items: center; margin: 0.5rem 0; position: relative;">
+                    <div class="split-arrows-draw" style="margin-bottom: -5px;">
+                        <div style="width: 2px; height: 10px; background: ${themeColor}; margin-left: -1px;"></div>
+                        <div style="width: 2px; height: 10px; background: ${themeColor}; margin-right: -1px;"></div>
+                    </div>
+                    <div class="split-line-draw" style="margin-top: 0; border-top: none; border-bottom: 2px dashed ${themeColor}; height: 12px;"></div>
+                    <div style="width: 2px; height: 15px; background: ${themeColor};"></div>
+                    <!-- Combined arrow pointing down to final card -->
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-top: -8px; z-index: 2;">
+                        <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;"></i>
+                    </div>
+                </div>
+
+                <!-- 4. Bottom Card: MEHR GIGS. MEHR EINNAHMEN. -->
+                <div style="width: 100%; max-width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem 1.5rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(124,58,237,0.15); display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 0.2rem;">
+                        <i class="fa-solid fa-microphone" style="color: ${themeColor}; font-size: 1rem;"></i>
+                    </div>
+                    <h4 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px;">
+                        🎤 MEHR GIGS.<br>MEHR EINNAHMEN.
+                    </h4>
+                </div>
+
+            </div>
+        `;
+    }
+
+    // Config values
+    const topIcon = 'fa-lock';
+    const themeBg = isMusician ? 'rgba(124, 58, 237, 0.04)' : 'rgba(37, 99, 235, 0.04)';
+    const themeBorder = isMusician ? 'rgba(124, 58, 237, 0.15)' : 'rgba(37, 99, 235, 0.15)';
     const dashedBorderColor = isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)';
 
-    // Build HTML matching the exact structure from the image
+    // Build HTML matching the organizer structure
     return `
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 900px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
             
@@ -5317,7 +5474,7 @@ function renderLandingPage(container, onNavigate) {
         <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem; margin: 0; width: 100%;">
             
             <!-- 1. Fullscreen 100vh Hero Background Section -->
-            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 10vh 1.5rem 3.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); background-color: #0d0e12;">
+            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 14vh 1.5rem 3.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); background-color: #0d0e12;">
                 
                 <!-- Dark overlay gradient -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(124, 58, 237, 0.82) 100%); z-index: 2;"></div>
