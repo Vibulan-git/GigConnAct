@@ -4912,7 +4912,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                        Event-Markt nutzen -<br>OHNE ACCOUNT & KOSTENLOS
+                        Events auf dem Markt suchen -<br>OHNE ACCOUNT & KOSTENLOS
                     </h4>
                 </div>
 
@@ -4928,8 +4928,8 @@ function renderHowItWorksContentHTML(type) {
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Kontaktdaten freischalten - MIT ACCOUNT (ABO-MODELL)
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
+                        Kontaktdaten freischalten -<br>MIT ACCOUNT (ABO-MODELL)
                     </h4>
                 </div>
 
@@ -4979,8 +4979,8 @@ function renderHowItWorksContentHTML(type) {
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-guitar" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Kostenlosen Musiker-Markt nutzen - OHNE ACCOUNT
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
+                        Musiker auf dem Markt suchen -<br>OHNE ACCOUNT & KOSTENLOS
                     </h4>
                 </div>
 
@@ -4996,8 +4996,8 @@ function renderHowItWorksContentHTML(type) {
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Kontaktdaten der Musiker freischalten - MIT ACCOUNT
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
+                        Kontaktdaten der Musiker freischalten -<br>MIT ACCOUNT
                     </h4>
                 </div>
 
@@ -5163,14 +5163,11 @@ window.renderInfoPage = function(container, type) {
                 }
             </style>
 
-            <!-- Section Title: GigConnAct erklärt -->
+            <!-- Section Title: GigConnAct für Musiker/Veranstalter -->
             <div style="margin: 0.5rem auto 2.5rem; text-align: center; width: 100%; max-width: 1200px; box-sizing: border-box;">
-                <h2 style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5.8vw, 4.2rem); font-weight: 900; color: #0d0e12; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
-                    <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">GigConnAct</span> erklärt
+                <h2 style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.5rem); font-weight: 900; color: #0d0e12; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
+                    <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">GigConnAct</span> für ${isMusician ? 'Musiker' : 'Veranstalter'}
                 </h2>
-                <div style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.0rem); font-weight: 900; color: ${isMusician ? '#7c3aed' : '#2563eb'}; margin-top: 0.4rem; letter-spacing: -0.5px;">
-                    Für ${isMusician ? 'Musiker' : 'Veranstalter'}
-                </div>
             </div>
 
             <!-- 1. The Diagram / Schaubild (GigConnAct erklärt) -->
