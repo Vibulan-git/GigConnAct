@@ -4963,139 +4963,129 @@ function renderHowItWorksContentHTML(type) {
         `;
     }
 
-    // Config values
-    const topIcon = 'fa-lock';
-    const themeBg = isMusician ? 'rgba(124, 58, 237, 0.04)' : 'rgba(37, 99, 235, 0.04)';
-    const themeBorder = isMusician ? 'rgba(124, 58, 237, 0.15)' : 'rgba(37, 99, 235, 0.15)';
-    const dashedBorderColor = isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)';
+    // Otherwise, Organizer
+    window.organizerFlowPath = window.organizerFlowPath || 'direktkontakt';
 
-    // Build HTML matching the organizer structure
+    const isDirektkontakt = window.organizerFlowPath === 'direktkontakt';
+
+    let contentHTML = '';
+
+    if (isDirektkontakt) {
+        contentHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 0; font-family: var(--font-heading);">
+                
+                <!-- Header Card (Kachel) -->
+                <div class="flow-anim-card" onclick="window.onNavigate('musicians')" style="animation-delay: 2s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid #2563eb; border-radius: 20px; padding: 1.2rem 1.5rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.03); display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.8rem; margin: 0 auto 1.5rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #2563eb; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-transform: uppercase;">
+                        Kostenloser Musiker-Markt
+                    </h1>
+                </div>
+
+                <!-- 1. Card: Musiker suchen ohne Account -->
+                <div class="flow-anim-card" onclick="window.onNavigate('musicians')" style="animation-delay: 4s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                        <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
+                    </div>
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
+                        Musiker suchen ohne Account
+                    </h4>
+                </div>
+
+                <!-- Connector Dotted Line 1 -->
+                <div class="flow-anim-card" style="animation-delay: 6s; display: flex; justify-content: flex-start; padding-left: clamp(1rem, 4vw, 2.5rem); box-sizing: border-box; width: 100%; height: 16px; margin: 0.1rem 0;">
+                    <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                        <div style="width: 0; height: 100%; border-left: 2px dotted ${themeColor}; opacity: 0.5;"></div>
+                    </div>
+                </div>
+
+                <!-- 2. Card: Kontaktdaten freischalten mit Account -->
+                <div class="flow-anim-card" onclick="window.onNavigate('musicians')" style="animation-delay: 6s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                        <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
+                    </div>
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
+                        Kontaktdaten freischalten mit Account
+                    </h4>
+                </div>
+
+                <!-- Connector Dotted Line 2 -->
+                <div class="flow-anim-card" style="animation-delay: 8s; display: flex; justify-content: flex-start; padding-left: clamp(1rem, 4vw, 2.5rem); box-sizing: border-box; width: 100%; height: 16px; margin: 0.1rem 0;">
+                    <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                        <div style="width: 0; height: 100%; border-left: 2px dotted ${themeColor}; opacity: 0.5;"></div>
+                    </div>
+                </div>
+
+                <!-- 3. Card: Direkt kontaktieren und Anfragen erhalten -->
+                <div class="flow-anim-card" onclick="window.onNavigate('musicians')" style="animation-delay: 8s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                        <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 1rem;"></i>
+                    </div>
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
+                        Direkt kontaktieren und Anfragen erhalten
+                    </h4>
+                </div>
+
+                <!-- 4. Bottom Card: Kostenlos passende Acts finden (Centered, no icon, with pulsing glow) -->
+                <div class="flow-anim-card" style="animation-delay: 10s; width: 100%; max-width: 100%; margin-top: 2rem; box-sizing: border-box;">
+                    <div class="glow-card-pulse" onclick="window.onNavigate('musicians')" style="cursor: pointer; width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: center; box-sizing: border-box; display: flex; flex-direction: row; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                        <h4 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: center; flex: 1;">
+                            Kostenlos passende Acts finden
+                        </h4>
+                    </div>
+                </div>
+
+            </div>
+        `;
+    } else {
+        // Placeholder for Vermittlung
+        contentHTML = `
+            <div class="flow-anim-card" style="animation-delay: 0.2s; width: 100%; text-align: center; padding: 3rem 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); box-sizing: border-box;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">Vermittlungs-Pfad</h3>
+                <p style="color: #64748b; font-size: 1rem; margin: 0;">Details folgen in Kürze...</p>
+            </div>
+        `;
+    }
+
     return `
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
             
-            <!-- Market Switch CTA Button (Moved above Passende Veranstalter / Musiker card) -->
-            <div style="margin-bottom: 2rem; text-align: center; width: 100%; box-sizing: border-box;">
-                <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: 100%; max-width: 100%; box-sizing: border-box; margin: 0 auto; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;" onmouseover="this.style.transform='scale(1.015)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')">
-                    ${isMusician ? 'Events' : 'Musiker'}
+            <!-- Toggle path buttons -->
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; width: 100%; box-sizing: border-box;">
+                <button onclick="window.setOrganizerFlowPath('direktkontakt')" style="flex: 1; max-width: 250px; padding: 0.8rem 1.5rem; font-family: var(--font-heading); font-size: 1rem; font-weight: 800; border-radius: 12px; cursor: pointer; transition: all 0.2s; ${isDirektkontakt ? 'background: #2563eb; color: #ffffff; border: 1.5px solid #2563eb; box-shadow: 0 4px 12px rgba(37,99,235,0.15);' : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.06);'}">
+                    Direktkontakt
+                </button>
+                <button onclick="window.setOrganizerFlowPath('vermittlung')" style="flex: 1; max-width: 250px; padding: 0.8rem 1.5rem; font-family: var(--font-heading); font-size: 1rem; font-weight: 800; border-radius: 12px; cursor: pointer; transition: all 0.2s; ${!isDirektkontakt ? 'background: #2563eb; color: #ffffff; border: 1.5px solid #2563eb; box-shadow: 0 4px 12px rgba(37,99,235,0.15);' : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.06);'}">
+                    Vermittlung
                 </button>
             </div>
 
-            <!-- 1. Top Card: Passende Veranstalter / Musiker (width: 100%, white background) -->
-            <div onclick="window.toggleFlowCard(1)" style="cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
-                <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
-                    <i class="fa-solid ${topIcon}" style="color: ${themeColor}; font-size: 1.05rem;"></i>
-                </div>
-                <div style="flex: 1; display: flex; flex-direction: column;">
-                    <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2;">
-                        ${isMusician ? 'Passende Veranstalter' : 'Passende Musiker'}
-                    </h4>
-                    <div id="flow-card-desc-1" style="display: ${window.howItWorksExpanded[1] ? 'block' : 'none'}; opacity: ${window.howItWorksExpanded[1] ? '1' : '0'}; height: ${window.howItWorksExpanded[1] ? 'auto' : '0px'}; overflow: hidden; margin-top: 0.35rem; transition: all 0.3s ease-out;">
-                        <p style="font-size: 0.82rem; color: #64748b; margin: 0; font-weight: 500; line-height: 1.4;">
-                            ${isMusician ? 'Hochzeiten, Geburtstage, Firmenfeiern und Co.' : 'Sänger, Bands, DJs, Solokünstler und Co.'}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Arrow 1 (Connector to Card 2) -->
-            <div onclick="window.toggleFlowCard(1)" style="cursor: pointer; display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;" class="flow-arrow-container">
-                <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';">
-                    <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;" id="flow-arrow-icon-1"></i>
-                </div>
-            </div>
-
-            <!-- 2. Middle Card: Schnelle Anmeldung (width: 100%, white background) -->
-            <div onclick="window.toggleFlowCard(2)" style="cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
-                <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
-                    <i class="fa-solid fa-bolt" style="color: ${themeColor}; font-size: 1.05rem;"></i>
-                </div>
-                <div style="flex: 1; display: flex; flex-direction: column;">
-                    <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2;">
-                        Schnelle Anmeldung
-                    </h4>
-                    <div id="flow-card-desc-2" style="display: ${window.howItWorksExpanded[2] ? 'block' : 'none'}; opacity: ${window.howItWorksExpanded[2] ? '1' : '0'}; height: ${window.howItWorksExpanded[2] ? 'auto' : '0px'}; overflow: hidden; margin-top: 0.35rem; transition: all 0.3s ease-out;">
-                        <p style="font-size: 0.82rem; color: #64748b; margin: 0; font-weight: 500; line-height: 1.4;">
-                            ${isMusician ? 'Musiker-Profil anlegen und ohne Passwort einloggen' : 'Veranstalter-Profil anlegen und ohne Passwort einloggen'}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Arrow 2 (Connector to Card 3) -->
-            <div onclick="window.toggleFlowCard(2)" style="cursor: pointer; display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;" class="flow-arrow-container">
-                <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';">
-                    <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;" id="flow-arrow-icon-2"></i>
-                </div>
-            </div>
-
-            <!-- 3. Bottom Card: Kontaktdaten sichtbar (width: 100%, white background) -->
-            <div onclick="window.toggleFlowCard(3)" style="cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.95rem 1.5rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; position: relative; overflow: hidden; text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
-                <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.02); background-color: #ffffff;">
-                    <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1.05rem;"></i>
-                </div>
-                <div style="flex: 1; display: flex; flex-direction: column;">
-                    <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2;">
-                        Kontaktdaten sichtbar
-                    </h4>
-                    <div id="flow-card-desc-3" style="display: ${window.howItWorksExpanded[3] ? 'block' : 'none'}; opacity: ${window.howItWorksExpanded[3] ? '1' : '0'}; height: ${window.howItWorksExpanded[3] ? 'auto' : '0px'}; overflow: hidden; margin-top: 0.35rem; transition: all 0.3s ease-out;">
-                        <p style="font-size: 0.82rem; color: #64748b; margin: 0; font-weight: 500; line-height: 1.4;">
-                            Austausch via Telefon, Mail, Nachrichten im Postfach
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Arrow 3 (Connector to Sub-header) -->
-            <div onclick="window.toggleFlowCard(3)" style="cursor: pointer; display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;" class="flow-arrow-container">
-                <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';">
-                    <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;" id="flow-arrow-icon-3"></i>
-                </div>
-            </div>
-
-            <!-- Advantages Grid (3 columns side-by-side even on mobile) -->
-            <div style="width: 100%; display: flex; flex-direction: row; gap: 0.5rem; justify-content: space-between; box-sizing: border-box; margin-bottom: 1rem;">
-                <!-- Col 1: Top-Matches -->
-                <div onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')" style="cursor: pointer; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37,99,235,0.15)'};">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
-                        <i class="fa-solid fa-star" style="color: ${themeColor}; font-size: 0.9rem;"></i>
-                    </div>
-                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #ffffff; margin: 0; line-height: 1.25; word-break: break-word;">
-                        Top-<br>Matches
-                    </h5>
-                </div>
-                <!-- Col 2: Standard Card: MEHR GIGS / DEIN ACT (Themed background, white text) -->
-                <div onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')" style="cursor: pointer; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37,99,235,0.15)'};">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
-                        <i class="fa-solid ${middleIcon}" style="color: ${themeColor}; font-size: 0.9rem;"></i>
-                    </div>
-                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #ffffff; margin: 0; line-height: 1.25; word-break: break-word;">
-                        ${middleSlogan}
-                    </h5>
-                </div>
-                <!-- Col 3: Preiswertes Abo-Modell / Keine Kosten -->
-                <div onclick="window.onNavigate('${isMusician ? 'events' : 'musicians'}')" style="cursor: pointer; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.75rem 0.5rem; flex: 1; min-width: 0; box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37,99,235,0.15)'};">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
-                        <span style="color: ${themeColor}; font-size: 1.1rem; font-weight: 900; font-family: var(--font-heading); line-height: 1;">€</span>
-                    </div>
-                    <h5 style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #ffffff; margin: 0; line-height: 1.25; word-break: break-word;">
-                        ${isMusician ? 'Preiswertes<br>Abo-Modell' : 'Keine<br>Kosten'}
-                    </h5>
-                </div>
+            <!-- Path flowchart content -->
+            <div style="width: 100%; box-sizing: border-box;">
+                ${contentHTML}
             </div>
 
         </div>
     `;
 }
 
+window.organizerFlowPath = 'direktkontakt';
+
+window.setOrganizerFlowPath = function(path) {
+    window.organizerFlowPath = path;
+    const contentEl = document.getElementById('info-page-flow-content');
+    if (contentEl) {
+        contentEl.innerHTML = renderHowItWorksContentHTML('organizer');
+    }
+};
+
 window.renderInfoPage = function(container, type) {
     const isMusician = type === 'musician';
+    if (!isMusician) {
+        window.organizerFlowPath = 'direktkontakt';
+    }
     
     // Config colors & contents
     const themeColor = isMusician ? '#7c3aed' : '#2563eb';
-    const headerTitleText = isMusician 
-        ? `Kostenloser Event-Markt`
-        : `Kostenloser Musiker-Markt`;
-    const headerTarget = isMusician ? 'events' : 'musicians';
 
     // HTML template
     container.innerHTML = `
@@ -5131,13 +5121,6 @@ window.renderInfoPage = function(container, type) {
                 <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
                     GigConnAct erklärt
                 </h2>
-            </div>
-
-            <!-- Header Card (Kachel) -->
-            <div class="flow-anim-card" onclick="window.onNavigate('${headerTarget}')" style="animation-delay: 2s; cursor: pointer; width: 100%; max-width: 1200px; background: #ffffff; border: 1.5px solid ${themeColor}; border-radius: 20px; padding: 1.2rem 1.5rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.03); display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.8rem; margin: 0 auto 1.5rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
-                <h1 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: ${themeColor}; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-transform: uppercase;">
-                    ${headerTitleText}
-                </h1>
             </div>
 
             <!-- 1. The Diagram / Schaubild (GigConnAct erklärt) -->
