@@ -4906,13 +4906,13 @@ function renderHowItWorksContentHTML(type) {
         return `
             <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 0; font-family: var(--font-heading);">
                 
-                <!-- 1. Top Card: Kostenlos Veranstalter suchen (White card, Lupe-Icon) -->
+                <!-- 1. Top Card: Veranstalter suchen (White card, Lupe-Icon) -->
                 <div class="flow-anim-card" onclick="window.onNavigate('events')" style="animation-delay: 4s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Kostenlos Veranstalter suchen ohne Account
+                        Veranstalter suchen ohne Account
                     </h4>
                 </div>
 
@@ -4950,11 +4950,13 @@ function renderHowItWorksContentHTML(type) {
                     </h4>
                 </div>
 
-                <!-- 4. Bottom Card: Mehr Gigs erhalten (Centered, no icon) -->
-                <div class="flow-anim-card" onclick="window.onNavigate('events')" style="animation-delay: 10s; cursor: pointer; width: 100%; max-width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(124,58,237,0.15); display: flex; flex-direction: row; align-items: center; justify-content: center; margin-top: 2rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: center; flex: 1;">
-                        Mehr Gigs erhalten
-                    </h4>
+                <!-- 4. Bottom Card: Mehr Gigs erhalten (Centered, no icon, with pulsing glow) -->
+                <div class="flow-anim-card" style="animation-delay: 10s; width: 100%; max-width: 100%; margin-top: 2rem; box-sizing: border-box;">
+                    <div class="glow-card-pulse" onclick="window.onNavigate('events')" style="cursor: pointer; width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: center; box-sizing: border-box; display: flex; flex-direction: row; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                        <h4 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: center; flex: 1;">
+                            Mehr Gigs erhalten
+                        </h4>
+                    </div>
                 </div>
 
             </div>
@@ -5091,8 +5093,8 @@ window.renderInfoPage = function(container, type) {
     // Config colors & contents
     const themeColor = isMusician ? '#7c3aed' : '#2563eb';
     const headerTitleText = isMusician 
-        ? `Event-Markt`
-        : `Musiker-Markt`;
+        ? `Kostenloser Event-Markt`
+        : `Kostenloser Musiker-Markt`;
     const headerTarget = isMusician ? 'events' : 'musicians';
 
     // HTML template
@@ -5109,6 +5111,17 @@ window.renderInfoPage = function(container, type) {
                     to {
                         opacity: 1;
                         transform: translateY(0);
+                    }
+                }
+                .glow-card-pulse {
+                    animation: glowPulse 2s infinite ease-in-out;
+                }
+                @keyframes glowPulse {
+                    0%, 100% {
+                        box-shadow: 0 0 10px ${isMusician ? 'rgba(124, 58, 237, 0.45)' : 'rgba(37, 99, 235, 0.45)'}, 0 10px 30px ${isMusician ? 'rgba(124, 58, 237, 0.15)' : 'rgba(37, 99, 235, 0.15)'};
+                    }
+                    50% {
+                        box-shadow: 0 0 25px ${isMusician ? 'rgba(124, 58, 237, 0.95)' : 'rgba(37, 99, 235, 0.95)'}, 0 10px 30px ${isMusician ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'};
                     }
                 }
             </style>
