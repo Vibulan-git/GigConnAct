@@ -5168,6 +5168,9 @@ window.renderInfoPage = function(container, type) {
                 <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
                     GigConnAct erklärt
                 </h2>
+                <div style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.2vw, 1.9rem); font-weight: 800; color: ${isMusician ? '#7c3aed' : '#2563eb'}; margin-top: 0.4rem; letter-spacing: -0.5px;">
+                    für ${isMusician ? 'Musiker' : 'Veranstalter'}
+                </div>
             </div>
 
             <!-- 1. The Diagram / Schaubild (GigConnAct erklärt) -->
