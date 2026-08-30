@@ -4913,7 +4913,7 @@ function renderHowItWorksContentHTML(type) {
 
     // Build HTML matching the exact structure from the image
     return `
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 650px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 900px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
             
             <!-- Market Switch CTA Button (Moved above Passende Veranstalter / Musiker card) -->
             <div style="margin-bottom: 2rem; text-align: center; width: 100%; box-sizing: border-box;">
@@ -5037,7 +5037,7 @@ window.renderInfoPage = function(container, type) {
 
     // HTML template
     container.innerHTML = `
-        <div class="info-page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 2rem 1.5rem 5rem; font-family: var(--font-heading); color: #0f172a; box-sizing: border-box; width: 100%; min-height: 100vh; background-color: #f8fafc;">
+        <div class="info-page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 2rem 1.5rem 5rem; font-family: var(--font-heading); color: #0f172a; box-sizing: border-box; width: 100%; min-height: 100vh; background-color: #ffffff;">
             
             <!-- Header -->
             <div style="width: 100%; max-width: 900px; display: flex; align-items: center; justify-content: center; margin-bottom: 3rem;">
@@ -5047,10 +5047,7 @@ window.renderInfoPage = function(container, type) {
             </div>
 
             <!-- 1. The Diagram / Schaubild (GigConnAct erklärt) -->
-            <div style="width: 100%; max-width: 700px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 24px; padding: 2.5rem 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 4rem; box-sizing: border-box;">
-                <h3 style="text-align: center; font-size: 1.35rem; font-weight: 800; margin: 0 0 2rem; color: #0f172a;">
-                    Ablauf für ${isMusician ? 'Musiker' : 'Veranstalter'}
-                </h3>
+            <div style="width: 100%; max-width: 900px; margin-bottom: 4rem; box-sizing: border-box;">
                 <div id="info-page-flow-content" style="width: 100%;">
                     ${renderHowItWorksContentHTML(type)}
                 </div>
@@ -5325,11 +5322,15 @@ function renderLandingPage(container, onNavigate) {
                 <!-- Dark overlay gradient -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(124, 58, 237, 0.82) 100%); z-index: 2;"></div>
 
-                <!-- 1/3: Title Sentence (Replacing Logo) -->
-                <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 900px; margin: 0 auto; padding: 0 0.8rem; box-sizing: border-box; text-align: center;">
-                    <span class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(1.3rem, 3.5vw, 2rem); font-weight: 900; letter-spacing: -0.5px; display: inline-block; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.25; margin: 0;">
-                        Die Vermittlungsplattform für Musiker und Veranstalter
-                    </span>
+                <!-- 1/3: Restored Logo -->
+                <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0 0.8rem; box-sizing: border-box;">
+                    <!-- Large PNG Disco Ball (nested wrapper to keep entry animations, but static without rotation) -->
+                    <div class="${logoClass}" style="width: clamp(2.8rem, 7.5vw, 4.8rem); height: clamp(2.8rem, 7.5vw, 4.8rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible;">
+                        <img src="discoball.svg" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.55)); opacity: 1; pointer-events: none;">
+                    </div>
+                    <div class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.2rem); font-weight: 900; letter-spacing: -1.5px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        GigConnAct
+                    </div>
                 </div>
 <!-- 2/3: CTA Buttons -->
                 <div class="hero-cta-buttons" style="position: relative; z-index: 3; margin: 0; gap: 2rem;">
@@ -5345,11 +5346,21 @@ function renderLandingPage(container, onNavigate) {
                     </button>
                 </div>
 
-                <!-- 3/3: Headline + Description text block -->
-                <div style="position: relative; z-index: 3; max-width: 1000px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 0.6rem; margin: 0;">
+                <!-- 3/3: Subtitle and Categories Marquee -->
+                <div style="position: relative; z-index: 3; max-width: 1000px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; margin: 0;">
                     
+                    <!-- White text block (equally wide lines, first line slightly larger) -->
+                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.4rem; width: 100%;">
+                        <span style="font-family: var(--font-heading); font-size: clamp(1.5rem, 4.0vw, 2.5rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: inline-block;">
+                            Die Vermittlungsplattform für
+                        </span>
+                        <span style="font-family: var(--font-heading); font-size: clamp(1.35rem, 3.6vw, 2.3rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: inline-block;">
+                            Musiker und Veranstalter
+                        </span>
+                    </div>
+
                     <!-- Infinite Scrolling Category Marquee -->
-                    <div class="logo-marquee-wrapper" style="margin-top: 5rem; margin-bottom: -1.5rem; z-index: 3; width: 100%; max-width: 800px; mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);">
+                    <div class="logo-marquee-wrapper" style="margin-top: 1rem; margin-bottom: -1.5rem; z-index: 3; width: 100%; max-width: 800px; mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);">
                         <div class="logo-marquee-track" style="animation-duration: 22s; gap: 1.2rem;">
                             <!-- Set 1 -->
                             <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-ring" style="color: #c084fc;"></i> Hochzeiten</span>
