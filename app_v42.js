@@ -4911,8 +4911,8 @@ function renderHowItWorksContentHTML(type) {
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Event-Markt nutzen - OHNE ACCOUNT & KOSTENLOS
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
+                        Event-Markt nutzen -<br>OHNE ACCOUNT & KOSTENLOS
                     </h4>
                 </div>
 
@@ -4929,7 +4929,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Kontaktdaten von Veranstaltern freischalten - MIT ACCOUNT (Abo)
+                        Kontaktdaten freischalten - MIT ACCOUNT (ABO-MODELL)
                     </h4>
                 </div>
 
