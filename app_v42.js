@@ -5211,7 +5211,7 @@ window.renderInfoPage = function(container, type) {
             </div>
 
             <!-- 2. The Airbnb Quote (Exactly as on Homepage) -->
-            <div style="width: 100%; max-width: 900px; margin: 0 auto 4rem; padding: 0 1.5rem; text-align: left; box-sizing: border-box;">
+            <div style="width: 100%; max-width: 1200px; margin: 0 auto 4rem; padding: 0 1.5rem; text-align: left; box-sizing: border-box;">
                 <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 24px; display: flex; flex-wrap: wrap; overflow: hidden; backdrop-filter: blur(12px); box-shadow: var(--shadow-glass);">
                     <!-- Left column: Image filling the space -->
                     <div style="flex: 1 1 300px; position: relative; min-height: 320px;">
@@ -5235,7 +5235,7 @@ window.renderInfoPage = function(container, type) {
 
             <!-- 3. Choice Cards for Organizer at the end -->
             ${!isMusician ? `
-            <div style="width: 100%; max-width: 900px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 24px; padding: 2.5rem 2rem; box-shadow: 0 15px 40px rgba(0,0,0,0.05); box-sizing: border-box; text-align: center;">
+             <div style="width: 100%; max-width: 1200px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 24px; padding: 2.5rem 2rem; box-shadow: 0 15px 40px rgba(0,0,0,0.05); box-sizing: border-box; text-align: center;">
                 <h3 style="font-family: var(--font-heading); font-size: 1.45rem; font-weight: 900; color: #0f172a; margin: 0 0 2rem;">
                     Wähle deinen Weg zu passender Live-Musik
                 </h3>
