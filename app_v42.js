@@ -4911,7 +4911,7 @@ function renderHowItWorksContentHTML(type) {
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.78rem, 2.8vw, 1.1rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
                         Kostenlos Veranstalter suchen ohne Account
                     </h4>
                 </div>
@@ -4928,7 +4928,7 @@ function renderHowItWorksContentHTML(type) {
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.78rem, 2.8vw, 1.1rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
                         Kontaktdaten freischalten mit Account
                     </h4>
                 </div>
@@ -4945,13 +4945,13 @@ function renderHowItWorksContentHTML(type) {
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.78rem, 2.8vw, 1.1rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
                         Direkt kontaktieren & Vermittlungsanfragen erhalten
                     </h4>
                 </div>
 
                 <!-- 4. Bottom Card: MEHR GIGS (Centered, no icon) -->
-                <div class="flow-anim-card" style="animation-delay: 10s; width: 100%; max-width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(124,58,237,0.15); display: flex; flex-direction: row; align-items: center; justify-content: center; margin-top: 0.5rem;">
+                <div class="flow-anim-card" style="animation-delay: 10s; width: 100%; max-width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(124,58,237,0.15); display: flex; flex-direction: row; align-items: center; justify-content: center; margin-top: 2rem;">
                     <h4 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: center; flex: 1;">
                         MEHR GIGS
                     </h4>
