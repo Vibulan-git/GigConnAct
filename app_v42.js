@@ -5414,7 +5414,7 @@ function renderLandingPage(container, onNavigate) {
                     </div>
                 </div>
 <!-- 2/3: CTA Buttons -->
-                <div class="hero-cta-buttons" style="position: relative; z-index: 3; margin: 0; gap: 2rem;">
+                <div class="hero-cta-buttons" style="position: relative; z-index: 3; margin: -2rem auto 0; gap: 2rem;">
                     <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
                         <i class="fa-solid fa-guitar" style="font-size: 3.2rem;"></i>
                         <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Musiker</span>
