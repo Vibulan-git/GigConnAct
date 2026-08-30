@@ -4904,7 +4904,7 @@ function renderHowItWorksContentHTML(type) {
 
     if (isMusician) {
         return `
-            <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 900px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem; font-family: var(--font-heading);">
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem; font-family: var(--font-heading);">
                 
                 <!-- 1. Top Card: Kostenlos Veranstalter suchen (White card, Lupe-Icon) -->
                 <div onclick="window.onNavigate('events')" style="cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.5rem; display: flex; align-items: center; justify-content: center; gap: 1rem; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: center;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
@@ -4933,37 +4933,10 @@ function renderHowItWorksContentHTML(type) {
                     </h4>
                 </div>
 
-                <!-- Connector Arrow 2 (Splitting paths indicator - 2 arrows) -->
-                <div class="split-connector-wrapper" style="width: 100%; display: flex; flex-direction: column; align-items: center; margin: 0.25rem 0; position: relative;">
-                    <style>
-                        .split-line-draw {
-                            width: 50%;
-                            height: 20px;
-                            border-left: 2px dashed ${themeColor};
-                            border-right: 2px dashed ${themeColor};
-                            border-top: 2px dashed ${themeColor};
-                            margin-top: 5px;
-                        }
-                        .split-arrows-draw {
-                            width: 50%;
-                            display: flex;
-                            justify-content: space-between;
-                            margin-top: -2px;
-                        }
-                        .split-arrows-draw i {
-                            color: ${themeColor};
-                            font-size: 0.85rem;
-                            background: #ffffff;
-                            border-radius: 50%;
-                            padding: 2px;
-                            margin-top: -5px;
-                        }
-                    </style>
-                    <div style="width: 2px; height: 12px; background: ${themeColor};"></div>
-                    <div class="split-line-draw"></div>
-                    <div class="split-arrows-draw">
-                        <i class="fa-solid fa-arrow-down" style="margin-left: -7px;"></i>
-                        <i class="fa-solid fa-arrow-down" style="margin-right: -7px;"></i>
+                <!-- Connector Arrow 2 -->
+                <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                        <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;"></i>
                     </div>
                 </div>
 
@@ -4997,16 +4970,10 @@ function renderHowItWorksContentHTML(type) {
 
                 </div>
 
-                <!-- Connector Arrow 3 (Two combining/pointing paths - 2 arrows) -->
-                <div class="combine-connector-wrapper" style="width: 100%; display: flex; flex-direction: column; align-items: center; margin: 0.25rem 0; position: relative;">
-                    <div style="width: 50%; display: flex; justify-content: space-between;">
-                        <div style="width: 2px; height: 12px; background: ${themeColor}; margin-left: -1px;"></div>
-                        <div style="width: 2px; height: 12px; background: ${themeColor}; margin-right: -1px;"></div>
-                    </div>
-                    <div class="split-line-draw" style="width: 50%; height: 20px; border-left: 2px dashed ${themeColor}; border-right: 2px dashed ${themeColor}; border-top: none; border-bottom: 2px dashed ${themeColor}; margin-top: -2px;"></div>
-                    <div style="width: 50%; display: flex; justify-content: space-between; margin-top: -2px;">
-                        <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem; background: #ffffff; border-radius: 50%; padding: 2px; margin-left: -8px; margin-top: -5px; z-index: 2;"></i>
-                        <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem; background: #ffffff; border-radius: 50%; padding: 2px; margin-right: -8px; margin-top: -5px; z-index: 2;"></i>
+                <!-- Connector Arrow 3 -->
+                <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                        <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;"></i>
                     </div>
                 </div>
 
@@ -5032,7 +4999,7 @@ function renderHowItWorksContentHTML(type) {
 
     // Build HTML matching the organizer structure
     return `
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 900px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
             
             <!-- Market Switch CTA Button (Moved above Passende Veranstalter / Musiker card) -->
             <div style="margin-bottom: 2rem; text-align: center; width: 100%; box-sizing: border-box;">
@@ -5157,6 +5124,7 @@ window.renderInfoPage = function(container, type) {
         ? `Event-Markt für Musiker`
         : `Musiker-Markt für Veranstalter`;
     const headerTarget = isMusician ? 'events' : 'musicians';
+    const marketIcon = isMusician ? 'fa-calendar-days' : 'fa-guitar';
 
     // HTML template
     container.innerHTML = `
@@ -5165,7 +5133,7 @@ window.renderInfoPage = function(container, type) {
             <!-- Header Card (Kachel) -->
             <div onclick="window.onNavigate('${headerTarget}')" style="cursor: pointer; width: 100%; max-width: 1200px; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem 1.5rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37, 99, 235, 0.15)'}; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.8rem; margin: 1rem auto 3rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                 <div style="width: 36px; height: 36px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
-                    <i class="fa-solid fa-arrow-right" style="color: ${themeColor}; font-size: 1.05rem;"></i>
+                    <i class="fa-solid ${marketIcon}" style="color: ${themeColor}; font-size: 1.05rem;"></i>
                 </div>
                 <h1 style="font-family: var(--font-heading); font-size: clamp(1.1rem, 3.2vw, 1.5rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-transform: uppercase;">
                     ${headerTitleText}
@@ -5173,7 +5141,7 @@ window.renderInfoPage = function(container, type) {
             </div>
 
             <!-- 1. The Diagram / Schaubild (GigConnAct erklärt) -->
-            <div style="width: 100%; max-width: 900px; margin-bottom: 4rem; box-sizing: border-box;">
+            <div style="width: 100%; max-width: 1200px; margin-bottom: 4rem; box-sizing: border-box;">
                 <div id="info-page-flow-content" style="width: 100%;">
                     ${renderHowItWorksContentHTML(type)}
                 </div>
