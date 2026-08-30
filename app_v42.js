@@ -5168,8 +5168,8 @@ window.renderInfoPage = function(container, type) {
                 <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
                     GigConnAct erklärt
                 </h2>
-                <div style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.2vw, 1.9rem); font-weight: 800; color: ${isMusician ? '#7c3aed' : '#2563eb'}; margin-top: 0.4rem; letter-spacing: -0.5px;">
-                    für ${isMusician ? 'Musiker' : 'Veranstalter'}
+                <div style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.0rem); font-weight: 900; color: ${isMusician ? '#7c3aed' : '#2563eb'}; margin-top: 0.4rem; letter-spacing: -0.5px;">
+                    Für ${isMusician ? 'Musiker' : 'Veranstalter'}
                 </div>
             </div>
 
@@ -5285,7 +5285,7 @@ function renderLandingPage(container, onNavigate) {
                     </div>
 
                     <!-- 3/4: Infinite Scrolling Category Marquee (animating area) -->
-                    <div class="logo-marquee-wrapper" style="margin: 0 auto; width: 100%; max-width: 800px; mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);">
+                    <div class="logo-marquee-wrapper" style="margin: clamp(2.5rem, 8vh, 5.5rem) auto 0; width: 100%; max-width: 800px; mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);">
                         <div class="logo-marquee-track" style="animation-duration: 22s; gap: 1.2rem;">
                             <!-- Set 1 -->
                             <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-ring" style="color: #c084fc;"></i> Hochzeiten</span>
