@@ -5153,19 +5153,22 @@ window.renderInfoPage = function(container, type) {
     
     // Config colors & contents
     const themeColor = isMusician ? '#7c3aed' : '#2563eb';
-    const headerTitleHTML = isMusician 
-        ? `Event-Markt<br><span style="color: #7c3aed; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;">Für Musiker<i class="fa-solid fa-arrow-right-long arrow-icon" style="font-size: 0.55em; transition: transform 0.2s; vertical-align: middle;"></i></span>`
-        : `Musiker-Markt<br><span style="color: #2563eb; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;">Für Veranstalter<i class="fa-solid fa-arrow-right-long arrow-icon" style="font-size: 0.55em; transition: transform 0.2s; vertical-align: middle;"></i></span>`;
+    const headerTitleText = isMusician 
+        ? `Event-Markt für Musiker`
+        : `Musiker-Markt für Veranstalter`;
     const headerTarget = isMusician ? 'events' : 'musicians';
 
     // HTML template
     container.innerHTML = `
         <div class="info-page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 2rem 1.5rem 5rem; font-family: var(--font-heading); color: #0f172a; box-sizing: border-box; width: 100%; min-height: 100vh;">
             
-            <!-- Header -->
-            <div style="width: 100%; max-width: 900px; display: flex; align-items: center; justify-content: center; margin-bottom: 3rem; text-align: center;">
-                <h1 onclick="window.onNavigate('${headerTarget}')" style="font-family: var(--font-heading); font-size: clamp(2.0rem, 5.0vw, 3.2rem); font-weight: 900; color: #0f172a; margin: 0; line-height: 1.15; letter-spacing: -1px; cursor: pointer; transition: color 0.2s; display: inline-block;" onmouseover="this.style.color='${themeColor}'; if(this.querySelector('.arrow-icon')) this.querySelector('.arrow-icon').style.transform='translateX(6px)';" onmouseout="this.style.color='#0f172a'; if(this.querySelector('.arrow-icon')) this.querySelector('.arrow-icon').style.transform='translateX(0)';">
-                    ${headerTitleHTML}
+            <!-- Header Card (Kachel) -->
+            <div onclick="window.onNavigate('${headerTarget}')" style="cursor: pointer; width: 100%; max-width: 1200px; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem 1.5rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37, 99, 235, 0.15)'}; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.8rem; margin: 1rem auto 3rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                    <i class="fa-solid fa-arrow-right" style="color: ${themeColor}; font-size: 1.05rem;"></i>
+                </div>
+                <h1 style="font-family: var(--font-heading); font-size: clamp(1.1rem, 3.2vw, 1.5rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-transform: uppercase;">
+                    ${headerTitleText}
                 </h1>
             </div>
 
