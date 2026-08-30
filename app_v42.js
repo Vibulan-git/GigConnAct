@@ -4965,24 +4965,24 @@ function renderHowItWorksContentHTML(type) {
                 </div>
 
                 <!-- 3. Split Cards (Direkt & Vermittlung) -->
-                <div style="width: 100%; display: flex; flex-direction: row; gap: 1rem; align-items: stretch; justify-content: space-between; margin-top: 0.25rem; flex-wrap: wrap;">
+                <div style="width: 100%; display: flex; flex-direction: row; gap: 0.75rem; align-items: stretch; justify-content: space-between; margin-top: 0.25rem; flex-wrap: nowrap;">
                     
                     <!-- Left Path: DIREKT -->
-                    <div style="flex: 1 1 280px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.2rem; display: flex; flex-direction: row; align-items: center; justify-content: center; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.02); gap: 0.75rem;">
+                    <div style="flex: 1; min-width: 0; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1rem 0.5rem; display: flex; flex-direction: row; align-items: center; justify-content: center; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.02); gap: 0.5rem;">
                         <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                             <i class="fa-solid fa-envelope" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                         </div>
-                        <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <h4 style="font-family: var(--font-heading); font-size: clamp(0.85rem, 2.5vw, 1rem); font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">
                             Direkt
                         </h4>
                     </div>
 
                     <!-- Right Path: VERMITTLUNG -->
-                    <div style="flex: 1 1 280px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.2rem; display: flex; flex-direction: row; align-items: center; justify-content: center; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.02); gap: 0.75rem;">
+                    <div style="flex: 1; min-width: 0; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1rem 0.5rem; display: flex; flex-direction: row; align-items: center; justify-content: center; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.02); gap: 0.5rem;">
                         <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                             <i class="fa-solid fa-wand-magic-sparkles" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                         </div>
-                        <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <h4 style="font-family: var(--font-heading); font-size: clamp(0.85rem, 2.5vw, 1rem); font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">
                             Vermittlung
                         </h4>
                     </div>
@@ -5006,10 +5006,10 @@ function renderHowItWorksContentHTML(type) {
                 <!-- 4. Bottom Card: MEHR GIGS. MEHR EINNAHMEN. -->
                 <div style="width: 100%; max-width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem 1.5rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(124,58,237,0.15); display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 0.2rem;">
-                        <i class="fa-solid fa-microphone" style="color: ${themeColor}; font-size: 1rem;"></i>
+                        <i class="fa-solid fa-euro-sign" style="color: ${themeColor}; font-size: 1.05rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px;">
-                        MEHR GIGS.<br>MEHR EINNAHMEN.
+                        MEHR GIGS. MEHR EINNAHMEN.
                     </h4>
                 </div>
 
