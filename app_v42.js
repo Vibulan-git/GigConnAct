@@ -5405,13 +5405,13 @@ function renderLandingPage(container, onNavigate) {
         <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem; margin: 0; width: 100%;">
             
             <!-- 1. Fullscreen 100vh Hero Background Section -->
-            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 10vh 1.5rem 4rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); background-color: #0d0e12; box-sizing: border-box;">
+            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 12vh 1.5rem 4rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); background-color: #0d0e12; box-sizing: border-box;">
                 
                 <!-- Dark overlay gradient -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(124, 58, 237, 0.82) 100%); z-index: 2;"></div>
 
                 <!-- Upper Group: Logo, Slogan, and Marquee (shifted further down) -->
-                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(1.2rem, 3.5vw, 2.2rem); width: 100%; max-width: 1000px; margin-top: 5vh; margin-bottom: auto;">
+                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(1.2rem, 3.5vw, 2.2rem); width: 100%; max-width: 1000px; margin-top: 14vh; margin-bottom: auto;">
                     
                     <!-- 1/4: Logo -->
                     <div class="brand-logo-center" style="display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0 0.8rem; box-sizing: border-box;">
