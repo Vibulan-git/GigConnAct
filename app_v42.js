@@ -4904,23 +4904,10 @@ function renderHowItWorksContentHTML(type) {
 
     if (isMusician) {
         return `
-            <style>
-                .flow-anim-card {
-                    opacity: 0;
-                    transform: translateY(15px);
-                    animation: flowCardReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                }
-                @keyframes flowCardReveal {
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-            </style>
             <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 0; font-family: var(--font-heading);">
                 
                 <!-- 1. Top Card: Kostenlos Veranstalter suchen (White card, Lupe-Icon) -->
-                <div class="flow-anim-card" onclick="window.onNavigate('events')" style="animation-delay: 0.2s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                <div class="flow-anim-card" onclick="window.onNavigate('events')" style="animation-delay: 4s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
@@ -4930,14 +4917,14 @@ function renderHowItWorksContentHTML(type) {
                 </div>
 
                 <!-- Connector Dotted Line 1 -->
-                <div class="flow-anim-card" style="animation-delay: 2.2s; display: flex; justify-content: flex-start; padding-left: clamp(1rem, 4vw, 2.5rem); box-sizing: border-box; width: 100%; height: 16px; margin: 0.1rem 0;">
+                <div class="flow-anim-card" style="animation-delay: 6s; display: flex; justify-content: flex-start; padding-left: clamp(1rem, 4vw, 2.5rem); box-sizing: border-box; width: 100%; height: 16px; margin: 0.1rem 0;">
                     <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
                         <div style="width: 0; height: 100%; border-left: 2px dotted ${themeColor}; opacity: 0.5;"></div>
                     </div>
                 </div>
 
                 <!-- 2. Middle Card: Kontaktdaten freischalten -->
-                <div class="flow-anim-card" style="animation-delay: 4.2s; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left;">
+                <div class="flow-anim-card" style="animation-delay: 6s; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left;">
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
@@ -4947,14 +4934,14 @@ function renderHowItWorksContentHTML(type) {
                 </div>
 
                 <!-- Connector Dotted Line 2 -->
-                <div class="flow-anim-card" style="animation-delay: 6.2s; display: flex; justify-content: flex-start; padding-left: clamp(1rem, 4vw, 2.5rem); box-sizing: border-box; width: 100%; height: 16px; margin: 0.1rem 0;">
+                <div class="flow-anim-card" style="animation-delay: 8s; display: flex; justify-content: flex-start; padding-left: clamp(1rem, 4vw, 2.5rem); box-sizing: border-box; width: 100%; height: 16px; margin: 0.1rem 0;">
                     <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
                         <div style="width: 0; height: 100%; border-left: 2px dotted ${themeColor}; opacity: 0.5;"></div>
                     </div>
                 </div>
 
                 <!-- 3. Combined Card: Direkt kontaktieren & Vermittlungsanfragen erhalten -->
-                <div class="flow-anim-card" style="animation-delay: 8.2s; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left;">
+                <div class="flow-anim-card" style="animation-delay: 8s; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left;">
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
@@ -4964,7 +4951,7 @@ function renderHowItWorksContentHTML(type) {
                 </div>
 
                 <!-- 4. Bottom Card: MEHR GIGS (Centered, no icon) -->
-                <div class="flow-anim-card" style="animation-delay: 10.2s; width: 100%; max-width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(124,58,237,0.15); display: flex; flex-direction: row; align-items: center; justify-content: center; margin-top: 0.5rem;">
+                <div class="flow-anim-card" style="animation-delay: 10s; width: 100%; max-width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(124,58,237,0.15); display: flex; flex-direction: row; align-items: center; justify-content: center; margin-top: 0.5rem;">
                     <h4 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: center; flex: 1;">
                         MEHR GIGS
                     </h4>
@@ -5112,22 +5099,36 @@ window.renderInfoPage = function(container, type) {
     container.innerHTML = `
         <div class="info-page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 1rem clamp(0.5rem, 3vw, 1.5rem) 5rem; font-family: var(--font-heading); color: #0f172a; box-sizing: border-box; width: 100%; min-height: 100vh;">
             
+            <style>
+                .flow-anim-card {
+                    opacity: 0;
+                    transform: translateY(15px);
+                    animation: flowCardReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                }
+                @keyframes flowCardReveal {
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            </style>
+
             <!-- Section Title: GigConnAct erklärt -->
-            <div style="margin: 0.5rem auto 0.5rem; text-align: center; width: 100%; max-width: 1200px; box-sizing: border-box;">
+            <div style="margin: 0.5rem auto 2.5rem; text-align: center; width: 100%; max-width: 1200px; box-sizing: border-box;">
                 <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
                     GigConnAct erklärt
                 </h2>
             </div>
 
             <!-- Header Card (Kachel) -->
-            <div onclick="window.onNavigate('${headerTarget}')" style="cursor: pointer; width: 100%; max-width: 1200px; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem 1.5rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37, 99, 235, 0.15)'}; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.8rem; margin: 0 auto 1rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+            <div class="flow-anim-card" onclick="window.onNavigate('${headerTarget}')" style="animation-delay: 2s; cursor: pointer; width: 100%; max-width: 1200px; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem 1.5rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37, 99, 235, 0.15)'}; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.8rem; margin: 0 auto 1.5rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                 <h1 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-transform: uppercase;">
                     ${headerTitleText}
                 </h1>
             </div>
 
             <!-- 1. The Diagram / Schaubild (GigConnAct erklärt) -->
-            <div style="width: 100%; max-width: 1200px; margin-bottom: 1rem; box-sizing: border-box;">
+            <div style="width: 100%; max-width: 1200px; margin-bottom: 2.5rem; box-sizing: border-box;">
                 <div id="info-page-flow-content" style="width: 100%;">
                     ${renderHowItWorksContentHTML(type)}
                 </div>
