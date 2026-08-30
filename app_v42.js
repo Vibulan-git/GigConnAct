@@ -5317,7 +5317,7 @@ function renderLandingPage(container, onNavigate) {
         <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem; margin: 0; width: 100%;">
             
             <!-- 1. Fullscreen 100vh Hero Background Section -->
-            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: flex-start; gap: 3.5vh; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 10vh 1.5rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); background-color: #0d0e12;">
+            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 10vh 1.5rem 3.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); background-color: #0d0e12;">
                 
                 <!-- Dark overlay gradient -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(124, 58, 237, 0.82) 100%); z-index: 2;"></div>
@@ -5347,14 +5347,14 @@ function renderLandingPage(container, onNavigate) {
                 </div>
 
                 <!-- 3/3: Subtitle and Categories Marquee -->
-                <div style="position: relative; z-index: 3; max-width: 1000px; width: 100%; display: flex; flex-direction: column; align-items: center; margin: 0; flex-grow: 1; justify-content: space-between;">
+                <div style="position: relative; z-index: 3; max-width: 1000px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2rem; margin: 0;">
                     
                     <!-- White text block (equally wide lines, first line slightly larger) -->
                     <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.3rem; width: 100%; margin-top: 1rem;">
                         <span style="font-family: var(--font-heading); font-size: clamp(1.4rem, 3.8vw, 2.3rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: inline-block;">
                             Die Vermittlungsplattform
                         </span>
-                        <span style="font-family: var(--font-heading); font-size: clamp(2.3rem, 6.2vw, 3.8rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: inline-block;">
+                        <span style="font-family: var(--font-heading); font-size: clamp(2.6rem, 7.0vw, 4.3rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: inline-block;">
                             für Live-Musik
                         </span>
                     </div>
