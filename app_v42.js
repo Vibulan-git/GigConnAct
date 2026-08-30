@@ -4912,7 +4912,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Kostenlosen Event-Markt nutzen - OHNE ACCOUNT
+                        Event-Markt nutzen - OHNE ACCOUNT & KOSTENLOS
                     </h4>
                 </div>
 
@@ -4929,7 +4929,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Kontaktdaten von Veranstaltern freischalten - MIT ACCOUNT
+                        Kontaktdaten von Veranstaltern freischalten - MIT ACCOUNT (Abo)
                     </h4>
                 </div>
 
