@@ -5029,6 +5029,219 @@ function renderHowItWorksContentHTML(type) {
     `;
 }
 
+window.renderInfoPage = function(container, type) {
+    const isMusician = type === 'musician';
+    
+    // Config colors & contents
+    const themeColor = isMusician ? '#7c3aed' : '#2563eb';
+
+    // HTML template
+    container.innerHTML = `
+        <div class="info-page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 2rem 1.5rem 5rem; font-family: var(--font-heading); color: #0f172a; box-sizing: border-box; width: 100%; min-height: 100vh; background-color: #f8fafc;">
+            
+            <!-- Header with Back Button -->
+            <div style="width: 100%; max-width: 900px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem;">
+                <button onclick="window.onNavigate('')" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); padding: 0.6rem 1.2rem; border-radius: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; color: #475569;" onmouseover="this.style.background='#f1f5f9';" onmouseout="this.style.background='#ffffff';">
+                    <i class="fa-solid fa-arrow-left"></i> Zur Startseite
+                </button>
+                <h1 style="font-family: var(--font-heading); font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 900; margin: 0; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">
+                    Wie funktioniert GigConnAct?
+                </h1>
+            </div>
+
+            <!-- 1. The Diagram / Schaubild (GigConnAct erklärt) -->
+            <div style="width: 100%; max-width: 700px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 24px; padding: 2.5rem 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 4rem; box-sizing: border-box;">
+                <h3 style="text-align: center; font-size: 1.35rem; font-weight: 800; margin: 0 0 2rem; color: #0f172a;">
+                    Ablauf für ${isMusician ? 'Musiker' : 'Veranstalter'}
+                </h3>
+                <div id="info-page-flow-content" style="width: 100%;">
+                    ${renderHowItWorksContentHTML(type)}
+                </div>
+            </div>
+
+            <!-- 2. The Airbnb Quote (Inhaber Vibulan Sivanathan) -->
+            <div style="width: 100%; max-width: 700px; text-align: center; margin-bottom: 4rem; box-sizing: border-box;">
+                <h3 style="font-family: var(--font-heading); font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0 0 1rem;">
+                    „Airbnb für Live-Musik“
+                </h3>
+                <p style="font-size: 1.05rem; font-style: italic; color: var(--text-muted); line-height: 1.7; margin: 0; position: relative; padding: 1.5rem 2rem; border-left: 4px solid transparent; border-image: linear-gradient(to bottom, #7c3aed, #2563eb) 1; background: #ffffff; border-radius: 0 16px 16px 0; box-shadow: 0 10px 25px rgba(0,0,0,0.02); text-align: left;">
+                    "Als Musiker und Eventmanager kenne ich beide Seiten nur zu gut. Ich weiß, wie schwierig es sein kann, passende Gigs zu finden – und genauso herausfordernd ist es für Veranstalter, den richtigen Musiker zu entdecken und ihn unkompliziert zu kontaktieren. Genau aus diesem Problem heraus ist GigConnAct entstanden – das „Airbnb für Live-Musik“."
+                </p>
+                <div style="margin-top: 1rem; font-weight: 800; color: var(--text-main); font-size: 0.95rem; text-align: right; padding-right: 1rem;">
+                    — Vibulan Sivanathan, Inhaber von GigConnAct
+                </div>
+            </div>
+
+            <!-- 3. Choice Cards for Organizer at the end -->
+            ${!isMusician ? `
+            <div style="width: 100%; max-width: 900px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 24px; padding: 2.5rem 2rem; box-shadow: 0 15px 40px rgba(0,0,0,0.05); box-sizing: border-box; text-align: center;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.45rem; font-weight: 900; color: #0f172a; margin: 0 0 2rem;">
+                    Wähle deinen Weg zu passender Live-Musik
+                </h3>
+                
+                <div class="choice-cards-container" style="display: flex; flex-direction: column; gap: 1.5rem; align-items: stretch; position: relative;">
+                    <style>
+                        .choice-card-wrapper-info {
+                            flex: 1;
+                            background: #eff6ff;
+                            border: 2px solid #2563eb;
+                            border-radius: 16px;
+                            padding: 1.5rem;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: space-between;
+                            transition: transform 0.2s, box-shadow 0.2s;
+                        }
+                        .choice-card-wrapper-info:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.1);
+                        }
+                        .separator-oder-info {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin: 0.5rem 0;
+                            color: #64748b;
+                            font-weight: 800;
+                            font-size: 0.85rem;
+                            position: relative;
+                        }
+                        .separator-oder-info::before, .separator-oder-info::after {
+                            content: '';
+                            flex: 1;
+                            height: 1px;
+                            background: #e2e8f0;
+                        }
+                        .separator-oder-info span {
+                            padding: 0 0.75rem;
+                        }
+                        .btn-choice-action-info {
+                            width: 100%;
+                            margin: 1.5rem 0 0;
+                            padding: 0.85rem 0.5rem !important;
+                            font-size: 0.95rem !important;
+                            font-weight: 800 !important;
+                            background: #2563eb !important;
+                            border-color: #2563eb !important;
+                            border-radius: 8px;
+                            box-shadow: none;
+                            white-space: nowrap !important;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 0.5rem;
+                            color: #ffffff;
+                            cursor: pointer;
+                        }
+                        @media (min-width: 769px) {
+                            .choice-cards-container {
+                                flex-direction: row !important;
+                                align-items: stretch !important;
+                                gap: 1rem !important;
+                            }
+                            .separator-oder-info {
+                                flex-direction: column;
+                                margin: 0 1rem;
+                                width: 20px;
+                            }
+                            .separator-oder-info::before, .separator-oder-info::after {
+                                width: 1px;
+                                height: 100%;
+                                background: #e2e8f0;
+                            }
+                            .separator-oder-info span {
+                                padding: 0.75rem 0;
+                                z-index: 1;
+                            }
+                        }
+                    </style>
+     
+                    <!-- Weg 1: Selbst kontaktieren -->
+                    <div class="choice-card-wrapper-info">
+                        <div>
+                            <div style="margin-bottom: 1rem; width: 100%;">
+                                <div style="display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: nowrap; text-align: left; line-height: 1.25;">
+                                    <h4 style="font-size: 1.15rem; font-weight: 800; margin: 0; color: #0f172a; white-space: nowrap;">Direkter Kontakt</h4>
+                                    <span style="font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">mit Account</span>
+                                </div>
+                            </div>
+                            
+                            <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0; line-height:1.8; text-align: left;">
+                                <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                    <i class="fa-solid fa-magnifying-glass" style="color:#2563eb; margin-top:0.2rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                    <span>Freie Auswahl aus allen Musikern</span>
+                                </li>
+                                <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                    <i class="fa-solid fa-comments" style="color:#2563eb; margin-top:0.2rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                    <span>Direktkontakt zu allen Acts</span>
+                                </li>
+                                <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                    <i class="fa-solid fa-eye" style="color:#2563eb; margin-top:0.2rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                    <span>Kontaktdaten direkt sichtbar → Anfragen senden & erhalten</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <button id="btn-info-register" class="btn-choice-action-info">
+                            <i class="fa-solid fa-user-plus" style="color: #ffffff; font-size: 1rem;"></i> Kostenlose Anmeldung
+                        </button>
+                    </div>
+     
+                    <!-- ODER Separator -->
+                    <div class="separator-oder-info">
+                        <span>ODER</span>
+                    </div>
+     
+                    <!-- Weg 2: GigConnAct-Vermittlung -->
+                    <div class="choice-card-wrapper-info">
+                        <div>
+                            <div style="margin-bottom: 1rem; width: 100%;">
+                                <div style="display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: nowrap; text-align: left; line-height: 1.25;">
+                                    <h4 style="font-size: 1.15rem; font-weight: 800; margin: 0; color: #0f172a; white-space: nowrap;">Vermittlung</h4>
+                                    <span style="font-size: 0.8rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">ohne Account</span>
+                                </div>
+                            </div>
+                            
+                            <ul style="font-size:0.92rem; color:#475569; padding-left:0; list-style:none; margin:0; line-height:1.8; text-align: left;">
+                                <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                    <i class="fa-solid fa-envelope-open-text" style="color:#2563eb; margin-top:0.2rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                    <span>Musiker-Vorschläge direkt erhalten</span>
+                                </li>
+                                <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                    <i class="fa-solid fa-handshake" style="color:#2563eb; margin-top:0.2rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                    <span>GigConnAct kontaktiert Acts</span>
+                                </li>
+                                <li style="margin-bottom:0.6rem; display:flex; align-items:flex-start;">
+                                    <i class="fa-solid fa-lock" style="color:#2563eb; margin-top:0.2rem; margin-right:0.6rem; width:16px; flex-shrink:0;"></i>
+                                    <span>Kontaktdaten nicht sichtbar → Freischaltung bei Interesse</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <button id="btn-info-agency" class="btn-choice-action-info">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color: #ffffff; font-size: 1rem;"></i> Kostenlose Vermittlung
+                        </button>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+
+        </div>
+    `;
+
+    // Hook up buttons
+    if (!isMusician) {
+        document.getElementById('btn-info-register')?.addEventListener('click', () => {
+            window.location.hash = '#/musicians';
+            setTimeout(() => {
+                showModal('auth', null, 'organizer');
+            }, 100);
+        });
+
+        document.getElementById('btn-info-agency')?.addEventListener('click', () => {
+            window.showAgencyBookingForm(null, null);
+        });
+    }
+};
+
 window.toggleHowItWorks = function(type) {
     const isMusician = type === 'musician';
     const btnMusician = document.getElementById('btn-how-works-musician');
@@ -5386,70 +5599,7 @@ function renderLandingPage(container, onNavigate) {
             </div>
 
 
-            <!-- 3.5. EVENT TYPES SECTION -->
-            <div style="max-width: 1400px; margin: 5rem auto 3rem; padding: 0 1.5rem; text-align: center;">
-                <div style="text-align: center; margin-bottom: 2.5rem; padding: 0 1rem;">
-                    <h2 style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; color: #7c3aed; margin: 0 0 0.2rem; line-height: 1.15; letter-spacing: -1.2px;">
-                        Live-Musik
-                    </h2>
-                    <div style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; color: #2563eb; line-height: 1.15; letter-spacing: -1px;">
-                        für jedes Event.
-                    </div>
-                </div>
-                
-                <!-- Horizontal row of event type cards -->
-                <div class="event-types-grid" style="display: flex; gap: 1.2rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1.5rem;">
-                    
-                    <!-- Card 1: Hochzeiten -->
-                    <div class="event-type-card card-purple">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                            <i class="fa-solid fa-ring" style="color: #7c3aed; font-size: 1.5rem;"></i>
-                        </div>
-                        <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Hochzeiten</span>
-                    </div>
 
-                    <!-- Card 2: Geburtstage -->
-                    <div class="event-type-card card-blue">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                            <i class="fa-solid fa-cake-candles" style="color: #2563eb; font-size: 1.5rem;"></i>
-                        </div>
-                        <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Geburtstage</span>
-                    </div>
-
-                    <!-- Card 3: Firmenfeiern -->
-                    <div class="event-type-card card-purple">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                            <i class="fa-solid fa-briefcase" style="color: #7c3aed; font-size: 1.5rem;"></i>
-                        </div>
-                        <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Firmenfeiern</span>
-                    </div>
-
-                    <!-- Card 4: Stadtfeste -->
-                    <div class="event-type-card card-blue">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                            <i class="fa-solid fa-city" style="color: #2563eb; font-size: 1.3rem;"></i>
-                        </div>
-                        <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Stadtfeste</span>
-                    </div>
-
-                    <!-- Card 5: Private Feiern -->
-                    <div class="event-type-card card-purple">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(124, 58, 237, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(167, 139, 250, 0.35);">
-                            <i class="fa-solid fa-gifts" style="color: #7c3aed; font-size: 1.5rem;"></i>
-                        </div>
-                        <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Private Feiern</span>
-                    </div>
-
-                    <!-- Card 6: Non-clickable ... dots -->
-                    <div class="event-type-card card-blue" style="cursor: default;">
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(96, 165, 250, 0.35);">
-                            <span style="font-size: 1.8rem; font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; line-height: 1; letter-spacing: 1px; display: inline-block; padding-bottom: 8px;">...</span>
-                        </div>
-                        <span style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">Und Co.</span>
-                    </div>
-
-                </div>
-            </div>
 
             <!-- 4. Wie funktioniert GigConnAct? Section -->
             <div style="max-width: 1000px; margin: 5rem auto 2rem; padding: 0 1.5rem; text-align: center;">
@@ -5568,11 +5718,11 @@ function renderLandingPage(container, onNavigate) {
     }
 
     document.getElementById('btn-hero-musician')?.addEventListener('click', () => {
-        onNavigate('events');
+        onNavigate('info-musician');
     });
 
     document.getElementById('btn-hero-organizer')?.addEventListener('click', () => {
-        window.showMatchmakingChoiceModal();
+        onNavigate('info-organizer');
     });
 
     document.getElementById('btn-benefits-to-events')?.addEventListener('click', () => {
@@ -14775,6 +14925,18 @@ function navigate(page) {
             window.renderMatchmakingChoicePage(mainContainer);
             if (!window.location.hash.startsWith('#/matchmaking-choice')) {
                 window.location.hash = '#/matchmaking-choice';
+            }
+            break;
+        case 'info-musician':
+            window.renderInfoPage(mainContainer, 'musician');
+            if (!window.location.hash.startsWith('#/info-musician')) {
+                window.location.hash = '#/info-musician';
+            }
+            break;
+        case 'info-organizer':
+            window.renderInfoPage(mainContainer, 'organizer');
+            if (!window.location.hash.startsWith('#/info-organizer')) {
+                window.location.hash = '#/info-organizer';
             }
             break;
         case 'events':
