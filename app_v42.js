@@ -4955,8 +4955,8 @@ function renderHowItWorksContentHTML(type) {
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
                         <i class="fa-solid fa-euro-sign" style="color: ${themeColor}; font-size: 1.05rem;"></i>
                     </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(1.15rem, 3.2vw, 1.55rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: left; flex: 1;">
-                        MEHR GIGS. MEHR EINNAHMEN.
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: left; flex: 1;">
+                        MEHR GIGS
                     </h4>
                 </div>
 
@@ -5094,10 +5094,9 @@ window.renderInfoPage = function(container, type) {
     // Config colors & contents
     const themeColor = isMusician ? '#7c3aed' : '#2563eb';
     const headerTitleText = isMusician 
-        ? `Event-Markt für Musiker`
-        : `Musiker-Markt für Veranstalter`;
+        ? `Event-Markt`
+        : `Musiker-Markt`;
     const headerTarget = isMusician ? 'events' : 'musicians';
-    const marketIcon = isMusician ? 'fa-calendar-days' : 'fa-guitar';
 
     // HTML template
     container.innerHTML = `
@@ -5105,9 +5104,6 @@ window.renderInfoPage = function(container, type) {
             
             <!-- Header Card (Kachel) -->
             <div onclick="window.onNavigate('${headerTarget}')" style="cursor: pointer; width: 100%; max-width: 1200px; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem 1.5rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37, 99, 235, 0.15)'}; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.8rem; margin: 1rem auto 1rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
-                <div style="width: 36px; height: 36px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
-                    <i class="fa-solid ${marketIcon}" style="color: ${themeColor}; font-size: 1.05rem;"></i>
-                </div>
                 <h1 style="font-family: var(--font-heading); font-size: clamp(1.1rem, 3.2vw, 1.5rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-transform: uppercase;">
                     ${headerTitleText}
                 </h1>
