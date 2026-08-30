@@ -4916,10 +4916,10 @@ function renderHowItWorksContentHTML(type) {
                     </h4>
                 </div>
 
-                <!-- Connector Arrow 1 -->
-                <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
-                        <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;"></i>
+                <!-- Connector Dotted Line 1 -->
+                <div style="display: flex; justify-content: flex-start; padding-left: clamp(1rem, 4vw, 2.5rem); box-sizing: border-box; width: 100%; height: 16px; margin: 0.1rem 0;">
+                    <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                        <div style="width: 0; height: 100%; border-left: 2px dotted ${themeColor}; opacity: 0.5;"></div>
                     </div>
                 </div>
 
@@ -4933,21 +4933,28 @@ function renderHowItWorksContentHTML(type) {
                     </h4>
                 </div>
 
-                <!-- Connector Arrow 2 -->
-                <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
-                        <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;"></i>
+                <!-- Connector Dotted Line 2 -->
+                <div style="display: flex; justify-content: flex-start; padding-left: clamp(1rem, 4vw, 2.5rem); box-sizing: border-box; width: 100%; height: 16px; margin: 0.1rem 0;">
+                    <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                        <div style="width: 0; height: 100%; border-left: 2px dotted ${themeColor}; opacity: 0.5;"></div>
                     </div>
                 </div>
 
                 <!-- 3. Combined Card: Direkt kontaktieren & Vermittlungsanfragen erhalten -->
-                <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; margin-bottom: 0.5rem;">
+                <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left;">
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.78rem, 2.8vw, 1.1rem); font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; text-align: left; flex: 1;">
                         Direkt kontaktieren & Vermittlungsanfragen erhalten
                     </h4>
+                </div>
+
+                <!-- Connector Dotted Line 3 -->
+                <div style="display: flex; justify-content: flex-start; padding-left: clamp(1rem, 4vw, 2.5rem); box-sizing: border-box; width: 100%; height: 16px; margin: 0.1rem 0;">
+                    <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                        <div style="width: 0; height: 100%; border-left: 2px dotted ${themeColor}; opacity: 0.5;"></div>
+                    </div>
                 </div>
 
                 <!-- 4. Bottom Card: MEHR GIGS. MEHR EINNAHMEN. (Euro Icon at the start of row) -->
