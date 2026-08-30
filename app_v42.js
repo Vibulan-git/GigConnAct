@@ -4950,19 +4950,9 @@ function renderHowItWorksContentHTML(type) {
                     </h4>
                 </div>
 
-                <!-- Connector Dotted Line 3 -->
-                <div style="display: flex; justify-content: flex-start; padding-left: clamp(1rem, 4vw, 2.5rem); box-sizing: border-box; width: 100%; height: 16px; margin: 0.1rem 0;">
-                    <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
-                        <div style="width: 0; height: 100%; border-left: 2px dotted ${themeColor}; opacity: 0.5;"></div>
-                    </div>
-                </div>
-
-                <!-- 4. Bottom Card: MEHR GIGS. MEHR EINNAHMEN. (Euro Icon at the start of row) -->
-                <div style="width: 100%; max-width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(124,58,237,0.15); display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem);">
-                    <div style="width: 36px; height: 36px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
-                        <i class="fa-solid fa-euro-sign" style="color: ${themeColor}; font-size: 1.05rem;"></i>
-                    </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: left; flex: 1;">
+                <!-- 4. Bottom Card: MEHR GIGS (Centered, no icon) -->
+                <div style="width: 100%; max-width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(124,58,237,0.15); display: flex; flex-direction: row; align-items: center; justify-content: center; margin-top: 0.5rem;">
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: center; flex: 1;">
                         MEHR GIGS
                     </h4>
                 </div>
@@ -5109,9 +5099,16 @@ window.renderInfoPage = function(container, type) {
     container.innerHTML = `
         <div class="info-page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 2rem clamp(0.5rem, 3vw, 1.5rem) 5rem; font-family: var(--font-heading); color: #0f172a; box-sizing: border-box; width: 100%; min-height: 100vh;">
             
+            <!-- Section Title: GigConnAct erklärt -->
+            <div style="margin: 0.5rem auto 0.75rem; text-align: center; width: 100%; max-width: 1200px; box-sizing: border-box;">
+                <span style="font-family: var(--font-heading); font-size: clamp(0.9rem, 2.6vw, 1.1rem); font-weight: 900; color: ${themeColor}; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.85;">
+                    GigConnAct erklärt
+                </span>
+            </div>
+
             <!-- Header Card (Kachel) -->
-            <div onclick="window.onNavigate('${headerTarget}')" style="cursor: pointer; width: 100%; max-width: 1200px; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem 1.5rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37, 99, 235, 0.15)'}; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.8rem; margin: 1rem auto 1rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
-                <h1 style="font-family: var(--font-heading); font-size: clamp(1.1rem, 3.2vw, 1.5rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-transform: uppercase;">
+            <div onclick="window.onNavigate('${headerTarget}')" style="cursor: pointer; width: 100%; max-width: 1200px; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem 1.5rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px ${isMusician ? 'rgba(124,58,237,0.15)' : 'rgba(37, 99, 235, 0.15)'}; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.8rem; margin: 0 auto 1.5rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                <h1 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-transform: uppercase;">
                     ${headerTitleText}
                 </h1>
             </div>
@@ -5121,6 +5118,13 @@ window.renderInfoPage = function(container, type) {
                 <div id="info-page-flow-content" style="width: 100%;">
                     ${renderHowItWorksContentHTML(type)}
                 </div>
+            </div>
+
+            <!-- Founder Title: „Airbnb für Live-Musik“ -->
+            <div style="max-width: 1200px; margin: 0 auto 1.5rem; padding: 0; text-align: center;">
+                <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
+                    „Airbnb für Live-Musik“
+                </h2>
             </div>
 
             <!-- 2. The Airbnb Quote (Exactly as on Homepage) -->
