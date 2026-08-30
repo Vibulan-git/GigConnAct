@@ -4907,28 +4907,21 @@ function renderHowItWorksContentHTML(type) {
             <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 0; font-family: var(--font-heading);">
                 
                 <!-- 1. Top Card: Kostenlos Veranstalter suchen (White card, Lupe-Icon) -->
-                <div onclick="window.onNavigate('events')" style="cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(0.5rem, 2.5vw, 1.5rem); display: flex; align-items: center; justify-content: center; gap: clamp(0.4rem, 2vw, 1rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: center;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
-                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff; margin-right: 0.1rem;">
+                <div onclick="window.onNavigate('events')" style="cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; margin-bottom: 0.5rem;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.78rem, 2.8vw, 1.1rem); font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.78rem, 2.8vw, 1.1rem); font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; text-align: left; flex: 1;">
                         Kostenlos Veranstalter suchen ohne Account
                     </h4>
                 </div>
 
-                <!-- Connector Arrow 1 -->
-                <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: 0.25rem 0;">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
-                        <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;"></i>
-                    </div>
-                </div>
-
                 <!-- 2. Middle Card: Kontaktdaten freischalten -->
-                <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(0.5rem, 2.5vw, 1.5rem); display: flex; align-items: center; justify-content: center; gap: clamp(0.4rem, 2vw, 1rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: center;">
-                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff; margin-right: 0.1rem;">
+                <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.78rem, 2.8vw, 1.1rem); font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.78rem, 2.8vw, 1.1rem); font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; text-align: left; flex: 1;">
                         Kontaktdaten freischalten mit Account
                     </h4>
                 </div>
@@ -4941,11 +4934,11 @@ function renderHowItWorksContentHTML(type) {
                 </div>
 
                 <!-- 3. Combined Card: Direkt kontaktieren & Vermittlungsanfragen erhalten -->
-                <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(0.5rem, 2.5vw, 1.5rem); display: flex; align-items: center; justify-content: center; gap: clamp(0.4rem, 2vw, 1rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: center;">
-                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff; margin-right: 0.1rem;">
+                <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.78rem, 2.8vw, 1.1rem); font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.78rem, 2.8vw, 1.1rem); font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; text-align: left; flex: 1;">
                         Direkt kontaktieren & Vermittlungsanfragen erhalten
                     </h4>
                 </div>
@@ -4958,11 +4951,11 @@ function renderHowItWorksContentHTML(type) {
                 </div>
 
                 <!-- 4. Bottom Card: MEHR GIGS. MEHR EINNAHMEN. (Euro Icon at the start of row) -->
-                <div style="width: 100%; max-width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(0.5rem, 2.5vw, 1.5rem); text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(124,58,237,0.15); display: flex; flex-direction: row; align-items: center; justify-content: center; gap: clamp(0.4rem, 2vw, 0.8rem);">
+                <div style="width: 100%; max-width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: left; box-sizing: border-box; box-shadow: 0 10px 30px rgba(124,58,237,0.15); display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem);">
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
                         <i class="fa-solid fa-euro-sign" style="color: ${themeColor}; font-size: 1.05rem;"></i>
                     </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.85rem, 2.5vw, 1.25rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap;">
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.85rem, 2.5vw, 1.25rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: left; flex: 1;">
                         MEHR GIGS. MEHR EINNAHMEN.
                     </h4>
                 </div>
@@ -5120,13 +5113,6 @@ window.renderInfoPage = function(container, type) {
                 </h1>
             </div>
 
-            <!-- Arrow from Header Card to first flowchart element -->
-            <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 35px; box-sizing: border-box; margin: -2.5rem 0 1.5rem;">
-                <div style="width: 32px; height: 32px; border-radius: 50%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
-                    <i class="fa-solid fa-arrow-down" style="color: ${themeColor}; font-size: 0.85rem;"></i>
-                </div>
-            </div>
-
             <!-- 1. The Diagram / Schaubild (GigConnAct erklärt) -->
             <div style="width: 100%; max-width: 1200px; margin-bottom: 4rem; box-sizing: border-box;">
                 <div id="info-page-flow-content" style="width: 100%;">
@@ -5135,7 +5121,7 @@ window.renderInfoPage = function(container, type) {
             </div>
 
             <!-- 2. The Airbnb Quote (Exactly as on Homepage) -->
-            <div style="width: 100%; max-width: 1200px; margin: 0 auto 4rem; padding: 0 1.5rem; text-align: left; box-sizing: border-box;">
+            <div style="width: 100%; max-width: 1200px; margin: 0 auto 4rem; padding: 0; text-align: left; box-sizing: border-box;">
                 <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 24px; display: flex; flex-wrap: wrap; overflow: hidden; backdrop-filter: blur(12px); box-shadow: var(--shadow-glass);">
                     <!-- Left column: Image filling the space -->
                     <div style="flex: 1 1 300px; position: relative; min-height: 320px;">
@@ -5746,7 +5732,7 @@ function renderLandingPage(container, onNavigate) {
             </div>
 
             <!-- 5.5. FOUNDER STORY SECTION -->
-            <div style="max-width: 1200px; margin: 6rem auto 0; padding: 0 1.5rem;">
+            <div style="max-width: 1200px; margin: 6rem auto 0; padding: 0;">
                 <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 24px; display: flex; flex-wrap: wrap; overflow: hidden; backdrop-filter: blur(12px); box-shadow: var(--shadow-glass);">
                     <!-- Left column: Image filling the space -->
                     <div style="flex: 1 1 300px; position: relative; min-height: 320px;">
