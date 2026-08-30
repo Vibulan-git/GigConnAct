@@ -5037,7 +5037,7 @@ window.renderInfoPage = function(container, type) {
 
     // HTML template
     container.innerHTML = `
-        <div class="info-page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 2rem 1.5rem 5rem; font-family: var(--font-heading); color: #0f172a; box-sizing: border-box; width: 100%; min-height: 100vh; background-color: #ffffff;">
+        <div class="info-page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 2rem 1.5rem 5rem; font-family: var(--font-heading); color: #0f172a; box-sizing: border-box; width: 100%; min-height: 100vh;">
             
             <!-- Header -->
             <div style="width: 100%; max-width: 900px; display: flex; align-items: center; justify-content: center; margin-bottom: 3rem;">
