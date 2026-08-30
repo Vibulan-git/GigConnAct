@@ -4954,7 +4954,7 @@ function renderHowItWorksContentHTML(type) {
                 <div class="flow-anim-card" style="animation-delay: 8s; width: 100%; max-width: 100%; margin-top: 2rem; box-sizing: border-box;">
                     <div class="glow-card-pulse" onclick="window.onNavigate('events')" style="cursor: pointer; width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: center; box-sizing: border-box; display: flex; flex-direction: row; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                         <h4 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: center; flex: 1;">
-                            Mehr Gigs erhalten
+                            Finde Deine Gigs
                         </h4>
                     </div>
                 </div>
@@ -5022,7 +5022,7 @@ function renderHowItWorksContentHTML(type) {
                 <div class="flow-anim-card" style="animation-delay: 8s; width: 100%; max-width: 100%; margin-top: 2rem; box-sizing: border-box;">
                     <div class="glow-card-pulse" onclick="window.onNavigate('musicians')" style="cursor: pointer; width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: center; box-sizing: border-box; display: flex; flex-direction: row; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                         <h4 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: center; flex: 1;">
-                            Kostenlos passende Acts finden
+                            Finde Deinen Act - kostenlos
                         </h4>
                     </div>
                 </div>
@@ -5033,13 +5033,13 @@ function renderHowItWorksContentHTML(type) {
         contentHTML = `
             <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 0; font-family: var(--font-heading);">
                 
-                <!-- 1. Card: Vermittlungsanfrage ausfüllen ohne Account -->
+                <!-- 1. Card: Kostenlose Vermittlungsanfrage ausfüllen - OHNE ACCOUNT -->
                 <div class="flow-anim-card" onclick="window.onNavigate('musicians')" style="animation-delay: 2s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-file-lines" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Vermittlungsanfrage ausfüllen ohne Account
+                        Kostenlose Vermittlungsanfrage ausfüllen - OHNE ACCOUNT
                     </h4>
                 </div>
 
@@ -5050,13 +5050,13 @@ function renderHowItWorksContentHTML(type) {
                     </div>
                 </div>
 
-                <!-- 2. Card: Vorschläge sofort erhalten & Wunsch-Acts von GCA kontaktieren lassen -->
+                <!-- 2. Card: Vorschläge sofort erhalten & Wunsch-Acts kontaktieren lassen -->
                 <div class="flow-anim-card" onclick="window.onNavigate('musicians')" style="animation-delay: 4s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-paper-plane" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Vorschläge sofort erhalten & Wunsch-Acts von GCA kontaktieren lassen
+                        Vorschläge sofort erhalten & Wunsch-Acts kontaktieren lassen
                     </h4>
                 </div>
 
@@ -5077,11 +5077,11 @@ function renderHowItWorksContentHTML(type) {
                     </h4>
                 </div>
 
-                <!-- 4. Bottom Card: Kostenlos passende Acts finden (Centered, no icon, with pulsing glow) -->
+                <!-- 4. Bottom Card: Finde Deinen Act - kostenlos (Centered, no icon, with pulsing glow) -->
                 <div class="flow-anim-card" style="animation-delay: 8s; width: 100%; max-width: 100%; margin-top: 2rem; box-sizing: border-box;">
                     <div class="glow-card-pulse" onclick="window.onNavigate('musicians')" style="cursor: pointer; width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: center; box-sizing: border-box; display: flex; flex-direction: row; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                         <h4 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: center; flex: 1;">
-                            Kostenlos passende Acts finden
+                            Finde Deinen Act - kostenlos
                         </h4>
                     </div>
                 </div>
