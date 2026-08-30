@@ -4912,7 +4912,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                        Kostenlos Veranstalter suchen
+                        Kostenlos Veranstalter suchen ohne Account
                     </h4>
                 </div>
 
@@ -4929,7 +4929,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                        Kontaktdaten freischalten
+                        Kontaktdaten freischalten mit Account
                     </h4>
                 </div>
 
