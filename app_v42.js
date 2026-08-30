@@ -5096,6 +5096,8 @@ function renderLandingPage(container, onNavigate) {
            </button>`
         : ``;
 
+    const isMobile = window.innerWidth <= 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
     container.innerHTML = `
         <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem; margin: 0; width: 100%;">
             
@@ -5103,11 +5105,13 @@ function renderLandingPage(container, onNavigate) {
             <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 22vh 1.5rem 9rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); background-color: #0d0e12;">
                 
                 <!-- Seamless Dual Background Videos (Scaled to crop out Capcut watermark and cross-fade) -->
+                ${!isMobile ? `
                 <video id="hero-bg-video-1" autoplay muted playsinline preload="auto" style="position: absolute; top: -12%; left: -12%; width: 124%; height: 124%; object-fit: cover; z-index: 2; opacity: 1; transition: opacity 1.5s ease-in-out;">
                     <source src="hochzeit.mp4" type="video/mp4">
                 </video>
                 <video id="hero-bg-video-2" muted playsinline preload="auto" style="position: absolute; top: -12%; left: -12%; width: 124%; height: 124%; object-fit: cover; z-index: 1; opacity: 0; transition: opacity 1.5s ease-in-out;">
                 </video>
+                ` : ''}
 
                 <!-- Dark overlay gradient -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(124, 58, 237, 0.82) 100%); z-index: 2;"></div>
@@ -5138,8 +5142,8 @@ function renderLandingPage(container, onNavigate) {
 
                 <!-- 3/3: Headline + Description text block -->
                 <div style="position: relative; z-index: 3; max-width: 1000px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 0.6rem; margin: 0;">
-                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 5.8vw, 3.2rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin: 0; color: #ffffff; text-shadow: 0 4px 20px rgba(0,0,0,0.8); white-space: nowrap;">
-                        Wir vermitteln Live-Musik.
+                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 5.8vw, 3.2rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin: 0; color: #ffffff; text-shadow: 0 4px 20px rgba(0,0,0,0.8);">
+                        Die Vermittlungsplattform für Musiker und Veranstalter
                     </h1>
                     <p style="font-size: clamp(0.78rem, 2.2vw, 1.25rem); color: rgba(255,255,255,0.95); font-weight: 500; line-height: 1.5; max-width: 800px; margin: 0 auto; text-shadow: 0 2px 10px rgba(0,0,0,0.7);">
                         Hochzeiten, Geburtstage, Firmenfeiern & Co.<br>GigConnAct verbindet Musiker und Veranstalter.
@@ -19149,7 +19153,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                                         ${photos.map(img => `<div style="width: 100%; height: 100%; flex-shrink: 0;"><img src="${img}" style="width: 100%; height: 100%; object-fit: cover;"></div>`).join('')}
                                         ${videos.map((vid, vIdx) => `
                                             <div style="width: 100%; height: 100%; flex-shrink: 0; background: #000; display: flex; align-items: center; justify-content: center;">
-                                                <video controls style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
+                                                <video controls preload="metadata" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
                                                     <source src="${vid.url}" type="video/mp4">
                                                 </video>
                                             </div>
@@ -19158,7 +19162,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                                             <div style="width: 100%; height: 100%; flex-shrink: 0; background: linear-gradient(135deg, #1e1b4b 0%, #311042 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; box-sizing: border-box;">
                                                 <i class="fa-solid fa-music" style="color: #06b6d4; font-size: 1.4rem; margin-bottom: 0.6rem;"></i>
                                                 <span style="font-size: 0.8rem; color: #fff; margin-bottom: 0.5rem;">${aud.title || 'Demo'}</span>
-                                                <audio controls style="width: 85%; height: 32px;" onclick="event.stopPropagation();">
+                                                <audio controls preload="metadata" style="width: 85%; height: 32px;" onclick="event.stopPropagation();">
                                                     <source src="${aud.url}" type="audio/mp3">
                                                 </audio>
                                             </div>
@@ -19650,7 +19654,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
                                     ${photos.map(img => `<div style="width: 100%; height: 100%; flex-shrink: 0;"><img src="${img}" style="width: 100%; height: 100%; object-fit: cover;"></div>`).join('')}
                                     ${videos.map((vid, vIdx) => `
                                         <div style="width: 100%; height: 100%; flex-shrink: 0; background: #000; display: flex; align-items: center; justify-content: center;">
-                                            <video controls style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
+                                            <video controls preload="metadata" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
                                                 <source src="${vid.url}" type="video/mp4">
                                             </video>
                                         </div>

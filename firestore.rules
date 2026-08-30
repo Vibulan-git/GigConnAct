@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helper Functions ---
+    
+    // Checks if the user is the creator of the event
+    function isEventCreator(eventId) {
+      return exists(/databases/$(database)/documents/events/$(eventId)) &&
+             get(/databases/$(database)/documents/events/$(eventId)).data.creatorId == request.auth.uid;
+    }
+
+    // Checks if the user is the creator of the musician profile
+    function isMusicianCreator(musicianId) {
+      return exists(/databases/$(database)/documents/musicians/$(musicianId)) &&
+             get(/databases/$(database)/documents/musicians/$(musicianId)).data.creatorId == request.auth.uid;
+    }
+
+    // Checks if the user's UID (or their profile's UID prefix) is in the chat's participant list
+    function isChatParticipant(participants) {
+      return participants != null && participants.hasAny([
+        request.auth.uid,
+        'mus_' + request.auth.uid,
+        'evt_' + request.auth.uid
+      ]);
+    }
+
+    // --- Collection Rules ---
+
+    // 1. Users
+    match /users/{userId} {
+      allow read: if true; // Public access required for profile details, email checks, and admin lookups
+      allow write: if request.auth != null && request.auth.uid == userId; // Only owner can write
+    }
+
+    // 2. Pending Registrations (Pre-authentication)
+    match /pendingRegistrations/{email} {
+      allow get: if true; // Allow checking pending registration by email key
+      allow create: if request.resource.data.email.lower() == email; // Allow writing own registration
+      allow delete: if request.auth != null; // Deletion is performed once authenticated
+    }
+
+    // 3. Musicians
+    match /musicians/{musicianId} {
+      allow read: if true; // Publicly browsable on the marketplace
+      allow create: if request.auth != null && request.resource.data.creatorId == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.creatorId == request.auth.uid;
+    }
+
+    // 4. Events
+    match /events/{eventId} {
+      allow read: if true; // Publicly browsable on the marketplace
+      allow create: if request.auth != null && request.resource.data.creatorId == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.creatorId == request.auth.uid;
+    }
+
+    // 5. Chats
+    match /chats/{chatId} {
+      allow read: if request.auth != null; // Any logged-in user can query chats (needed for fallback queries)
+      allow create: if request.auth != null && isChatParticipant(request.resource.data.participants);
+      allow update: if request.auth != null && isChatParticipant(resource.data.participants) && isChatParticipant(request.resource.data.participants);
+      allow delete: if request.auth != null && isChatParticipant(resource.data.participants);
+    }
+
+    // 6. Interests
+    match /interests/{interestId} {
+      allow read: if request.auth != null; // Logged-in users can query interests
+      allow create: if request.auth != null && (isEventCreator(request.resource.data.eventId) || isMusicianCreator(request.resource.data.musicianId));
+      allow update: if request.auth != null && (isEventCreator(resource.data.eventId) || isMusicianCreator(resource.data.musicianId));
+      allow delete: if request.auth != null && (isEventCreator(resource.data.eventId) || isMusicianCreator(resource.data.musicianId));
+    }
+  }
+}
