@@ -5037,11 +5037,79 @@ function renderHowItWorksContentHTML(type) {
             </div>
         `;
     } else {
-        // Placeholder for Vermittlung
         contentHTML = `
-            <div class="flow-anim-card" style="animation-delay: 0.2s; width: 100%; text-align: center; padding: 3rem 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); box-sizing: border-box;">
-                <h3 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">Vermittlungs-Pfad</h3>
-                <p style="color: #64748b; font-size: 1rem; margin: 0;">Details folgen in Kürze...</p>
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 0; font-family: var(--font-heading);">
+                
+                <!-- 1. Card: Vermittlungsanfrage ausfüllen ohne Account -->
+                <div class="flow-anim-card" onclick="window.onNavigate('musicians')" style="animation-delay: 2s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                        <i class="fa-solid fa-file-lines" style="color: ${themeColor}; font-size: 1rem;"></i>
+                    </div>
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
+                        Vermittlungsanfrage ausfüllen ohne Account
+                    </h4>
+                </div>
+
+                <!-- Connector Dotted Line 1 -->
+                <div class="flow-anim-card" style="animation-delay: 4s; display: flex; justify-content: flex-start; padding-left: clamp(1rem, 4vw, 2.5rem); box-sizing: border-box; width: 100%; height: 16px; margin: 0.1rem 0;">
+                    <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                        <div style="width: 0; height: 100%; border-left: 2px dotted ${themeColor}; opacity: 0.5;"></div>
+                    </div>
+                </div>
+
+                <!-- 2. Card: Musiker-Vorschläge sofort erhalten -->
+                <div class="flow-anim-card" onclick="window.onNavigate('musicians')" style="animation-delay: 4s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                        <i class="fa-solid fa-user-check" style="color: ${themeColor}; font-size: 1rem;"></i>
+                    </div>
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
+                        Musiker-Vorschläge sofort erhalten
+                    </h4>
+                </div>
+
+                <!-- Connector Dotted Line 2 -->
+                <div class="flow-anim-card" style="animation-delay: 6s; display: flex; justify-content: flex-start; padding-left: clamp(1rem, 4vw, 2.5rem); box-sizing: border-box; width: 100%; height: 16px; margin: 0.1rem 0;">
+                    <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                        <div style="width: 0; height: 100%; border-left: 2px dotted ${themeColor}; opacity: 0.5;"></div>
+                    </div>
+                </div>
+
+                <!-- 3. Card: GigConnAct kontaktiert die Wunsch-Acts -->
+                <div class="flow-anim-card" onclick="window.onNavigate('musicians')" style="animation-delay: 6s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                        <i class="fa-solid fa-paper-plane" style="color: ${themeColor}; font-size: 1rem;"></i>
+                    </div>
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
+                        GigConnAct kontaktiert die Wunsch-Acts
+                    </h4>
+                </div>
+
+                <!-- Connector Dotted Line 3 -->
+                <div class="flow-anim-card" style="animation-delay: 8s; display: flex; justify-content: flex-start; padding-left: clamp(1rem, 4vw, 2.5rem); box-sizing: border-box; width: 100%; height: 16px; margin: 0.1rem 0;">
+                    <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                        <div style="width: 0; height: 100%; border-left: 2px dotted ${themeColor}; opacity: 0.5;"></div>
+                    </div>
+                </div>
+
+                <!-- 4. Card: Bei beidseitigem Interesse Kontaktdaten erhalten -->
+                <div class="flow-anim-card" onclick="window.onNavigate('musicians')" style="animation-delay: 8s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                        <i class="fa-solid fa-handshake" style="color: ${themeColor}; font-size: 1rem;"></i>
+                    </div>
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
+                        Bei beidseitigem Interesse Kontaktdaten erhalten
+                    </h4>
+                </div>
+
+                <!-- 5. Bottom Card: Kostenlos passende Acts finden (Centered, no icon, with pulsing glow) -->
+                <div class="flow-anim-card" style="animation-delay: 10s; width: 100%; max-width: 100%; margin-top: 2rem; box-sizing: border-box;">
+                    <div class="glow-card-pulse" onclick="window.onNavigate('musicians')" style="cursor: pointer; width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: center; box-sizing: border-box; display: flex; flex-direction: row; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                        <h4 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: center; flex: 1;">
+                            Kostenlos passende Acts finden
+                        </h4>
+                    </div>
+                </div>
+
             </div>
         `;
     }
