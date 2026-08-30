@@ -4908,39 +4908,9 @@ function renderHowItWorksContentHTML(type) {
                 
                 <!-- Market Switch CTA Button -->
                 <div style="margin-bottom: 2rem; text-align: center; width: 100%; box-sizing: border-box;">
-                    <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: 100%; max-width: 100%; box-sizing: border-box; margin: 0 auto; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;" onmouseover="this.style.transform='scale(1.015)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('events')">
-                        Events
+                    <button id="btn-benefits-to-market-switch" class="btn-homepage-market" style="width: 100%; max-width: 100%; box-sizing: border-box; margin: 0 auto; background: ${themeColor}; color: white; border: none; font-weight: 800; font-size: 1.05rem; padding: 0.95rem 2rem; border-radius: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s, box-shadow 0.2s; white-space: nowrap;" onmouseover="this.style.transform='scale(1.015)';" onmouseout="this.style.transform='scale(1)';" onclick="window.onNavigate('events')">
+                        <i class="fa-solid fa-lock" style="color: white; font-size: 0.95rem;"></i> Kostenloser Event-Markt
                     </button>
-                </div>
-
-                <!-- 1. Top Card: KOSTENLOS ENTDECKEN -->
-                <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.2rem 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
-                        <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
-                            <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
-                        </div>
-                        <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                            🔎 Kostenlos entdecken
-                        </h4>
-                    </div>
-                    <div style="font-size: 0.95rem; color: #475569; font-weight: 700; margin: 0.1rem 0 0.3rem;">
-                        Passende Events finden
-                    </div>
-                    <!-- Badges (Ort, Datum, Eventart) -->
-                    <div style="display: flex; justify-content: center; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.2rem;">
-                        <span style="background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; padding: 0.35rem 0.75rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            📍 Ort
-                        </span>
-                        <span style="background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; padding: 0.35rem 0.75rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            📅 Datum
-                        </span>
-                        <span style="background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; padding: 0.35rem 0.75rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.35rem;">
-                            🎉 Eventart
-                        </span>
-                    </div>
-                    <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; font-style: italic;">
-                        Frei zugänglicher Event-Markt
-                    </div>
                 </div>
 
                 <!-- Connector Arrow 1 -->
@@ -4951,18 +4921,13 @@ function renderHowItWorksContentHTML(type) {
                 </div>
 
                 <!-- 2. Middle Card: MUSIKER-ACCOUNT -->
-                <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.5rem; display: flex; align-items: center; justify-content: center; gap: 1rem; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: center; flex-direction: column;">
-                    <div style="display: flex; align-items: center; gap: 0.75rem; justify-content: center;">
-                        <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
-                            <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
-                        </div>
-                        <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                            🔓 Musiker-Account
-                        </h4>
+                <div style="width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.5rem; display: flex; align-items: center; justify-content: center; gap: 1rem; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: center;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff; margin-right: 0.25rem;">
+                        <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
-                    <div style="font-size: 0.95rem; color: #64748b; font-weight: 700; margin: 0;">
-                        Preiswertes Abo
-                    </div>
+                    <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                        Musiker-Account
+                    </h4>
                 </div>
 
                 <!-- Connector Arrow 2 (Splitting paths indicator) -->
@@ -5003,33 +4968,23 @@ function renderHowItWorksContentHTML(type) {
                 <div style="width: 100%; display: flex; flex-direction: row; gap: 1rem; align-items: stretch; justify-content: space-between; margin-top: 0.25rem; flex-wrap: wrap;">
                     
                     <!-- Left Path: DIREKT -->
-                    <div style="flex: 1 1 280px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.2rem; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.02); gap: 0.6rem;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
-                                <i class="fa-solid fa-envelope" style="color: ${themeColor}; font-size: 0.9rem;"></i>
-                            </div>
-                            <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                                📩 Direkt
-                            </h4>
+                    <div style="flex: 1 1 280px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.2rem; display: flex; flex-direction: row; align-items: center; justify-content: center; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.02); gap: 0.75rem;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                            <i class="fa-solid fa-envelope" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                         </div>
-                        <p style="font-size: 0.9rem; color: #64748b; margin: 0; font-weight: 700; line-height: 1.4;">
-                            Kontaktdaten freischalten<br>& kontaktieren
-                        </p>
+                        <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Direkt
+                        </h4>
                     </div>
 
                     <!-- Right Path: VERMITTLUNG -->
-                    <div style="flex: 1 1 280px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.2rem; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.02); gap: 0.6rem;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
-                                <i class="fa-solid fa-wand-magic-sparkles" style="color: ${themeColor}; font-size: 0.9rem;"></i>
-                            </div>
-                            <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                                ✨ Vermittlung
-                            </h4>
+                    <div style="flex: 1 1 280px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.2rem; display: flex; flex-direction: row; align-items: center; justify-content: center; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.02); gap: 0.75rem;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                         </div>
-                        <p style="font-size: 0.9rem; color: #64748b; margin: 0; font-weight: 700; line-height: 1.4;">
-                            Anfragen von<br>Veranstaltern erhalten
-                        </p>
+                        <h4 style="font-family: var(--font-heading); font-size: 1rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Vermittlung
+                        </h4>
                     </div>
 
                 </div>
@@ -5054,7 +5009,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-microphone" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px;">
-                        🎤 MEHR GIGS.<br>MEHR EINNAHMEN.
+                        MEHR GIGS.<br>MEHR EINNAHMEN.
                     </h4>
                 </div>
 
