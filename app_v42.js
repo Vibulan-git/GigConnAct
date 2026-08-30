@@ -4912,7 +4912,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Event-Markt kostenlos nutzen - OHNE ACCOUNT
+                        Kostenlosen Event-Markt nutzen - OHNE ACCOUNT
                     </h4>
                 </div>
 
@@ -4980,7 +4980,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-guitar" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Kostenlos Musiker-Markt nutzen - OHNE ACCOUNT
+                        Kostenlosen Musiker-Markt nutzen - OHNE ACCOUNT
                     </h4>
                 </div>
 
