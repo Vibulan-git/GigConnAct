@@ -5039,13 +5039,10 @@ window.renderInfoPage = function(container, type) {
     container.innerHTML = `
         <div class="info-page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 2rem 1.5rem 5rem; font-family: var(--font-heading); color: #0f172a; box-sizing: border-box; width: 100%; min-height: 100vh; background-color: #f8fafc;">
             
-            <!-- Header with Back Button -->
-            <div style="width: 100%; max-width: 900px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem;">
-                <button onclick="window.onNavigate('')" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); padding: 0.6rem 1.2rem; border-radius: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; color: #475569;" onmouseover="this.style.background='#f1f5f9';" onmouseout="this.style.background='#ffffff';">
-                    <i class="fa-solid fa-arrow-left"></i> Zur Startseite
-                </button>
-                <h1 style="font-family: var(--font-heading); font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 900; margin: 0; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">
-                    Wie funktioniert GigConnAct?
+            <!-- Header -->
+            <div style="width: 100%; max-width: 900px; display: flex; align-items: center; justify-content: center; margin-bottom: 3rem;">
+                <h1 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900; margin: 0; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; text-align: center;">
+                    GigConnAct erklärt
                 </h1>
             </div>
 
@@ -5059,16 +5056,26 @@ window.renderInfoPage = function(container, type) {
                 </div>
             </div>
 
-            <!-- 2. The Airbnb Quote (Inhaber Vibulan Sivanathan) -->
-            <div style="width: 100%; max-width: 700px; text-align: center; margin-bottom: 4rem; box-sizing: border-box;">
-                <h3 style="font-family: var(--font-heading); font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0 0 1rem;">
-                    „Airbnb für Live-Musik“
-                </h3>
-                <p style="font-size: 1.05rem; font-style: italic; color: var(--text-muted); line-height: 1.7; margin: 0; position: relative; padding: 1.5rem 2rem; border-left: 4px solid transparent; border-image: linear-gradient(to bottom, #7c3aed, #2563eb) 1; background: #ffffff; border-radius: 0 16px 16px 0; box-shadow: 0 10px 25px rgba(0,0,0,0.02); text-align: left;">
-                    "Als Musiker und Eventmanager kenne ich beide Seiten nur zu gut. Ich weiß, wie schwierig es sein kann, passende Gigs zu finden – und genauso herausfordernd ist es für Veranstalter, den richtigen Musiker zu entdecken und ihn unkompliziert zu kontaktieren. Genau aus diesem Problem heraus ist GigConnAct entstanden – das „Airbnb für Live-Musik“."
-                </p>
-                <div style="margin-top: 1rem; font-weight: 800; color: var(--text-main); font-size: 0.95rem; text-align: right; padding-right: 1rem;">
-                    — Vibulan Sivanathan, Inhaber von GigConnAct
+            <!-- 2. The Airbnb Quote (Exactly as on Homepage) -->
+            <div style="width: 100%; max-width: 900px; margin: 0 auto 4rem; padding: 0 1.5rem; text-align: left; box-sizing: border-box;">
+                <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 24px; display: flex; flex-wrap: wrap; overflow: hidden; backdrop-filter: blur(12px); box-shadow: var(--shadow-glass);">
+                    <!-- Left column: Image filling the space -->
+                    <div style="flex: 1 1 300px; position: relative; min-height: 320px;">
+                        <img src="founder.jpg" alt="Vibulan Sivanathan" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <!-- Right column: Text with padding -->
+                    <div style="flex: 1.5 1 400px; padding: 1.5rem 2.5rem; display: flex; flex-direction: column; justify-content: center; gap: 0.8rem;">
+                        <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                            <h3 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin: 0;">Vibulan Sivanathan</h3>
+                            <div style="display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.3px;">
+                                <span style="color: var(--text-muted);">Inhaber von GigConnAct</span>
+                                <span style="color: var(--text-muted);">Sänger von <a href="https://miamipink.de/" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: underline; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">MIAMI PINK</a></span>
+                            </div>
+                        </div>
+                        <p style="font-size: 1.05rem; font-style: italic; color: var(--text-muted); line-height: 1.6; margin: 0; position: relative; padding-left: 1.2rem; border-left: 3px solid transparent; border-image: linear-gradient(to bottom, #7c3aed, #2563eb) 1;">
+                            Als Musiker und Eventmanager kenne ich beide Seiten nur zu gut. Ich weiß, wie schwierig es sein kann, passende Gigs to finden – und genauso herausfordernd ist es für Veranstalter, den richtigen Musiker zu entdecken und ihn unkompliziert zu kontaktieren. Genau aus diesem Problem heraus ist GigConnAct entstanden – das „Airbnb für Live-Musik“.
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -5313,14 +5320,14 @@ function renderLandingPage(container, onNavigate) {
         <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem; margin: 0; width: 100%;">
             
             <!-- 1. Fullscreen 100vh Hero Background Section -->
-            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 22vh 1.5rem 9rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); background-color: #0d0e12;">
+            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 22vh 1.5rem 4.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); background-color: #0d0e12;">
                 
                 <!-- Dark overlay gradient -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(124, 58, 237, 0.82) 100%); z-index: 2;"></div>
 
                 <!-- 1/3: Title Sentence (Replacing Logo) -->
                 <div class="brand-logo-center" style="position: relative; z-index: 3; width: 100%; max-width: 900px; margin: 0 auto; padding: 0 0.8rem; box-sizing: border-box; text-align: center;">
-                    <span class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(1.8rem, 5vw, 3.2rem); font-weight: 900; letter-spacing: -1px; display: inline-block; background: linear-gradient(135deg, #a855f7 0%, #60a5fa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.3)); line-height: 1.25; margin: 0;">
+                    <span class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(1.3rem, 3.5vw, 2rem); font-weight: 900; letter-spacing: -0.5px; display: inline-block; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.25; margin: 0;">
                         Die Vermittlungsplattform für Musiker und Veranstalter
                     </span>
                 </div>
@@ -5340,12 +5347,9 @@ function renderLandingPage(container, onNavigate) {
 
                 <!-- 3/3: Headline + Description text block -->
                 <div style="position: relative; z-index: 3; max-width: 1000px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 0.6rem; margin: 0;">
-                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 5.8vw, 3.2rem); font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; margin: 0; color: #ffffff; text-shadow: 0 4px 20px rgba(0,0,0,0.8);">
-                        Wir vermitteln Live-Musik.
-                    </h1>
                     
                     <!-- Infinite Scrolling Category Marquee -->
-                    <div class="logo-marquee-wrapper" style="margin-top: 2rem; margin-bottom: -1.5rem; z-index: 3; width: 100%; max-width: 800px; mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);">
+                    <div class="logo-marquee-wrapper" style="margin-top: 5rem; margin-bottom: -1.5rem; z-index: 3; width: 100%; max-width: 800px; mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);">
                         <div class="logo-marquee-track" style="animation-duration: 22s; gap: 1.2rem;">
                             <!-- Set 1 -->
                             <span style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #ffffff; padding: 0.6rem 1.4rem; border-radius: 30px; font-weight: 700; font-size: clamp(0.85rem, 2vw, 1.05rem); white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: inline-flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-ring" style="color: #c084fc;"></i> Hochzeiten</span>
