@@ -4906,13 +4906,13 @@ function renderHowItWorksContentHTML(type) {
         return `
             <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 900px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem; font-family: var(--font-heading);">
                 
-                <!-- 1. Top Card: Kostenlos nach Events schauen (White card, Lupe-Icon) -->
+                <!-- 1. Top Card: Kostenlos Veranstalter suchen (White card, Lupe-Icon) -->
                 <div onclick="window.onNavigate('events')" style="cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.5rem; display: flex; align-items: center; justify-content: center; gap: 1rem; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: center;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff; margin-right: 0.25rem;">
                         <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 900; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                        Kostenlos nach Events schauen
+                        Kostenlos Veranstalter suchen
                     </h4>
                 </div>
 
@@ -4970,13 +4970,13 @@ function renderHowItWorksContentHTML(type) {
                 <!-- 3. Split Cards (Direkt & Vermittlung) -->
                 <div style="width: 100%; display: flex; flex-direction: row; gap: 0.5rem; align-items: stretch; justify-content: space-between; margin-top: 0.25rem; flex-wrap: nowrap;">
                     
-                    <!-- Left Path: Veranstalter direkt kontaktieren -->
+                    <!-- Left Path: Direkt kontaktieren -->
                     <div style="flex: 1; min-width: 0; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1rem 0.5rem; display: flex; flex-direction: row; align-items: center; justify-content: center; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.02); gap: 0.5rem;">
                         <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                             <i class="fa-solid fa-envelope" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.72rem, 2.3vw, 0.95rem); font-weight: 800; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.3;">
-                            Veranstalter direkt kontaktieren
+                            Direkt kontaktieren
                         </h4>
                     </div>
 
@@ -4985,13 +4985,13 @@ function renderHowItWorksContentHTML(type) {
                         und
                     </div>
 
-                    <!-- Right Path: Vermittlungsanfragen von Veranstaltern erhalten -->
+                    <!-- Right Path: Vermittlungsanfragen erhalten -->
                     <div style="flex: 1; min-width: 0; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1rem 0.5rem; display: flex; flex-direction: row; align-items: center; justify-content: center; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.02); gap: 0.5rem;">
                         <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                             <i class="fa-solid fa-wand-magic-sparkles" style="color: ${themeColor}; font-size: 0.9rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.72rem, 2.3vw, 0.95rem); font-weight: 800; color: #0f172a; margin: 0; text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.3;">
-                            Vermittlungsanfragen von Veranstaltern erhalten
+                            Vermittlungsanfragen erhalten
                         </h4>
                     </div>
 
@@ -5010,14 +5010,14 @@ function renderHowItWorksContentHTML(type) {
                     </div>
                 </div>
 
-                <!-- 4. Bottom Card: MEHR GIGS. MEHR EINNAHMEN. (Euro Icon below text) -->
-                <div style="width: 100%; max-width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem 1.5rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(124,58,237,0.15); display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
-                    <h4 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px;">
-                        MEHR GIGS. MEHR EINNAHMEN.
-                    </h4>
-                    <div style="width: 36px; height: 36px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-top: 0.2rem;">
+                <!-- 4. Bottom Card: MEHR GIGS. MEHR EINNAHMEN. (Euro Icon at the start of row) -->
+                <div style="width: 100%; max-width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem 1.5rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(124,58,237,0.15); display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.8rem;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
                         <i class="fa-solid fa-euro-sign" style="color: ${themeColor}; font-size: 1.05rem;"></i>
                     </div>
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 2.5vw, 1.25rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap;">
+                        MEHR GIGS. MEHR EINNAHMEN.
+                    </h4>
                 </div>
 
             </div>
