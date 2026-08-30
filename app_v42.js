@@ -4907,7 +4907,7 @@ function renderHowItWorksContentHTML(type) {
             <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 0; font-family: var(--font-heading);">
                 
                 <!-- 1. Top Card: Kostenlos Veranstalter suchen (White card, Lupe-Icon) -->
-                <div class="flow-anim-card" onclick="window.onNavigate('events')" style="animation-delay: 4s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                <div class="flow-anim-card" onclick="window.onNavigate('events')" style="animation-delay: 4s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
@@ -4924,7 +4924,7 @@ function renderHowItWorksContentHTML(type) {
                 </div>
 
                 <!-- 2. Middle Card: Kontaktdaten freischalten -->
-                <div class="flow-anim-card" style="animation-delay: 6s; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left;">
+                <div class="flow-anim-card" onclick="window.onNavigate('events')" style="animation-delay: 6s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
@@ -4941,7 +4941,7 @@ function renderHowItWorksContentHTML(type) {
                 </div>
 
                 <!-- 3. Combined Card: Direkt kontaktieren & Vermittlungsanfragen erhalten -->
-                <div class="flow-anim-card" style="animation-delay: 8s; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left;">
+                <div class="flow-anim-card" onclick="window.onNavigate('events')" style="animation-delay: 8s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
@@ -4950,10 +4950,27 @@ function renderHowItWorksContentHTML(type) {
                     </h4>
                 </div>
 
-                <!-- 4. Bottom Card: MEHR GIGS (Centered, no icon) -->
-                <div class="flow-anim-card" style="animation-delay: 10s; width: 100%; max-width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(124,58,237,0.15); display: flex; flex-direction: row; align-items: center; justify-content: center; margin-top: 2rem;">
+                <!-- Connector Dotted Line 3 -->
+                <div class="flow-anim-card" style="animation-delay: 10s; display: flex; justify-content: flex-start; padding-left: clamp(1rem, 4vw, 2.5rem); box-sizing: border-box; width: 100%; height: 16px; margin: 0.1rem 0;">
+                    <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                        <div style="width: 0; height: 100%; border-left: 2px dotted ${themeColor}; opacity: 0.5;"></div>
+                    </div>
+                </div>
+
+                <!-- 4. New Card: Mehr Gigs bekommen -->
+                <div class="flow-anim-card" onclick="window.onNavigate('events')" style="animation-delay: 10s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                        <i class="fa-solid fa-arrow-trend-up" style="color: ${themeColor}; font-size: 1rem;"></i>
+                    </div>
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
+                        Mehr Gigs bekommen
+                    </h4>
+                </div>
+
+                <!-- 5. Bottom Card: Los geht´s (Centered, no icon) -->
+                <div class="flow-anim-card" onclick="window.onNavigate('events')" style="animation-delay: 12s; cursor: pointer; width: 100%; max-width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(124,58,237,0.15); display: flex; flex-direction: row; align-items: center; justify-content: center; margin-top: 2rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                     <h4 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: center; flex: 1;">
-                        MEHR GIGS
+                        Los geht´s
                     </h4>
                 </div>
 
@@ -5131,36 +5148,6 @@ window.renderInfoPage = function(container, type) {
             <div style="width: 100%; max-width: 1200px; margin-bottom: 2.5rem; box-sizing: border-box;">
                 <div id="info-page-flow-content" style="width: 100%;">
                     ${renderHowItWorksContentHTML(type)}
-                </div>
-            </div>
-
-            <!-- Founder Title: „Airbnb für Live-Musik“ -->
-            <div style="max-width: 1200px; margin: 0 auto 1.5rem; padding: 0; text-align: center;">
-                <h2 style="font-family: var(--font-heading); font-size: clamp(1.8rem, 4.8vw, 3.5rem); font-weight: 900; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
-                    „Airbnb für Live-Musik“
-                </h2>
-            </div>
-
-            <!-- 2. The Airbnb Quote (Exactly as on Homepage) -->
-            <div style="width: 100%; max-width: 1200px; margin: 0 auto 4rem; padding: 0; text-align: left; box-sizing: border-box;">
-                <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 24px; display: flex; flex-wrap: wrap; overflow: hidden; backdrop-filter: blur(12px); box-shadow: var(--shadow-glass);">
-                    <!-- Left column: Image filling the space -->
-                    <div style="flex: 1 1 300px; position: relative; min-height: 320px;">
-                        <img src="founder.jpg" alt="Vibulan Sivanathan" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                    <!-- Right column: Text with padding -->
-                    <div style="flex: 1.5 1 400px; padding: 1.5rem 2.5rem; display: flex; flex-direction: column; justify-content: center; gap: 0.8rem;">
-                        <div style="display: flex; flex-direction: column; gap: 0.35rem;">
-                            <h3 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin: 0;">Vibulan Sivanathan</h3>
-                            <div style="display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.95rem; font-weight: 700; letter-spacing: 0.3px;">
-                                <span style="color: var(--text-muted);">Inhaber von GigConnAct</span>
-                                <span style="color: var(--text-muted);">Sänger von <a href="https://miamipink.de/" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: underline; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">MIAMI PINK</a></span>
-                            </div>
-                        </div>
-                        <p style="font-size: 1.05rem; font-style: italic; color: var(--text-muted); line-height: 1.6; margin: 0; position: relative; padding-left: 1.2rem; border-left: 3px solid transparent; border-image: linear-gradient(to bottom, #7c3aed, #2563eb) 1;">
-                            Als Musiker und Eventmanager kenne ich beide Seiten nur zu gut. Ich weiß, wie schwierig es sein kann, passende Gigs to finden – und genauso herausfordernd ist es für Veranstalter, den richtigen Musiker zu entdecken und ihn unkompliziert zu kontaktieren. Genau aus diesem Problem heraus ist GigConnAct entstanden – das „Airbnb für Live-Musik“.
-                        </p>
-                    </div>
                 </div>
             </div>
 
