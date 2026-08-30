@@ -5096,23 +5096,12 @@ function renderLandingPage(container, onNavigate) {
            </button>`
         : ``;
 
-    const isMobile = window.innerWidth <= 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
     container.innerHTML = `
         <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem; margin: 0; width: 100%;">
             
-            <!-- 1. Fullscreen 100vh Hero Background Video Section -->
+            <!-- 1. Fullscreen 100vh Hero Background Section -->
             <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: 22vh 1.5rem 9rem; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); background-color: #0d0e12;">
                 
-                <!-- Seamless Dual Background Videos (Scaled to crop out Capcut watermark and cross-fade) -->
-                ${!isMobile ? `
-                <video id="hero-bg-video-1" autoplay muted playsinline preload="auto" style="position: absolute; top: -12%; left: -12%; width: 124%; height: 124%; object-fit: cover; z-index: 2; opacity: 1; transition: opacity 1.5s ease-in-out;">
-                    <source src="hochzeit.mp4" type="video/mp4">
-                </video>
-                <video id="hero-bg-video-2" muted playsinline preload="auto" style="position: absolute; top: -12%; left: -12%; width: 124%; height: 124%; object-fit: cover; z-index: 1; opacity: 0; transition: opacity 1.5s ease-in-out;">
-                </video>
-                ` : ''}
-
                 <!-- Dark overlay gradient -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(124, 58, 237, 0.82) 100%); z-index: 2;"></div>
 
@@ -5619,103 +5608,7 @@ function renderLandingPage(container, onNavigate) {
         updateCarouselDots('events', 0);
     }
 
-    // Video cycling logic (Seamless swap & cross-fade, avoiding Capcut outro)
-    const heroVideos = [
-        'hochzeit.mp4',
-        'gartenparty.mp4',
-        'firmenfeier.mp4',
-        'konzert.mp4'
-    ];
-    let currentVideoIndex = 0;
-    const v1 = container.querySelector('#hero-bg-video-1');
-    const v2 = container.querySelector('#hero-bg-video-2');
 
-    if (v1 && v2) {
-        // Optimization: Defer preloading the next video in v2 until v1 has started playing.
-        // This ensures 100% of bandwidth goes to loading the first background video quickly!
-        const preloadNextVideo = () => {
-            if (!v2.src || v2.src === '' || v2.src === window.location.href) {
-                v2.src = heroVideos[1];
-                v2.load();
-            }
-            v1.removeEventListener('playing', preloadNextVideo);
-        };
-        v1.addEventListener('playing', preloadNextVideo);
-        // Fallback: If playing doesn't trigger, preload after 5 seconds
-        setTimeout(preloadNextVideo, 5000);
-
-        const transitionDuration = 1500; // 1.5s fade transition
-        let isTransitioning = false;
-
-        const startCrossfade = function(activePlayer, hiddenPlayer) {
-            if (isTransitioning) return;
-            isTransitioning = true;
-
-            // Start playing the hidden player
-            hiddenPlayer.play().then(() => {
-                // Monitor frames to ensure we only fade after a frame has actually rendered!
-                const startFadeWhenReady = () => {
-                    if (hiddenPlayer.currentTime > 0) {
-                        // Cross-fade opacity
-                        hiddenPlayer.style.opacity = '1';
-                        activePlayer.style.opacity = '0';
-
-                        // After CSS transition finishes (1.5s)
-                        setTimeout(() => {
-                            // Swap z-indexes: hidden player becomes foreground
-                            hiddenPlayer.style.zIndex = '2';
-                            activePlayer.style.zIndex = '1';
-
-                            // Preload the next video in activePlayer (which is now in background/hidden)
-                            currentVideoIndex = (currentVideoIndex + 1) % heroVideos.length;
-                            const nextIndex = (currentVideoIndex + 1) % heroVideos.length;
-
-                            activePlayer.src = heroVideos[nextIndex];
-                            activePlayer.load();
-
-                            isTransitioning = false;
-
-                            // Start monitoring the new active player
-                            monitorPlayer(hiddenPlayer, activePlayer);
-                        }, transitionDuration);
-                    } else {
-                        // Check again on next frame
-                        requestAnimationFrame(startFadeWhenReady);
-                    }
-                };
-                requestAnimationFrame(startFadeWhenReady);
-            }).catch(err => {
-                console.log("Play failed, fallback:", err);
-                isTransitioning = false;
-                // Try again in 2 seconds
-                setTimeout(() => monitorPlayer(activePlayer, hiddenPlayer), 2000);
-            });
-        };
-
-        const monitorPlayer = function(activePlayer, hiddenPlayer) {
-            const onTimeUpdate = () => {
-                const duration = activePlayer.duration;
-                // Transition 2.5 seconds early to avoid CapCut outro watermark
-                if (duration && activePlayer.currentTime >= Math.max(duration - 2.5, 3)) {
-                    activePlayer.removeEventListener('timeupdate', onTimeUpdate);
-                    activePlayer.removeEventListener('ended', onEnded);
-                    startCrossfade(activePlayer, hiddenPlayer);
-                }
-            };
-
-            const onEnded = () => {
-                activePlayer.removeEventListener('timeupdate', onTimeUpdate);
-                activePlayer.removeEventListener('ended', onEnded);
-                startCrossfade(activePlayer, hiddenPlayer);
-            };
-
-            activePlayer.addEventListener('timeupdate', onTimeUpdate);
-            activePlayer.addEventListener('ended', onEnded);
-        };
-
-        // Monitor the initial active player (v1)
-        monitorPlayer(v1, v2);
-    }
 
     // Clear any active tab text rotation intervals
     if (window.tabTextRotationInterval) {
