@@ -5094,14 +5094,14 @@ function renderHowItWorksContentHTML(type) {
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
             
             <!-- Toggle path buttons -->
-            <div style="display: flex; gap: 1rem; align-items: center; justify-content: center; margin-bottom: 2rem; width: 100%; box-sizing: border-box;">
-                <button onclick="window.setOrganizerFlowPath('direktkontakt')" style="flex: 1; max-width: 250px; padding: 0.8rem 1.5rem; font-family: var(--font-heading); font-size: 1rem; font-weight: 800; border-radius: 12px; cursor: pointer; transition: all 0.2s; ${isDirektkontakt ? 'background: #2563eb; color: #ffffff; border: 1.5px solid #2563eb; box-shadow: 0 4px 12px rgba(37,99,235,0.15);' : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.06);'}">
+            <div style="display: flex; gap: 0.4rem; align-items: center; justify-content: center; margin-bottom: 2rem; width: 100%; max-width: 480px; box-sizing: border-box;">
+                <button onclick="window.setOrganizerFlowPath('direktkontakt')" style="flex: 1; padding: 0.8rem 1.2rem; font-family: var(--font-heading); font-size: 1rem; font-weight: 800; border-radius: 12px; cursor: pointer; transition: all 0.2s; ${isDirektkontakt ? 'background: #2563eb; color: #ffffff; border: 1.5px solid #2563eb; box-shadow: 0 4px 12px rgba(37,99,235,0.15);' : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.06);'}">
                     Direktkontakt
                 </button>
-                <span style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; padding: 0 0.5rem; user-select: none;">
+                <span style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; padding: 0; user-select: none; flex-shrink: 0;">
                     oder
                 </span>
-                <button onclick="window.setOrganizerFlowPath('vermittlung')" style="flex: 1; max-width: 250px; padding: 0.8rem 1.5rem; font-family: var(--font-heading); font-size: 1rem; font-weight: 800; border-radius: 12px; cursor: pointer; transition: all 0.2s; ${!isDirektkontakt ? 'background: #2563eb; color: #ffffff; border: 1.5px solid #2563eb; box-shadow: 0 4px 12px rgba(37,99,235,0.15);' : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.06);'}">
+                <button onclick="window.setOrganizerFlowPath('vermittlung')" style="flex: 1; padding: 0.8rem 1.2rem; font-family: var(--font-heading); font-size: 1rem; font-weight: 800; border-radius: 12px; cursor: pointer; transition: all 0.2s; ${!isDirektkontakt ? 'background: #2563eb; color: #ffffff; border: 1.5px solid #2563eb; box-shadow: 0 4px 12px rgba(37,99,235,0.15);' : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.06);'}">
                     Vermittlung
                 </button>
             </div>
