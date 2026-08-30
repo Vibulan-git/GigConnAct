@@ -4907,10 +4907,20 @@ function renderHowItWorksContentHTML(type) {
             <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 0; font-family: var(--font-heading);">
                 
                 <!-- Header Card (Kachel) -->
-                <div class="flow-anim-card" onclick="window.onNavigate('events')" style="animation-delay: 2s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid #7c3aed; border-radius: 20px; padding: 1.2rem 1.5rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.03); display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.8rem; margin: 0 auto 1.5rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
-                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #7c3aed; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-transform: uppercase;">
+                <div class="flow-anim-card" onclick="window.onNavigate('events')" style="animation-delay: 2s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                        <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; font-size: 1rem;"></i>
+                    </div>
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
                         Kostenloser Event-Markt
-                    </h1>
+                    </h4>
+                </div>
+
+                <!-- Connector Dotted Line 0 -->
+                <div class="flow-anim-card" style="animation-delay: 4s; display: flex; justify-content: flex-start; padding-left: clamp(1rem, 4vw, 2.5rem); box-sizing: border-box; width: 100%; height: 16px; margin: 0.1rem 0;">
+                    <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                        <div style="width: 0; height: 100%; border-left: 2px dotted ${themeColor}; opacity: 0.5;"></div>
+                    </div>
                 </div>
 
                 <!-- 1. Top Card: Veranstalter suchen (White card, Lupe-Icon) -->
@@ -4982,10 +4992,20 @@ function renderHowItWorksContentHTML(type) {
             <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 0; font-family: var(--font-heading);">
                 
                 <!-- Header Card (Kachel) -->
-                <div class="flow-anim-card" onclick="window.onNavigate('musicians')" style="animation-delay: 2s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid #2563eb; border-radius: 20px; padding: 1.2rem 1.5rem; text-align: center; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.03); display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.8rem; margin: 0 auto 1.5rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
-                    <h1 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #2563eb; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-transform: uppercase;">
+                <div class="flow-anim-card" onclick="window.onNavigate('musicians')" style="animation-delay: 2s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                        <i class="fa-solid fa-guitar" style="color: ${themeColor}; font-size: 1rem;"></i>
+                    </div>
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
                         Kostenloser Musiker-Markt
-                    </h1>
+                    </h4>
+                </div>
+
+                <!-- Connector Dotted Line 0 -->
+                <div class="flow-anim-card" style="animation-delay: 4s; display: flex; justify-content: flex-start; padding-left: clamp(1rem, 4vw, 2.5rem); box-sizing: border-box; width: 100%; height: 16px; margin: 0.1rem 0;">
+                    <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+                        <div style="width: 0; height: 100%; border-left: 2px dotted ${themeColor}; opacity: 0.5;"></div>
+                    </div>
                 </div>
 
                 <!-- 1. Card: Musiker suchen ohne Account -->
