@@ -4912,7 +4912,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                        Auf dem <span style="color: #7c3aed;">Event-Markt</span> stöbern -<br>OHNE ACCOUNT & KOSTENLOS
+                        <span style="color: #7c3aed;">Events</span> entdecken -<br>OHNE ACCOUNT & KOSTENLOS
                     </h4>
                 </div>
 
@@ -4980,7 +4980,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-guitar" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                        Auf dem <span style="color: #2563eb;">Musiker-Markt</span> stöbern -<br>OHNE ACCOUNT & KOSTENLOS
+                        <span style="color: #2563eb;">Musiker</span> entdecken -<br>OHNE ACCOUNT & KOSTENLOS
                     </h4>
                 </div>
 
@@ -4997,7 +4997,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                        <span style="color: #2563eb;">Kontaktdaten</span> freischalten -<br>MIT ACCOUNT
+                        <span style="color: #2563eb;">Kontaktdaten</span> freischalten -<br>MIT ACCOUNT & KOSTENLOS
                     </h4>
                 </div>
 
@@ -5038,8 +5038,8 @@ function renderHowItWorksContentHTML(type) {
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-file-lines" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Kostenlose <span style="color: #2563eb;">Vermittlungsanfrage</span> ausfüllen - OHNE ACCOUNT
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
+                        <span style="color: #2563eb;">Vermittlungsanfrage</span> senden -<br>OHNE ACCOUNT & KOSTENLOS
                     </h4>
                 </div>
 
@@ -5055,8 +5055,8 @@ function renderHowItWorksContentHTML(type) {
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-paper-plane" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Vorschläge sofort erhalten & Wunsch-Acts kontaktieren lassen
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
+                        Vorschläge sofort erhalten & <span style="color: #2563eb;">Musiker</span> kontaktieren lassen
                     </h4>
                 </div>
 
@@ -5282,7 +5282,7 @@ function renderLandingPage(container, onNavigate) {
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(124, 58, 237, 0.82) 100%); z-index: 2;"></div>
 
                 <!-- Upper Group: Logo and Slogan (shifted further down) -->
-                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(1.2rem, 3.5vw, 2.2rem); width: 100%; max-width: 1000px; margin-top: 10vh; margin-bottom: auto;">
+                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(1.2rem, 3.5vw, 2.2rem); width: 100%; max-width: 1000px; margin-top: 16vh; margin-bottom: auto;">
                     
                     <!-- 1/4: Logo -->
                     <div class="brand-logo-center" style="display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0; box-sizing: border-box;">
@@ -5307,7 +5307,7 @@ function renderLandingPage(container, onNavigate) {
                 </div>
 
                 <!-- 3/4: CTA Buttons (anchored below slogan) -->
-                <div class="hero-cta-buttons" style="position: relative; z-index: 3; margin: auto auto 6.5vh; gap: 2rem;">
+                <div class="hero-cta-buttons" style="position: relative; z-index: 3; margin: auto auto 9.5vh; gap: 2rem;">
                     <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
                         <i class="fa-solid fa-guitar" style="font-size: 3.2rem;"></i>
                         <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Musiker</span>
