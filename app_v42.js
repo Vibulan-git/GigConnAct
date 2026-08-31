@@ -4919,7 +4919,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #7c3aed;">Events</span> entdecken -<br>OHNE ACCOUNT & KOSTENLOS
+                            <span style="color: #7c3aed;">Events entdecken</span> - OHNE ACCOUNT & KOSTENLOS
                         </h4>
                     </div>
 
@@ -4953,7 +4953,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            Veranstalter <span style="color: #7c3aed;">direkt</span> kontaktieren & <span style="color: #7c3aed;">Vermittlungsanfragen</span> erhalten
+                            <span style="color: #7c3aed;">Veranstalter kontaktieren</span> & Vermittlungsanfragen erhalten
                         </h4>
                     </div>
 
@@ -4978,7 +4978,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-user-shield" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #7c3aed;">Kontaktdaten</span> sind geschützt & Erstkontakt nur durch Veranstalter
+                            <span style="color: #7c3aed;">Kontaktdaten</span> sind geschützt & Erstkontakt durch Veranstalter
                         </h4>
                     </div>
 
@@ -5039,7 +5039,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-guitar" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #2563eb;">Musiker</span> entdecken -<br>OHNE ACCOUNT & KOSTENLOS
+                            <span style="color: #2563eb;">Musiker entdecken</span> - OHNE ACCOUNT & KOSTENLOS
                         </h4>
                     </div>
 
@@ -5073,7 +5073,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            Musiker <span style="color: #2563eb;">direkt</span> kontaktieren & <span style="color: #2563eb;">Anfragen</span> erhalten
+                            <span style="color: #2563eb;">Musiker kontaktieren</span> & Anfragen erhalten
                         </h4>
                     </div>
 
@@ -5098,7 +5098,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-file-lines" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #2563eb;">Vermittlungsanfrage</span> senden -<br>OHNE ACCOUNT & KOSTENLOS
+                            <span style="color: #2563eb;">Vermittlungsanfrage senden</span> - OHNE ACCOUNT & KOSTENLOS
                         </h4>
                     </div>
 
