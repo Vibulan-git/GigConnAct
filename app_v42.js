@@ -1814,7 +1814,7 @@ class StateManager {
                 this.authInitialized = true;
                 this.notify();
             }
-        }, 3500);
+        }, 8000);
 
         try {
             await this.loadStateFromFirestore();
@@ -1832,54 +1832,47 @@ class StateManager {
     }
 
     async loadStateFromFirestore() {
-        // 1. Seed database if empty
-        const musSnapshot = await db.collection('musicians').limit(1).get();
-        const evtSnapshot = await db.collection('events').limit(1).get();
-        
-        if (musSnapshot.empty || evtSnapshot.empty) {
-            console.log("Firestore collection(s) empty. Seeding initial data...");
-            this.loadState();
-            
-            if (musSnapshot.empty) {
-                const seedMus = this.musicians.map(m => db.collection('musicians').doc(m.id).set(m));
-                await Promise.all(seedMus);
-            }
-            
-            if (evtSnapshot.empty) {
-                const seedEvt = this.events.map(e => db.collection('events').doc(e.id).set(e));
-                await Promise.all(seedEvt);
+        // Load initial static active musicians/events once with a limit in parallel
+        try {
+            const [musSnap, evtSnap] = await Promise.all([
+                db.collection('musicians').where('isActive', '==', true).limit(50).get(),
+                db.collection('events').where('isOnline', '==', true).limit(50).get()
+            ]);
+
+            // Seed database if completely empty
+            if (musSnap.empty && evtSnap.empty) {
+                const checkMus = await db.collection('musicians').limit(1).get();
+                const checkEvt = await db.collection('events').limit(1).get();
+                if (checkMus.empty || checkEvt.empty) {
+                    console.log("Firestore collection(s) empty. Seeding initial data...");
+                    this.loadState();
+                    
+                    if (checkMus.empty) {
+                        const seedMus = this.musicians.map(m => db.collection('musicians').doc(m.id).set(m));
+                        await Promise.all(seedMus);
+                    }
+                    
+                    if (checkEvt.empty) {
+                        const seedEvt = this.events.map(e => db.collection('events').doc(e.id).set(e));
+                        await Promise.all(seedEvt);
+                    }
+
+                    const chatsSnapshot = await db.collection('chats').limit(1).get();
+                    if (chatsSnapshot.empty) {
+                        const seedChats = this.chats.map(c => db.collection('chats').doc(c.id).set(c));
+                        await Promise.all(seedChats);
+                    }
+                    
+                    console.log("Database seeded successfully!");
+                    this.initialLoadDone = true;
+                    this.notify();
+                    return;
+                }
             }
 
-            const chatsSnapshot = await db.collection('chats').limit(1).get();
-            if (chatsSnapshot.empty) {
-                const seedChats = this.chats.map(c => db.collection('chats').doc(c.id).set(c));
-                await Promise.all(seedChats);
-            }
-            
-            console.log("Database seeded successfully!");
-            this.initialLoadDone = true;
-            this.notify();
-            return;
-        }
-
-        // 2. Load initial static active musicians/events once with a limit (instead of real-time snapshot on everything)
-        let musiciansLoaded = false;
-        let eventsLoaded = false;
-        let chatsLoaded = true; // no longer loaded globally at start
-        let interestsLoaded = true; // no longer loaded globally at start
-
-        const checkInitialLoad = () => {
-            if (musiciansLoaded && eventsLoaded && !this.initialLoadDone) {
-                console.log("[DEBUG] Firestore initial load completed!");
-                this.initialLoadDone = true;
-                this.notify();
-            }
-        };
-
-        db.collection('musicians').where('isActive', '==', true).limit(50).get().then(snapshot => {
-            const list = [];
-            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-            list.forEach(item => {
+            const musList = [];
+            musSnap.forEach(doc => musList.push({ id: doc.id, ...doc.data() }));
+            musList.forEach(item => {
                 const idx = this.musicians.findIndex(m => m.id === item.id);
                 if (idx > -1) {
                     this.musicians[idx] = item;
@@ -1887,19 +1880,10 @@ class StateManager {
                     this.musicians.push(item);
                 }
             });
-            musiciansLoaded = true;
-            this.notify();
-            checkInitialLoad();
-        }).catch(err => {
-            console.error("Musicians initial load error:", err);
-            musiciansLoaded = true;
-            checkInitialLoad();
-        });
 
-        db.collection('events').where('isOnline', '==', true).limit(50).get().then(snapshot => {
-            const list = [];
-            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-            list.forEach(item => {
+            const evtList = [];
+            evtSnap.forEach(doc => evtList.push({ id: doc.id, ...doc.data() }));
+            evtList.forEach(item => {
                 const idx = this.events.findIndex(e => e.id === item.id);
                 if (idx > -1) {
                     this.events[idx] = item;
@@ -1907,14 +1891,17 @@ class StateManager {
                     this.events.push(item);
                 }
             });
-            eventsLoaded = true;
+
+            console.log("[DEBUG] Firestore initial load completed!");
+            this.initialLoadDone = true;
             this.notify();
-            checkInitialLoad();
-        }).catch(err => {
-            console.error("Events initial load error:", err);
-            eventsLoaded = true;
-            checkInitialLoad();
-        });
+        } catch (err) {
+            console.error("Firestore initial load error:", err);
+            // Fallback to local storage
+            this.loadState();
+            this.initialLoadDone = true;
+            this.notify();
+        }
     }
 
     async fetchMusicians() {
@@ -7540,7 +7527,7 @@ function renderMarket(container, type, onNavigate) {
                 grid.innerHTML = `
                     <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem;">
                         <img src="discoball.svg" style="width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(124,58,237,0.25)); animation: spin 5s linear infinite;" alt="Laden...">
-                        <p style="color: var(--text-muted); margin-top: 1rem; font-weight: 600;">Lade Profile...</p>
+                        <p style="color: var(--text-muted); margin-top: 1rem; font-weight: 600;">${isEvents ? 'Lade Gigs...' : 'Lade Profile...'}</p>
                     </div>
                 `;
             } else {
