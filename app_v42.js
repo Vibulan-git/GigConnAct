@@ -4980,7 +4980,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-guitar" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                        Auf dem <span style="color: #7c3aed;">Musiker-Markt</span> stöbern -<br>OHNE ACCOUNT & KOSTENLOS
+                        Auf dem <span style="color: #2563eb;">Musiker-Markt</span> stöbern -<br>OHNE ACCOUNT & KOSTENLOS
                     </h4>
                 </div>
 
@@ -4997,7 +4997,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                        <span style="color: #7c3aed;">Kontaktdaten</span> der Musiker freischalten -<br>MIT ACCOUNT
+                        <span style="color: #2563eb;">Kontaktdaten</span> freischalten -<br>MIT ACCOUNT
                     </h4>
                 </div>
 
@@ -5014,7 +5014,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                        <span style="color: #7c3aed;">Direkt</span> kontaktieren und Anfragen erhalten
+                        Musiker <span style="color: #2563eb;">direkt</span> kontaktieren & <span style="color: #2563eb;">Anfragen</span> erhalten
                     </h4>
                 </div>
 
@@ -5039,7 +5039,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-file-lines" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Kostenlose <span style="color: #7c3aed;">Vermittlungsanfrage</span> ausfüllen - OHNE ACCOUNT
+                        Kostenlose <span style="color: #2563eb;">Vermittlungsanfrage</span> ausfüllen - OHNE ACCOUNT
                     </h4>
                 </div>
 
@@ -5073,7 +5073,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-handshake" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Bei beidseitigem Interesse <span style="color: #7c3aed;">Kontaktdaten</span> erhalten
+                        Bei beidseitigem Interesse <span style="color: #2563eb;">Kontaktdaten</span> erhalten
                     </h4>
                 </div>
 
