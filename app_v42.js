@@ -4912,7 +4912,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                        Events auf dem Markt suchen -<br>OHNE ACCOUNT & KOSTENLOS
+                        Auf dem <span style="color: #7c3aed;">Event-Markt</span> stöbern -<br>OHNE ACCOUNT & KOSTENLOS
                     </h4>
                 </div>
 
@@ -4929,7 +4929,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                        Kontaktdaten freischalten -<br>MIT ACCOUNT (ABO-MODELL)
+                        <span style="color: #7c3aed;">Kontaktdaten</span> freischalten -<br>MIT ACCOUNT & ABO-MODELL
                     </h4>
                 </div>
 
@@ -4945,8 +4945,8 @@ function renderHowItWorksContentHTML(type) {
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Direkt kontaktieren & Vermittlungsanfragen erhalten
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
+                        <span style="color: #7c3aed;">Direkt</span> kontaktieren & <span style="color: #7c3aed;">Vermittlungsanfragen</span> erhalten
                     </h4>
                 </div>
 
@@ -4980,7 +4980,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-guitar" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                        Musiker auf dem Markt suchen -<br>OHNE ACCOUNT & KOSTENLOS
+                        Auf dem <span style="color: #7c3aed;">Musiker-Markt</span> stöbern -<br>OHNE ACCOUNT & KOSTENLOS
                     </h4>
                 </div>
 
@@ -4997,7 +4997,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                        Kontaktdaten der Musiker freischalten -<br>MIT ACCOUNT
+                        <span style="color: #7c3aed;">Kontaktdaten</span> der Musiker freischalten -<br>MIT ACCOUNT
                     </h4>
                 </div>
 
@@ -5013,8 +5013,8 @@ function renderHowItWorksContentHTML(type) {
                     <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                         <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
-                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Direkt kontaktieren und Anfragen erhalten
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
+                        <span style="color: #7c3aed;">Direkt</span> kontaktieren und Anfragen erhalten
                     </h4>
                 </div>
 
@@ -5039,7 +5039,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-file-lines" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Kostenlose Vermittlungsanfrage ausfüllen - OHNE ACCOUNT
+                        Kostenlose <span style="color: #7c3aed;">Vermittlungsanfrage</span> ausfüllen - OHNE ACCOUNT
                     </h4>
                 </div>
 
@@ -5073,7 +5073,7 @@ function renderHowItWorksContentHTML(type) {
                         <i class="fa-solid fa-handshake" style="color: ${themeColor}; font-size: 1rem;"></i>
                     </div>
                     <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                        Bei beidseitigem Interesse Kontaktdaten erhalten
+                        Bei beidseitigem Interesse <span style="color: #7c3aed;">Kontaktdaten</span> erhalten
                     </h4>
                 </div>
 
