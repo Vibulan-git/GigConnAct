@@ -5020,7 +5020,7 @@ function renderHowItWorksContentHTML(type) {
                     <div class="flow-anim-card" style="animation-delay: 4.8s; width: 100%; max-width: 100%; margin-top: 2rem; box-sizing: border-box;">
                         <div class="glow-card-pulse" onclick="window.onNavigate('events')" style="cursor: pointer; width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.2rem clamp(1rem, 4vw, 2.5rem); text-align: center; box-sizing: border-box; display: flex; flex-direction: row; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                             <h4 style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.5vw, 1.85rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: center; flex: 1;">
-                                Gigs vermittelt bekommen
+                                Für Vermittlungen sichtbar sein
                             </h4>
                         </div>
                     </div>
