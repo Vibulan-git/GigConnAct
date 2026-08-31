@@ -5115,7 +5115,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-paper-plane" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            Vorschläge sofort erhalten & <span style="color: #2563eb;">Musiker</span> kontaktieren lassen
+                            <span style="color: #2563eb;">Vorschläge</span> sofort erhalten & <span style="color: #2563eb;">Musiker</span> kontaktieren lassen
                         </h4>
                     </div>
 
@@ -5132,7 +5132,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-handshake" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1;">
-                            Bei beidseitigem Interesse <span style="color: #2563eb;">Kontaktdaten</span> erhalten
+                            <span style="color: #2563eb;">Kontaktdaten</span> erhalten bei beidseitigem Interesse
                         </h4>
                     </div>
 
