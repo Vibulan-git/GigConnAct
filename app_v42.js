@@ -4953,7 +4953,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #7c3aed;">Direkter Austausch</span> mit Veranstaltern
+                            <span style="color: #7c3aed;">Direkter</span> Austausch mit Veranstaltern
                         </h4>
                     </div>
 
@@ -5073,7 +5073,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #2563eb;">Direkter Austausch</span> mit Musikern
+                            <span style="color: #2563eb;">Direkter</span> Austausch mit Musikern
                         </h4>
                     </div>
 
