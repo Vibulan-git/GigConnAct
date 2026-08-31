@@ -5238,7 +5238,7 @@ window.renderInfoPage = function(container, type) {
             </style>
 
             <!-- Section Title: GigConnAct für Musiker/Veranstalter -->
-            <div style="margin: 0.5rem auto 2.5rem; text-align: center; width: 100%; max-width: 1200px; box-sizing: border-box;">
+            <div style="margin: 0.5rem auto 1.25rem; text-align: center; width: 100%; max-width: 1200px; box-sizing: border-box;">
                 <h2 style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.5rem); font-weight: 900; color: #0d0e12; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
                     <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; display: block; margin-bottom: 0.2rem;">GigConnAct</span>
                     <span style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; display: block;">für ${isMusician ? 'Musiker' : 'Veranstalter'}</span>
