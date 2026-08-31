@@ -5243,6 +5243,9 @@ window.renderInfoPage = function(container, type) {
                     <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; display: block; margin-bottom: 0.2rem;">GigConnAct</span>
                     <span style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; display: block;">für ${isMusician ? 'Musiker' : 'Veranstalter'}</span>
                 </h2>
+                <p style="font-family: var(--font-body); font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 600; color: #64748b; margin: 1rem 0 0; letter-spacing: 0.5px;">
+                    ${isMusician ? '2 Wege. Mehr Gigs' : '2 Wege. Deine Wahl'}
+                </p>
             </div>
 
             <!-- 1. The Diagram / Schaubild (GigConnAct erklärt) -->
