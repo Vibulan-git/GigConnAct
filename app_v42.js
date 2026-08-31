@@ -16605,7 +16605,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
         <div class="modal-content">
             <div class="modal-header" style="flex-direction: column; padding: 2.2rem 2rem 1.2rem; position: relative;">
                 <h3 style="line-height: 1.2; text-align: center; margin: 0; font-family: var(--font-heading); width: 100%;">
-                    <span style="display: block; font-size: 1.45rem; font-weight: 900; color: #000000; letter-spacing: 0.5px;">Vermittlungsanfrage</span>
+                    <span style="display: block; font-size: 1.45rem; font-weight: 900; color: #000000; letter-spacing: 0.5px;">Event-Formular</span>
                 </h3>
                 <button class="close-modal-btn" id="btn-close-modal" style="position: absolute; top: 1.2rem; right: 1.2rem; font-size: 1.8rem; line-height: 1; padding: 0; border: none; background: transparent; cursor: pointer; color: #64748b;">&times;</button>
             </div>
