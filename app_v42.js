@@ -4919,7 +4919,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #7c3aed;">Events</span> entdecken - OHNE ACCOUNT & KOSTENLOS
+                            <span style="color: #7c3aed;">Events</span> entdecken - ohne Account & kostenlos
                         </h4>
                     </div>
 
@@ -4936,7 +4936,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #7c3aed;">Kontaktdaten</span> freischalten -<br>MIT ACCOUNT & ABO-MODELL
+                            <span style="color: #7c3aed;">Kontaktdaten</span> freischalten -<br>mit Account & Abo-Modell
                         </h4>
                     </div>
 
@@ -5039,7 +5039,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-guitar" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #2563eb;">Musiker</span> entdecken - OHNE ACCOUNT & KOSTENLOS
+                            <span style="color: #2563eb;">Musiker</span> entdecken - ohne Account & kostenlos
                         </h4>
                     </div>
 
@@ -5056,7 +5056,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-lock-open" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #2563eb;">Kontaktdaten</span> freischalten -<br>MIT ACCOUNT & KOSTENLOS
+                            <span style="color: #2563eb;">Kontaktdaten</span> freischalten -<br>mit Account & kostenlos
                         </h4>
                     </div>
 
@@ -5098,7 +5098,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-file-lines" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #2563eb;">Eventformular</span> ausfüllen - OHNE ACCOUNT & KOSTENLOS
+                            <span style="color: #2563eb;">Eventformular</span> ausfüllen - ohne Account & kostenlos
                         </h4>
                     </div>
 
