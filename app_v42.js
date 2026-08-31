@@ -4953,7 +4953,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #7c3aed;">Veranstalter</span> kontaktieren & Vermittlungsanfragen erhalten
+                            <span style="color: #7c3aed;">Direkter Austausch</span> mit Veranstaltern
                         </h4>
                     </div>
 
@@ -5073,7 +5073,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-comments" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #2563eb;">Musiker</span> kontaktieren & Anfragen erhalten
+                            <span style="color: #2563eb;">Direkter Austausch</span> mit Musikern
                         </h4>
                     </div>
 
@@ -5151,6 +5151,7 @@ function renderHowItWorksContentHTML(type) {
     }
 
     const toggleFunc = isMusician ? 'window.setMusicianFlowPath' : 'window.setOrganizerFlowPath';
+    const toggleWord = isMusician ? 'und' : 'oder';
 
     return `
         <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 0 0.5rem;">
@@ -5161,7 +5162,7 @@ function renderHowItWorksContentHTML(type) {
                     Direktkontakt
                 </button>
                 <span style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; padding: 0; user-select: none; flex-shrink: 0;">
-                    oder
+                    ${toggleWord}
                 </span>
                 <button onclick="${toggleFunc}('vermittlung')" style="flex: 1; padding: 0.65rem 0.9rem; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; border-radius: 12px; cursor: pointer; transition: all 0.2s; ${!isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${themeColor}; box-shadow: 0 4px 12px rgba(37,99,235,0.15);` : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.06);'}">
                     Vermittlung
