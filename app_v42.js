@@ -5650,8 +5650,81 @@ window.toggleHowItWorks = function(type) {
     contentContainer.innerHTML = renderHowItWorksContentHTML(type);
 };
 
+window.heroCtaMode = 'initial';
+
+window.setHeroCtaMode = function(mode, direction = 'forward') {
+    window.heroCtaMode = mode;
+    const container = document.getElementById('hero-cta-container');
+    if (!container) return;
+    const animClass = direction === 'forward' ? 'hero-cta-fly-in-right' : 'hero-cta-fly-in-left';
+    container.innerHTML = window.getHeroCtaHTML(mode, animClass);
+};
+
+window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
+    if (mode === 'musician') {
+        return `
+            <div class="${animClass}" style="display: flex; flex-direction: column; align-items: center; width: 100%; gap: 1rem;">
+                <div style="display: flex; gap: 1.8rem; width: 100%; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                        <i class="fa-solid fa-calendar-days" style="font-size: 3.2rem;"></i>
+                        <span style="font-size: 1.35rem; font-weight: 800; display: block; line-height: 1.2;">Zum Event-Markt</span>
+                        <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Alle Events ansehen</span>
+                    </button>
+                    <button class="btn" onclick="window.appNavigate('info-musician')" style="background: linear-gradient(135deg, #581c87 0%, #3b0764 100%); border: 2px solid #c084fc; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.45); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                        <i class="fa-solid fa-circle-question" style="font-size: 3.2rem;"></i>
+                        <span style="font-size: 1.25rem; font-weight: 800; display: block; line-height: 1.2; text-align: center;">Wie funktioniert GigConnAct?</span>
+                        <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Erklärung & Ablauf</span>
+                    </button>
+                </div>
+                <button onclick="window.setHeroCtaMode('initial', 'back')" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.25); backdrop-filter: blur(8px); color: #ffffff; cursor: pointer; font-size: 0.88rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.45rem 1.1rem; border-radius: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.22)';" onmouseout="this.style.background='rgba(255,255,255,0.12)';">
+                    <i class="fa-solid fa-arrow-left"></i> <span>Zurück zur Auswahl</span>
+                </button>
+            </div>
+        `;
+    }
+    
+    if (mode === 'organizer') {
+        return `
+            <div class="${animClass}" style="display: flex; flex-direction: column; align-items: center; width: 100%; gap: 1rem;">
+                <div style="display: flex; gap: 1.8rem; width: 100%; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn" onclick="window.appNavigate('musicians')" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                        <i class="fa-solid fa-guitar" style="font-size: 3.2rem;"></i>
+                        <span style="font-size: 1.35rem; font-weight: 800; display: block; line-height: 1.2;">Zum Musiker-Markt</span>
+                        <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Alle Künstler ansehen</span>
+                    </button>
+                    <button class="btn" onclick="window.appNavigate('info-organizer')" style="background: linear-gradient(135deg, #172554 0%, #1e3a8a 100%); border: 2px solid #93c5fd; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.45); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                        <i class="fa-solid fa-circle-question" style="font-size: 3.2rem;"></i>
+                        <span style="font-size: 1.25rem; font-weight: 800; display: block; line-height: 1.2; text-align: center;">Wie funktioniert GigConnAct?</span>
+                        <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Erklärung & Ablauf</span>
+                    </button>
+                </div>
+                <button onclick="window.setHeroCtaMode('initial', 'back')" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.25); backdrop-filter: blur(8px); color: #ffffff; cursor: pointer; font-size: 0.88rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.45rem 1.1rem; border-radius: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.22)';" onmouseout="this.style.background='rgba(255,255,255,0.12)';">
+                    <i class="fa-solid fa-arrow-left"></i> <span>Zurück zur Auswahl</span>
+                </button>
+            </div>
+        `;
+    }
+
+    // Default 'initial'
+    return `
+        <div class="${animClass}" style="display: flex; gap: 1.8rem; width: 100%; justify-content: center; flex-wrap: wrap;">
+            <button class="btn" id="btn-hero-musician" onclick="window.setHeroCtaMode('musician', 'forward')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                <i class="fa-solid fa-guitar" style="font-size: 3.2rem;"></i>
+                <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Musiker</span>
+                <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Ich suche Gigs</span>
+            </button>
+            <button class="btn" id="btn-hero-organizer" onclick="window.setHeroCtaMode('organizer', 'forward')" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+                <i class="fa-solid fa-calendar-check" style="font-size: 3.2rem;"></i>
+                <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Veranstalter</span>
+                <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Ich suche Acts</span>
+            </button>
+        </div>
+    `;
+};
+
 function renderLandingPage(container, onNavigate) {
     window.onNavigate = onNavigate;
+    window.heroCtaMode = 'initial';
     const isUserLoggedIn = !!state.currentUser;
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -5762,18 +5835,9 @@ function renderLandingPage(container, onNavigate) {
                     </div>
                 </div>
 
-                <!-- 3/4: CTA Buttons (anchored below slogan) -->
-                <div class="hero-cta-buttons" style="position: relative; z-index: 3; margin: auto auto 9.5vh; gap: 1.8rem; width: 100%; max-width: 560px; box-sizing: border-box;">
-                    <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
-                        <i class="fa-solid fa-guitar" style="font-size: 3.2rem;"></i>
-                        <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Musiker</span>
-                        <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Ich suche Gigs</span>
-                    </button>
-                    <button class="btn" id="btn-hero-organizer" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
-                        <i class="fa-solid fa-calendar-check" style="font-size: 3.2rem;"></i>
-                        <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Veranstalter</span>
-                        <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Ich suche Acts</span>
-                    </button>
+                <!-- 3/4: CTA Buttons (anchored below slogan with fly-in sub-options) -->
+                <div class="hero-cta-buttons" id="hero-cta-container" style="position: relative; z-index: 3; margin: auto auto 9.5vh; width: 100%; max-width: 560px; box-sizing: border-box; display: flex; justify-content: center;">
+                    ${window.getHeroCtaHTML('initial')}
                 </div>
 
                 <!-- 4/4: Infinite Scrolling Category Marquee (with events, organizers and musician types) -->
@@ -5865,14 +5929,6 @@ function renderLandingPage(container, onNavigate) {
     if (heroLogo) {
         heroLogo.style.opacity = '1';
     }
-
-    document.getElementById('btn-hero-musician')?.addEventListener('click', () => {
-        onNavigate('info-musician');
-    });
-
-    document.getElementById('btn-hero-organizer')?.addEventListener('click', () => {
-        onNavigate('info-organizer');
-    });
 
     document.getElementById('btn-benefits-to-events')?.addEventListener('click', () => {
         onNavigate('events');
@@ -17748,23 +17804,21 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                             <span style="flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, isEvents ? 'date' : 'avail')}</span>
                         </div>
 
-                        <!-- 3. Event-Art / Musiker-Art -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(isEvents ? (item.type || item.eventType || 'Event') : (item.type || item.category || 'Solo / Band'), themeColor, item.id, isEvents ? 'eventtype' : 'mustype')}</span>
+                        <!-- 3. Event-Art / Musiker-Art + 'Mehr Details' Button auf gleicher Höhe rechts -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; line-height: 1.35;">
+                            <div style="display: flex; align-items: flex-start; gap: 0.75rem; min-width: 0; flex: 1;">
+                                <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem; flex-shrink: 0;"></i>
+                                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;">${formatTruncatedValue(isEvents ? (item.type || item.eventType || 'Event') : (item.type || item.category || 'Solo / Band'), themeColor, item.id, isEvents ? 'eventtype' : 'mustype')}</span>
+                            </div>
+                            <button id="toggle-details-btn-${item.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
+                                <span id="toggle-text-${item.id}">Mehr Details</span>
+                                <i class="fa-solid fa-chevron-down" id="toggle-icon-${item.id}" style="font-size: 0.75rem; transition: transform 0.25s ease;"></i>
+                            </button>
                         </div>
-                    </div>
-                    
-                    <!-- Option 1: "Mehr Details" Toggle-Button mit Chevron -->
-                    <div style="text-align: center; margin-bottom: 0.6rem; border-top: 1px dashed var(--border-glass); padding-top: 0.45rem;">
-                        <button id="toggle-details-btn-${item.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.3rem 0.8rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.88rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
-                            <span id="toggle-text-${item.id}">Mehr Details</span>
-                            <i class="fa-solid fa-chevron-down" id="toggle-icon-${item.id}" style="font-size: 0.8rem; transition: transform 0.25s ease;"></i>
-                        </button>
                     </div>
 
                     <!-- Collapsible details wrapper (opens on click with all remaining infos) -->
-                    <div id="collapsible-details-${item.id}" style="display: none; flex-direction: column; gap: 0.5rem; padding-bottom: 0.4rem; margin-bottom: 0.6rem;">
+                    <div id="collapsible-details-${item.id}" style="display: none; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.6rem;">
                         <!-- 4. Event-Typen/Musiker-Typen (Gesucht:) -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
                             <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
@@ -19462,20 +19516,20 @@ window.renderRecommendationPage = function(container, mediationId) {
                                                     <i class="fa-solid fa-calendar-days" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                                                     <span style="flex: 1;">${dateDisplay}</span>
                                                 </div>
-                                                <!-- 3. Musiker-Typ -->
-                                                <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                                                    <i class="fa-solid fa-guitar" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                                                    <span style="flex: 1;">${mus.type || 'Solo / Band'}</span>
+                                                <!-- 3. Musiker-Typ + 'Mehr Details' Button auf gleicher Höhe rechts -->
+                                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; line-height: 1.35;">
+                                                    <div style="display: flex; align-items: flex-start; gap: 0.6rem; min-width: 0; flex: 1;">
+                                                        <i class="fa-solid fa-guitar" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem; flex-shrink: 0;"></i>
+                                                        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;">${mus.type || 'Solo / Band'}</span>
+                                                    </div>
+                                                    <button id="toggle-details-btn-${mus.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${mus.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: #2563eb; font-family: var(--font-heading); font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
+                                                        <span id="toggle-text-${mus.id}">Mehr Details</span>
+                                                        <i class="fa-solid fa-chevron-down" id="toggle-icon-${mus.id}" style="font-size: 0.74rem; transition: transform 0.25s ease;"></i>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div style="text-align: center; margin: 0.5rem 0; border-top: 1px dashed var(--border-glass); padding-top: 0.4rem;">
-                                            <button id="toggle-details-btn-${mus.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${mus.id}')" style="background: none; border: none; padding: 0.25rem 0.6rem; cursor: pointer; color: #2563eb; font-family: var(--font-heading); font-size: 0.84rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
-                                                <span id="toggle-text-${mus.id}">Mehr Details</span>
-                                                <i class="fa-solid fa-chevron-down" id="toggle-icon-${mus.id}" style="font-size: 0.78rem; transition: transform 0.25s ease;"></i>
-                                            </button>
-                                        </div>
-                                        <div id="collapsible-details-${mus.id}" style="display: none; flex-direction: column; gap: 0.5rem; padding-bottom: 0.3rem; margin-bottom: 0.75rem;">
+                                        <div id="collapsible-details-${mus.id}" style="display: none; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.75rem;">
                                             <!-- 4. Event-Typen -->
                                             <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35; font-size: 0.84rem; color: var(--text-main);">
                                                 <i class="fa-solid fa-calendar-check" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>

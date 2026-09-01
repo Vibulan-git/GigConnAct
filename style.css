@@ -4246,6 +4246,36 @@ input[type="range"].input-field {
     background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 28%, #f0f7ff 60%, #ffffff 100%) !important;
 }
 
+@keyframes heroCtaFlyInRight {
+    0% {
+        opacity: 0;
+        transform: translateX(45px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes heroCtaFlyInLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-45px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.hero-cta-fly-in-right {
+    animation: heroCtaFlyInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hero-cta-fly-in-left {
+    animation: heroCtaFlyInLeft 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* Split benefits layout on laptop screens */
 .benefits-container-split {
     display: flex;
