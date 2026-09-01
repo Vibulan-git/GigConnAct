@@ -3005,7 +3005,7 @@ body {
     }
     
     .hero-cta-buttons .btn {
-        padding: 1rem 0.35rem 0.9rem !important;
+        padding: 0.95rem 0.3rem 0.85rem !important;
         border-radius: 16px !important;
         min-width: 0 !important;
         width: 0 !important;
@@ -3016,9 +3016,14 @@ body {
         align-items: center !important;
     }
     
+    .hero-cta-buttons .btn i {
+        font-size: 1.75rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+    
     .hero-cta-buttons .btn .hero-cta-title {
         font-family: var(--font-heading) !important;
-        font-size: clamp(1.08rem, 3.5vw, 1.32rem) !important;
+        font-size: clamp(0.95rem, 3.2vw, 1.18rem) !important;
         line-height: 1.2 !important;
         font-weight: 900 !important;
         text-align: center !important;
