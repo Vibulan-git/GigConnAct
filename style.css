@@ -3005,21 +3005,21 @@ body {
     }
     
     .hero-cta-buttons .btn {
-        padding: 0.95rem 0.35rem 0.85rem !important;
+        padding: 1rem 0.35rem 0.9rem !important;
         border-radius: 16px !important;
         min-width: 0 !important;
         width: 0 !important;
         flex: 1 1 0px !important;
-        min-height: 145px !important;
-        max-height: 180px !important;
+        min-height: 155px !important;
+        max-height: 195px !important;
         justify-content: center !important;
         align-items: center !important;
     }
     
     .hero-cta-buttons .btn .hero-cta-title {
         font-family: var(--font-heading) !important;
-        font-size: clamp(0.92rem, 3vw, 1.15rem) !important;
-        line-height: 1.24 !important;
+        font-size: clamp(1.08rem, 3.5vw, 1.32rem) !important;
+        line-height: 1.2 !important;
         font-weight: 900 !important;
         text-align: center !important;
     }
