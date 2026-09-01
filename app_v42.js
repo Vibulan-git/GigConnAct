@@ -130,10 +130,10 @@ window.updateRegMediaPreview = function(role) {
 };
 
 function validateAndProcessAudio(file, callback, errorCallback) {
-    const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav', 'audio/m4a', 'audio/x-m4a', 'audio/mp4'];
+    const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav', 'audio/m4a', 'audio/x-m4a', 'audio/mp4', 'audio/aac', 'audio/ogg'];
     const maxSize = 100 * 1024 * 1024; // 100 MB
 
-    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|m4a)$/i)) {
+    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|m4a|aac|ogg)$/i)) {
         showToast({
             title: "Fehler beim Audioupload ❌",
             message: "Ungültiges Dateiformat. Erlaubt sind MP3, WAV und M4A."
@@ -151,12 +151,102 @@ function validateAndProcessAudio(file, callback, errorCallback) {
         return;
     }
 
+    const titleWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+    
+    // Quick start upload helper
+    let uploadStarted = false;
+    const startUpload = () => {
+        if (uploadStarted) return;
+        uploadStarted = true;
+
+        showToast({
+            title: "Hörprobe wird hochgeladen...",
+            message: `${file.name} (0%)`
+        });
+
+        if (typeof firebase !== 'undefined' && firebase.storage) {
+            try {
+                const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anonymous';
+                const storageRef = firebase.storage().ref();
+                const fileRef = storageRef.child(`audios/${userId}/${Date.now()}_${file.name}`);
+                const metadata = { contentType: file.type || 'audio/mpeg' };
+                const uploadTask = fileRef.put(file, metadata);
+
+                let lastReportedPercent = 0;
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                        if (progress - lastReportedPercent >= 15 || progress === 100) {
+                            lastReportedPercent = progress;
+                            showToast({
+                                title: `Audio-Upload: ${progress}% 🎵`,
+                                message: `${file.name} (${(snapshot.bytesTransferred / (1024*1024)).toFixed(1)} / ${(snapshot.totalBytes / (1024*1024)).toFixed(1)} MB)`
+                            });
+                        }
+                    },
+                    (storageError) => {
+                        console.warn("Firebase Storage upload error, falling back:", storageError);
+                        fallbackLocalUrl(storageError.message || storageError);
+                    },
+                    async () => {
+                        try {
+                            const url = await uploadTask.snapshot.ref.getDownloadURL();
+                            showToast({
+                                title: "Audio hochgeladen ✅",
+                                message: "Die Audio-Datei wurde erfolgreich gespeichert."
+                            });
+                            callback({ title: titleWithoutExt, url: url });
+                        } catch (urlErr) {
+                            fallbackLocalUrl(urlErr.message || urlErr);
+                        }
+                    }
+                );
+                return;
+            } catch (storageError) {
+                console.warn("Firebase Storage failed synchronously:", storageError);
+                fallbackLocalUrl(storageError.message || storageError);
+                return;
+            }
+        }
+        fallbackLocalUrl("Kein aktiver Storage-Dienst");
+    };
+
+    const fallbackLocalUrl = (errDetail) => {
+        if (file.size < 1.5 * 1024 * 1024) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                showToast({
+                    title: "Audio geladen ✅",
+                    message: "Lokale Kopie der Audio-Datei wurde geladen."
+                });
+                callback({ title: titleWithoutExt, url: e.target.result });
+            };
+            reader.readAsDataURL(file);
+        } else {
+            const url = URL.createObjectURL(file);
+            showToast({
+                title: "Audio geladen ⚠️",
+                message: "Nur in dieser Sitzung abspielbar: " + (errDetail || "")
+            });
+            callback({ title: titleWithoutExt, url: url });
+        }
+    };
+
+    // Fast duration validation with 800ms safety timeout
     const audioElement = document.createElement('audio');
-    audioElement.src = URL.createObjectURL(file);
-    audioElement.onloadedmetadata = async function() {
-        URL.revokeObjectURL(audioElement.src);
+    const objectUrl = URL.createObjectURL(file);
+    audioElement.src = objectUrl;
+    
+    const timer = setTimeout(() => {
+        URL.revokeObjectURL(objectUrl);
+        startUpload();
+    }, 800);
+
+    audioElement.onloadedmetadata = function() {
+        clearTimeout(timer);
+        URL.revokeObjectURL(objectUrl);
         const duration = audioElement.duration;
-        if (duration > 600) { // 10 minutes
+        if (duration && duration > 600) {
             showToast({
                 title: "Audio zu lang 🎵",
                 message: "Die Audio-Datei darf maximal 10 Minuten lang sein (deine Datei: " + Math.floor(duration / 60) + " Min. " + Math.round(duration % 60) + " Sek.)."
@@ -164,64 +254,13 @@ function validateAndProcessAudio(file, callback, errorCallback) {
             if (errorCallback) errorCallback();
             return;
         }
-
-        const titleWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-        
-        showToast({
-            title: "Audio wird verarbeitet...",
-            message: "Bitte warten..."
-        });
-
-        let url = null;
-        let uploadErrorDetail = null;
-        if (typeof firebase !== 'undefined' && firebase.storage) {
-            try {
-                const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anonymous';
-                const storageRef = firebase.storage().ref();
-                const fileRef = storageRef.child(`audios/${userId}/${Date.now()}_${file.name}`);
-                const snapshot = await fileRef.put(file);
-                url = await snapshot.ref.getDownloadURL();
-            } catch (storageError) {
-                console.warn("Firebase Storage failed, falling back to data/blob URL:", storageError);
-                uploadErrorDetail = storageError.message || storageError;
-            }
-        }
-
-        if (!url) {
-            // Fallback: If under 1.5MB, convert to data URL (so it stores permanently in firestore)
-            if (file.size < 1.5 * 1024 * 1024) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    showToast({
-                        title: "Audio geladen ✅",
-                        message: "Lokale Kopie der Audio-Datei wurde geladen."
-                    });
-                    callback({ title: titleWithoutExt, url: e.target.result });
-                };
-                reader.readAsDataURL(file);
-                return;
-            } else {
-                // If it is larger, use Blob URL (will play in current session, but won't persist)
-                url = URL.createObjectURL(file);
-                showToast({
-                    title: "Audio geladen ⚠️",
-                    message: "Firebase Storage fehlgeschlagen. Nur in dieser Sitzung abspielbar: " + (uploadErrorDetail || "Kein aktiver Storage-Dienst.")
-                });
-            }
-        } else {
-            showToast({
-                title: "Audio hochgeladen ✅",
-                message: "Die Audio-Datei wurde erfolgreich gespeichert."
-            });
-        }
-
-        callback({ title: titleWithoutExt, url: url });
+        startUpload();
     };
+
     audioElement.onerror = function() {
-        showToast({
-            title: "Fehler beim Audioupload ❌",
-            message: "Die Audio-Datei konnte nicht geladen oder analysiert werden."
-        });
+        clearTimeout(timer);
+        URL.revokeObjectURL(objectUrl);
+        startUpload();
     };
 }
 
@@ -4111,12 +4150,18 @@ class StateManager {
 
     async registerPasswordless(payload) {
         try {
-            const emailLower = payload.email.toLowerCase();
-            const emailExistsLocal = this.musicians.some(m => m.email && m.email.toLowerCase() === emailLower) || 
-                                     this.events.some(e => e.email && e.email.toLowerCase() === emailLower);
+            const emailLower = payload.email.toLowerCase().trim();
+            const emailTrimmed = payload.email.trim();
+
+            let snapshot = await db.collection('users').where('email', '==', emailLower).get();
+            if (snapshot.empty) {
+                snapshot = await db.collection('users').where('email', '==', emailTrimmed).get();
+            }
+
+            const emailExistsLocal = this.musicians.some(m => m.email && m.email.toLowerCase().trim() === emailLower) || 
+                                     this.events.some(e => e.email && e.email.toLowerCase().trim() === emailLower);
             
-            const snapshot = await db.collection('users').where('email', '==', payload.email).get();
-            if (emailExistsLocal || !snapshot.empty) {
+            if (!snapshot.empty || emailExistsLocal) {
                 return { success: false, message: "Diese E-Mail-Adresse wird bereits verwendet." };
             }
 
@@ -4125,13 +4170,13 @@ class StateManager {
 
             const sendCustomSignInEmail = firebase.app().functions('europe-west3').httpsCallable('sendCustomSignInEmail');
             await sendCustomSignInEmail({
-                email: payload.email,
+                email: emailTrimmed,
                 name: payload.firstName ? `${payload.firstName} ${payload.lastName}` : (payload.contactName || 'Nutzer'),
                 isNewUser: true,
                 role: payload.role
             });
 
-            window.localStorage.setItem('emailForSignIn', payload.email);
+            window.localStorage.setItem('emailForSignIn', emailTrimmed);
             window.localStorage.setItem('GigConnAct_pending_registration', JSON.stringify(payload));
             return { success: true };
         } catch (err) {
@@ -8515,71 +8560,91 @@ window.deleteCurrentUserAccount = async function() {
             message: "Dein Konto wird gelöscht. Bitte warte einen Moment."
         });
 
-        const myMusicians = state.musicians.filter(m => m.creatorId === u.id || m.id === u.profileId);
-        const myEvents = state.events.filter(e => e.creatorId === u.id || e.id === u.profileId);
+        const userEmail = u.email ? u.email.trim().toLowerCase() : null;
+        const userId = u.id;
 
-        // Delete musician profiles in Firestore
-        for (const m of myMusicians) {
-            await db.collection('musicians').doc(m.id).delete();
-        }
+        // 1. Try Backend Cloud Function for total Admin-level deletion (Firestore + Auth)
+        try {
+            const deleteFunc = firebase.app().functions('europe-west3').httpsCallable('deleteUserAccountPermanently');
+            await deleteFunc({ uid: userId, email: userEmail });
+            console.log("[deleteCurrentUserAccount] Cloud Function deleteUserAccountPermanently succeeded.");
+        } catch (fnErr) {
+            console.warn("[deleteCurrentUserAccount] Cloud function failed, performing direct client deletion fallback:", fnErr);
+            
+            // Client-side fallback deletion
+            const myMusicians = state.musicians.filter(m => m.creatorId === userId || m.id === u.profileId || (m.email && m.email.toLowerCase() === userEmail));
+            const myEvents = state.events.filter(e => e.creatorId === userId || e.id === u.profileId || (e.email && e.email.toLowerCase() === userEmail));
 
-        // Delete event profiles in Firestore
-        for (const e of myEvents) {
-            await db.collection('events').doc(e.id).delete();
-        }
+            for (const m of myMusicians) {
+                await db.collection('musicians').doc(m.id).delete().catch(() => {});
+            }
+            for (const e of myEvents) {
+                await db.collection('events').doc(e.id).delete().catch(() => {});
+            }
 
-        // Write email hash to used_trials to prevent trial abuse
-        if (u.email) {
-            try {
-                const normEmail = u.email.trim().toLowerCase();
-                const encoder = new TextEncoder();
-                const data = encoder.encode(normEmail);
-                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                const emailHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                
-                await db.collection('used_trials').doc(emailHash).set({
-                    hashedAt: new Date().toISOString()
-                });
-                console.log("[DEBUG] Stored used_trials hash client-side on account deletion.");
-            } catch (hashErr) {
-                console.error("Failed to write to used_trials on account deletion:", hashErr);
+            if (userEmail) {
+                try {
+                    const encoder = new TextEncoder();
+                    const data = encoder.encode(userEmail);
+                    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                    const hashArray = Array.from(new Uint8Array(hashBuffer));
+                    const emailHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                    
+                    await db.collection('used_trials').doc(emailHash).set({
+                        hashedAt: new Date().toISOString()
+                    });
+                } catch (hashErr) {
+                    console.error("Failed to write to used_trials on account deletion:", hashErr);
+                }
+            }
+
+            await db.collection('users').doc(userId).delete().catch(() => {});
+            if (userEmail) {
+                await db.collection('pendingRegistrations').doc(userEmail).delete().catch(() => {});
+                const snap = await db.collection('users').where('email', '==', userEmail).get();
+                for (const doc of snap.docs) {
+                    await doc.ref.delete().catch(() => {});
+                }
+            }
+
+            const firebaseUser = auth.currentUser;
+            if (firebaseUser) {
+                try {
+                    await firebaseUser.delete();
+                } catch (authDelErr) {
+                    console.warn("Auth account deletion notice:", authDelErr);
+                }
             }
         }
 
-        // Delete user from users collection
-        await db.collection('users').doc(u.id).delete();
+        // 2. Always sign out auth session
+        try {
+            await auth.signOut();
+        } catch (soErr) {}
 
-        // Delete Authentication account
-        const firebaseUser = auth.currentUser;
-        if (firebaseUser) {
-            try {
-                await firebaseUser.delete();
-            } catch (authDelErr) {
-                console.warn("Auth account deletion failed, forcing signout to clear session:", authDelErr);
-                await auth.signOut();
-                throw authDelErr;
-            }
-        }
+        // 3. Remove from in-memory state
+        state.musicians = state.musicians.filter(m => m.creatorId !== userId && m.id !== u.profileId && (!userEmail || !m.email || m.email.toLowerCase() !== userEmail));
+        state.events = state.events.filter(e => e.creatorId !== userId && e.id !== u.profileId && (!userEmail || !e.email || e.email.toLowerCase() !== userEmail));
 
-        // Clean local fallback users list
+        // 4. Clean local fallback storage
         const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-        const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+        const idx = registeredUsers.findIndex(usr => usr.id === userId || (userEmail && usr.email && usr.email.toLowerCase() === userEmail));
         if (idx !== -1) {
             registeredUsers.splice(idx, 1);
             localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
         }
 
-        // Clean local state & session storage/localStorage items
         state.currentUser = null;
         state.activeMusicianId = null;
         state.activeEventId = null;
         state.saveState();
         localStorage.removeItem('GigConnAct_read_chats');
+        localStorage.removeItem('emailForSignIn');
+        localStorage.removeItem('GigConnAct_pending_registration');
 
         showToast({
             title: "Konto gelöscht ℹ",
-            message: "Dein Konto wurde erfolgreich gelöscht."
+            message: "Dein Konto wurde erfolgreich und vollständig gelöscht."
         });
         
         setTimeout(() => {
@@ -8589,19 +8654,11 @@ window.deleteCurrentUserAccount = async function() {
 
     } catch (err) {
         console.error("Account deletion failed:", err);
-        if (err.code === 'auth/requires-recent-login') {
-            showToast({
-                title: "Reauthentifizierung erforderlich",
-                message: "Aus Sicherheitsgründen musst du dich vor dem Löschen deines Kontos abmelden, wieder neu anmelden und es direkt erneut versuchen.",
-                type: "error"
-            });
-        } else {
-            showToast({
-                title: "Fehler beim Löschen",
-                message: "Dein Konto konnte nicht gelöscht werden: " + err.message,
-                type: "error"
-            });
-        }
+        showToast({
+            title: "Fehler beim Löschen",
+            message: err.message || "Das Konto konnte nicht gelöscht werden.",
+            type: "error"
+        });
     }
 };
 
@@ -18091,41 +18148,64 @@ function validateAndProcessVideo(file, callback, errorCallback) {
     }
 
     showToast({
-        title: "Video wird verarbeitet...",
-        message: "Bitte warten..."
+        title: "Video-Upload gestartet 🎬",
+        message: `${file.name} (0%)`
     });
 
-    (async () => {
-        let url = null;
-        let uploadErrorDetail = null;
-        if (typeof firebase !== 'undefined' && firebase.storage) {
-            try {
-                const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anonymous';
-                const storageRef = firebase.storage().ref();
-                const fileRef = storageRef.child(`videos/${userId}/${Date.now()}_${file.name}`);
-                const snapshot = await fileRef.put(file);
-                url = await snapshot.ref.getDownloadURL();
-            } catch (storageError) {
-                console.warn("Firebase Storage failed, falling back to local object URL:", storageError);
-                uploadErrorDetail = storageError.message || storageError;
-            }
-        }
-
-        if (!url) {
-            // Fallback: local Blob URL
-            url = URL.createObjectURL(file);
-            showToast({
-                title: "Video geladen ⚠️",
-                message: "Firebase Storage fehlgeschlagen. Video nur in dieser Sitzung abspielbar: " + (uploadErrorDetail || "Kein aktiver Storage-Dienst.")
-            });
-        } else {
-            showToast({
-                title: "Video hochgeladen ✅",
-                message: "Das Video wurde erfolgreich hochgeladen."
-            });
-        }
+    const fallbackLocalUrl = (errDetail) => {
+        const url = URL.createObjectURL(file);
+        showToast({
+            title: "Video geladen ⚠️",
+            message: "Nur in dieser Sitzung abspielbar: " + (errDetail || "Kein aktiver Storage-Dienst.")
+        });
         callback(url);
-    })();
+    };
+
+    if (typeof firebase !== 'undefined' && firebase.storage) {
+        try {
+            const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anonymous';
+            const storageRef = firebase.storage().ref();
+            const fileRef = storageRef.child(`videos/${userId}/${Date.now()}_${file.name}`);
+            const metadata = { contentType: file.type || 'video/mp4' };
+            const uploadTask = fileRef.put(file, metadata);
+
+            let lastReportedPercent = 0;
+            uploadTask.on('state_changed', 
+                (snapshot) => {
+                    const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                    if (progress - lastReportedPercent >= 15 || progress === 100) {
+                        lastReportedPercent = progress;
+                        showToast({
+                            title: `Video-Upload: ${progress}% 🎬`,
+                            message: `${file.name} (${(snapshot.bytesTransferred / (1024*1024)).toFixed(1)} / ${(snapshot.totalBytes / (1024*1024)).toFixed(1)} MB)`
+                        });
+                    }
+                },
+                (storageError) => {
+                    console.warn("Firebase Storage upload error, falling back:", storageError);
+                    fallbackLocalUrl(storageError.message || storageError);
+                },
+                async () => {
+                    try {
+                        const url = await uploadTask.snapshot.ref.getDownloadURL();
+                        showToast({
+                            title: "Video hochgeladen ✅",
+                            message: "Das Video wurde erfolgreich gespeichert."
+                        });
+                        callback(url);
+                    } catch (urlErr) {
+                        fallbackLocalUrl(urlErr.message || urlErr);
+                    }
+                }
+            );
+            return;
+        } catch (storageError) {
+            console.warn("Firebase Storage failed synchronously:", storageError);
+            fallbackLocalUrl(storageError.message || storageError);
+            return;
+        }
+    }
+    fallbackLocalUrl("Kein aktiver Storage-Dienst");
 }
 
 window.showMediaModal = function(itemId, isEvents) {

@@ -768,6 +768,126 @@ exports.sendCustomSignInEmail = functions
     });
 
 // ==========================================
+// DSGVO: Unwiderrufliche Kontolöschung via Admin SDK
+// ==========================================
+exports.deleteUserAccountPermanently = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+        const uid = context.auth ? context.auth.uid : (data && data.uid);
+        let email = context.auth && context.auth.token && context.auth.token.email 
+            ? context.auth.token.email 
+            : (data && data.email);
+
+        if (!uid && !email) {
+            throw new functions.https.HttpsError('unauthenticated', 'Keine Benutzeridentifikation vorhanden.');
+        }
+
+        try {
+            const db = admin.firestore();
+            
+            // If we have uid, get email from Auth or Firestore if not passed
+            if (uid && !email) {
+                try {
+                    const authUser = await admin.auth().getUser(uid);
+                    email = authUser.email;
+                } catch (e) {
+                    const userDoc = await db.collection('users').doc(uid).get();
+                    if (userDoc.exists) {
+                        email = userDoc.data().email;
+                    }
+                }
+            }
+
+            const emailLower = email ? String(email).trim().toLowerCase() : null;
+
+            // 1. Write email hash to used_trials to prevent trial abuse
+            if (emailLower) {
+                const crypto = require('crypto');
+                const emailHash = crypto.createHash('sha256').update(emailLower).digest('hex');
+                await db.collection('used_trials').doc(emailHash).set({
+                    hashedAt: admin.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                console.log(`[deleteUserAccountPermanently] Stored used_trials hash for: ${emailHash}`);
+            }
+
+            // 2. Delete from users collection
+            if (uid) {
+                await db.collection('users').doc(uid).delete().catch(() => {});
+            }
+            if (emailLower) {
+                const usersSnap = await db.collection('users').where('email', '==', emailLower).get();
+                for (const doc of usersSnap.docs) {
+                    await doc.ref.delete().catch(() => {});
+                }
+                const usersOrigSnap = await db.collection('users').where('email', '==', email).get();
+                for (const doc of usersOrigSnap.docs) {
+                    await doc.ref.delete().catch(() => {});
+                }
+            }
+
+            // 3. Delete from musicians collection
+            if (uid) {
+                const musCreatorSnap = await db.collection('musicians').where('creatorId', '==', uid).get();
+                for (const doc of musCreatorSnap.docs) {
+                    await doc.ref.delete().catch(() => {});
+                }
+                await db.collection('musicians').doc('mus_' + uid).delete().catch(() => {});
+            }
+            if (emailLower) {
+                const musEmailSnap = await db.collection('musicians').where('email', '==', emailLower).get();
+                for (const doc of musEmailSnap.docs) {
+                    await doc.ref.delete().catch(() => {});
+                }
+            }
+
+            // 4. Delete from events collection
+            if (uid) {
+                const evtCreatorSnap = await db.collection('events').where('creatorId', '==', uid).get();
+                for (const doc of evtCreatorSnap.docs) {
+                    await doc.ref.delete().catch(() => {});
+                }
+                await db.collection('events').doc('evt_' + uid).delete().catch(() => {});
+            }
+            if (emailLower) {
+                const evtEmailSnap = await db.collection('events').where('email', '==', emailLower).get();
+                for (const doc of evtEmailSnap.docs) {
+                    await doc.ref.delete().catch(() => {});
+                }
+            }
+
+            // 5. Delete pendingRegistrations
+            if (emailLower) {
+                await db.collection('pendingRegistrations').doc(emailLower).delete().catch(() => {});
+            }
+
+            // 6. Delete from Firebase Auth via Admin SDK (never fails with requires-recent-login!)
+            if (uid) {
+                try {
+                    await admin.auth().deleteUser(uid);
+                    console.log(`[deleteUserAccountPermanently] Auth user ${uid} deleted successfully.`);
+                } catch (authErr) {
+                    console.log("[deleteUserAccountPermanently] Auth user delete info:", authErr.message);
+                }
+            } else if (emailLower) {
+                try {
+                    const authUser = await admin.auth().getUserByEmail(emailLower);
+                    if (authUser) {
+                        await admin.auth().deleteUser(authUser.uid);
+                        console.log(`[deleteUserAccountPermanently] Auth user by email ${emailLower} deleted.`);
+                    }
+                } catch (authErr) {
+                    console.log("[deleteUserAccountPermanently] getUserByEmail info:", authErr.message);
+                }
+            }
+
+            return { success: true };
+        } catch (error) {
+            console.error("deleteUserAccountPermanently failed:", error);
+            throw new functions.https.HttpsError('internal', error.message);
+        }
+    });
+
+// ==========================================
 // Stripe Checkout Session Creation
 // ==========================================
 exports.createStripeCheckoutSession = functions
