@@ -5269,6 +5269,27 @@ window.setInfoStep = function(step, type) {
     }
 };
 
+window.nextInfoStep = function(currentStep, type, isDirektkontakt) {
+    if (currentStep < 3) {
+        window.setInfoStep(currentStep + 1, type);
+    } else {
+        const isMusician = type === 'musician';
+        if (isDirektkontakt) {
+            if (isMusician) {
+                window.setMusicianFlowPath('vermittlung');
+            } else {
+                window.setOrganizerFlowPath('vermittlung');
+            }
+        } else {
+            if (isMusician) {
+                window.setMusicianFlowPath('direktkontakt');
+            } else {
+                window.setOrganizerFlowPath('direktkontakt');
+            }
+        }
+    }
+};
+
 window.renderInfoPage = function(container, type) {
     const isMusician = type === 'musician';
     window.currentInfoType = type;
@@ -5632,17 +5653,11 @@ window.renderInfoPage = function(container, type) {
                     </h3>
                 </div>
 
-                <!-- Rechts: Lilaner / Theme Button (Pfeil bei 1 & 2, Refresh-Button bei 3) -->
+                <!-- Rechts: Lilaner / Theme Button (Immer Pfeil nach rechts) -->
                 <div style="display: flex; align-items: center; flex-shrink: 0;">
-                    ${currentStep < 3 ? `
-                        <button onclick="event.stopPropagation(); window.setInfoStep(${currentStep + 1}, '${type}')" style="width: 38px; height: 38px; border-radius: 50%; background: ${themeColor}; border: none; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'}; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';" title="Weiter zu Schritt ${currentStep + 1}">
-                            <i class="fa-solid fa-arrow-right" style="font-size: 1rem;"></i>
-                        </button>
-                    ` : `
-                        <button onclick="event.stopPropagation(); window.setInfoStep(1, '${type}')" style="width: 38px; height: 38px; border-radius: 50%; background: ${themeColor}; border: none; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'}; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';" title="Zurück zu Schritt 1">
-                            <i class="fa-solid fa-rotate-left" style="font-size: 1rem;"></i>
-                        </button>
-                    `}
+                    <button onclick="event.stopPropagation(); window.nextInfoStep(${currentStep}, '${type}', ${isDirektkontakt})" style="width: 38px; height: 38px; border-radius: 50%; background: ${themeColor}; border: none; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'}; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';" title="${currentStep < 3 ? `Weiter zu Schritt ${currentStep + 1}` : (isDirektkontakt ? 'Weiter zu Vermittlung (Schritt 1)' : 'Weiter zu Direktkontakt (Schritt 1)')}">
+                        <i class="fa-solid fa-arrow-right" style="font-size: 1rem;"></i>
+                    </button>
                 </div>
 
             </div>
