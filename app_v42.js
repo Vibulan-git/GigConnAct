@@ -5398,6 +5398,10 @@ window.renderInfoPage = function(container, type) {
                         <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0; text-align: center;">
                             Ihr vereinbart Gage, Spielzeit und Equipment direkt miteinander. Keine versteckten Gebühren oder prozentualen Abzüge von deinen Gigs.
                         </p>
+                        <button onclick="window.onNavigate('events')" class="glow-card-pulse" style="cursor: pointer; width: 100%; margin-top: 1.5rem; background: #7c3aed; border: 1.5px solid transparent; border-radius: 16px; padding: 0.95rem 1.5rem; color: #ffffff; font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
+                            <span>Zum Event-Markt</span>
+                            <i class="fa-solid fa-arrow-right-long" style="font-size: 1.1em;"></i>
+                        </button>
                     </div>
                 `;
             }
@@ -5434,6 +5438,10 @@ window.renderInfoPage = function(container, type) {
                         <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0; text-align: center;">
                             Bei beidseitiger Zusage werden die Kontaktdaten beider Parteien sofort freigegeben. Der Veranstalter meldet sich direkt bei dir zur finalen Gig-Planung.
                         </p>
+                        <button onclick="window.onNavigate('events')" class="glow-card-pulse" style="cursor: pointer; width: 100%; margin-top: 1.5rem; background: #7c3aed; border: 1.5px solid transparent; border-radius: 16px; padding: 0.95rem 1.5rem; color: #ffffff; font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
+                            <span>Zum Event-Markt</span>
+                            <i class="fa-solid fa-arrow-right-long" style="font-size: 1.1em;"></i>
+                        </button>
                     </div>
                 `;
             }
@@ -5472,6 +5480,10 @@ window.renderInfoPage = function(container, type) {
                         <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0; text-align: center;">
                             Verhandelt eure Wunschkonditionen, Technikbedarf und Setlisten direkt ohne Zwischenstation oder zusätzliche Vermittlungskosten.
                         </p>
+                        <button onclick="window.onNavigate('musicians')" class="glow-card-pulse" style="cursor: pointer; width: 100%; margin-top: 1.5rem; background: #2563eb; border: 1.5px solid transparent; border-radius: 16px; padding: 0.95rem 1.5rem; color: #ffffff; font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
+                            <span>Zum Musiker-Markt</span>
+                            <i class="fa-solid fa-arrow-right-long" style="font-size: 1.1em;"></i>
+                        </button>
                     </div>
                 `;
             }
@@ -5508,6 +5520,10 @@ window.renderInfoPage = function(container, type) {
                         <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0; text-align: center;">
                             Sobald ein Act zusagt, erhältst du alle Kontaktdaten und kannst den Auftritt für deine Veranstaltung fest buchen.
                         </p>
+                        <button onclick="window.onNavigate('musicians')" class="glow-card-pulse" style="cursor: pointer; width: 100%; margin-top: 1.5rem; background: #2563eb; border: 1.5px solid transparent; border-radius: 16px; padding: 0.95rem 1.5rem; color: #ffffff; font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
+                            <span>Zum Musiker-Markt</span>
+                            <i class="fa-solid fa-arrow-right-long" style="font-size: 1.1em;"></i>
+                        </button>
                     </div>
                 `;
             }
@@ -5590,14 +5606,6 @@ window.renderInfoPage = function(container, type) {
             <!-- 4. Dynamischer Schritt-Inhalt (Kachel bei Schritt 1 / Erklärungsansicht bei Schritt 2 & 3) -->
             <div style="width: 100%; box-sizing: border-box;">
                 ${stepBodyHTML}
-            </div>
-
-            <!-- 5. Button-Trigger / CTA zum vollständigen Markt -->
-            <div class="flow-anim-card" style="animation-delay: 0.35s; width: 100%; max-width: 520px; margin: 1rem auto 0; box-sizing: border-box; text-align: center;">
-                <button onclick="${isMusician ? "window.onNavigate('events')" : "window.onNavigate('musicians')"}" class="glow-card-pulse" style="cursor: pointer; width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 18px; padding: 1.1rem 2rem; color: #ffffff; font-family: var(--font-heading); font-size: clamp(1.1rem, 3vw, 1.4rem); font-weight: 900; letter-spacing: -0.3px; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
-                    <span>${isMusician ? 'Alle Events im Event-Markt ansehen' : 'Alle Musiker im Musiker-Markt ansehen'}</span>
-                    <i class="fa-solid fa-arrow-right-long" style="font-size: 1.1em;"></i>
-                </button>
             </div>
 
         </div>
