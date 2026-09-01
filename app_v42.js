@@ -6665,23 +6665,8 @@ function renderMarket(container, type, onNavigate) {
             
             <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0px; -webkit-overflow-scrolling: touch;">
                 
-                <!-- 1. Filter -->
-                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; flex-shrink: 0; cursor: pointer;" title="Filter öffnen">
-                    <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 1.05rem; margin: 0; transition: color 0.3s ease;"></i>
-                </button>
- 
-                <!-- 2. Stern (Nur Top-Matches anzeigen) -->
-                <button class="market-control-toggle" id="btn-toggle-market-top-matches" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Top-Matches anzeigen">
-                    <i class="fa-solid fa-star" style="font-size: 1.05rem; margin: 0;"></i>
-                </button>
-
-                <!-- 3. Herz (Nur Favoriten anzeigen) -->
-                <button class="market-control-toggle" id="btn-toggle-market-favorites" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Favoriten anzeigen">
-                    <i class="fa-solid fa-heart" style="font-size: 1.05rem; margin: 0;"></i>
-                </button>
-
-                <!-- 4. Trefferzahl weiter rechts in der Leiste -->
-                <div style="margin-left: auto; display: flex; align-items: center; gap: 0.45rem; flex-shrink: 0; padding: 0.35rem 0.85rem; background: rgba(255,255,255,0.08); border-radius: 20px; border: 1px solid rgba(255,255,255,0.12); cursor: pointer;" onclick="document.getElementById('btn-toggle-mobile-filters')?.click();" title="Filter öffnen">
+                <!-- 1. Trefferanzahl (Links mit Abstand zur Kante) -->
+                <div style="display: flex; align-items: center; gap: 0.45rem; flex-shrink: 0; margin-left: 0.85rem; padding: 0.35rem 0.85rem; background: rgba(255,255,255,0.08); border-radius: 20px; border: 1px solid rgba(255,255,255,0.12); cursor: pointer;" onclick="document.getElementById('btn-toggle-mobile-filters')?.click();" title="Filter öffnen">
                     <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; text-align: center; white-space: nowrap; margin: 0; line-height: 1.2;">
                         ${getItems().length}
                     </div>
@@ -6689,6 +6674,21 @@ function renderMarket(container, type, onNavigate) {
                         ${isEvents ? 'Events' : 'Musiker'}
                     </span>
                 </div>
+
+                <!-- 2. Filter (Rechts) -->
+                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0 0 0 auto; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; flex-shrink: 0; cursor: pointer;" title="Filter öffnen">
+                    <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 1.05rem; margin: 0; transition: color 0.3s ease;"></i>
+                </button>
+ 
+                <!-- 3. Stern (Nur Top-Matches anzeigen) -->
+                <button class="market-control-toggle" id="btn-toggle-market-top-matches" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Top-Matches anzeigen">
+                    <i class="fa-solid fa-star" style="font-size: 1.05rem; margin: 0;"></i>
+                </button>
+
+                <!-- 4. Herz (Nur Favoriten anzeigen) -->
+                <button class="market-control-toggle" id="btn-toggle-market-favorites" style="margin: 0 0.85rem 0 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Favoriten anzeigen">
+                    <i class="fa-solid fa-heart" style="font-size: 1.05rem; margin: 0;"></i>
+                </button>
             </div>
 
             <!-- Main Layout: Left Sticky Sidebar Filters + Center Content -->
