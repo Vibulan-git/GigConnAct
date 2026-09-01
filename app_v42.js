@@ -5546,15 +5546,8 @@ window.renderInfoPage = function(container, type) {
                 }
             </style>
 
-            <!-- 1. Überschrift: "Mehr Gigs" (Musiker) / "Dein Act" (Veranstalter) -->
-            <div style="text-align: center; margin-bottom: 0.9rem; width: 100%; max-width: 1000px; box-sizing: border-box;">
-                <h1 style="font-family: var(--font-heading); font-size: clamp(2.1rem, 5.8vw, 3.6rem); font-weight: 900; color: #0d0e12; margin: 0; line-height: 1.15; letter-spacing: -1px; text-align: center;">
-                    2 Wege. <span style="color: ${isMusician ? '#7c3aed' : '#2563eb'};">${isMusician ? 'Mehr Gigs' : 'Dein Act'}</span>
-                </h1>
-            </div>
-
-            <!-- 2. Toggle-Buttons: Direktkontakt und/oder Vermittlung -->
-            <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; margin-bottom: 0.9rem; width: 100%; max-width: 420px; box-sizing: border-box;">
+            <!-- 1. Toggle-Buttons: Direktkontakt und/oder Vermittlung -->
+            <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; margin-bottom: 1.2rem; margin-top: 0.5rem; width: 100%; max-width: 420px; box-sizing: border-box;">
                 <button onclick="${toggleFunc}('direktkontakt')" style="flex: 1; padding: 0.75rem 1.2rem; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; border-radius: 14px; cursor: pointer; transition: all 0.2s; ${isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${themeColor}; box-shadow: 0 4px 15px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'};` : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.08); box-shadow: 0 2px 6px rgba(0,0,0,0.02);'}">
                     Direktkontakt
                 </button>
