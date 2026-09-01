@@ -5684,26 +5684,23 @@ window.setHeroCtaMode = function(mode, direction = 'forward') {
 window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
     if (mode === 'musician') {
         return `
-            <div class="${animClass}" style="position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 560px; box-sizing: border-box;">
-                <div style="display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; box-sizing: border-box;">
-                    <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.2rem 0.6rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; flex: 1 1 0px; width: 0; min-width: 0; max-width: 250px; min-height: 145px; box-sizing: border-box;">
-                        <i class="fa-solid fa-magnifying-glass" style="font-size: clamp(2rem, 5vw, 2.8rem);"></i>
-                        <span class="hero-cta-title" style="font-size: clamp(0.95rem, 3.2vw, 1.35rem); font-weight: 800; display: block; line-height: 1.2; text-align: center;">Gigs selbst suchen</span>
-                    </button>
-                    <button class="btn hero-cta-card-btn" onclick="window.appNavigate('info-musician')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.2rem 0.6rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; flex: 1 1 0px; width: 0; min-width: 0; max-width: 250px; min-height: 145px; box-sizing: border-box;">
-                        <i class="fa-solid fa-handshake" style="font-size: clamp(2rem, 5vw, 2.8rem);"></i>
-                        <span class="hero-cta-title" style="font-size: clamp(0.95rem, 3.2vw, 1.35rem); font-weight: 800; display: block; line-height: 1.2; text-align: center;">Gigs vermittelt bekommen</span>
-                    </button>
-                </div>
-                <div style="margin-top: 0.9rem; text-align: center; width: 100%;">
-                    <a href="javascript:void(0)" onclick="window.appNavigate('info-musician')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.92); font-size: clamp(0.85rem, 2.5vw, 0.98rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.45rem; text-shadow: 0 2px 5px rgba(0,0,0,0.6); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.92)'; this.style.transform='translateY(0)';">
-                        <i class="fa-solid fa-circle-question"></i>
-                        <span>Wie funktioniert GigConnAct für Musiker?</span>
+            <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; max-width: 560px; box-sizing: border-box;">
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.2rem 0.6rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem; flex: 1 1 0px; width: 0; min-width: 0; max-width: 250px; min-height: 145px; box-sizing: border-box;">
+                    <i class="fa-solid fa-guitar" style="font-size: clamp(2.2rem, 6vw, 3rem);"></i>
+                    <span class="hero-cta-title" style="font-size: clamp(1.15rem, 3.6vw, 1.5rem); font-weight: 800; display: block; line-height: 1.2; text-align: center;">Direktkontakt</span>
+                    <span class="hero-cta-subtitle" style="font-size: clamp(0.75rem, 2.2vw, 0.85rem); font-weight: 500; display: block; opacity: 0.88; text-transform: none; line-height: 1.1; text-align: center;">Gigs selbst suchen</span>
+                </button>
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('info-musician')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.2rem 0.6rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem; flex: 1 1 0px; width: 0; min-width: 0; max-width: 250px; min-height: 145px; box-sizing: border-box;">
+                    <i class="fa-solid fa-handshake" style="font-size: clamp(2.2rem, 6vw, 3rem);"></i>
+                    <span class="hero-cta-title" style="font-size: clamp(1.15rem, 3.6vw, 1.5rem); font-weight: 800; display: block; line-height: 1.2; text-align: center;">Vermittlung</span>
+                    <span class="hero-cta-subtitle" style="font-size: clamp(0.75rem, 2.2vw, 0.85rem); font-weight: 500; display: block; opacity: 0.88; text-transform: none; line-height: 1.1; text-align: center;">Gigs vermittelt bekommen</span>
+                </button>
+                <div style="position: absolute; top: calc(100% + 10px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; flex-direction: column; align-items: center; gap: 0.6rem; pointer-events: auto;">
+                    <a href="javascript:void(0)" onclick="window.appNavigate('info-musician')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.92); font-size: clamp(0.85rem, 2.5vw, 0.98rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 5px rgba(0,0,0,0.6); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.92)'; this.style.transform='translateY(0)';">
+                        Wie funktioniert GigConnAct für Musiker?
                     </a>
-                </div>
-                <div style="margin-top: 0.75rem; display: flex; justify-content: center; width: 100%;">
-                    <button onclick="window.setHeroCtaMode('initial', 'back')" style="background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.28); backdrop-filter: blur(8px); color: #ffffff; cursor: pointer; font-size: 0.88rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.38rem 1.1rem; border-radius: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)';" onmouseout="this.style.background='rgba(255,255,255,0.14)';">
-                        <i class="fa-solid fa-arrow-left"></i> <span>Zurück</span>
+                    <button onclick="window.setHeroCtaMode('initial', 'back')" style="background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.28); backdrop-filter: blur(8px); color: #ffffff; cursor: pointer; font-size: 0.88rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; padding: 0.38rem 1.2rem; border-radius: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)';" onmouseout="this.style.background='rgba(255,255,255,0.14)';">
+                        <span>Zurück</span>
                     </button>
                 </div>
             </div>
@@ -5712,26 +5709,23 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
     
     if (mode === 'organizer') {
         return `
-            <div class="${animClass}" style="position: relative; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 560px; box-sizing: border-box;">
-                <div style="display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; box-sizing: border-box;">
-                    <button class="btn hero-cta-card-btn" onclick="window.appNavigate('musicians')" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.2rem 0.6rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; flex: 1 1 0px; width: 0; min-width: 0; max-width: 250px; min-height: 145px; box-sizing: border-box;">
-                        <i class="fa-solid fa-guitar" style="font-size: clamp(2rem, 5vw, 2.8rem);"></i>
-                        <span class="hero-cta-title" style="font-size: clamp(0.95rem, 3.2vw, 1.35rem); font-weight: 800; display: block; line-height: 1.2; text-align: center;">Acts selbst suchen</span>
-                    </button>
-                    <button class="btn hero-cta-card-btn" onclick="window.showAgencyBookingForm()" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.2rem 0.6rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; flex: 1 1 0px; width: 0; min-width: 0; max-width: 250px; min-height: 145px; box-sizing: border-box;">
-                        <i class="fa-solid fa-file-pen" style="font-size: clamp(2rem, 5vw, 2.8rem);"></i>
-                        <span class="hero-cta-title" style="font-size: clamp(0.95rem, 3.2vw, 1.35rem); font-weight: 800; display: block; line-height: 1.2; text-align: center;">Acts vermittelt bekommen</span>
-                    </button>
-                </div>
-                <div style="margin-top: 0.9rem; text-align: center; width: 100%;">
-                    <a href="javascript:void(0)" onclick="window.appNavigate('info-organizer')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.92); font-size: clamp(0.85rem, 2.5vw, 0.98rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.45rem; text-shadow: 0 2px 5px rgba(0,0,0,0.6); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.92)'; this.style.transform='translateY(0)';">
-                        <i class="fa-solid fa-circle-question"></i>
-                        <span>Wie funktioniert GigConnAct für Veranstalter?</span>
+            <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; max-width: 560px; box-sizing: border-box;">
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('musicians')" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.2rem 0.6rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem; flex: 1 1 0px; width: 0; min-width: 0; max-width: 250px; min-height: 145px; box-sizing: border-box;">
+                    <i class="fa-solid fa-guitar" style="font-size: clamp(2.2rem, 6vw, 3rem);"></i>
+                    <span class="hero-cta-title" style="font-size: clamp(1.15rem, 3.6vw, 1.5rem); font-weight: 800; display: block; line-height: 1.2; text-align: center;">Direktkontakt</span>
+                    <span class="hero-cta-subtitle" style="font-size: clamp(0.75rem, 2.2vw, 0.85rem); font-weight: 500; display: block; opacity: 0.88; text-transform: none; line-height: 1.1; text-align: center;">Acts selbst suchen</span>
+                </button>
+                <button class="btn hero-cta-card-btn" onclick="window.showAgencyBookingForm()" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.2rem 0.6rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem; flex: 1 1 0px; width: 0; min-width: 0; max-width: 250px; min-height: 145px; box-sizing: border-box;">
+                    <i class="fa-solid fa-file-pen" style="font-size: clamp(2.2rem, 6vw, 3rem);"></i>
+                    <span class="hero-cta-title" style="font-size: clamp(1.15rem, 3.6vw, 1.5rem); font-weight: 800; display: block; line-height: 1.2; text-align: center;">Vermittlung</span>
+                    <span class="hero-cta-subtitle" style="font-size: clamp(0.75rem, 2.2vw, 0.85rem); font-weight: 500; display: block; opacity: 0.88; text-transform: none; line-height: 1.1; text-align: center;">Acts vermittelt bekommen</span>
+                </button>
+                <div style="position: absolute; top: calc(100% + 10px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; flex-direction: column; align-items: center; gap: 0.6rem; pointer-events: auto;">
+                    <a href="javascript:void(0)" onclick="window.appNavigate('info-organizer')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.92); font-size: clamp(0.85rem, 2.5vw, 0.98rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 5px rgba(0,0,0,0.6); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.92)'; this.style.transform='translateY(0)';">
+                        Wie funktioniert GigConnAct für Veranstalter?
                     </a>
-                </div>
-                <div style="margin-top: 0.75rem; display: flex; justify-content: center; width: 100%;">
-                    <button onclick="window.setHeroCtaMode('initial', 'back')" style="background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.28); backdrop-filter: blur(8px); color: #ffffff; cursor: pointer; font-size: 0.88rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.38rem 1.1rem; border-radius: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)';" onmouseout="this.style.background='rgba(255,255,255,0.14)';">
-                        <i class="fa-solid fa-arrow-left"></i> <span>Zurück</span>
+                    <button onclick="window.setHeroCtaMode('initial', 'back')" style="background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.28); backdrop-filter: blur(8px); color: #ffffff; cursor: pointer; font-size: 0.88rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; padding: 0.38rem 1.2rem; border-radius: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)';" onmouseout="this.style.background='rgba(255,255,255,0.14)';">
+                        <span>Zurück</span>
                     </button>
                 </div>
             </div>
