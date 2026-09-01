@@ -69,5 +69,10 @@ service cloud.firestore {
       allow update: if request.auth != null && (isEventCreator(resource.data.eventId) || isMusicianCreator(resource.data.musicianId));
       allow delete: if request.auth != null && (isEventCreator(resource.data.eventId) || isMusicianCreator(resource.data.musicianId));
     }
+
+    // 7. Used Trials (Prevention of trial abuse)
+    match /used_trials/{trialHash} {
+      allow read, write: if true;
+    }
   }
 }
