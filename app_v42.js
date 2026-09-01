@@ -5340,14 +5340,14 @@ window.renderInfoPage = function(container, type) {
     if (isMusician) {
         if (isDirektkontakt) {
             if (currentStep === 1) {
-                stepTitleText = `<span style="color: #7c3aed;">Events</span> entdecken - ohne Account & kostenlos`;
+                stepTitleText = `<span style="color: #7c3aed;">Events</span> kostenlos entdecken`;
                 stepBodyHTML = `
                     <div style="width: 100%; max-width: 440px; margin: 0 auto 1.5rem;">
                         ${showcaseCardHTML}
                     </div>
                 `;
             } else if (currentStep === 2) {
-                stepTitleText = `<span style="color: #7c3aed;">Kontaktdaten</span> freischalten - mit Account & Abo-Modell`;
+                stepTitleText = `<span style="color: #7c3aed;">Kontaktdaten</span> freischalten`;
                 stepBodyHTML = `
                     <div class="flow-anim-card" style="width: 100%; max-width: 520px; margin: 0 auto 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
@@ -5367,7 +5367,7 @@ window.renderInfoPage = function(container, type) {
                     </div>
                 `;
             } else {
-                stepTitleText = `<span style="color: #7c3aed;">Direkter</span> Austausch mit Veranstaltern`;
+                stepTitleText = `<span style="color: #7c3aed;">Direkt</span> austauschen`;
                 stepBodyHTML = `
                     <div class="flow-anim-card" style="width: 100%; max-width: 520px; margin: 0 auto 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
@@ -5389,14 +5389,14 @@ window.renderInfoPage = function(container, type) {
         } else {
             // Vermittlung Musiker
             if (currentStep === 1) {
-                stepTitleText = `<span style="color: #7c3aed;">Kontaktdaten</span> sind geschützt & Erstkontakt durch Veranstalter`;
+                stepTitleText = `<span style="color: #7c3aed;">Kontaktdaten</span> sind geschützt`;
                 stepBodyHTML = `
                     <div style="width: 100%; max-width: 440px; margin: 0 auto 1.5rem;">
                         ${showcaseCardHTML}
                     </div>
                 `;
             } else if (currentStep === 2) {
-                stepTitleText = `<span style="color: #7c3aed;">Vermittlungsanfragen</span> erhalten & bei Interesse Gebühr zahlen`;
+                stepTitleText = `<span style="color: #7c3aed;">Vermittlungsanfragen</span> erhalten`;
                 stepBodyHTML = `
                     <div class="flow-anim-card" style="width: 100%; max-width: 520px; margin: 0 auto 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
@@ -5415,7 +5415,7 @@ window.renderInfoPage = function(container, type) {
                     </div>
                 `;
             } else {
-                stepTitleText = `<span style="color: #7c3aed;">Kontaktdaten</span> von interessierten Veranstaltern erhalten`;
+                stepTitleText = `<span style="color: #7c3aed;">Kontaktdaten</span> austauschen`;
                 stepBodyHTML = `
                     <div class="flow-anim-card" style="width: 100%; max-width: 520px; margin: 0 auto 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
@@ -5439,14 +5439,14 @@ window.renderInfoPage = function(container, type) {
         // Organizer
         if (isDirektkontakt) {
             if (currentStep === 1) {
-                stepTitleText = `<span style="color: #2563eb;">Musiker</span> entdecken - ohne Account & kostenlos`;
+                stepTitleText = `<span style="color: #2563eb;">Musiker</span> kostenlos entdecken`;
                 stepBodyHTML = `
                     <div style="width: 100%; max-width: 440px; margin: 0 auto 1.5rem;">
                         ${showcaseCardHTML}
                     </div>
                 `;
             } else if (currentStep === 2) {
-                stepTitleText = `<span style="color: #2563eb;">Kontaktdaten</span> freischalten - mit Account & kostenlos`;
+                stepTitleText = `<span style="color: #2563eb;">Kontaktdaten</span> freischalten`;
                 stepBodyHTML = `
                     <div class="flow-anim-card" style="width: 100%; max-width: 520px; margin: 0 auto 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(37,99,235,0.25);">
@@ -5465,7 +5465,7 @@ window.renderInfoPage = function(container, type) {
                     </div>
                 `;
             } else {
-                stepTitleText = `<span style="color: #2563eb;">Direkter</span> Austausch mit Musikern`;
+                stepTitleText = `<span style="color: #2563eb;">Direkt</span> austauschen`;
                 stepBodyHTML = `
                     <div class="flow-anim-card" style="width: 100%; max-width: 520px; margin: 0 auto 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(37,99,235,0.25);">
@@ -5487,14 +5487,14 @@ window.renderInfoPage = function(container, type) {
         } else {
             // Vermittlung Veranstalter
             if (currentStep === 1) {
-                stepTitleText = `<span style="color: #2563eb;">Eventformular</span> ausfüllen - ohne Account & kostenlos`;
+                stepTitleText = `<span style="color: #2563eb;">Eventformular</span> ausfüllen`;
                 stepBodyHTML = `
                     <div style="width: 100%; max-width: 440px; margin: 0 auto 1.5rem;">
                         ${showcaseCardHTML}
                     </div>
                 `;
             } else if (currentStep === 2) {
-                stepTitleText = `<span style="color: #2563eb;">Vorschläge</span> sofort erhalten & Musiker kontaktieren lassen`;
+                stepTitleText = `<span style="color: #2563eb;">Vorschläge</span> erhalten`;
                 stepBodyHTML = `
                     <div class="flow-anim-card" style="width: 100%; max-width: 520px; margin: 0 auto 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(37,99,235,0.25);">
@@ -5513,7 +5513,7 @@ window.renderInfoPage = function(container, type) {
                     </div>
                 `;
             } else {
-                stepTitleText = `<span style="color: #2563eb;">Kontaktdaten</span> erhalten bei beidseitigem Interesse`;
+                stepTitleText = `<span style="color: #2563eb;">Kontaktdaten</span> austauschen`;
                 stepBodyHTML = `
                     <div class="flow-anim-card" style="width: 100%; max-width: 520px; margin: 0 auto 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(37,99,235,0.25);">
@@ -5563,20 +5563,14 @@ window.renderInfoPage = function(container, type) {
                 }
             </style>
 
-            <!-- 1. Überschrift in EINER Reihe: GigConnAct für Musiker / Veranstalter -->
-            <div style="text-align: center; margin-bottom: 1.6rem; width: 100%; max-width: 1000px; box-sizing: border-box;">
-                <h1 style="font-family: var(--font-heading); font-size: clamp(1.75rem, 5.2vw, 3.4rem); font-weight: 900; color: #0d0e12; margin: 0; line-height: 1.2; letter-spacing: -1px; white-space: nowrap;">
-                    <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">GigConnAct</span>
-                    <span style="color: ${themeColor};"> für ${isMusician ? 'Musiker' : 'Veranstalter'}</span>
+            <!-- 1. Neue Überschrift: 2 Wege. Mehr Gigs / 2 Wege. Deine Wahl -->
+            <div style="text-align: center; margin-bottom: 1.8rem; width: 100%; max-width: 1000px; box-sizing: border-box;">
+                <h1 style="font-family: var(--font-heading); font-size: clamp(2rem, 5.5vw, 3.5rem); font-weight: 900; color: #0d0e12; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-align: center;">
+                    <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">2 Wege.</span> ${isMusician ? 'Mehr Gigs' : 'Deine Wahl'}
                 </h1>
-                
-                <!-- 2. Slogan: 2 Wege. Mehr Gigs / 2 Wege. Deine Wahl -->
-                <p style="font-family: var(--font-body); font-size: clamp(1.05rem, 2.4vw, 1.3rem); font-weight: 600; color: #64748b; margin: 0.65rem 0 0; letter-spacing: 0.5px;">
-                    ${isMusician ? '2 Wege. Mehr Gigs' : '2 Wege. Deine Wahl'}
-                </p>
             </div>
 
-            <!-- 3. Toggle-Buttons: Direktkontakt und/oder Vermittlung -->
+            <!-- 2. Toggle-Buttons: Direktkontakt und/oder Vermittlung -->
             <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; margin-bottom: 2rem; width: 100%; max-width: 420px; box-sizing: border-box;">
                 <button onclick="${toggleFunc}('direktkontakt')" style="flex: 1; padding: 0.8rem 1.2rem; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; border-radius: 14px; cursor: pointer; transition: all 0.2s; ${isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${themeColor}; box-shadow: 0 4px 15px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'};` : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.08);'}">
                     Direktkontakt
@@ -5589,47 +5583,34 @@ window.renderInfoPage = function(container, type) {
                 </button>
             </div>
 
-            <!-- 4. Step-Banner: Links bündig Zahl "1.", Schritt-Titel und rechts lilaner Pfeil-Button -->
+            <!-- 3. Step-Banner: Links bündig Zahl + Text kompakt, rechts lilaner Pfeil-Button -->
             <div class="flow-anim-card" style="width: 100%; max-width: 680px; margin: 0 auto 1.6rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.9rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.03);">
                 
-                <!-- Linker Bereich: Nummer "1." (oder Zurück-Pfeil + Nummer) -->
-                <div style="display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0;">
-                    ${currentStep > 1 ? `
-                        <button onclick="event.stopPropagation(); window.setInfoStep(${currentStep - 1}, '${type}')" style="width: 36px; height: 36px; border-radius: 50%; background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#e2e8f0';" onmouseout="this.style.background='#f1f5f9';" title="Zurück zu Schritt ${currentStep - 1}">
-                            <i class="fa-solid fa-arrow-left" style="font-size: 0.9rem;"></i>
-                        </button>
-                    ` : ''}
-                    <span style="font-family: var(--font-heading); font-size: clamp(1.4rem, 3.5vw, 1.8rem); font-weight: 900; color: ${themeColor}; line-height: 1; min-width: 28px; text-align: left;">
+                <!-- Links: Nummer & Schritt-Titel eng beieinander -->
+                <div style="display: flex; align-items: baseline; gap: 0.45rem; flex: 1; text-align: left; min-width: 0;">
+                    <span style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.2vw, 1.55rem); font-weight: 900; color: ${themeColor}; line-height: 1; flex-shrink: 0;">
                         ${currentStep}.
                     </span>
+                    <h3 style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.8vw, 1.35rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: -0.2px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${stepTitleText}
+                    </h3>
                 </div>
 
-                <!-- Mitte: Schritt-Titel -->
-                <h3 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 2.6vw, 1.25rem); font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.2px; line-height: 1.25; text-align: left; flex: 1;">
-                    ${stepTitleText}
-                </h3>
-
-                <!-- Rechter Bereich: Lilaner Pfeil-Button -->
-                <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
-                    ${currentStep < 3 ? `
-                        <button onclick="event.stopPropagation(); window.setInfoStep(${currentStep + 1}, '${type}')" style="width: 38px; height: 38px; border-radius: 50%; background: ${themeColor}; border: none; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'}; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';" title="Weiter zu Schritt ${currentStep + 1}">
-                            <i class="fa-solid fa-arrow-right" style="font-size: 1rem;"></i>
-                        </button>
-                    ` : `
-                        <button onclick="event.stopPropagation(); window.setInfoStep(1, '${type}')" style="width: 38px; height: 38px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); border: 1.5px solid rgba(16, 185, 129, 0.3); color: #10b981; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';" title="Zurück zu Schritt 1">
-                            <i class="fa-solid fa-rotate-left" style="font-size: 1rem;"></i>
-                        </button>
-                    `}
+                <!-- Rechts: Lilaner / Theme Pfeil-Button -->
+                <div style="display: flex; align-items: center; flex-shrink: 0;">
+                    <button onclick="event.stopPropagation(); window.setInfoStep(${currentStep < 3 ? currentStep + 1 : 1}, '${type}')" style="width: 38px; height: 38px; border-radius: 50%; background: ${themeColor}; border: none; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'}; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';" title="${currentStep < 3 ? `Weiter zu Schritt ${currentStep + 1}` : 'Zurück zu Schritt 1'}">
+                        <i class="fa-solid fa-arrow-right" style="font-size: 1rem;"></i>
+                    </button>
                 </div>
 
             </div>
 
-            <!-- 5. Dynamischer Schritt-Inhalt (Kachel bei Schritt 1 / Erklärungsansicht bei Schritt 2 & 3) -->
+            <!-- 4. Dynamischer Schritt-Inhalt (Kachel bei Schritt 1 / Erklärungsansicht bei Schritt 2 & 3) -->
             <div style="width: 100%; box-sizing: border-box;">
                 ${stepBodyHTML}
             </div>
 
-            <!-- 6. Button-Trigger / CTA zum vollständigen Markt -->
+            <!-- 5. Button-Trigger / CTA zum vollständigen Markt -->
             <div class="flow-anim-card" style="animation-delay: 0.35s; width: 100%; max-width: 520px; margin: 1.5rem auto 0; box-sizing: border-box; text-align: center;">
                 <button onclick="${isMusician ? "window.onNavigate('events')" : "window.onNavigate('musicians')"}" class="glow-card-pulse" style="cursor: pointer; width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 18px; padding: 1.1rem 2rem; color: #ffffff; font-family: var(--font-heading); font-size: clamp(1.1rem, 3vw, 1.4rem); font-weight: 900; letter-spacing: -0.3px; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
                     <span>${isMusician ? 'Alle Events im Event-Markt ansehen' : 'Alle Musiker im Musiker-Markt ansehen'}</span>
