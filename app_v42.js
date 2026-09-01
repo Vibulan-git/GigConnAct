@@ -5345,33 +5345,33 @@ function renderLandingPage(container, onNavigate) {
                 <!-- Dark overlay gradient -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(124, 58, 237, 0.82) 100%); z-index: 2;"></div>
 
-                <!-- Upper Group: Logo and Slogan (shifted further down) -->
-                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(1.2rem, 3.5vw, 2.2rem); width: 100%; max-width: 1000px; margin-top: 16vh; margin-bottom: auto;">
+                <!-- Upper Group: Logo and Slogan (aligned flush to 560px container) -->
+                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(1.2rem, 3.2vw, 2rem); width: 100%; max-width: 560px; margin-top: 14vh; margin-bottom: auto; box-sizing: border-box;">
                     
                     <!-- 1/4: Logo -->
-                    <div class="brand-logo-center" style="display: flex; align-items: center; justify-content: center; gap: 1rem; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0; box-sizing: border-box;">
+                    <div class="brand-logo-center" style="display: flex; align-items: center; justify-content: center; gap: clamp(0.8rem, 2vw, 1.2rem); filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0; width: 100%; box-sizing: border-box;">
                         <!-- Large PNG Disco Ball (nested wrapper to keep entry animations, but static without rotation) -->
-                        <div class="${logoClass}" style="width: clamp(2.6rem, 7.0vw, 4.4rem); height: clamp(2.6rem, 7.0vw, 4.4rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible;">
+                        <div class="${logoClass}" style="width: clamp(2.8rem, 7.5vw, 4.4rem); height: clamp(2.8rem, 7.5vw, 4.4rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible;">
                             <img src="discoball.svg" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.55)); opacity: 1; pointer-events: none;">
                         </div>
-                        <div class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5.8vw, 3.8rem); font-weight: 900; letter-spacing: -1.5px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        <div class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(2.4rem, 7.0vw, 4.4rem); font-weight: 900; letter-spacing: -1.5px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                             GigConnAct
                         </div>
                     </div>
 
                     <!-- 2/4: Slogan (Subtitle) -->
-                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.3rem; width: 100%; margin: 0 auto;">
-                        <span style="font-family: var(--font-heading); font-size: clamp(1.6rem, 4.5vw, 2.65rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: inline-block;">
+                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.35rem; width: 100%; max-width: 560px; margin: 0 auto; box-sizing: border-box;">
+                        <span style="font-family: var(--font-heading); font-size: clamp(1.4rem, 4.25vw, 2.65rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: block; width: 100%; text-align: center; white-space: nowrap;">
                             Die Vermittlungsplattform
                         </span>
-                        <span style="font-family: var(--font-heading); font-size: clamp(2.35rem, 6.2vw, 3.85rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: inline-block;">
+                        <span style="font-family: var(--font-heading); font-size: clamp(2.35rem, 7.2vw, 4.45rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: block; width: 100%; text-align: center; white-space: nowrap;">
                             für Live-Musik
                         </span>
                     </div>
                 </div>
 
                 <!-- 3/4: CTA Buttons (anchored below slogan) -->
-                <div class="hero-cta-buttons" style="position: relative; z-index: 3; margin: auto auto 9.5vh; gap: 2rem;">
+                <div class="hero-cta-buttons" style="position: relative; z-index: 3; margin: auto auto 9.5vh; gap: 1.8rem; width: 100%; max-width: 560px; box-sizing: border-box;">
                     <button class="btn" id="btn-hero-musician" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
                         <i class="fa-solid fa-guitar" style="font-size: 3.2rem;"></i>
                         <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Musiker</span>

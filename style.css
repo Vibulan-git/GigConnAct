@@ -2916,11 +2916,11 @@ body {
 
 .hero-cta-buttons {
     display: flex;
-    gap: 2rem;
+    gap: 1.8rem;
     justify-content: center;
     flex-wrap: nowrap;
     width: 100%;
-    max-width: 600px;
+    max-width: 560px;
     margin: 0 auto;
 }
 
