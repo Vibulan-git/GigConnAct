@@ -4230,10 +4230,12 @@ input[type="range"].input-field {
     margin-top: 0.5rem;
 }
 
-/* Zero out app-main padding on the landing/home page to allow full screen width elements */
+/* Zero out app-main padding on the landing/home page and info pages to allow full screen width elements */
 .app-main.page-landing {
     padding: 0 !important;
     max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
 }
 
 /* Split benefits layout on laptop screens */

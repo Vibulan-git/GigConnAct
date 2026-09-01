@@ -5244,7 +5244,7 @@ window.renderInfoPage = function(container, type) {
 
     // HTML template
     container.innerHTML = `
-        <div class="info-page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 1rem clamp(0.5rem, 3vw, 1.5rem) 5rem; font-family: var(--font-heading); color: #0f172a; box-sizing: border-box; width: 100%; min-height: 100vh;">
+        <div class="info-page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 2rem 0 6rem; font-family: var(--font-heading); color: #0f172a; box-sizing: border-box; width: 100%; min-height: 100vh;">
             
             <style>
                 .flow-anim-card {
@@ -5273,18 +5273,18 @@ window.renderInfoPage = function(container, type) {
 
             <!-- 1. TOP: Integrated Market Section (Event-Markt for Musicians or Musiker-Markt for Organizers) -->
             ${isMusician ? `
-            <div style="width: 100%; max-width: 1400px; margin: 0 auto 2.5rem; padding: 0.5rem 1.5rem 0; box-sizing: border-box;">
+            <div style="width: 100%; max-width: 1440px; margin: 0 auto 3rem; padding: 0.5rem clamp(1rem, 3.5vw, 3rem) 0; box-sizing: border-box;">
                 
                 <!-- Headline: Event-Markt -->
                 <div style="text-align: center; margin-bottom: 2.0rem; padding: 0 1rem;">
-                    <h2 onclick="window.onNavigate('events')" style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5.8vw, 4.2rem); font-weight: 900; color: #0f172a; margin: 0; line-height: 1.15; letter-spacing: -1.5px; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#7c3aed'; this.querySelector('.arrow-icon').style.transform='translateX(6px)';" onmouseout="this.style.color='#0f172a'; this.querySelector('.arrow-icon').style.transform='translateX(0)';">
+                    <h2 onclick="window.onNavigate('events')" style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6vw, 4.4rem); font-weight: 900; color: #0f172a; margin: 0; line-height: 1.15; letter-spacing: -1.5px; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#7c3aed'; this.querySelector('.arrow-icon').style.transform='translateX(6px)';" onmouseout="this.style.color='#0f172a'; this.querySelector('.arrow-icon').style.transform='translateX(0)';">
                         Event-Markt<br>
                         <span style="color: #7c3aed; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;">Für Musiker<i class="fa-solid fa-arrow-right-long arrow-icon" style="font-size: 0.55em; transition: transform 0.2s; vertical-align: middle;"></i></span>
                     </h2>
                 </div>
 
                 <!-- Subtitle: Category Icons -->
-                <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; margin-bottom: 0.85rem;">
+                <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.9rem, 2vw, 1.1rem); font-weight: 600; color: #475569; margin-bottom: 1.2rem;">
                     <span><i class="fa-solid fa-heart" style="color: #7c3aed; margin-right: 0.35rem;"></i> Hochzeit</span>
                     <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
                     <span><i class="fa-solid fa-cake-candles" style="color: #7c3aed; margin-right: 0.35rem;"></i> Geburtstag</span>
@@ -5299,16 +5299,16 @@ window.renderInfoPage = function(container, type) {
                 </div>
 
                 <!-- Carousel: Events -->
-                <div class="carousel-container" style="margin-bottom: 0.5rem;">
-                    <div class="carousel-viewport">
-                        <div class="carousel-track theme-musician" id="carousel-track-events">
+                <div class="carousel-container" style="width: 100%; margin-bottom: 0.8rem; padding: 0;">
+                    <div class="carousel-viewport" style="width: 100%;">
+                        <div class="carousel-track theme-musician" id="carousel-track-events" style="width: 100%;">
                             ${renderMarketGridHTML(state.events.slice(0, 9), true, true)}
                         </div>
                     </div>
                 </div>
 
                 <!-- Pagination Dots: Events -->
-                <div class="carousel-dots-container" style="margin-bottom: 1.2rem;">
+                <div class="carousel-dots-container" style="margin-bottom: 1.5rem;">
                     <div class="carousel-dots" id="carousel-dots-events">
                         <span class="carousel-dot active" onclick="jumpToCarouselSlide('events', 0)"></span>
                         <span class="carousel-dot" onclick="jumpToCarouselSlide('events', 1)"></span>
@@ -5319,7 +5319,7 @@ window.renderInfoPage = function(container, type) {
                 </div>
 
                 <!-- Marquee: Event-Logos -->
-                <div class="logo-marquee-wrapper theme-events-marquee" style="margin-bottom: 2rem;">
+                <div class="logo-marquee-wrapper theme-events-marquee" style="width: 100%; margin-bottom: 2rem;">
                     <div class="logo-marquee-track">
                         <div class="partner-logo-badge"><svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M8,32 L8,18 L12,18 L12,22 L16,22 L16,18 L20,18 L20,22 L24,22 L24,18 L28,18 L28,32 Z" fill="#94a3b8" /><path d="M14,32 L14,26 L22,26 L22,32 Z" fill="#1e293b" /><polygon points="18,10 24,15 12,15" fill="#f43f5e" /><text x="35" y="27" font-family="'Georgia', serif" font-size="14" font-weight="bold" fill="#ffffff" letter-spacing="0.5">SCHLOSSBERG</text></svg></div>
                         <div class="partner-logo-badge"><svg viewBox="0 0 165 45" width="165" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-royal-1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fbbf24" /><stop offset="100%" stop-color="#f59e0b" /></linearGradient></defs><path d="M10,28 L13,15 L18,20 L23,12 L28,20 L33,15 L36,28 Z" fill="url(#grad-royal-1)" /><circle cx="23" cy="8" r="2" fill="url(#grad-royal-1)" /><text x="45" y="26" font-family="'Times New Roman', serif" font-size="18" font-weight="bold" fill="url(#grad-royal-1)" letter-spacing="1.5">ROYAL</text></svg></div>
@@ -5346,18 +5346,18 @@ window.renderInfoPage = function(container, type) {
                 </div>
             </div>
             ` : `
-            <div style="width: 100%; max-width: 1400px; margin: 0 auto 2.5rem; padding: 0.5rem 1.5rem 0; box-sizing: border-box;">
+            <div style="width: 100%; max-width: 1440px; margin: 0 auto 3rem; padding: 0.5rem clamp(1rem, 3.5vw, 3rem) 0; box-sizing: border-box;">
                 
                 <!-- Headline: Musiker-Markt -->
                 <div style="text-align: center; margin-bottom: 2.0rem; padding: 0 1rem;">
-                    <h2 onclick="window.showMatchmakingChoiceModal()" style="font-family: var(--font-heading); font-size: clamp(2.2rem, 5.8vw, 4.2rem); font-weight: 900; color: #0f172a; margin: 0; line-height: 1.15; letter-spacing: -1.5px; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'; this.querySelector('.arrow-icon').style.transform='translateX(6px)';" onmouseout="this.style.color='#0f172a'; this.querySelector('.arrow-icon').style.transform='translateX(0)';">
+                    <h2 onclick="window.showMatchmakingChoiceModal()" style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6vw, 4.4rem); font-weight: 900; color: #0f172a; margin: 0; line-height: 1.15; letter-spacing: -1.5px; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#2563eb'; this.querySelector('.arrow-icon').style.transform='translateX(6px)';" onmouseout="this.style.color='#0f172a'; this.querySelector('.arrow-icon').style.transform='translateX(0)';">
                         Musiker-Markt<br>
                         <span style="color: #2563eb; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap;">Für Veranstalter<i class="fa-solid fa-arrow-right-long arrow-icon" style="font-size: 0.55em; transition: transform 0.2s; vertical-align: middle;"></i></span>
                     </h2>
                 </div>
 
                 <!-- Subtitle: Category Icons -->
-                <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.85rem, 2vw, 1.05rem); font-weight: 600; color: #475569; margin-bottom: 0.85rem;">
+                <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: var(--font-body); font-size: clamp(0.9rem, 2vw, 1.1rem); font-weight: 600; color: #475569; margin-bottom: 1.2rem;">
                     <span><i class="fa-solid fa-microphone" style="color: #2563eb; margin-right: 0.35rem;"></i> Sänger</span>
                     <span style="color: #cbd5e1; margin: 0 0.4rem;">•</span>
                     <span><i class="fa-solid fa-users" style="color: #2563eb; margin-right: 0.35rem;"></i> Band</span>
@@ -5372,16 +5372,16 @@ window.renderInfoPage = function(container, type) {
                 </div>
 
                 <!-- Carousel: Musiker -->
-                <div class="carousel-container" style="margin-bottom: 0.5rem;">
-                    <div class="carousel-viewport">
-                        <div class="carousel-track theme-organizer" id="carousel-track-musicians">
+                <div class="carousel-container" style="width: 100%; margin-bottom: 0.8rem; padding: 0;">
+                    <div class="carousel-viewport" style="width: 100%;">
+                        <div class="carousel-track theme-organizer" id="carousel-track-musicians" style="width: 100%;">
                             ${renderMarketGridHTML(state.musicians.slice(0, 9), false, true)}
                         </div>
                     </div>
                 </div>
 
                 <!-- Pagination Dots: Musiker -->
-                <div class="carousel-dots-container" style="margin-bottom: 1.2rem;">
+                <div class="carousel-dots-container" style="margin-bottom: 1.5rem;">
                     <div class="carousel-dots" id="carousel-dots-musicians">
                         <span class="carousel-dot active" onclick="jumpToCarouselSlide('musicians', 0)"></span>
                         <span class="carousel-dot" onclick="jumpToCarouselSlide('musicians', 1)"></span>
@@ -5392,9 +5392,9 @@ window.renderInfoPage = function(container, type) {
                 </div>
 
                 <!-- Marquee: Band-Logos -->
-                <div class="logo-marquee-wrapper theme-musicians-marquee" style="margin-bottom: 2rem;">
+                <div class="logo-marquee-wrapper theme-musicians-marquee" style="width: 100%; margin-bottom: 2rem;">
                     <div class="logo-marquee-track">
-                        <div class="partner-logo-badge"><svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-rockers-1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff007f" /><stop offset="100%" stop-color="#7c3aed" /></linearGradient></defs><polygon points="5,5 155,2 150,40 10,43" fill="#111111" stroke="url(#grad-rockers-1)" stroke-width="2"/><path d="M 22,12 L 32,12 L 24,24 L 32,24 L 18,36 L 24,20 L 18,20 Z" fill="#ff007f" /><text x="40" y="29" font-family="'Impact', 'Arial Black', sans-serif" font-size="18" font-weight="bold" fill="#ffffff" letter-spacing="1">THE ROCKERS</text></svg></div>
+                        <div class="partner-logo-badge"><svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-rockers-1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ff007f" /><stop offset="100%" stop-color="#7c3aed" /></linearGradient></defs><polygon points="5,5 155,2 150,40 10,43" fill="#111111" stroke="url(#grad-rockers-1)" stroke-width="2"/><path d="M 22,12 L 32,12 L 24,24 L 32,24 L 18,36 L 24,20 L 18,20 Z" fill="#ff007f" /><text x="40" y="29" font-family="'Impact', 'Arial Black', sans-serif" font-size="18" font-weight="bold" fill="#ffffff" letter-spacing="1">THE ROCKERS</text></svg></div>
                         <div class="partner-logo-badge"><svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="166" height="41" rx="8" fill="#000000" stroke="#00ffcc" stroke-width="2" /><line x1="15" y1="12" x2="15" y2="33" stroke="#00ffcc" stroke-width="3" /><line x1="21" y1="8" x2="21" y2="37" stroke="#00ffcc" stroke-width="3" /><line x1="27" y1="16" x2="27" y2="29" stroke="#00ffcc" stroke-width="3" /><line x1="33" y1="6" x2="33" y2="39" stroke="#00ffcc" stroke-width="3" /><text x="42" y="28" font-family="'Courier New', monospace" font-size="16" font-weight="900" fill="#ffffff" letter-spacing="0.5">HYPERACTIVE</text></svg></div>
                         <div class="partner-logo-badge"><svg viewBox="0 0 165 45" width="165" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="18" fill="#1e293b" stroke="#e2e8f0" stroke-width="1" /><path d="M18,12 L18,26 A6,6 0 1,1 12,20 L16,20 Z" fill="#fbbf24" /><path d="M26,10 L26,24 A4,4 0 1,1 22,20 L24,20 Z" fill="#3b82f6" /><text x="48" y="27" font-family="'Georgia', serif" font-size="16" font-style="italic" font-weight="bold" fill="#fbbf24">Blue Note Jazz</text></svg></div>
                         <div class="partner-logo-badge"><svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M5,22 Q20,5 35,22 T65,22" fill="none" stroke="#f472b6" stroke-width="3" stroke-linecap="round" /><path d="M15,22 Q30,35 45,22 T75,22" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" /><text x="80" y="28" font-family="'Montserrat', sans-serif" font-size="15" font-weight="300" fill="#ffffff" letter-spacing="1.5">VOCAL</text></svg></div>
@@ -5405,7 +5405,7 @@ window.renderInfoPage = function(container, type) {
                         <div class="partner-logo-badge"><svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-melody-1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient></defs><path d="M22,35 C28,35 28,26 23,26 C15,26 18,35 22,35 Z M22,35 L22,8 Q27,8 27,15 Q22,20 22,24" fill="none" stroke="url(#grad-melody-1)" stroke-width="3" /><text x="40" y="27" font-family="'Trebuchet MS', sans-serif" font-size="15" font-weight="bold" fill="url(#grad-melody-1)">MelodyMakers</text></svg></div>
                         <div class="partner-logo-badge"><svg viewBox="0 0 155 45" width="155" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M10,12 C18,8 28,8 36,12 C40,24 30,36 23,40 C16,36 6,24 10,12 Z" fill="#84cc16" opacity="0.8" /><text x="45" y="26" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="#ffffff">acoustic<tspan fill="#84cc16">duo</tspan></text></svg></div>
                         <!-- Loop set -->
-                        <div class="partner-logo-badge"><svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-rockers-2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff007f" /><stop offset="100%" stop-color="#7c3aed" /></linearGradient></defs><polygon points="5,5 155,2 150,40 10,43" fill="#111111" stroke="url(#grad-rockers-2)" stroke-width="2"/><path d="M 22,12 L 32,12 L 24,24 L 32,24 L 18,36 L 24,20 L 18,20 Z" fill="#ff007f" /><text x="40" y="29" font-family="'Impact', 'Arial Black', sans-serif" font-size="18" font-weight="bold" fill="#ffffff" letter-spacing="1">THE ROCKERS</text></svg></div>
+                        <div class="partner-logo-badge"><svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-rockers-2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ff007f" /><stop offset="100%" stop-color="#7c3aed" /></linearGradient></defs><polygon points="5,5 155,2 150,40 10,43" fill="#111111" stroke="url(#grad-rockers-2)" stroke-width="2"/><path d="M 22,12 L 32,12 L 24,24 L 32,24 L 18,36 L 24,20 L 18,20 Z" fill="#ff007f" /><text x="40" y="29" font-family="'Impact', 'Arial Black', sans-serif" font-size="18" font-weight="bold" fill="#ffffff" letter-spacing="1">THE ROCKERS</text></svg></div>
                         <div class="partner-logo-badge"><svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="166" height="41" rx="8" fill="#000000" stroke="#00ffcc" stroke-width="2" /><line x1="15" y1="12" x2="15" y2="33" stroke="#00ffcc" stroke-width="3" /><line x1="21" y1="8" x2="21" y2="37" stroke="#00ffcc" stroke-width="3" /><line x1="27" y1="16" x2="27" y2="29" stroke="#00ffcc" stroke-width="3" /><line x1="33" y1="6" x2="33" y2="39" stroke="#00ffcc" stroke-width="3" /><text x="42" y="28" font-family="'Courier New', monospace" font-size="16" font-weight="900" fill="#ffffff" letter-spacing="0.5">HYPERACTIVE</text></svg></div>
                         <div class="partner-logo-badge"><svg viewBox="0 0 165 45" width="165" height="45" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="22" r="18" fill="#1e293b" stroke="#e2e8f0" stroke-width="1" /><path d="M18,12 L18,26 A6,6 0 1,1 12,20 L16,20 Z" fill="#fbbf24" /><path d="M26,10 L26,24 A4,4 0 1,1 22,20 L24,20 Z" fill="#3b82f6" /><text x="48" y="27" font-family="'Georgia', serif" font-size="16" font-style="italic" font-weight="bold" fill="#fbbf24">Blue Note Jazz</text></svg></div>
                         <div class="partner-logo-badge"><svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M5,22 Q20,5 35,22 T65,22" fill="none" stroke="#f472b6" stroke-width="3" stroke-linecap="round" /><path d="M15,22 Q30,35 45,22 T75,22" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" /><text x="80" y="28" font-family="'Montserrat', sans-serif" font-size="15" font-weight="300" fill="#ffffff" letter-spacing="1.5">VOCAL</text></svg></div>
@@ -5421,7 +5421,7 @@ window.renderInfoPage = function(container, type) {
             `}
 
             <!-- 2. BELOW: GigConnAct für Musiker/Veranstalter Title & Diagram -->
-            <div style="width: 100%; max-width: 1200px; margin: 1rem auto 0; padding-top: 2.5rem; border-top: 1px solid rgba(0,0,0,0.08); box-sizing: border-box;">
+            <div style="width: 100%; max-width: 1440px; margin: 1.5rem auto 0; padding: 3.5rem clamp(1rem, 3.5vw, 3rem) 0; border-top: 1px solid rgba(0,0,0,0.08); box-sizing: border-box;">
                 <div style="margin: 0 auto 1.5rem; text-align: center; width: 100%; box-sizing: border-box;">
                     <h2 style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.5rem); font-weight: 900; color: #0d0e12; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
                         <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; display: block; margin-bottom: 0.2rem;">GigConnAct</span>
@@ -14868,7 +14868,7 @@ function navigate(page) {
     window.lastChatTimestamp = maxChatTimestamp;
     window.lastUpdateVersion = currentUpdateVersion;
 
-    if (page === '') {
+    if (page === '' || page === 'info-musician' || page === 'info-organizer') {
         mainContainer.classList.add('page-landing');
     } else {
         mainContainer.classList.remove('page-landing');
