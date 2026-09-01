@@ -5194,6 +5194,27 @@ function renderHowItWorksContentHTML(type) {
             <div style="display: flex; gap: 0.4rem; align-items: center; justify-content: center; margin-bottom: 2rem; width: 100%; max-width: 360px; box-sizing: border-box;">
                 <button onclick="${toggleFunc}('direktkontakt')" style="flex: 1; padding: 0.65rem 0.9rem; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; border-radius: 12px; cursor: pointer; transition: all 0.2s; ${isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${themeColor}; box-shadow: 0 4px 12px rgba(37,99,235,0.15);` : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.06);'}">
                     Direktkontakt
+                </button>
+                <span style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; padding: 0; user-select: none; flex-shrink: 0;">
+                    ${toggleWord}
+                </span>
+                <button onclick="${toggleFunc}('vermittlung')" style="flex: 1; padding: 0.65rem 0.9rem; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; border-radius: 12px; cursor: pointer; transition: all 0.2s; ${!isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${themeColor}; box-shadow: 0 4px 12px rgba(37,99,235,0.15);` : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.06);'}">
+                    Vermittlung
+                </button>
+            </div>
+
+            <!-- Path flowchart content -->
+            <div style="width: 100%; box-sizing: border-box;">
+                ${contentHTML}
+            </div>
+
+        </div>
+    `;
+}
+
+window.musicianFlowPath = 'direktkontakt';
+window.organizerFlowPath = 'direktkontakt';
+window.infoPageStep = 1;
 window.infoPageIntroPlayed = false;
 
 window.setMusicianFlowPath = function(path) {
