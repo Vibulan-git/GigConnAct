@@ -4281,13 +4281,16 @@ input[type="range"].input-field {
     transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.4, 1), box-shadow 0.15s ease, filter 0.15s ease !important;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+    outline: none !important;
 }
-.hero-cta-card-btn:hover {
-    transform: translateY(-4px) scale(1.03) !important;
-    filter: brightness(1.08);
+@media (hover: hover) and (pointer: fine) {
+    .hero-cta-card-btn:hover {
+        transform: translateY(-3px) scale(1.02) !important;
+        filter: brightness(1.06);
+    }
 }
 .hero-cta-card-btn:active {
-    transform: translateY(3px) scale(0.95) !important;
+    transform: translateY(2px) scale(0.96) !important;
     filter: brightness(0.92);
 }
 
