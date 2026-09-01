@@ -5514,8 +5514,12 @@ window.renderInfoPage = function(container, type) {
         }
     }
 
+    const pageBgGradient = isMusician
+        ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(46, 16, 101, 0.92) 40%, rgba(109, 40, 217, 0.88) 75%, rgba(124, 58, 237, 0.85) 100%), #0d0e12'
+        : 'linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(23, 37, 84, 0.92) 40%, rgba(30, 58, 138, 0.88) 75%, rgba(37, 99, 235, 0.85) 100%), #0d0e12';
+
     container.innerHTML = `
-        <div class="info-page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 1.5rem 1rem 3.5rem; font-family: var(--font-heading); color: #0f172a; box-sizing: border-box; width: 100%; min-height: 100vh;">
+        <div class="info-page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 2rem 1rem 3.5rem; font-family: var(--font-heading); box-sizing: border-box; width: 100%; min-height: 100vh; position: relative; background: ${pageBgGradient};">
             
             <style>
                 .flow-anim-card {
@@ -5544,26 +5548,26 @@ window.renderInfoPage = function(container, type) {
 
             <!-- 1. Überschrift: "Mehr Gigs" (Musiker) / "Dein Act" (Veranstalter) -->
             <div style="text-align: center; margin-bottom: 0.9rem; width: 100%; max-width: 1000px; box-sizing: border-box;">
-                <h1 style="font-family: var(--font-heading); font-size: clamp(2.1rem, 5.8vw, 3.6rem); font-weight: 900; color: #0d0e12; margin: 0; line-height: 1.15; letter-spacing: -1px; text-align: center;">
-                    2 Wege. <span style="color: ${themeColor};">${isMusician ? 'Mehr Gigs' : 'Dein Act'}</span>
+                <h1 style="font-family: var(--font-heading); font-size: clamp(2.1rem, 5.8vw, 3.6rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.15; letter-spacing: -1px; text-align: center; text-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+                    2 Wege. <span style="color: ${isMusician ? '#c084fc' : '#60a5fa'}; text-shadow: 0 4px 15px rgba(0,0,0,0.5);">${isMusician ? 'Mehr Gigs' : 'Dein Act'}</span>
                 </h1>
             </div>
 
             <!-- 2. Toggle-Buttons: Direktkontakt und/oder Vermittlung -->
             <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; margin-bottom: 0.9rem; width: 100%; max-width: 420px; box-sizing: border-box;">
-                <button onclick="${toggleFunc}('direktkontakt')" style="flex: 1; padding: 0.75rem 1.2rem; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; border-radius: 14px; cursor: pointer; transition: all 0.2s; ${isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${themeColor}; box-shadow: 0 4px 15px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'};` : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.08);'}">
+                <button onclick="${toggleFunc}('direktkontakt')" style="flex: 1; padding: 0.75rem 1.2rem; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; border-radius: 14px; cursor: pointer; transition: all 0.2s; ${isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${isMusician ? '#a855f7' : '#60a5fa'}; box-shadow: 0 4px 15px ${isMusician ? 'rgba(124,58,237,0.45)' : 'rgba(37,99,235,0.45)'};` : 'background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #ffffff; border: 1.5px solid rgba(255,255,255,0.3);'}">
                     Direktkontakt
                 </button>
-                <span style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; user-select: none; flex-shrink: 0;">
+                <span style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: rgba(255,255,255,0.85); text-shadow: 0 2px 8px rgba(0,0,0,0.4); text-transform: uppercase; letter-spacing: 0.5px; user-select: none; flex-shrink: 0;">
                     ${toggleWord}
                 </span>
-                <button onclick="${toggleFunc}('vermittlung')" style="flex: 1; padding: 0.75rem 1.2rem; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; border-radius: 14px; cursor: pointer; transition: all 0.2s; ${!isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${themeColor}; box-shadow: 0 4px 15px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'};` : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.08);'}">
+                <button onclick="${toggleFunc}('vermittlung')" style="flex: 1; padding: 0.75rem 1.2rem; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; border-radius: 14px; cursor: pointer; transition: all 0.2s; ${!isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${isMusician ? '#a855f7' : '#60a5fa'}; box-shadow: 0 4px 15px ${isMusician ? 'rgba(124,58,237,0.45)' : 'rgba(37,99,235,0.45)'};` : 'background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #ffffff; border: 1.5px solid rgba(255,255,255,0.3);'}">
                     Vermittlung
                 </button>
             </div>
 
             <!-- 3. Step-Banner: Links bündig Zahl + Text kompakt, rechts lilaner Pfeil / Refresh Button -->
-            <div class="flow-anim-card" style="width: 100%; max-width: 680px; margin: 0 auto 0.9rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.85rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.03);">
+            <div class="flow-anim-card" style="width: 100%; max-width: 680px; margin: 0 auto 0.9rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.85rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; box-sizing: border-box; box-shadow: 0 12px 35px rgba(0,0,0,0.25);">
                 
                 <!-- Links: Nummer & Schritt-Titel eng beieinander -->
                 <div style="display: flex; align-items: baseline; gap: 0.45rem; flex: 1; text-align: left; min-width: 0;">
@@ -5597,7 +5601,7 @@ window.renderInfoPage = function(container, type) {
 
             <!-- 5. Button-Trigger / CTA zum vollständigen Markt -->
             <div class="flow-anim-card" style="animation-delay: 0.35s; width: 100%; max-width: 520px; margin: 1rem auto 0; box-sizing: border-box; text-align: center;">
-                <button onclick="${isMusician ? "window.onNavigate('events')" : "window.onNavigate('musicians')"}" class="glow-card-pulse" style="cursor: pointer; width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 18px; padding: 1.1rem 2rem; color: #ffffff; font-family: var(--font-heading); font-size: clamp(1.1rem, 3vw, 1.4rem); font-weight: 900; letter-spacing: -0.3px; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
+                <button onclick="${isMusician ? "window.onNavigate('events')" : "window.onNavigate('musicians')"}" class="glow-card-pulse" style="cursor: pointer; width: 100%; background: ${isMusician ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; border: 1.5px solid ${isMusician ? '#a855f7' : '#60a5fa'}; border-radius: 18px; padding: 1.1rem 2rem; color: #ffffff; font-family: var(--font-heading); font-size: clamp(1.1rem, 3vw, 1.4rem); font-weight: 900; letter-spacing: -0.3px; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; box-shadow: 0 8px 25px ${isMusician ? 'rgba(124,58,237,0.45)' : 'rgba(37,99,235,0.45)'}; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
                     <span>${isMusician ? 'Alle Events im Event-Markt ansehen' : 'Alle Musiker im Musiker-Markt ansehen'}</span>
                     <i class="fa-solid fa-arrow-right-long" style="font-size: 1.1em;"></i>
                 </button>
