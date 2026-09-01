@@ -2920,7 +2920,7 @@ body {
     justify-content: center;
     flex-wrap: nowrap;
     width: 100%;
-    max-width: 560px;
+    max-width: 520px;
     margin: 0 auto;
     box-sizing: border-box;
 }
@@ -2929,6 +2929,7 @@ body {
     white-space: normal;
     text-align: center;
     transition: all 0.3s ease !important;
+    justify-content: flex-start !important;
 }
 
 #btn-hero-musician {
@@ -2947,12 +2948,33 @@ body {
 }
 
 #btn-login-trigger:hover, #btn-bottom-login-trigger:hover {
-    background: linear-gradient(135deg, #6d28d9 0%, #1d4ed8 100%) !important;
-    transform: translateY(-1.5px) !important;
-    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35) !important;
 }
 
-/* Zero margins and fullscreen container for landing page */
+.hero-feature-pill {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+@supports not (backdrop-filter: blur(8px)) {
+    .hero-feature-pill {
+        background: rgba(15, 23, 42, 0.85) !important;
+    }
+}
+
+.hero-benefits-box {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+@media (max-width: 768px) {
+    .hero-benefits-box {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+}
+
 .landing-active-main {
     max-width: 100% !important;
     width: 100% !important;
@@ -2976,35 +2998,37 @@ body {
 @media (max-width: 600px) {
     .hero-cta-buttons {
         gap: 0.65rem !important;
-        padding: 0 0.4rem !important;
+        padding: 0 0.3rem !important;
         width: 100% !important;
-        max-width: 560px !important;
+        max-width: 520px !important;
         flex-wrap: nowrap !important;
     }
     
     .hero-cta-buttons .btn {
-        padding: 0.85rem 0.35rem !important;
+        padding: 1rem 0.3rem 0.6rem !important;
         border-radius: 16px !important;
         min-width: 0 !important;
         width: 0 !important;
         flex: 1 1 0px !important;
-        min-height: 120px !important;
-        max-height: 145px !important;
+        min-height: 130px !important;
+        max-height: 155px !important;
+        justify-content: flex-start !important;
         gap: 0.25rem !important;
     }
     
     .hero-cta-buttons .btn i {
-        font-size: 2.1rem !important;
+        font-size: 2.3rem !important;
+        margin-bottom: 0.1rem !important;
     }
     
     .hero-cta-buttons .btn .hero-cta-title {
-        font-size: 0.92rem !important;
+        font-size: 0.98rem !important;
         line-height: 1.15 !important;
     }
 
     .hero-cta-buttons .btn .hero-cta-subtitle {
-        font-size: 0.72rem !important;
-        line-height: 1 !important;
+        font-size: 0.74rem !important;
+        line-height: 1.1 !important;
     }
     
     .hero-benefits-box {
