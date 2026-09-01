@@ -3005,31 +3005,27 @@ body {
     }
     
     .hero-cta-buttons .btn {
-        padding: 0.85rem 0.25rem 0.65rem !important;
+        padding: 1rem 0.3rem 0.85rem !important;
         border-radius: 16px !important;
         min-width: 0 !important;
         width: 0 !important;
         flex: 1 1 0px !important;
-        min-height: 125px !important;
-        max-height: 145px !important;
+        min-height: 130px !important;
+        max-height: 155px !important;
         justify-content: center !important;
     }
     
-    .hero-cta-buttons .btn i {
-        font-size: 1.15rem !important;
-        margin: 0 !important;
-    }
-    
     .hero-cta-buttons .btn .hero-cta-title {
-        font-size: 1.12rem !important;
+        font-size: 1.25rem !important;
         line-height: 1.15 !important;
         font-weight: 900 !important;
     }
 
     .hero-cta-buttons .btn .hero-cta-subtitle {
-        font-size: 0.85rem !important;
+        font-size: 0.92rem !important;
         line-height: 1.25 !important;
         font-weight: 600 !important;
+        margin-top: 0.35rem !important;
     }
     
     .hero-benefits-box {
