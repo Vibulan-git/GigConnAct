@@ -17710,10 +17710,10 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; height: 2.4em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">${displayName}</h3>
                     </div>
 
-                    <!-- 2. Einspaltige Informationen mit Icons (Reihenfolge nach Benutzer-Anforderungen) mit einklappbaren Details -->
+                    <!-- 2. Einspaltige Informationen mit Icons (Top 3 Infos immer sichtbar, Rest aufklappbar per Plus-Button) -->
                     <div style="display: flex; gap: 0.6rem; align-items: stretch; justify-content: space-between; margin-bottom: 0.75rem;">
                         
-                        <!-- Left Column: Info list (fields 1-6) -->
+                        <!-- Left Column: Top 3 Info fields (Ort, Datum/Verfügbarkeit, Event- oder Musiker-Art) -->
                         <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); flex: 1;">
                             <!-- 1. Ort -->
                             <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
@@ -17727,35 +17727,17 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                                 <span style="flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, isEvents ? 'date' : 'avail')}</span>
                             </div>
 
-                            <!-- 3. Musiker-Typen/Event-Typen -->
+                            <!-- 3. Event-Art / Musiker-Art -->
                             <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                                 <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                                 <span style="flex: 1;">${formatTruncatedValue(isEvents ? (item.type || item.eventType || 'Event') : (item.type || item.category || 'Solo / Band'), themeColor, item.id, isEvents ? 'eventtype' : 'mustype')}</span>
                             </div>
-
-                            <!-- 4. Event-Typen/Musiker-Typen (Gesucht:) -->
-                            <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                                <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                                <span style="flex: 1;">${formatTruncatedValue(isEvents ? ((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band'))) : (item.eventTypes && item.eventTypes.length > 0 ? item.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier']), themeColor, item.id, isEvents ? 'musiciantype' : 'eventtypes')}</span>
-                            </div>
-
-                            <!-- 5. Genres -->
-                            <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                                <i class="fa-solid fa-music" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                                <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, item.id, 'genres')}</span>
-                            </div>
-
-                            <!-- 6. Instrumente -->
-                            <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                                <i class="fa-solid fa-drum" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                                <span style="flex: 1;">${formatTruncatedValue(instrumentsArr, themeColor, item.id, 'instruments')}</span>
-                            </div>
                         </div>
                         
-                        <!-- Right Column: Heart, Plus stacked vertically, aligned to the bottom (Instrumente height) -->
-                        <div style="display: flex; flex-direction: column; justify-content: flex-end; padding-left: 0.6rem; border-left: 1px solid var(--border-glass); padding-bottom: 0.1rem; min-width: 46px; box-sizing: border-box; align-items: center; gap: 0.9rem;">
+                        <!-- Right Column: Heart (top), Plus (bottom) stacked vertically -->
+                        <div style="display: flex; flex-direction: column; justify-content: space-between; padding-left: 0.6rem; border-left: 1px solid var(--border-glass); padding-bottom: 0.1rem; min-width: 46px; box-sizing: border-box; align-items: center;">
                             
-                            <!-- 2. Heart (Favorite Button) -->
+                            <!-- Heart (Favorite Button) -->
                             <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none; width: 28px; height: 28px;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
                                 ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? `
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444" width="26" height="26" style="display: block;">
@@ -17768,15 +17750,33 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                                 `}
                             </button>
                             
-                            <!-- 3. Plus (Expand Button) -->
+                            <!-- Plus (Expand Button) -->
                             <button onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0; cursor: pointer; color: ${themeColor}; outline: none; transition: transform 0.2s; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Mehr Details anzeigen/verbergen">
                                 <i class="fa-solid fa-circle-plus" id="toggle-icon-${item.id}" style="font-size: 1.6rem; opacity: 0.85;"></i>
                             </button>
                         </div>
                     </div>
                     
-                    <!-- Collapsible details wrapper (outside the 2-column flex to expand full width) -->
+                    <!-- Collapsible details wrapper (opens on + click with all remaining infos) -->
                     <div id="collapsible-details-${item.id}" style="display: none; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.75rem;">
+                        <!-- 4. Event-Typen/Musiker-Typen (Gesucht:) -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(isEvents ? ((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band'))) : (item.eventTypes && item.eventTypes.length > 0 ? item.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier']), themeColor, item.id, isEvents ? 'musiciantype' : 'eventtypes')}</span>
+                        </div>
+
+                        <!-- 5. Genres -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                            <i class="fa-solid fa-music" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, item.id, 'genres')}</span>
+                        </div>
+
+                        <!-- 6. Instrumente -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                            <i class="fa-solid fa-drum" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(instrumentsArr, themeColor, item.id, 'instruments')}</span>
+                        </div>
+
                         <!-- 7. Spielzeit -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
@@ -19461,24 +19461,24 @@ window.renderRecommendationPage = function(container, mediationId) {
                                                     <i class="fa-solid fa-guitar" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                                                     <span style="flex: 1;">${mus.type || 'Solo / Band'}</span>
                                                 </div>
-                                                <!-- 4. Event-Typen -->
-                                                <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                                                    <i class="fa-solid fa-calendar-check" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                                                    <span style="flex: 1;">${(mus.eventTypes || ['Hochzeit', 'Geburtstag', 'Firmenfeier']).slice(0, 3).join(', ')}</span>
-                                                </div>
-                                                <!-- 5. Genres -->
-                                                <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                                                    <i class="fa-solid fa-music" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                                                    <span style="flex: 1;">${genresArr.slice(0, 3).join(', ')}</span>
-                                                </div>
-                                                <!-- 6. Instrumente -->
-                                                <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                                                    <i class="fa-solid fa-drum" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                                                    <span style="flex: 1;">${instrumentsArr.slice(0, 3).join(', ')}</span>
-                                                </div>
                                             </div>
                                         </div>
                                         <div id="collapsible-details-${mus.id}" style="display: flex; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+                                            <!-- 4. Event-Typen -->
+                                            <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35; font-size: 0.84rem; color: var(--text-main);">
+                                                <i class="fa-solid fa-calendar-check" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                                                <span style="flex: 1;">${(mus.eventTypes || ['Hochzeit', 'Geburtstag', 'Firmenfeier']).slice(0, 3).join(', ')}</span>
+                                            </div>
+                                            <!-- 5. Genres -->
+                                            <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35; font-size: 0.84rem; color: var(--text-main);">
+                                                <i class="fa-solid fa-music" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                                                <span style="flex: 1;">${genresArr.slice(0, 3).join(', ')}</span>
+                                            </div>
+                                            <!-- 6. Instrumente -->
+                                            <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35; font-size: 0.84rem; color: var(--text-main);">
+                                                <i class="fa-solid fa-drum" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                                                <span style="flex: 1;">${instrumentsArr.slice(0, 3).join(', ')}</span>
+                                            </div>
                                             <!-- 7. Spielzeit -->
                                             <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
                                                 <i class="fa-solid fa-clock" style="color: #2563eb; width: 16px; text-align: center;"></i>
