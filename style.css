@@ -3005,13 +3005,13 @@ body {
     }
     
     .hero-cta-buttons .btn {
-        padding: 1rem 0.3rem 0.85rem !important;
+        padding: 1.15rem 0.35rem 0.95rem !important;
         border-radius: 16px !important;
         min-width: 0 !important;
         width: 0 !important;
         flex: 1 1 0px !important;
-        min-height: 130px !important;
-        max-height: 155px !important;
+        min-height: 140px !important;
+        max-height: 165px !important;
         justify-content: center !important;
     }
     
