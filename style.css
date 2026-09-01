@@ -4249,31 +4249,46 @@ input[type="range"].input-field {
 @keyframes heroCtaFlyInRight {
     0% {
         opacity: 0;
-        transform: translateX(45px);
+        transform: translateX(80px) scale(0.96);
     }
     100% {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateX(0) scale(1);
     }
 }
 
 @keyframes heroCtaFlyInLeft {
     0% {
         opacity: 0;
-        transform: translateX(-45px);
+        transform: translateX(-80px) scale(0.96);
     }
     100% {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateX(0) scale(1);
     }
 }
 
 .hero-cta-fly-in-right {
-    animation: heroCtaFlyInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: heroCtaFlyInRight 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .hero-cta-fly-in-left {
-    animation: heroCtaFlyInLeft 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: heroCtaFlyInLeft 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hero-cta-card-btn {
+    cursor: pointer;
+    transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.4, 1), box-shadow 0.15s ease, filter 0.15s ease !important;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+.hero-cta-card-btn:hover {
+    transform: translateY(-4px) scale(1.03) !important;
+    filter: brightness(1.08);
+}
+.hero-cta-card-btn:active {
+    transform: translateY(3px) scale(0.95) !important;
+    filter: brightness(0.92);
 }
 
 /* Split benefits layout on laptop screens */

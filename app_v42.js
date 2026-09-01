@@ -5663,57 +5663,57 @@ window.setHeroCtaMode = function(mode, direction = 'forward') {
 window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
     if (mode === 'musician') {
         return `
-            <div class="${animClass}" style="display: flex; flex-direction: column; align-items: center; width: 100%; gap: 1rem;">
-                <div style="display: flex; gap: 1.8rem; width: 100%; justify-content: center; flex-wrap: wrap;">
-                    <button class="btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
-                        <i class="fa-solid fa-calendar-days" style="font-size: 3.2rem;"></i>
-                        <span style="font-size: 1.35rem; font-weight: 800; display: block; line-height: 1.2;">Zum Event-Markt</span>
-                        <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Alle Events ansehen</span>
-                    </button>
-                    <button class="btn" onclick="window.appNavigate('info-musician')" style="background: linear-gradient(135deg, #581c87 0%, #3b0764 100%); border: 2px solid #c084fc; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.45); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
-                        <i class="fa-solid fa-circle-question" style="font-size: 3.2rem;"></i>
-                        <span style="font-size: 1.25rem; font-weight: 800; display: block; line-height: 1.2; text-align: center;">Wie funktioniert GigConnAct?</span>
-                        <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Erklärung & Ablauf</span>
+            <div class="${animClass}" style="position: relative; display: flex; gap: 1.8rem; width: 100%; justify-content: center; flex-wrap: wrap;">
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;">
+                    <i class="fa-solid fa-calendar-days" style="font-size: 3.2rem;"></i>
+                    <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Gig-Markt</span>
+                    <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Events ansehen</span>
+                </button>
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('info-musician')" style="background: linear-gradient(135deg, #581c87 0%, #3b0764 100%); border: 2px solid #c084fc; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.45); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;">
+                    <i class="fa-solid fa-circle-question" style="font-size: 3.2rem;"></i>
+                    <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Erklärung</span>
+                    <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Ablauf verstehen</span>
+                </button>
+                <div style="position: absolute; top: calc(100% + 12px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; justify-content: center; pointer-events: auto;">
+                    <button onclick="window.setHeroCtaMode('initial', 'back')" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.25); backdrop-filter: blur(8px); color: #ffffff; cursor: pointer; font-size: 0.88rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.4rem 1.1rem; border-radius: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.22)';" onmouseout="this.style.background='rgba(255,255,255,0.12)';">
+                        <i class="fa-solid fa-arrow-left"></i> <span>Zurück zur Auswahl</span>
                     </button>
                 </div>
-                <button onclick="window.setHeroCtaMode('initial', 'back')" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.25); backdrop-filter: blur(8px); color: #ffffff; cursor: pointer; font-size: 0.88rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.45rem 1.1rem; border-radius: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.22)';" onmouseout="this.style.background='rgba(255,255,255,0.12)';">
-                    <i class="fa-solid fa-arrow-left"></i> <span>Zurück zur Auswahl</span>
-                </button>
             </div>
         `;
     }
     
     if (mode === 'organizer') {
         return `
-            <div class="${animClass}" style="display: flex; flex-direction: column; align-items: center; width: 100%; gap: 1rem;">
-                <div style="display: flex; gap: 1.8rem; width: 100%; justify-content: center; flex-wrap: wrap;">
-                    <button class="btn" onclick="window.appNavigate('musicians')" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
-                        <i class="fa-solid fa-guitar" style="font-size: 3.2rem;"></i>
-                        <span style="font-size: 1.35rem; font-weight: 800; display: block; line-height: 1.2;">Zum Musiker-Markt</span>
-                        <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Alle Künstler ansehen</span>
-                    </button>
-                    <button class="btn" onclick="window.appNavigate('info-organizer')" style="background: linear-gradient(135deg, #172554 0%, #1e3a8a 100%); border: 2px solid #93c5fd; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.45); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
-                        <i class="fa-solid fa-circle-question" style="font-size: 3.2rem;"></i>
-                        <span style="font-size: 1.25rem; font-weight: 800; display: block; line-height: 1.2; text-align: center;">Wie funktioniert GigConnAct?</span>
-                        <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Erklärung & Ablauf</span>
+            <div class="${animClass}" style="position: relative; display: flex; gap: 1.8rem; width: 100%; justify-content: center; flex-wrap: wrap;">
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('musicians')" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;">
+                    <i class="fa-solid fa-guitar" style="font-size: 3.2rem;"></i>
+                    <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Musiker-Markt</span>
+                    <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Künstler ansehen</span>
+                </button>
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('info-organizer')" style="background: linear-gradient(135deg, #172554 0%, #1e3a8a 100%); border: 2px solid #93c5fd; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.45); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;">
+                    <i class="fa-solid fa-circle-question" style="font-size: 3.2rem;"></i>
+                    <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Erklärung</span>
+                    <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Ablauf verstehen</span>
+                </button>
+                <div style="position: absolute; top: calc(100% + 12px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; justify-content: center; pointer-events: auto;">
+                    <button onclick="window.setHeroCtaMode('initial', 'back')" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.25); backdrop-filter: blur(8px); color: #ffffff; cursor: pointer; font-size: 0.88rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.4rem 1.1rem; border-radius: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.22)';" onmouseout="this.style.background='rgba(255,255,255,0.12)';">
+                        <i class="fa-solid fa-arrow-left"></i> <span>Zurück zur Auswahl</span>
                     </button>
                 </div>
-                <button onclick="window.setHeroCtaMode('initial', 'back')" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.25); backdrop-filter: blur(8px); color: #ffffff; cursor: pointer; font-size: 0.88rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.45rem 1.1rem; border-radius: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.22)';" onmouseout="this.style.background='rgba(255,255,255,0.12)';">
-                    <i class="fa-solid fa-arrow-left"></i> <span>Zurück zur Auswahl</span>
-                </button>
             </div>
         `;
     }
 
     // Default 'initial'
     return `
-        <div class="${animClass}" style="display: flex; gap: 1.8rem; width: 100%; justify-content: center; flex-wrap: wrap;">
-            <button class="btn" id="btn-hero-musician" onclick="window.setHeroCtaMode('musician', 'forward')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+        <div class="${animClass}" style="position: relative; display: flex; gap: 1.8rem; width: 100%; justify-content: center; flex-wrap: wrap;">
+            <button class="btn hero-cta-card-btn" id="btn-hero-musician" onclick="window.setHeroCtaMode('musician', 'forward')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;">
                 <i class="fa-solid fa-guitar" style="font-size: 3.2rem;"></i>
                 <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Musiker</span>
                 <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Ich suche Gigs</span>
             </button>
-            <button class="btn" id="btn-hero-organizer" onclick="window.setHeroCtaMode('organizer', 'forward')" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;" onmouseover="this.style.transform='scale(1.04)';" onmouseout="this.style.transform='scale(1)';">
+            <button class="btn hero-cta-card-btn" id="btn-hero-organizer" onclick="window.setHeroCtaMode('organizer', 'forward')" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.5rem; font-weight: 800; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; min-width: 210px; min-height: 165px; flex: 1; max-width: 260px;">
                 <i class="fa-solid fa-calendar-check" style="font-size: 3.2rem;"></i>
                 <span style="font-size: 1.5rem; font-weight: 800; display: block; line-height: 1.2;">Veranstalter</span>
                 <span style="font-size: 0.85rem; font-weight: 500; display: block; opacity: 0.85; text-transform: none; line-height: 1;">Ich suche Acts</span>
