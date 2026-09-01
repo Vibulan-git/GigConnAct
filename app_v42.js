@@ -5697,6 +5697,30 @@ function renderLandingPage(container, onNavigate) {
                     transform: translateY(-4px);
                     box-shadow: 0 16px 32px rgba(0,0,0,0.12);
                 }
+                .marquee-item-glass {
+                    background: rgba(255, 255, 255, 0.16) !important;
+                    border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+                    backdrop-filter: blur(12px) !important;
+                    -webkit-backdrop-filter: blur(12px) !important;
+                    color: #ffffff !important;
+                    padding: 0.6rem 1.4rem !important;
+                    border-radius: 30px !important;
+                    font-weight: 700 !important;
+                    font-size: clamp(0.85rem, 2vw, 1.05rem) !important;
+                    white-space: nowrap !important;
+                    box-shadow: 0 6px 20px rgba(0,0,0,0.3) !important;
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    gap: 0.55rem !important;
+                    text-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
+                    transition: transform 0.2s, background-color 0.2s !important;
+                    user-select: none !important;
+                }
+                .marquee-item-glass:hover {
+                    transform: scale(1.05) !important;
+                    background: rgba(255, 255, 255, 0.25) !important;
+                    border-color: rgba(255, 255, 255, 0.5) !important;
+                }
                 .partner-logo-badge {
                     display: inline-flex;
                     align-items: center;
@@ -5764,21 +5788,32 @@ function renderLandingPage(container, onNavigate) {
 
                 <!-- 4/4: Infinite Scrolling Category Marquee (animating area placed below CTA buttons) -->
                 <div class="logo-marquee-wrapper" style="position: relative; z-index: 3; margin: 0 auto 1.5vh; width: 100%; max-width: 780px; padding: 0.6rem 0.8rem; box-sizing: border-box; mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);">
-                    <div class="logo-marquee-track" style="animation-duration: 22s; gap: 1.2rem;">
+                    <div class="logo-marquee-track" style="animation-duration: 28s; gap: 1.2rem;">
                         <!-- Set 1 -->
                         <span class="marquee-item-glass"><i class="fa-solid fa-ring" style="color: #c084fc;"></i> Hochzeiten</span>
+                        <span class="marquee-item-glass"><i class="fa-solid fa-clipboard-user" style="color: #f472b6;"></i> Hochzeitsplaner</span>
                         <span class="marquee-item-glass"><i class="fa-solid fa-cake-candles" style="color: #60a5fa;"></i> Geburtstage</span>
+                        <span class="marquee-item-glass"><i class="fa-solid fa-wand-magic-sparkles" style="color: #fbbf24;"></i> Eventagenturen</span>
                         <span class="marquee-item-glass"><i class="fa-solid fa-briefcase" style="color: #34d399;"></i> Firmenfeiern</span>
-                        <span class="marquee-item-glass"><i class="fa-solid fa-city" style="color: #fbbf24;"></i> Stadtfeste</span>
-                        <span class="marquee-item-glass"><i class="fa-solid fa-glass-cheers" style="color: #f472b6;"></i> Private Feiern</span>
-                        <span class="marquee-item-glass"><i class="fa-solid fa-guitar" style="color: #a78bfa;"></i> Und Co.</span>
+                        <span class="marquee-item-glass"><i class="fa-solid fa-building" style="color: #10b981;"></i> Firmen</span>
+                        <span class="marquee-item-glass"><i class="fa-solid fa-user-group" style="color: #38bdf8;"></i> Private Veranstalter</span>
+                        <span class="marquee-item-glass"><i class="fa-solid fa-city" style="color: #f59e0b;"></i> Stadtfeste</span>
+                        <span class="marquee-item-glass"><i class="fa-solid fa-landmark" style="color: #a855f7;"></i> Eventlocations</span>
+                        <span class="marquee-item-glass"><i class="fa-solid fa-glass-cheers" style="color: #ec4899;"></i> Private Feiern</span>
+                        <span class="marquee-item-glass"><i class="fa-solid fa-guitar" style="color: #818cf8;"></i> Und Co.</span>
+
                         <!-- Set 2 -->
                         <span class="marquee-item-glass"><i class="fa-solid fa-ring" style="color: #c084fc;"></i> Hochzeiten</span>
+                        <span class="marquee-item-glass"><i class="fa-solid fa-clipboard-user" style="color: #f472b6;"></i> Hochzeitsplaner</span>
                         <span class="marquee-item-glass"><i class="fa-solid fa-cake-candles" style="color: #60a5fa;"></i> Geburtstage</span>
+                        <span class="marquee-item-glass"><i class="fa-solid fa-wand-magic-sparkles" style="color: #fbbf24;"></i> Eventagenturen</span>
                         <span class="marquee-item-glass"><i class="fa-solid fa-briefcase" style="color: #34d399;"></i> Firmenfeiern</span>
-                        <span class="marquee-item-glass"><i class="fa-solid fa-city" style="color: #fbbf24;"></i> Stadtfeste</span>
-                        <span class="marquee-item-glass"><i class="fa-solid fa-glass-cheers" style="color: #f472b6;"></i> Private Feiern</span>
-                        <span class="marquee-item-glass"><i class="fa-solid fa-guitar" style="color: #a78bfa;"></i> Und Co.</span>
+                        <span class="marquee-item-glass"><i class="fa-solid fa-building" style="color: #10b981;"></i> Firmen</span>
+                        <span class="marquee-item-glass"><i class="fa-solid fa-user-group" style="color: #38bdf8;"></i> Private Veranstalter</span>
+                        <span class="marquee-item-glass"><i class="fa-solid fa-city" style="color: #f59e0b;"></i> Stadtfeste</span>
+                        <span class="marquee-item-glass"><i class="fa-solid fa-landmark" style="color: #a855f7;"></i> Eventlocations</span>
+                        <span class="marquee-item-glass"><i class="fa-solid fa-glass-cheers" style="color: #ec4899;"></i> Private Feiern</span>
+                        <span class="marquee-item-glass"><i class="fa-solid fa-guitar" style="color: #818cf8;"></i> Und Co.</span>
                     </div>
                 </div>
             </div>
