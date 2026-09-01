@@ -6659,8 +6659,8 @@ function renderMarket(container, type, onNavigate) {
             
             <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0px; -webkit-overflow-scrolling: touch;">
                 
-                <!-- 1. Trefferanzahl (Links mit Abstand zur Kante) -->
-                <div style="display: flex; align-items: center; gap: 0.45rem; flex-shrink: 0; margin-left: 0.85rem; padding: 0.35rem 0.85rem; background: rgba(255,255,255,0.08); border-radius: 20px; border: 1px solid rgba(255,255,255,0.12); cursor: pointer;" onclick="document.getElementById('btn-toggle-mobile-filters')?.click();" title="Filter öffnen">
+                <!-- 1. Trefferanzahl (Links mit Abstand zur Kante, ohne Hintergrund-Kreis) -->
+                <div style="display: flex; align-items: center; gap: 0.45rem; flex-shrink: 0; margin-left: 0.85rem; padding: 0.35rem 0; cursor: pointer;" onclick="document.getElementById('btn-toggle-mobile-filters')?.click();" title="Filter öffnen">
                     <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; text-align: center; white-space: nowrap; margin: 0; line-height: 1.2;">
                         ${getItems().length}
                     </div>
