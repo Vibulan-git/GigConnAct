@@ -3013,12 +3013,15 @@ body {
         min-height: 145px !important;
         max-height: 180px !important;
         justify-content: center !important;
+        align-items: center !important;
     }
     
     .hero-cta-buttons .btn .hero-cta-title {
-        font-size: clamp(0.95rem, 3.2vw, 1.16rem) !important;
-        line-height: 1.18 !important;
+        font-family: var(--font-heading) !important;
+        font-size: clamp(0.92rem, 3vw, 1.15rem) !important;
+        line-height: 1.24 !important;
         font-weight: 900 !important;
+        text-align: center !important;
     }
 
     .hero-cta-buttons .btn .hero-cta-subtitle {
