@@ -5531,11 +5531,11 @@ window.renderInfoPage = function(container, type) {
     }
 
     const pageBgGradient = isMusician
-        ? 'linear-gradient(180deg, rgba(124, 58, 237, 0.08) 0%, rgba(168, 85, 247, 0.03) 45%, rgba(248, 250, 252, 1) 100%), #f8fafc'
-        : 'linear-gradient(180deg, rgba(37, 99, 235, 0.08) 0%, rgba(59, 130, 246, 0.03) 45%, rgba(248, 250, 252, 1) 100%), #f8fafc';
+        ? 'linear-gradient(180deg, #f6f0ff 0%, #ede0fd 28%, #f8f3ff 60%, #ffffff 100%)'
+        : 'linear-gradient(180deg, #eff6ff 0%, #dbeafe 28%, #f0f7ff 60%, #ffffff 100%)';
 
     container.innerHTML = `
-        <div class="info-page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 1.5rem 1rem 3.5rem; font-family: var(--font-heading); box-sizing: border-box; width: 100%; min-height: 100vh; position: relative; background: ${pageBgGradient};">
+        <div class="info-page-container ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 1.5rem 1rem 3.5rem; font-family: var(--font-heading); box-sizing: border-box; width: 100%; min-height: 100vh; position: relative; background: ${pageBgGradient};">
             
             <style>
                 .flow-anim-card {

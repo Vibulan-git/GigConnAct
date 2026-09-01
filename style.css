@@ -4238,6 +4238,14 @@ input[type="range"].input-field {
     margin: 0 !important;
 }
 
+.info-page-container.theme-musician {
+    background: linear-gradient(180deg, #f6f0ff 0%, #ede0fd 28%, #f8f3ff 60%, #ffffff 100%) !important;
+}
+
+.info-page-container.theme-organizer {
+    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 28%, #f0f7ff 60%, #ffffff 100%) !important;
+}
+
 /* Split benefits layout on laptop screens */
 .benefits-container-split {
     display: flex;
