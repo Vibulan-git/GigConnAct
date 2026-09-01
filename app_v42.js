@@ -15717,11 +15717,13 @@ window.handleRouting = handleRouting;
 window.toggleTileDetails = function(itemId) {
     const el = document.getElementById(`collapsible-details-${itemId}`);
     const icon = document.getElementById(`toggle-icon-${itemId}`);
-    if (el && icon) {
+    const textSpan = document.getElementById(`toggle-text-${itemId}`);
+    if (el) {
         const isCollapsed = (el.style.display === 'none' || el.style.display === '');
         if (isCollapsed) {
             el.style.display = 'flex';
-            icon.className = 'fa-solid fa-circle-minus';
+            if (icon) icon.className = 'fa-solid fa-chevron-up';
+            if (textSpan) textSpan.textContent = 'Weniger Details';
             
             // Expand all truncated text fields for this card
             const container = el.closest('.market-tile-card');
@@ -15733,7 +15735,8 @@ window.toggleTileDetails = function(itemId) {
             }
         } else {
             el.style.display = 'none';
-            icon.className = 'fa-solid fa-circle-plus';
+            if (icon) icon.className = 'fa-solid fa-chevron-down';
+            if (textSpan) textSpan.textContent = 'Mehr Details';
             
             // Collapse all truncated text fields for this card
             const container = el.closest('.market-tile-card');
@@ -17713,60 +17716,55 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 <!-- Tile Body Content -->
                 <div class="tile-body-content" style="padding: 1.3rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
                     
-                    <!-- Band/Event Name unter dem Bild (Fett gedruckt) -->
-                    <div style="margin-bottom: 0.8rem;">
-                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; height: 2.4em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">${displayName}</h3>
+                    <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favoriten-Herz rechts -->
+                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.8rem;">
+                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; height: 2.4em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; flex: 1;">${displayName}</h3>
+                        
+                        <!-- Heart (Favorite Button) -->
+                        <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none; width: 28px; height: 28px; flex-shrink: 0;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
+                            ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? `
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444" width="26" height="26" style="display: block;">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            ` : `
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" width="26" height="26" style="display: block;">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                            `}
+                        </button>
                     </div>
 
-                    <!-- 2. Einspaltige Informationen mit Icons (Top 3 Infos immer sichtbar, Rest aufklappbar per Plus-Button) -->
-                    <div style="display: flex; gap: 0.6rem; align-items: stretch; justify-content: space-between; margin-bottom: 0.75rem;">
-                        
-                        <!-- Left Column: Top 3 Info fields (Ort, Datum/Verfügbarkeit, Event- oder Musiker-Art) -->
-                        <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); flex: 1;">
-                            <!-- 1. Ort -->
-                            <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                                <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                                <span style="flex: 1;">${formatTruncatedValue(window.normalizeCityName(item.location || 'Deutschlandweit'), themeColor, item.id, 'location')}</span>
-                            </div>
-                            
-                            <!-- 2. Datum/Verfügbarkeit -->
-                            <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                                <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                                <span style="flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, isEvents ? 'date' : 'avail')}</span>
-                            </div>
-
-                            <!-- 3. Event-Art / Musiker-Art -->
-                            <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                                <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                                <span style="flex: 1;">${formatTruncatedValue(isEvents ? (item.type || item.eventType || 'Event') : (item.type || item.category || 'Solo / Band'), themeColor, item.id, isEvents ? 'eventtype' : 'mustype')}</span>
-                            </div>
+                    <!-- 2. Einspaltige Informationen mit Icons (Top 3 Infos immer sichtbar) -->
+                    <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.6rem;">
+                        <!-- 1. Ort -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(window.normalizeCityName(item.location || 'Deutschlandweit'), themeColor, item.id, 'location')}</span>
                         </div>
                         
-                        <!-- Right Column: Heart (top), Plus (bottom) stacked vertically -->
-                        <div style="display: flex; flex-direction: column; justify-content: space-between; padding-left: 0.6rem; border-left: 1px solid var(--border-glass); padding-bottom: 0.1rem; min-width: 46px; box-sizing: border-box; align-items: center;">
-                            
-                            <!-- Heart (Favorite Button) -->
-                            <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none; width: 28px; height: 28px;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
-                                ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? `
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444" width="26" height="26" style="display: block;">
-                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                    </svg>
-                                ` : `
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" width="26" height="26" style="display: block;">
-                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                    </svg>
-                                `}
-                            </button>
-                            
-                            <!-- Plus (Expand Button) -->
-                            <button onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0; cursor: pointer; color: ${themeColor}; outline: none; transition: transform 0.2s; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Mehr Details anzeigen/verbergen">
-                                <i class="fa-solid fa-circle-plus" id="toggle-icon-${item.id}" style="font-size: 1.6rem; opacity: 0.85;"></i>
-                            </button>
+                        <!-- 2. Datum/Verfügbarkeit -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, isEvents ? 'date' : 'avail')}</span>
+                        </div>
+
+                        <!-- 3. Event-Art / Musiker-Art -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(isEvents ? (item.type || item.eventType || 'Event') : (item.type || item.category || 'Solo / Band'), themeColor, item.id, isEvents ? 'eventtype' : 'mustype')}</span>
                         </div>
                     </div>
                     
-                    <!-- Collapsible details wrapper (opens on + click with all remaining infos) -->
-                    <div id="collapsible-details-${item.id}" style="display: none; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.75rem;">
+                    <!-- Option 1: "Mehr Details" Toggle-Button mit Chevron -->
+                    <div style="text-align: center; margin-bottom: 0.6rem; border-top: 1px dashed var(--border-glass); padding-top: 0.45rem;">
+                        <button id="toggle-details-btn-${item.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.3rem 0.8rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.88rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
+                            <span id="toggle-text-${item.id}">Mehr Details</span>
+                            <i class="fa-solid fa-chevron-down" id="toggle-icon-${item.id}" style="font-size: 0.8rem; transition: transform 0.25s ease;"></i>
+                        </button>
+                    </div>
+
+                    <!-- Collapsible details wrapper (opens on click with all remaining infos) -->
+                    <div id="collapsible-details-${item.id}" style="display: none; flex-direction: column; gap: 0.5rem; padding-bottom: 0.4rem; margin-bottom: 0.6rem;">
                         <!-- 4. Event-Typen/Musiker-Typen (Gesucht:) -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
                             <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
@@ -19471,7 +19469,13 @@ window.renderRecommendationPage = function(container, mediationId) {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div id="collapsible-details-${mus.id}" style="display: flex; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+                                        <div style="text-align: center; margin: 0.5rem 0; border-top: 1px dashed var(--border-glass); padding-top: 0.4rem;">
+                                            <button id="toggle-details-btn-${mus.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${mus.id}')" style="background: none; border: none; padding: 0.25rem 0.6rem; cursor: pointer; color: #2563eb; font-family: var(--font-heading); font-size: 0.84rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
+                                                <span id="toggle-text-${mus.id}">Mehr Details</span>
+                                                <i class="fa-solid fa-chevron-down" id="toggle-icon-${mus.id}" style="font-size: 0.78rem; transition: transform 0.25s ease;"></i>
+                                            </button>
+                                        </div>
+                                        <div id="collapsible-details-${mus.id}" style="display: none; flex-direction: column; gap: 0.5rem; padding-bottom: 0.3rem; margin-bottom: 0.75rem;">
                                             <!-- 4. Event-Typen -->
                                             <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35; font-size: 0.84rem; color: var(--text-main);">
                                                 <i class="fa-solid fa-calendar-check" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
