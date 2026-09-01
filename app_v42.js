@@ -5226,27 +5226,9 @@ window.renderInfoPage = function(container, type) {
                 }
             </style>
 
-            <!-- Section Title: GigConnAct für Musiker/Veranstalter -->
-            <div style="margin: 0.5rem auto 1.25rem; text-align: center; width: 100%; max-width: 1200px; box-sizing: border-box;">
-                <h2 style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.5rem); font-weight: 900; color: #0d0e12; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
-                    <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; display: block; margin-bottom: 0.2rem;">GigConnAct</span>
-                    <span style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; display: block;">für ${isMusician ? 'Musiker' : 'Veranstalter'}</span>
-                </h2>
-                <p style="font-family: var(--font-body); font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 600; color: #64748b; margin: 1rem 0 0; letter-spacing: 0.5px;">
-                    ${isMusician ? '2 Wege. Mehr Gigs' : '2 Wege. Deine Wahl'}
-                </p>
-            </div>
-
-            <!-- 1. The Diagram / Schaubild (GigConnAct erklärt) -->
-            <div style="width: 100%; max-width: 1200px; margin-bottom: 3.5rem; box-sizing: border-box;">
-                <div id="info-page-flow-content" style="width: 100%;">
-                    ${renderHowItWorksContentHTML(type)}
-                </div>
-            </div>
-
-            <!-- 2. Integrated Market Section: Event-Markt (for Musicians) or Musiker-Markt (for Organizers) -->
+            <!-- 1. TOP: Integrated Market Section (Event-Markt for Musicians or Musiker-Markt for Organizers) -->
             ${isMusician ? `
-            <div style="width: 100%; max-width: 1400px; margin: 2rem auto 0; padding: 2rem 1.5rem 0; border-top: 1px solid rgba(0,0,0,0.06); box-sizing: border-box;">
+            <div style="width: 100%; max-width: 1400px; margin: 0 auto 2.5rem; padding: 0.5rem 1.5rem 0; box-sizing: border-box;">
                 
                 <!-- Headline: Event-Markt -->
                 <div style="text-align: center; margin-bottom: 2.0rem; padding: 0 1rem;">
@@ -5292,7 +5274,7 @@ window.renderInfoPage = function(container, type) {
                 </div>
 
                 <!-- Marquee: Event-Logos -->
-                <div class="logo-marquee-wrapper theme-events-marquee" style="margin-bottom: 3.5rem;">
+                <div class="logo-marquee-wrapper theme-events-marquee" style="margin-bottom: 2rem;">
                     <div class="logo-marquee-track">
                         <div class="partner-logo-badge"><svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><path d="M8,32 L8,18 L12,18 L12,22 L16,22 L16,18 L20,18 L20,22 L24,22 L24,18 L28,18 L28,32 Z" fill="#94a3b8" /><path d="M14,32 L14,26 L22,26 L22,32 Z" fill="#1e293b" /><polygon points="18,10 24,15 12,15" fill="#f43f5e" /><text x="35" y="27" font-family="'Georgia', serif" font-size="14" font-weight="bold" fill="#ffffff" letter-spacing="0.5">SCHLOSSBERG</text></svg></div>
                         <div class="partner-logo-badge"><svg viewBox="0 0 165 45" width="165" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-royal-1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#fbbf24" /><stop offset="100%" stop-color="#f59e0b" /></linearGradient></defs><path d="M10,28 L13,15 L18,20 L23,12 L28,20 L33,15 L36,28 Z" fill="url(#grad-royal-1)" /><circle cx="23" cy="8" r="2" fill="url(#grad-royal-1)" /><text x="45" y="26" font-family="'Times New Roman', serif" font-size="18" font-weight="bold" fill="url(#grad-royal-1)" letter-spacing="1.5">ROYAL</text></svg></div>
@@ -5319,7 +5301,7 @@ window.renderInfoPage = function(container, type) {
                 </div>
             </div>
             ` : `
-            <div style="width: 100%; max-width: 1400px; margin: 2rem auto 0; padding: 2rem 1.5rem 0; border-top: 1px solid rgba(0,0,0,0.06); box-sizing: border-box;">
+            <div style="width: 100%; max-width: 1400px; margin: 0 auto 2.5rem; padding: 0.5rem 1.5rem 0; box-sizing: border-box;">
                 
                 <!-- Headline: Musiker-Markt -->
                 <div style="text-align: center; margin-bottom: 2.0rem; padding: 0 1rem;">
@@ -5365,7 +5347,7 @@ window.renderInfoPage = function(container, type) {
                 </div>
 
                 <!-- Marquee: Band-Logos -->
-                <div class="logo-marquee-wrapper theme-musicians-marquee" style="margin-bottom: 3.5rem;">
+                <div class="logo-marquee-wrapper theme-musicians-marquee" style="margin-bottom: 2rem;">
                     <div class="logo-marquee-track">
                         <div class="partner-logo-badge"><svg viewBox="0 0 160 45" width="160" height="45" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-rockers-1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff007f" /><stop offset="100%" stop-color="#7c3aed" /></linearGradient></defs><polygon points="5,5 155,2 150,40 10,43" fill="#111111" stroke="url(#grad-rockers-1)" stroke-width="2"/><path d="M 22,12 L 32,12 L 24,24 L 32,24 L 18,36 L 24,20 L 18,20 Z" fill="#ff007f" /><text x="40" y="29" font-family="'Impact', 'Arial Black', sans-serif" font-size="18" font-weight="bold" fill="#ffffff" letter-spacing="1">THE ROCKERS</text></svg></div>
                         <div class="partner-logo-badge"><svg viewBox="0 0 170 45" width="170" height="45" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="166" height="41" rx="8" fill="#000000" stroke="#00ffcc" stroke-width="2" /><line x1="15" y1="12" x2="15" y2="33" stroke="#00ffcc" stroke-width="3" /><line x1="21" y1="8" x2="21" y2="37" stroke="#00ffcc" stroke-width="3" /><line x1="27" y1="16" x2="27" y2="29" stroke="#00ffcc" stroke-width="3" /><line x1="33" y1="6" x2="33" y2="39" stroke="#00ffcc" stroke-width="3" /><text x="42" y="28" font-family="'Courier New', monospace" font-size="16" font-weight="900" fill="#ffffff" letter-spacing="0.5">HYPERACTIVE</text></svg></div>
@@ -5392,6 +5374,24 @@ window.renderInfoPage = function(container, type) {
                 </div>
             </div>
             `}
+
+            <!-- 2. BELOW: GigConnAct für Musiker/Veranstalter Title & Diagram -->
+            <div style="width: 100%; max-width: 1200px; margin: 1rem auto 0; padding-top: 2.5rem; border-top: 1px solid rgba(0,0,0,0.08); box-sizing: border-box;">
+                <div style="margin: 0 auto 1.5rem; text-align: center; width: 100%; box-sizing: border-box;">
+                    <h2 style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.5rem); font-weight: 900; color: #0d0e12; margin: 0; line-height: 1.15; letter-spacing: -1.2px; text-transform: none;">
+                        <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; display: block; margin-bottom: 0.2rem;">GigConnAct</span>
+                        <span style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; display: block;">für ${isMusician ? 'Musiker' : 'Veranstalter'}</span>
+                    </h2>
+                    <p style="font-family: var(--font-body); font-size: clamp(1rem, 2.5vw, 1.25rem); font-weight: 600; color: #64748b; margin: 1rem 0 0; letter-spacing: 0.5px;">
+                        ${isMusician ? '2 Wege. Mehr Gigs' : '2 Wege. Deine Wahl'}
+                    </p>
+                </div>
+
+                <!-- The Diagram / Schaubild (GigConnAct erklärt) -->
+                <div id="info-page-flow-content" style="width: 100%; margin-bottom: 2rem;">
+                    ${renderHowItWorksContentHTML(type)}
+                </div>
+            </div>
 
         </div>
     `;
@@ -5498,28 +5498,28 @@ function renderLandingPage(container, onNavigate) {
                 <!-- Dark overlay gradient -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(124, 58, 237, 0.82) 100%); z-index: 2;"></div>
 
-                <!-- Upper Group: Logo and Slogan (aligned flush to 560px container) -->
+                <!-- Upper Group: Logo and Slogan -->
                 <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(1.2rem, 3.2vw, 2rem); width: 100%; max-width: 560px; margin-top: 14vh; margin-bottom: auto; box-sizing: border-box;">
                     
-                    <!-- 1/4: Logo -->
-                    <div class="brand-logo-center" style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 560px; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0; box-sizing: border-box;">
+                    <!-- 1/4: Logo (compact original format, centered) -->
+                    <div class="brand-logo-center" style="display: inline-flex; align-items: center; justify-content: center; gap: clamp(0.8rem, 2vw, 1.2rem); filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0; box-sizing: border-box;">
                         <!-- Large PNG Disco Ball (nested wrapper to keep entry animations, but static without rotation) -->
                         <div class="${logoClass}" style="width: clamp(2.8rem, 7.5vw, 4.4rem); height: clamp(2.8rem, 7.5vw, 4.4rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible;">
                             <img src="discoball.svg" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.55)); opacity: 1; pointer-events: none;">
                         </div>
-                        <div class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(2.5rem, 7.5vw, 4.5rem); font-weight: 900; letter-spacing: clamp(1px, 0.4vw, 3px); display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        <div class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(2.6rem, 7.5vw, 4.6rem); font-weight: 900; letter-spacing: -1.5px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                             GigConnAct
                         </div>
                     </div>
 
-                    <!-- 2/4: Slogan (Subtitle with mathematical edge-to-edge flush alignment) -->
+                    <!-- 2/4: Slogan (Subtitle with natural typography, readable and balanced) -->
                     <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.35rem; width: 100%; max-width: 560px; margin: 0 auto; box-sizing: border-box;">
-                        <svg viewBox="0 0 560 46" style="width: 100%; height: auto; display: block; overflow: visible;">
-                            <text x="0" y="36" fill="#ffffff" font-family="var(--font-heading), 'Outfit', sans-serif" font-size="37" font-weight="900" textLength="560" lengthAdjust="spacing" style="filter: drop-shadow(0 4px 15px rgba(0,0,0,0.5));">Die Vermittlungsplattform</text>
-                        </svg>
-                        <svg viewBox="0 0 560 66" style="width: 100%; height: auto; display: block; overflow: visible;">
-                            <text x="0" y="52" fill="#ffffff" font-family="var(--font-heading), 'Outfit', sans-serif" font-size="60" font-weight="900" textLength="560" lengthAdjust="spacing" style="filter: drop-shadow(0 4px 15px rgba(0,0,0,0.5));">für Live-Musik</text>
-                        </svg>
+                        <span style="font-family: var(--font-heading); font-size: clamp(1.45rem, 4.4vw, 2.7rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap;">
+                            Die Vermittlungsplattform
+                        </span>
+                        <span style="font-family: var(--font-heading); font-size: clamp(2.4rem, 7.2vw, 4.5rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap;">
+                            für Live-Musik
+                        </span>
                     </div>
                 </div>
 
