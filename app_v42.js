@@ -5660,21 +5660,34 @@ window.toggleHowItWorks = function(type) {
     contentContainer.innerHTML = renderHowItWorksContentHTML(type);
 };
 
-window.renderLanding = function(container) {
-    // Determine which theme to use (default to musician)
-    let isMusician = true;
-    if (state.currentUser) {
-        isMusician = state.currentUser.type === 'musician';
+function renderLandingPage(container, onNavigate) {
+    window.onNavigate = onNavigate;
+    const isUserLoggedIn = !!state.currentUser;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceFirstVisit = urlParams.get('firstvisit') === 'true' || urlParams.get('reset') === 'true';
+    if (forceFirstVisit) {
+        localStorage.removeItem('gigmatch_homepage_visited');
     }
 
-    // Animation Classes
-    const logoClass = state.landingAnimationPlayed ? '' : 'landing-bounce';
-    const textClass = state.landingAnimationPlayed ? '' : 'landing-tracking-in';
-    const subtextClass = state.landingAnimationPlayed ? '' : 'landing-fade-slide-up';
-    const searchClass = state.landingAnimationPlayed ? '' : 'landing-expand';
+    const hasVisited = localStorage.getItem('gigmatch_homepage_visited');
+    const isFirstVisit = !hasVisited;
+
+    const logoClass = isFirstVisit ? 'first-visit-disco' : 'animate-hero-logo';
+    const textClass = isFirstVisit ? 'animate-hero-text first-visit-text' : 'animate-hero-text';
+
+    if (isFirstVisit) {
+        localStorage.setItem('gigmatch_homepage_visited', 'true');
+    }
+
+    const bottomCtaButtonHtml = isUserLoggedIn 
+        ? `<button class="btn" id="btn-bottom-dashboard-trigger" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: 1.5px solid rgba(255,255,255,0.15); color: #ffffff; padding: 0.95rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 15px; box-shadow: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; white-space: nowrap;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
+               <i class="fa-solid fa-gauge-high"></i> Mein Dashboard
+           </button>`
+        : ``;
 
     container.innerHTML = `
-        <div class="landing-container" style="display: flex; flex-direction: column; width: 100%; overflow-x: hidden;">
+        <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem; margin: 0; width: 100%;">
             
             <style>
                 .market-tile-card {
@@ -5863,6 +5876,8 @@ window.renderLanding = function(container) {
     }
 }
 
+window.renderLandingPage = renderLandingPage;
+window.renderLanding = renderLandingPage;
 
 function getSelectOptions(list, selectedValues = []) {
     return list.map(item => `
