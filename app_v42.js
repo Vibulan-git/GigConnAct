@@ -5543,26 +5543,26 @@ function renderLandingPage(container, onNavigate) {
                 <!-- Dark overlay gradient -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(124, 58, 237, 0.82) 100%); z-index: 2;"></div>
 
-                <!-- Upper Group: Logo and Slogan -->
+                <!-- Upper Group: Logo and Slogan (flush with 560px CTA buttons) -->
                 <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(1.2rem, 3.2vw, 2rem); width: 100%; max-width: 560px; margin-top: 14vh; margin-bottom: auto; box-sizing: border-box;">
                     
-                    <!-- 1/4: Logo (compact original format, centered) -->
-                    <div class="brand-logo-center" style="display: inline-flex; align-items: center; justify-content: center; gap: clamp(0.8rem, 2vw, 1.2rem); filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0; box-sizing: border-box;">
+                    <!-- 1/4: Logo (fills full width of 560px container, discoball + GigConnAct) -->
+                    <div class="brand-logo-center" style="display: flex; align-items: center; justify-content: space-between; width: 100%; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.5)); margin: 0 auto; padding: 0; box-sizing: border-box;">
                         <!-- Large PNG Disco Ball (nested wrapper to keep entry animations, but static without rotation) -->
-                        <div class="${logoClass}" style="width: clamp(2.8rem, 7.5vw, 4.4rem); height: clamp(2.8rem, 7.5vw, 4.4rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible;">
+                        <div class="${logoClass}" style="width: clamp(3.6rem, 9.5vw, 5.6rem); height: clamp(3.6rem, 9.5vw, 5.6rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible;">
                             <img src="discoball.svg" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.55)); opacity: 1; pointer-events: none;">
                         </div>
-                        <div class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(2.6rem, 7.5vw, 4.6rem); font-weight: 900; letter-spacing: -1.5px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        <div class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(3.2rem, 8.8vw, 5.5rem); font-weight: 900; letter-spacing: -2px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1;">
                             GigConnAct
                         </div>
                     </div>
 
-                    <!-- 2/4: Slogan (Subtitle with natural typography, readable and balanced) -->
-                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.35rem; width: 100%; max-width: 560px; margin: 0 auto; box-sizing: border-box;">
-                        <span style="font-family: var(--font-heading); font-size: clamp(1.45rem, 4.4vw, 2.7rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap;">
+                    <!-- 2/4: Slogan (each line is sized to span full width flush with container) -->
+                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.4rem; width: 100%; margin: 0 auto; box-sizing: border-box;">
+                        <span style="font-family: var(--font-heading); font-size: clamp(1.8rem, 5.2vw, 3.15rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap;">
                             Die Vermittlungsplattform
                         </span>
-                        <span style="font-family: var(--font-heading); font-size: clamp(2.4rem, 7.2vw, 4.5rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap;">
+                        <span style="font-family: var(--font-heading); font-size: clamp(3rem, 8.8vw, 5.4rem); font-weight: 900; letter-spacing: -1px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: block; width: 100%; text-align: center; white-space: nowrap;">
                             für Live-Musik
                         </span>
                     </div>
