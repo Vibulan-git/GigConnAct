@@ -5214,9 +5214,11 @@ function renderHowItWorksContentHTML(type) {
 
 window.musicianFlowPath = 'direktkontakt';
 window.organizerFlowPath = 'direktkontakt';
+window.infoPageStep = 1;
 
 window.setMusicianFlowPath = function(path) {
     window.musicianFlowPath = path;
+    window.infoPageStep = 1;
     const mainContainer = document.getElementById('app-main');
     if (mainContainer) {
         window.renderInfoPage(mainContainer, 'musician');
@@ -5225,16 +5227,27 @@ window.setMusicianFlowPath = function(path) {
 
 window.setOrganizerFlowPath = function(path) {
     window.organizerFlowPath = path;
+    window.infoPageStep = 1;
     const mainContainer = document.getElementById('app-main');
     if (mainContainer) {
         window.renderInfoPage(mainContainer, 'organizer');
     }
 };
 
+window.setInfoStep = function(step, type) {
+    window.infoPageStep = Math.max(1, Math.min(3, step));
+    const mainContainer = document.getElementById('app-main');
+    if (mainContainer) {
+        window.renderInfoPage(mainContainer, type);
+    }
+};
+
 window.renderInfoPage = function(container, type) {
     const isMusician = type === 'musician';
+    window.currentInfoType = type;
     const currentPath = isMusician ? (window.musicianFlowPath || 'direktkontakt') : (window.organizerFlowPath || 'direktkontakt');
     const isDirektkontakt = currentPath === 'direktkontakt';
+    const currentStep = window.infoPageStep || 1;
     
     // Config colors & contents
     const themeColor = isMusician ? '#7c3aed' : '#2563eb';
@@ -5244,7 +5257,7 @@ window.renderInfoPage = function(container, type) {
     const toggleFunc = isMusician ? 'window.setMusicianFlowPath' : 'window.setOrganizerFlowPath';
     const toggleWord = isMusician ? 'und' : 'oder';
 
-    // 1. Prepare sample item for the live showcase card
+    // 1. Prepare sample item for the live showcase card (Step 1)
     let showcaseCardHTML = '';
     if (isMusician) {
         if (isDirektkontakt) {
@@ -5279,6 +5292,7 @@ window.renderInfoPage = function(container, type) {
                 instruments: ['Gesang', 'Saxophon', 'Piano'],
                 description: 'Exklusives Corporate Event. Veranstalter sucht über die GigConnAct-Vermittlung passende Premium-Acts.',
                 isAgencyRequest: true,
+                isMediation: true,
                 photos: ['https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80']
             };
             showcaseCardHTML = renderMarketGridHTML([mediationEvent], true);
@@ -5312,61 +5326,212 @@ window.renderInfoPage = function(container, type) {
                 maxPrice: 1400,
                 description: 'Gefühlvolle Akustik-Klänge für Trauungen, Sektempfänge und Dinner-Events.',
                 isAgencyRequest: true,
+                isMediation: true,
                 photos: ['https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80']
             };
             showcaseCardHTML = renderMarketGridHTML([mediationMusician], false);
         }
     }
 
-    // 2. Step text banner
-    let stepTitleHTML = '';
+    // Step titles and step bodies definition
+    let stepTitleText = '';
+    let stepBodyHTML = '';
+
     if (isMusician) {
         if (isDirektkontakt) {
-            stepTitleHTML = `
-                <div class="flow-anim-card" onclick="window.onNavigate('events')" style="animation-delay: 0.15s; cursor: pointer; width: 100%; max-width: 680px; margin: 0 auto 1.5rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.8rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.03); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.01)';" onmouseout="this.style.transform='scale(1)';">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
-                        <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; font-size: 1.1rem;"></i>
+            if (currentStep === 1) {
+                stepTitleText = `<span style="color: #7c3aed;">Events</span> entdecken - ohne Account & kostenlos`;
+                stepBodyHTML = `
+                    <div style="width: 100%; max-width: 440px; margin: 0 auto 1.5rem;">
+                        ${showcaseCardHTML}
                     </div>
-                    <h3 style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.8vw, 1.35rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.3px; line-height: 1.3;">
-                        <span style="color: #7c3aed;">Events</span> entdecken - ohne Account & kostenlos
-                    </h3>
-                </div>
-            `;
+                `;
+            } else if (currentStep === 2) {
+                stepTitleText = `<span style="color: #7c3aed;">Kontaktdaten</span> freischalten - mit Account & Abo-Modell`;
+                stepBodyHTML = `
+                    <div class="flow-anim-card" style="width: 100%; max-width: 520px; margin: 0 auto 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
+                            <i class="fa-solid fa-lock-open" style="color: #7c3aed; font-size: 1.6rem;"></i>
+                        </div>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 900; color: #0f172a; margin: 0 0 0.8rem;">
+                            Direkte Kontaktdaten der Veranstalter
+                        </h4>
+                        <p style="font-family: var(--font-body); font-size: 0.95rem; color: #64748b; line-height: 1.55; margin: 0 0 1.5rem;">
+                            Mit deinem Musiker-Abo schaltest du vollständige E-Mail-Adressen, Telefonnummern und den direkten Chat frei. Du bewirbst dich ohne Umwege direkt beim Veranstalter.
+                        </p>
+                        <div style="display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap;">
+                            <span style="background: #f1f5f9; padding: 0.4rem 0.8rem; border-radius: 10px; font-size: 0.82rem; font-weight: 700; color: #334155;"><i class="fa-solid fa-envelope" style="color: #7c3aed; margin-right: 0.35rem;"></i> E-Mail direkt</span>
+                            <span style="background: #f1f5f9; padding: 0.4rem 0.8rem; border-radius: 10px; font-size: 0.82rem; font-weight: 700; color: #334155;"><i class="fa-solid fa-phone" style="color: #7c3aed; margin-right: 0.35rem;"></i> Telefonkontakt</span>
+                            <span style="background: #f1f5f9; padding: 0.4rem 0.8rem; border-radius: 10px; font-size: 0.82rem; font-weight: 700; color: #334155;"><i class="fa-solid fa-comments" style="color: #7c3aed; margin-right: 0.35rem;"></i> Direkter Chat</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                stepTitleText = `<span style="color: #7c3aed;">Direkter</span> Austausch mit Veranstaltern`;
+                stepBodyHTML = `
+                    <div class="flow-anim-card" style="width: 100%; max-width: 520px; margin: 0 auto 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
+                            <i class="fa-solid fa-comments" style="color: #7c3aed; font-size: 1.6rem;"></i>
+                        </div>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 900; color: #0f172a; margin: 0 0 0.8rem;">
+                            100% Gage – 0% Vermittlungsprovision
+                        </h4>
+                        <p style="font-family: var(--font-body); font-size: 0.95rem; color: #64748b; line-height: 1.55; margin: 0 0 1.5rem;">
+                            Ihr vereinbart Gage, Spielzeit und Equipment direkt miteinander. Keine versteckten Gebühren oder prozentualen Abzüge von deinen Gigs.
+                        </p>
+                        <div style="display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap;">
+                            <span style="background: rgba(16, 185, 129, 0.1); color: #059669; padding: 0.45rem 0.9rem; border-radius: 10px; font-size: 0.85rem; font-weight: 800;"><i class="fa-solid fa-coins" style="margin-right: 0.35rem;"></i> Volle Gage behalten</span>
+                            <span style="background: rgba(124, 58, 237, 0.1); color: #7c3aed; padding: 0.45rem 0.9rem; border-radius: 10px; font-size: 0.85rem; font-weight: 800;"><i class="fa-solid fa-handshake" style="margin-right: 0.35rem;"></i> Eigene Verträge</span>
+                        </div>
+                    </div>
+                `;
+            }
         } else {
-            stepTitleHTML = `
-                <div class="flow-anim-card" onclick="window.onNavigate('events')" style="animation-delay: 0.15s; cursor: pointer; width: 100%; max-width: 680px; margin: 0 auto 1.5rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.8rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.03); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.01)';" onmouseout="this.style.transform='scale(1)';">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
-                        <i class="fa-solid fa-user-shield" style="color: ${themeColor}; font-size: 1.1rem;"></i>
+            // Vermittlung Musiker
+            if (currentStep === 1) {
+                stepTitleText = `<span style="color: #7c3aed;">Kontaktdaten</span> sind geschützt & Erstkontakt durch Veranstalter`;
+                stepBodyHTML = `
+                    <div style="width: 100%; max-width: 440px; margin: 0 auto 1.5rem;">
+                        ${showcaseCardHTML}
                     </div>
-                    <h3 style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.8vw, 1.35rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.3px; line-height: 1.3;">
-                        <span style="color: #7c3aed;">Kontaktdaten</span> sind geschützt & Erstkontakt durch Veranstalter
-                    </h3>
-                </div>
-            `;
+                `;
+            } else if (currentStep === 2) {
+                stepTitleText = `<span style="color: #7c3aed;">Vermittlungsanfragen</span> erhalten & bei Interesse Gebühr zahlen`;
+                stepBodyHTML = `
+                    <div class="flow-anim-card" style="width: 100%; max-width: 520px; margin: 0 auto 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
+                            <i class="fa-solid fa-envelope-open-text" style="color: #7c3aed; font-size: 1.6rem;"></i>
+                        </div>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 900; color: #0f172a; margin: 0 0 0.8rem;">
+                            Unverbindliche Buchungsanfragen
+                        </h4>
+                        <p style="font-family: var(--font-body); font-size: 0.95rem; color: #64748b; line-height: 1.55; margin: 0 0 1.5rem;">
+                            Veranstalter senden dir gezielte Anfragen für ihre Events. Du prüfst Termin, Gage und Konditionen ganz in Ruhe. Nur wenn du den Gig spielen möchtest, fällt eine faire einmalige Gebühr an.
+                        </p>
+                        <div style="display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap;">
+                            <span style="background: #f1f5f9; padding: 0.4rem 0.8rem; border-radius: 10px; font-size: 0.82rem; font-weight: 700; color: #334155;"><i class="fa-solid fa-check" style="color: #10b981; margin-right: 0.35rem;"></i> Kein Abo-Zwang</span>
+                            <span style="background: #f1f5f9; padding: 0.4rem 0.8rem; border-radius: 10px; font-size: 0.82rem; font-weight: 700; color: #334155;"><i class="fa-solid fa-shield-halved" style="color: #7c3aed; margin-right: 0.35rem;"></i> Datenschutz garantiert</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                stepTitleText = `<span style="color: #7c3aed;">Kontaktdaten</span> von interessierten Veranstaltern erhalten`;
+                stepBodyHTML = `
+                    <div class="flow-anim-card" style="width: 100%; max-width: 520px; margin: 0 auto 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
+                            <i class="fa-solid fa-id-card" style="color: #7c3aed; font-size: 1.6rem;"></i>
+                        </div>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 900; color: #0f172a; margin: 0 0 0.8rem;">
+                            Beidseitiger Kontaktdaten-Austausch
+                        </h4>
+                        <p style="font-family: var(--font-body); font-size: 0.95rem; color: #64748b; line-height: 1.55; margin: 0 0 1.5rem;">
+                            Bei beidseitiger Zusage werden die Kontaktdaten beider Parteien sofort freigegeben. Der Veranstalter meldet sich direkt bei dir zur finalen Gig-Planung.
+                        </p>
+                        <div style="display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap;">
+                            <span style="background: rgba(16, 185, 129, 0.1); color: #059669; padding: 0.45rem 0.9rem; border-radius: 10px; font-size: 0.85rem; font-weight: 800;"><i class="fa-solid fa-circle-check" style="margin-right: 0.35rem;"></i> Feste Buchung</span>
+                            <span style="background: rgba(124, 58, 237, 0.1); color: #7c3aed; padding: 0.45rem 0.9rem; border-radius: 10px; font-size: 0.85rem; font-weight: 800;"><i class="fa-solid fa-calendar-check" style="margin-right: 0.35rem;"></i> Gig spielen</span>
+                        </div>
+                    </div>
+                `;
+            }
         }
     } else {
+        // Organizer
         if (isDirektkontakt) {
-            stepTitleHTML = `
-                <div class="flow-anim-card" onclick="window.onNavigate('musicians')" style="animation-delay: 0.15s; cursor: pointer; width: 100%; max-width: 680px; margin: 0 auto 1.5rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.8rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.03); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.01)';" onmouseout="this.style.transform='scale(1)';">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
-                        <i class="fa-solid fa-guitar" style="color: ${themeColor}; font-size: 1.1rem;"></i>
+            if (currentStep === 1) {
+                stepTitleText = `<span style="color: #2563eb;">Musiker</span> entdecken - ohne Account & kostenlos`;
+                stepBodyHTML = `
+                    <div style="width: 100%; max-width: 440px; margin: 0 auto 1.5rem;">
+                        ${showcaseCardHTML}
                     </div>
-                    <h3 style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.8vw, 1.35rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.3px; line-height: 1.3;">
-                        <span style="color: #2563eb;">Musiker</span> entdecken - ohne Account & kostenlos
-                    </h3>
-                </div>
-            `;
+                `;
+            } else if (currentStep === 2) {
+                stepTitleText = `<span style="color: #2563eb;">Kontaktdaten</span> freischalten - mit Account & kostenlos`;
+                stepBodyHTML = `
+                    <div class="flow-anim-card" style="width: 100%; max-width: 520px; margin: 0 auto 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(37,99,235,0.25);">
+                            <i class="fa-solid fa-lock-open" style="color: #2563eb; font-size: 1.6rem;"></i>
+                        </div>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 900; color: #0f172a; margin: 0 0 0.8rem;">
+                            100% kostenloser Zugang für Veranstalter
+                        </h4>
+                        <p style="font-family: var(--font-body); font-size: 0.95rem; color: #64748b; line-height: 1.55; margin: 0 0 1.5rem;">
+                            Registriere dich in unter 60 Sekunden und schalte die Kontaktdaten von Bands, DJs und Solokünstlern sofort kostenfrei frei.
+                        </p>
+                        <div style="display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap;">
+                            <span style="background: #f1f5f9; padding: 0.4rem 0.8rem; border-radius: 10px; font-size: 0.82rem; font-weight: 700; color: #334155;"><i class="fa-solid fa-bolt" style="color: #2563eb; margin-right: 0.35rem;"></i> Sofort-Freischaltung</span>
+                            <span style="background: #f1f5f9; padding: 0.4rem 0.8rem; border-radius: 10px; font-size: 0.82rem; font-weight: 700; color: #334155;"><i class="fa-solid fa-user-check" style="color: #2563eb; margin-right: 0.35rem;"></i> Geprüfte Profile</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                stepTitleText = `<span style="color: #2563eb;">Direkter</span> Austausch mit Musikern`;
+                stepBodyHTML = `
+                    <div class="flow-anim-card" style="width: 100%; max-width: 520px; margin: 0 auto 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(37,99,235,0.25);">
+                            <i class="fa-solid fa-comments" style="color: #2563eb; font-size: 1.6rem;"></i>
+                        </div>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 900; color: #0f172a; margin: 0 0 0.8rem;">
+                            Direkte Absprache auf Augenhöhe
+                        </h4>
+                        <p style="font-family: var(--font-body); font-size: 0.95rem; color: #64748b; line-height: 1.55; margin: 0 0 1.5rem;">
+                            Verhandelt eure Wunschkonditionen, Technikbedarf und Setlisten direkt ohne Zwischenstation oder zusätzliche Vermittlungskosten.
+                        </p>
+                        <div style="display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap;">
+                            <span style="background: rgba(16, 185, 129, 0.1); color: #059669; padding: 0.45rem 0.9rem; border-radius: 10px; font-size: 0.85rem; font-weight: 800;"><i class="fa-solid fa-check-double" style="margin-right: 0.35rem;"></i> Keine Vermittlungsgebühr</span>
+                            <span style="background: rgba(37, 99, 235, 0.1); color: #2563eb; padding: 0.45rem 0.9rem; border-radius: 10px; font-size: 0.85rem; font-weight: 800;"><i class="fa-solid fa-music" style="margin-right: 0.35rem;"></i> Perfekter Live-Act</span>
+                        </div>
+                    </div>
+                `;
+            }
         } else {
-            stepTitleHTML = `
-                <div class="flow-anim-card" onclick="window.showMatchmakingChoiceModal()" style="animation-delay: 0.15s; cursor: pointer; width: 100%; max-width: 680px; margin: 0 auto 1.5rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.8rem; display: flex; align-items: center; justify-content: flex-start; gap: 1rem; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.03); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.01)';" onmouseout="this.style.transform='scale(1)';">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
-                        <i class="fa-solid fa-file-lines" style="color: ${themeColor}; font-size: 1.1rem;"></i>
+            // Vermittlung Veranstalter
+            if (currentStep === 1) {
+                stepTitleText = `<span style="color: #2563eb;">Eventformular</span> ausfüllen - ohne Account & kostenlos`;
+                stepBodyHTML = `
+                    <div style="width: 100%; max-width: 440px; margin: 0 auto 1.5rem;">
+                        ${showcaseCardHTML}
                     </div>
-                    <h3 style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.8vw, 1.35rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.3px; line-height: 1.3;">
-                        <span style="color: #2563eb;">Eventformular</span> ausfüllen - ohne Account & kostenlos
-                    </h3>
-                </div>
-            `;
+                `;
+            } else if (currentStep === 2) {
+                stepTitleText = `<span style="color: #2563eb;">Vorschläge</span> sofort erhalten & Musiker kontaktieren lassen`;
+                stepBodyHTML = `
+                    <div class="flow-anim-card" style="width: 100%; max-width: 520px; margin: 0 auto 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(37,99,235,0.25);">
+                            <i class="fa-solid fa-paper-plane" style="color: #2563eb; font-size: 1.6rem;"></i>
+                        </div>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 900; color: #0f172a; margin: 0 0 0.8rem;">
+                            Automatisches Matchmaking in Echtzeit
+                        </h4>
+                        <p style="font-family: var(--font-body); font-size: 0.95rem; color: #64748b; line-height: 1.55; margin: 0 0 1.5rem;">
+                            Unser intelligentes System findet sofort passende Künstler nach Genre, Budget und Ort und fragt diese vollautomatisch für dich an.
+                        </p>
+                        <div style="display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap;">
+                            <span style="background: #f1f5f9; padding: 0.4rem 0.8rem; border-radius: 10px; font-size: 0.82rem; font-weight: 700; color: #334155;"><i class="fa-solid fa-clock" style="color: #2563eb; margin-right: 0.35rem;"></i> Spart wertvolle Zeit</span>
+                            <span style="background: #f1f5f9; padding: 0.4rem 0.8rem; border-radius: 10px; font-size: 0.82rem; font-weight: 700; color: #334155;"><i class="fa-solid fa-bullseye" style="color: #2563eb; margin-right: 0.35rem;"></i> Hohe Trefferquote</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                stepTitleText = `<span style="color: #2563eb;">Kontaktdaten</span> erhalten bei beidseitigem Interesse`;
+                stepBodyHTML = `
+                    <div class="flow-anim-card" style="width: 100%; max-width: 520px; margin: 0 auto 2rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(37,99,235,0.25);">
+                            <i class="fa-solid fa-handshake" style="color: #2563eb; font-size: 1.6rem;"></i>
+                        </div>
+                        <h4 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 900; color: #0f172a; margin: 0 0 0.8rem;">
+                            Beste Acts für dein Event
+                        </h4>
+                        <p style="font-family: var(--font-body); font-size: 0.95rem; color: #64748b; line-height: 1.55; margin: 0 0 1.5rem;">
+                            Sobald ein Act zusagt, erhältst du alle Kontaktdaten und kannst den Auftritt für deine Veranstaltung fest buchen.
+                        </p>
+                        <div style="display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap;">
+                            <span style="background: rgba(16, 185, 129, 0.1); color: #059669; padding: 0.45rem 0.9rem; border-radius: 10px; font-size: 0.85rem; font-weight: 800;"><i class="fa-solid fa-star" style="margin-right: 0.35rem;"></i> Top Live-Erlebnis</span>
+                            <span style="background: rgba(37, 99, 235, 0.1); color: #2563eb; padding: 0.45rem 0.9rem; border-radius: 10px; font-size: 0.85rem; font-weight: 800;"><i class="fa-solid fa-shield-check" style="margin-right: 0.35rem;"></i> Zuverlässig</span>
+                        </div>
+                    </div>
+                `;
+            }
         }
     }
 
@@ -5376,8 +5541,8 @@ window.renderInfoPage = function(container, type) {
             <style>
                 .flow-anim-card {
                     opacity: 0;
-                    transform: translateY(15px);
-                    animation: flowCardReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                    transform: translateY(12px);
+                    animation: flowCardReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
                 }
                 @keyframes flowCardReveal {
                     to {
@@ -5398,21 +5563,21 @@ window.renderInfoPage = function(container, type) {
                 }
             </style>
 
-            <!-- 1. Überschrift: GigConnAct für Musiker / Veranstalter -->
-            <div style="text-align: center; margin-bottom: 2rem; width: 100%; max-width: 1000px; box-sizing: border-box;">
-                <h1 style="font-family: var(--font-heading); font-size: clamp(2.4rem, 6.5vw, 4.5rem); font-weight: 900; color: #0d0e12; margin: 0; line-height: 1.15; letter-spacing: -1.2px;">
-                    <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; display: block; margin-bottom: 0.2rem;">GigConnAct</span>
-                    <span style="color: ${themeColor}; display: block;">für ${isMusician ? 'Musiker' : 'Veranstalter'}</span>
+            <!-- 1. Überschrift in EINER Reihe: GigConnAct für Musiker / Veranstalter -->
+            <div style="text-align: center; margin-bottom: 1.6rem; width: 100%; max-width: 1000px; box-sizing: border-box;">
+                <h1 style="font-family: var(--font-heading); font-size: clamp(1.75rem, 5.2vw, 3.4rem); font-weight: 900; color: #0d0e12; margin: 0; line-height: 1.2; letter-spacing: -1px; white-space: nowrap;">
+                    <span style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent;">GigConnAct</span>
+                    <span style="color: ${themeColor};"> für ${isMusician ? 'Musiker' : 'Veranstalter'}</span>
                 </h1>
                 
                 <!-- 2. Slogan: 2 Wege. Mehr Gigs / 2 Wege. Deine Wahl -->
-                <p style="font-family: var(--font-body); font-size: clamp(1.1rem, 2.5vw, 1.35rem); font-weight: 600; color: #64748b; margin: 0.8rem 0 0; letter-spacing: 0.5px;">
+                <p style="font-family: var(--font-body); font-size: clamp(1.05rem, 2.4vw, 1.3rem); font-weight: 600; color: #64748b; margin: 0.65rem 0 0; letter-spacing: 0.5px;">
                     ${isMusician ? '2 Wege. Mehr Gigs' : '2 Wege. Deine Wahl'}
                 </p>
             </div>
 
             <!-- 3. Toggle-Buttons: Direktkontakt und/oder Vermittlung -->
-            <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; margin-bottom: 2.2rem; width: 100%; max-width: 420px; box-sizing: border-box;">
+            <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; margin-bottom: 2rem; width: 100%; max-width: 420px; box-sizing: border-box;">
                 <button onclick="${toggleFunc}('direktkontakt')" style="flex: 1; padding: 0.8rem 1.2rem; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; border-radius: 14px; cursor: pointer; transition: all 0.2s; ${isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${themeColor}; box-shadow: 0 4px 15px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'};` : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.08);'}">
                     Direktkontakt
                 </button>
@@ -5424,20 +5589,48 @@ window.renderInfoPage = function(container, type) {
                 </button>
             </div>
 
-            <!-- 4. Zwischen Slogan/Buttons und Kachel: Step Banner -->
-            <div style="width: 100%; max-width: 680px; margin: 0 auto;">
-                ${stepTitleHTML}
+            <!-- 4. Step-Banner: Links bündig Zahl "1.", Schritt-Titel und rechts lilaner Pfeil-Button -->
+            <div class="flow-anim-card" style="width: 100%; max-width: 680px; margin: 0 auto 1.6rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.9rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.03);">
+                
+                <!-- Linker Bereich: Nummer "1." (oder Zurück-Pfeil + Nummer) -->
+                <div style="display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0;">
+                    ${currentStep > 1 ? `
+                        <button onclick="event.stopPropagation(); window.setInfoStep(${currentStep - 1}, '${type}')" style="width: 36px; height: 36px; border-radius: 50%; background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#e2e8f0';" onmouseout="this.style.background='#f1f5f9';" title="Zurück zu Schritt ${currentStep - 1}">
+                            <i class="fa-solid fa-arrow-left" style="font-size: 0.9rem;"></i>
+                        </button>
+                    ` : ''}
+                    <span style="font-family: var(--font-heading); font-size: clamp(1.4rem, 3.5vw, 1.8rem); font-weight: 900; color: ${themeColor}; line-height: 1; min-width: 28px; text-align: left;">
+                        ${currentStep}.
+                    </span>
+                </div>
+
+                <!-- Mitte: Schritt-Titel -->
+                <h3 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 2.6vw, 1.25rem); font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.2px; line-height: 1.25; text-align: left; flex: 1;">
+                    ${stepTitleText}
+                </h3>
+
+                <!-- Rechter Bereich: Lilaner Pfeil-Button -->
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
+                    ${currentStep < 3 ? `
+                        <button onclick="event.stopPropagation(); window.setInfoStep(${currentStep + 1}, '${type}')" style="width: 38px; height: 38px; border-radius: 50%; background: ${themeColor}; border: none; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'}; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';" title="Weiter zu Schritt ${currentStep + 1}">
+                            <i class="fa-solid fa-arrow-right" style="font-size: 1rem;"></i>
+                        </button>
+                    ` : `
+                        <button onclick="event.stopPropagation(); window.setInfoStep(1, '${type}')" style="width: 38px; height: 38px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); border: 1.5px solid rgba(16, 185, 129, 0.3); color: #10b981; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';" title="Zurück zu Schritt 1">
+                            <i class="fa-solid fa-rotate-left" style="font-size: 1rem;"></i>
+                        </button>
+                    `}
+                </div>
+
             </div>
 
-            <!-- 5. Die interaktive Event- / Musiker-Kachel (Direktkontakt bzw. Vermittlung) -->
-            <div class="flow-anim-card" style="animation-delay: 0.3s; width: 100%; max-width: 440px; margin: 0 auto 3rem; box-sizing: border-box;">
-                <div style="width: 100%; display: flex; justify-content: center;">
-                    ${showcaseCardHTML}
-                </div>
+            <!-- 5. Dynamischer Schritt-Inhalt (Kachel bei Schritt 1 / Erklärungsansicht bei Schritt 2 & 3) -->
+            <div style="width: 100%; box-sizing: border-box;">
+                ${stepBodyHTML}
             </div>
 
             <!-- 6. Button-Trigger / CTA zum vollständigen Markt -->
-            <div class="flow-anim-card" style="animation-delay: 0.45s; width: 100%; max-width: 520px; margin: 0 auto; box-sizing: border-box; text-align: center;">
+            <div class="flow-anim-card" style="animation-delay: 0.35s; width: 100%; max-width: 520px; margin: 1.5rem auto 0; box-sizing: border-box; text-align: center;">
                 <button onclick="${isMusician ? "window.onNavigate('events')" : "window.onNavigate('musicians')"}" class="glow-card-pulse" style="cursor: pointer; width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 18px; padding: 1.1rem 2rem; color: #ffffff; font-family: var(--font-heading); font-size: clamp(1.1rem, 3vw, 1.4rem); font-weight: 900; letter-spacing: -0.3px; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
                     <span>${isMusician ? 'Alle Events im Event-Markt ansehen' : 'Alle Musiker im Musiker-Markt ansehen'}</span>
                     <i class="fa-solid fa-arrow-right-long" style="font-size: 1.1em;"></i>
@@ -5482,61 +5675,50 @@ window.toggleHowItWorks = function(type) {
         btnMusician.style.border = '1.5px solid rgba(0,0,0,0.06)';
         btnMusician.style.boxShadow = 'none';
     }
+
     contentContainer.innerHTML = renderHowItWorksContentHTML(type);
 };
 
-window.toggleHowItWorksMiddle = function() {
-    // No-op: all advantages are now fully expanded by default
-};
-
-function renderLandingPage(container, onNavigate) {
-    window.onNavigate = onNavigate;
-    const isUserLoggedIn = !!state.currentUser;
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const forceFirstVisit = urlParams.get('firstvisit') === 'true' || urlParams.get('reset') === 'true';
-    if (forceFirstVisit) {
-        localStorage.removeItem('gigmatch_homepage_visited');
+window.renderLanding = function(container) {
+    // Determine which theme to use (default to musician)
+    let isMusician = true;
+    if (state.currentUser) {
+        isMusician = state.currentUser.type === 'musician';
     }
 
-    const hasVisited = localStorage.getItem('gigmatch_homepage_visited');
-    const isFirstVisit = !hasVisited;
-
-    const logoClass = isFirstVisit ? 'first-visit-disco' : 'animate-hero-logo';
-    const textClass = isFirstVisit ? 'animate-hero-text first-visit-text' : 'animate-hero-text';
-
-    if (isFirstVisit) {
-        localStorage.setItem('gigmatch_homepage_visited', 'true');
-    }
-
-    const bottomCtaButtonHtml = isUserLoggedIn 
-        ? `<button class="btn" id="btn-bottom-dashboard-trigger" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: 1.5px solid rgba(255,255,255,0.15); color: #ffffff; padding: 0.95rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 15px; box-shadow: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; white-space: nowrap;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
-               <i class="fa-solid fa-gauge-high"></i> Mein Dashboard
-           </button>`
-        : ``;
+    // Animation Classes
+    const logoClass = state.landingAnimationPlayed ? '' : 'landing-bounce';
+    const textClass = state.landingAnimationPlayed ? '' : 'landing-tracking-in';
+    const subtextClass = state.landingAnimationPlayed ? '' : 'landing-fade-slide-up';
+    const searchClass = state.landingAnimationPlayed ? '' : 'landing-expand';
 
     container.innerHTML = `
-        <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem; margin: 0; width: 100%;">
+        <div class="landing-container" style="display: flex; flex-direction: column; width: 100%; overflow-x: hidden;">
+            
             <style>
-                .marquee-item-glass {
-                    background: rgba(255, 255, 255, 0.16) !important;
-                    border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
-                    backdrop-filter: blur(12px) !important;
-                    -webkit-backdrop-filter: blur(12px) !important;
-                    color: #ffffff !important;
-                    padding: 0.6rem 1.4rem !important;
-                    border-radius: 30px !important;
-                    font-weight: 700 !important;
-                    font-size: clamp(0.85rem, 2vw, 1.05rem) !important;
-                    white-space: nowrap !important;
-                    box-shadow: 0 6px 20px rgba(0,0,0,0.3) !important;
-                    display: inline-flex !important;
-                    align-items: center !important;
-                    gap: 0.5rem !important;
-                    text-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
-                    transition: transform 0.2s;
+                .market-tile-card {
+                    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
                 }
-                .marquee-item-glass:hover {
+                .market-tile-card:hover {
+                    transform: translateY(-4px);
+                    box-shadow: 0 16px 32px rgba(0,0,0,0.12);
+                }
+                .partner-logo-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 0.6rem 1.4rem;
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.12);
+                    border-radius: 12px;
+                    backdrop-filter: blur(8px);
+                    -webkit-backdrop-filter: blur(8px);
+                    transition: all 0.3s ease;
+                    flex-shrink: 0;
+                }
+                .partner-logo-badge:hover {
+                    background: rgba(255, 255, 255, 0.12);
+                    border-color: rgba(255, 255, 255, 0.25);
                     transform: scale(1.03);
                 }
             </style>
@@ -5562,11 +5744,11 @@ function renderLandingPage(container, onNavigate) {
                     </div>
 
                     <!-- 2/4: Slogan (each line is sized to span full width flush with container) -->
-                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.4rem; width: 100%; margin: 0 auto; box-sizing: border-box;">
-                        <span style="font-family: var(--font-heading); font-size: clamp(1.8rem, 5.2vw, 3.15rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap;">
+                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.35rem; width: 100%; margin: 0 auto; box-sizing: border-box;">
+                        <span style="font-family: var(--font-heading); font-size: clamp(1.5rem, 4.4vw, 2.65rem); font-weight: 900; letter-spacing: -0.3px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap;">
                             Die Vermittlungsplattform
                         </span>
-                        <span style="font-family: var(--font-heading); font-size: clamp(3rem, 8.8vw, 5.4rem); font-weight: 900; letter-spacing: -1px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: block; width: 100%; text-align: center; white-space: nowrap;">
+                        <span style="font-family: var(--font-heading); font-size: clamp(3.2rem, 9.6vw, 5.8rem); font-weight: 900; letter-spacing: 0.2px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: block; width: 100%; text-align: center; white-space: nowrap;">
                             für Live-Musik
                         </span>
                     </div>
