@@ -5559,8 +5559,8 @@ window.renderInfoPage = function(container, type) {
                 </button>
             </div>
 
-            <!-- 3. Step-Banner: Links bündig Zahl + Text kompakt, rechts lilaner Pfeil / Refresh Button -->
-            <div class="flow-anim-card" style="width: 100%; max-width: 680px; margin: 0 auto 0.9rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.85rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; box-sizing: border-box; box-shadow: 0 8px 24px rgba(0,0,0,0.03);">
+            <!-- 2. Step-Banner: Links bündig Zahl + Text kompakt, rechts lilaner Pfeil / Refresh Button -->
+            <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 0.9rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.85rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; box-sizing: border-box; box-shadow: 0 8px 24px rgba(0,0,0,0.03);">
                 
                 <!-- Links: Nummer & Schritt-Titel eng beieinander -->
                 <div style="display: flex; align-items: baseline; gap: 0.45rem; flex: 1; text-align: left; min-width: 0;">
