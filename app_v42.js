@@ -1801,6 +1801,25 @@ function generateRemainingEvents(existing) {
     return events;
 }
 
+// Helper to clean contact details from event descriptions for mediation / agency requests
+window.cleanEventDescription = function(desc, isMediation = false) {
+    if (!desc || typeof desc !== 'string') return '';
+    let cleaned = desc;
+    if (isMediation) {
+        // 1. Strip email addresses
+        cleaned = cleaned.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi, '');
+        // 2. Strip phone numbers (various international and national formats)
+        cleaned = cleaned.replace(/(?:\+?\d{1,4}[\s\-\.\/]*)?(?:\(?\d{2,5}\)?[\s\-\.\/]*)?\d{3,}[\s\-\.\/]*\d{2,}/gi, '');
+        // 3. Strip URLs / website links
+        cleaned = cleaned.replace(/https?:\/\/[^\s]+/gi, '').replace(/www\.[^\s]+/gi, '');
+        // 4. Strip common contact label prefixes (e.g., "Kontakt: ...", "Tel: ...", "Mail: ...", "Name: ...")
+        cleaned = cleaned.replace(/(?:Kontakt|Name|Tel|Telefon|Phone|Handy|E-Mail|Mail|Ansprechpartner|Mobil)\s*[:\-]\s*[^\n\r,.]*/gi, '');
+        // 5. Clean up duplicate spaces, orphaned dashes/colons, and trim
+        cleaned = cleaned.replace(/\s{2,}/g, ' ').replace(/^[\s:\-,.;]+|[\s:\-,.;]+$/g, '').trim();
+    }
+    return cleaned;
+};
+
 // ==========================================
 // 2. STATE MANAGER
 // ==========================================
@@ -1980,6 +1999,10 @@ class StateManager {
             snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
             
             list.forEach(item => {
+                const isMed = (item.isAgencyRequest === true || item.email === 'info@gigconnact.de' || item.clientEmail === 'info@gigconnact.de' || item.creatorId === 'info-gigconnact-admin');
+                if (isMed && item.description) {
+                    item.description = window.cleanEventDescription(item.description, true);
+                }
                 const idx = this.events.findIndex(e => e.id === item.id);
                 if (idx > -1) {
                     this.events[idx] = item;
@@ -17438,7 +17461,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                 compValue = orgCompanyInput.value.trim();
             }
 
-            const detailDescription = form.querySelector('#textarea-org-desc').value.trim();
+            const detailDescription = window.cleanEventDescription(form.querySelector('#textarea-org-desc').value.trim(), true);
             
             // 1. Calculate top 5 matching musicians
             let allMusicians = state.musicians || [];
@@ -17698,9 +17721,10 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
             budgetDisplay = '0 - 5.000 €';
         }
 
-        const description = item.description || item.bio || (isEvents 
+        const rawDesc = item.description || item.bio || (isEvents 
             ? 'Wir suchen eine professionelle musikalische Begleitung für unser anstehendes Event mit fantastischer Stimmung.' 
             : 'Professionelle Live-Musik für unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.');
+        const description = (isEvents && isMediation) ? window.cleanEventDescription(rawDesc, true) : rawDesc;
 
         const bandName = item.name || item.title || '';
         const displayName = (state && state.currentUser)
@@ -20004,7 +20028,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
                                         </div>
                                     `).join('')}
                                     <div style="width: 100%; height: 100%; flex-shrink: 0; background: #0f172a; padding: 1rem 2.5rem; box-sizing: border-box; text-align: center; display: flex; align-items: center; justify-content: center;">
-                                        <p style="font-size: 0.82rem; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 140px; overflow-y: auto;">${eventData.description || 'Keine Beschreibung vorhanden.'}</p>
+                                        <p style="font-size: 0.82rem; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 140px; overflow-y: auto;">${window.cleanEventDescription(eventData.description, true) || 'Keine Beschreibung vorhanden.'}</p>
                                     </div>
                                 </div>
                                 <div class="tile-gallery-dots" id="combo-dots-${eventData.id}" data-theme="#7c3aed" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center;">
