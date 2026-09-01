@@ -5404,7 +5404,7 @@ window.renderInfoPage = function(container, type) {
         } else {
             // Vermittlung Musiker
             if (currentStep === 1) {
-                stepTitleText = `<span style="color: #7c3aed;">Kontaktdaten</span> sind geschützt`;
+                stepTitleText = `<span style="color: #7c3aed;">Erstkontakt</span> nur durch Veranstalter`;
                 stepBodyHTML = `
                     <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto 1rem;">
                         ${closedLockOverlayHTML}
