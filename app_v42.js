@@ -5194,29 +5194,10 @@ function renderHowItWorksContentHTML(type) {
             <div style="display: flex; gap: 0.4rem; align-items: center; justify-content: center; margin-bottom: 2rem; width: 100%; max-width: 360px; box-sizing: border-box;">
                 <button onclick="${toggleFunc}('direktkontakt')" style="flex: 1; padding: 0.65rem 0.9rem; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; border-radius: 12px; cursor: pointer; transition: all 0.2s; ${isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${themeColor}; box-shadow: 0 4px 12px rgba(37,99,235,0.15);` : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.06);'}">
                     Direktkontakt
-                </button>
-                <span style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; padding: 0; user-select: none; flex-shrink: 0;">
-                    ${toggleWord}
-                </span>
-                <button onclick="${toggleFunc}('vermittlung')" style="flex: 1; padding: 0.65rem 0.9rem; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; border-radius: 12px; cursor: pointer; transition: all 0.2s; ${!isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${themeColor}; box-shadow: 0 4px 12px rgba(37,99,235,0.15);` : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.06);'}">
-                    Vermittlung
-                </button>
-            </div>
-
-            <!-- Path flowchart content -->
-            <div style="width: 100%; box-sizing: border-box;">
-                ${contentHTML}
-            </div>
-
-        </div>
-    `;
-}
-
-window.musicianFlowPath = 'direktkontakt';
-window.organizerFlowPath = 'direktkontakt';
-window.infoPageStep = 1;
+window.infoPageIntroPlayed = false;
 
 window.setMusicianFlowPath = function(path) {
+    window.infoPageIntroPlayed = true;
     window.musicianFlowPath = path;
     window.infoPageStep = 1;
     const mainContainer = document.getElementById('app-main');
@@ -5226,6 +5207,7 @@ window.setMusicianFlowPath = function(path) {
 };
 
 window.setOrganizerFlowPath = function(path) {
+    window.infoPageIntroPlayed = true;
     window.organizerFlowPath = path;
     window.infoPageStep = 1;
     const mainContainer = document.getElementById('app-main');
@@ -5235,6 +5217,7 @@ window.setOrganizerFlowPath = function(path) {
 };
 
 window.setInfoStep = function(step, type) {
+    window.infoPageIntroPlayed = true;
     window.infoPageStep = Math.max(1, Math.min(3, step));
     const mainContainer = document.getElementById('app-main');
     if (mainContainer) {
@@ -5248,6 +5231,13 @@ window.renderInfoPage = function(container, type) {
     const currentPath = isMusician ? (window.musicianFlowPath || 'direktkontakt') : (window.organizerFlowPath || 'direktkontakt');
     const isDirektkontakt = currentPath === 'direktkontakt';
     const currentStep = window.infoPageStep || 1;
+    const hasIntroPlayed = !!window.infoPageIntroPlayed;
+
+    if (!hasIntroPlayed) {
+        setTimeout(() => {
+            window.infoPageIntroPlayed = true;
+        }, 3400);
+    }
     
     // Config colors & contents
     const themeColor = isMusician ? '#7c3aed' : '#2563eb';
@@ -5378,26 +5368,11 @@ window.renderInfoPage = function(container, type) {
             } else if (currentStep === 2) {
                 stepTitleText = `<span style="color: #7c3aed;">Kontaktdaten</span> freischalten`;
                 stepBodyHTML = `
-                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 1.5rem 1.4rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
                             <i class="fa-solid fa-lock-open" style="color: #7c3aed; font-size: 1.6rem;"></i>
                         </div>
                         <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0 0 1.5rem; text-align: center;">
-                            Mit deinem Musiker-Abo schaltest du vollständige E-Mail-Adressen, Telefonnummern und den direkten Chat frei. Du bewirbst dich ohne Umwege direkt beim Veranstalter.
-                        </p>
-                        ${contactBarStripHTML}
-                    </div>
-                `;
-            } else {
-                stepTitleText = `<span style="color: #7c3aed;">Direkt</span> austauschen`;
-                stepBodyHTML = `
-                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
-                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
-                            <i class="fa-solid fa-comments" style="color: #7c3aed; font-size: 1.6rem;"></i>
-                        </div>
-                        <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0; text-align: center;">
-                            Ihr vereinbart Gage, Spielzeit und Equipment direkt miteinander. Keine versteckten Gebühren oder prozentualen Abzüge von deinen Gigs.
-                        </p>
                         <button onclick="window.onNavigate('events')" class="glow-card-pulse" style="cursor: pointer; width: 100%; margin-top: 1.5rem; background: #7c3aed; border: 1.5px solid transparent; border-radius: 16px; padding: 0.95rem 1.5rem; color: #ffffff; font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
                             <span>Zum Event-Markt</span>
                             <i class="fa-solid fa-arrow-right-long" style="font-size: 1.1em;"></i>
@@ -5562,21 +5537,33 @@ window.renderInfoPage = function(container, type) {
                 }
             </style>
 
-            <!-- 1. Toggle-Buttons: Direktkontakt und/oder Vermittlung -->
-            <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; margin-bottom: 1.2rem; margin-top: 0.5rem; width: 100%; max-width: 420px; box-sizing: border-box;">
-                <button onclick="${toggleFunc}('direktkontakt')" style="flex: 1; padding: 0.75rem 1.2rem; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; border-radius: 14px; cursor: pointer; transition: all 0.2s; ${isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${themeColor}; box-shadow: 0 4px 15px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'};` : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.08); box-shadow: 0 2px 6px rgba(0,0,0,0.02);'}">
-                    Direktkontakt
-                </button>
-                <span style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; user-select: none; flex-shrink: 0;">
-                    ${toggleWord}
-                </span>
-                <button onclick="${toggleFunc}('vermittlung')" style="flex: 1; padding: 0.75rem 1.2rem; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; border-radius: 14px; cursor: pointer; transition: all 0.2s; ${!isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${themeColor}; box-shadow: 0 4px 15px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'};` : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.08); box-shadow: 0 2px 6px rgba(0,0,0,0.02);'}">
-                    Vermittlung
-                </button>
+            <!-- 1. Top Section: Headline 2 Wege. Mehr Gigs / Dein Act (fades out left at 2.0s) -> Toggle Buttons (fade in right at 2.15s) -->
+            <div class="info-top-header" style="position: relative; width: 100%; max-width: 440px; min-height: 52px; display: flex; align-items: center; justify-content: center; margin-top: 0.5rem; margin-bottom: 1.2rem; overflow: visible;">
+                
+                ${!hasIntroPlayed ? `
+                    <!-- Initial Headline: 2 Wege. Mehr Gigs / Dein Act -->
+                    <h1 class="info-intro-headline" style="position: absolute; margin: 0; font-family: var(--font-heading); font-size: clamp(1.6rem, 4.5vw, 2.1rem); font-weight: 900; letter-spacing: -0.5px; color: #0f172a; text-align: center; white-space: nowrap; animation: infoHeadlineFlyOut 0.45s cubic-bezier(0.16, 1, 0.3, 1) 2.0s forwards; pointer-events: none; z-index: 2;">
+                        2 Wege. <span style="color: ${themeColor};">${isMusician ? 'Mehr Gigs' : 'Dein Act'}</span>
+                    </h1>
+                ` : ''}
+
+                <!-- Toggle-Buttons: Direktkontakt und/oder Vermittlung -->
+                <div class="${!hasIntroPlayed ? 'info-intro-toggle' : ''}" style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; width: 100%; box-sizing: border-box; ${!hasIntroPlayed ? 'opacity: 0; transform: translateX(50px); animation: infoToggleFlyIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 2.15s forwards;' : ''}">
+                    <button onclick="${toggleFunc}('direktkontakt')" style="flex: 1; padding: 0.75rem 1.2rem; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; border-radius: 14px; cursor: pointer; transition: all 0.2s; ${isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${themeColor}; box-shadow: 0 4px 15px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'};` : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.08); box-shadow: 0 2px 6px rgba(0,0,0,0.02);'}">
+                        Direktkontakt
+                    </button>
+                    <span style="font-family: var(--font-heading); font-size: 1rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; user-select: none; flex-shrink: 0;">
+                        ${toggleWord}
+                    </span>
+                    <button onclick="${toggleFunc}('vermittlung')" style="flex: 1; padding: 0.75rem 1.2rem; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; border-radius: 14px; cursor: pointer; transition: all 0.2s; ${!isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${themeColor}; box-shadow: 0 4px 15px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'};` : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.08); box-shadow: 0 2px 6px rgba(0,0,0,0.02);'}">
+                        Vermittlung
+                    </button>
+                </div>
+
             </div>
 
             <!-- 2. Step-Banner: Links bündig Zahl + Text kompakt, rechts lilaner Pfeil / Refresh Button -->
-            <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 0.9rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.85rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; box-sizing: border-box; box-shadow: 0 8px 24px rgba(0,0,0,0.03);">
+            <div class="flow-anim-card ${!hasIntroPlayed ? 'info-intro-stepbanner' : ''}" style="width: 100%; max-width: 440px; margin: 0 auto 0.9rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.85rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; box-sizing: border-box; box-shadow: 0 8px 24px rgba(0,0,0,0.03); ${!hasIntroPlayed ? 'opacity: 0; transform: translateY(16px); animation: infoStepBannerReveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) 2.6s forwards;' : ''}">
                 
                 <!-- Links: Nummer & Schritt-Titel eng beieinander -->
                 <div style="display: flex; align-items: baseline; gap: 0.45rem; flex: 1; text-align: left; min-width: 0;">
@@ -5603,8 +5590,8 @@ window.renderInfoPage = function(container, type) {
 
             </div>
 
-            <!-- 4. Dynamischer Schritt-Inhalt (Kachel bei Schritt 1 / Erklärungsansicht bei Schritt 2 & 3) -->
-            <div style="width: 100%; box-sizing: border-box;">
+            <!-- 3. Dynamischer Schritt-Inhalt (Kachel bei Schritt 1 / Erklärungsansicht bei Schritt 2 & 3) -->
+            <div class="${!hasIntroPlayed ? 'info-intro-card' : ''}" style="width: 100%; box-sizing: border-box; ${!hasIntroPlayed ? 'opacity: 0; transform: translateY(18px); animation: infoCardReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) 3.0s forwards;' : ''}">
                 ${stepBodyHTML}
             </div>
 
@@ -15164,12 +15151,14 @@ function navigate(page) {
             }
             break;
         case 'info-musician':
+            window.infoPageIntroPlayed = false;
             window.renderInfoPage(mainContainer, 'musician');
             if (!window.location.hash.startsWith('#/info-musician')) {
                 window.location.hash = '#/info-musician';
             }
             break;
         case 'info-organizer':
+            window.infoPageIntroPlayed = false;
             window.renderInfoPage(mainContainer, 'organizer');
             if (!window.location.hash.startsWith('#/info-organizer')) {
                 window.location.hash = '#/info-organizer';

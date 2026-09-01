@@ -4291,6 +4291,58 @@ input[type="range"].input-field {
     filter: brightness(0.92);
 }
 
+@keyframes infoHeadlineFlyOut {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    85% {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50px);
+        visibility: hidden;
+        display: none;
+    }
+}
+
+@keyframes infoToggleFlyIn {
+    0% {
+        opacity: 0;
+        transform: translateX(50px);
+        pointer-events: none;
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
+    }
+}
+
+@keyframes infoStepBannerReveal {
+    0% {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes infoCardReveal {
+    0% {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Split benefits layout on laptop screens */
 .benefits-container-split {
     display: flex;
