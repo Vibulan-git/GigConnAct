@@ -4269,11 +4269,11 @@ input[type="range"].input-field {
 }
 
 .hero-cta-fly-in-right {
-    animation: heroCtaFlyInRight 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: heroCtaFlyInRight 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .hero-cta-fly-in-left {
-    animation: heroCtaFlyInLeft 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: heroCtaFlyInLeft 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .hero-cta-card-btn {
@@ -4299,13 +4299,13 @@ input[type="range"].input-field {
         opacity: 1;
         transform: translateX(0);
     }
-    85% {
+    80% {
         opacity: 0;
-        transform: translateX(-50px);
+        transform: translateX(-60px);
     }
     100% {
         opacity: 0;
-        transform: translateX(-50px);
+        transform: translateX(-60px);
         visibility: hidden;
         display: none;
     }
@@ -4314,7 +4314,7 @@ input[type="range"].input-field {
 @keyframes infoToggleFlyIn {
     0% {
         opacity: 0;
-        transform: translateX(50px);
+        transform: translateX(60px);
         pointer-events: none;
     }
     100% {
@@ -4327,7 +4327,7 @@ input[type="range"].input-field {
 @keyframes infoStepBannerReveal {
     0% {
         opacity: 0;
-        transform: translateY(16px);
+        transform: translateY(24px);
     }
     100% {
         opacity: 1;
@@ -4338,7 +4338,7 @@ input[type="range"].input-field {
 @keyframes infoCardReveal {
     0% {
         opacity: 0;
-        transform: translateY(18px);
+        transform: translateY(28px);
     }
     100% {
         opacity: 1;

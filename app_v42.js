@@ -5257,7 +5257,7 @@ window.renderInfoPage = function(container, type) {
     if (!hasIntroPlayed) {
         setTimeout(() => {
             window.infoPageIntroPlayed = true;
-        }, 3400);
+        }, 5000);
     }
     
     // Config colors & contents
@@ -5394,6 +5394,21 @@ window.renderInfoPage = function(container, type) {
                             <i class="fa-solid fa-lock-open" style="color: #7c3aed; font-size: 1.6rem;"></i>
                         </div>
                         <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0 0 1.5rem; text-align: center;">
+                            Schalte einmalig die Kontaktdaten frei, um alle Details und Kontaktkanäle direkt einsehen zu können.
+                        </p>
+                        ${contactBarStripHTML}
+                    </div>
+                `;
+            } else {
+                stepTitleText = `<span style="color: #7c3aed;">Direkte</span> Kommunikation`;
+                stepBodyHTML = `
+                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
+                            <i class="fa-solid fa-paper-plane" style="color: #7c3aed; font-size: 1.6rem;"></i>
+                        </div>
+                        <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0; text-align: center;">
+                            Kontaktiere Veranstalter direkt per Telefon, Mail oder Chat – ganz ohne Zwischenstation oder Provision.
+                        </p>
                         <button onclick="window.onNavigate('events')" class="glow-card-pulse" style="cursor: pointer; width: 100%; margin-top: 1.5rem; background: #7c3aed; border: 1.5px solid transparent; border-radius: 16px; padding: 0.95rem 1.5rem; color: #ffffff; font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
                             <span>Zum Event-Markt</span>
                             <i class="fa-solid fa-arrow-right-long" style="font-size: 1.1em;"></i>
@@ -5412,27 +5427,26 @@ window.renderInfoPage = function(container, type) {
                     </div>
                 `;
             } else if (currentStep === 2) {
-                stepTitleText = `<span style="color: #7c3aed;">Vermittlungsanfragen</span> erhalten`;
-                stepBodyHTML = `
-                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 1.5rem 1.4rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
-                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
-                            <i class="fa-solid fa-envelope-open-text" style="color: #7c3aed; font-size: 1.6rem;"></i>
-                        </div>
-                        <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0 0 1.5rem; text-align: center;">
-                            Veranstalter senden dir gezielte Anfragen für ihre Events. Du prüfst Termin, Gage und Konditionen ganz in Ruhe. Nur wenn du den Gig spielen möchtest, fällt eine faire einmalige Gebühr an.
-                        </p>
-                        ${contactBarStripHTML}
-                    </div>
-                `;
-            } else {
-                stepTitleText = `<span style="color: #7c3aed;">Kontaktdaten</span> austauschen`;
+                stepTitleText = `<span style="color: #7c3aed;">Kostenlose</span> Bewerbung`;
                 stepBodyHTML = `
                     <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
-                            <i class="fa-solid fa-id-card" style="color: #7c3aed; font-size: 1.6rem;"></i>
+                            <i class="fa-solid fa-circle-check" style="color: #7c3aed; font-size: 1.6rem;"></i>
                         </div>
                         <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0; text-align: center;">
-                            Bei beidseitiger Zusage werden die Kontaktdaten beider Parteien sofort freigegeben. Der Veranstalter meldet sich direkt bei dir zur finalen Gig-Planung.
+                            Bewirb dich mit nur einem Klick vollkommen kostenfrei auf exklusive Vermittlungs-Events.
+                        </p>
+                    </div>
+                `;
+            } else {
+                stepTitleText = `<span style="color: #7c3aed;">Gage</span> sichern`;
+                stepBodyHTML = `
+                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
+                            <i class="fa-solid fa-handshake" style="color: #7c3aed; font-size: 1.6rem;"></i>
+                        </div>
+                        <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0; text-align: center;">
+                            Wählt der Veranstalter dich aus, erhaltet ihr den direkten Kontakt und könnt den Gig verbindlich buchen.
                         </p>
                         <button onclick="window.onNavigate('events')" class="glow-card-pulse" style="cursor: pointer; width: 100%; margin-top: 1.5rem; background: #7c3aed; border: 1.5px solid transparent; border-radius: 16px; padding: 0.95rem 1.5rem; color: #ffffff; font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
                             <span>Zum Event-Markt</span>
@@ -5456,25 +5470,25 @@ window.renderInfoPage = function(container, type) {
             } else if (currentStep === 2) {
                 stepTitleText = `<span style="color: #2563eb;">Kontaktdaten</span> freischalten`;
                 stepBodyHTML = `
-                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 1.5rem 1.4rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(37,99,235,0.25);">
                             <i class="fa-solid fa-lock-open" style="color: #2563eb; font-size: 1.6rem;"></i>
                         </div>
-                        <p style="font-family: var(--font-body); font-size: 0.95rem; color: #64748b; line-height: 1.55; margin: 0 0 1.5rem; text-align: center;">
-                            Registriere dich in unter 60 Sekunden und schalte die Kontaktdaten von Bands, DJs und Solokünstlern sofort kostenfrei frei.
+                        <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0 0 1.5rem; text-align: center;">
+                            Schalte einmalig die Kontaktdaten frei, um den Künstler direkt und unverbindlich zu kontaktieren.
                         </p>
                         ${contactBarStripHTML}
                     </div>
                 `;
             } else {
-                stepTitleText = `<span style="color: #2563eb;">Direkt</span> austauschen`;
+                stepTitleText = `<span style="color: #2563eb;">Direkter</span> Kontakt`;
                 stepBodyHTML = `
                     <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(37,99,235,0.25);">
-                            <i class="fa-solid fa-comments" style="color: #2563eb; font-size: 1.6rem;"></i>
+                            <i class="fa-solid fa-paper-plane" style="color: #2563eb; font-size: 1.6rem;"></i>
                         </div>
                         <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0; text-align: center;">
-                            Verhandelt eure Wunschkonditionen, Technikbedarf und Setlisten direkt ohne Zwischenstation oder zusätzliche Vermittlungskosten.
+                            Erreiche passende Musiker direkt per Mail, Telefon oder Chat und vereinbare alle Konditionen auf direktem Weg.
                         </p>
                         <button onclick="window.onNavigate('musicians')" class="glow-card-pulse" style="cursor: pointer; width: 100%; margin-top: 1.5rem; background: #2563eb; border: 1.5px solid transparent; border-radius: 16px; padding: 0.95rem 1.5rem; color: #ffffff; font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
                             <span>Zum Musiker-Markt</span>
@@ -5484,9 +5498,9 @@ window.renderInfoPage = function(container, type) {
                 `;
             }
         } else {
-            // Vermittlung Veranstalter
+            // Veranstalter Vermittlung
             if (currentStep === 1) {
-                stepTitleText = `<span style="color: #2563eb;">Eventformular</span> ausfüllen`;
+                stepTitleText = `<span style="color: #2563eb;">Acts</span> vorschlagen lassen`;
                 stepBodyHTML = `
                     <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto 1rem;">
                         ${closedLockOverlayHTML}
@@ -5494,20 +5508,19 @@ window.renderInfoPage = function(container, type) {
                     </div>
                 `;
             } else if (currentStep === 2) {
-                stepTitleText = `<span style="color: #2563eb;">Vorschläge</span> erhalten`;
+                stepTitleText = `<span style="color: #2563eb;">Bewerbungen</span> erhalten`;
                 stepBodyHTML = `
-                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 1.5rem 1.4rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(37,99,235,0.25);">
-                            <i class="fa-solid fa-paper-plane" style="color: #2563eb; font-size: 1.6rem;"></i>
+                            <i class="fa-solid fa-inbox" style="color: #2563eb; font-size: 1.6rem;"></i>
                         </div>
-                        <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0 0 1.5rem; text-align: center;">
-                            Unser intelligentes System findet sofort passende Künstler nach Genre, Budget und Ort und fragt diese vollautomatisch für dich an.
+                        <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0; text-align: center;">
+                            Passende Acts bewerben sich auf dein Event. Du entscheidest in Ruhe, wer am besten zu deinem Event passt.
                         </p>
-                        ${contactBarStripHTML}
                     </div>
                 `;
             } else {
-                stepTitleText = `<span style="color: #2563eb;">Kontaktdaten</span> austauschen`;
+                stepTitleText = `<span style="color: #2563eb;">Auftritt</span> fixieren`;
                 stepBodyHTML = `
                     <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(37,99,235,0.25);">
@@ -5558,18 +5571,18 @@ window.renderInfoPage = function(container, type) {
                 }
             </style>
 
-            <!-- 1. Top Section: Headline 2 Wege. Mehr Gigs / Dein Act (fades out left at 2.0s) -> Toggle Buttons (fade in right at 2.15s) -->
+            <!-- 1. Top Section: Headline 2 Wege. Mehr Gigs / Dein Act (fades out left at 2.2s) -> Toggle Buttons (fade in right at 2.5s) -->
             <div class="info-top-header" style="position: relative; width: 100%; max-width: 440px; min-height: 52px; display: flex; align-items: center; justify-content: center; margin-top: 0.5rem; margin-bottom: 1.2rem; overflow: visible;">
                 
                 ${!hasIntroPlayed ? `
                     <!-- Initial Headline: 2 Wege. Mehr Gigs / Dein Act -->
-                    <h1 class="info-intro-headline" style="position: absolute; margin: 0; font-family: var(--font-heading); font-size: clamp(1.6rem, 4.5vw, 2.1rem); font-weight: 900; letter-spacing: -0.5px; color: #0f172a; text-align: center; white-space: nowrap; animation: infoHeadlineFlyOut 0.45s cubic-bezier(0.16, 1, 0.3, 1) 2.0s forwards; pointer-events: none; z-index: 2;">
+                    <h1 class="info-intro-headline" style="position: absolute; margin: 0; font-family: var(--font-heading); font-size: clamp(1.6rem, 4.5vw, 2.1rem); font-weight: 900; letter-spacing: -0.5px; color: #0f172a; text-align: center; white-space: nowrap; animation: infoHeadlineFlyOut 0.65s cubic-bezier(0.16, 1, 0.3, 1) 2.2s forwards; pointer-events: none; z-index: 2;">
                         2 Wege. <span style="color: ${themeColor};">${isMusician ? 'Mehr Gigs' : 'Dein Act'}</span>
                     </h1>
                 ` : ''}
 
                 <!-- Toggle-Buttons: Direktkontakt und/oder Vermittlung -->
-                <div class="${!hasIntroPlayed ? 'info-intro-toggle' : ''}" style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; width: 100%; box-sizing: border-box; ${!hasIntroPlayed ? 'opacity: 0; transform: translateX(50px); animation: infoToggleFlyIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 2.15s forwards;' : ''}">
+                <div class="${!hasIntroPlayed ? 'info-intro-toggle' : ''}" style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; width: 100%; box-sizing: border-box; ${!hasIntroPlayed ? 'opacity: 0; transform: translateX(60px); animation: infoToggleFlyIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) 2.5s forwards;' : ''}">
                     <button onclick="${toggleFunc}('direktkontakt')" style="flex: 1 1 0px; width: 0; min-width: 0; padding: 0.75rem 0.5rem; text-align: center; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; border-radius: 14px; cursor: pointer; transition: all 0.2s; box-sizing: border-box; ${isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${themeColor}; box-shadow: 0 4px 15px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'};` : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.08); box-shadow: 0 2px 6px rgba(0,0,0,0.02);'}">
                         Direktkontakt
                     </button>
@@ -5584,7 +5597,7 @@ window.renderInfoPage = function(container, type) {
             </div>
 
             <!-- 2. Step-Banner: Links bündig Zahl + Text kompakt, rechts lilaner Pfeil / Refresh Button -->
-            <div class="flow-anim-card ${!hasIntroPlayed ? 'info-intro-stepbanner' : ''}" style="width: 100%; max-width: 440px; margin: 0 auto 0.9rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.85rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; box-sizing: border-box; box-shadow: 0 8px 24px rgba(0,0,0,0.03); ${!hasIntroPlayed ? 'opacity: 0; transform: translateY(16px); animation: infoStepBannerReveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) 2.6s forwards;' : ''}">
+            <div class="flow-anim-card ${!hasIntroPlayed ? 'info-intro-stepbanner' : ''}" style="width: 100%; max-width: 440px; margin: 0 auto 0.9rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.85rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; box-sizing: border-box; box-shadow: 0 8px 24px rgba(0,0,0,0.03); ${!hasIntroPlayed ? 'opacity: 0; transform: translateY(24px); animation: infoStepBannerReveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) 3.3s forwards;' : ''}">
                 
                 <!-- Links: Nummer & Schritt-Titel eng beieinander -->
                 <div style="display: flex; align-items: baseline; gap: 0.45rem; flex: 1; text-align: left; min-width: 0;">
@@ -5612,7 +5625,7 @@ window.renderInfoPage = function(container, type) {
             </div>
 
             <!-- 3. Dynamischer Schritt-Inhalt (Kachel bei Schritt 1 / Erklärungsansicht bei Schritt 2 & 3) -->
-            <div class="${!hasIntroPlayed ? 'info-intro-card' : ''}" style="width: 100%; box-sizing: border-box; ${!hasIntroPlayed ? 'opacity: 0; transform: translateY(18px); animation: infoCardReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) 3.0s forwards;' : ''}">
+            <div class="${!hasIntroPlayed ? 'info-intro-card' : ''}" style="width: 100%; box-sizing: border-box; ${!hasIntroPlayed ? 'opacity: 0; transform: translateY(28px); animation: infoCardReveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) 4.0s forwards;' : ''}">
                 ${stepBodyHTML}
             </div>
 
