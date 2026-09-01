@@ -718,20 +718,25 @@ exports.sendCustomSignInEmail = functions
         }
 
         // Query user role and name from Firestore if existing user
-        if (email) {
+        if (!isNewUser) {
             try {
-                let userSnapshot = await admin.firestore().collection('users').where('email', '==', email.toLowerCase()).get();
+                let userSnapshot = await admin.firestore().collection('users').where('email', '==', email.toLowerCase().trim()).get();
                 if (userSnapshot.empty) {
-                    userSnapshot = await admin.firestore().collection('users').where('email', '==', email).get();
+                    userSnapshot = await admin.firestore().collection('users').where('email', '==', email.trim()).get();
                 }
-                if (!userSnapshot.empty) {
-                    const userData = userSnapshot.docs[0].data();
-                    role = userData.role || role;
-                    name = userData.firstName && userData.lastName 
-                        ? `${userData.firstName} ${userData.lastName}` 
-                        : (userData.contactName || name);
+                if (userSnapshot.empty) {
+                    console.warn(`User with email ${email} not found in users collection for login link.`);
+                    throw new functions.https.HttpsError('not-found', 'Diese E-Mail-Adresse ist nicht registriert.');
                 }
+                const userData = userSnapshot.docs[0].data();
+                role = userData.role || role;
+                name = userData.firstName && userData.lastName 
+                    ? `${userData.firstName} ${userData.lastName}` 
+                    : (userData.contactName || name);
             } catch (err) {
+                if (err instanceof functions.https.HttpsError) {
+                    throw err;
+                }
                 console.error("Failed to query user details for email:", err);
             }
         }

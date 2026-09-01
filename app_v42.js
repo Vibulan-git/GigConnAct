@@ -4142,31 +4142,33 @@ class StateManager {
 
     async loginPasswordless(email) {
         try {
-            const emailLower = email.toLowerCase();
-            const emailExistsLocal = this.musicians.some(m => m.email && m.email.toLowerCase() === emailLower) || 
-                                     this.events.some(e => e.email && e.email.toLowerCase() === emailLower);
+            const emailLower = email.toLowerCase().trim();
+            const emailTrimmed = email.trim();
             
             let snapshot = await db.collection('users').where('email', '==', emailLower).get();
             if (snapshot.empty) {
-                snapshot = await db.collection('users').where('email', '==', email).get();
+                snapshot = await db.collection('users').where('email', '==', emailTrimmed).get();
             }
-            const isExisting = emailExistsLocal || !snapshot.empty;
             
-            if (!isExisting) {
+            if (snapshot.empty) {
                 return { success: false, message: "Diese E-Mail-Adresse ist nicht registriert." };
             }
 
             const sendCustomSignInEmail = firebase.app().functions('europe-west3').httpsCallable('sendCustomSignInEmail');
             await sendCustomSignInEmail({
-                email: email,
+                email: emailTrimmed,
                 name: 'Nutzer', // Will load actual name dynamically in backend
                 isNewUser: false
             });
 
-            window.localStorage.setItem('emailForSignIn', email);
+            window.localStorage.setItem('emailForSignIn', emailTrimmed);
             return { success: true, isNewUser: false };
         } catch (err) {
             console.error("loginPasswordless failed:", err);
+            const errMsg = err.message || "";
+            if (errMsg.includes("nicht registriert") || err.code === "not-found" || err.code === "functions/not-found") {
+                return { success: false, message: "Diese E-Mail-Adresse ist nicht registriert." };
+            }
             return { success: false, message: err.message || "Fehler beim Generieren des Anmeldelinks." };
         }
     }
@@ -12856,7 +12858,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 }
                 if (magicForm.elements.email) magicForm.elements.email.style.display = 'block';
                 
-                if (res.message === "Diese E-Mail-Adresse ist nicht registriert.") {
+                if (res.message === "Diese E-Mail-Adresse ist nicht registriert." || (res.message && res.message.includes("nicht registriert"))) {
                     // Redirect to registration tab!
                     const registerTabBtn = document.getElementById('tab-register-btn');
                     if (registerTabBtn) {
