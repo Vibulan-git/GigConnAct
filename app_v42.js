@@ -5361,7 +5361,7 @@ function renderLandingPage(container, onNavigate) {
 
                     <!-- 2/4: Slogan (Subtitle) -->
                     <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.3rem; width: 100%; margin: 0 auto;">
-                        <span style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.2vw, 1.95rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: inline-block;">
+                        <span style="font-family: var(--font-heading); font-size: clamp(1.6rem, 4.5vw, 2.65rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: inline-block;">
                             Die Vermittlungsplattform
                         </span>
                         <span style="font-family: var(--font-heading); font-size: clamp(2.35rem, 6.2vw, 3.85rem); font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-shadow: 0 4px 15px rgba(0,0,0,0.5); line-height: 1.1; display: inline-block;">
@@ -9051,13 +9051,21 @@ function renderProfilePage(container) {
                 }
             }
 
-            // Also update contact details on their created musicians and events!
+            // Also update contact details on their created musicians and events in memory & Firestore!
             state.musicians.forEach(m => {
                 if (m.creatorId === u.id || m.id === u.profileId) {
                     m.contactName = `${fName} ${lName}`;
                     m.phone = phone;
                     m.email = email;
                     m.hidePhone = hidePhone;
+                    if (typeof db !== 'undefined' && m.id) {
+                        db.collection('musicians').doc(m.id).set({
+                            contactName: `${fName} ${lName}`,
+                            phone: phone,
+                            email: email,
+                            hidePhone: hidePhone
+                        }, { merge: true }).catch(err => console.error("Error updating musician contact doc:", err));
+                    }
                 }
             });
             state.events.forEach(e => {
@@ -9066,6 +9074,14 @@ function renderProfilePage(container) {
                     e.phone = phone;
                     e.email = email;
                     e.hidePhone = hidePhone;
+                    if (typeof db !== 'undefined' && e.id) {
+                        db.collection('events').doc(e.id).set({
+                            contactName: `${fName} ${lName}`,
+                            phone: phone,
+                            email: email,
+                            hidePhone: hidePhone
+                        }, { merge: true }).catch(err => console.error("Error updating event contact doc:", err));
+                    }
                 }
             });
 
