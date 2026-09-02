@@ -5542,15 +5542,12 @@ window.renderInfoPage = function(container, type) {
                                     <div style="display: flex; align-items: center; gap: 0.45rem; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 800;">
                                         <i class="fa-solid fa-envelope-open-text"></i> Vermittlungsanfrage
                                     </div>
-                                    <span style="font-family: var(--font-body); font-size: 0.72rem; font-weight: 700; background: rgba(255,255,255,0.22); padding: 0.15rem 0.55rem; border-radius: 20px;">
-                                        Exklusiv
-                                    </span>
                                 </div>
                                 <div style="padding: 0.85rem 0.9rem;">
                                     <h5 style="font-family: var(--font-heading); font-size: 0.98rem; font-weight: 900; color: #0f172a; margin: 0 0 0.45rem; line-height: 1.25;">
                                         Sommerfestival Open-Air 2026
                                     </h5>
-                                    <div style="display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 0.75rem;">
+                                    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem; margin-bottom: 0.85rem;">
                                         <span style="background: #f1f5f9; color: #475569; font-family: var(--font-body); font-size: 0.78rem; font-weight: 600; padding: 0.2rem 0.55rem; border-radius: 8px;">
                                             <i class="fa-solid fa-location-dot" style="color: #ec4899;"></i> München
                                         </span>
@@ -5560,14 +5557,14 @@ window.renderInfoPage = function(container, type) {
                                         <span style="background: #f1f5f9; color: #475569; font-family: var(--font-body); font-size: 0.78rem; font-weight: 600; padding: 0.2rem 0.55rem; border-radius: 8px;">
                                             <i class="fa-solid fa-coins" style="color: #f59e0b;"></i> Gage: <strong style="color: #0f172a;">1.500 €</strong>
                                         </span>
+                                        <span style="color: #7c3aed; font-family: var(--font-body); font-size: 0.78rem; font-weight: 700; text-decoration: underline; cursor: pointer; margin-left: auto;">
+                                            mehr Details
+                                        </span>
                                     </div>
-                                    <div style="padding-top: 0.65rem; border-top: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
-                                        <span style="font-family: var(--font-body); font-size: 0.76rem; color: #64748b;">
-                                            <i class="fa-solid fa-shield-halved" style="color: #7c3aed;"></i> Erstkontakt durch Veranstalter
-                                        </span>
-                                        <span style="font-family: var(--font-heading); font-size: 0.78rem; font-weight: 800; color: #ffffff; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); padding: 0.35rem 0.8rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(124,58,237,0.25);">
-                                            Anfrage annehmen
-                                        </span>
+                                    <div style="padding-top: 0.2rem;">
+                                        <button style="width: 100%; border: none; cursor: pointer; font-family: var(--font-heading); font-size: 0.88rem; font-weight: 800; color: #ffffff; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); padding: 0.6rem 1rem; border-radius: 10px; box-shadow: 0 3px 10px rgba(124,58,237,0.25); display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                            <i class="fa-solid fa-check"></i> Anfrage annehmen
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -5585,15 +5582,16 @@ window.renderInfoPage = function(container, type) {
                                 Passt der Gig für Dich, kannst Du die Vermittlungsanfrage verbindlich annehmen. Bei erfolgreicher Vermittlung werden die Kontaktdaten zwischen Dir und dem Veranstalter freigegeben, sodass Ihr alle weiteren Details direkt klären könnt. Je nach Abo-Modell fällt dafür eine Vermittlungsgebühr an – bei Premium entfällt sie.
                             </p>
 
-                            <!-- Authentic GigConnAct Freigeschaltete Kontaktdaten Bar -->
-                            <div style="margin-top: 0.8rem;">
-                                <div style="display: flex; align-items: center; justify-content: center; gap: 0.45rem; margin-bottom: 0.5rem;">
-                                    <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 0.95rem;"></i>
-                                    <span style="font-family: var(--font-heading); font-size: 0.85rem; font-weight: 800; color: #0f172a;">
-                                        Kontaktdaten freigeschaltet
-                                    </span>
+                            <!-- Authentic Kontaktdaten Box Visual -->
+                            <div style="background: #ffffff; border: 1.5px solid rgba(0,0,0,0.08); border-radius: 16px; padding: 1.1rem 1.25rem; box-sizing: border-box; box-shadow: 0 4px 16px rgba(0,0,0,0.03); text-align: left; margin-top: 0.85rem;">
+                                <div style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #7c3aed; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.45rem;">
+                                    <span style="font-size: 1.15rem;">📞</span> <span>Kontaktdaten des Veranstalters:</span>
                                 </div>
-                                ${contactBarStripHTML}
+                                <div style="display: flex; flex-direction: column; gap: 0.45rem; font-family: var(--font-body); font-size: 0.92rem; color: #334155; line-height: 1.4;">
+                                    <div><strong style="color: #1e293b;">Name:</strong> Simone Freiheit</div>
+                                    <div><strong style="color: #1e293b;">Telefon:</strong> 015788703764</div>
+                                    <div><strong style="color: #1e293b;">E-Mail:</strong> <span style="color: #7c3aed; font-weight: 600;">vibulan22@gmail.com</span></div>
+                                </div>
                             </div>
 
                         </div>
@@ -5710,24 +5708,26 @@ window.renderInfoPage = function(container, type) {
                                     <div style="display: flex; align-items: center; gap: 0.45rem; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 800;">
                                         <i class="fa-solid fa-inbox"></i> Eingehende Bewerbungen
                                     </div>
-                                    <span style="font-family: var(--font-body); font-size: 0.72rem; font-weight: 700; background: rgba(255,255,255,0.22); padding: 0.15rem 0.55rem; border-radius: 20px;">
-                                        3 Acts verfügbar
-                                    </span>
                                 </div>
                                 <div style="padding: 0.85rem 0.9rem;">
-                                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem;">
-                                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #f3e8ff; display: flex; align-items: center; justify-content: center; color: #7c3aed; font-weight: 800; font-size: 0.8rem;">
-                                            <i class="fa-solid fa-music"></i>
+                                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.85rem;">
+                                        <div style="display: flex; align-items: center; gap: 0.55rem; flex: 1;">
+                                            <div style="width: 32px; height: 32px; border-radius: 50%; background: #f3e8ff; display: flex; align-items: center; justify-content: center; color: #7c3aed; font-weight: 800; font-size: 0.8rem;">
+                                                <i class="fa-solid fa-music"></i>
+                                            </div>
+                                            <div>
+                                                <div style="font-family: var(--font-heading); font-size: 0.9rem; font-weight: 800; color: #0f172a;">The Sound Experience</div>
+                                                <div style="font-family: var(--font-body); font-size: 0.74rem; color: #64748b;">Band &bull; Pop / Rock &bull; Gage: 1.200 €</div>
+                                            </div>
                                         </div>
-                                        <div style="flex: 1;">
-                                            <div style="font-family: var(--font-heading); font-size: 0.9rem; font-weight: 800; color: #0f172a;">The Sound Experience</div>
-                                            <div style="font-family: var(--font-body); font-size: 0.74rem; color: #64748b;">Band &bull; Pop / Rock &bull; Gage: 1.200 €</div>
-                                        </div>
-                                    </div>
-                                    <div style="padding-top: 0.6rem; border-top: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
-                                        <span style="font-family: var(--font-body); font-size: 0.76rem; color: #64748b;">
-                                            <i class="fa-solid fa-headphones" style="color: #2563eb;"></i> Hörproben & Videos verfügbar
+                                        <span style="color: #2563eb; font-family: var(--font-body); font-size: 0.78rem; font-weight: 700; text-decoration: underline; cursor: pointer;">
+                                            mehr Details
                                         </span>
+                                    </div>
+                                    <div style="padding-top: 0.2rem;">
+                                        <button style="width: 100%; border: none; cursor: pointer; font-family: var(--font-heading); font-size: 0.88rem; font-weight: 800; color: #ffffff; background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); padding: 0.6rem 1rem; border-radius: 10px; box-shadow: 0 3px 10px rgba(37,99,235,0.25); display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                            <i class="fa-solid fa-check"></i> Act annehmen
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -5745,15 +5745,16 @@ window.renderInfoPage = function(container, type) {
                                 Sobald ein Act zusagt, erhältst du alle Kontaktdaten und kannst den Auftritt für deine Veranstaltung fest buchen.
                             </p>
 
-                            <!-- Authentic GigConnAct Freigeschaltete Kontaktdaten Bar Organizer -->
-                            <div style="margin-top: 0.8rem;">
-                                <div style="display: flex; align-items: center; justify-content: center; gap: 0.45rem; margin-bottom: 0.5rem;">
-                                    <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 0.95rem;"></i>
-                                    <span style="font-family: var(--font-heading); font-size: 0.85rem; font-weight: 800; color: #0f172a;">
-                                        Musiker-Kontaktdaten freigeschaltet
-                                    </span>
+                            <!-- Authentic Kontaktdaten Box Visual Organizer -->
+                            <div style="background: #ffffff; border: 1.5px solid rgba(0,0,0,0.08); border-radius: 16px; padding: 1.1rem 1.25rem; box-sizing: border-box; box-shadow: 0 4px 16px rgba(0,0,0,0.03); text-align: left; margin-top: 0.85rem;">
+                                <div style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #2563eb; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.45rem;">
+                                    <span style="font-size: 1.15rem;">📞</span> <span>Kontaktdaten des Künstlers:</span>
                                 </div>
-                                ${contactBarStripHTML}
+                                <div style="display: flex; flex-direction: column; gap: 0.45rem; font-family: var(--font-body); font-size: 0.92rem; color: #334155; line-height: 1.4;">
+                                    <div><strong style="color: #1e293b;">Name:</strong> Laura Schmidt (Laura & The Sound)</div>
+                                    <div><strong style="color: #1e293b;">Telefon:</strong> 0151 98765432</div>
+                                    <div><strong style="color: #1e293b;">E-Mail:</strong> <span style="color: #2563eb; font-weight: 600;">laura.sound@music-live.de</span></div>
+                                </div>
                             </div>
 
                         </div>
