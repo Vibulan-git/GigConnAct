@@ -5274,18 +5274,10 @@ window.nextInfoStep = function(currentStep, type, isDirektkontakt) {
         window.setInfoStep(currentStep + 1, type);
     } else {
         const isMusician = type === 'musician';
-        if (isDirektkontakt) {
-            if (isMusician) {
-                window.setMusicianFlowPath('vermittlung');
-            } else {
-                window.setOrganizerFlowPath('vermittlung');
-            }
-        } else {
-            if (isMusician) {
-                window.setMusicianFlowPath('direktkontakt');
-            } else {
-                window.setOrganizerFlowPath('direktkontakt');
-            }
+        if (window.onNavigate) {
+            window.onNavigate(isMusician ? 'events' : 'musicians');
+        } else if (window.appNavigate) {
+            window.appNavigate(isMusician ? 'events' : 'musicians');
         }
     }
 };
@@ -5425,7 +5417,7 @@ window.renderInfoPage = function(container, type) {
             if (currentStep === 1) {
                 stepTitleText = `<span style="color: #7c3aed;">Events</span> kostenlos entdecken`;
                 stepBodyHTML = `
-                    <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto 1rem;">
+                    <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto 0.5rem;">
                         ${closedLockOverlayHTML}
                         ${showcaseCardHTML}
                     </div>
@@ -5433,7 +5425,7 @@ window.renderInfoPage = function(container, type) {
             } else if (currentStep === 2) {
                 stepTitleText = `<span style="color: #7c3aed;">Kontaktdaten</span> freischalten`;
                 stepBodyHTML = `
-                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 0.5rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
                             <i class="fa-solid fa-lock-open" style="color: #7c3aed; font-size: 1.6rem;"></i>
                         </div>
@@ -5446,7 +5438,7 @@ window.renderInfoPage = function(container, type) {
             } else {
                 stepTitleText = `<span style="color: #7c3aed;">Direkte</span> Kommunikation`;
                 stepBodyHTML = `
-                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 0.5rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
                             <i class="fa-solid fa-paper-plane" style="color: #7c3aed; font-size: 1.6rem;"></i>
                         </div>
@@ -5465,7 +5457,7 @@ window.renderInfoPage = function(container, type) {
             if (currentStep === 1) {
                 stepTitleText = `<span style="color: #7c3aed;">Erstkontakt</span> nur durch Veranstalter`;
                 stepBodyHTML = `
-                    <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto 1rem;">
+                    <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto 0.5rem;">
                         ${closedLockOverlayHTML}
                         ${showcaseCardHTML}
                     </div>
@@ -5473,7 +5465,7 @@ window.renderInfoPage = function(container, type) {
             } else if (currentStep === 2) {
                 stepTitleText = `<span style="color: #7c3aed;">Kostenlose</span> Bewerbung`;
                 stepBodyHTML = `
-                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 0.5rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
                             <i class="fa-solid fa-circle-check" style="color: #7c3aed; font-size: 1.6rem;"></i>
                         </div>
@@ -5485,7 +5477,7 @@ window.renderInfoPage = function(container, type) {
             } else {
                 stepTitleText = `<span style="color: #7c3aed;">Gage</span> sichern`;
                 stepBodyHTML = `
-                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 0.5rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #faf5ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(124,58,237,0.25);">
                             <i class="fa-solid fa-handshake" style="color: #7c3aed; font-size: 1.6rem;"></i>
                         </div>
@@ -5506,7 +5498,7 @@ window.renderInfoPage = function(container, type) {
             if (currentStep === 1) {
                 stepTitleText = `<span style="color: #2563eb;">Musiker</span> kostenlos entdecken`;
                 stepBodyHTML = `
-                    <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto 1rem;">
+                    <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto 0.5rem;">
                         ${closedLockOverlayHTML}
                         ${showcaseCardHTML}
                     </div>
@@ -5514,7 +5506,7 @@ window.renderInfoPage = function(container, type) {
             } else if (currentStep === 2) {
                 stepTitleText = `<span style="color: #2563eb;">Kontaktdaten</span> freischalten`;
                 stepBodyHTML = `
-                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 0.5rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(37,99,235,0.25);">
                             <i class="fa-solid fa-lock-open" style="color: #2563eb; font-size: 1.6rem;"></i>
                         </div>
@@ -5527,7 +5519,7 @@ window.renderInfoPage = function(container, type) {
             } else {
                 stepTitleText = `<span style="color: #2563eb;">Direkter</span> Kontakt`;
                 stepBodyHTML = `
-                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 0.5rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(37,99,235,0.25);">
                             <i class="fa-solid fa-paper-plane" style="color: #2563eb; font-size: 1.6rem;"></i>
                         </div>
@@ -5546,7 +5538,7 @@ window.renderInfoPage = function(container, type) {
             if (currentStep === 1) {
                 stepTitleText = `<span style="color: #2563eb;">Acts</span> vorschlagen lassen`;
                 stepBodyHTML = `
-                    <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto 1rem;">
+                    <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto 0.5rem;">
                         ${closedLockOverlayHTML}
                         ${showcaseCardHTML}
                     </div>
@@ -5554,7 +5546,7 @@ window.renderInfoPage = function(container, type) {
             } else if (currentStep === 2) {
                 stepTitleText = `<span style="color: #2563eb;">Bewerbungen</span> erhalten`;
                 stepBodyHTML = `
-                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 0.5rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(37,99,235,0.25);">
                             <i class="fa-solid fa-inbox" style="color: #2563eb; font-size: 1.6rem;"></i>
                         </div>
@@ -5566,7 +5558,7 @@ window.renderInfoPage = function(container, type) {
             } else {
                 stepTitleText = `<span style="color: #2563eb;">Auftritt</span> fixieren`;
                 stepBodyHTML = `
-                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 1rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
+                    <div class="flow-anim-card" style="width: 100%; max-width: 440px; margin: 0 auto 0.5rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 2rem 1.8rem; box-shadow: 0 12px 35px rgba(0,0,0,0.04); text-align: center;">
                         <div style="width: 60px; height: 60px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.2rem; border: 1.5px solid rgba(37,99,235,0.25);">
                             <i class="fa-solid fa-handshake" style="color: #2563eb; font-size: 1.6rem;"></i>
                         </div>
@@ -5640,31 +5632,44 @@ window.renderInfoPage = function(container, type) {
 
             </div>
 
-            <!-- 2. Step-Banner: Links bündig Zahl + Text kompakt, rechts lilaner Pfeil / Refresh Button -->
-            <div class="flow-anim-card ${!hasIntroPlayed ? 'info-intro-stepbanner' : ''}" style="width: 100%; max-width: 440px; margin: 0 auto 0.9rem; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.85rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; box-sizing: border-box; box-shadow: 0 8px 24px rgba(0,0,0,0.03); ${!hasIntroPlayed ? 'opacity: 0; transform: translateY(24px); animation: infoStepBannerReveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) 3.3s forwards;' : ''}">
+            <!-- 2. Dynamischer Schritt-Inhalt (Kachel bei Schritt 1 / Erklärungsansicht bei Schritt 2 & 3) -->
+            <div class="${!hasIntroPlayed ? 'info-intro-card' : ''}" style="width: 100%; box-sizing: border-box; ${!hasIntroPlayed ? 'opacity: 0; transform: translateY(28px); animation: infoCardReveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) 3.3s forwards;' : ''}">
+                ${stepBodyHTML}
+            </div>
+
+            <!-- 3. Step-Banner UNTEN: Links bündig Zahl + Text kompakt, rechts Button mit '2. ->' / '3. ->' / 'Zum Markt ->' -->
+            <div class="flow-anim-card ${!hasIntroPlayed ? 'info-intro-stepbanner' : ''}" style="width: 100%; max-width: 440px; margin: 0.85rem auto 0; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 0.85rem 1.4rem; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; box-sizing: border-box; box-shadow: 0 8px 24px rgba(0,0,0,0.03); ${!hasIntroPlayed ? 'opacity: 0; transform: translateY(24px); animation: infoStepBannerReveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) 4.0s forwards;' : ''}">
                 
                 <!-- Links: Nummer & Schritt-Titel eng beieinander -->
                 <div style="display: flex; align-items: baseline; gap: 0.45rem; flex: 1; text-align: left; min-width: 0;">
                     <span style="font-family: var(--font-heading); font-size: clamp(1.2rem, 3.2vw, 1.55rem); font-weight: 900; color: ${themeColor}; line-height: 1; flex-shrink: 0;">
                         ${currentStep}.
                     </span>
-                    <h3 style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.8vw, 1.35rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: -0.2px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <h3 style="font-family: var(--font-heading); font-size: clamp(1.02rem, 2.7vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: -0.2px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                         ${stepTitleText}
                     </h3>
                 </div>
 
-                <!-- Rechts: Lilaner / Theme Button (Immer Pfeil nach rechts) -->
+                <!-- Rechts: Button mit '2. ->', '3. ->' oder 'Zum Markt ->' -->
                 <div style="display: flex; align-items: center; flex-shrink: 0;">
-                    <button onclick="event.stopPropagation(); window.nextInfoStep(${currentStep}, '${type}', ${isDirektkontakt})" style="width: 38px; height: 38px; border-radius: 50%; background: ${themeColor}; border: none; color: #ffffff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'}; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='scale(1)';" title="${currentStep < 3 ? `Weiter zu Schritt ${currentStep + 1}` : (isDirektkontakt ? 'Weiter zu Vermittlung (Schritt 1)' : 'Weiter zu Direktkontakt (Schritt 1)')}">
-                        <i class="fa-solid fa-arrow-right" style="font-size: 1rem;"></i>
-                    </button>
+                    ${currentStep === 1 ? `
+                        <button onclick="event.stopPropagation(); window.nextInfoStep(1, '${type}', ${isDirektkontakt})" style="padding: 0.48rem 0.95rem; border-radius: 20px; background: ${themeColor}; border: none; color: #ffffff; display: flex; align-items: center; gap: 0.45rem; cursor: pointer; box-shadow: 0 4px 14px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'}; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='scale(1)';" title="Weiter zu Schritt 2">
+                            <span>2.</span>
+                            <i class="fa-solid fa-arrow-right" style="font-size: 0.95rem;"></i>
+                        </button>
+                    ` : currentStep === 2 ? `
+                        <button onclick="event.stopPropagation(); window.nextInfoStep(2, '${type}', ${isDirektkontakt})" style="padding: 0.48rem 0.95rem; border-radius: 20px; background: ${themeColor}; border: none; color: #ffffff; display: flex; align-items: center; gap: 0.45rem; cursor: pointer; box-shadow: 0 4px 14px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'}; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='scale(1)';" title="Weiter zu Schritt 3">
+                            <span>3.</span>
+                            <i class="fa-solid fa-arrow-right" style="font-size: 0.95rem;"></i>
+                        </button>
+                    ` : `
+                        <button onclick="event.stopPropagation(); window.nextInfoStep(3, '${type}', ${isDirektkontakt})" class="glow-card-pulse" style="padding: 0.48rem 1.05rem; border-radius: 20px; background: ${themeColor}; border: none; color: #ffffff; display: flex; align-items: center; gap: 0.45rem; cursor: pointer; box-shadow: 0 4px 14px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'}; font-family: var(--font-heading); font-size: 1rem; font-weight: 800; transition: transform 0.2s; white-space: nowrap;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='scale(1)';" title="Zum Markt">
+                            <span>Zum Markt</span>
+                            <i class="fa-solid fa-arrow-right" style="font-size: 0.95rem;"></i>
+                        </button>
+                    `}
                 </div>
 
-            </div>
-
-            <!-- 3. Dynamischer Schritt-Inhalt (Kachel bei Schritt 1 / Erklärungsansicht bei Schritt 2 & 3) -->
-            <div class="${!hasIntroPlayed ? 'info-intro-card' : ''}" style="width: 100%; box-sizing: border-box; ${!hasIntroPlayed ? 'opacity: 0; transform: translateY(28px); animation: infoCardReveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) 4.0s forwards;' : ''}">
-                ${stepBodyHTML}
             </div>
 
         </div>
@@ -5725,11 +5730,11 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
             <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; max-width: 540px; box-sizing: border-box;">
                 <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.25rem 0.55rem 1.1rem; font-weight: 900; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; max-width: 260px; min-height: 165px; box-sizing: border-box;">
                     <i class="fa-solid fa-guitar" style="font-size: clamp(1.75rem, 4.5vw, 2.2rem); margin-bottom: 0.35rem;"></i>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.12rem, 3.4vw, 1.46rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Ich möchte meine Gigs<br>selbst suchen</span>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.08rem, 3.3vw, 1.42rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Ich möchte selbst<br>Veranstalter kontaktieren</span>
                 </button>
-                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('info-musician')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.25rem 0.55rem 1.1rem; font-weight: 900; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; max-width: 260px; min-height: 165px; box-sizing: border-box;">
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.25rem 0.55rem 1.1rem; font-weight: 900; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; max-width: 260px; min-height: 165px; box-sizing: border-box;">
                     <i class="fa-solid fa-handshake" style="font-size: clamp(1.75rem, 4.5vw, 2.2rem); margin-bottom: 0.35rem;"></i>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.12rem, 3.4vw, 1.46rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Ich möchte meine Gigs<br>vermittelt bekommen</span>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.08rem, 3.3vw, 1.42rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Die Veranstalter-Suche<br>soll über GigConnAct laufen</span>
                 </button>
                 <div style="position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; justify-content: center; pointer-events: auto;">
                     <a href="javascript:void(0)" onclick="window.appNavigate('info-musician')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.92); font-size: clamp(0.88rem, 2.5vw, 1.02rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 5px rgba(0,0,0,0.6); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.92)'; this.style.transform='translateY(0)';">
@@ -5745,11 +5750,11 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
             <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; max-width: 540px; box-sizing: border-box;">
                 <button class="btn hero-cta-card-btn" onclick="window.appNavigate('musicians')" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.25rem 0.55rem 1.1rem; font-weight: 900; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; max-width: 260px; min-height: 165px; box-sizing: border-box;">
                     <i class="fa-solid fa-guitar" style="font-size: clamp(1.75rem, 4.5vw, 2.2rem); margin-bottom: 0.35rem;"></i>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.12rem, 3.4vw, 1.46rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Ich möchte meine Acts<br>selbst suchen</span>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.08rem, 3.3vw, 1.42rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Ich möchte selbst<br>Musiker kontaktieren</span>
                 </button>
                 <button class="btn hero-cta-card-btn" onclick="window.showAgencyBookingForm()" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.25rem 0.55rem 1.1rem; font-weight: 900; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; max-width: 260px; min-height: 165px; box-sizing: border-box;">
                     <i class="fa-solid fa-file-pen" style="font-size: clamp(1.75rem, 4.5vw, 2.2rem); margin-bottom: 0.35rem;"></i>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.12rem, 3.4vw, 1.46rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Ich möchte meine Acts<br>vermittelt bekommen</span>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.08rem, 3.3vw, 1.42rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Die Musiker-Suche<br>soll über GigConnAct laufen</span>
                 </button>
                 <div style="position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; justify-content: center; pointer-events: auto;">
                     <a href="javascript:void(0)" onclick="window.appNavigate('info-organizer')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.92); font-size: clamp(0.88rem, 2.5vw, 1.02rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 5px rgba(0,0,0,0.6); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.92)'; this.style.transform='translateY(0)';">
