@@ -1801,22 +1801,28 @@ function generateRemainingEvents(existing) {
     return events;
 }
 
-// Helper to clean contact details from event descriptions for mediation / agency requests
+// Helper to clean contact details from event descriptions for mediation / agency requests (with high-speed memoization cache)
+const _cleanDescCache = new Map();
 window.cleanEventDescription = function(desc, isMediation = false) {
     if (!desc || typeof desc !== 'string') return '';
-    let cleaned = desc;
-    if (isMediation) {
-        // 1. Strip email addresses
-        cleaned = cleaned.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi, '');
-        // 2. Strip phone numbers (various international and national formats)
-        cleaned = cleaned.replace(/(?:\+?\d{1,4}[\s\-\.\/]*)?(?:\(?\d{2,5}\)?[\s\-\.\/]*)?\d{3,}[\s\-\.\/]*\d{2,}/gi, '');
-        // 3. Strip URLs / website links
-        cleaned = cleaned.replace(/https?:\/\/[^\s]+/gi, '').replace(/www\.[^\s]+/gi, '');
-        // 4. Strip common contact label prefixes (e.g., "Kontakt: ...", "Tel: ...", "Mail: ...", "Name: ...")
-        cleaned = cleaned.replace(/(?:Kontakt|Name|Tel|Telefon|Phone|Handy|E-Mail|Mail|Ansprechpartner|Mobil)\s*[:\-]\s*[^\n\r,.]*/gi, '');
-        // 5. Clean up duplicate spaces, orphaned dashes/colons, and trim
-        cleaned = cleaned.replace(/\s{2,}/g, ' ').replace(/^[\s:\-,.;]+|[\s:\-,.;]+$/g, '').trim();
+    if (!isMediation) return desc;
+    if (_cleanDescCache.has(desc)) {
+        return _cleanDescCache.get(desc);
     }
+    let cleaned = desc;
+    // 1. Strip email addresses
+    cleaned = cleaned.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi, '');
+    // 2. Strip phone numbers (various international and national formats)
+    cleaned = cleaned.replace(/(?:\+?\d{1,4}[\s\-\.\/]*)?(?:\(?\d{2,5}\)?[\s\-\.\/]*)?\d{3,}[\s\-\.\/]*\d{2,}/gi, '');
+    // 3. Strip URLs / website links
+    cleaned = cleaned.replace(/https?:\/\/[^\s]+/gi, '').replace(/www\.[^\s]+/gi, '');
+    // 4. Strip common contact label prefixes (e.g., "Kontakt: ...", "Tel: ...", "Mail: ...", "Name: ...")
+    cleaned = cleaned.replace(/(?:Kontakt|Name|Tel|Telefon|Phone|Handy|E-Mail|Mail|Ansprechpartner|Mobil)\s*[:\-]\s*[^\n\r,.]*/gi, '');
+    // 5. Clean up duplicate spaces, orphaned dashes/colons, and trim
+    cleaned = cleaned.replace(/\s{2,}/g, ' ').replace(/^[\s:\-,.;]+|[\s:\-,.;]+$/g, '').trim();
+    
+    if (_cleanDescCache.size > 1000) _cleanDescCache.clear();
+    _cleanDescCache.set(desc, cleaned);
     return cleaned;
 };
 
@@ -4364,8 +4370,13 @@ class StateManager {
 // 3. MATCHING LOGIC
 // ==========================================
 
+const _distanceCache = new Map();
 function getEstimatedDistance(city1, city2) {
     if (!city1 || !city2) return 250;
+    const cacheKey = `${city1}||${city2}`;
+    if (_distanceCache.has(cacheKey)) {
+        return _distanceCache.get(cacheKey);
+    }
 
     const coords = {
         "berlin": { lat: 52.5200, lon: 13.4050 },
@@ -4443,10 +4454,10 @@ function getEstimatedDistance(city1, city2) {
         }
     }
 
-    if (minDistance === Infinity) {
-        return 250;
-    }
-    return minDistance;
+    const calculatedDist = minDistance === Infinity ? 250 : Math.round(minDistance);
+    if (_distanceCache.size > 2000) _distanceCache.clear();
+    _distanceCache.set(cacheKey, calculatedDist);
+    return calculatedDist;
 }
 
 function getWeekdayFromDate(dateStr) {
@@ -4478,9 +4489,20 @@ function expandList(arr) {
     return result;
 }
 
+const _matchScoreCache = new Map();
 function calculateMatch(musician, event, searcherRole = 'musician') {
     if (!musician || !event) {
         return { score: 0, breakdown: {}, matchedCount: 0 };
+    }
+
+    // Fast Cache Key Check
+    const mId = musician.id || (musician.genres ? musician.genres.join(',') : '') + (musician.location || '');
+    const eId = event.id || (event.genres ? event.genres.join(',') : '') + (event.location || '');
+    const mAvail = Array.isArray(musician.availability) ? musician.availability.length : (musician.availability ? 'obj' : '');
+    const matchCacheKey = `${mId}_${eId}_${searcherRole}_${musician.minBudget || 0}_${musician.maxBudget || 0}_${musician.radius || 100}_${mAvail}_${event.date || ''}_${event.minBudget || 0}_${event.maxBudget || 0}`;
+
+    if (_matchScoreCache.has(matchCacheKey)) {
+        return _matchScoreCache.get(matchCacheKey);
     }
 
     // 1. Musiker-Typ (25 %)
@@ -4672,11 +4694,15 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
         extra: extraScore > 0
     };
 
-    return {
+    const matchResult = {
         score: finalScore,
         breakdown,
         matchedCount: typeScore > 0 ? 1 : 0
     };
+
+    if (_matchScoreCache.size > 3000) _matchScoreCache.clear();
+    _matchScoreCache.set(matchCacheKey, matchResult);
+    return matchResult;
 }
 
 function checkAndNotifyMatches(stateManager, showToastCallback) {
@@ -5730,11 +5756,11 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
             <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; max-width: 540px; box-sizing: border-box;">
                 <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.25rem 0.55rem 1.1rem; font-weight: 900; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; max-width: 260px; min-height: 165px; box-sizing: border-box;">
                     <i class="fa-solid fa-guitar" style="font-size: clamp(1.75rem, 4.5vw, 2.2rem); margin-bottom: 0.35rem;"></i>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.08rem, 3.3vw, 1.42rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Ich möchte selbst<br>Veranstalter kontaktieren</span>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(0.98rem, 3.1vw, 1.3rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Ich möchte selbst<br>Veranstalter kontaktieren<br><span style="font-weight: 700; opacity: 0.92; font-size: 0.9em;">(Direktkontakt)</span></span>
                 </button>
                 <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.25rem 0.55rem 1.1rem; font-weight: 900; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; max-width: 260px; min-height: 165px; box-sizing: border-box;">
                     <i class="fa-solid fa-handshake" style="font-size: clamp(1.75rem, 4.5vw, 2.2rem); margin-bottom: 0.35rem;"></i>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.08rem, 3.3vw, 1.42rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Die Veranstalter-Suche<br>soll über GigConnAct laufen</span>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(0.98rem, 3.1vw, 1.3rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Ich möchte Veranstalter<br>vermittelt bekommen<br><span style="font-weight: 700; opacity: 0.92; font-size: 0.9em;">(Vermittlung)</span></span>
                 </button>
                 <div style="position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; justify-content: center; pointer-events: auto;">
                     <a href="javascript:void(0)" onclick="window.appNavigate('info-musician')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.92); font-size: clamp(0.88rem, 2.5vw, 1.02rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 5px rgba(0,0,0,0.6); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.92)'; this.style.transform='translateY(0)';">
@@ -5750,11 +5776,11 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
             <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; max-width: 540px; box-sizing: border-box;">
                 <button class="btn hero-cta-card-btn" onclick="window.appNavigate('musicians')" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.25rem 0.55rem 1.1rem; font-weight: 900; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; max-width: 260px; min-height: 165px; box-sizing: border-box;">
                     <i class="fa-solid fa-guitar" style="font-size: clamp(1.75rem, 4.5vw, 2.2rem); margin-bottom: 0.35rem;"></i>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.08rem, 3.3vw, 1.42rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Ich möchte selbst<br>Musiker kontaktieren</span>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(0.98rem, 3.1vw, 1.3rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Ich möchte selbst<br>Musiker kontaktieren<br><span style="font-weight: 700; opacity: 0.92; font-size: 0.9em;">(Direktkontakt)</span></span>
                 </button>
                 <button class="btn hero-cta-card-btn" onclick="window.showAgencyBookingForm()" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.25rem 0.55rem 1.1rem; font-weight: 900; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; max-width: 260px; min-height: 165px; box-sizing: border-box;">
                     <i class="fa-solid fa-file-pen" style="font-size: clamp(1.75rem, 4.5vw, 2.2rem); margin-bottom: 0.35rem;"></i>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.08rem, 3.3vw, 1.42rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Die Musiker-Suche<br>soll über GigConnAct laufen</span>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(0.98rem, 3.1vw, 1.3rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Die Musiker-Suche<br>soll über GigConnAct laufen<br><span style="font-weight: 700; opacity: 0.92; font-size: 0.9em;">(Vermittlung)</span></span>
                 </button>
                 <div style="position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; justify-content: center; pointer-events: auto;">
                     <a href="javascript:void(0)" onclick="window.appNavigate('info-organizer')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.92); font-size: clamp(0.88rem, 2.5vw, 1.02rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 5px rgba(0,0,0,0.6); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.92)'; this.style.transform='translateY(0)';">
@@ -7232,12 +7258,23 @@ function renderMarket(container, type, onNavigate) {
             }
         }
 
-        minInput.addEventListener('input', updateSlider);
-        maxInput.addEventListener('input', updateSlider);
-        minInput.addEventListener('input', applyAllFiltersAndSort);
-        maxInput.addEventListener('input', updateSlider); // Trigger update on release
-        maxInput.addEventListener('input', applyAllFiltersAndSort);
+        minInput.addEventListener('input', () => {
+            updateSlider();
+            debouncedApplyFilters();
+        });
+        maxInput.addEventListener('input', () => {
+            updateSlider();
+            debouncedApplyFilters();
+        });
         updateSlider();
+    }
+
+    let _filterDebounceTimer = null;
+    function debouncedApplyFilters(resetPagination = true, keepUnfilteredState = false) {
+        if (_filterDebounceTimer) clearTimeout(_filterDebounceTimer);
+        _filterDebounceTimer = setTimeout(() => {
+            applyAllFiltersAndSort(resetPagination, keepUnfilteredState);
+        }, 25);
     }
 
     function applyAllFiltersAndSort(resetPagination = true, keepUnfilteredState = false) {
@@ -8154,7 +8191,7 @@ function renderMarket(container, type, onNavigate) {
     // Text inputs listener for keyword search and location search
     container.querySelectorAll('#filter-keyword, #filter-keyword-m, #filter-location, #filter-location-m').forEach(input => {
         input.addEventListener('input', () => {
-            applyAllFiltersAndSort();
+            debouncedApplyFilters();
         });
         input.addEventListener('change', () => {
             applyAllFiltersAndSort();
@@ -8184,7 +8221,7 @@ function renderMarket(container, type, onNavigate) {
         if (radiusInput && radiusDisplay) {
             radiusInput.addEventListener('input', () => {
                 radiusDisplay.textContent = parseInt(radiusInput.value) >= 500 ? '500+ km' : radiusInput.value + ' km';
-                applyAllFiltersAndSort();
+                debouncedApplyFilters();
             });
         }
         initDualSlider('slider-filter-duration-container', 'input-filter-duration-min', 'input-filter-duration-max', 'track-filter-duration', 'val-filter-duration', 'Std.', false);
@@ -8196,7 +8233,7 @@ function renderMarket(container, type, onNavigate) {
         if (radiusInput && radiusDisplay) {
             radiusInput.addEventListener('input', () => {
                 radiusDisplay.textContent = parseInt(radiusInput.value) >= 500 ? '500+ km' : radiusInput.value + ' km';
-                applyAllFiltersAndSort();
+                debouncedApplyFilters();
             });
         }
         initDualSlider('slider-filter-duration-m-container', 'input-filter-duration-m-min', 'input-filter-duration-m-max', 'track-filter-duration-m', 'val-filter-duration-m', 'Std.', false);
@@ -8341,29 +8378,35 @@ function renderMarket(container, type, onNavigate) {
     // Run sorting and filtering initially on page load
     applyAllFiltersAndSort();
 
-    // Re-render dynamically if profile loads late
+    // Re-render dynamically if profile loads late (with one-time guard)
     if (!hasProfile) {
-        const unsubscribe = state.subscribe(() => {
-            if (!document.body.contains(container)) {
-                unsubscribe();
+        let hasTriggeredLateProfile = false;
+        const unsubscribeProfile = state.subscribe(() => {
+            if (!document.body.contains(container) || hasTriggeredLateProfile) {
+                unsubscribeProfile();
                 return;
             }
             const currentProfile = isEvents 
                 ? (state.currentUser && (state.musicians.find(m => m.id === state.activeMusicianId) || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId)))
                 : (state.currentUser && (state.events.find(e => e.id === state.activeEventId) || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) || state.events.find(e => e.creatorId === state.currentUser.id)));
             if (currentProfile) {
-                unsubscribe();
+                hasTriggeredLateProfile = true;
+                unsubscribeProfile();
                 renderMarket(container, type, onNavigate);
             }
         });
     }
 
+    let marketUpdateTimer = null;
     const unsubscribeMarket = state.subscribe(() => {
         if (!document.body.contains(container)) {
             unsubscribeMarket();
             return;
         }
-        applyAllFiltersAndSort(false);
+        if (marketUpdateTimer) clearTimeout(marketUpdateTimer);
+        marketUpdateTimer = setTimeout(() => {
+            applyAllFiltersAndSort(false);
+        }, 40);
     });
 }
 
