@@ -5463,9 +5463,57 @@ window.renderInfoPage = function(container, type) {
                     title: `<span style="color: ${themeColor};">Veranstalter</span> direkt kontaktieren - ohne Provisionskosten`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
-                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0;">
+                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
                                 Nimm direkt Kontakt mit dem Veranstalter auf und kläre Verfügbarkeit, Gage, Spielzeiten und alle weiteren Details persönlich. Ohne Umwege und ohne Provisionskosten entscheidest Du selbst, welche Events interessant für Dich sind – und erhöhst Deine Chancen auf mehr Gigs.
                             </p>
+                            
+                            <!-- Mini-Chat Mockup Option A -->
+                            <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 0.9rem; box-sizing: border-box;">
+                                <!-- Chat Header -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.55rem; margin-bottom: 0.75rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.55rem;">
+                                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #e0e7ff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; color: #4338ca;">
+                                            TM
+                                        </div>
+                                        <div>
+                                            <div style="font-family: var(--font-heading); font-size: 0.85rem; font-weight: 800; color: #0f172a; line-height: 1.1;">Thomas Meier</div>
+                                            <div style="font-family: var(--font-body); font-size: 0.72rem; color: #64748b;">Stadtfest München • Veranstalter</div>
+                                        </div>
+                                    </div>
+                                    <span style="display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 0.2rem 0.55rem; border-radius: 20px;">
+                                        <span style="width: 6px; height: 6px; border-radius: 50%; background: #16a34a;"></span> Direkt-Chat
+                                    </span>
+                                </div>
+
+                                <!-- Chat Messages -->
+                                <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                                    <!-- Musician Message -->
+                                    <div style="align-self: flex-end; max-width: 88%; background: ${themeColor}; color: #ffffff; border-radius: 14px 14px 2px 14px; padding: 0.6rem 0.8rem; font-family: var(--font-body); font-size: 0.83rem; line-height: 1.35; box-shadow: 0 2px 6px rgba(0,0,0,0.06);">
+                                        Hi Thomas! Wir haben am 18.10. Zeit. Unsere 4-köpfige Band passt perfekt zum Stadtfest! 🎸
+                                        <div style="font-size: 0.66rem; opacity: 0.8; text-align: right; margin-top: 0.2rem;">14:32 Uhr &bull; Gelesen <i class="fa-solid fa-check-double" style="font-size: 0.62rem;"></i></div>
+                                    </div>
+
+                                    <!-- Organizer Response -->
+                                    <div style="align-self: flex-start; max-width: 88%; background: #ffffff; border: 1px solid #e2e8f0; color: #1e293b; border-radius: 14px 14px 14px 2px; padding: 0.6rem 0.8rem; font-family: var(--font-body); font-size: 0.83rem; line-height: 1.35; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                                        Klasse, Gage 1.200 € & Technik steht. Wir freuen uns riesig auf euren Auftritt! 🤝✨
+                                        <div style="font-size: 0.66rem; color: #94a3b8; text-align: left; margin-top: 0.2rem;">14:35 Uhr</div>
+                                    </div>
+                                </div>
+
+                                <!-- Benefit Pills Row -->
+                                <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed #cbd5e1; display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center;">
+                                    <span style="font-family: var(--font-heading); font-size: 0.74rem; font-weight: 800; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 0.25rem 0.55rem; border-radius: 20px; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                        <i class="fa-solid fa-check"></i> 100% Deine Gage
+                                    </span>
+                                    <span style="font-family: var(--font-heading); font-size: 0.74rem; font-weight: 800; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 0.25rem 0.55rem; border-radius: 20px; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                        <i class="fa-solid fa-check"></i> 0 € Provision
+                                    </span>
+                                    <span style="font-family: var(--font-heading); font-size: 0.74rem; font-weight: 800; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 0.25rem 0.55rem; border-radius: 20px; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                        <i class="fa-solid fa-check"></i> Direkte Absprache
+                                    </span>
+                                </div>
+                            </div>
+
                         </div>
                     `
                 }
@@ -5496,9 +5544,48 @@ window.renderInfoPage = function(container, type) {
                     title: `<span style="color: ${themeColor};">Vermittlungsanfragen</span> erhalten – mit Account & Abo-Modell`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
-                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0;">
+                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
                                 Erstelle Dein Musiker-Profil und werde für Veranstalter sichtbar. Mit Flex, Plus, Pro oder Premium kannst Du Vermittlungsanfragen von Veranstaltern erhalten, die Interesse an Dir haben. Der Erstkontakt geht dabei immer vom Veranstalter aus – Du selbst kannst keine Vermittlungsanfrage senden.
                             </p>
+
+                            <!-- Eingehende Vermittlungsanfrage Mockup -->
+                            <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 0.9rem; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                                <!-- Notification Banner -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background: linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(37,99,235,0.08) 100%); border: 1px solid rgba(124,58,237,0.15); border-radius: 12px; padding: 0.5rem 0.75rem; margin-bottom: 0.8rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.45rem;">
+                                        <i class="fa-solid fa-bell" style="color: ${themeColor}; font-size: 0.9rem;"></i>
+                                        <span style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; color: #1e1b4b;">
+                                            Neue Vermittlungsanfrage!
+                                        </span>
+                                    </div>
+                                    <span style="font-size: 0.7rem; font-weight: 800; color: #6b21a8; background: #f3e8ff; padding: 0.15rem 0.5rem; border-radius: 20px;">
+                                        Exklusiv
+                                    </span>
+                                </div>
+
+                                <!-- Event snippet -->
+                                <div style="text-align: left; margin-bottom: 0.75rem;">
+                                    <h5 style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 900; color: #0f172a; margin: 0 0 0.35rem; line-height: 1.25;">
+                                        Sommerfestival Open-Air 2026
+                                    </h5>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 0.55rem; font-family: var(--font-body); font-size: 0.78rem; color: #64748b;">
+                                        <span><i class="fa-solid fa-location-dot" style="color: #ec4899;"></i> München</span>
+                                        <span><i class="fa-solid fa-calendar-day" style="color: #8b5cf6;"></i> Sa, 15. Aug</span>
+                                        <span><i class="fa-solid fa-coins" style="color: #f59e0b;"></i> Gage: <strong style="color: #0f172a;">1.500 €</strong></span>
+                                    </div>
+                                </div>
+
+                                <!-- Status line -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding-top: 0.65rem; border-top: 1px solid #f1f5f9;">
+                                    <span style="font-family: var(--font-body); font-size: 0.75rem; color: #475569; display: inline-flex; align-items: center; gap: 0.35rem;">
+                                        <i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Veranstalter fragt Dich an
+                                    </span>
+                                    <span style="font-family: var(--font-heading); font-size: 0.75rem; font-weight: 800; color: #ffffff; background: ${themeColor}; padding: 0.3rem 0.7rem; border-radius: 8px;">
+                                        Anfrage prüfen
+                                    </span>
+                                </div>
+                            </div>
+
                         </div>
                     `
                 },
@@ -5508,9 +5595,61 @@ window.renderInfoPage = function(container, type) {
                     title: `<span style="color: ${themeColor};">Kontaktdaten</span> erhalten – mit Provisionskosten`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
-                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0;">
+                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
                                 Passt der Gig für Dich, kannst Du die Vermittlungsanfrage verbindlich annehmen. Bei erfolgreicher Vermittlung werden die Kontaktdaten zwischen Dir und dem Veranstalter freigegeben, sodass Ihr alle weiteren Details direkt klären könnt. Je nach Abo-Modell fällt dafür eine Vermittlungsgebühr an – bei Premium entfällt sie.
                             </p>
+
+                            <!-- Match & Freischaltung Erfolgs-Schaubild -->
+                            <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 0.9rem; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                                <!-- Banner -->
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 0.45rem; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 0.45rem 0.75rem; margin-bottom: 0.8rem;">
+                                    <i class="fa-solid fa-circle-check" style="color: #059669; font-size: 0.9rem;"></i>
+                                    <span style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; color: #065f46;">
+                                        Match bestätigt • Kontaktdaten freigeschaltet!
+                                    </span>
+                                </div>
+
+                                <!-- Connection Flow -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.65rem 0.75rem; margin-bottom: 0.8rem;">
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.2rem; flex: 1;">
+                                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #f3e8ff; border: 1.5px solid #d8b4fe; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fa-solid fa-guitar" style="color: #7c3aed; font-size: 0.85rem;"></i>
+                                        </div>
+                                        <span style="font-family: var(--font-heading); font-size: 0.74rem; font-weight: 800; color: #0f172a; text-align: center;">Dein Profil</span>
+                                    </div>
+
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.15rem; flex: 1.2;">
+                                        <div style="display: flex; align-items: center; gap: 0.25rem; width: 100%; justify-content: center;">
+                                            <div style="height: 2px; flex: 1; background: linear-gradient(90deg, #7c3aed, #10b981);"></div>
+                                            <div style="width: 24px; height: 24px; border-radius: 50%; background: #10b981; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; box-shadow: 0 2px 5px rgba(16,185,129,0.3);">
+                                                <i class="fa-solid fa-lock-open"></i>
+                                            </div>
+                                            <div style="height: 2px; flex: 1; background: linear-gradient(90deg, #10b981, #2563eb);"></div>
+                                        </div>
+                                        <span style="font-family: var(--font-body); font-size: 0.66rem; font-weight: 700; color: #059669; margin-top: 0.15rem;">Voller Direktkontakt</span>
+                                    </div>
+
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.2rem; flex: 1;">
+                                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #dbeafe; border: 1.5px solid #93c5fd; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fa-solid fa-building" style="color: #2563eb; font-size: 0.85rem;"></i>
+                                        </div>
+                                        <span style="font-family: var(--font-heading); font-size: 0.74rem; font-weight: 800; color: #0f172a; text-align: center;">Veranstalter</span>
+                                    </div>
+                                </div>
+
+                                <!-- Abo Tier Overview -->
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; font-family: var(--font-body); font-size: 0.74rem;">
+                                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.45rem 0.5rem; text-align: center;">
+                                        <div style="font-family: var(--font-heading); font-weight: 800; color: #334155;">Flex / Plus / Pro</div>
+                                        <span style="color: #64748b; font-size: 0.7rem;">Gebühr nur bei Erfolg</span>
+                                    </div>
+                                    <div style="background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); border: 1px solid #d8b4fe; border-radius: 10px; padding: 0.45rem 0.5rem; text-align: center;">
+                                        <div style="font-family: var(--font-heading); font-weight: 900; color: #6b21a8;">✨ Premium</div>
+                                        <span style="color: #7c3aed; font-weight: 800; font-size: 0.7rem;">0 € Vermittlungsgebühr</span>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     `
                 }
@@ -5551,9 +5690,57 @@ window.renderInfoPage = function(container, type) {
                     title: `<span style="color: ${themeColor};">Musiker</span> direkt kontaktieren - ohne Provisionskosten`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
-                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0;">
+                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
                                 Erreiche passende Musiker direkt per Mail, Telefon oder Chat und vereinbare alle Konditionen auf direktem Weg.
                             </p>
+
+                            <!-- Mini-Chat Mockup Organizer Option A -->
+                            <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 0.9rem; box-sizing: border-box;">
+                                <!-- Chat Header -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.55rem; margin-bottom: 0.75rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.55rem;">
+                                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #dbeafe; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; color: #1e40af;">
+                                            LS
+                                        </div>
+                                        <div>
+                                            <div style="font-family: var(--font-heading); font-size: 0.85rem; font-weight: 800; color: #0f172a; line-height: 1.1;">Laura & The Sound</div>
+                                            <div style="font-family: var(--font-body); font-size: 0.72rem; color: #64748b;">Live-Band • Pop / Jazz / Funk</div>
+                                        </div>
+                                    </div>
+                                    <span style="display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 0.2rem 0.55rem; border-radius: 20px;">
+                                        <span style="width: 6px; height: 6px; border-radius: 50%; background: #16a34a;"></span> Direkt-Chat
+                                    </span>
+                                </div>
+
+                                <!-- Chat Messages -->
+                                <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                                    <!-- Organizer Message -->
+                                    <div style="align-self: flex-end; max-width: 88%; background: ${themeColor}; color: #ffffff; border-radius: 14px 14px 2px 14px; padding: 0.6rem 0.8rem; font-family: var(--font-body); font-size: 0.83rem; line-height: 1.35; box-shadow: 0 2px 6px rgba(0,0,0,0.06);">
+                                        Hi Laura! Wir planen unser Firmen-Jubiläum am 12.11. und möchten euch gerne als Live-Act buchen! 🎤
+                                        <div style="font-size: 0.66rem; opacity: 0.8; text-align: right; margin-top: 0.2rem;">11:15 Uhr &bull; Gelesen <i class="fa-solid fa-check-double" style="font-size: 0.62rem;"></i></div>
+                                    </div>
+
+                                    <!-- Musician Response -->
+                                    <div style="align-self: flex-start; max-width: 88%; background: #ffffff; border: 1px solid #e2e8f0; color: #1e293b; border-radius: 14px 14px 14px 2px; padding: 0.6rem 0.8rem; font-family: var(--font-body); font-size: 0.83rem; line-height: 1.35; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+                                        Super gerne! Wir haben den Termin reserviert und senden die Setliste durch. Wir freuen uns! 🎶✨
+                                        <div style="font-size: 0.66rem; color: #94a3b8; text-align: left; margin-top: 0.2rem;">11:18 Uhr</div>
+                                    </div>
+                                </div>
+
+                                <!-- Benefit Pills Row -->
+                                <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed #cbd5e1; display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center;">
+                                    <span style="font-family: var(--font-heading); font-size: 0.74rem; font-weight: 800; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 0.25rem 0.55rem; border-radius: 20px; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                        <i class="fa-solid fa-check"></i> 0 € Vermittlungskosten
+                                    </span>
+                                    <span style="font-family: var(--font-heading); font-size: 0.74rem; font-weight: 800; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 0.25rem 0.55rem; border-radius: 20px; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                        <i class="fa-solid fa-check"></i> Direkter Draht zum Act
+                                    </span>
+                                    <span style="font-family: var(--font-heading); font-size: 0.74rem; font-weight: 800; color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 0.25rem 0.55rem; border-radius: 20px; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                        <i class="fa-solid fa-check"></i> Freie Konditionen
+                                    </span>
+                                </div>
+                            </div>
+
                         </div>
                     `
                 }
@@ -5578,10 +5765,31 @@ window.renderInfoPage = function(container, type) {
                     icon: 'fa-paper-plane',
                     title: `<span style="color: ${themeColor};">Bewerbungen</span> & Vorschläge erhalten`,
                     content: `
-                        <div style="text-align: center; padding: 0.5rem 0.2rem;">
-                            <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0; text-align: center;">
+                        <div style="text-align: left; padding: 0.2rem 0.2rem;">
+                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
                                 Passende Acts bewerben sich auf dein Event. Du entscheidest in Ruhe, wer am besten zu deinem Event passt.
                             </p>
+
+                            <!-- Bewerbungen Vorschau Mockup -->
+                            <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 0.9rem; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background: linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(124,58,237,0.08) 100%); border: 1px solid rgba(37,99,235,0.15); border-radius: 12px; padding: 0.5rem 0.75rem; margin-bottom: 0.8rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.45rem;">
+                                        <i class="fa-solid fa-inbox" style="color: ${themeColor}; font-size: 0.9rem;"></i>
+                                        <span style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; color: #1e1b4b;">
+                                            3 passende Acts gefunden!
+                                        </span>
+                                    </div>
+                                    <span style="font-size: 0.7rem; font-weight: 800; color: #1e40af; background: #dbeafe; padding: 0.15rem 0.5rem; border-radius: 20px;">
+                                        Kuratierte Auswahl
+                                    </span>
+                                </div>
+                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.2rem 0;">
+                                    <span style="font-family: var(--font-body); font-size: 0.76rem; color: #475569;">
+                                        <i class="fa-solid fa-music" style="color: #2563eb;"></i> Audio-Proben, Videos & Gagen direkt vergleichen
+                                    </span>
+                                </div>
+                            </div>
+
                         </div>
                     `
                 },
@@ -5590,14 +5798,45 @@ window.renderInfoPage = function(container, type) {
                     icon: 'fa-handshake',
                     title: `<span style="color: ${themeColor};">Auftritt</span> fixieren & Wunsch-Act buchen`,
                     content: `
-                        <div style="text-align: center; padding: 0.5rem 0.2rem;">
-                            <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0 0 1.2rem; text-align: center;">
+                        <div style="text-align: left; padding: 0.2rem 0.2rem;">
+                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
                                 Sobald ein Act zusagt, erhältst du alle Kontaktdaten und kannst den Auftritt für deine Veranstaltung fest buchen.
                             </p>
-                            <button onclick="event.stopPropagation(); window.showAgencyBookingForm()" class="glow-card-pulse" style="cursor: pointer; width: 100%; max-width: 320px; margin: 0 auto; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.85rem 1.5rem; color: #ffffff; font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
-                                <span>Vermittlungsanfrage starten</span>
-                                <i class="fa-solid fa-arrow-right-long" style="font-size: 1.1em;"></i>
-                            </button>
+
+                            <!-- Match & Booking Schaubild Organizer -->
+                            <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 0.9rem; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 0.45rem; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 0.45rem 0.75rem; margin-bottom: 0.8rem;">
+                                    <i class="fa-solid fa-circle-check" style="color: #059669; font-size: 0.9rem;"></i>
+                                    <span style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 800; color: #065f46;">
+                                        Wunsch-Act bestätigt • Buchung fixiert!
+                                    </span>
+                                </div>
+                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.65rem 0.75rem;">
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.2rem; flex: 1;">
+                                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #dbeafe; border: 1.5px solid #93c5fd; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fa-solid fa-building" style="color: #2563eb; font-size: 0.85rem;"></i>
+                                        </div>
+                                        <span style="font-family: var(--font-heading); font-size: 0.74rem; font-weight: 800; color: #0f172a; text-align: center;">Dein Event</span>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.15rem; flex: 1.2;">
+                                        <div style="display: flex; align-items: center; gap: 0.25rem; width: 100%; justify-content: center;">
+                                            <div style="height: 2px; flex: 1; background: linear-gradient(90deg, #2563eb, #10b981);"></div>
+                                            <div style="width: 24px; height: 24px; border-radius: 50%; background: #10b981; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; box-shadow: 0 2px 5px rgba(16,185,129,0.3);">
+                                                <i class="fa-solid fa-handshake"></i>
+                                            </div>
+                                            <div style="height: 2px; flex: 1; background: linear-gradient(90deg, #10b981, #7c3aed);"></div>
+                                        </div>
+                                        <span style="font-family: var(--font-body); font-size: 0.66rem; font-weight: 700; color: #059669; margin-top: 0.15rem;">Live-Gig gesichert</span>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; align-items: center; gap: 0.2rem; flex: 1;">
+                                        <div style="width: 32px; height: 32px; border-radius: 50%; background: #f3e8ff; border: 1.5px solid #d8b4fe; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fa-solid fa-guitar" style="color: #7c3aed; font-size: 0.85rem;"></i>
+                                        </div>
+                                        <span style="font-family: var(--font-heading); font-size: 0.74rem; font-weight: 800; color: #0f172a; text-align: center;">Wunsch-Act</span>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     `
                 }
