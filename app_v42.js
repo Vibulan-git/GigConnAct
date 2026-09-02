@@ -5477,9 +5477,14 @@ window.renderInfoPage = function(container, type) {
             stepsData = [
                 {
                     num: '1.',
-                    icon: 'fa-user-shield',
-                    title: `<span style="color: ${themeColor};">Kontaktdaten</span> sind geschützt & Erstkontakt durch Veranstalter`,
+                    icon: 'fa-magnifying-glass',
+                    title: `<span style="color: ${themeColor};">Gigs</span> entdecken – ohne Account & kostenlos`,
                     content: `
+                        <div style="text-align: left; padding: 0.2rem 0.2rem 0.8rem;">
+                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 1rem;">
+                                Gig-Markt: Suche und filtere kostenlos nach Gigs, die zu Dir passen – ganz ohne Account. Bei Vermittlungs-Gigs bleiben die Kontaktdaten des Veranstalters geschützt und sind nicht einsehbar.
+                            </p>
+                        </div>
                         <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto;">
                             ${showcaseCardHTML}
                         </div>
@@ -5488,11 +5493,11 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '2.',
                     icon: 'fa-envelope-open-text',
-                    title: `<span style="color: ${themeColor};">Vermittlungsanfragen</span> erhalten & bei Interesse Gebühr zahlen`,
+                    title: `<span style="color: ${themeColor};">Vermittlungsanfragen</span> erhalten – mit Account & Abo-Modell`,
                     content: `
-                        <div style="text-align: center; padding: 0.5rem 0.2rem;">
-                            <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0; text-align: center;">
-                                Veranstalter stellen Vermittlungsanfragen an GigConnAct. Passt dein Profil, erhältst du Anfragen und kannst dich unkompliziert bewerben.
+                        <div style="text-align: left; padding: 0.2rem 0.2rem;">
+                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0;">
+                                Erstelle Dein Musiker-Profil und werde für Veranstalter sichtbar. Mit Flex, Plus, Pro oder Premium kannst Du Vermittlungsanfragen von Veranstaltern erhalten, die Interesse an Dir haben. Der Erstkontakt geht dabei immer vom Veranstalter aus – Du selbst kannst keine Vermittlungsanfrage senden.
                             </p>
                         </div>
                     `
@@ -5500,16 +5505,12 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '3.',
                     icon: 'fa-id-card',
-                    title: `<span style="color: ${themeColor};">Kontaktdaten</span> von interessierten Veranstaltern erhalten`,
+                    title: `<span style="color: ${themeColor};">Kontaktdaten</span> erhalten – mit Provisionskosten`,
                     content: `
-                        <div style="text-align: center; padding: 0.5rem 0.2rem;">
-                            <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0 0 1.2rem; text-align: center;">
-                                Wählt der Veranstalter dich aus, erhaltet ihr den direkten Kontakt und könnt den Gig verbindlich buchen.
+                        <div style="text-align: left; padding: 0.2rem 0.2rem;">
+                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0;">
+                                Passt der Gig für Dich, kannst Du die Vermittlungsanfrage verbindlich annehmen. Bei erfolgreicher Vermittlung werden die Kontaktdaten zwischen Dir und dem Veranstalter freigegeben, sodass Ihr alle weiteren Details direkt klären könnt. Je nach Abo-Modell fällt dafür eine Vermittlungsgebühr an – bei Premium entfällt sie.
                             </p>
-                            <button onclick="event.stopPropagation(); window.appNavigate('events')" class="glow-card-pulse" style="cursor: pointer; width: 100%; max-width: 320px; margin: 0 auto; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.85rem 1.5rem; color: #ffffff; font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
-                                <span>Zum Event-Markt</span>
-                                <i class="fa-solid fa-arrow-right-long" style="font-size: 1.1em;"></i>
-                            </button>
                         </div>
                     `
                 }
