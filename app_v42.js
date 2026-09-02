@@ -5452,7 +5452,7 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '3.',
                     icon: 'fa-comments',
-                    title: `<span style="color: ${themeColor};">Direkter</span> Austausch mit Veranstaltern`,
+                    title: `<span style="color: ${themeColor};">Direkt austauschen</span> & mit Veranstaltern sprechen`,
                     content: `
                         <div style="text-align: center; padding: 0.5rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0 0 1.2rem; text-align: center;">
@@ -5543,7 +5543,7 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '3.',
                     icon: 'fa-comments',
-                    title: `<span style="color: ${themeColor};">Direkter</span> Austausch mit Musikern`,
+                    title: `<span style="color: ${themeColor};">Direkt austauschen</span> & mit Musikern sprechen`,
                     content: `
                         <div style="text-align: center; padding: 0.5rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0 0 1.2rem; text-align: center;">
@@ -5616,20 +5616,26 @@ window.renderInfoPage = function(container, type) {
             <!-- Step Card ${i + 1} -->
             <div class="flow-anim-card info-accordion-card" id="info-accordion-card-step-${i + 1}" onclick="window.toggleInfoAccordion('info-accordion-content-step-${i + 1}')" style="animation-delay: ${cardDelay}s; cursor: pointer; width: 100%; max-width: 500px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.3rem; box-sizing: border-box; box-shadow: 0 8px 24px rgba(0,0,0,0.02); text-align: left; transition: all 0.25s ease;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                 
-                <!-- Always Visible Header -->
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; width: 100%;">
-                    <div style="display: flex; align-items: center; gap: 0.7rem; flex: 1; min-width: 0;">
-                        <span style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 900; color: ${themeColor}; flex-shrink: 0; min-width: 20px;">
+                <!-- Always Visible Header: Left Stack with Number on top and Icon below -->
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.9rem; width: 100%;">
+                    
+                    <!-- Left Stack: Number on top, Icon below -->
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; flex-shrink: 0; min-width: 36px;">
+                        <span style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 900; color: ${themeColor}; line-height: 1;">
                             ${step.num}
                         </span>
-                        <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
-                            <i class="fa-solid ${step.icon}" style="color: ${themeColor}; font-size: 1rem;"></i>
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
+                            <i class="fa-solid ${step.icon}" style="color: ${themeColor}; font-size: 0.92rem;"></i>
                         </div>
-                        <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 2.8vw, 1.16rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: -0.2px; text-align: left; flex: 1; line-height: 1.3;">
-                            ${step.title}
-                        </h4>
                     </div>
-                    <i id="info-accordion-icon-info-accordion-content-step-${i + 1}" class="fa-solid fa-chevron-down info-accordion-arrow" style="color: ${themeColor}; font-size: 1.05rem; transition: transform 0.25s ease; flex-shrink: 0; margin-left: 0.3rem;"></i>
+
+                    <!-- Heading Text: Starts further left and has more room -->
+                    <h4 style="font-family: var(--font-heading); font-size: clamp(1.02rem, 3.1vw, 1.22rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: -0.2px; text-align: left; flex: 1; line-height: 1.32;">
+                        ${step.title}
+                    </h4>
+
+                    <!-- Expand Arrow -->
+                    <i id="info-accordion-icon-info-accordion-content-step-${i + 1}" class="fa-solid fa-chevron-down info-accordion-arrow" style="color: ${themeColor}; font-size: 1.05rem; transition: transform 0.25s ease; flex-shrink: 0; margin-left: 0.2rem;"></i>
                 </div>
 
                 <!-- Expandable Content -->
@@ -5641,7 +5647,7 @@ window.renderInfoPage = function(container, type) {
 
             <!-- Dotted Connector Line -->
             ${i < 2 ? `
-                <div class="flow-anim-card" style="animation-delay: ${lineDelay}s; display: flex; justify-content: flex-start; padding-left: 2.2rem; box-sizing: border-box; width: 100%; max-width: 500px; height: 18px; margin: 0.1rem auto;">
+                <div class="flow-anim-card" style="animation-delay: ${lineDelay}s; display: flex; justify-content: flex-start; padding-left: 1.3rem; box-sizing: border-box; width: 100%; max-width: 500px; height: 18px; margin: 0.1rem auto;">
                     <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
                         <div style="width: 0; height: 100%; border-left: 2.5px dotted ${themeColor}; opacity: 0.5;"></div>
                     </div>
