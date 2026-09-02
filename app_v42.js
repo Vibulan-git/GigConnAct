@@ -5633,18 +5633,16 @@ window.renderInfoPage = function(container, type) {
                 }
             </style>
 
-            <!-- 1. Top Section: Headline 2 Wege. Mehr Gigs / Dein Act (fades out left at 2.2s) -> Toggle Buttons (fade in right at 2.5s) -->
-            <div class="info-top-header" style="position: relative; width: 100%; max-width: 440px; min-height: 52px; display: flex; align-items: center; justify-content: center; margin-top: 0.5rem; margin-bottom: 1.2rem; overflow: visible;">
+            <!-- 1. Top Section: Slogan "2 Wege. ..." + Buttons darunter -->
+            <div class="info-top-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 440px; margin-top: 0.5rem; margin-bottom: 1.2rem; box-sizing: border-box;">
                 
-                ${!hasIntroPlayed ? `
-                    <!-- Initial Headline: 2 Wege. Mehr Gigs / Dein Act -->
-                    <h1 class="info-intro-headline" style="position: absolute; margin: 0; font-family: var(--font-heading); font-size: clamp(1.6rem, 4.5vw, 2.1rem); font-weight: 900; letter-spacing: -0.5px; color: #0f172a; text-align: center; white-space: nowrap; animation: infoHeadlineFlyOut 0.65s cubic-bezier(0.16, 1, 0.3, 1) 2.2s forwards; pointer-events: none; z-index: 2;">
-                        2 Wege. <span style="color: ${themeColor};">${isMusician ? 'Mehr Gigs' : 'Dein Act'}</span>
-                    </h1>
-                ` : ''}
+                <!-- Slogan: 2 Wege. Mehr Gigs / Dein Act (bleibt permanent oben stehen) -->
+                <h1 style="margin: 0 0 0.85rem; font-family: var(--font-heading); font-size: clamp(1.6rem, 4.5vw, 2.1rem); font-weight: 900; letter-spacing: -0.5px; color: #0f172a; text-align: center; white-space: nowrap; line-height: 1.2;">
+                    2 Wege. <span style="color: ${themeColor};">${isMusician ? 'Mehr Gigs' : 'Dein Act'}</span>
+                </h1>
 
-                <!-- Toggle-Buttons: Direktkontakt und/oder Vermittlung -->
-                <div class="${!hasIntroPlayed ? 'info-intro-toggle' : ''}" style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; width: 100%; box-sizing: border-box; ${!hasIntroPlayed ? 'opacity: 0; transform: translateX(60px); animation: infoToggleFlyIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) 2.5s forwards;' : ''}">
+                <!-- Toggle-Buttons: Direktkontakt und/oder Vermittlung darunter -->
+                <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; width: 100%; box-sizing: border-box;">
                     <button onclick="${toggleFunc}('direktkontakt')" style="flex: 1 1 0px; width: 0; min-width: 0; padding: 0.75rem 0.5rem; text-align: center; font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; border-radius: 14px; cursor: pointer; transition: all 0.2s; box-sizing: border-box; ${isDirektkontakt ? `background: ${themeColor}; color: #ffffff; border: 1.5px solid ${themeColor}; box-shadow: 0 4px 15px ${isMusician ? 'rgba(124,58,237,0.35)' : 'rgba(37,99,235,0.35)'};` : 'background: #ffffff; color: #64748b; border: 1.5px solid rgba(0,0,0,0.08); box-shadow: 0 2px 6px rgba(0,0,0,0.02);'}">
                         Direktkontakt
                     </button>
@@ -5659,7 +5657,7 @@ window.renderInfoPage = function(container, type) {
             </div>
 
             <!-- 2. Dynamischer Schritt-Inhalt (Kachel bei Schritt 1 / Erklärungsansicht bei Schritt 2 & 3) -->
-            <div class="${!hasIntroPlayed ? 'info-intro-card' : ''}" style="width: 100%; box-sizing: border-box; ${!hasIntroPlayed ? 'opacity: 0; transform: translateY(28px); animation: infoCardReveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) 3.3s forwards;' : ''}">
+            <div style="width: 100%; box-sizing: border-box;">
                 ${stepBodyHTML}
             </div>
 
