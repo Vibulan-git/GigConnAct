@@ -5468,7 +5468,7 @@ window.renderInfoPage = function(container, type) {
             ];
         } else {
             // Musiker Vermittlung
-            bottomCtaText = 'Für Vermittlungen sichtbar sein';
+            bottomCtaText = 'Gigs vermitteln lassen';
             bottomCtaAction = "window.appNavigate('events')";
             stepsData = [
                 {
@@ -5559,7 +5559,7 @@ window.renderInfoPage = function(container, type) {
             ];
         } else {
             // Organizer Vermittlung
-            bottomCtaText = 'Wunsch-Acts vorschlagen lassen';
+            bottomCtaText = 'Acts vermittelt bekommen';
             bottomCtaAction = "window.showAgencyBookingForm()";
             stepsData = [
                 {
@@ -5610,9 +5610,11 @@ window.renderInfoPage = function(container, type) {
 
     let stepsCardsHTML = '';
     stepsData.forEach((step, i) => {
+        const cardDelay = (0.3 + i * 1.5).toFixed(2);
+        const lineDelay = (1.0 + i * 1.5).toFixed(2);
         stepsCardsHTML += `
             <!-- Step Card ${i + 1} -->
-            <div class="flow-anim-card info-accordion-card" id="info-accordion-card-step-${i + 1}" onclick="window.toggleInfoAccordion('info-accordion-content-step-${i + 1}')" style="animation-delay: ${0.15 + i * 0.35}s; cursor: pointer; width: 100%; max-width: 500px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.3rem; box-sizing: border-box; box-shadow: 0 8px 24px rgba(0,0,0,0.02); text-align: left; transition: all 0.25s ease;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
+            <div class="flow-anim-card info-accordion-card" id="info-accordion-card-step-${i + 1}" onclick="window.toggleInfoAccordion('info-accordion-content-step-${i + 1}')" style="animation-delay: ${cardDelay}s; cursor: pointer; width: 100%; max-width: 500px; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem 1.3rem; box-sizing: border-box; box-shadow: 0 8px 24px rgba(0,0,0,0.02); text-align: left; transition: all 0.25s ease;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                 
                 <!-- Always Visible Header -->
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; width: 100%;">
@@ -5639,7 +5641,7 @@ window.renderInfoPage = function(container, type) {
 
             <!-- Dotted Connector Line -->
             ${i < 2 ? `
-                <div class="flow-anim-card" style="animation-delay: ${0.3 + i * 0.35}s; display: flex; justify-content: flex-start; padding-left: 2.2rem; box-sizing: border-box; width: 100%; max-width: 500px; height: 18px; margin: 0.1rem auto;">
+                <div class="flow-anim-card" style="animation-delay: ${lineDelay}s; display: flex; justify-content: flex-start; padding-left: 2.2rem; box-sizing: border-box; width: 100%; max-width: 500px; height: 18px; margin: 0.1rem auto;">
                     <div style="width: 36px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
                         <div style="width: 0; height: 100%; border-left: 2.5px dotted ${themeColor}; opacity: 0.5;"></div>
                     </div>
@@ -5655,7 +5657,7 @@ window.renderInfoPage = function(container, type) {
                 .flow-anim-card {
                     opacity: 0;
                     transform: translateY(12px);
-                    animation: flowCardReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                    animation: flowCardReveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
                 }
                 @keyframes flowCardReveal {
                     to {
@@ -5677,10 +5679,10 @@ window.renderInfoPage = function(container, type) {
             </style>
 
             <!-- 1. Top Section: Slogan "2 Wege. ..." + Buttons darunter -->
-            <div class="info-top-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 500px; margin-top: 0.5rem; margin-bottom: 1.2rem; box-sizing: border-box;">
+            <div class="info-top-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 500px; margin-top: 0.5rem; margin-bottom: 1.5rem; box-sizing: border-box;">
                 
                 <!-- Slogan: 2 Wege. Mehr Gigs / Dein Act (bleibt permanent oben stehen) -->
-                <h1 style="margin: 0 0 0.85rem; font-family: var(--font-heading); font-size: clamp(1.6rem, 4.5vw, 2.1rem); font-weight: 900; letter-spacing: -0.5px; color: #0f172a; text-align: center; white-space: nowrap; line-height: 1.2;">
+                <h1 style="margin: 0 0 1.65rem; font-family: var(--font-heading); font-size: clamp(1.6rem, 4.5vw, 2.1rem); font-weight: 900; letter-spacing: -0.5px; color: #0f172a; text-align: center; white-space: nowrap; line-height: 1.2;">
                     2 Wege. <span style="color: ${themeColor};">${isMusician ? 'Mehr Gigs' : 'Dein Act'}</span>
                 </h1>
 
@@ -5705,7 +5707,7 @@ window.renderInfoPage = function(container, type) {
             </div>
 
             <!-- 3. Bottom CTA Button -->
-            <div class="flow-anim-card" style="animation-delay: 1.35s; width: 100%; max-width: 500px; margin-top: 1.6rem; box-sizing: border-box;">
+            <div class="flow-anim-card" style="animation-delay: 4.5s; width: 100%; max-width: 500px; margin-top: 1.6rem; box-sizing: border-box;">
                 <div class="glow-card-pulse" onclick="${bottomCtaAction}" style="cursor: pointer; width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.15rem clamp(1rem, 4vw, 2rem); text-align: center; box-sizing: border-box; display: flex; flex-direction: row; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                     <h4 style="font-family: var(--font-heading); font-size: clamp(1.15rem, 3.3vw, 1.6rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: center; flex: 1;">
                         ${bottomCtaText}
