@@ -5584,13 +5584,13 @@ window.renderInfoPage = function(container, type) {
 
                             <!-- Authentic Kontaktdaten Box Visual -->
                             <div style="background: #ffffff; border: 1.5px solid rgba(0,0,0,0.08); border-radius: 16px; padding: 1.1rem 1.25rem; box-sizing: border-box; box-shadow: 0 4px 16px rgba(0,0,0,0.03); text-align: left; margin-top: 0.85rem;">
-                                <div style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #7c3aed; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.45rem;">
-                                    <span style="font-size: 1.15rem;">📞</span> <span>Kontaktdaten des Veranstalters:</span>
+                                <div style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #7c3aed; margin-bottom: 0.75rem;">
+                                    Kontaktdaten des Veranstalters:
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 0.45rem; font-family: var(--font-body); font-size: 0.92rem; color: #334155; line-height: 1.4;">
-                                    <div><strong style="color: #1e293b;">Name:</strong> Simone Freiheit</div>
-                                    <div><strong style="color: #1e293b;">Telefon:</strong> 015788703764</div>
-                                    <div><strong style="color: #1e293b;">E-Mail:</strong> <span style="color: #7c3aed; font-weight: 600;">vibulan22@gmail.com</span></div>
+                                    <div><strong style="color: #1e293b;">Name:</strong> Max Mustermann</div>
+                                    <div><strong style="color: #1e293b;">Telefon:</strong> 0123456789</div>
+                                    <div><strong style="color: #1e293b;">E-Mail:</strong> <span style="color: #7c3aed; font-weight: 600;">Max.Mustermann@gmail.com</span></div>
                                 </div>
                             </div>
 
@@ -5747,13 +5747,13 @@ window.renderInfoPage = function(container, type) {
 
                             <!-- Authentic Kontaktdaten Box Visual Organizer -->
                             <div style="background: #ffffff; border: 1.5px solid rgba(0,0,0,0.08); border-radius: 16px; padding: 1.1rem 1.25rem; box-sizing: border-box; box-shadow: 0 4px 16px rgba(0,0,0,0.03); text-align: left; margin-top: 0.85rem;">
-                                <div style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #2563eb; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.45rem;">
-                                    <span style="font-size: 1.15rem;">📞</span> <span>Kontaktdaten des Künstlers:</span>
+                                <div style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #2563eb; margin-bottom: 0.75rem;">
+                                    Kontaktdaten des Künstlers:
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 0.45rem; font-family: var(--font-body); font-size: 0.92rem; color: #334155; line-height: 1.4;">
-                                    <div><strong style="color: #1e293b;">Name:</strong> Laura Schmidt (Laura & The Sound)</div>
-                                    <div><strong style="color: #1e293b;">Telefon:</strong> 0151 98765432</div>
-                                    <div><strong style="color: #1e293b;">E-Mail:</strong> <span style="color: #2563eb; font-weight: 600;">laura.sound@music-live.de</span></div>
+                                    <div><strong style="color: #1e293b;">Name:</strong> Max Mustermann</div>
+                                    <div><strong style="color: #1e293b;">Telefon:</strong> 0123456789</div>
+                                    <div><strong style="color: #1e293b;">E-Mail:</strong> <span style="color: #2563eb; font-weight: 600;">Max.Mustermann@gmail.com</span></div>
                                 </div>
                             </div>
 
