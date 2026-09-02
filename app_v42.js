@@ -5429,8 +5429,16 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '1.',
                     icon: 'fa-magnifying-glass',
-                    title: `<span style="color: ${themeColor};">Events</span> entdecken - ohne Account & kostenlos`,
+                    title: `<span style="color: ${themeColor};">Events</span> entdecken – ohne Account & kostenlos`,
                     content: `
+                        <div style="text-align: left; padding: 0.2rem 0.2rem 0.8rem;">
+                            <p style="font-family: var(--font-body); font-size: 0.95rem; color: #0f172a; font-weight: 700; margin: 0 0 0.35rem; line-height: 1.4;">
+                                Finde passende Gigs auf dem Event-Markt.
+                            </p>
+                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 1rem;">
+                                Suche und filtere kostenlos nach Events und Veranstaltern, die zu Dir passen – ganz ohne Account. Die Kontaktdaten der Veranstalter bleiben zunächst verborgen und werden erst mit einem Musiker-Account sichtbar.
+                            </p>
+                        </div>
                         <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto;">
                             ${showcaseCardHTML}
                         </div>
@@ -5439,12 +5447,15 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '2.',
                     icon: 'fa-lock-open',
-                    title: `<span style="color: ${themeColor};">Kontaktdaten</span> freischalten - mit Account & Abo-Modell`,
+                    title: `<span style="color: ${themeColor};">Kontaktdaten</span> freischalten – mit Account & Abo-Modell`,
                     content: `
-                        <div style="text-align: center; padding: 0.5rem 0.2rem;">
-                            <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0 0 1rem; text-align: center;">
-                                Schalte einmalig die Kontaktdaten frei, um alle Details und Kontaktkanäle direkt einsehen zu können.
+                        <div style="text-align: left; padding: 0.2rem 0.2rem;">
+                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
+                                Erstelle in wenigen Minuten Dein Musiker-Profil und wähle zwischen Flex, Plus, Pro oder Premium. Damit erhältst Du Zugriff auf Name, E-Mail-Adresse und Telefonnummer der Veranstalter und kannst sie direkt über GigConnAct kontaktieren.
                             </p>
+                            <div style="margin: 0.8rem 0 1.1rem; padding: 0.75rem 1rem; background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; font-family: var(--font-body); font-size: 0.88rem; color: #92400e; line-height: 1.45; text-align: left;">
+                                <strong>Wichtig:</strong> Der Direktkontakt ist nur bei Events möglich, die nicht über unsere Vermittlung eingestellt wurden.
+                            </div>
                             ${contactBarStripHTML}
                         </div>
                     `
@@ -5452,16 +5463,18 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '3.',
                     icon: 'fa-comments',
-                    title: `<span style="color: ${themeColor};">Direkt austauschen</span> & mit Veranstaltern sprechen`,
+                    title: `<span style="color: ${themeColor};">Veranstalter direkt kontaktieren</span> - ohne Provisionskosten`,
                     content: `
-                        <div style="text-align: center; padding: 0.5rem 0.2rem;">
-                            <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0 0 1.2rem; text-align: center;">
-                                Kontaktiere Veranstalter direkt per Telefon, Mail oder Chat – ganz ohne Zwischenstation oder Provision.
+                        <div style="text-align: left; padding: 0.2rem 0.2rem;">
+                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 1.2rem;">
+                                Nimm direkt Kontakt mit dem Veranstalter auf und kläre Verfügbarkeit, Gage, Spielzeiten und alle weiteren Details persönlich. Ohne Umwege und ohne Provisionskosten entscheidest Du selbst, welche Events interessant für Dich sind – und erhöhst Deine Chancen auf mehr Gigs.
                             </p>
-                            <button onclick="event.stopPropagation(); window.appNavigate('events')" class="glow-card-pulse" style="cursor: pointer; width: 100%; max-width: 320px; margin: 0 auto; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.85rem 1.5rem; color: #ffffff; font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
-                                <span>Zum Event-Markt</span>
-                                <i class="fa-solid fa-arrow-right-long" style="font-size: 1.1em;"></i>
-                            </button>
+                            <div style="text-align: center;">
+                                <button onclick="event.stopPropagation(); window.appNavigate('events')" class="glow-card-pulse" style="cursor: pointer; width: 100%; max-width: 320px; margin: 0 auto; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 16px; padding: 0.85rem 1.5rem; color: #ffffff; font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)';" onmouseout="this.style.transform='scale(1)';">
+                                    <span>Zum Event-Markt</span>
+                                    <i class="fa-solid fa-arrow-right-long" style="font-size: 1.1em;"></i>
+                                </button>
+                            </div>
                         </div>
                     `
                 }
