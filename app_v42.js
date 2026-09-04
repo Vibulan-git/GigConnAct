@@ -8477,18 +8477,21 @@ function renderMarket(container, type, onNavigate) {
                 const grid = e.target.closest('.checkbox-tag-grid');
                 if (grid) {
                     grid.dataset.interacted = "true";
-                }
-                // Update the toggle link text in this section
-                let section = e.target.parentElement;
-                while (section && !section.querySelector('[onclick*="toggleAllFilterCheckboxes"]')) {
-                    section = section.parentElement;
-                }
-                if (section) {
-                    const linkEl = section.querySelector('[onclick*="toggleAllFilterCheckboxes"]');
-                    const checkboxes = section.querySelectorAll('input[type="checkbox"]');
-                    if (linkEl && checkboxes.length > 0) {
-                        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-                        linkEl.textContent = allChecked ? 'alle abwählen' : 'alle auswählen';
+                    let section = grid.parentElement;
+                    while (section && !section.querySelector('[onclick*="toggleAllFilterCheckboxes"]')) {
+                        section = section.parentElement;
+                        if (section && (section.classList.contains('market-filter-card') || section.id === 'market-filters-wrapper')) {
+                            section = null;
+                            break;
+                        }
+                    }
+                    if (section) {
+                        const linkEl = section.querySelector('[onclick*="toggleAllFilterCheckboxes"]');
+                        const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
+                        if (linkEl && checkboxes.length > 0) {
+                            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                            linkEl.textContent = allChecked ? 'alle abwählen' : 'alle auswählen';
+                        }
                     }
                 }
             }
@@ -8511,14 +8514,21 @@ function renderMarket(container, type, onNavigate) {
         let section = linkEl.parentElement;
         while (section && !section.querySelector('.checkbox-tag-grid')) {
             section = section.parentElement;
+            if (section && (section.classList.contains('market-filter-card') || section.id === 'market-filters-wrapper')) {
+                section = null;
+                break;
+            }
         }
         if (section) {
-            const checkboxes = section.querySelectorAll('input[type="checkbox"]');
-            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-            if (checkedCount === checkboxes.length) {
-                linkEl.textContent = 'alle abwählen';
-            } else {
-                linkEl.textContent = 'alle auswählen';
+            const grid = section.querySelector('.checkbox-tag-grid');
+            if (grid) {
+                const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
+                const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+                if (checkboxes.length > 0 && checkedCount === checkboxes.length) {
+                    linkEl.textContent = 'alle abwählen';
+                } else {
+                    linkEl.textContent = 'alle auswählen';
+                }
             }
         }
     });
@@ -8583,11 +8593,18 @@ function renderMarket(container, type, onNavigate) {
             let section = linkEl.parentElement;
             while (section && !section.querySelector('.checkbox-tag-grid')) {
                 section = section.parentElement;
+                if (section && (section.classList.contains('market-filter-card') || section.id === 'market-filters-wrapper')) {
+                    section = null;
+                    break;
+                }
             }
             if (section) {
-                const checkboxes = section.querySelectorAll('input[type="checkbox"]');
-                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-                linkEl.textContent = allChecked ? 'alle abwählen' : 'alle auswählen';
+                const grid = section.querySelector('.checkbox-tag-grid');
+                if (grid) {
+                    const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
+                    const allChecked = checkboxes.length > 0 && Array.from(checkboxes).every(cb => cb.checked);
+                    linkEl.textContent = allChecked ? 'alle abwählen' : 'alle auswählen';
+                }
             }
         });
         
@@ -18552,12 +18569,19 @@ window.toggleAllFilterCheckboxes = function(element) {
     let section = element.parentElement;
     while (section && !section.querySelector('.checkbox-tag-grid')) {
         section = section.parentElement;
+        if (section && (section.classList.contains('market-filter-card') || section.id === 'market-filters-wrapper')) {
+            section = null;
+            break;
+        }
     }
     if (!section) return;
     
-    const checkboxes = section.querySelectorAll('input[type="checkbox"]');
+    const grid = section.querySelector('.checkbox-tag-grid');
+    if (!grid) return;
+    
+    const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
     const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-    const allSelected = checkedCount === checkboxes.length;
+    const allSelected = checkboxes.length > 0 && checkedCount === checkboxes.length;
     const nextState = !allSelected;
     
     checkboxes.forEach(cb => {
@@ -18570,10 +18594,8 @@ window.toggleAllFilterCheckboxes = function(element) {
     element.textContent = nextState ? 'alle abwählen' : 'alle auswählen';
     
     // Mark the grid as interacted
-    const grid = section.querySelector('.checkbox-tag-grid');
-    if (grid) {
-        grid.dataset.interacted = 'true';
-    }
+    grid.dataset.interacted = 'true';
+    
     // Apply filters and sort
     if (typeof window.marketApplyFilters === 'function') {
         window.marketApplyFilters();
