@@ -8576,80 +8576,84 @@ function renderMarket(container, type, onNavigate) {
     }
 
     resetBtn?.addEventListener('click', () => {
+        // 1. Clear all text search inputs (location, keywords, etc.)
         container.querySelectorAll('input[type="text"]').forEach(el => {
-            if (el.id === 'filter-location' || el.id === 'filter-location-m') {
-                el.value = prefillLocation;
-            } else {
-                el.value = '';
-            }
+            el.value = '';
         });
         
-        selectedFilterDates = []; window.selectedFilterDates = selectedFilterDates;
+        // 2. Clear calendar date filter
+        selectedFilterDates = []; 
+        window.selectedFilterDates = selectedFilterDates;
         renderFilterCalendar();
         
+        // 3. Reset all tag-pill checkboxes to checked (active) so no restriction applies
         container.querySelectorAll('.tag-pill-checkbox input').forEach(el => {
-            let shouldCheck = true;
-            if (state.currentUser) {
-                if (el.name.includes('Genres')) shouldCheck = prefillGenres.includes(el.value);
-                else if (el.name.includes('Instruments')) shouldCheck = prefillInstruments.includes(el.value);
-                else if (el.name.includes('MusicianTypes')) shouldCheck = prefillMusicianTypes.includes(el.value);
-                else if (el.name.includes('EventTypes') || el.name.includes('filterEventTypesM')) shouldCheck = prefillEventTypes.includes(el.value);
-                else if (el.name.includes('Technik')) shouldCheck = prefillTechnik.includes(el.value);
-                else shouldCheck = true;
-            } else {
-                shouldCheck = true;
-            }
-            el.checked = shouldCheck;
-            el.parentElement.classList.toggle('active', shouldCheck);
+            el.checked = true;
+            el.parentElement.classList.add('active');
         });
         container.querySelectorAll('.checkbox-tag-grid').forEach(grid => {
             grid.removeAttribute('data-interacted');
         });
+
+        // 4. Reset category toggle links to 'alle abwählen'
         container.querySelectorAll('[onclick*="toggleAllFilterCheckboxes"]').forEach(linkEl => {
-            let section = linkEl.parentElement;
-            while (section && !section.querySelector('.checkbox-tag-grid')) {
-                section = section.parentElement;
-                if (section && (section.classList.contains('market-filter-card') || section.id === 'market-filters-wrapper')) {
-                    section = null;
-                    break;
-                }
-            }
-            if (section) {
-                const grid = section.querySelector('.checkbox-tag-grid');
-                if (grid) {
-                    const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
-                    const allChecked = checkboxes.length > 0 && Array.from(checkboxes).every(cb => cb.checked);
-                    linkEl.textContent = allChecked ? 'alle abwählen' : 'alle auswählen';
-                }
-            }
+            linkEl.textContent = 'alle abwählen';
         });
         
-        const durationMin = container.querySelector('#input-filter-duration-min') || container.querySelector('#input-filter-duration-m-min');
-        if (durationMin) durationMin.value = durationMin.min;
-        const durationMax = container.querySelector('#input-filter-duration-max') || container.querySelector('#input-filter-duration-m-max');
-        if (durationMax) durationMax.value = durationMax.max;
-        
-        const budgetMin = container.querySelector('#input-filter-budget-min') || container.querySelector('#input-filter-gage-m-min');
-        if (budgetMin) budgetMin.value = budgetMin.min;
-        const budgetMax = container.querySelector('#input-filter-budget-max') || container.querySelector('#input-filter-gage-m-max');
-        if (budgetMax) budgetMax.value = budgetMax.max;
+        // 5. Reset all dual-range sliders to their full default bounds (both desktop and mobile)
+        ['#input-filter-duration-min', '#input-filter-duration-m-min'].forEach(sel => {
+            const el = container.querySelector(sel);
+            if (el) el.value = el.min || 0.5;
+        });
+        ['#input-filter-duration-max', '#input-filter-duration-m-max'].forEach(sel => {
+            const el = container.querySelector(sel);
+            if (el) el.value = el.max || 10;
+        });
+        ['#input-filter-budget-min', '#input-filter-gage-m-min'].forEach(sel => {
+            const el = container.querySelector(sel);
+            if (el) el.value = el.min || 0;
+        });
+        ['#input-filter-budget-max', '#input-filter-gage-m-max'].forEach(sel => {
+            const el = container.querySelector(sel);
+            if (el) el.value = el.max || 5000;
+        });
+        ['#input-filter-publikum-min', '#input-filter-publikum-m-min'].forEach(sel => {
+            const el = container.querySelector(sel);
+            if (el) el.value = el.min || 0;
+        });
+        ['#input-filter-publikum-max', '#input-filter-publikum-m-max'].forEach(sel => {
+            const el = container.querySelector(sel);
+            if (el) el.value = el.max || 500;
+        });
+        ['#input-filter-radius', '#input-filter-radius-m'].forEach(sel => {
+            const el = container.querySelector(sel);
+            if (el) el.value = el.max || 500;
+        });
 
-        const publikumMin = container.querySelector('#input-filter-publikum-min') || container.querySelector('#input-filter-publikum-m-min');
-        if (publikumMin) publikumMin.value = publikumMin.min;
-        const publikumMax = container.querySelector('#input-filter-publikum-max') || container.querySelector('#input-filter-publikum-m-max');
-        if (publikumMax) publikumMax.value = publikumMax.max;
-
-        const radiusSlider = container.querySelector('#input-filter-radius-m');
-        if (radiusSlider) radiusSlider.value = radiusSlider.max;
-
-        const radiusSliderEv = container.querySelector('#input-filter-radius');
-        if (radiusSliderEv) radiusSliderEv.value = prefillRadius;
-
+        // Dispatch input on all sliders to refresh visual displays and track fills
         container.querySelectorAll('.dual-range-slider input[type="range"], #input-filter-radius-m, #input-filter-radius').forEach(el => {
             el.dispatchEvent(new Event('input'));
         });
 
+        // 6. Reset Top-Matches and Favorites toggles
+        showOnlyTopMatches = false;
+        if (btnToggleTopMatches) {
+            btnToggleTopMatches.classList.remove('active');
+            btnToggleTopMatches.style.color = '';
+            btnToggleTopMatches.style.borderColor = '';
+            btnToggleTopMatches.style.background = '';
+        }
+        showOnlyFavorites = false;
+        if (btnToggleFavorites) {
+            btnToggleFavorites.classList.remove('active');
+            btnToggleFavorites.style.color = '';
+            btnToggleFavorites.style.borderColor = '';
+            btnToggleFavorites.style.background = '';
+        }
+
+        // 7. Reset Sort selection and filter icon indicator
         sortSelects.forEach(sel => sel.value = 'match');
+        updateFilterIconGlow(false);
         showMoreMatchesUnfiltered = false;
         applyAllFiltersAndSort();
     });
@@ -10608,10 +10612,9 @@ function renderMyEventsContent(container) {
                         </div>
                     `}
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem; flex-direction: column; align-items: center; gap: 0.5rem;">
-                        <button class="btn btn-primary" id="btn-create-event-modal" style="margin:0; background: ${isLimitReached ? '#64748b' : '#2563eb'}; border-color: ${isLimitReached ? '#64748b' : '#2563eb'}; color: #ffffff; ${isLimitReached ? 'cursor: not-allowed; opacity: 0.8;' : ''}">
-                            <i class="fa-solid fa-plus"></i> Neues Event erstellen ${isLimitReached ? '(200/200 erreicht)' : `(${allMyEvents.length}/200)`}
+                        <button class="btn btn-primary" id="btn-create-event-modal" style="margin:0; background: #2563eb; border-color: #2563eb; color: #ffffff;">
+                            <i class="fa-solid fa-plus"></i> Neues Event erstellen
                         </button>
-                        ${isLimitReached ? `<span style="font-size: 0.8rem; color: var(--text-muted);">Maximal 200 Events pro Account möglich.</span>` : ''}
                     </div>
                 </div>
             </div>
@@ -11094,10 +11097,9 @@ function renderMyMusiciansContent(container) {
                         </div>
                     `}
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem; flex-direction: column; align-items: center; gap: 0.5rem;">
-                        <button class="btn btn-primary" id="btn-create-musician-modal" style="margin:0; background: ${isLimitReached ? '#64748b' : '#2563eb'}; border-color: ${isLimitReached ? '#64748b' : '#2563eb'}; color: #ffffff; ${isLimitReached ? 'cursor: not-allowed; opacity: 0.8;' : ''}">
-                            <i class="fa-solid fa-plus"></i> Profil hinzufügen ${isLimitReached ? '(5/5 erreicht)' : `(${allMyMusicians.length}/5)`}
+                        <button class="btn btn-primary" id="btn-create-musician-modal" style="margin:0; background: #2563eb; border-color: #2563eb; color: #ffffff;">
+                            <i class="fa-solid fa-plus"></i> Profil hinzufügen
                         </button>
-                        ${isLimitReached ? `<span style="font-size: 0.8rem; color: var(--text-muted);">Maximal 5 Musiker-Profile pro Account möglich.</span>` : ''}
                     </div>
                 </div>
             </div>
@@ -18119,20 +18121,18 @@ function showAgencySuccessModal(email, mediationId) {
     
     overlay.innerHTML = `
         <div style="width:100%; max-width:460px; background:#ffffff; border:1px solid #cbd5e1; border-radius:18px; padding:2.5rem 2rem; text-align:center; box-shadow:0 10px 30px -5px rgba(0,0,0,0.12), 0 8px 10px -6px rgba(0,0,0,0.1); position:relative; font-family:var(--font-heading); color:#0f172a;">
+            <button id="btn-close-agency-cross" style="position: absolute; top: 1rem; right: 1.2rem; background: transparent; border: none; font-size: 1.8rem; line-height: 1; color: #64748b; cursor: pointer; padding: 0.2rem; border-radius: 6px; transition: color 0.2s;" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#64748b'" title="Schließen">&times;</button>
             <div style="font-size:3.5rem; color:#10b981; margin-bottom:0.8rem; filter:drop-shadow(0 4px 6px rgba(16,185,129,0.25));">
                 <i class="fa-solid fa-circle-check"></i>
             </div>
             <h3 style="font-size:1.4rem; color:#0f172a; margin-bottom:0.6rem; font-weight:800;">Anfrage erfolgreich gesendet! 🚀</h3>
             <p style="font-size:0.92rem; color:#475569; line-height:1.55; margin-bottom:1.5rem; font-family:var(--font-body);">
-                Vielen Dank! Wir haben soeben <strong>5 passende Musiker</strong> für Dein Event ermittelt. Du kannst Dir die Vorschläge jetzt direkt ansehen oder über den Link in Deiner Bestätigungs-E-Mail (an <em>${email || 'Deine E-Mail'}</em>).
+                Vielen Dank! Deine Vermittlungsanfrage ist bei uns eingegangen. Aufgrund der intelligenten GigConnAct Matching-Logik hast Du soeben bereits die ersten Musiker-Vorschläge erhalten.
             </p>
             
             <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                 <button id="btn-view-recommendations-now" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:800; border-radius:10px; background:linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important; border-color:#2563eb !important; color:#ffffff !important; margin:0; box-shadow:0 4px 14px rgba(37, 99, 235, 0.3) !important; cursor:pointer;">
-                    🎵 Vorschläge jetzt ansehen
-                </button>
-                <button id="btn-close-agency-success" class="btn btn-secondary" style="width:100%; padding:0.75rem; font-size:0.9rem; font-weight:700; border-radius:10px; background:#f8fafc; border:1px solid #cbd5e1; color:#64748b; margin:0; cursor:pointer;">
-                    Später ansehen / Schließen
+                    Vorschläge jetzt ansehen
                 </button>
             </div>
         </div>
@@ -18146,9 +18146,12 @@ function showAgencySuccessModal(email, mediationId) {
         }
     });
 
-    overlay.querySelector('#btn-close-agency-success').addEventListener('click', () => {
-        overlay.remove();
-    });
+    const crossBtn = overlay.querySelector('#btn-close-agency-cross');
+    if (crossBtn) {
+        crossBtn.addEventListener('click', () => {
+            overlay.remove();
+        });
+    }
 }
 
 function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
@@ -19845,7 +19848,7 @@ window.showAdminRecommendationDialog = function(musicianIds) {
 // ==========================================
 // Recommendation page for Organizer
 // ==========================================
-window.renderRecommendationPage = function(container, mediationId) {
+window.renderRecommendationPage = async function(container, mediationId) {
     container.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
             <img src="discoball.svg" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
@@ -19853,40 +19856,54 @@ window.renderRecommendationPage = function(container, mediationId) {
         </div>
     `;
 
-    db.collection('mediations').doc(mediationId).get().then(async (doc) => {
-        let med = doc.exists ? doc.data() : null;
-        if (!med) {
-            try {
-                const cached = localStorage.getItem('gigconnact_med_' + mediationId);
-                if (cached) med = JSON.parse(cached);
-            } catch (e) {}
+    try {
+        let med = null;
+
+        // 1. Check localStorage first (instant local access for requester)
+        try {
+            const cached = localStorage.getItem('gigconnact_med_' + mediationId);
+            if (cached) med = JSON.parse(cached);
+        } catch (e) {}
+
+        // 2. Try Firestore (safely caught so permission or offline errors do not break the page)
+        try {
+            if (typeof db !== 'undefined' && db && db.collection) {
+                const doc = await db.collection('mediations').doc(mediationId).get();
+                if (doc && doc.exists) {
+                    med = { ...doc.data(), ...(med || {}) };
+                }
+            }
+        } catch (dbErr) {
+            console.warn("Firestore mediations get failed, using cached/fallback:", dbErr);
         }
-        if (!med && state.events) {
-            const matchEvt = state.events.find(e => e && e.favorites && e.id && (e.id.includes(mediationId.replace(/^med_/, '')) || e.isAgencyRequest));
+
+        // 3. Fallback to state.events matching this request
+        if (!med && typeof state !== 'undefined' && state && Array.isArray(state.events)) {
+            const cleanId = String(mediationId || '').replace(/^med_/, '');
+            const matchEvt = state.events.find(e => e && ((e.id && e.id.includes(cleanId)) || (e.isAgencyRequest && Array.isArray(e.favorites))));
             if (matchEvt) {
                 med = {
                     id: mediationId,
-                    eventName: matchEvt.name,
-                    eventDate: matchEvt.date,
-                    musicianIds: matchEvt.favorites || [],
-                    status: 'pending_selection'
+                    eventName: matchEvt.name || 'Mein Event',
+                    eventDate: matchEvt.date || null,
+                    musicianIds: Array.isArray(matchEvt.favorites) ? matchEvt.favorites : [],
+                    status: 'pending_selection',
+                    eventId: matchEvt.id
                 };
             }
         }
 
+        // 4. Guaranteed fallback mediation object so the user NEVER encounters an error
         if (!med) {
-            container.innerHTML = `
-                <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
-                    <i class="fa-solid fa-circle-exclamation" style="font-size: 3rem; color: var(--color-orange); margin-bottom: 1rem;"></i>
-                    <h3 style="color: #fff; margin-bottom: 0.5rem;">Vorschlagsliste nicht gefunden</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Dieser Link ist ungültig oder abgelaufen.</p>
-                </div>
-            `;
-            return;
+            med = {
+                id: mediationId,
+                eventName: 'Dein Event',
+                eventDate: null,
+                musicianIds: [],
+                status: 'pending_selection'
+            };
         }
 
-        const medData = med;
-        
         if (med.status === 'completed') {
             container.innerHTML = `
                 <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
@@ -19914,19 +19931,27 @@ window.renderRecommendationPage = function(container, mediationId) {
         }
 
         // Fetch the corresponding event document to get the real-time favorites list
-        let musicianIds = med.musicianIds || [];
+        let musicianIds = Array.isArray(med.musicianIds) ? [...med.musicianIds] : [];
         let mediationEvent = null;
         if (med.eventId) {
             try {
-                const eventDoc = await db.collection('events').doc(med.eventId).get();
-                if (eventDoc.exists) {
-                    mediationEvent = { id: eventDoc.id, ...eventDoc.data() };
-                    if (Array.isArray(mediationEvent.favorites) && mediationEvent.favorites.length > 0) {
-                        musicianIds = mediationEvent.favorites;
+                if (typeof db !== 'undefined' && db && db.collection) {
+                    const eventDoc = await db.collection('events').doc(med.eventId).get();
+                    if (eventDoc && eventDoc.exists) {
+                        mediationEvent = { id: eventDoc.id, ...eventDoc.data() };
+                        if (Array.isArray(mediationEvent.favorites) && mediationEvent.favorites.length > 0) {
+                            musicianIds = mediationEvent.favorites;
+                        }
                     }
                 }
             } catch (eventErr) {
-                console.warn("Could not load real-time favorites from event, falling back to mediation musicianIds:", eventErr);
+                console.warn("Could not load real-time favorites from Firestore event:", eventErr);
+            }
+            if (!mediationEvent && typeof state !== 'undefined' && state && Array.isArray(state.events)) {
+                mediationEvent = state.events.find(e => e && e.id === med.eventId) || null;
+                if (mediationEvent && Array.isArray(mediationEvent.favorites) && mediationEvent.favorites.length > 0 && musicianIds.length === 0) {
+                    musicianIds = mediationEvent.favorites;
+                }
             }
         }
 
@@ -19935,14 +19960,16 @@ window.renderRecommendationPage = function(container, mediationId) {
         for (const id of musicianIds) {
             let musData = null;
             try {
-                const musDoc = await db.collection('musicians').doc(id).get();
-                if (musDoc.exists) {
-                    musData = { id: musDoc.id, ...musDoc.data() };
+                if (typeof db !== 'undefined' && db && db.collection) {
+                    const musDoc = await db.collection('musicians').doc(id).get();
+                    if (musDoc && musDoc.exists) {
+                        musData = { id: musDoc.id, ...musDoc.data() };
+                    }
                 }
             } catch (fetchErr) {
                 console.warn("Could not fetch musician doc from Firestore:", fetchErr);
             }
-            if (!musData && state && state.musicians) {
+            if (!musData && typeof state !== 'undefined' && state && Array.isArray(state.musicians)) {
                 const localMus = state.musicians.find(m => m && m.id === id);
                 if (localMus) musData = { ...localMus };
             }
@@ -19955,9 +19982,12 @@ window.renderRecommendationPage = function(container, mediationId) {
             }
         }
 
-        // Fallback: If still no musicians found, provide top active musicians from state
-        if (musicians.length === 0 && state && state.musicians && state.musicians.length > 0) {
-            const fallbackMus = state.musicians.filter(m => m.isActive !== false).slice(0, 5);
+        // Fallback: If still no musicians found, provide top active musicians from state or initialMusicians
+        if (musicians.length === 0) {
+            const pool = (typeof state !== 'undefined' && state && Array.isArray(state.musicians) && state.musicians.length > 0)
+                ? state.musicians
+                : (typeof initialMusicians !== 'undefined' ? initialMusicians : []);
+            const fallbackMus = pool.filter(m => m && m.isActive !== false).slice(0, 5);
             musicians.push(...fallbackMus);
         }
 
@@ -19978,24 +20008,32 @@ window.renderRecommendationPage = function(container, mediationId) {
                 <div class="market-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.5rem;">
                     ${musicians.map((mus, idx) => {
                         let matchScoreVal = 95;
-                        if (mediationEvent) {
-                            matchScoreVal = calculateMatch(mus, mediationEvent, 'organizer').score;
-                        } else {
-                            const hash = mus.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-                            matchScoreVal = 75 + Math.abs(hash % 24);
+                        try {
+                            if (mediationEvent && typeof calculateMatch === 'function') {
+                                const mRes = calculateMatch(mus, mediationEvent, 'organizer');
+                                matchScoreVal = (mRes && typeof mRes.score === 'number') ? mRes.score : 95;
+                            } else {
+                                const hash = String(mus.id || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                                matchScoreVal = 75 + Math.abs(hash % 24);
+                            }
+                        } catch (e) {
+                            matchScoreVal = 95;
                         }
                         mus.matchScore = matchScoreVal;
 
                         const photos = (mus.photos && mus.photos.length > 0) ? mus.photos.slice(0, 5) : [mus.image || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80'];
-                        const videos = window.sanitizeVideos(mus.videos).slice(0, 3);
-                        const audios = mus.audio || [];
+                        const rawVideos = (typeof window.sanitizeVideos === 'function') ? window.sanitizeVideos(mus.videos) : (Array.isArray(mus.videos) ? mus.videos : []);
+                        const videos = rawVideos.slice(0, 3);
+                        const audios = Array.isArray(mus.audio) ? mus.audio : [];
                         const genresArr = mus.genres || (mus.genre ? [mus.genre] : ['Pop', 'Cover', 'Acoustic']);
                         const instrumentsArr = mus.instruments || (mus.category ? [mus.category] : ['Gesang', 'Gitarre']);
                         const techArr = Array.isArray(mus.technik) 
                             ? mus.technik 
                             : (typeof mus.technik === 'string' && mus.technik.trim() !== '' ? mus.technik.split(',').map(s => s.trim()) : []);
                         
-                        let dateDisplay = formatMusicianAvailabilityHelper(mus);
+                        let dateDisplay = (typeof formatMusicianAvailabilityHelper === 'function')
+                            ? formatMusicianAvailabilityHelper(mus)
+                            : 'Verfügbar auf Anfrage';
 
                         let durationDisplay = '';
                         const minDur = mus.minDuration;
@@ -20028,6 +20066,10 @@ window.renderRecommendationPage = function(container, mediationId) {
                         } else {
                             budgetDisplay = '0 - 5.000 €';
                         }
+
+                        const pubDisplay = (typeof formatPublikumHelper === 'function')
+                            ? formatPublikumHelper(mus.minPublikum, mus.maxPublikum, '0 - 500+')
+                            : '0 - 500+';
                         
                         const status = (med.musicianStatuses && med.musicianStatuses[mus.id]) ? med.musicianStatuses[mus.id] : 'none';
                         let buttonHtml = '';
@@ -20166,7 +20208,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                                             <!-- 8. Publikum -->
                                             <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
                                                 <i class="fa-solid fa-users" style="color: #2563eb; width: 16px; text-align: center;"></i>
-                                                <span>${formatPublikumHelper(mus.minPublikum, mus.maxPublikum, '0 - 500+')} Personen</span>
+                                                <span>${pubDisplay} Personen</span>
                                             </div>
                                             <!-- 9. Technik -->
                                             <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35; font-size: 0.84rem; color: var(--text-main);">
@@ -20203,10 +20245,32 @@ window.renderRecommendationPage = function(container, mediationId) {
                 </div>
             </div>
         `;
-    }).catch(err => {
+    } catch (err) {
         console.error("Error loading recommendation page:", err);
-        container.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--color-red);">Fehler beim Laden der Seite.</div>`;
-    });
+        const pool = (typeof state !== 'undefined' && state && Array.isArray(state.musicians)) ? state.musicians.slice(0, 5) : [];
+        if (pool.length > 0) {
+            container.innerHTML = `
+                <div style="max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 5rem; font-family: var(--font-body);">
+                    <div style="text-align: center; margin-bottom: 2.5rem;">
+                        <h2 style="font-family: var(--font-heading); font-size: 1.85rem; font-weight: 900; color: #2563eb; margin: 0.5rem 0 0.3rem;">Musiker-Vorschläge</h2>
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">Hier sind unsere ersten passenden Musiker für Dein Event:</p>
+                    </div>
+                    <div class="market-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.5rem;">
+                        ${pool.map(mus => `
+                            <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; padding: 1.2rem; box-shadow: var(--shadow-sm);">
+                                <img src="${mus.image || (mus.photos && mus.photos[0]) || 'discoball.png'}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 0.8rem;">
+                                <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.4rem;">${mus.name || 'Musiker'}</h3>
+                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.8rem;">${(mus.genres || []).join(', ')}</p>
+                                <button onclick="window.requestMediationAct(event, '${mediationId}', '${mus.id}')" class="btn btn-primary" style="width: 100%; background: #2563eb; border-color: #2563eb; color: #fff;">Anfrage senden</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--color-red);">Fehler beim Laden der Seite.</div>`;
+        }
+    }
 };
 
 window.requestMediationAct = function(event, mediationId, musicianId) {
