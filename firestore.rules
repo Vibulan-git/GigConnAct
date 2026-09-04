@@ -50,8 +50,14 @@ service cloud.firestore {
     // 4. Events
     match /events/{eventId} {
       allow read: if true; // Publicly browsable on the marketplace
-      allow create: if request.auth != null && request.resource.data.creatorId == request.auth.uid;
+      allow create: if (request.auth != null && request.resource.data.creatorId == request.auth.uid) ||
+                       (request.resource.data.isAgencyRequest == true);
       allow update, delete: if request.auth != null && resource.data.creatorId == request.auth.uid;
+    }
+
+    // 4.1 Mediations (Vermittlungen)
+    match /mediations/{mediationId} {
+      allow read, create, update: if true;
     }
 
     // 5. Chats

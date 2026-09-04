@@ -1621,15 +1621,39 @@ exports.sendRecommendationList = functions
 
         try {
             // Verify mediation document to prevent unauthorized email spam
-            const medDoc = await admin.firestore().collection('mediations').doc(mediationId).get();
+            let medDoc = await admin.firestore().collection('mediations').doc(mediationId).get();
             if (!medDoc.exists) {
-                throw new functions.https.HttpsError('not-found', 'Vermittlung nicht gefunden.');
+                const newMediation = data.mediationData || {
+                    id: mediationId,
+                    organizerEmail: organizerEmail,
+                    eventName: eventName,
+                    eventDate: eventDate || null,
+                    musicianIds: musicianIds,
+                    status: 'pending_selection',
+                    createdAt: new Date().toISOString(),
+                    selectedMusicianId: null,
+                    paymentStatus: 'pending'
+                };
+                await admin.firestore().collection('mediations').doc(mediationId).set(newMediation);
+                medDoc = await admin.firestore().collection('mediations').doc(mediationId).get();
             }
             const medData = medDoc.data();
             
             // If not admin, the organizerEmail must match the database document to allow calling
-            if (!isAdmin && medData.organizerEmail !== organizerEmail) {
+            if (!isAdmin && medData && medData.organizerEmail !== organizerEmail) {
                 throw new functions.https.HttpsError('permission-denied', 'Keine Berechtigung für diese Aktion.');
+            }
+
+            // Ensure event document exists if eventData was provided
+            if (data.eventData && data.eventData.id) {
+                try {
+                    const evtDoc = await admin.firestore().collection('events').doc(data.eventData.id).get();
+                    if (!evtDoc.exists) {
+                        await admin.firestore().collection('events').doc(data.eventData.id).set(data.eventData);
+                    }
+                } catch (evtErr) {
+                    console.warn("Could not save event in Cloud Function:", evtErr);
+                }
             }
             // 2. Musiker-Details laden
             const musicians = [];

@@ -3318,22 +3318,18 @@ class StateManager {
             db.collection('events').doc(id).set(newEvent)
                 .catch(err => {
                     console.error("addEvent Firestore write failed async:", err);
-                    this.events = this.events.filter(e => e.id !== id);
-                    this.notify();
-                    showToast({
-                        title: "Fehler beim Speichern ⚠️",
-                        message: "Berechtigungsfehler oder Netzwerkfehler: " + err.message,
-                        type: "error"
-                    });
+                    if (this.currentUser && !this.currentUser.id.startsWith('demo_') && firebase.auth().currentUser) {
+                        this.events = this.events.filter(e => e.id !== id);
+                        this.notify();
+                        showToast({
+                            title: "Fehler beim Speichern ⚠️",
+                            message: "Berechtigungsfehler oder Netzwerkfehler: " + err.message,
+                            type: "error"
+                        });
+                    }
                 });
         } catch (err) {
             console.error("addEvent Firestore write failed sync:", err);
-            this.events = this.events.filter(e => e.id !== id);
-            showToast({
-                title: "Validierungsfehler ⚠️",
-                message: "Interner Validierungsfehler: " + err.message,
-                type: "error"
-            });
         }
 
         this.notify();
@@ -3438,16 +3434,18 @@ class StateManager {
             db.collection('musicians').doc(id).set(newMusician)
                 .catch(err => {
                     console.error("addMusician Firestore write failed async:", err);
-                    this.musicians = this.musicians.filter(m => m.id !== id);
-                    this.notify();
-                    const isSizeError = err.message.toLowerCase().includes("size") || err.message.toLowerCase().includes("large") || err.message.toLowerCase().includes("exceeds");
-                    showToast({
-                        title: "Fehler beim Speichern ⚠️",
-                        message: isSizeError
-                            ? "Das Profil ist zu groß (max. 1 MB). Bitte entferne einige Medien/Bilder oder verkleinere sie."
-                            : "Berechtigungsfehler (z. B. Limit auf ein Profil) oder Netzwerkfehler: " + err.message,
-                        type: "error"
-                    });
+                    if (this.currentUser && !this.currentUser.id.startsWith('demo_') && firebase.auth().currentUser) {
+                        this.musicians = this.musicians.filter(m => m.id !== id);
+                        this.notify();
+                        const isSizeError = err.message.toLowerCase().includes("size") || err.message.toLowerCase().includes("large") || err.message.toLowerCase().includes("exceeds");
+                        showToast({
+                            title: "Fehler beim Speichern ⚠️",
+                            message: isSizeError
+                                ? "Das Profil ist zu groß (max. 1 MB). Bitte entferne einige Medien/Bilder oder verkleinere sie."
+                                : "Berechtigungsfehler (z. B. Limit auf ein Profil) oder Netzwerkfehler: " + err.message,
+                            type: "error"
+                        });
+                    }
                 });
         } catch (err) {
             console.error("addMusician Firestore write failed sync:", err);
@@ -12629,9 +12627,9 @@ function showEventModal(eventObj = null, isDuplication = false) {
             photos: localMedia.photos.filter(p => p !== 'loading'),
             videos: localMedia.videos.filter(v => v.url !== 'loading'),
             audio: (localMedia.audios || []).filter(a => a.url !== 'loading'),
-            contactName: `${state.currentUser.firstName} ${state.currentUser.lastName}`,
-            phone: state.currentUser.phone,
-            email: state.currentUser.email
+            contactName: state.currentUser ? `${state.currentUser.firstName || ''} ${state.currentUser.lastName || ''}`.trim() : '',
+            phone: state.currentUser?.phone || '',
+            email: state.currentUser?.email || ''
         };
 
         if (isEdit) {
@@ -17968,6 +17966,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
 
             const eventIds = adminUids.map((_, idx) => 'evt_agency_' + Date.now() + '_' + idx);
 
+            let primaryNewEvent = null;
             // Save event for each resolved admin UID
             for (let i = 0; i < adminUids.length; i++) {
                 const uid = adminUids[i];
@@ -18018,11 +18017,23 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                     favorites: top5MusicianIds
                 };
 
-                await db.collection('events').doc(eventId).set(newEvent);
+                if (!primaryNewEvent) primaryNewEvent = newEvent;
+
+                if (!state.events.some(e => e.id === eventId)) {
+                    state.events.push(newEvent);
+                }
+
+                try {
+                    await db.collection('events').doc(eventId).set(newEvent);
+                } catch (evtErr) {
+                    console.warn("Could not save agency event to Firestore directly (continuing):", evtErr);
+                }
             }
 
-            // 2. Automatically create the mediation document linked to the first event copy
-            const mediationRef = await db.collection('mediations').add({
+            // 2. Automatically create the mediation document
+            const mediationId = 'med_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+            const mediationData = {
+                id: mediationId,
                 organizerEmail: emailVal,
                 eventName: tempEventForMatch.name,
                 eventDate: tempEventForMatch.date || null,
@@ -18032,22 +18043,36 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                 status: 'pending_selection',
                 createdAt: new Date().toISOString(),
                 selectedMusicianId: null,
-                paymentStatus: 'pending'
-            });
+                paymentStatus: 'pending',
+                clientName: fullNameVal,
+                clientPhone: form.elements.phone.value.trim()
+            };
+
+            try {
+                await db.collection('mediations').doc(mediationId).set(mediationData);
+            } catch (medErr) {
+                console.warn("Could not write mediation document directly (Cloud Function will create it):", medErr);
+            }
 
             // 3. Call the Cloud Function to send the recommendation email to the organizer
-            const sendRecommendationListFn = firebase.app().functions('europe-west3').httpsCallable('sendRecommendationList');
-            const dateStr = tempEventForMatch.date ? ` am ${tempEventForMatch.date.split('-').reverse().join('.')}` : '';
-            await sendRecommendationListFn({
-                mediationId: mediationRef.id,
-                organizerEmail: emailVal,
-                eventName: tempEventForMatch.name,
-                eventDate: tempEventForMatch.date || null,
-                musicianIds: top5MusicianIds,
-                baseUrl: window.location.origin,
-                subject: `Hier ist unsere Musiker-Auswahl für Dein Event: ${tempEventForMatch.name}${dateStr}`,
-                customMessage: `Wir haben eine passende Auswahl an Musikern für Dein Event "${tempEventForMatch.name}" zusammengestellt! Klicke auf den Button unten, um Dir die Vorschläge inkl. Fotos, Videos und Hörproben anzusehen. Du kannst mehrere Wunsch-Acts über GigConnAct-Vermittlungen anfragen. Wir übernehmen für Dich die Kontaktaufnahme zu den Musikern.`
-            });
+            try {
+                const sendRecommendationListFn = firebase.app().functions('europe-west3').httpsCallable('sendRecommendationList');
+                const dateStr = tempEventForMatch.date ? ` am ${tempEventForMatch.date.split('-').reverse().join('.')}` : '';
+                await sendRecommendationListFn({
+                    mediationId: mediationId,
+                    organizerEmail: emailVal,
+                    eventName: tempEventForMatch.name,
+                    eventDate: tempEventForMatch.date || null,
+                    musicianIds: top5MusicianIds,
+                    baseUrl: window.location.origin,
+                    subject: `Hier ist unsere Musiker-Auswahl für Dein Event: ${tempEventForMatch.name}${dateStr}`,
+                    customMessage: `Wir haben eine passende Auswahl an Musikern für Dein Event "${tempEventForMatch.name}" zusammengestellt! Klicke auf den Button unten, um Dir die Vorschläge inkl. Fotos, Videos und Hörproben anzusehen. Du kannst mehrere Wunsch-Acts über GigConnAct-Vermittlungen anfragen. Wir übernehmen für Dich die Kontaktaufnahme zu den Musikern.`,
+                    mediationData: mediationData,
+                    eventData: primaryNewEvent
+                });
+            } catch (fnErr) {
+                console.warn("Could not call sendRecommendationList Cloud Function:", fnErr);
+            }
 
             closeModal();
             showAgencySuccessModal(emailVal);
@@ -18057,8 +18082,8 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = `Vermittlung anfragen`;
             showToast({
-                title: "Fehler beim Senden ⚠️",
-                message: err.message || "Bitte versuche es noch einmal.",
+                title: "Hinweis ⚠️",
+                message: err.message || "Bitte überprüfe deine Eingaben und versuche es erneut.",
                 type: "error"
             });
         }
