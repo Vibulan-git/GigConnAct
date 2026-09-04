@@ -3854,14 +3854,6 @@ body {
 .market-filter-card .tag-pill-checkbox.active span {
     color: var(--market-primary) !important;
 }
-.market-filter-card .checkbox-tag-grid:not(:has(input[type="checkbox"]:checked)) .tag-pill-checkbox {
-    background: rgba(var(--market-primary-rgb), 0.15) !important;
-    border-color: var(--market-primary) !important;
-    color: var(--market-primary) !important;
-}
-.market-filter-card .checkbox-tag-grid:not(:has(input[type="checkbox"]:checked)) .tag-pill-checkbox span {
-    color: var(--market-primary) !important;
-}
 
 /* Style dual range slider tracks globally to stand out on white bg */
 .market-filter-card .dual-range-track {

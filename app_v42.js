@@ -482,6 +482,17 @@ window.slideComboGallery = function(itemId, direction) {
     }
 };
 
+window.sanitizeVideos = function(rawVideos) {
+    if (!Array.isArray(rawVideos)) return [];
+    return rawVideos.map(v => typeof v === 'string' ? { url: v.trim() } : v)
+                    .filter(v => {
+                        if (!v || !v.url || v.url === 'loading') return false;
+                        const u = String(v.url).trim().toLowerCase();
+                        if (u.includes('youtube.com') || u.includes('youtu.be') || u.includes('vimeo.com')) return false;
+                        return u.startsWith('data:video/') || u.startsWith('blob:') || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(u) || u.includes('firebasestorage') || u.includes('storage.googleapis.com');
+                    });
+};
+
 window.jumpToComboGallerySlide = function(itemId, slideIndex) {
     const s = document.getElementById('combo-slider-' + itemId);
     if (!s) return;
@@ -832,7 +843,7 @@ const initialMusicians = [
             instagram: "https://instagram.com/neonbeats"
         },
         photos: ["https://picsum.photos/id/453/400/300", "https://picsum.photos/id/280/400/300"],
-        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
+        videos: [],
         audio: [],
         technik: ["Technik vorhanden"],
         applications: [
@@ -868,7 +879,7 @@ const initialMusicians = [
             instagram: "https://instagram.com/clara_lichtblick"
         },
         photos: ["https://picsum.photos/id/1082/400/300"],
-        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
+        videos: [],
         audio: [],
         technik: ["Technik nicht vorhanden"]
     },
@@ -899,7 +910,7 @@ const initialMusicians = [
             instagram: "https://instagram.com/dj_soundwave"
         },
         photos: ["https://picsum.photos/id/342/400/300"],
-        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
+        videos: [],
         audio: [],
         technik: ["Technik vorhanden"]
     },
@@ -930,7 +941,7 @@ const initialMusicians = [
             instagram: "https://instagram.com/acoustic_breeze"
         },
         photos: ["https://picsum.photos/id/325/400/300"],
-        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
+        videos: [],
         audio: [],
         technik: ["Technik vorhanden"]
     },
@@ -961,7 +972,7 @@ const initialMusicians = [
             instagram: "https://instagram.com/blackwood_rock"
         },
         photos: ["https://picsum.photos/id/109/400/300"],
-        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
+        videos: [],
         audio: [],
         technik: ["Technik nicht vorhanden"]
     },
@@ -991,7 +1002,7 @@ const initialMusicians = [
             instagram: "https://instagram.com/leo_sax_soul"
         },
         photos: ["https://picsum.photos/id/357/400/300"],
-        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
+        videos: [],
         audio: [],
         technik: ["Technik vorhanden"]
     },
@@ -1018,7 +1029,7 @@ const initialMusicians = [
         credits: 0,
         socialLinks: { spotify: "", youtube: "", instagram: "" },
         photos: ["https://picsum.photos/id/111/400/300"],
-        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
+        videos: [],
         audio: [],
         technik: ["Technik vorhanden"]
     },
@@ -1045,7 +1056,7 @@ const initialMusicians = [
         credits: 5,
         socialLinks: { spotify: "", youtube: "", instagram: "" },
         photos: ["https://picsum.photos/id/280/400/300"],
-        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
+        videos: [],
         audio: [],
         technik: ["Technik nicht vorhanden"]
     },
@@ -1444,7 +1455,7 @@ const initialEvents = [
         creatorId: "org_1",
         technik: ["Technik vorhanden"],
         photos: ["https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80"],
-        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
+        videos: []
     },
     {
         id: "evt_2",
@@ -1474,7 +1485,7 @@ const initialEvents = [
         creatorId: "org_2",
         technik: ["Technik vorhanden"],
         photos: ["https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80"],
-        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
+        videos: []
     },
     {
         id: "evt_3",
@@ -1504,7 +1515,7 @@ const initialEvents = [
         creatorId: "org_3",
         technik: ["Technik nicht vorhanden"],
         photos: ["https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80"],
-        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
+        videos: []
     },
     {
         id: "evt_4",
@@ -1534,7 +1545,7 @@ const initialEvents = [
         creatorId: "org_4",
         technik: ["Technik vorhanden"],
         photos: ["https://images.unsplash.com/photo-1484755560693-a4074577af3a?auto=format&fit=crop&w=800&q=80"],
-        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
+        videos: []
     },
     {
         id: "evt_5",
@@ -1564,7 +1575,7 @@ const initialEvents = [
         creatorId: "org_5",
         technik: ["Technik nicht vorhanden"],
         photos: ["https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80"],
-        videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
+        videos: []
     }
 ];
 
@@ -1666,7 +1677,7 @@ function generateRemainingMusicians(existing) {
             isPremium: Math.random() > 0.5,
             socialLinks: { spotify: "", youtube: "", instagram: "" },
             photos: [`https://picsum.photos/id/${(i * 17) % 500 + 100}/400/300`],
-            videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
+            videos: [],
             audio: [],
             technik,
             isActive: true,
@@ -1793,7 +1804,7 @@ function generateRemainingEvents(existing) {
                 '1484755560693-a4074577af3a',
                 '1465847899084-d164df4dedc6'
             ][i % 5]}?auto=format&fit=crop&w=800&q=80`],
-            videos: ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"],
+            videos: [],
             creatorId: `org_gen_${i}`,
             createdAt: new Date(Date.now() - i * 6 * 60 * 60 * 1000).toISOString()
         });
@@ -5199,7 +5210,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-file-lines" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #2563eb;">Eventformular</span> ausfüllen - ohne Account & kostenlos
+                            <span style="color: #2563eb;">Vermittlungsanfrage</span> ausfüllen - ohne Account & kostenlos
                         </h4>
                     </div>
 
@@ -5703,7 +5714,7 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '1.',
                     icon: 'fa-file-lines',
-                    title: `<span style="color: ${themeColor};">Eventformular</span> ausfüllen - ohne Account & kostenlos`,
+                    title: `<span style="color: ${themeColor};">Vermittlungsanfrage</span> ausfüllen - ohne Account & kostenlos`,
                     content: `
                         <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto;">
                             ${showcaseCardHTML}
@@ -10842,7 +10853,7 @@ function renderMyMusicianItem(m, isActive) {
             m.profilePic || (m.type === 'DJ' ? 'https://picsum.photos/id/653/300/300' : m.type === 'Solo' ? 'https://picsum.photos/id/325/300/300' : 'https://picsum.photos/id/453/300/300')
           ];
 
-    const videoSources = (m.videos && m.videos.length > 0) ? m.videos.slice(0, 3) : [];
+    const videoSources = window.sanitizeVideos(m.videos).slice(0, 3);
 
     const audios = (m.audio && m.audio.length > 0) ? m.audio.slice(0, 3) : [];
 
@@ -17368,7 +17379,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
         <div class="modal-content">
             <div class="modal-header" style="flex-direction: column; padding: 2.2rem 2rem 1.2rem; position: relative;">
                 <h3 style="line-height: 1.2; text-align: center; margin: 0; font-family: var(--font-heading); width: 100%;">
-                    <span style="display: block; font-size: 1.45rem; font-weight: 900; color: #000000; letter-spacing: 0.5px;">Eventformular</span>
+                    <span style="display: block; font-size: 1.45rem; font-weight: 900; color: #000000; letter-spacing: 0.5px;">Vermittlungsanfrage</span>
                 </h3>
                 <button class="close-modal-btn" id="btn-close-modal" style="position: absolute; top: 1.2rem; right: 1.2rem; font-size: 1.8rem; line-height: 1; padding: 0; border: none; background: transparent; cursor: pointer; color: #64748b;">&times;</button>
             </div>
@@ -18149,10 +18160,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 item.image || (isEvents ? 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80' : 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80')
               ];
 
-        // Up to 3 videos
-        const videos = (item.videos && item.videos.length > 0)
-            ? item.videos.slice(0, 3)
-            : [];
+        // Up to 3 videos (only valid playable uploaded videos)
+        const videos = window.sanitizeVideos(item.videos).slice(0, 3);
 
         // Up to 3 audios
         const audios = (item.audio && item.audio.length > 0)
@@ -18611,8 +18620,9 @@ window.toggleAllFilterCheckboxes = function(element) {
     
     checkboxes.forEach(cb => {
         cb.checked = nextState;
-        if (cb.parentElement.classList.contains('tag-pill-checkbox')) {
-            cb.parentElement.classList.toggle('active', nextState);
+        const tag = cb.closest('.tag-pill-checkbox') || cb.parentElement;
+        if (tag) {
+            tag.classList.toggle('active', nextState);
         }
     });
     
@@ -19909,7 +19919,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                         mus.matchScore = matchScoreVal;
 
                         const photos = (mus.photos && mus.photos.length > 0) ? mus.photos.slice(0, 5) : [mus.image || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80'];
-                        const videos = mus.videos || [];
+                        const videos = window.sanitizeVideos(mus.videos).slice(0, 3);
                         const audios = mus.audio || [];
                         const genresArr = mus.genres || (mus.genre ? [mus.genre] : ['Pop', 'Cover', 'Acoustic']);
                         const instrumentsArr = mus.instruments || (mus.category ? [mus.category] : ['Gesang', 'Gitarre']);
@@ -20466,7 +20476,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
                     const photos = (eventData.photos && eventData.photos.length > 0)
                         ? eventData.photos
                         : [eventData.image || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'];
-                    const videos = eventData.videos || [];
+                    const videos = window.sanitizeVideos(eventData.videos);
                     const totalSlides = photos.length + videos.length + 1; // +1 for description slide
                     
                     let dateDisplay = formatEventDateWithTime(eventData);
