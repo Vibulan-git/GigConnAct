@@ -2107,11 +2107,11 @@ class StateManager {
         
         const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
         
-        this.musicians.filter(m => m.creatorId === uid).forEach(m => ids.push(m.id));
-        this.events.filter(e => 
+        (this.musicians || []).filter(m => m && m.creatorId === uid).forEach(m => { if (m && m.id) ids.push(m.id); });
+        (this.events || []).filter(e => e && (
             e.creatorId === uid ||
             (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
-        ).forEach(e => ids.push(e.id));
+        )).forEach(e => { if (e && e.id) ids.push(e.id); });
         
         return [...new Set(ids)].sort();
     }
@@ -3243,14 +3243,18 @@ class StateManager {
         // Gather all participant IDs of the current user
         const userParticipantIds = [this.currentUser.id];
         if (this.currentUser.role === 'musician') {
-            const profiles = this.musicians.filter(m => m.creatorId === this.currentUser.id);
-            profiles.forEach(m => userParticipantIds.push(m.id));
+            const profiles = (this.musicians || []).filter(m => m && m.creatorId === this.currentUser.id);
+            profiles.forEach(m => { if (m && m.id) userParticipantIds.push(m.id); });
             if (this.currentUser.profileId) {
                 userParticipantIds.push(this.currentUser.profileId);
             }
         } else {
-            const userEvents = this.events.filter(e => e.creatorId === this.currentUser.id);
-            userEvents.forEach(e => userParticipantIds.push(e.id));
+            const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
+            const userEvents = (this.events || []).filter(e => e && (
+                e.creatorId === this.currentUser.id ||
+                (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
+            ));
+            userEvents.forEach(e => { if (e && e.id) userParticipantIds.push(e.id); });
         }
 
         // Check if the current user is a participant
@@ -3648,17 +3652,23 @@ class StateManager {
         return { success: false };
     }
 
-    markChatAsRead(chatId) {
+    markChatAsRead(chatId, silent = false) {
+        if (!chatId) return;
         if (!this.readChats || Array.isArray(this.readChats)) {
             this.readChats = {};
         }
-        const chat = (this.chats || []).find(c => c.id === chatId);
+        const chat = (this.chats || []).find(c => c && c.id === chatId);
         const lastMsgTimestamp = (chat && chat.messages && chat.messages.length > 0)
-            ? chat.messages[chat.messages.length - 1].timestamp
+            ? (chat.messages[chat.messages.length - 1]?.timestamp || new Date().toISOString())
             : new Date().toISOString();
         if (this.readChats[chatId] !== lastMsgTimestamp) {
             this.readChats[chatId] = lastMsgTimestamp;
-            this.notify();
+            try {
+                localStorage.setItem('gyg_read_chats_' + (this.currentUser ? this.currentUser.id : 'anon'), JSON.stringify(this.readChats));
+            } catch(e) {}
+            if (!silent) {
+                this.notify();
+            }
         }
     }
 
@@ -15775,11 +15785,15 @@ function navigate(page) {
                 navigate('');
                 showModal('auth');
             } else {
-                window.postboxJustOpened = true;
-                renderPostbox(mainContainer);
-                setActiveLink('link-postbox');
-                if (!window.location.hash.startsWith('#/postbox')) {
-                    window.location.hash = '#/postbox';
+                try {
+                    window.postboxJustOpened = true;
+                    renderPostbox(mainContainer);
+                    setActiveLink('link-postbox');
+                    if (!window.location.hash.startsWith('#/postbox')) {
+                        window.location.hash = '#/postbox';
+                    }
+                } catch (navPostboxErr) {
+                    console.error("navigate postbox error:", navPostboxErr);
                 }
             }
             break;
@@ -15890,14 +15904,14 @@ function updateNavbar(forceLanding) {
         let activeProfileId = '';
         const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
         if (isMusician) {
-            userProfiles = state.musicians.filter(m => m.creatorId === u.id);
+            userProfiles = (state.musicians || []).filter(m => m && m.creatorId === u.id);
             activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || '');
             if (activeProfileId) state.activeMusicianId = activeProfileId;
         } else {
-            userProfiles = state.events.filter(e => 
+            userProfiles = (state.events || []).filter(e => e && (
                 e.creatorId === u.id || 
                 (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
-            );
+            ));
             activeProfileId = state.activeEventId || (userProfiles[0]?.id || '');
             if (activeProfileId) state.activeEventId = activeProfileId;
         }
@@ -16418,6 +16432,10 @@ function initGigConnActApp() {
     if (logoLink) {
         logoLink.addEventListener('click', (e) => {
             e.preventDefault();
+            if (window.location.hash.includes('recommendation/') || window.location.hash.includes('mediation-response/')) {
+                // On standalone recommendation pages, stay on the view
+                return;
+            }
             let targetHash = '#/';
             if (state && state.currentUser) {
                 if (state.currentUser.role === 'musician') {
@@ -16526,102 +16544,107 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 }
 
 function renderPostbox(container) {
-    if (!state.currentUser) return;
-    const u = state.currentUser;
-    const isMusician = u.role === 'musician';
-    let userProfiles = [];
+    try {
+        if (!state.currentUser) return;
+        const u = state.currentUser;
+        const isMusician = u.role === 'musician';
+        let userProfiles = [];
 
-    // Auto-select profile & chat with unread messages when first opening the postbox
-    if (window.postboxJustOpened) {
-        window.postboxJustOpened = false;
-        if (state.chats && state.chats.length > 0) {
-            const unreadChats = state.chats.filter(c => state.isChatUnread(c));
-            if (unreadChats.length > 0) {
-                unreadChats.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-                const targetChat = unreadChats[0];
-                
-                if (isMusician) {
-                    const profiles = state.musicians.filter(m => m.creatorId === u.id);
-                    const matchingProfile = profiles.find(m => targetChat.participants.includes(m.id));
-                    if (matchingProfile) {
-                        state.activeMusicianId = matchingProfile.id;
-                        window.postboxActiveChatId = targetChat.id;
-                    }
-                } else {
-                    const userEvents = state.events.filter(e => e.creatorId === u.id);
-                    const matchingEvent = userEvents.find(e => targetChat.participants.includes(e.id));
-                    if (matchingEvent) {
-                        state.activeEventId = matchingEvent.id;
-                        window.postboxActiveChatId = targetChat.id;
+        // Auto-select profile & chat with unread messages when first opening the postbox
+        if (window.postboxJustOpened) {
+            window.postboxJustOpened = false;
+            if (state.chats && state.chats.length > 0) {
+                const unreadChats = state.chats.filter(c => c && state.isChatUnread(c));
+                if (unreadChats.length > 0) {
+                    unreadChats.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+                    const targetChat = unreadChats[0];
+                    
+                    if (isMusician) {
+                        const profiles = (state.musicians || []).filter(m => m && m.creatorId === u.id);
+                        const matchingProfile = profiles.find(m => m && targetChat.participants && Array.isArray(targetChat.participants) && targetChat.participants.includes(m.id));
+                        if (matchingProfile) {
+                            state.activeMusicianId = matchingProfile.id;
+                            window.postboxActiveChatId = targetChat.id;
+                        }
+                    } else {
+                        const userEvents = (state.events || []).filter(e => e && e.creatorId === u.id);
+                        const matchingEvent = userEvents.find(e => e && targetChat.participants && Array.isArray(targetChat.participants) && targetChat.participants.includes(e.id));
+                        if (matchingEvent) {
+                            state.activeEventId = matchingEvent.id;
+                            window.postboxActiveChatId = targetChat.id;
+                        }
                     }
                 }
             }
         }
-    }
 
-    let activeProfileId = '';
-    const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
-    if (isMusician) {
-        userProfiles = state.musicians.filter(m => m.creatorId === u.id);
-        activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || u.profileId);
-        state.activeMusicianId = activeProfileId;
-    } else {
-        userProfiles = state.events.filter(e => 
-            e.creatorId === u.id || 
-            (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
-        );
-        activeProfileId = state.activeEventId || (userProfiles[0]?.id || u.id);
-        state.activeEventId = activeProfileId;
-    }
-
-    const currentUserId = activeProfileId;
-
-    let activeTab = window.postboxActiveTab || 'all'; // 'all' | 'received' | 'sent' | 'system'
-    let activeChatId = window.postboxActiveChatId !== undefined ? window.postboxActiveChatId : null;
-
-    let profileSelectorHtml = '';
-
-    if (container.cleanupPostboxListener) {
-        container.cleanupPostboxListener();
-    }
-
-    const renderView = () => {
-        const chats = state.getChatsForUser(currentUserId);
-        window.postboxActiveTab = activeTab;
-        window.postboxActiveChatId = activeChatId;
-
-        // Categorize chats (filtering out system chats entirely as requested)
-        const nonSystemChats = chats.filter(c => !c.participants.includes('system'));
-        const receivedChats = [];
-        const sentChats = [];
-
-        nonSystemChats.forEach(chat => {
-            const msgs = chat.messages || [];
-            const firstMsg = msgs[0];
-            const isFirstMsgFromMe = firstMsg ? (firstMsg.senderId === currentUserId) : (chat.initiatorId === currentUserId);
-
-            if (isFirstMsgFromMe) {
-                sentChats.push(chat);
-            } else {
-                receivedChats.push(chat);
-            }
-        });
-
-        let currentCategoryChats = [];
-        if (activeTab === 'all') currentCategoryChats = nonSystemChats;
-        else if (activeTab === 'received') currentCategoryChats = receivedChats;
-        else if (activeTab === 'sent') currentCategoryChats = sentChats;
-        else if (activeTab === 'system') currentCategoryChats = [];
-
-        if (!currentCategoryChats.some(c => c.id === activeChatId) && currentCategoryChats.length > 0) {
-            activeChatId = currentCategoryChats[0].id;
+        let activeProfileId = '';
+        const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
+        if (isMusician) {
+            userProfiles = (state.musicians || []).filter(m => m && m.creatorId === u.id);
+            activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || u.profileId);
+            state.activeMusicianId = activeProfileId;
+        } else {
+            userProfiles = (state.events || []).filter(e => e && (
+                e.creatorId === u.id || 
+                (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
+            ));
+            activeProfileId = state.activeEventId || (userProfiles[0]?.id || u.id);
+            state.activeEventId = activeProfileId;
         }
 
-        const activeChat = chats.find(c => c.id === activeChatId);
+        const currentUserId = activeProfileId;
 
-        window.postboxShowFilters = window.postboxShowFilters !== undefined ? window.postboxShowFilters : false;
+        let activeTab = window.postboxActiveTab || 'all'; // 'all' | 'received' | 'sent' | 'system'
+        let activeChatId = window.postboxActiveChatId !== undefined ? window.postboxActiveChatId : null;
 
-        container.innerHTML = `
+        let profileSelectorHtml = '';
+
+        if (container.cleanupPostboxListener) {
+            container.cleanupPostboxListener();
+        }
+
+        const renderView = () => {
+            const chats = (state.getChatsForUser(currentUserId) || []).filter(Boolean);
+            window.postboxActiveTab = activeTab;
+            window.postboxActiveChatId = activeChatId;
+
+            // Categorize chats (filtering out system chats entirely as requested)
+            const nonSystemChats = chats.filter(c => c && c.participants && Array.isArray(c.participants) && !c.participants.includes('system'));
+            const receivedChats = [];
+            const sentChats = [];
+
+            nonSystemChats.forEach(chat => {
+                const msgs = chat.messages || [];
+                const firstMsg = msgs[0];
+                const isFirstMsgFromMe = firstMsg ? (firstMsg.senderId === currentUserId) : (chat.initiatorId === currentUserId);
+
+                if (isFirstMsgFromMe) {
+                    sentChats.push(chat);
+                } else {
+                    receivedChats.push(chat);
+                }
+            });
+
+            let currentCategoryChats = [];
+            if (activeTab === 'all') currentCategoryChats = nonSystemChats;
+            else if (activeTab === 'received') currentCategoryChats = receivedChats;
+            else if (activeTab === 'sent') currentCategoryChats = sentChats;
+            else if (activeTab === 'system') currentCategoryChats = [];
+
+            if (!currentCategoryChats.some(c => c && c.id === activeChatId) && currentCategoryChats.length > 0) {
+                activeChatId = currentCategoryChats[0].id;
+            }
+
+            const activeChat = chats.find(c => c && c.id === activeChatId);
+
+            if (activeChat && activeChat.id) {
+                state.markChatAsRead(activeChat.id, true);
+            }
+
+            window.postboxShowFilters = window.postboxShowFilters !== undefined ? window.postboxShowFilters : false;
+
+            container.innerHTML = `
             <style>
                 @media(max-width: 900px) {
                     .portal-layout {
@@ -16695,8 +16718,8 @@ function renderPostbox(container) {
                             let avatar = "https://picsum.photos/id/1025/100/100";
 
                             if (!isSys) {
-                                const counterMus = state.musicians.find(m => m.id === counterpartyId);
-                                const counterOrg = state.events.find(e => e.id === counterpartyId) || state.events.find(e => e.creatorId === counterpartyId);
+                                const counterMus = (state.musicians || []).find(m => m && m.id === counterpartyId);
+                                const counterOrg = (state.events || []).find(e => e && (e.id === counterpartyId || e.creatorId === counterpartyId));
                                 if (counterMus) {
                                     name = counterMus.name;
                                     avatar = counterMus.profilePic || "https://picsum.photos/id/453/100/100";
@@ -16750,7 +16773,7 @@ function renderPostbox(container) {
 
                             const threadMsgs = c.messages || [];
                             if (!isMusician && !isSys) {
-                                const interest = state.interests?.find(i => i.musicianId === lockMusicianId && (lockEventId ? i.eventId === lockEventId : true));
+                                const interest = (state.interests || []).find(i => i && i.musicianId === lockMusicianId && (lockEventId ? i.eventId === lockEventId : true));
                                 const isPerfect = interest && interest.musicianInterested && interest.organizerInterested;
                                 const isDeclined = interest && interest.organizerNoInterest;
                                 const firstMsg = threadMsgs[0];
@@ -16862,8 +16885,8 @@ function renderPostbox(container) {
                         let avatar = "https://picsum.photos/id/1025/100/100";
 
                         if (!isSys) {
-                            const counterMus = state.musicians.find(m => m.id === counterpartyId);
-                            const counterOrg = state.events.find(e => e.id === counterpartyId) || state.events.find(e => e.creatorId === counterpartyId);
+                            const counterMus = (state.musicians || []).find(m => m && m.id === counterpartyId);
+                            const counterOrg = (state.events || []).find(e => e && (e.id === counterpartyId || e.creatorId === counterpartyId));
                             if (counterMus) {
                                 name = counterMus.name;
                                 avatar = counterMus.profilePic || "https://picsum.photos/id/453/100/100";
@@ -16882,16 +16905,13 @@ function renderPostbox(container) {
                         let lockMusicianId = counterpartyId;
 
                         if (!isMusician && !isSys) {
-                            const interest = state.interests?.find(i => i.musicianId === lockMusicianId && (lockEventId ? i.eventId === lockEventId : true));
+                            const interest = (state.interests || []).find(i => i && i.musicianId === lockMusicianId && (lockEventId ? i.eventId === lockEventId : true));
                             const isPerfect = interest && interest.musicianInterested && interest.organizerInterested;
                             const isDeclined = interest && interest.organizerNoInterest;
                             if (!isPerfect && !isDeclined && activeTab === 'received') {
                                 isOrganizerIncomingLock = false;
                             }
                         }
-
-                        // Mark chat as read
-                        state.markChatAsRead(activeChat.id);
 
                         return `
                             <!-- Chat Header -->
@@ -17118,6 +17138,17 @@ function renderPostbox(container) {
     };
 
     renderView();
+    } catch (err) {
+        console.error("renderPostbox error:", err);
+        container.innerHTML = `
+            <div style="padding: 3rem 1rem; text-align: center; font-family: var(--font-body);">
+                <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.5rem; color: var(--color-orange); margin-bottom: 1rem;"></i>
+                <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">Nachrichten werden geladen...</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 400px; margin: 0 auto 1.5rem;">Dein Postfach wird synchronisiert. Bitte versuche es in einem Moment erneut.</p>
+                <button class="btn btn-primary" onclick="window.navigate('postbox')" style="padding: 0.6rem 1.4rem;">Erneut versuchen</button>
+            </div>
+        `;
+    }
 }
 
 function formatPublikumHelper(min, max, fallback) {
@@ -18456,13 +18487,13 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                             <span style="flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'avail')}</span>
                         </div>
 
-                        <!-- 3. Musiker-Art + 'Mehr Details' Button auf gleicher Höhe rechts -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; line-height: 1.35;">
-                            <div style="display: flex; align-items: flex-start; gap: 0.75rem; min-width: 0; flex: 1;">
-                                <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem; flex-shrink: 0;"></i>
-                                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;">${formatTruncatedValue(item.type || item.category || 'Solo / Band', themeColor, item.id, 'mustype')}</span>
+                        <!-- 3. Musiker-Art + 'Mehr Details' Button -->
+                        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35;">
+                            <div style="display: flex; align-items: flex-start; gap: 0.6rem; min-width: 130px; flex: 1 1 auto;">
+                                <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem; flex-shrink: 0;"></i>
+                                <span style="word-break: break-word; line-height: 1.35; flex: 1;">${formatTruncatedValue(item.type || item.category || 'Solo / Band', themeColor, item.id, 'mustype')}</span>
                             </div>
-                            <button id="toggle-details-btn-${item.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
+                            <button id="toggle-details-btn-${item.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
                                 <span id="toggle-text-${item.id}">Mehr Details</span>
                                 <i class="fa-solid fa-chevron-down" id="toggle-icon-${item.id}" style="font-size: 0.75rem; transition: transform 0.25s ease;"></i>
                             </button>
@@ -20266,13 +20297,13 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                                     <i class="fa-solid fa-calendar-days" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                                                     <span style="flex: 1;">${dateDisplay}</span>
                                                 </div>
-                                                <!-- 3. Musiker-Typ + 'Mehr Details' Button auf gleicher Höhe rechts -->
-                                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; line-height: 1.35;">
-                                                    <div style="display: flex; align-items: flex-start; gap: 0.6rem; min-width: 0; flex: 1;">
+                                                <!-- 3. Musiker-Typ + 'Mehr Details' Button -->
+                                                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35;">
+                                                    <div style="display: flex; align-items: flex-start; gap: 0.6rem; min-width: 130px; flex: 1 1 auto;">
                                                         <i class="fa-solid fa-guitar" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem; flex-shrink: 0;"></i>
-                                                        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;">${mus.type || 'Solo / Band'}</span>
+                                                        <span style="word-break: break-word; line-height: 1.35; flex: 1;">${mus.type || 'Solo / Band'}</span>
                                                     </div>
-                                                    <button id="toggle-details-btn-${mus.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${mus.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: #2563eb; font-family: var(--font-heading); font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
+                                                    <button id="toggle-details-btn-${mus.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${mus.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: #2563eb; font-family: var(--font-heading); font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
                                                         <span id="toggle-text-${mus.id}">Mehr Details</span>
                                                         <i class="fa-solid fa-chevron-down" id="toggle-icon-${mus.id}" style="font-size: 0.74rem; transition: transform 0.25s ease;"></i>
                                                     </button>
