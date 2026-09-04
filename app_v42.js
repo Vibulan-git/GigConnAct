@@ -1877,32 +1877,32 @@ class StateManager {
         this.eventsFetched = false;
         this.initialLoadDone = false;
         this.authInitialized = false;
+
+        // Synchronously initialize base data so marketplace renders instantly (0ms) without waiting
+        this.loadState();
+        this.initialLoadDone = true;
+
         this.initFirebaseData();
     }
 
     async initFirebaseData() {
         const timeoutId = setTimeout(() => {
-            if (!this.initialLoadDone || !this.authInitialized) {
+            if (!this.authInitialized) {
                 console.warn("[WARNING] initFirebaseData initial load timed out. Forcing ready state.");
-                this.loadState();
-                this.initialLoadDone = true;
                 this.authInitialized = true;
                 this.notify();
             }
-        }, 8000);
+        }, 2500);
 
         try {
             await this.loadStateFromFirestore();
             this.setupAuthListener();
             this.handleSignInWithEmailLink();
-            await this.handleGoogleRedirectResult();
+            this.handleGoogleRedirectResult().catch(err => console.warn("Google redirect check error:", err));
             clearTimeout(timeoutId);
         } catch (e) {
             clearTimeout(timeoutId);
-            console.error("Firebase init failed, falling back to mock localStorage:", e);
-            this.loadState();
-            this.initialLoadDone = true;
-            this.notify();
+            console.error("Firebase init failed, continuing with cached/local state:", e);
         }
     }
 
@@ -1914,34 +1914,37 @@ class StateManager {
                 db.collection('events').where('isOnline', '==', true).limit(50).get()
             ]);
 
-            // Seed database if completely empty
+            // Seed database only if admin is logged in and collections are empty
             if (musSnap.empty && evtSnap.empty) {
-                const checkMus = await db.collection('musicians').limit(1).get();
-                const checkEvt = await db.collection('events').limit(1).get();
-                if (checkMus.empty || checkEvt.empty) {
-                    console.log("Firestore collection(s) empty. Seeding initial data...");
-                    this.loadState();
-                    
-                    if (checkMus.empty) {
-                        const seedMus = this.musicians.map(m => db.collection('musicians').doc(m.id).set(m));
-                        await Promise.all(seedMus);
-                    }
-                    
-                    if (checkEvt.empty) {
-                        const seedEvt = this.events.map(e => db.collection('events').doc(e.id).set(e));
-                        await Promise.all(seedEvt);
-                    }
+                const isAdmin = typeof auth !== 'undefined' && auth.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(auth.currentUser.email);
+                if (isAdmin) {
+                    const checkMus = await db.collection('musicians').limit(1).get();
+                    const checkEvt = await db.collection('events').limit(1).get();
+                    if (checkMus.empty || checkEvt.empty) {
+                        console.log("Firestore collection(s) empty. Seeding initial data...");
+                        this.loadState();
+                        
+                        if (checkMus.empty) {
+                            const seedMus = this.musicians.map(m => db.collection('musicians').doc(m.id).set(m));
+                            await Promise.all(seedMus);
+                        }
+                        
+                        if (checkEvt.empty) {
+                            const seedEvt = this.events.map(e => db.collection('events').doc(e.id).set(e));
+                            await Promise.all(seedEvt);
+                        }
 
-                    const chatsSnapshot = await db.collection('chats').limit(1).get();
-                    if (chatsSnapshot.empty) {
-                        const seedChats = this.chats.map(c => db.collection('chats').doc(c.id).set(c));
-                        await Promise.all(seedChats);
+                        const chatsSnapshot = await db.collection('chats').limit(1).get();
+                        if (chatsSnapshot.empty) {
+                            const seedChats = this.chats.map(c => db.collection('chats').doc(c.id).set(c));
+                            await Promise.all(seedChats);
+                        }
+                        
+                        console.log("Database seeded successfully!");
+                        this.initialLoadDone = true;
+                        this.notify();
+                        return;
                     }
-                    
-                    console.log("Database seeded successfully!");
-                    this.initialLoadDone = true;
-                    this.notify();
-                    return;
                 }
             }
 
