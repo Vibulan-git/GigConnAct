@@ -3281,6 +3281,16 @@ class StateManager {
 
     addEvent(eventData) {
         if (!this.currentUser) return { success: false };
+
+        const myEventsCount = (this.events || []).filter(e => e && e.creatorId === this.currentUser.id).length;
+        if (myEventsCount >= 200) {
+            showToast({
+                title: "Limit erreicht ⚠️",
+                message: "In deinem Veranstalter-Account können maximal 200 Events erstellt werden. Bitte beende oder lösche ein bestehendes Event.",
+                type: "warning"
+            });
+            return { success: false, message: "Limit von 200 Events erreicht." };
+        }
         
         // Clean undefined or NaN values to prevent Firestore synchronous errors
         const cleanEventData = {};
@@ -3387,6 +3397,16 @@ class StateManager {
 
     addMusician(musicianData) {
         if (!this.currentUser) return { success: false };
+
+        const myMusiciansCount = (this.musicians || []).filter(m => m && m.creatorId === this.currentUser.id).length;
+        if (myMusiciansCount >= 5) {
+            showToast({
+                title: "Limit erreicht ⚠️",
+                message: "In deinem Musiker-Account können maximal 5 Musiker-Profile erstellt werden. Bitte lösche oder bearbeite ein bestehendes Profil.",
+                type: "warning"
+            });
+            return { success: false, message: "Limit von 5 Musiker-Profilen erreicht." };
+        }
 
         // Clean undefined or NaN values to prevent Firestore synchronous errors
         const cleanMusicianData = {};
@@ -6752,19 +6772,45 @@ function renderMarket(container, type, onNavigate) {
         showOnlyFavorites = true;
     }
 
-    // Prefill data based on logged-in user profile
+    // Master filter options
+    const ALL_FILTER_EVENT_TYPES = [
+        'Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 
+        'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 
+        'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 
+        'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'
+    ];
+    const ALL_FILTER_MUSICIAN_TYPES = [
+        'Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 
+        'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler', 
+        'Tänzer', 'Sonstige'
+    ];
+    const ALL_FILTER_GENRES = [
+        'Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 
+        'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 
+        'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 
+        'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'
+    ];
+    const ALL_FILTER_INSTRUMENTS = [
+        'Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 
+        'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'
+    ];
+    const ALL_FILTER_TECHNIK = [
+        'Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'
+    ];
+
+    // Prefill data based on logged-in user profile (or ALL selected by default when logged out / empty)
     let prefillLocation = '';
-    let prefillGenres = [];
-    let prefillInstruments = [];
+    let prefillGenres = [...ALL_FILTER_GENRES];
+    let prefillInstruments = [...ALL_FILTER_INSTRUMENTS];
     let prefillMinBudget = 0;
     let prefillMaxBudget = 5000;
     let prefillMinDuration = 0.5;
     let prefillMaxDuration = 10.0;
     let prefillMinPublikum = 0;
     let prefillMaxPublikum = 500;
-    let prefillTechnik = [];
-    let prefillMusicianTypes = [];
-    let prefillEventTypes = [];
+    let prefillTechnik = [...ALL_FILTER_TECHNIK];
+    let prefillMusicianTypes = [...ALL_FILTER_MUSICIAN_TYPES];
+    let prefillEventTypes = [...ALL_FILTER_EVENT_TYPES];
     let prefillRadius = 500;
     let hasProfile = false;
     console.log("[DEBUG_RENDER_MARKET_INIT] hasProfile:", hasProfile, "currentUser:", state.currentUser ? state.currentUser.email : null, "isEvents:", isEvents);
@@ -6788,19 +6834,31 @@ function renderMarket(container, type, onNavigate) {
 
                 prefillLocation = myProfile.location || '';
                 prefillRadius = myProfile.radius || 150;
-                prefillGenres = myProfile.genres || [];
-                prefillInstruments = myProfile.instruments || [];
+                if (Array.isArray(myProfile.genres) && myProfile.genres.length > 0) {
+                    prefillGenres = myProfile.genres;
+                }
+                if (Array.isArray(myProfile.instruments) && myProfile.instruments.length > 0) {
+                    prefillInstruments = myProfile.instruments;
+                }
                 prefillMinBudget = myProfile.minBudget || 0;
                 prefillMaxBudget = myProfile.maxBudget || 5000;
                 prefillMinDuration = myProfile.minDuration || 0.5;
                 prefillMaxDuration = myProfile.maxDuration || 10.0;
                 prefillMinPublikum = myProfile.minPublikum || 0;
                 prefillMaxPublikum = myProfile.maxPublikum || 500;
-                prefillTechnik = Array.isArray(myProfile.technik) 
+                const rawTech = Array.isArray(myProfile.technik) 
                     ? myProfile.technik 
                     : (typeof myProfile.technik === 'string' && myProfile.technik.trim() !== '' ? [myProfile.technik] : []);
-                prefillMusicianTypes = myProfile.type ? myProfile.type.split(',').map(s => s.trim()) : (myProfile.musicianTypes || []);
-                prefillEventTypes = myProfile.eventTypes || [];
+                if (rawTech.length > 0) {
+                    prefillTechnik = rawTech;
+                }
+                const rawTypes = myProfile.type ? myProfile.type.split(',').map(s => s.trim()) : (myProfile.musicianTypes || []);
+                if (rawTypes.length > 0) {
+                    prefillMusicianTypes = rawTypes;
+                }
+                if (Array.isArray(myProfile.eventTypes) && myProfile.eventTypes.length > 0) {
+                    prefillEventTypes = myProfile.eventTypes;
+                }
             }
         } else if (!isEvents && state.currentUser.role === 'organizer') {
             const myProfile = state.events.find(e => e.id === state.activeEventId) 
@@ -6822,19 +6880,32 @@ function renderMarket(container, type, onNavigate) {
                 }
 
                 prefillLocation = myProfile.location || '';
-                prefillGenres = myProfile.genres || [];
-                prefillInstruments = myProfile.instruments || [];
+                if (Array.isArray(myProfile.genres) && myProfile.genres.length > 0) {
+                    prefillGenres = myProfile.genres;
+                }
+                if (Array.isArray(myProfile.instruments) && myProfile.instruments.length > 0) {
+                    prefillInstruments = myProfile.instruments;
+                }
                 prefillMinBudget = myProfile.minBudget || myProfile.budget || 0;
                 prefillMaxBudget = myProfile.maxBudget || myProfile.budget || 5000;
                 prefillMinDuration = myProfile.minDuration || myProfile.duration || 0.5;
                 prefillMaxDuration = myProfile.maxDuration || myProfile.duration || 10.0;
                 prefillMinPublikum = myProfile.minPublikum || 0;
                 prefillMaxPublikum = myProfile.maxPublikum || 500;
-                prefillTechnik = Array.isArray(myProfile.technik) 
+                const rawTech = Array.isArray(myProfile.technik) 
                     ? myProfile.technik 
                     : (typeof myProfile.technik === 'string' && myProfile.technik.trim() !== '' ? [myProfile.technik] : []);
-                prefillMusicianTypes = myProfile.musicianTypes || (myProfile.musicianType ? myProfile.musicianType.split(',').map(s => s.trim()) : []);
-                prefillEventTypes = myProfile.eventTypes || (myProfile.type || myProfile.eventType ? (myProfile.type || myProfile.eventType).split(',').map(s => s.trim()) : []);
+                if (rawTech.length > 0) {
+                    prefillTechnik = rawTech;
+                }
+                const rawMusTypes = myProfile.musicianTypes || (myProfile.musicianType ? myProfile.musicianType.split(',').map(s => s.trim()) : []);
+                if (rawMusTypes.length > 0) {
+                    prefillMusicianTypes = rawMusTypes;
+                }
+                const rawEvtTypes = myProfile.eventTypes || (myProfile.type || myProfile.eventType ? (myProfile.type || myProfile.eventType).split(',').map(s => s.trim()) : []);
+                if (rawEvtTypes.length > 0) {
+                    prefillEventTypes = rawEvtTypes;
+                }
             }
         }
     }
@@ -6998,11 +7069,11 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Event-Typ</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">alle auswählen</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">${prefillEventTypes.length === ALL_FILTER_EVENT_TYPES.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-event-type-grid">
-                                    ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(t => `
+                                    ${ALL_FILTER_EVENT_TYPES.map(t => `
                                         <label class="tag-pill-checkbox ${prefillEventTypes.includes(t) ? 'active' : ''}">
                                             <input type="checkbox" name="filterEventTypes" value="${t}" ${prefillEventTypes.includes(t) ? 'checked' : ''}>
                                             <span>${t}</span>
@@ -7016,11 +7087,11 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Gesuchte Musiker-Typen</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">alle auswählen</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">${prefillMusicianTypes.length === ALL_FILTER_MUSICIAN_TYPES.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-musician-types-grid">
-                                    ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler', 'Tänzer', 'Sonstige'].map(t => `
+                                    ${ALL_FILTER_MUSICIAN_TYPES.map(t => `
                                         <label class="tag-pill-checkbox ${prefillMusicianTypes.includes(t) ? 'active' : ''}">
                                             <input type="checkbox" name="filterMusicianTypes" value="${t}" ${prefillMusicianTypes.includes(t) ? 'checked' : ''}>
                                             <span>${t}</span>
@@ -7034,11 +7105,11 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Genres</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">alle auswählen</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">${prefillGenres.length === ALL_FILTER_GENRES.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-genres-grid">
-                                    ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
+                                    ${ALL_FILTER_GENRES.map(g => `
                                         <label class="tag-pill-checkbox ${prefillGenres.includes(g) ? 'active' : ''}">
                                             <input type="checkbox" name="filterGenres" value="${g}" ${prefillGenres.includes(g) ? 'checked' : ''}>
                                             <span>${g}</span>
@@ -7052,11 +7123,11 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Instrumente</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">alle auswählen</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">${prefillInstruments.length === ALL_FILTER_INSTRUMENTS.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid">
-                                    ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                    ${ALL_FILTER_INSTRUMENTS.map(ins => `
                                         <label class="tag-pill-checkbox ${prefillInstruments.includes(ins) ? 'active' : ''}">
                                             <input type="checkbox" name="filterInstruments" value="${ins}" ${prefillInstruments.includes(ins) ? 'checked' : ''}>
                                             <span>${ins}</span>
@@ -7098,11 +7169,11 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin: 0;">Technik</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">alle auswählen</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">${prefillTechnik.length === ALL_FILTER_TECHNIK.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-technik-grid">
-                                    ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
+                                    ${ALL_FILTER_TECHNIK.map(t => `
                                         <label class="tag-pill-checkbox ${prefillTechnik.includes(t) ? 'active' : ''}">
                                             <input type="checkbox" name="filterTechnik" value="${t}" ${prefillTechnik.includes(t) ? 'checked' : ''}>
                                             <span>${t}</span>
@@ -7174,11 +7245,11 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Musiker-Typ</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">alle auswählen</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">${prefillMusicianTypes.length === ALL_FILTER_MUSICIAN_TYPES.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-musician-type-grid">
-                                    ${['Sänger', 'Solokünstler', 'Duo', 'Trio', 'Band', 'Coverband', 'Big Band', 'Ensemble', 'Chor', 'Orchester', 'DJ', 'Alleinunterhalter', 'Showkünstler', 'Tänzer', 'Sonstige'].map(t => `
+                                    ${ALL_FILTER_MUSICIAN_TYPES.map(t => `
                                         <label class="tag-pill-checkbox ${prefillMusicianTypes.includes(t) ? 'active' : ''}">
                                             <input type="checkbox" name="filterMusicianTypes" value="${t}" ${prefillMusicianTypes.includes(t) ? 'checked' : ''}>
                                             <span>${t}</span>
@@ -7192,11 +7263,11 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Event-Typen</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">alle auswählen</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">${prefillEventTypes.length === ALL_FILTER_EVENT_TYPES.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
-                                    ${['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'].map(evt => `
+                                    ${ALL_FILTER_EVENT_TYPES.map(evt => `
                                         <label class="tag-pill-checkbox ${prefillEventTypes.includes(evt) ? 'active' : ''}">
                                             <input type="checkbox" name="filterEventTypesM" value="${evt}" ${prefillEventTypes.includes(evt) ? 'checked' : ''}>
                                             <span>${evt}</span>
@@ -7210,11 +7281,11 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Genres</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">alle auswählen</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">${prefillGenres.length === ALL_FILTER_GENRES.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-genres-grid-m">
-                                    ${['Pop', 'Rock', 'Schlager', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
+                                    ${ALL_FILTER_GENRES.map(g => `
                                         <label class="tag-pill-checkbox ${prefillGenres.includes(g) ? 'active' : ''}">
                                             <input type="checkbox" name="filterGenresM" value="${g}" ${prefillGenres.includes(g) ? 'checked' : ''}>
                                             <span>${g}</span>
@@ -7228,11 +7299,11 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Instrumente</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">alle auswählen</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">${prefillInstruments.length === ALL_FILTER_INSTRUMENTS.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
-                                    ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                    ${ALL_FILTER_INSTRUMENTS.map(ins => `
                                         <label class="tag-pill-checkbox ${prefillInstruments.includes(ins) ? 'active' : ''}">
                                             <input type="checkbox" name="filterInstrumentsM" value="${ins}" ${prefillInstruments.includes(ins) ? 'checked' : ''}>
                                             <span>${ins}</span>
@@ -7274,11 +7345,11 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Technik</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">alle auswählen</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">${prefillTechnik.length === ALL_FILTER_TECHNIK.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-technik-grid-m">
-                                    ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => `
+                                    ${ALL_FILTER_TECHNIK.map(t => `
                                         <label class="tag-pill-checkbox ${prefillTechnik.includes(t) ? 'active' : ''}">
                                             <input type="checkbox" name="filterTechnikM" value="${t}" ${prefillTechnik.includes(t) ? 'checked' : ''}>
                                             <span>${t}</span>
@@ -7388,6 +7459,15 @@ function renderMarket(container, type, onNavigate) {
         return Array.from(grid.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
     }
 
+    function isGridRestricting(id) {
+        const grid = container.querySelector('#' + id);
+        if (!grid) return false;
+        const allCbs = grid.querySelectorAll('input[type="checkbox"]');
+        if (allCbs.length === 0) return false;
+        const checkedCount = grid.querySelectorAll('input[type="checkbox"]:checked').length;
+        return checkedCount < allCbs.length;
+    }
+
     function initDualSlider(containerId, minInputId, maxInputId, trackId, displayId, unit, isPrice) {
         const sliderContainer = container.querySelector('#' + containerId);
         if (!sliderContainer) return;
@@ -7451,7 +7531,7 @@ function renderMarket(container, type, onNavigate) {
         if (_filterDebounceTimer) clearTimeout(_filterDebounceTimer);
         _filterDebounceTimer = setTimeout(() => {
             applyAllFiltersAndSort(resetPagination, keepUnfilteredState);
-        }, 25);
+        }, 250);
     }
 
     function applyAllFiltersAndSort(resetPagination = true, keepUnfilteredState = false) {
@@ -7696,26 +7776,16 @@ function renderMarket(container, type, onNavigate) {
             if (selectedFilterDates && selectedFilterDates.length > 0) return true;
 
             const genresGridId = isEvents ? 'filter-genres-grid' : 'filter-genres-grid-m';
-            const genresGrid = container.querySelector('#' + genresGridId);
-            if (genresGrid && getCheckedValues(genresGridId).length > 0) return true;
+            if (isGridRestricting(genresGridId)) return true;
 
             const instGridId = isEvents ? 'filter-instruments-grid' : 'filter-instruments-grid-m';
-            const instGrid = container.querySelector('#' + instGridId);
-            if (instGrid && getCheckedValues(instGridId).length > 0) return true;
+            if (isGridRestricting(instGridId)) return true;
 
             const typeGridId = isEvents ? 'filter-event-type-grid' : 'filter-musician-type-grid';
-            const typeGrid = container.querySelector('#' + typeGridId);
-            if (typeGrid && getCheckedValues(typeGridId).length > 0) return true;
+            if (isGridRestricting(typeGridId)) return true;
 
             const techGridId = isEvents ? 'filter-technik-grid' : 'filter-technik-grid-m';
-            const techGrid = container.querySelector('#' + techGridId);
-            if (techGrid && getCheckedValues(techGridId).length > 0) return true;
-
-            if (!isEvents) {
-                const contactTypeGridId = 'filter-contact-type-grid-m';
-                const contactTypeGrid = container.querySelector('#' + contactTypeGridId);
-                if (contactTypeGrid && getCheckedValues(contactTypeGridId).length !== 2) return true;
-            }
+            if (isGridRestricting(techGridId)) return true;
 
             if (isEvents) {
                 const minD = parseFloat(container.querySelector('#input-filter-duration-min')?.value || 0.5);
@@ -7731,15 +7801,19 @@ function renderMarket(container, type, onNavigate) {
                 if (minP > 0 || maxP < 500) return true;
 
                 const radiusVal = parseInt(container.querySelector('#input-filter-radius')?.value || prefillRadius);
-                if (radiusVal !== prefillRadius) return true;
+                if (radiusVal < 500) return true;
 
                 const contactTypeGridId = 'filter-contact-type-grid';
                 const contactTypeGrid = container.querySelector('#' + contactTypeGridId);
                 if (contactTypeGrid && getCheckedValues(contactTypeGridId).length !== 2) return true;
 
-                const musTypesGrid = container.querySelector('#filter-musician-types-grid');
-                if (musTypesGrid && getCheckedValues('filter-musician-types-grid').length > 0) return true;
+                const musTypesGridId = 'filter-musician-types-grid';
+                if (isGridRestricting(musTypesGridId)) return true;
             } else {
+                const contactTypeGridId = 'filter-contact-type-grid-m';
+                const contactTypeGrid = container.querySelector('#' + contactTypeGridId);
+                if (contactTypeGrid && getCheckedValues(contactTypeGridId).length !== 2) return true;
+
                 const minD = parseFloat(container.querySelector('#input-filter-duration-m-min')?.value || 0.5);
                 const maxD = parseFloat(container.querySelector('#input-filter-duration-m-max')?.value || 10);
                 if (minD > 0.5 || maxD < 10) return true;
@@ -7755,8 +7829,8 @@ function renderMarket(container, type, onNavigate) {
                 const radiusVal = parseInt(container.querySelector('#input-filter-radius-m')?.value || 500);
                 if (radiusVal < 500) return true;
 
-                const evtTypesGrid = container.querySelector('#filter-event-types-grid-m');
-                if (evtTypesGrid && getCheckedValues('filter-event-types-grid-m').length > 0) return true;
+                const evtTypesGridId = 'filter-event-types-grid-m';
+                if (isGridRestricting(evtTypesGridId)) return true;
             }
 
             return false;
@@ -7887,60 +7961,81 @@ function renderMarket(container, type, onNavigate) {
 
             // 3. Genres Filter
             const genresGridId = isEvents ? 'filter-genres-grid' : 'filter-genres-grid-m';
-            const selGenres = getCheckedValues(genresGridId);
-            if (selGenres.length > 0) {
-                list = list.filter(item => {
-                    const itemG = item.genres || [];
-                    return selGenres.some(g => itemG.some(ig => ig.toLowerCase().includes(g.toLowerCase())));
-                });
+            if (isGridRestricting(genresGridId)) {
+                const selGenres = getCheckedValues(genresGridId);
+                if (selGenres.length === 0) {
+                    list = [];
+                } else {
+                    list = list.filter(item => {
+                        const itemG = item.genres || [];
+                        return selGenres.some(g => itemG.some(ig => ig.toLowerCase().includes(g.toLowerCase())));
+                    });
+                }
             }
 
             // 4. Instrumente Filter
             const instGridId = isEvents ? 'filter-instruments-grid' : 'filter-instruments-grid-m';
-            const selInst = getCheckedValues(instGridId);
-            if (selInst.length > 0) {
-                list = list.filter(item => {
-                    const itemI = item.instruments || [];
-                    return selInst.some(inst => itemI.some(i => i.toLowerCase().includes(inst.toLowerCase())));
-                });
+            if (isGridRestricting(instGridId)) {
+                const selInst = getCheckedValues(instGridId);
+                if (selInst.length === 0) {
+                    list = [];
+                } else {
+                    list = list.filter(item => {
+                        const itemI = item.instruments || [];
+                        return selInst.some(inst => itemI.some(i => i.toLowerCase().includes(inst.toLowerCase())));
+                    });
+                }
             }
 
             // 5. Musiker-Typ / Event-Typ
             const typeGridId = isEvents ? 'filter-event-type-grid' : 'filter-musician-type-grid';
-            const selType = getCheckedValues(typeGridId);
-            if (selType.length > 0) {
-                list = list.filter(item => {
-                    const val = (item.type || item.eventType || '');
-                    return selType.some(t => val.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(val.toLowerCase()));
-                });
+            if (isGridRestricting(typeGridId)) {
+                const selType = getCheckedValues(typeGridId);
+                if (selType.length === 0) {
+                    list = [];
+                } else {
+                    list = list.filter(item => {
+                        const val = (item.type || item.eventType || item.musicianType || '');
+                        const itemTypes = Array.isArray(val) ? val : val.split(',').map(s => s.trim());
+                        return selType.some(t => itemTypes.some(it => it.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(it.toLowerCase())));
+                    });
+                }
             }
 
             // 5.5. Gesuchte Musiker-Typen Filter (for Event-Markt only)
             if (isEvents) {
                 const musTypesGridId = 'filter-musician-types-grid';
-                const selMusTypes = getCheckedValues(musTypesGridId);
-                if (selMusTypes.length > 0) {
-                    list = list.filter(item => {
-                        const itemTypes = item.musicianTypes || (item.musicianType ? item.musicianType.split(',').map(s => s.trim()) : []);
-                        return selMusTypes.some(t => itemTypes.some(it => it.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(it.toLowerCase())));
-                    });
+                if (isGridRestricting(musTypesGridId)) {
+                    const selMusTypes = getCheckedValues(musTypesGridId);
+                    if (selMusTypes.length === 0) {
+                        list = [];
+                    } else {
+                        list = list.filter(item => {
+                            const itemTypes = item.musicianTypes || (item.musicianType ? item.musicianType.split(',').map(s => s.trim()) : []);
+                            return selMusTypes.some(t => itemTypes.some(it => it.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(it.toLowerCase())));
+                        });
+                    }
                 }
             }
 
             // 6. Technik Filter
             const techGridId = isEvents ? 'filter-technik-grid' : 'filter-technik-grid-m';
-            const selTechnik = getCheckedValues(techGridId);
-            if (selTechnik.length > 0) {
-                list = list.filter(item => {
-                    const rawVal = item.technik || item.equipment || '';
-                    const itemTechArr = Array.isArray(rawVal) 
-                        ? rawVal 
-                        : (typeof rawVal === 'string' && rawVal.trim() !== '' ? [rawVal] : []);
-                    
-                    return selTechnik.some(t => 
-                        itemTechArr.some(it => it.trim().toLowerCase() === t.trim().toLowerCase())
-                    );
-                });
+            if (isGridRestricting(techGridId)) {
+                const selTechnik = getCheckedValues(techGridId);
+                if (selTechnik.length === 0) {
+                    list = [];
+                } else {
+                    list = list.filter(item => {
+                        const rawVal = item.technik || item.equipment || '';
+                        const itemTechArr = Array.isArray(rawVal) 
+                            ? rawVal 
+                            : (typeof rawVal === 'string' && rawVal.trim() !== '' ? [rawVal] : []);
+                        
+                        return selTechnik.some(t => 
+                            itemTechArr.some(it => it.trim().toLowerCase() === t.trim().toLowerCase())
+                        );
+                    });
+                }
             }
 
             // 7. Spieldauer Filter (Dual Slider)
@@ -7986,12 +8081,17 @@ function renderMarket(container, type, onNavigate) {
 
             // 11. Gesuchte Event-Typen Filter (for Musiker-Markt only)
             if (!isEvents) {
-                const selEvtTypes = getCheckedValues('filter-event-types-grid-m');
-                if (selEvtTypes.length > 0) {
-                    list = list.filter(item => {
-                        const types = item.eventTypes || [];
-                        return selEvtTypes.some(t => types.some(it => it.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(it.toLowerCase())));
-                    });
+                const evtTypesGridId = 'filter-event-types-grid-m';
+                if (isGridRestricting(evtTypesGridId)) {
+                    const selEvtTypes = getCheckedValues(evtTypesGridId);
+                    if (selEvtTypes.length === 0) {
+                        list = [];
+                    } else {
+                        list = list.filter(item => {
+                            const types = item.eventTypes || [];
+                            return selEvtTypes.some(t => types.some(it => it.toLowerCase().includes(t.toLowerCase()) || t.toLowerCase().includes(it.toLowerCase())));
+                        });
+                    }
                 }
             }
         }
@@ -8041,7 +8141,9 @@ function renderMarket(container, type, onNavigate) {
                     const top10Excluded = excludedList.slice(0, 10);
                     displayList = [...displayList, ...top10Excluded];
                 }
-                grid.innerHTML = renderMarketGridHTML(displayList, isEvents);
+                const totalMatchesCount = displayList.length;
+                const visibleList = displayList.slice(0, displayedItemsCount);
+                grid.innerHTML = renderMarketGridHTML(visibleList, isEvents);
 
                 if (targetId) {
                     setTimeout(() => {
@@ -8080,46 +8182,66 @@ function renderMarket(container, type, onNavigate) {
                     loadMoreContainer.style.display = 'none';
                 }
 
-                // Manage bottom reset button & Weitere Ergebnisse button
+                // Manage bottom load more & reset button
                 let bottomResetContainer = container.querySelector('#market-bottom-reset-container');
-                const showBottomReset = state.currentUser !== null;
+                if (!bottomResetContainer) {
+                    bottomResetContainer = document.createElement('div');
+                    bottomResetContainer.id = 'market-bottom-reset-container';
+                    bottomResetContainer.style.cssText = 'grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 1.5rem; margin-bottom: 2rem; width: 100%; gap: 1rem; flex-wrap: wrap; align-items: center;';
+                    grid.parentNode.appendChild(bottomResetContainer);
+                }
+                const themeColor = isEvents ? '#7c3aed' : '#2563eb';
+                
+                let buttonsHtml = '';
+                if (totalMatchesCount > displayedItemsCount) {
+                    const remaining = totalMatchesCount - displayedItemsCount;
+                    const nextBatch = Math.min(12, remaining);
+                    buttonsHtml += `
+                        <button class="btn btn-primary" id="btn-market-load-more" style="padding: 0.75rem 2rem; font-size: 0.95rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; background: ${themeColor}; color: #ffffff; border: none; box-shadow: 0 4px 14px rgba(0,0,0,0.15); margin: 0;">
+                            <i class="fa-solid fa-chevron-down"></i> Weitere ${isEvents ? 'Events' : 'Profile'} anzeigen (+${nextBatch} von ${remaining})
+                        </button>
+                    `;
+                }
 
-                if (showBottomReset) {
-                    if (!bottomResetContainer) {
-                        bottomResetContainer = document.createElement('div');
-                        bottomResetContainer.id = 'market-bottom-reset-container';
-                        bottomResetContainer.style.cssText = 'grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 1.5rem; margin-bottom: 2rem; width: 100%; gap: 1rem; flex-wrap: wrap; align-items: center;';
-                        grid.parentNode.appendChild(bottomResetContainer);
-                    }
-                    const themeColor = isEvents ? '#7c3aed' : '#2563eb';
-                    
-                    let buttonsHtml = '';
-                    if (!showMoreMatchesUnfiltered && !showOnlyFavorites) {
-                        buttonsHtml += `
-                            <button class="btn btn-secondary" id="btn-market-show-more-unfiltered" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; margin: 0;">
-                                <i class="fa-solid fa-plus"></i> Weitere Ergebnisse
-                            </button>
-                        `;
-                    }
-                    
+                if (!showMoreMatchesUnfiltered && !showOnlyFavorites && isFilterActiveCurrently) {
+                    buttonsHtml += `
+                        <button class="btn btn-secondary" id="btn-market-show-more-unfiltered" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; margin: 0;">
+                            <i class="fa-solid fa-plus"></i> Weitere Ergebnisse
+                        </button>
+                    `;
+                }
+                
+                if (isFilterActiveCurrently || state.currentUser !== null) {
                     buttonsHtml += `
                         <button class="btn btn-secondary" id="btn-market-bottom-reset" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: ${themeColor}; border: 2px solid ${themeColor}; background: transparent; transition: all 0.2s; margin: 0;">
                             <i class="fa-solid fa-rotate-right"></i> Filter zurücksetzen
                         </button>
                     `;
-                    
-                    bottomResetContainer.innerHTML = buttonsHtml;
-                    
-                    const btnShowMoreUnfiltered = bottomResetContainer.querySelector('#btn-market-show-more-unfiltered');
-                    if (btnShowMoreUnfiltered) {
-                        btnShowMoreUnfiltered.onclick = (e) => {
-                            e.preventDefault();
-                            showMoreMatchesUnfiltered = true;
-                            applyAllFiltersAndSort(false, true);
-                        };
-                    }
-                    
-                    bottomResetContainer.querySelector('#btn-market-bottom-reset').onclick = (e) => {
+                }
+                
+                bottomResetContainer.innerHTML = buttonsHtml;
+                
+                const btnLoadMore = bottomResetContainer.querySelector('#btn-market-load-more');
+                if (btnLoadMore) {
+                    btnLoadMore.onclick = (e) => {
+                        e.preventDefault();
+                        displayedItemsCount += 12;
+                        applyAllFiltersAndSort(false, true);
+                    };
+                }
+
+                const btnShowMoreUnfiltered = bottomResetContainer.querySelector('#btn-market-show-more-unfiltered');
+                if (btnShowMoreUnfiltered) {
+                    btnShowMoreUnfiltered.onclick = (e) => {
+                        e.preventDefault();
+                        showMoreMatchesUnfiltered = true;
+                        applyAllFiltersAndSort(false, true);
+                    };
+                }
+                
+                const btnBottomReset = bottomResetContainer.querySelector('#btn-market-bottom-reset');
+                if (btnBottomReset) {
+                    btnBottomReset.onclick = (e) => {
                         e.preventDefault();
                         showMoreMatchesUnfiltered = false;
                         const resetBtn = container.querySelector('#btn-reset-filters');
@@ -8127,12 +8249,8 @@ function renderMarket(container, type, onNavigate) {
                             resetBtn.click();
                         }
                     };
-                    bottomResetContainer.style.display = 'flex';
-                } else {
-                    if (bottomResetContainer) {
-                        bottomResetContainer.style.display = 'none';
-                    }
                 }
+                bottomResetContainer.style.display = buttonsHtml ? 'flex' : 'none';
             }
 
             // Banner injection if displaying a specific profile/event from an email match
@@ -8217,9 +8335,9 @@ function renderMarket(container, type, onNavigate) {
         initAllLocationAutocompletes();
     }
     
-    // Bind change/input event to text inputs
+    // Bind change/input event to text inputs with debounce
     container.querySelectorAll('.form-input:not([type="checkbox"]):not([type="range"])').forEach(el => {
-        el.addEventListener('input', applyAllFiltersAndSort);
+        el.addEventListener('input', () => debouncedApplyFilters());
     });
 
     // Filter Calendar Widget Rendering and Logic
@@ -8360,8 +8478,21 @@ function renderMarket(container, type, onNavigate) {
                 if (grid) {
                     grid.dataset.interacted = "true";
                 }
+                // Update the toggle link text in this section
+                let section = e.target.parentElement;
+                while (section && !section.querySelector('[onclick*="toggleAllFilterCheckboxes"]')) {
+                    section = section.parentElement;
+                }
+                if (section) {
+                    const linkEl = section.querySelector('[onclick*="toggleAllFilterCheckboxes"]');
+                    const checkboxes = section.querySelectorAll('input[type="checkbox"]');
+                    if (linkEl && checkboxes.length > 0) {
+                        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                        linkEl.textContent = allChecked ? 'alle abwählen' : 'alle auswählen';
+                    }
+                }
             }
-            applyAllFiltersAndSort();
+            debouncedApplyFilters();
         });
     });
 
@@ -8431,19 +8562,33 @@ function renderMarket(container, type, onNavigate) {
         renderFilterCalendar();
         
         container.querySelectorAll('.tag-pill-checkbox input').forEach(el => {
-            if (el.name === 'filterContactType' || el.name === 'filterContactTypeM') {
-                el.checked = true;
-                el.parentElement.classList.add('active');
+            let shouldCheck = true;
+            if (state.currentUser) {
+                if (el.name.includes('Genres')) shouldCheck = prefillGenres.includes(el.value);
+                else if (el.name.includes('Instruments')) shouldCheck = prefillInstruments.includes(el.value);
+                else if (el.name.includes('MusicianTypes')) shouldCheck = prefillMusicianTypes.includes(el.value);
+                else if (el.name.includes('EventTypes') || el.name.includes('filterEventTypesM')) shouldCheck = prefillEventTypes.includes(el.value);
+                else if (el.name.includes('Technik')) shouldCheck = prefillTechnik.includes(el.value);
+                else shouldCheck = true;
             } else {
-                el.checked = false;
-                el.parentElement.classList.remove('active');
+                shouldCheck = true;
             }
+            el.checked = shouldCheck;
+            el.parentElement.classList.toggle('active', shouldCheck);
         });
         container.querySelectorAll('.checkbox-tag-grid').forEach(grid => {
             grid.removeAttribute('data-interacted');
         });
-        container.querySelectorAll('[onclick*="toggleAllFilterCheckboxes"]').forEach(el => {
-            el.textContent = 'alle auswählen';
+        container.querySelectorAll('[onclick*="toggleAllFilterCheckboxes"]').forEach(linkEl => {
+            let section = linkEl.parentElement;
+            while (section && !section.querySelector('.checkbox-tag-grid')) {
+                section = section.parentElement;
+            }
+            if (section) {
+                const checkboxes = section.querySelectorAll('input[type="checkbox"]');
+                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                linkEl.textContent = allChecked ? 'alle abwählen' : 'alle auswählen';
+            }
         });
         
         const durationMin = container.querySelector('#input-filter-duration-min') || container.querySelector('#input-filter-duration-m-min');
@@ -10408,6 +10553,7 @@ function renderMyEventsContent(container) {
     );
     const activeEvents = allMyEvents.filter(e => isEventActive(e));
     const deactivatedEvents = allMyEvents.filter(e => !isEventActive(e));
+    const isLimitReached = allMyEvents.length >= 200;
 
 
     container.innerHTML = `
@@ -10428,10 +10574,11 @@ function renderMyEventsContent(container) {
                             ${activeEvents.map(e => renderOrganizerEventItem(e, true)).join('')}
                         </div>
                     `}
-                    <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
-                        <button class="btn btn-primary" id="btn-create-event-modal" style="margin:0; background: #2563eb; border-color: #2563eb; color: #ffffff;">
-                            <i class="fa-solid fa-plus"></i> Neues Event erstellen
+                    <div style="display: flex; justify-content: center; margin-top: 1.5rem; flex-direction: column; align-items: center; gap: 0.5rem;">
+                        <button class="btn btn-primary" id="btn-create-event-modal" style="margin:0; background: ${isLimitReached ? '#64748b' : '#2563eb'}; border-color: ${isLimitReached ? '#64748b' : '#2563eb'}; color: #ffffff; ${isLimitReached ? 'cursor: not-allowed; opacity: 0.8;' : ''}">
+                            <i class="fa-solid fa-plus"></i> Neues Event erstellen ${isLimitReached ? '(200/200 erreicht)' : `(${allMyEvents.length}/200)`}
                         </button>
+                        ${isLimitReached ? `<span style="font-size: 0.8rem; color: var(--text-muted);">Maximal 200 Events pro Account möglich.</span>` : ''}
                     </div>
                 </div>
             </div>
@@ -10460,7 +10607,17 @@ function renderMyEventsContent(container) {
 
     const createBtn = document.getElementById('btn-create-event-modal');
     if (createBtn) {
-        createBtn.addEventListener('click', () => showEventModal(null));
+        createBtn.addEventListener('click', () => {
+            if (allMyEvents.length >= 200) {
+                showToast({
+                    title: "Limit erreicht ⚠️",
+                    message: "In deinem Veranstalter-Account können maximal 200 Events erstellt werden. Bitte beende oder lösche ein bestehendes Event.",
+                    type: "warning"
+                });
+                return;
+            }
+            showEventModal(null);
+        });
     }
 
     container.querySelectorAll('.btn-pause-my-event').forEach(btn => {
@@ -10479,6 +10636,14 @@ function renderMyEventsContent(container) {
 
     container.querySelectorAll('.btn-duplicate-my-event').forEach(btn => {
         btn.addEventListener('click', () => {
+            if (allMyEvents.length >= 200) {
+                showToast({
+                    title: "Limit erreicht ⚠️",
+                    message: "In deinem Veranstalter-Account können maximal 200 Events erstellt werden. Bitte beende oder lösche ein bestehendes Event.",
+                    type: "warning"
+                });
+                return;
+            }
             const id = btn.getAttribute('data-id');
             const event = state.events.find(e => e.id === id);
             if (event) {
@@ -10743,14 +10908,14 @@ function renderMyMusicianItem(m, isActive) {
                     <!-- Slides: Fotos -->
                     ${photos.map((img) => `
                         <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative;">
-                            <img src="${img}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="${img}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
                     `).join('')}
 
                     <!-- Slides: Nativ abspielbare HTML5 Videos -->
                     ${videoSources.map((vid, vIdx) => `
                         <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #000; display: flex; align-items: center; justify-content: center;">
-                            <video controls preload="metadata" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
+                            <video controls preload="none" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
                                 <source src="${vid.url}" type="video/mp4">
                                 Dein Browser unterstützt dieses Video nicht.
                             </video>
@@ -10766,7 +10931,7 @@ function renderMyMusicianItem(m, isActive) {
                             <span style="font-size: 0.82rem; font-weight: 700; color: #f8fafc; text-align: center; margin-bottom: 0.6rem; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
                                 Hörprobe: ${aud.title || 'Demo'}
                             </span>
-                            <audio controls preload="metadata" style="width: 85%; height: 32px; outline: none; border-radius: 8px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));" onclick="event.stopPropagation();">
+                            <audio controls preload="none" style="width: 85%; height: 32px; outline: none; border-radius: 8px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));" onclick="event.stopPropagation();">
                                 <source src="${aud.url}" type="audio/mp3">
                                 Dein Browser unterstützt diesen Audioplayer nicht.
                             </audio>
@@ -10874,6 +11039,7 @@ function renderMyMusiciansContent(container) {
     const allMyMusicians = state.musicians.filter(m => m.creatorId === u.id);
     const activeMusicians = allMyMusicians.filter(m => m.isActive !== false);
     const deactivatedMusicians = allMyMusicians.filter(m => m.isActive === false);
+    const isLimitReached = allMyMusicians.length >= 5;
 
     container.innerHTML = `
         <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;">
@@ -10894,10 +11060,11 @@ function renderMyMusiciansContent(container) {
                             ${activeMusicians.map(m => renderMyMusicianItem(m, true)).join('')}
                         </div>
                     `}
-                    <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
-                        <button class="btn btn-primary" id="btn-create-musician-modal" style="margin:0; background: #2563eb; border-color: #2563eb; color: #ffffff;">
-                            <i class="fa-solid fa-plus"></i> Profil hinzufügen
+                    <div style="display: flex; justify-content: center; margin-top: 1.5rem; flex-direction: column; align-items: center; gap: 0.5rem;">
+                        <button class="btn btn-primary" id="btn-create-musician-modal" style="margin:0; background: ${isLimitReached ? '#64748b' : '#2563eb'}; border-color: ${isLimitReached ? '#64748b' : '#2563eb'}; color: #ffffff; ${isLimitReached ? 'cursor: not-allowed; opacity: 0.8;' : ''}">
+                            <i class="fa-solid fa-plus"></i> Profil hinzufügen ${isLimitReached ? '(5/5 erreicht)' : `(${allMyMusicians.length}/5)`}
                         </button>
+                        ${isLimitReached ? `<span style="font-size: 0.8rem; color: var(--text-muted);">Maximal 5 Musiker-Profile pro Account möglich.</span>` : ''}
                     </div>
                 </div>
             </div>
@@ -10926,7 +11093,17 @@ function renderMyMusiciansContent(container) {
 
     const createBtn = document.getElementById('btn-create-musician-modal');
     if (createBtn) {
-        createBtn.addEventListener('click', () => showMusicianModal(null));
+        createBtn.addEventListener('click', () => {
+            if (allMyMusicians.length >= 5) {
+                showToast({
+                    title: "Limit erreicht ⚠️",
+                    message: "In deinem Musiker-Account können maximal 5 Musiker-Profile erstellt werden. Bitte lösche oder bearbeite ein bestehendes Profil.",
+                    type: "warning"
+                });
+                return;
+            }
+            showMusicianModal(null);
+        });
     }
 
     container.querySelectorAll('.btn-pause-my-musician').forEach(btn => {
@@ -10945,6 +11122,14 @@ function renderMyMusiciansContent(container) {
 
     container.querySelectorAll('.btn-duplicate-my-musician').forEach(btn => {
         btn.addEventListener('click', () => {
+            if (allMyMusicians.length >= 5) {
+                showToast({
+                    title: "Limit erreicht ⚠️",
+                    message: "In deinem Musiker-Account können maximal 5 Musiker-Profile erstellt werden. Bitte lösche oder bearbeite ein bestehendes Profil.",
+                    type: "warning"
+                });
+                return;
+            }
             const id = btn.getAttribute('data-id');
             const musician = state.musicians.find(m => m.id === id);
             if (musician) {
@@ -11762,9 +11947,24 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                 message: `Das Profil "${data.name}" wurde erfolgreich gespeichert.`
             });
         } else {
-            state.addMusician(data);
+            const currentMusiciansCount = (state.musicians || []).filter(m => m && m.creatorId === state.currentUser?.id).length;
+            if (currentMusiciansCount >= 5) {
+                showToast({
+                    title: "Limit erreicht ⚠️",
+                    message: "In deinem Musiker-Account können maximal 5 Musiker-Profile erstellt werden. Bitte lösche oder bearbeite ein bestehendes Profil.",
+                    type: "warning"
+                });
+                const saveBtn = form.querySelector('button[type="submit"]');
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = 'Profil veröffentlichen';
+                }
+                return;
+            }
+            const res = state.addMusician(data);
+            if (res && res.success === false) return;
             showToast({
-                title: "Musiker angelegt! ??",
+                title: "Musiker angelegt! 🎸",
                 message: `Das Profil "${data.name}" wurde erfolgreich veröffentlicht.`
             });
         }
@@ -12424,9 +12624,24 @@ function showEventModal(eventObj = null, isDuplication = false) {
                 message: `Das Event "${data.name}" wurde erfolgreich gespeichert.`
             });
         } else {
-            state.addEvent(data);
+            const currentEventsCount = (state.events || []).filter(e => e && e.creatorId === state.currentUser?.id).length;
+            if (currentEventsCount >= 200) {
+                showToast({
+                    title: "Limit erreicht ⚠️",
+                    message: "In deinem Veranstalter-Account können maximal 200 Events erstellt werden. Bitte beende oder lösche ein bestehendes Event.",
+                    type: "warning"
+                });
+                const saveBtn = form.querySelector('button[type="submit"]');
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = 'Event veröffentlichen';
+                }
+                return;
+            }
+            const res = state.addEvent(data);
+            if (res && res.success === false) return;
             showToast({
-                title: "Event erstellt! ??",
+                title: "Event erstellt! 📅",
                 message: `Das Event "${data.name}" wurde erfolgreich veröffentlicht.`
             });
         }
@@ -17988,14 +18203,14 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <!-- Slides: Fotos -->
                         ${photos.map((img) => `
                             <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative;">
-                                <img src="${img}" style="width: 100%; height: 100%; object-fit: cover;">
+                                <img src="${img}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
                         `).join('')}
 
                         <!-- Slides: Nativ abspielbare HTML5 Videos -->
                         ${videos.map((vid, vIdx) => `
                             <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #000; display: flex; align-items: center; justify-content: center;">
-                                <video controls preload="metadata" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
+                                <video controls preload="none" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
                                     <source src="${vid.url}" type="video/mp4">
                                     Dein Browser unterstützt dieses Video nicht.
                                 </video>
@@ -18011,7 +18226,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                                 <span style="font-size: 0.82rem; font-weight: 700; color: #f8fafc; text-align: center; margin-bottom: 0.6rem; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
                                     Hörprobe: ${aud.title || 'Demo'}
                                 </span>
-                                <audio controls preload="metadata" style="width: 85%; height: 32px; outline: none; border-radius: 8px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));" onclick="event.stopPropagation();">
+                                <audio controls preload="none" style="width: 85%; height: 32px; outline: none; border-radius: 8px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));" onclick="event.stopPropagation();">
                                     <source src="${aud.url}" type="audio/mp3">
                                     Dein Browser unterstützt diesen Audioplayer nicht.
                                 </audio>
