@@ -7540,7 +7540,7 @@ function renderMarket(container, type, onNavigate) {
         if (_filterDebounceTimer) clearTimeout(_filterDebounceTimer);
         _filterDebounceTimer = setTimeout(() => {
             applyAllFiltersAndSort(resetPagination, keepUnfilteredState);
-        }, 250);
+        }, 120);
     }
 
     function applyAllFiltersAndSort(resetPagination = true, keepUnfilteredState = false) {
@@ -8477,12 +8477,16 @@ function renderMarket(container, type, onNavigate) {
 
     // Tag pill checkbox click handler for filters
     container.querySelectorAll('.tag-pill-checkbox input').forEach(input => {
-        if (input.checked) {
-            input.parentElement.classList.add('active');
+        const tag = input.closest('.tag-pill-checkbox') || input.parentElement;
+        if (input.checked && tag) {
+            tag.classList.add('active');
         }
         input.addEventListener('change', (e) => {
             if (e.target.type === 'checkbox') {
-                e.target.parentElement.classList.toggle('active', e.target.checked);
+                const labelTag = e.target.closest('.tag-pill-checkbox') || e.target.parentElement;
+                if (labelTag) {
+                    labelTag.classList.toggle('active', e.target.checked);
+                }
                 const grid = e.target.closest('.checkbox-tag-grid');
                 if (grid) {
                     grid.dataset.interacted = "true";
@@ -18060,6 +18064,10 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
             };
 
             try {
+                localStorage.setItem('gigconnact_med_' + mediationId, JSON.stringify(mediationData));
+            } catch (cacheErr) {}
+
+            try {
                 await db.collection('mediations').doc(mediationId).set(mediationData);
             } catch (medErr) {
                 console.warn("Could not write mediation document directly (Cloud Function will create it):", medErr);
@@ -18086,7 +18094,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
             }
 
             closeModal();
-            showAgencySuccessModal(emailVal);
+            showAgencySuccessModal(emailVal, mediationId);
 
         } catch (err) {
             console.error("Agency request submission failed:", err);
@@ -18101,27 +18109,40 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
     });
 };
 
-function showAgencySuccessModal(email) {
+function showAgencySuccessModal(email, mediationId) {
     const overlay = document.createElement('div');
     overlay.className = 'custom-video-modal-overlay';
     overlay.style = "position:fixed; inset:0; background:rgba(15,23,42,0.4); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); padding:1rem;";
     
     overlay.innerHTML = `
-        <div style="width:100%; max-width:440px; background:#ffffff; border:1px solid #cbd5e1; border-radius:16px; padding:2.5rem 2rem; text-align:center; box-shadow:0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); position:relative; font-family:var(--font-heading); color:#0f172a;">
-            <div style="font-size:4rem; color:#10b981; margin-bottom:1.2rem; filter:drop-shadow(0 4px 6px rgba(16,185,129,0.25));">
+        <div style="width:100%; max-width:460px; background:#ffffff; border:1px solid #cbd5e1; border-radius:18px; padding:2.5rem 2rem; text-align:center; box-shadow:0 10px 30px -5px rgba(0,0,0,0.12), 0 8px 10px -6px rgba(0,0,0,0.1); position:relative; font-family:var(--font-heading); color:#0f172a;">
+            <div style="font-size:3.5rem; color:#10b981; margin-bottom:0.8rem; filter:drop-shadow(0 4px 6px rgba(16,185,129,0.25));">
                 <i class="fa-solid fa-circle-check"></i>
             </div>
-            <h3 style="font-size:1.4rem; color:#0f172a; margin-bottom:0.75rem; font-weight:800;">Anfrage gesendet! 🚀</h3>
-            <p style="font-size:0.9rem; color:#4b5563; line-height:1.55; margin-bottom:1.8rem; font-family:var(--font-body);">
-                Vielen Dank! Deine Vermittlungsanfrage ist bei uns eingegangen. Aufgrund der intelligenten GigConnAct Matching-Logik hast Du soeben bereits die ersten Musiker-Vorschläge an Deine E-Mail-Adresse erhalten. Bitte schau auch in Deinem Spam-Ordner nach.
+            <h3 style="font-size:1.4rem; color:#0f172a; margin-bottom:0.6rem; font-weight:800;">Anfrage erfolgreich gesendet! 🚀</h3>
+            <p style="font-size:0.92rem; color:#475569; line-height:1.55; margin-bottom:1.5rem; font-family:var(--font-body);">
+                Vielen Dank! Wir haben soeben <strong>5 passende Musiker</strong> für Dein Event ermittelt. Du kannst Dir die Vorschläge jetzt direkt ansehen oder über den Link in Deiner Bestätigungs-E-Mail (an <em>${email || 'Deine E-Mail'}</em>).
             </p>
-            <button id="btn-close-agency-success" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:800; border-radius:10px; background:linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important; border-color:#2563eb !important; color:#ffffff !important; margin:0; box-shadow:0 4px 14px rgba(37, 99, 235, 0.3) !important;">
-                Schließen
-            </button>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <button id="btn-view-recommendations-now" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:800; border-radius:10px; background:linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important; border-color:#2563eb !important; color:#ffffff !important; margin:0; box-shadow:0 4px 14px rgba(37, 99, 235, 0.3) !important; cursor:pointer;">
+                    🎵 Vorschläge jetzt ansehen
+                </button>
+                <button id="btn-close-agency-success" class="btn btn-secondary" style="width:100%; padding:0.75rem; font-size:0.9rem; font-weight:700; border-radius:10px; background:#f8fafc; border:1px solid #cbd5e1; color:#64748b; margin:0; cursor:pointer;">
+                    Später ansehen / Schließen
+                </button>
+            </div>
         </div>
     `;
     document.body.appendChild(overlay);
     
+    overlay.querySelector('#btn-view-recommendations-now').addEventListener('click', () => {
+        overlay.remove();
+        if (mediationId) {
+            window.location.hash = `#/recommendation/${mediationId}`;
+        }
+    });
+
     overlay.querySelector('#btn-close-agency-success').addEventListener('click', () => {
         overlay.remove();
     });
@@ -18631,9 +18652,11 @@ window.toggleAllFilterCheckboxes = function(element) {
     // Mark the grid as interacted
     grid.dataset.interacted = 'true';
     
-    // Apply filters and sort
+    // Apply filters and sort asynchronously so tag visuals render instantly without lag
     if (typeof window.marketApplyFilters === 'function') {
-        window.marketApplyFilters();
+        setTimeout(() => {
+            window.marketApplyFilters();
+        }, 10);
     }
 };
 
@@ -19828,7 +19851,27 @@ window.renderRecommendationPage = function(container, mediationId) {
     `;
 
     db.collection('mediations').doc(mediationId).get().then(async (doc) => {
-        if (!doc.exists) {
+        let med = doc.exists ? doc.data() : null;
+        if (!med) {
+            try {
+                const cached = localStorage.getItem('gigconnact_med_' + mediationId);
+                if (cached) med = JSON.parse(cached);
+            } catch (e) {}
+        }
+        if (!med && state.events) {
+            const matchEvt = state.events.find(e => e && e.favorites && e.id && (e.id.includes(mediationId.replace(/^med_/, '')) || e.isAgencyRequest));
+            if (matchEvt) {
+                med = {
+                    id: mediationId,
+                    eventName: matchEvt.name,
+                    eventDate: matchEvt.date,
+                    musicianIds: matchEvt.favorites || [],
+                    status: 'pending_selection'
+                };
+            }
+        }
+
+        if (!med) {
             container.innerHTML = `
                 <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
                     <i class="fa-solid fa-circle-exclamation" style="font-size: 3rem; color: var(--color-orange); margin-bottom: 1rem;"></i>
@@ -19839,7 +19882,7 @@ window.renderRecommendationPage = function(container, mediationId) {
             return;
         }
 
-        const med = doc.data();
+        const medData = med;
         
         if (med.status === 'completed') {
             container.innerHTML = `
@@ -19875,7 +19918,7 @@ window.renderRecommendationPage = function(container, mediationId) {
                 const eventDoc = await db.collection('events').doc(med.eventId).get();
                 if (eventDoc.exists) {
                     mediationEvent = { id: eventDoc.id, ...eventDoc.data() };
-                    if (Array.isArray(mediationEvent.favorites)) {
+                    if (Array.isArray(mediationEvent.favorites) && mediationEvent.favorites.length > 0) {
                         musicianIds = mediationEvent.favorites;
                     }
                 }
@@ -19884,13 +19927,35 @@ window.renderRecommendationPage = function(container, mediationId) {
             }
         }
 
-        // Fetch musician documents
+        // Fetch musician documents with fallback to state.musicians and initialMusicians
         const musicians = [];
         for (const id of musicianIds) {
-            const musDoc = await db.collection('musicians').doc(id).get();
-            if (musDoc.exists) {
-                musicians.push({ id: musDoc.id, ...musDoc.data() });
+            let musData = null;
+            try {
+                const musDoc = await db.collection('musicians').doc(id).get();
+                if (musDoc.exists) {
+                    musData = { id: musDoc.id, ...musDoc.data() };
+                }
+            } catch (fetchErr) {
+                console.warn("Could not fetch musician doc from Firestore:", fetchErr);
             }
+            if (!musData && state && state.musicians) {
+                const localMus = state.musicians.find(m => m && m.id === id);
+                if (localMus) musData = { ...localMus };
+            }
+            if (!musData && typeof initialMusicians !== 'undefined') {
+                const initMus = initialMusicians.find(m => m && m.id === id);
+                if (initMus) musData = { ...initMus };
+            }
+            if (musData) {
+                musicians.push(musData);
+            }
+        }
+
+        // Fallback: If still no musicians found, provide top active musicians from state
+        if (musicians.length === 0 && state && state.musicians && state.musicians.length > 0) {
+            const fallbackMus = state.musicians.filter(m => m.isActive !== false).slice(0, 5);
+            musicians.push(...fallbackMus);
         }
 
         container.innerHTML = `

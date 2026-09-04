@@ -3071,8 +3071,10 @@ body {
     font-size: 0.78rem;
     font-weight: 500;
     color: var(--text-main);
-    transition: all 0.2s ease;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
     max-width: 100%;
     box-sizing: border-box;
 }
@@ -3081,6 +3083,7 @@ body {
     white-space: normal;
     word-break: break-word;
     text-align: center;
+    pointer-events: none;
 }
 
 .tag-pill-checkbox input[type="checkbox"],
