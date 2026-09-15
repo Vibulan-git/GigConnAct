@@ -4788,6 +4788,50 @@ input[type="range"].input-field {
     color: #ffffff !important;
 }
 
+/* Top Matches Controls Row */
+.matches-controls-row {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.2rem 0.2rem 0.8rem !important;
+    margin-bottom: 1.2rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.matches-select-wrapper {
+    transition: all 0.2s ease;
+}
+
+.matches-select-wrapper:hover {
+    background: rgba(255, 255, 255, 0.14) !important;
+    border-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.matches-select-wrapper select option {
+    background: #1e1b4b !important;
+    color: #ffffff !important;
+}
+
+@media (max-width: 767px) {
+    .matches-controls-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.8rem !important;
+    }
+    .matches-controls-row > div:last-child {
+        margin-left: 0 !important;
+        width: 100% !important;
+        justify-content: flex-start !important;
+    }
+}
+
 /* Feedback button header styles */
 .feedback-trigger-btn {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

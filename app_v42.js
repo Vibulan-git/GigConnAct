@@ -7733,6 +7733,9 @@ function renderMarket(container, type, onNavigate) {
     }
 
     function applyAllFiltersAndSort(resetPagination = true, keepUnfilteredState = false) {
+        if (!container || !container.querySelector('#market-items-grid')) {
+            return;
+        }
         if (!keepUnfilteredState) {
             showMoreMatchesUnfiltered = false;
         }
@@ -8930,7 +8933,7 @@ function renderMarket(container, type, onNavigate) {
     if (!hasProfile) {
         let hasTriggeredLateProfile = false;
         const unsubscribeProfile = state.subscribe(() => {
-            if (!document.body.contains(container) || hasTriggeredLateProfile) {
+            if (!document.body.contains(container) || !container.querySelector('#market-items-grid') || hasTriggeredLateProfile) {
                 unsubscribeProfile();
                 return;
             }
@@ -8947,7 +8950,8 @@ function renderMarket(container, type, onNavigate) {
 
     let marketUpdateTimer = null;
     const unsubscribeMarket = state.subscribe(() => {
-        if (!document.body.contains(container)) {
+        if (!document.body.contains(container) || !container.querySelector('#market-items-grid')) {
+            if (marketUpdateTimer) clearTimeout(marketUpdateTimer);
             unsubscribeMarket();
             return;
         }
@@ -10355,12 +10359,12 @@ function renderMatchesPage(container) {
         let profiles = [];
         const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
         if (isMusician) {
-            profiles = state.musicians.filter(m => m.creatorId === u.id);
+            profiles = (state.musicians || []).filter(m => m && m.creatorId === u.id);
         } else {
-            profiles = state.events.filter(e => 
+            profiles = (state.events || []).filter(e => e && (
                 e.creatorId === u.id || 
                 (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
-            );
+            ));
         }
         
         let selectedId = isMusician ? state.activeMusicianId : state.activeEventId;
@@ -10370,233 +10374,240 @@ function renderMatchesPage(container) {
             else state.activeEventId = selectedId;
         }
         
-        const selectOptionsHtml = profiles.map(p => `<option value="${p.id}" ${p.id === selectedId ? 'selected' : ''}>${p.name}</option>`).join('');
-        
-        const isOrganizer = u.role === 'organizer';
-        const creditsValue = isOrganizer ? 'Gratis' : (u.isPremium ? '∞' : u.credits);
-        const billingMode = isOrganizer ? 'Kostenlos' : (u.isPremium ? 'Flatrate' : 'Inaktiv');
-        const unlockedCount = isOrganizer ? 'Unbegrenzt' : (u.isPremium ? 'Flatrate' : (u.unlockedContacts || []).length);
+        const selectOptionsHtml = profiles.map(p => {
+            const pName = p.name || p.title || p.stageName || p.contactName || 'Profil';
+            return `<option value="${p.id}" ${p.id === selectedId ? 'selected' : ''} style="background: #1e1b4b; color: #ffffff;">${pName}</option>`;
+        }).join('');
 
         container.innerHTML = `
-            <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;">
-                <div class="profile-section-card" style="margin-bottom:0;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border-bottom: 1px solid var(--border-glass); padding-bottom:1rem; margin-bottom:1rem;">
-                        <h3 style="margin:0;"><i class="fa-solid fa-star text-cyan"></i> Top-Matches</h3>
-                        <div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
-                            ${profiles.length > 1 ? `
-                                <div style="display:flex; align-items:center; gap:0.5rem;">
-                                    <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin:0;">Profil:</label>
-                                    <select id="select-profile" class="input-field" style="width:180px; padding:0.4rem 0.8rem; font-size:0.8rem; height:34px; margin:0;">
-                                        ${selectOptionsHtml}
-                                    </select>
-                                </div>
-                            ` : `
-                                <input type="hidden" id="select-profile" value="${selectedId || ''}">
-                            `}
-                            <div style="display:flex; align-items:center; gap:0.5rem;">
-                                <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin:0;">Sortierung:</label>
-                                <select id="select-sort" class="input-field" style="width:160px; padding:0.4rem 0.8rem; font-size:0.8rem; height:34px; margin:0;">
-                                    <option value="match" selected>Match-Faktor</option>
-                                    <option value="newest">Neueste zuerst</option>
-                                    <option value="price-asc">Gage (aufsteigend)</option>
-                                    <option value="price-desc">Gage (absteigend)</option>
-                                    <option value="name">Name (A-Z)</option>
+            <div class="market-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0.5rem 5rem; box-sizing: border-box;">
+                
+                <!-- Controls Row: Left = Title & Count, Right = Profile Switcher & Sort -->
+                <div class="matches-controls-row" style="background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; padding: 0.2rem 0.2rem; width: 100%; box-sizing: border-box;">
+                    
+                    <!-- Left: Star & Title & Count -->
+                    <div style="display: flex; align-items: baseline; gap: 0.5rem; flex-shrink: 0;">
+                        <i class="fa-solid fa-star" style="color: #eab308; font-size: 1.25rem; transform: translateY(1px);"></i>
+                        <h2 style="margin: 0; font-family: var(--font-heading); font-size: 1.45rem; font-weight: 900; color: #ffffff; line-height: 1; letter-spacing: -0.5px;">
+                            Top-Matches
+                        </h2>
+                        <span style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.75); white-space: nowrap;">
+                            (<span id="top-matches-count">0</span>)
+                        </span>
+                    </div>
+
+                    <!-- Right: Profile Dropdown (if multiple) & Sort Dropdown -->
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-left: auto;">
+                        ${profiles.length > 1 ? `
+                            <div class="matches-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.22); border-radius: 12px; padding: 0.35rem 0.8rem; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+                                <i class="${isMusician ? 'fa-solid fa-guitar' : 'fa-solid fa-calendar-day'}" style="color: rgba(255, 255, 255, 0.8); font-size: 0.85rem;"></i>
+                                <label for="select-profile" style="font-size: 0.82rem; font-weight: 700; color: rgba(255, 255, 255, 0.8); margin: 0; white-space: nowrap;">Profil:</label>
+                                <select id="select-profile" style="background: transparent; border: none; color: #ffffff; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; outline: none; cursor: pointer; padding: 0.1rem 0; max-width: 170px;">
+                                    ${selectOptionsHtml}
                                 </select>
                             </div>
+                        ` : `
+                            <input type="hidden" id="select-profile" value="${selectedId || ''}">
+                        `}
+
+                        <div class="matches-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.22); border-radius: 12px; padding: 0.35rem 0.8rem; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+                            <i class="fa-solid fa-arrow-down-short-wide" style="color: rgba(255, 255, 255, 0.8); font-size: 0.85rem;"></i>
+                            <label for="select-sort" style="font-size: 0.82rem; font-weight: 700; color: rgba(255, 255, 255, 0.8); margin: 0; white-space: nowrap;">Sortierung:</label>
+                            <select id="select-sort" style="background: transparent; border: none; color: #ffffff; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; outline: none; cursor: pointer; padding: 0.1rem 0;">
+                                <option value="match" style="background: #1e1b4b; color: #ffffff;" selected>Match-Faktor</option>
+                                <option value="newest" style="background: #1e1b4b; color: #ffffff;">Neueste zuerst</option>
+                                <option value="price-asc" style="background: #1e1b4b; color: #ffffff;">Gage (aufsteigend)</option>
+                                <option value="price-desc" style="background: #1e1b4b; color: #ffffff;">Gage (absteigend)</option>
+                                <option value="name" style="background: #1e1b4b; color: #ffffff;">Name (A-Z)</option>
+                            </select>
                         </div>
                     </div>
-                    
-                    ${selectedId ? `
-                        <div style="display:flex; align-items:center; gap:2rem; flex-wrap:wrap; margin-top:0.8rem;">
-                            <div style="flex:1; display:grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap:1rem;">
-                                <div style="background:rgba(56,239,125,0.02); border:1px solid rgba(56,239,125,0.15); padding:0.6rem 0.8rem; border-radius:var(--radius-md);">
-                                    <div style="font-size:0.65rem; color:var(--color-green); text-transform:uppercase; font-weight:700; margin-bottom:0.15rem;">Kontaktdaten</div>
-                                    <div id="stats-unlocked-contacts" style="font-size:1.3rem; font-weight:700; color:var(--color-green);">${unlockedCount}</div>
-                                </div>
-                                <div style="background:rgba(124,58,237,0.02); border:1px solid rgba(124,58,237,0.15); padding:0.6rem 0.8rem; border-radius:var(--radius-md);">
-                                    <div style="font-size:0.65rem; color:var(--color-purple); text-transform:uppercase; font-weight:700; margin-bottom:0.15rem;">Top Matches (>=70%)</div>
-                                    <div id="stats-top-matches-count" style="font-size:1.3rem; font-weight:700; color:var(--color-purple);">0</div>
-                                </div>
-                            </div>
-                        </div>
-                    ` : ''}
                 </div>
 
+                <!-- Matches Grid or Empty State -->
                 ${!selectedId ? `
-                    <div class="profile-section-card" style="text-align:center; padding:3rem 1.5rem;">
-                        <i class="fa-solid fa-guitar" style="font-size:3rem; color:var(--border-glass); margin-bottom:1rem;"></i>
+                    <div class="profile-section-card" style="text-align: center; padding: 3rem 1.5rem; margin-top: 1rem;">
+                        <i class="fa-solid fa-guitar" style="font-size: 3rem; color: var(--border-glass); margin-bottom: 1rem;"></i>
                         <h4>Erstelle zuerst ein Profil</h4>
-                        <p style="color:var(--text-muted); max-width:400px; margin:0.5rem auto 1.5rem;">Um Matches und passende Partner zu sehen, musst du mindestens eine Ausschreibung oder ein Musiker-Profil aktiv haben.</p>
-                        <button class="btn btn-primary" id="btn-create-profile-matches" style="margin:0;">
+                        <p style="color: var(--text-muted); max-width: 400px; margin: 0.5rem auto 1.5rem;">Um Matches und passende Partner zu sehen, musst du mindestens eine Ausschreibung oder ein Musiker-Profil aktiv haben.</p>
+                        <button class="btn btn-primary" id="btn-create-profile-matches" style="margin: 0;">
                             <i class="fa-solid fa-plus"></i> Profil erstellen
                         </button>
                     </div>
                 ` : `
-                    <div class="profile-section-card">
-                        <h4 style="margin:0 0 1rem; font-family:var(--font-heading); font-size:1.1rem; border-bottom:1px solid var(--border-glass); padding-bottom:0.6rem; text-align:left;">
-                            <i class="fa-solid fa-star text-cyan"></i> Top Matches (<span id="top-matches-count">0</span>)
-                        </h4>
-                        <div id="top-matches-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
-                        </div>
+                    <div id="top-matches-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; width: 100%;">
                     </div>
                 `}
-        </div>
-    `;
+            </div>
+        `;
 
-    const createProfileBtn = document.getElementById('btn-create-profile-matches');
-    if (createProfileBtn) {
-        createProfileBtn.addEventListener('click', () => {
-            navigate(isMusician ? 'my-musicians' : 'my-events');
-        });
-    }
-
-    const selectProfile = document.getElementById('select-profile');
-    const selectSort = document.getElementById('select-sort');
-    const topGrid = document.getElementById('top-matches-grid');
-
-    if (!selectedId) return;
-
-    const updateMatches = () => {
-        const activeId = selectProfile ? selectProfile.value : '';
-        if (!activeId) return;
-        
-        if (isMusician) state.activeMusicianId = activeId;
-        else state.activeEventId = activeId;
-
-        const myProfile = isMusician 
-            ? state.musicians.find(m => m.id === activeId)
-            : state.events.find(e => e.id === activeId);
-
-        if (!myProfile) return;
-
-        const candidates = isMusician 
-            ? state.events.filter(e => isEventActive(e))
-            : state.musicians.filter(m => m.isActive !== false);
-
-        const candidatesWithMatches = candidates.map(item => {
-            const match = isMusician ? calculateMatch(myProfile, item, 'musician') : calculateMatch(item, myProfile, 'organizer');
-            return { item, match };
-        });
-
-        const topMatches = candidatesWithMatches.filter(cand => cand.match.score >= 70 || (targetId && cand.item.id === targetId));
-
-        const sortVal = selectSort?.value || 'match';
-        topMatches.sort((a, b) => {
-            if (sortVal === 'match') {
-                return b.match.score - a.match.score;
-            }
-            if (sortVal === 'newest') {
-                const dateA = a.item.createdAt ? new Date(a.item.createdAt) : new Date(0);
-                const dateB = b.item.createdAt ? new Date(b.item.createdAt) : new Date(0);
-                return dateB - dateA;
-            }
-            if (sortVal === 'price-asc') {
-                const valA = a.item.minBudget !== undefined ? a.item.minBudget : (a.item.budget || 0);
-                const valB = b.item.minBudget !== undefined ? b.item.minBudget : (b.item.budget || 0);
-                return valA - valB;
-            }
-            if (sortVal === 'price-desc') {
-                const valA = a.item.minBudget !== undefined ? a.item.minBudget : (a.item.budget || 0);
-                const valB = b.item.minBudget !== undefined ? b.item.minBudget : (b.item.budget || 0);
-                return valB - valA;
-            }
-            if (sortVal === 'name') {
-                const nameA = a.item.name || a.item.title || '';
-                const nameB = b.item.name || b.item.title || '';
-                return nameA.localeCompare(nameB);
-            }
-            return 0;
-        });
-
-        if (targetId) {
-            const targetIndex = topMatches.findIndex(cand => cand.item && cand.item.id === targetId);
-            if (targetIndex > -1) {
-                const targetCand = topMatches[targetIndex];
-                topMatches.splice(targetIndex, 1);
-                topMatches.unshift(targetCand);
-            }
+        const createProfileBtn = document.getElementById('btn-create-profile-matches');
+        if (createProfileBtn) {
+            createProfileBtn.addEventListener('click', () => {
+                navigate(isMusician ? 'my-musicians' : 'my-events');
+            });
         }
 
-        if (document.getElementById('top-matches-count')) {
-            document.getElementById('top-matches-count').textContent = topMatches.length;
-        }
-        if (document.getElementById('stats-top-matches-count')) {
-            document.getElementById('stats-top-matches-count').textContent = topMatches.length;
-        }
+        const selectProfile = document.getElementById('select-profile');
+        const selectSort = document.getElementById('select-sort');
+        const topGrid = document.getElementById('top-matches-grid');
 
-        if (topGrid) {
-            if (topMatches.length === 0) {
-                topGrid.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass); width: 100%;">
-                        <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
-                        <h3 style="margin-bottom: 0.5rem; color: var(--text-main);">Keine Ergebnisse gefunden</h3>
-                        <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0 auto; max-width: 400px;">Keine passenden Top-Matches gefunden (Matching-Faktor >= 70 %).</p>
-                    </div>
-                `;
-            } else {
-                const isEventMarket = isMusician;
-                const items = topMatches.map(cand => {
-                    cand.item.matchScore = cand.match.score;
-                    return cand.item;
-                });
-                topGrid.innerHTML = renderMarketGridHTML(items, isEventMarket);
+        if (!selectedId) return;
 
-                if (targetId) {
-                    setTimeout(() => {
-                        try {
-                            const card = document.getElementById(`collapsible-details-${targetId}`);
-                            if (card) {
-                                // Scroll it into view
-                                const tileCard = card.closest('.market-tile-card');
-                                if (tileCard) {
-                                    try {
-                                        tileCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                    } catch (scrollErr) {
-                                        try {
-                                            tileCard.scrollIntoView();
-                                        } catch (scrollErr2) {}
-                                    }
-                                    // Highlight effect (glow)
-                                    tileCard.style.outline = '3px solid var(--color-purple)';
-                                    tileCard.style.outlineOffset = '4px';
-                                    tileCard.style.borderRadius = '16px';
-                                    setTimeout(() => {
-                                        tileCard.style.transition = 'outline 1.5s ease-out';
-                                        tileCard.style.outline = '3px solid transparent';
-                                    }, 3000);
-                                }
-                            }
-                        } catch (cardErr) {
-                            console.error("Failed to scroll target match into view:", cardErr);
-                        }
-                    }, 300);
+        const updateMatches = () => {
+            const activeId = selectProfile ? selectProfile.value : (isMusician ? state.activeMusicianId : state.activeEventId);
+            if (!activeId) return;
+            
+            if (isMusician) state.activeMusicianId = activeId;
+            else state.activeEventId = activeId;
+
+            const myProfile = isMusician 
+                ? (state.musicians || []).find(m => m && m.id === activeId)
+                : (state.events || []).find(e => e && e.id === activeId);
+
+            if (!myProfile) return;
+
+            const candidates = isMusician 
+                ? (state.events || []).filter(e => isEventActive(e))
+                : (state.musicians || []).filter(m => m && m.isActive !== false);
+
+            const candidatesWithMatches = candidates.map(item => {
+                let match = { score: 0 };
+                try {
+                    match = isMusician ? calculateMatch(myProfile, item, 'musician') : calculateMatch(item, myProfile, 'organizer');
+                } catch (calcErr) {
+                    console.error("Match calculation error:", calcErr);
+                }
+                return { item, match: match || { score: 0 } };
+            });
+
+            const topMatches = candidatesWithMatches.filter(cand => cand && cand.match && (cand.match.score >= 70 || (targetId && cand.item && cand.item.id === targetId)));
+
+            const sortVal = selectSort?.value || 'match';
+            topMatches.sort((a, b) => {
+                if (sortVal === 'match') {
+                    return (b.match?.score || 0) - (a.match?.score || 0);
+                }
+                if (sortVal === 'newest') {
+                    const dateA = a.item?.createdAt ? new Date(a.item.createdAt) : new Date(0);
+                    const dateB = b.item?.createdAt ? new Date(b.item.createdAt) : new Date(0);
+                    return dateB - dateA;
+                }
+                if (sortVal === 'price-asc') {
+                    const valA = a.item?.minBudget !== undefined ? a.item.minBudget : (a.item?.budget || 0);
+                    const valB = b.item?.minBudget !== undefined ? b.item.minBudget : (b.item?.budget || 0);
+                    return valA - valB;
+                }
+                if (sortVal === 'price-desc') {
+                    const valA = a.item?.minBudget !== undefined ? a.item.minBudget : (a.item?.budget || 0);
+                    const valB = b.item?.minBudget !== undefined ? b.item.minBudget : (b.item?.budget || 0);
+                    return valB - valA;
+                }
+                if (sortVal === 'name') {
+                    const nameA = a.item?.name || a.item?.title || '';
+                    const nameB = b.item?.name || b.item?.title || '';
+                    return nameA.localeCompare(nameB);
+                }
+                return 0;
+            });
+
+            if (targetId) {
+                const targetIndex = topMatches.findIndex(cand => cand.item && cand.item.id === targetId);
+                if (targetIndex > -1) {
+                    const targetCand = topMatches[targetIndex];
+                    topMatches.splice(targetIndex, 1);
+                    topMatches.unshift(targetCand);
                 }
             }
-        }
-    };
 
-    if (selectProfile) {
-        selectProfile.addEventListener('change', function() {
-            const val = this.value;
-            if (val) {
-                if (isMusician) state.activeMusicianId = val;
-                else state.activeEventId = val;
-                state.notify();
+            const countEl = document.getElementById('top-matches-count');
+            if (countEl) {
+                countEl.textContent = topMatches.length;
             }
-        });
-    }
-    if (selectSort) {
-        selectSort.addEventListener('change', updateMatches);
-    }
-    window.matchesUpdate = updateMatches;
-    updateMatches();
 
-    const marketBtn = document.getElementById('btn-goto-market-from-matches');
-    if (marketBtn) {
-        marketBtn.addEventListener('click', () => {
-            navigate(isMusician ? 'events' : 'musicians');
-        });
-    }
+            if (topGrid) {
+                if (topMatches.length === 0) {
+                    topGrid.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass); width: 100%;">
+                            <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                            <h3 style="margin-bottom: 0.5rem; color: var(--text-main);">Keine Ergebnisse gefunden</h3>
+                            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0 auto; max-width: 400px;">Keine passenden Top-Matches gefunden (Matching-Faktor >= 70 %).</p>
+                        </div>
+                    `;
+                } else {
+                    const isEventMarket = isMusician;
+                    const items = topMatches.map(cand => {
+                        if (cand.item) {
+                            cand.item.matchScore = cand.match?.score || 0;
+                        }
+                        return cand.item;
+                    }).filter(Boolean);
+                    topGrid.innerHTML = renderMarketGridHTML(items, isEventMarket);
+
+                    if (targetId) {
+                        setTimeout(() => {
+                            try {
+                                const card = document.getElementById(`collapsible-details-${targetId}`);
+                                if (card) {
+                                    // Scroll it into view
+                                    const tileCard = card.closest('.market-tile-card');
+                                    if (tileCard) {
+                                        try {
+                                            tileCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        } catch (scrollErr) {
+                                            try {
+                                                tileCard.scrollIntoView();
+                                            } catch (scrollErr2) {}
+                                        }
+                                        // Highlight effect (glow)
+                                        tileCard.style.outline = '3px solid var(--color-purple)';
+                                        tileCard.style.outlineOffset = '4px';
+                                        tileCard.style.borderRadius = '16px';
+                                        setTimeout(() => {
+                                            tileCard.style.transition = 'outline 1.5s ease-out';
+                                            tileCard.style.outline = '3px solid transparent';
+                                        }, 3000);
+                                    }
+                                }
+                            } catch (cardErr) {
+                                console.error("Failed to scroll target match into view:", cardErr);
+                            }
+                        }, 300);
+                    }
+                }
+            }
+        };
+
+        if (selectProfile) {
+            selectProfile.addEventListener('change', function() {
+                const val = this.value;
+                if (val) {
+                    if (isMusician) state.activeMusicianId = val;
+                    else state.activeEventId = val;
+                    state.saveState();
+
+                    // Sync navbar profile selector if present
+                    const navSelect = document.getElementById('navbar-profile-select');
+                    if (navSelect && navSelect.value !== val) {
+                        navSelect.value = val;
+                    }
+
+                    updateMatches();
+                }
+            });
+        }
+        if (selectSort) {
+            selectSort.addEventListener('change', updateMatches);
+        }
+        window.matchesUpdate = updateMatches;
+        updateMatches();
+
+        const marketBtn = document.getElementById('btn-goto-market-from-matches');
+        if (marketBtn) {
+            marketBtn.addEventListener('click', () => {
+                navigate(isMusician ? 'events' : 'musicians');
+            });
+        }
     } catch (matchesErr) {
         console.error("Error inside renderMatchesPage:", matchesErr);
     }
@@ -16497,6 +16508,20 @@ function updateNavbar(forceLanding) {
                     state.activeMusicianId = val;
                 } else {
                     state.activeEventId = val;
+                }
+                state.saveState();
+
+                // If currently on matches page, update matches select and trigger update directly
+                const currentHash = window.location.hash || '';
+                if (currentHash.startsWith('#/matches') || currentHash.startsWith('#matches') || currentHash.startsWith('#/top-matches') || currentHash.startsWith('#top-matches')) {
+                    const pageProfileSelect = document.getElementById('select-profile');
+                    if (pageProfileSelect && pageProfileSelect.value !== val) {
+                        pageProfileSelect.value = val;
+                    }
+                    if (typeof window.matchesUpdate === 'function') {
+                        window.matchesUpdate();
+                        return;
+                    }
                 }
                 state.notify();
             });
