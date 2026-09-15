@@ -6310,38 +6310,23 @@ function renderLandingPage(container, onNavigate) {
                 <!-- Atmospheric dark overlay gradient with stage lighting transparency -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 50% 40%, rgba(13, 16, 32, 0.45) 0%, rgba(10, 11, 22, 0.75) 100%), linear-gradient(180deg, rgba(7, 8, 16, 0.55) 0%, rgba(12, 10, 26, 0.25) 35%, rgba(10, 11, 24, 0.65) 70%, rgba(6, 7, 14, 0.92) 100%); z-index: 2;"></div>
 
-                <!-- Upper Group: Logo and Slogan (flush with 540px CTA buttons, positioned lower in hero) -->
-                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.7rem, 2vh, 1.4rem); width: 100%; max-width: 540px; margin-top: clamp(3.2rem, 8.5vh, 5.8rem); margin-bottom: clamp(0.7rem, 1.8vh, 1.3rem); box-sizing: border-box;">
-                    
-                    <!-- 1/4: Logo (fills full width of 540px container, discoball + GigConnAct, unclipping g descender) -->
-                    <div class="brand-logo-center" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin: 0 auto; padding: 0.15rem 0; overflow: visible; box-sizing: border-box;">
-                        <!-- Large PNG Disco Ball (nested wrapper to keep entry animations, but static without rotation) -->
-                        <div class="${logoClass}" style="width: clamp(3.4rem, 9vw, 5rem); height: clamp(3.4rem, 9vw, 5rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible;">
-                            <img src="discoball.png" style="width: 100%; height: 100%; object-fit: contain; opacity: 1; pointer-events: none;">
-                        </div>
-                        <div class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(3rem, 8.5vw, 5rem); font-weight: 900; letter-spacing: -2px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.18; padding-bottom: 0.12em; padding-top: 0.05em; overflow: visible;">
-                            GigConnAct
-                        </div>
-                    </div>
-
-                    <!-- 2/4: Slogan -->
-                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.25rem; width: 100%; margin: 0 auto; box-sizing: border-box;">
-                        <span style="font-family: var(--font-heading); font-size: clamp(1.7rem, 5.5vw, 3.1rem); font-weight: 900; letter-spacing: -0.2px; color: #ffffff; line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.6);">
-                            Die Vermittlungsplattform
-                        </span>
-                        <span style="font-family: var(--font-heading); font-size: clamp(3rem, 9.8vw, 5.6rem); font-weight: 900; letter-spacing: 0.5px; color: #ffffff; line-height: 1.1; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.6);">
-                            für Live-Musik
-                        </span>
-                    </div>
+                <!-- 1/3: Slogan (Elevated higher in hero) -->
+                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.2rem, 0.8vh, 0.5rem); width: 100%; max-width: 600px; margin-top: clamp(2.4rem, 6.5vh, 4.2rem); margin-bottom: clamp(0.8rem, 2vh, 1.4rem); box-sizing: border-box;">
+                    <span style="font-family: var(--font-heading); font-size: clamp(1.8rem, 5.8vw, 3.4rem); font-weight: 900; letter-spacing: -0.2px; color: #ffffff; line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.6);">
+                        Die Vermittlungsplattform
+                    </span>
+                    <span style="font-family: var(--font-heading); font-size: clamp(3.2rem, 10vw, 5.8rem); font-weight: 900; letter-spacing: 0.5px; color: #ffffff; line-height: 1.1; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.6);">
+                        für Live-Musik
+                    </span>
                 </div>
 
-                <!-- 3/4: CTA Buttons (anchored closer below slogan, positioned higher in hero) -->
-                <div class="hero-cta-buttons" id="hero-cta-container" style="position: relative; z-index: 3; margin: 0 auto clamp(0.8rem, 1.8vh, 1.4rem); width: 100%; max-width: 540px; box-sizing: border-box; display: flex; justify-content: center;">
+                <!-- 2/3: CTA Buttons (Positioned directly below slogan) -->
+                <div class="hero-cta-buttons" id="hero-cta-container" style="position: relative; z-index: 3; margin: 0 auto clamp(0.8rem, 2vh, 1.4rem); width: 100%; max-width: 540px; box-sizing: border-box; display: flex; justify-content: center;">
                     ${window.getHeroCtaHTML('initial')}
                 </div>
 
-                <!-- 4/4: Infinite Scrolling Category Marquee (anchored lower in hero above legal bar) -->
-                <div class="logo-marquee-wrapper" style="position: relative; z-index: 3; margin: auto auto clamp(0.6rem, 1.6vh, 1.2rem); width: 100%; max-width: 780px; padding: 0.5rem 0.8rem; box-sizing: border-box; mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);">
+                <!-- 3/3: Infinite Scrolling Category Marquee (Elevated higher directly below CTA buttons) -->
+                <div class="logo-marquee-wrapper" style="position: relative; z-index: 3; margin: 0 auto clamp(1rem, 2.5vh, 2rem); width: 100%; max-width: 780px; padding: 0.5rem 0.8rem; box-sizing: border-box; mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);">
                     <div class="logo-marquee-track" style="animation-duration: 34s; gap: 1.2rem;">
                         <!-- Set 1 -->
                         <span class="marquee-item-glass"><i class="fa-solid fa-ring" style="color: #c084fc;"></i> Hochzeiten</span>
@@ -7160,32 +7145,27 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0px 5rem; box-sizing: border-box;">
             
-            <div class="market-controls-row" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: 2px solid rgba(196, 181, 253, 0.45) !important; box-shadow: 0 8px 25px rgba(124, 58, 237, 0.35) !important; color: #ffffff !important; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0px; -webkit-overflow-scrolling: touch;">
+            <div class="market-controls-row" style="background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.2rem 0.6rem; width: 100%; box-sizing: border-box;">
                 
-                <!-- 1. Trefferanzahl (Links mit Abstand zur Kante, ohne Hintergrund-Kreis) -->
-                <div style="display: flex; align-items: center; gap: 0.45rem; flex-shrink: 0; margin-left: 0.85rem; padding: 0.35rem 0; cursor: pointer;" onclick="document.getElementById('btn-toggle-mobile-filters')?.click();" title="Filter öffnen">
-                    <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 900; color: #ffffff; text-align: center; white-space: nowrap; margin: 0; line-height: 1.2;">
+                <!-- 1. Trefferanzahl -->
+                <div style="display: flex; align-items: baseline; gap: 0.5rem; flex-shrink: 0; cursor: pointer;" onclick="document.getElementById('btn-toggle-mobile-filters')?.click();" title="Filter öffnen">
+                    <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.45rem; font-weight: 900; color: #ffffff; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
                         ${getItems().length}
                     </div>
-                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: rgba(255,255,255,0.9); white-space: nowrap; letter-spacing: -0.3px; line-height: 1.1; vertical-align: middle;">
+                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.75); white-space: nowrap; letter-spacing: -0.2px;">
                         ${isEvents ? 'Events' : 'Musiker'}
                     </span>
                 </div>
 
-                <!-- 2. Filter (Rechts) -->
-                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0 0 0 auto; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; flex-shrink: 0; cursor: pointer;" title="Filter öffnen">
-                    <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 1.05rem; margin: 0; transition: color 0.3s ease;"></i>
+                <!-- 2. Filter-Symbol + "Filter" -->
+                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0 0 0 auto; display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.45rem 1.05rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; cursor: pointer; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.22); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s;" title="Filter öffnen">
+                    <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; transition: color 0.3s ease;"></i>
+                    <span>Filter</span>
                 </button>
  
-                <!-- 3. Stern (Nur Top-Matches anzeigen) -->
-                <button class="market-control-toggle" id="btn-toggle-market-top-matches" style="margin: 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Top-Matches anzeigen">
-                    <i class="fa-solid fa-star" style="font-size: 1.05rem; margin: 0;"></i>
-                </button>
-
-                <!-- 4. Herz (Nur Favoriten anzeigen) -->
-                <button class="market-control-toggle" id="btn-toggle-market-favorites" style="margin: 0 0.85rem 0 0; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; padding: 0; border-radius: 50%; cursor: pointer; transition: all 0.3s; flex-shrink: 0;" title="Nur Favoriten anzeigen">
-                    <i class="fa-solid fa-heart" style="font-size: 1.05rem; margin: 0;"></i>
-                </button>
+                <!-- Versteckte Steuerungsbuttons für Top-Matches und Favoriten (für programmatische Aufrufe der Bottom-Bar) -->
+                <button id="btn-toggle-market-top-matches" style="display: none !important;" aria-hidden="true"></button>
+                <button id="btn-toggle-market-favorites" style="display: none !important;" aria-hidden="true"></button>
             </div>
 
             <!-- Main Layout: Left Sticky Sidebar Filters + Center Content -->
@@ -7616,8 +7596,8 @@ function renderMarket(container, type, onNavigate) {
         const isOpen = filterWrapper.classList.contains('open');
         overlay?.classList.toggle('open', isOpen);
         this.innerHTML = isOpen 
-            ? `<i class="fa-solid fa-xmark" style="font-size: 1.1rem; margin: 0;"></i>` 
-            : `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 1.05rem; margin: 0; transition: color 0.3s ease;"></i>`;
+            ? `<i class="fa-solid fa-xmark" style="font-size: 0.95rem; margin: 0;"></i> <span>Filter</span>` 
+            : `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; transition: color 0.3s ease;"></i> <span>Filter</span>`;
         if (!isOpen) {
             updateFilterIconGlow(isFilterActiveCurrently);
         }
@@ -7629,7 +7609,7 @@ function renderMarket(container, type, onNavigate) {
         overlay?.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {
-            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 1.05rem; margin: 0; transition: color 0.3s ease;"></i>`;
+            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; transition: color 0.3s ease;"></i> <span>Filter</span>`;
             updateFilterIconGlow(isFilterActiveCurrently);
         }
     });
@@ -7647,7 +7627,7 @@ function renderMarket(container, type, onNavigate) {
         overlay.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {
-            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 1.05rem; margin: 0; transition: color 0.3s ease;"></i>`;
+            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; transition: color 0.3s ease;"></i> <span>Filter</span>`;
             updateFilterIconGlow(isFilterActiveCurrently);
         }
     });

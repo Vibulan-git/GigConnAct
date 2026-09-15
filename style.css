@@ -3716,48 +3716,47 @@ body.landing-page-active .app-container {
 }
 
 .market-controls-row {
-    position: sticky !important;
-    top: 72px !important;
-    z-index: 50 !important;
+    position: relative !important;
+    top: auto !important;
+    z-index: 20 !important;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.75rem !important;
-    padding: 0.8rem 1rem !important;
-    background: rgba(255, 255, 255, 0.88) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    margin-bottom: 1.2rem !important;
+    padding: 0.2rem 0.4rem !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
-    border-radius: 16px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
     gap: 1rem;
     width: 100%;
-    box-sizing: border-box;
 }
 
 #market-title-label {
-    color: #ffffff !important;
-    font-size: 1.15rem !important;
-    font-weight: 900 !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+    font-size: 1.1rem !important;
+    font-weight: 800 !important;
 }
 
 @media (max-width: 600px) {
     #market-title-label {
         display: inline-block !important;
-        font-size: 1.15rem !important;
+        font-size: 1.05rem !important;
     }
 }
 
 .market-filter-mobile-toggle {
-    display: none; /* Hidden on desktop */
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    padding: 0.6rem 1.2rem;
-    background: rgba(var(--market-primary-rgb), 0.08);
-    border: 1.5px solid rgba(var(--market-primary-rgb), 0.25);
+    gap: 0.55rem;
+    padding: 0.45rem 1.05rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid rgba(255, 255, 255, 0.22);
     border-radius: 10px;
     color: var(--market-accent);
     font-size: 0.88rem;
@@ -3975,18 +3974,18 @@ body.landing-page-active .app-container {
     }
 
     .market-controls-row {
-        gap: 0.35rem !important;
+        gap: 0.5rem !important;
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
         flex-wrap: nowrap !important;
-        padding: 0.4rem 0px !important;
+        padding: 0.4rem 0.2rem 0.6rem !important;
+        justify-content: space-between !important;
     }
 
     .market-filter-mobile-toggle {
-        padding: 0.45rem 0.6rem !important;
-        font-size: 0.78rem !important;
-        max-width: 48% !important;
+        padding: 0.45rem 0.95rem !important;
+        font-size: 0.88rem !important;
         box-sizing: border-box !important;
         white-space: nowrap !important;
     }
@@ -4700,126 +4699,93 @@ input[type="range"].input-field {
     color: var(--text-muted);
 }
 
-/* Brand gradient theme (matching login button) for market-controls-row */
+/* Clean transparent market header (results count + filter toggle) */
 .theme-musician .market-controls-row,
 .theme-organizer .market-controls-row,
 .market-controls-row {
-    background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important;
-    border: 2px solid rgba(196, 181, 253, 0.45) !important;
-    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.35) !important;
-    color: #ffffff !important;
-}
-
-/* Themed elements inside the market-controls-row */
-.theme-organizer .market-controls-row i,
-.theme-musician .market-controls-row i {
-    color: #ffffff !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    position: relative !important;
+    top: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.2rem 0.2rem 0.8rem !important;
+    margin-bottom: 1.2rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .theme-organizer .market-controls-row #market-results-count,
-.theme-musician .market-controls-row #market-results-count {
+.theme-musician .market-controls-row #market-results-count,
+#market-results-count {
     color: #ffffff !important;
+    font-family: var(--font-heading) !important;
+    font-size: 1.45rem !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.5px !important;
+    line-height: 1 !important;
 }
 
-.theme-organizer .market-controls-row .market-control-toggle,
-.theme-musician .market-controls-row .market-control-toggle {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    color: rgba(255, 255, 255, 0.8) !important;
-}
-
-.theme-organizer .market-controls-row .market-control-toggle:hover,
-.theme-musician .market-controls-row .market-control-toggle:hover {
-    background: rgba(255, 255, 255, 0.25) !important;
-    color: #ffffff !important;
-}
-
-.theme-organizer .market-controls-row .market-sort-container-round,
-.theme-musician .market-controls-row .market-sort-container-round {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
-}
-
-.theme-organizer .market-controls-row .market-sort-container-round:hover,
-.theme-musician .market-controls-row .market-sort-container-round:hover {
-    background: rgba(255, 255, 255, 0.25) !important;
+.theme-organizer .market-controls-row #market-title-label,
+.theme-musician .market-controls-row #market-title-label,
+#market-title-label {
+    color: rgba(255, 255, 255, 0.75) !important;
+    font-family: var(--font-heading) !important;
+    font-size: 1.1rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.2px !important;
 }
 
 .theme-organizer .market-controls-row .market-filter-mobile-toggle,
-.theme-musician .market-controls-row .market-filter-mobile-toggle {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+.theme-musician .market-controls-row .market-filter-mobile-toggle,
+.market-filter-mobile-toggle {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.55rem !important;
+    padding: 0.45rem 1.1rem !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+    border-radius: 12px !important;
     color: #ffffff !important;
+    font-family: var(--font-heading) !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15) !important;
+    white-space: nowrap !important;
+    text-decoration: none !important;
 }
 
 .theme-organizer .market-controls-row .market-filter-mobile-toggle:hover,
-.theme-musician .market-controls-row .market-filter-mobile-toggle:hover {
-    background: rgba(255, 255, 255, 0.25) !important;
-}
-
-.theme-organizer .market-controls-row .profile-switcher-wrapper,
-.theme-musician .market-controls-row .profile-switcher-wrapper {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+.theme-musician .market-controls-row .market-filter-mobile-toggle:hover,
+.market-filter-mobile-toggle:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    border-color: rgba(255, 255, 255, 0.38) !important;
     color: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
 }
 
-.theme-organizer .market-controls-row .profile-switcher-wrapper i,
-.theme-musician .market-controls-row .profile-switcher-wrapper i {
+.theme-organizer .market-controls-row .market-filter-mobile-toggle.active,
+.theme-musician .market-controls-row .market-filter-mobile-toggle.active,
+.market-filter-mobile-toggle.active {
+    background: rgba(124, 58, 237, 0.35) !important;
+    border-color: rgba(196, 181, 253, 0.7) !important;
     color: #ffffff !important;
+    box-shadow: 0 0 15px rgba(124, 58, 237, 0.45) !important;
 }
 
-.theme-organizer .market-controls-row .profile-switcher-wrapper select,
-.theme-musician .market-controls-row .profile-switcher-wrapper select {
+.market-filter-mobile-toggle i {
+    font-size: 0.95rem !important;
     color: #ffffff !important;
-    background: transparent !important;
-}
-
-.theme-organizer .market-controls-row .profile-switcher-wrapper select option,
-.theme-musician .market-controls-row .profile-switcher-wrapper select option {
-    color: #0f172a !important;
-    background: #ffffff !important;
-}
-
-/* Active states for filter buttons, overriding transparent white themes */
-.theme-organizer .market-controls-row .market-control-toggle.active#btn-toggle-market-top-matches,
-.theme-musician .market-controls-row .market-control-toggle.active#btn-toggle-market-top-matches {
-    background: rgba(253, 224, 71, 0.25) !important;
-    border-color: #fde047 !important;
-    color: #fde047 !important;
-    box-shadow: 0 0 12px rgba(253, 224, 71, 0.45) !important;
-}
-
-.theme-organizer .market-controls-row .market-control-toggle.active#btn-toggle-market-favorites,
-.theme-musician .market-controls-row .market-control-toggle.active#btn-toggle-market-favorites {
-    background: rgba(239, 68, 68, 0.18) !important;
-    border-color: #ef4444 !important;
-    color: #ef4444 !important;
-}
-
-.theme-organizer .market-controls-row .market-control-toggle.active#btn-toggle-market-top-matches i,
-.theme-musician .market-controls-row .market-control-toggle.active#btn-toggle-market-top-matches i {
-    color: #fde047 !important;
-    text-shadow: 0 0 8px rgba(253, 224, 71, 0.6) !important;
-}
-
-.theme-organizer .market-controls-row .market-control-toggle.active#btn-toggle-market-favorites i,
-.theme-musician .market-controls-row .market-control-toggle.active#btn-toggle-market-favorites i {
-    color: #ef4444 !important;
-}
-
-
-/* Mobile responsive sticky top offset adjustments based on header navigation height (updated to max-width: 900px) */
-@media (max-width: 900px) {
-    /* Sticky offset when logged out (single row header, height ~52px plus margin) */
-    .market-controls-row {
-        top: 60px !important;
-    }
-    
-    /* Sticky offset when logged in (two-row header, height ~90px plus margin) */
-    .app-header:has(.main-nav a) + #app-main .market-controls-row {
-        top: 102px !important;
-    }
 }
 
 /* Feedback button header styles */
