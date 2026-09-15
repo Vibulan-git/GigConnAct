@@ -6112,14 +6112,26 @@ window.setHeroCtaMode = function(mode, direction = 'forward') {
 window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
     if (mode === 'musician') {
         return `
-            <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; max-width: 540px; box-sizing: border-box;">
-                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.25rem 0.55rem 1.1rem; font-weight: 900; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; max-width: 260px; min-height: 165px; box-sizing: border-box;">
-                    <i class="fa-solid fa-guitar" style="font-size: clamp(1.75rem, 4.5vw, 2.2rem); margin-bottom: 0.35rem;"></i>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.08rem, 3.3vw, 1.42rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Ich möchte selbst<br>Veranstalter kontaktieren</span>
+            <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; box-sizing: border-box;">
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.25rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: space-between; flex: 1 1 0px; width: 0; min-width: 0; min-height: 145px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                    <div style="display: flex; flex-direction: column; align-items: center; flex: 1; text-align: center;">
+                        <i class="fa-solid fa-guitar" style="font-size: clamp(1.75rem, 4vw, 2.2rem); margin-bottom: 0.45rem; color: #ffffff;"></i>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; line-height: 1.2; text-align: center; color: #ffffff;">Ich möchte selbst</span>
+                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.25rem;">Veranstalter kontaktieren</span>
+                    </div>
+                    <div class="cta-arrow-circle" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 0.6rem; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
+                        <i class="fa-solid fa-arrow-right" style="color: #ffffff; font-size: 1.15rem;"></i>
+                    </div>
                 </button>
-                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.25rem 0.55rem 1.1rem; font-weight: 900; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; max-width: 260px; min-height: 165px; box-sizing: border-box;">
-                    <i class="fa-solid fa-handshake" style="font-size: clamp(1.75rem, 4.5vw, 2.2rem); margin-bottom: 0.35rem;"></i>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.08rem, 3.3vw, 1.42rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Ich möchte Veranstalter<br>vermittelt bekommen</span>
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.25rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: space-between; flex: 1 1 0px; width: 0; min-width: 0; min-height: 145px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                    <div style="display: flex; flex-direction: column; align-items: center; flex: 1; text-align: center;">
+                        <i class="fa-solid fa-handshake" style="font-size: clamp(1.75rem, 4vw, 2.2rem); margin-bottom: 0.45rem; color: #ffffff;"></i>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; line-height: 1.2; text-align: center; color: #ffffff;">Ich möchte Veranstalter</span>
+                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.25rem;">vermittelt bekommen</span>
+                    </div>
+                    <div class="cta-arrow-circle" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 0.6rem; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
+                        <i class="fa-solid fa-arrow-right" style="color: #ffffff; font-size: 1.15rem;"></i>
+                    </div>
                 </button>
                 <div style="position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; justify-content: center; pointer-events: auto;">
                     <a href="javascript:void(0)" onclick="window.appNavigate('info-musician')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.92); font-size: clamp(0.88rem, 2.5vw, 1.02rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 5px rgba(0,0,0,0.6); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.92)'; this.style.transform='translateY(0)';">
@@ -6132,14 +6144,26 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
     
     if (mode === 'organizer') {
         return `
-            <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; max-width: 540px; box-sizing: border-box;">
-                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('musicians')" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.25rem 0.55rem 1.1rem; font-weight: 900; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; max-width: 260px; min-height: 165px; box-sizing: border-box;">
-                    <i class="fa-solid fa-guitar" style="font-size: clamp(1.75rem, 4.5vw, 2.2rem); margin-bottom: 0.35rem;"></i>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.08rem, 3.3vw, 1.42rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Ich möchte selbst<br>Musiker kontaktieren</span>
+            <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; box-sizing: border-box;">
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('musicians')" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.25rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: space-between; flex: 1 1 0px; width: 0; min-width: 0; min-height: 145px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                    <div style="display: flex; flex-direction: column; align-items: center; flex: 1; text-align: center;">
+                        <i class="fa-solid fa-guitar" style="font-size: clamp(1.75rem, 4vw, 2.2rem); margin-bottom: 0.45rem; color: #ffffff;"></i>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; line-height: 1.2; text-align: center; color: #ffffff;">Ich möchte selbst</span>
+                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.25rem;">Musiker kontaktieren</span>
+                    </div>
+                    <div class="cta-arrow-circle" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 0.6rem; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
+                        <i class="fa-solid fa-arrow-right" style="color: #ffffff; font-size: 1.15rem;"></i>
+                    </div>
                 </button>
-                <button class="btn hero-cta-card-btn" onclick="window.showAgencyBookingForm()" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.25rem 0.55rem 1.1rem; font-weight: 900; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; max-width: 260px; min-height: 165px; box-sizing: border-box;">
-                    <i class="fa-solid fa-file-pen" style="font-size: clamp(1.75rem, 4.5vw, 2.2rem); margin-bottom: 0.35rem;"></i>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.08rem, 3.3vw, 1.42rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.2px; display: block;">Ich möchte Musiker<br>vermittelt bekommen</span>
+                <button class="btn hero-cta-card-btn" onclick="window.showAgencyBookingForm()" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.25rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: space-between; flex: 1 1 0px; width: 0; min-width: 0; min-height: 145px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                    <div style="display: flex; flex-direction: column; align-items: center; flex: 1; text-align: center;">
+                        <i class="fa-solid fa-file-pen" style="font-size: clamp(1.75rem, 4vw, 2.2rem); margin-bottom: 0.45rem; color: #ffffff;"></i>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; line-height: 1.2; text-align: center; color: #ffffff;">Ich möchte Musiker</span>
+                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.25rem;">vermittelt bekommen</span>
+                    </div>
+                    <div class="cta-arrow-circle" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 0.6rem; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
+                        <i class="fa-solid fa-arrow-right" style="color: #ffffff; font-size: 1.15rem;"></i>
+                    </div>
                 </button>
                 <div style="position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; justify-content: center; pointer-events: auto;">
                     <a href="javascript:void(0)" onclick="window.appNavigate('info-organizer')" class="hero-cta-info-link" style="color: rgba(255, 255, 255, 0.92); font-size: clamp(0.88rem, 2.5vw, 1.02rem); font-weight: 700; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; display: inline-block; text-align: center; text-shadow: 0 2px 5px rgba(0,0,0,0.6); transition: all 0.2s;" onmouseover="this.style.color='#ffffff'; this.style.transform='translateY(-1px)';" onmouseout="this.style.color='rgba(255, 255, 255, 0.92)'; this.style.transform='translateY(0)';">
@@ -6152,14 +6176,29 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
 
     // Default 'initial'
     return `
-        <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; max-width: 540px; box-sizing: border-box;">
-            <button class="btn hero-cta-card-btn" id="btn-hero-musician" onclick="window.setHeroCtaMode('musician', 'forward')" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 2px solid #a855f7; color: #ffffff; padding: 1.25rem 0.55rem 1.1rem; font-weight: 900; border-radius: 20px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; max-width: 260px; min-height: 165px; box-sizing: border-box;">
-                <i class="fa-solid fa-guitar" style="font-size: clamp(1.85rem, 4.8vw, 2.35rem); margin-bottom: 0.35rem;"></i>
-                <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.22rem, 3.8vw, 1.62rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.3px; display: block;">Ich bin Musiker<br>und suche Gigs</span>
+        <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; box-sizing: border-box;">
+            <!-- Button 1: Musiker -->
+            <button class="btn hero-cta-card-btn" id="btn-hero-musician" onclick="window.setHeroCtaMode('musician', 'forward')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.3rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: space-between; flex: 1 1 0px; width: 0; min-width: 0; min-height: 145px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                <div style="display: flex; flex-direction: column; align-items: center; flex: 1; text-align: center;">
+                    <i class="fa-solid fa-guitar" style="font-size: clamp(1.85rem, 4vw, 2.3rem); margin-bottom: 0.45rem; color: #ffffff;"></i>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.15rem, 2.5vw, 1.45rem); font-weight: 800; line-height: 1.2; text-align: center; color: #ffffff;">Ich bin Musiker</span>
+                    <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.25rem;">und suche Gigs</span>
+                </div>
+                <div class="cta-arrow-circle" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 0.6rem; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
+                    <i class="fa-solid fa-arrow-right" style="color: #ffffff; font-size: 1.15rem;"></i>
+                </div>
             </button>
-            <button class="btn hero-cta-card-btn" id="btn-hero-organizer" onclick="window.setHeroCtaMode('organizer', 'forward')" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 2px solid #60a5fa; color: #ffffff; padding: 1.25rem 0.55rem 1.1rem; font-weight: 900; border-radius: 20px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; max-width: 260px; min-height: 165px; box-sizing: border-box;">
-                <i class="fa-solid fa-calendar-check" style="font-size: clamp(1.85rem, 4.8vw, 2.35rem); margin-bottom: 0.35rem;"></i>
-                <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.22rem, 3.8vw, 1.62rem); font-weight: 900; line-height: 1.22; text-align: center; letter-spacing: -0.3px; display: block;">Ich bin Veranstalter<br>und suche Acts</span>
+
+            <!-- Button 2: Veranstalter -->
+            <button class="btn hero-cta-card-btn" id="btn-hero-organizer" onclick="window.setHeroCtaMode('organizer', 'forward')" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.3rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: space-between; flex: 1 1 0px; width: 0; min-width: 0; min-height: 145px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                <div style="display: flex; flex-direction: column; align-items: center; flex: 1; text-align: center;">
+                    <i class="fa-solid fa-calendar-check" style="font-size: clamp(1.85rem, 4vw, 2.3rem); margin-bottom: 0.45rem; color: #ffffff;"></i>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.15rem, 2.5vw, 1.45rem); font-weight: 800; line-height: 1.2; text-align: center; color: #ffffff;">Ich bin Veranstalter</span>
+                    <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.25rem;">und suche Acts</span>
+                </div>
+                <div class="cta-arrow-circle" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 0.6rem; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
+                    <i class="fa-solid fa-arrow-right" style="color: #ffffff; font-size: 1.15rem;"></i>
+                </div>
             </button>
         </div>
     `;
@@ -6186,6 +6225,9 @@ function renderLandingPage(container, onNavigate) {
         localStorage.setItem('gigmatch_homepage_visited', 'true');
     }
 
+    document.body.classList.add('landing-page-active');
+    document.documentElement.classList.add('landing-page-active');
+
     const bottomCtaButtonHtml = isUserLoggedIn 
         ? `<button class="btn" id="btn-bottom-dashboard-trigger" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); border: 1.5px solid rgba(255,255,255,0.15); color: #ffffff; padding: 0.95rem 2.4rem; font-weight: 800; font-size: 1.15rem; border-radius: 15px; box-shadow: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 0.6rem; white-space: nowrap;" onmouseover="this.style.transform='scale(1.03)';" onmouseout="this.style.transform='scale(1)';">
                <i class="fa-solid fa-gauge-high"></i> Mein Dashboard
@@ -6193,7 +6235,7 @@ function renderLandingPage(container, onNavigate) {
         : ``;
 
     container.innerHTML = `
-        <div class="landing-page-wrapper" style="position: relative; overflow: hidden; padding-bottom: 5rem; margin: 0; width: 100%;">
+        <div class="landing-page-wrapper" style="position: relative; overflow: hidden; margin: 0; padding: 0; width: 100%; height: 100vh; height: 100dvh;">
             
             <style>
                 .market-tile-card {
@@ -6239,44 +6281,44 @@ function renderLandingPage(container, onNavigate) {
                 }
             </style>
             
-            <!-- 1. Fullscreen 100vh Hero Background Section -->
-            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow-y: auto; overflow-x: hidden; margin: 0; padding: 6vh 1.5rem 6vh; border-bottom: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5); background-color: #0d0e12; box-sizing: border-box;">
+            <!-- 1. Fullscreen 100vh Hero Background Section (Option 3: Single-Screen / App-Erlebnis ohne Scrollen) -->
+            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: clamp(1.2rem, 3vh, 2.4rem) 1.2rem clamp(0.3rem, 1vh, 0.6rem); border-bottom: none; box-shadow: none; background-color: #0d0e12; box-sizing: border-box;">
                 
                 <!-- Dark overlay gradient -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(124, 58, 237, 0.82) 100%); z-index: 2;"></div>
 
                 <!-- Upper Group: Logo and Slogan (flush with 540px CTA buttons, balanced upper margin) -->
-                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(1.1rem, 3vw, 1.9rem); width: 100%; max-width: 540px; margin-top: clamp(2.4rem, 6.2vh, 4.8rem); margin-bottom: auto; box-sizing: border-box;">
+                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.6rem, 1.8vh, 1.3rem); width: 100%; max-width: 540px; margin-top: clamp(0.6rem, 1.8vh, 1.6rem); margin-bottom: auto; box-sizing: border-box;">
                     
                     <!-- 1/4: Logo (fills full width of 540px container, discoball + GigConnAct, unclipping g descender) -->
-                    <div class="brand-logo-center" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin: 0 auto; padding: 0.2rem 0; overflow: visible; box-sizing: border-box;">
+                    <div class="brand-logo-center" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin: 0 auto; padding: 0.15rem 0; overflow: visible; box-sizing: border-box;">
                         <!-- Large PNG Disco Ball (nested wrapper to keep entry animations, but static without rotation) -->
-                        <div class="${logoClass}" style="width: clamp(3.6rem, 9.5vw, 5.4rem); height: clamp(3.6rem, 9.5vw, 5.4rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible;">
+                        <div class="${logoClass}" style="width: clamp(3.2rem, 8.5vw, 4.8rem); height: clamp(3.2rem, 8.5vw, 4.8rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible;">
                             <img src="discoball.png" style="width: 100%; height: 100%; object-fit: contain; opacity: 1; pointer-events: none;">
                         </div>
-                        <div class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(3.2rem, 8.8vw, 5.4rem); font-weight: 900; letter-spacing: -2px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.18; padding-bottom: 0.12em; padding-top: 0.05em; overflow: visible;">
+                        <div class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(2.8rem, 8vw, 4.8rem); font-weight: 900; letter-spacing: -2px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.18; padding-bottom: 0.12em; padding-top: 0.05em; overflow: visible;">
                             GigConnAct
                         </div>
                     </div>
 
                     <!-- 2/4: Slogan (exact width matches the 540px CTA buttons row) -->
-                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.35rem; width: 100%; margin: 0 auto; box-sizing: border-box;">
-                        <span style="font-family: var(--font-heading); font-size: clamp(1.82rem, 5.9vw, 3.25rem); font-weight: 900; letter-spacing: -0.2px; color: #ffffff; line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap;">
+                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.25rem; width: 100%; margin: 0 auto; box-sizing: border-box;">
+                        <span style="font-family: var(--font-heading); font-size: clamp(1.6rem, 5.2vw, 2.9rem); font-weight: 900; letter-spacing: -0.2px; color: #ffffff; line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap;">
                             Die Vermittlungsplattform
                         </span>
-                        <span style="font-family: var(--font-heading); font-size: clamp(3.2rem, 10.5vw, 5.8rem); font-weight: 900; letter-spacing: 0.5px; color: #ffffff; line-height: 1.1; display: block; width: 100%; text-align: center; white-space: nowrap;">
+                        <span style="font-family: var(--font-heading); font-size: clamp(2.8rem, 9.2vw, 5.2rem); font-weight: 900; letter-spacing: 0.5px; color: #ffffff; line-height: 1.1; display: block; width: 100%; text-align: center; white-space: nowrap;">
                             für Live-Musik
                         </span>
                     </div>
                 </div>
 
                 <!-- 3/4: CTA Buttons (anchored below slogan with fly-in sub-options) -->
-                <div class="hero-cta-buttons" id="hero-cta-container" style="position: relative; z-index: 3; margin: auto auto 11.5vh; width: 100%; max-width: 540px; box-sizing: border-box; display: flex; justify-content: center;">
+                <div class="hero-cta-buttons" id="hero-cta-container" style="position: relative; z-index: 3; margin: auto auto clamp(1.4rem, 3.8vh, 2.8rem); width: 100%; max-width: 540px; box-sizing: border-box; display: flex; justify-content: center;">
                     ${window.getHeroCtaHTML('initial')}
                 </div>
 
                 <!-- 4/4: Infinite Scrolling Category Marquee (with events, organizers and musician types) -->
-                <div class="logo-marquee-wrapper" style="position: relative; z-index: 3; margin: 0 auto 1.5vh; width: 100%; max-width: 780px; padding: 0.6rem 0.8rem; box-sizing: border-box; mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);">
+                <div class="logo-marquee-wrapper" style="position: relative; z-index: 3; margin: 0 auto clamp(0.4rem, 1.2vh, 0.8rem); width: 100%; max-width: 780px; padding: 0.5rem 0.8rem; box-sizing: border-box; mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);">
                     <div class="logo-marquee-track" style="animation-duration: 34s; gap: 1.2rem;">
                         <!-- Set 1 -->
                         <span class="marquee-item-glass"><i class="fa-solid fa-ring" style="color: #c084fc;"></i> Hochzeiten</span>
@@ -6315,46 +6357,20 @@ function renderLandingPage(container, onNavigate) {
                         <span class="marquee-item-glass"><i class="fa-solid fa-compact-disc" style="color: #818cf8;"></i> Und Co.</span>
                     </div>
                 </div>
-            </div>
 
-
-
-
-            <!-- 6. BOTTOM CALL-TO-ACTION SECTION -->
-            ${bottomCtaButtonHtml ? `
-            <div style="max-width: 1400px; margin: 6rem auto 0; padding: 0 1.5rem; text-align: center;">
-                ${bottomCtaButtonHtml}
-            </div>
-            ` : ''}
-
-            <!-- 7. FOOTER / IMPRESSUM -->
-            <footer style="margin-top: 6rem; border-top: 1px solid var(--border-glass); padding: 4rem 1.5rem; text-align: center;">
-                <div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
-                    <!-- Brand / Name with PNG Disco Ball -->
-                    <div style="display: flex; align-items: center; gap: 0.6rem; justify-content: center; margin-bottom: 0.5rem;">
-                        <img src="discoball.png" alt="GigConnAct Logo" style="width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(124,58,237,0.15));">
-                        <div style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">
-                            GigConnAct
-                        </div>
-                    </div>
-                    <!-- Impressum Info -->
-                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.5rem; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; font-weight: 500;">
-                        <span>GigConnAct &bull; Montanusstraße 49 &bull; 51065 Köln</span>
-                        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
-                            <span>Tel: <a href="tel:+4915788703998" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">+49 15788703998</a></span>
-                            <span>E-Mail: <a href="mailto:info@gigconnact.de" style="color: var(--text-muted); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='var(--text-muted)';">info@gigconnact.de</a></span>
-                        </div>
-                    </div>
-                    <!-- Copyright & Legal Links -->
-                    <div style="font-size: 0.8rem; color: rgba(15, 23, 42, 0.45); margin-top: 1.5rem; font-weight: 500; display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap; align-items: center;">
-                        <span>&copy; 2026 GigConnAct. Alle Rechte vorbehalten.</span>
-                        <span style="opacity: 0.5;">&bull;</span>
-                        <a href="#/impressum" style="color: rgba(15, 23, 42, 0.6); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='rgba(15, 23, 42, 0.6)';">Impressum</a>
-                        <span style="opacity: 0.5;">&bull;</span>
-                        <a href="#/datenschutz" style="color: rgba(15, 23, 42, 0.6); text-decoration: none; font-weight: 600;" onmouseover="this.style.color='var(--color-purple)';" onmouseout="this.style.color='rgba(15, 23, 42, 0.6)';">Datenschutz</a>
-                    </div>
+                <!-- 5. Sleek Discreet Hero Footer / Legal Bar -->
+                <div class="hero-legal-bar" style="position: relative; z-index: 3; display: flex; align-items: center; justify-content: center; gap: clamp(0.5rem, 1.8vw, 1.1rem); flex-wrap: wrap; font-size: clamp(0.72rem, 1.5vw, 0.82rem); color: rgba(255, 255, 255, 0.55); font-weight: 500; margin: 0 auto; padding: 0.2rem 0.5rem 0.35rem; user-select: none;">
+                    <span>&copy; 2026 GigConnAct</span>
+                    <span style="color: rgba(255,255,255,0.2);">&bull;</span>
+                    <span>Köln</span>
+                    <span style="color: rgba(255,255,255,0.2);">&bull;</span>
+                    <a href="mailto:info@gigconnact.de" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#c084fc';" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)';">info@gigconnact.de</a>
+                    <span style="color: rgba(255,255,255,0.2);">&bull;</span>
+                    <a href="#/impressum" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#c084fc';" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)';">Impressum</a>
+                    <span style="color: rgba(255,255,255,0.2);">&bull;</span>
+                    <a href="#/datenschutz" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#c084fc';" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)';">Datenschutz</a>
                 </div>
-            </footer>
+            </div>
 
         </div>
     `;
@@ -6896,6 +6912,15 @@ function renderMarket(container, type, onNavigate) {
     let displayedItemsCount = 12;
     let showMoreMatchesUnfiltered = false;
 
+    if (window.showSubscriptionSuccessModal) {
+        window.showSubscriptionSuccessModal = false;
+        setTimeout(() => {
+            if (typeof window.showSubscriptionChangeSuccessModal === 'function') {
+                window.showSubscriptionChangeSuccessModal();
+            }
+        }, 100);
+    }
+
     // Trigger on-demand load from Firestore
     if (isEvents) {
         state.fetchEvents();
@@ -7114,7 +7139,7 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0px 5rem; box-sizing: border-box;">
             
-            <div class="market-controls-row" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0px; -webkit-overflow-scrolling: touch;">
+            <div class="market-controls-row" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: 2px solid rgba(196, 181, 253, 0.45) !important; box-shadow: 0 8px 25px rgba(124, 58, 237, 0.35) !important; color: #ffffff !important; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: nowrap; justify-content: flex-start; width: 100%; box-sizing: border-box; overflow-x: auto; padding: 0.5rem 0px; -webkit-overflow-scrolling: touch;">
                 
                 <!-- 1. Trefferanzahl (Links mit Abstand zur Kante, ohne Hintergrund-Kreis) -->
                 <div style="display: flex; align-items: center; gap: 0.45rem; flex-shrink: 0; margin-left: 0.85rem; padding: 0.35rem 0; cursor: pointer;" onclick="document.getElementById('btn-toggle-mobile-filters')?.click();" title="Filter öffnen">
@@ -9101,11 +9126,6 @@ window.openItemDetailModal = function(id, isEvents) {
                     <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,0.9) 0%, transparent 60%);"></div>
                     <!-- Top Tags im Detailfenster oben links (ohne Icons) -->
                     <div style="position: absolute; top: 15px; left: 15px; z-index: 6; display: flex; align-items: center; gap: 6px; pointer-events: none; flex-wrap: wrap; max-width: calc(100% - 80px);">
-                        ${(item.isDemo || (item.id && (item.id.startsWith('mus_') || item.id.startsWith('evt_')))) ? `
-                            <div style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)'}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid ${isEvents ? 'rgba(216, 180, 254, 0.45)' : 'rgba(147, 197, 253, 0.45)'}; border-radius: 8px; padding: 0.32rem 0.75rem; display: inline-flex; align-items: center; box-shadow: ${isEvents ? '0 4px 12px rgba(124, 58, 237, 0.45)' : '0 4px 12px rgba(30, 58, 138, 0.45)'};">
-                                <span style="color: #ffffff; font-size: 0.76rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-heading);">Demo</span>
-                            </div>
-                        ` : ''}
                         <div style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)'}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid ${isEvents ? 'rgba(216, 180, 254, 0.45)' : 'rgba(147, 197, 253, 0.45)'}; border-radius: 8px; padding: 0.32rem 0.75rem; display: inline-flex; align-items: center; box-shadow: ${isEvents ? '0 4px 12px rgba(124, 58, 237, 0.45)' : '0 4px 12px rgba(30, 58, 138, 0.45)'};">
                             <span style="color: #ffffff; font-size: 0.76rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--font-heading);">${isEvents ? (item.eventType || (Array.isArray(item.eventTypes) && item.eventTypes.length > 0 ? item.eventTypes[0] : item.type) || 'Event') : (item.type || item.category || 'Band')}</span>
                         </div>
@@ -9114,12 +9134,20 @@ window.openItemDetailModal = function(id, isEvents) {
                         <span style="display: inline-block; padding: 0.3rem 0.8rem; border-radius: 20px; background: ${roleColor}; color: #fff; font-size: 0.8rem; font-weight: 800; margin-bottom: 0.5rem;">
                             ${isEvents ? (item.eventType || 'Event') : (item.type || item.category || 'Musiker')}
                         </span>
-                        <h2 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: #ffffff; margin: 0;">
-                            ${(state && state.currentUser)
+                        <h2 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 900; color: #ffffff; margin: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                            <span>${(state && state.currentUser)
                                 ? (item.name || item.title || '')
                                 : isEvents
-                                    ? `<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span> <i class="fa-solid fa-lock" style="color: #7c3aed; font-size: 1.5rem; margin-left: 0.6rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
-                                    : `<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: #2563eb; font-size: 1.5rem; margin-left: 0.6rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
+                                    ? `<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span>`
+                                    : `<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span>`
+                            }</span>
+                            ${!(state && state.currentUser)
+                                ? `<i class="fa-solid fa-lock" style="color: ${isEvents ? '#7c3aed' : '#2563eb'}; font-size: 1.4rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
+                                : ''
+                            }
+                            ${(item.isDemo || (item.id && (item.id.startsWith('mus_') || item.id.startsWith('evt_'))))
+                                ? `<span style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)'}; color: #ffffff; font-size: 0.76rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-heading); padding: 0.22rem 0.6rem; border-radius: 6px; border: 1px solid ${isEvents ? 'rgba(216, 180, 254, 0.45)' : 'rgba(147, 197, 253, 0.45)'}; box-shadow: ${isEvents ? '0 2px 8px rgba(124, 58, 237, 0.45)' : '0 2px 8px rgba(30, 58, 138, 0.45)'}; vertical-align: middle;">Demo</span>`
+                                : ''
                             }
                         </h2>
                     </div>
@@ -9418,15 +9446,17 @@ if (window.location.hash.includes('payment=success')) {
     setTimeout(() => {
         window.isPaymentSuccessPending = false;
     }, 10000);
-    // Remove query parameter from hash immediately to keep URL clean
-    window.location.hash = '#/profile';
+    // Remove query parameter from hash immediately to keep URL clean and navigate to market
+    const isOrganizer = (state && state.currentUser && state.currentUser.role === 'organizer') || window.location.hash.includes('/musicians');
+    window.location.hash = isOrganizer ? '#/musicians' : '#/events';
 } else if (window.location.hash.includes('payment=cancel')) {
     showToast({
         title: "Zahlung abgebrochen ℹ",
         message: "Der Zahlungsvorgang wurde abgebrochen. Du kannst es jederzeit erneut versuchen.",
         type: "warning"
     });
-    window.location.hash = '#/profile';
+    const isOrganizer = (state && state.currentUser && state.currentUser.role === 'organizer') || window.location.hash.includes('/musicians');
+    window.location.hash = isOrganizer ? '#/musicians' : '#/events';
 }
 
 window.handleLogoutRedirect = function() {
@@ -14916,6 +14946,8 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 
                 if (typeof onSuccessCallback === 'function') {
                     onSuccessCallback();
+                } else if (typeof navigateAfterLogin === 'function') {
+                    navigateAfterLogin();
                 } else {
                     handleRouting();
                 }
@@ -15728,6 +15760,12 @@ function navigate(page) {
     const mainContainer = document.getElementById('app-main');
     if (!mainContainer) return;
 
+    const isLanding = !page || page === '' || page === '/';
+    if (!isLanding) {
+        document.body.classList.remove('landing-page-active');
+        document.documentElement.classList.remove('landing-page-active');
+    }
+
     if (typeof window.updateBodyBackground === 'function') {
         window.updateBodyBackground(page);
     }
@@ -16003,11 +16041,13 @@ function updateNavbar(forceLanding) {
     const header = document.querySelector('.app-header');
     const main = document.getElementById('app-main');
 
+    const footer = document.querySelector('.app-footer');
     if (window.location.hash.includes('recommendation/') || window.location.hash.includes('mediation-response/')) {
         nav.innerHTML = '';
         authArea.innerHTML = '';
         if (header) header.classList.remove('transparent-header');
         if (main) main.classList.remove('landing-active-main');
+        if (footer) footer.style.display = 'none';
         return;
     }
 
@@ -16015,6 +16055,14 @@ function updateNavbar(forceLanding) {
     const isLanding = forceLanding !== undefined 
         ? forceLanding 
         : (!window.location.hash || window.location.hash === '#/' || window.location.hash === '#');
+
+    if (isLanding) {
+        document.body.classList.add('landing-page-active');
+        document.documentElement.classList.add('landing-page-active');
+    } else {
+        document.body.classList.remove('landing-page-active');
+        document.documentElement.classList.remove('landing-page-active');
+    }
 
     if (header) {
         if (isLanding) {
@@ -16030,6 +16078,10 @@ function updateNavbar(forceLanding) {
         } else {
             main.classList.remove('landing-active-main');
         }
+    }
+
+    if (footer) {
+        footer.style.display = isLanding ? 'none' : 'flex';
     }
 
     if (u && u.id) {
@@ -18461,13 +18513,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
 
         const bandName = item.name || item.title || '';
         const isDemoTile = item.isDemo || (item.id && (item.id.startsWith('mus_') || item.id.startsWith('evt_')));
-        const displayName = (state && state.currentUser)
-            ? bandName
-            : isEvents
-                ? `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span> <i class="fa-solid fa-lock" style="color: #7c3aed; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
-                : `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: #2563eb; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`;
-
-        // Tags oben links (Musiker-Typ bzw. Event-Typ + ggf. Demo)
+        // Tags (Musiker-Typ bzw. Event-Typ + ggf. Demo)
         const tagThemeBg = isEvents 
             ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' 
             : 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)';
@@ -18486,26 +18532,30 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
         }
         const typeTagText = rawType;
 
+        const nameContent = (state && state.currentUser)
+            ? `<span style="vertical-align: middle;">${bandName}</span>`
+            : isEvents
+                ? `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block; vertical-align: middle;">Privates Event</span>`
+                : `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block; vertical-align: middle;">Band / Künstler</span>`;
+        const lockIconHtml = !(state && state.currentUser)
+            ? ` <i class="fa-solid fa-lock" style="color: ${isEvents ? '#7c3aed' : '#2563eb'}; font-size: 1.15rem; margin-left: 0.35rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
+            : '';
+        const demoTagHtml = isDemoTile
+            ? ` <span class="tile-demo-flag" style="background: ${tagThemeBg}; color: #ffffff; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--font-heading); padding: 0.2rem 0.52rem; border-radius: 6px; border: 1px solid ${tagThemeBorder}; box-shadow: ${tagThemeShadow}; vertical-align: middle; margin-left: 0.45rem; display: inline-flex; align-items: center; line-height: 1.1;">Demo</span>`
+            : '';
+        const displayName = `${nameContent}${lockIconHtml}${demoTagHtml}`;
+
         return `
             <div class="market-tile-card" style="cursor: default; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0);">
                 
                 <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
                     
-                    <!-- Tag oben links: Musiker-Typ bzw. Event-Typ (ohne Icon) -->
-                    <div class="tile-top-tags" style="position: absolute; top: 12px; left: 12px; z-index: 6; pointer-events: none; max-width: calc(100% - 75px);">
+                    <!-- Unten links in der Galerie: Tag der Musiker- oder Event-Typen + Galerie-Zähler -->
+                    <div style="position: absolute; bottom: 12px; left: 12px; z-index: 6; display: flex; align-items: center; gap: 6px; pointer-events: none; max-width: calc(100% - 75px);">
                         <div class="tile-type-flag" style="background: ${tagThemeBg}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.28rem 0.65rem; display: inline-flex; align-items: center; box-shadow: ${tagThemeShadow};">
                             <span style="color: #ffffff; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--font-heading); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${typeTagText}</span>
                         </div>
-                    </div>
-
-                    <!-- Unten links in der Galerie: Demo-Tag (falls Demo, ohne Icon) + Galerie-Zähler -->
-                    <div style="position: absolute; bottom: 12px; left: 12px; z-index: 6; display: flex; align-items: center; gap: 6px; pointer-events: none;">
-                        ${isDemoTile ? `
-                            <div class="tile-demo-flag" style="background: ${tagThemeBg}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.25rem 0.55rem; display: inline-flex; align-items: center; box-shadow: ${tagThemeShadow};">
-                                <span style="color: #ffffff; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-heading);">Demo</span>
-                            </div>
-                        ` : ''}
 
                         <span class="tile-gallery-counter" style="font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.9); padding: 0.25rem 0.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center;">
                             📷 1 / ${photos.length}
@@ -18584,7 +18634,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     
                     <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favoriten-Herz rechts -->
                     <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.8rem;">
-                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; height: 2.4em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; flex: 1;">${displayName}</h3>
+                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.25; min-height: 2.5em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; flex: 1;">${displayName}</h3>
                         
                         <!-- Heart (Favorite Button) -->
                         <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none; width: 28px; height: 28px; flex-shrink: 0;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
@@ -20440,20 +20490,11 @@ window.renderRecommendationPage = async function(container, mediationId) {
                         return `
                             <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0);">
                                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 215px; background: #0f172a; overflow: hidden;">
-                                    <!-- Tag oben links: Musiker-Typ (ohne Icon) -->
-                                    <div class="tile-top-tags" style="position: absolute; top: 12px; left: 12px; z-index: 6; pointer-events: none; max-width: calc(100% - 75px);">
+                                    <!-- Unten links in der Galerie: Musiker-Typ + Galerie-Zähler -->
+                                    <div style="position: absolute; bottom: 12px; left: 12px; z-index: 6; display: flex; align-items: center; gap: 6px; pointer-events: none; max-width: calc(100% - 75px);">
                                         <div class="tile-type-flag" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(147, 197, 253, 0.45); border-radius: 8px; padding: 0.28rem 0.65rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.45);">
                                             <span style="color: #ffffff; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--font-heading); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${mus.type || 'Band'}</span>
                                         </div>
-                                    </div>
-
-                                    <!-- Unten links in der Galerie: Demo-Tag (falls Demo, ohne Icon) + Galerie-Zähler -->
-                                    <div style="position: absolute; bottom: 12px; left: 12px; z-index: 6; display: flex; align-items: center; gap: 6px; pointer-events: none;">
-                                        ${(mus.isDemo || (mus.id && mus.id.startsWith('mus_'))) ? `
-                                            <div class="tile-demo-flag" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(147, 197, 253, 0.45); border-radius: 8px; padding: 0.25rem 0.55rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.45);">
-                                                <span style="color: #ffffff; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-heading);">Demo</span>
-                                            </div>
-                                        ` : ''}
 
                                         <span class="tile-gallery-counter" style="font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.9); padding: 0.25rem 0.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center;">
                                             📷 1 / ${photos.length}
@@ -20504,7 +20545,7 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                 
                                 <div style="padding: 1.2rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; background: var(--bg-card);">
                                     <div>
-                                        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.8rem; line-height: 1.25;"><span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.5rem; filter: none !important;" title="Name geschützt"></i></h3>
+                                        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.8rem; line-height: 1.25;"><span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; vertical-align: middle; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.45rem; filter: none !important;" title="Name geschützt"></i>${(mus.isDemo || (mus.id && mus.id.startsWith('mus_'))) ? ` <span class="tile-demo-flag" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: #ffffff; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--font-heading); padding: 0.18rem 0.5rem; border-radius: 6px; border: 1px solid rgba(147, 197, 253, 0.45); box-shadow: 0 2px 6px rgba(30, 58, 138, 0.35); vertical-align: middle; display: inline-flex; align-items: center; line-height: 1.1;">Demo</span>` : ''}</h3>
                                         <div style="display: flex; gap: 0.5rem; justify-content: space-between;">
                                             <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); flex: 1;">
                                                 <!-- 1. Ort -->

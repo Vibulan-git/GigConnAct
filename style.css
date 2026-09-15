@@ -2975,11 +2975,54 @@ body {
     }
 }
 
+/* Single-Screen App Experience for Landing Page (Option 3 - No Scroll) */
 .landing-active-main {
     max-width: 100% !important;
     width: 100% !important;
     padding: 0 !important;
     margin: 0 !important;
+    overflow: hidden !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+}
+
+.landing-active-main ~ .app-footer,
+body.landing-page-active .app-footer,
+html.landing-page-active .app-footer {
+    display: none !important;
+}
+
+body.landing-page-active,
+html.landing-page-active {
+    overflow: hidden !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.landing-page-active .app-container {
+    height: 100vh !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+    min-height: 100vh !important;
+}
+
+@media (max-height: 580px) {
+    body.landing-page-active,
+    html.landing-page-active,
+    body.landing-page-active .app-container,
+    body.landing-page-active .app-main,
+    .landing-active-main {
+        overflow-y: auto !important;
+        height: auto !important;
+        min-height: 100vh !important;
+    }
+    body.landing-page-active .landing-hero {
+        overflow-y: auto !important;
+        height: auto !important;
+        min-height: 100vh !important;
+    }
 }
 
 .transparent-header {
@@ -4070,16 +4113,12 @@ html {
     color: #ffffff !important;
 }
 
-.theme-musician .filter-header-sticky {
-    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
-    border: 2px solid #a78bfa !important;
-    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.45) !important;
-}
-
-.theme-organizer .filter-header-sticky {
-    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
-    border: 2px solid #60a5fa !important;
-    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.45) !important;
+.theme-musician .filter-header-sticky,
+.theme-organizer .filter-header-sticky,
+.filter-header-sticky {
+    background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important;
+    border: 2px solid rgba(196, 181, 253, 0.45) !important;
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.35) !important;
 }
 
 .filter-header-title, .filter-header-title i {
@@ -4665,7 +4704,7 @@ input[type="range"].input-field {
 .theme-musician .market-controls-row,
 .theme-organizer .market-controls-row,
 .market-controls-row {
-    background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%) !important;
+    background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important;
     border: 2px solid rgba(196, 181, 253, 0.45) !important;
     box-shadow: 0 8px 25px rgba(124, 58, 237, 0.35) !important;
     color: #ffffff !important;

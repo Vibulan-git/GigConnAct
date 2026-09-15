@@ -933,14 +933,17 @@ exports.createStripeCheckoutSession = functions
             const subscriptionId = userData.subscriptionId || null;
             const subscriptionStatus = userData.subscriptionStatus || null;
 
+            const isOrganizer = userData.role === 'organizer';
+            const marketPath = isOrganizer ? '#/musicians' : '#/events';
+
             const sessionParams = {
                 mode: 'subscription',
                 line_items: [{
                     price: priceId,
                     quantity: 1,
                 }],
-                success_url: `${cleanBaseUrl}/#/profile?payment=success`,
-                cancel_url: `${cleanBaseUrl}/#/profile?payment=cancel`,
+                success_url: `${cleanBaseUrl}/${marketPath}?payment=success`,
+                cancel_url: `${cleanBaseUrl}/${marketPath}?payment=cancel`,
                 metadata: {
                     userId: context.auth.uid,
                     planKey: planKey
@@ -1282,7 +1285,7 @@ exports.stripeWebhook = functions
                                                 <p>Veranstalter können dich ab sofort auf unserem Marktplatz finden. Zudem prüfen wir täglich neue Ausschreibungen und informieren dich automatisch über passende Top-Matches in deiner Nähe.</p>
                                                 <p>Wir wünschen dir viel Erfolg und fantastische Gigs!</p>
                                                 <p style="margin-top: 25px; text-align: center;">
-                                                    <a href="https://gigconnact.de/#/dashboard?id=${userData.profileId}" style="background: #7c3aed; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Profil verwalten</a>
+                                                    <a href="https://gigconnact.de/#/events" style="background: #7c3aed; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Gigs finden</a>
                                                 </p>
                                                 <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 15px;">
                                                 <p style="font-size: 0.8rem; color: #a0aec0; text-align: center;">GigConnAct — Dein Live-Musik Marktplatz</p>
@@ -1512,7 +1515,7 @@ exports.onMusicianProfileCreated = functions
                     <p>Veranstalter können dich ab sofort auf unserem Marktplatz finden. Zudem prüfen wir täglich neue Ausschreibungen und informieren dich automatisch über passende Top-Matches in deiner Nähe.</p>
                     <p>Wir wünschen dir viel Erfolg und fantastische Gigs!</p>
                     <p style="margin-top: 25px; text-align: center;">
-                        <a href="https://gigconnact.de/#/dashboard?id=${musician.id}" style="background: #7c3aed; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Profil verwalten</a>
+                        <a href="https://gigconnact.de/#/events" style="background: #7c3aed; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Gigs finden</a>
                     </p>
                     <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 15px;">
                     <p style="font-size: 0.8rem; color: #a0aec0; text-align: center;">GigConnAct — Dein Live-Musik Marktplatz</p>
@@ -1569,7 +1572,7 @@ exports.onEventProfileCreated = functions
                     <p>deine Ausschreibung für das Event <strong>"${event.name}"</strong> ist jetzt erfolgreich auf unserem Marktplatz online geschaltet.</p>
                     <p>Interessierte Musiker können ab sofort ihr Interesse bekunden. Zudem analysiert unser System bereits die Datenbank, um dir passende Acts vorzuschlagen.</p>
                     <p style="margin-top: 25px; text-align: center;">
-                        <a href="https://gigconnact.de/#/dashboard?id=${snapshot.id}" style="background: #0ea5e9; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Ausschreibung verwalten</a>
+                        <a href="https://gigconnact.de/#/musicians" style="background: #0ea5e9; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Acts finden</a>
                     </p>
                     <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 15px;">
                     <p style="font-size: 0.8rem; color: #a0aec0; text-align: center;">GigConnAct — Dein Live-Musik Marktplatz</p>
