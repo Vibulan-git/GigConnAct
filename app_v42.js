@@ -814,7 +814,7 @@ window.normalizeCityName = function(city) {
 // 1. MOCK DATA & CONSTANTS
 // ==========================================
 
-const GIGCONNACT_DEMO_VERSION = '20260915_flag_v7';
+const GIGCONNACT_DEMO_VERSION = '20260915_flag_v8';
 
 const initialMusicians = [
     {
@@ -6261,7 +6261,7 @@ function renderLandingPage(container, onNavigate) {
 
                     <!-- 2/4: Slogan (exact width matches the 540px CTA buttons row) -->
                     <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.35rem; width: 100%; margin: 0 auto; box-sizing: border-box;">
-                        <span style="font-family: var(--font-heading); font-size: clamp(1.6rem, 5.2vw, 2.85rem); font-weight: 900; letter-spacing: -0.2px; color: #ffffff; line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap;">
+                        <span style="font-family: var(--font-heading); font-size: clamp(1.82rem, 5.9vw, 3.25rem); font-weight: 900; letter-spacing: -0.2px; color: #ffffff; line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap;">
                             Die Vermittlungsplattform
                         </span>
                         <span style="font-family: var(--font-heading); font-size: clamp(3.2rem, 10.5vw, 5.8rem); font-weight: 900; letter-spacing: 0.5px; color: #ffffff; line-height: 1.1; display: block; width: 100%; text-align: center; white-space: nowrap;">
