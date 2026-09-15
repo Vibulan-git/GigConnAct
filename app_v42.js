@@ -8501,6 +8501,9 @@ function renderMarket(container, type, onNavigate) {
         updateFilterIconGlow(isFilterActiveCurrently);
 
         console.log("applyAllFiltersAndSort finished. Output items count:", list.length, "IDs:", list.map(item => item.id).join(', '));
+        if (typeof window.updateBottomBar === 'function') {
+            window.updateBottomBar();
+        }
     }
 
     sortSelects.forEach(sel => {
@@ -9641,6 +9644,19 @@ function renderProfilePage(container) {
 
     container.innerHTML = `
         <div class="portal-layout ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="display:flex; flex-direction:column; gap:2rem; max-width: 800px; margin: 0 auto; padding: 1rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding: 0 0.5rem; margin-bottom: -0.5rem;">
+                <div>
+                    <h2 style="font-family: var(--font-heading); font-size: 1.45rem; font-weight: 800; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 0.6rem;">
+                        <i class="fa-regular fa-circle-user" style="color: ${themeColor};"></i> Mein Profil
+                    </h2>
+                    <p style="font-size: 0.84rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">
+                        Angemeldet als <strong>${u.email || ''}</strong> (${isMusician ? 'Musiker' : 'Veranstalter'})
+                    </p>
+                </div>
+                <button class="btn btn-secondary btn-sm" id="btn-profile-top-logout" style="margin: 0; display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35); font-weight: 700; border-radius: 8px; cursor: pointer; padding: 0.45rem 0.9rem; transition: all 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)';" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)';">
+                    <i class="fa-solid fa-right-from-bracket"></i> Abmelden
+                </button>
+            </div>
             <div id="profile-my-items-container"></div>
             <div class="profile-section-card">
                 <h3 style="color: ${themeColor}; margin-top: 0; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.6rem;">
@@ -9826,6 +9842,9 @@ function renderProfilePage(container) {
                         <i class="fa-solid fa-credit-card"></i> Zahlungsdaten verwalten
                     </button>
                     ` : ''}
+                    <button class="btn btn-secondary btn-sm" id="btn-profile-logout" style="margin: 0; display: flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-glass); color: var(--text-main); font-weight: 700;">
+                        <i class="fa-solid fa-right-from-bracket"></i> Abmelden
+                    </button>
                     <button class="btn btn-glass btn-sm" id="btn-delete-useraccount" style="margin: 0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); display: flex; align-items: center; gap: 0.5rem;">
                         <i class="fa-solid fa-trash-can"></i> Konto unwiderruflich löschen
                     </button>
@@ -10276,6 +10295,13 @@ function renderProfilePage(container) {
     const logoutBtn = document.getElementById('btn-profile-logout');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
+            window.handleLogoutRedirect();
+        });
+    }
+
+    const topLogoutBtn = document.getElementById('btn-profile-top-logout');
+    if (topLogoutBtn) {
+        topLogoutBtn.addEventListener('click', () => {
             window.handleLogoutRedirect();
         });
     }
@@ -16018,6 +16044,200 @@ function setActiveLink(linkId) {
     if (link) link.classList.add('active');
 }
 
+window.updateBottomBar = function() {
+    const bar = document.getElementById('app-bottom-bar');
+    if (!bar) return;
+
+    const hash = window.location.hash || '#/';
+    let pageWithQuery = hash.replace('#/', '').replace('#', '');
+    let page = pageWithQuery.split('?')[0].toLowerCase();
+    if (page.endsWith('/')) page = page.slice(0, -1);
+    if (page === 'top-matches') page = 'matches';
+
+    const isLanding = !page || page === '' || page === '/';
+    const isExternalPage = page.startsWith('recommendation/') || page.startsWith('mediation-response/');
+    const isMarketPage = page === 'events' || page === 'musicians';
+    const u = (state && state.currentUser && state.currentUser.id) ? state.currentUser : null;
+    const isLoggedIn = !!u;
+
+    // Show on market pages OR any page when user is logged in (excluding external standalone recommendation pages and unauthenticated landing)
+    const shouldShow = !isExternalPage && (isMarketPage || (isLoggedIn && !isLanding));
+
+    if (!shouldShow) {
+        bar.classList.add('hidden');
+        bar.innerHTML = '';
+        document.body.classList.remove('has-bottom-bar');
+        return;
+    }
+
+    bar.classList.remove('hidden');
+    document.body.classList.add('has-bottom-bar');
+
+    const isMusician = isLoggedIn ? (u.role === 'musician') : (page !== 'musicians');
+    const marketTitle = isMusician ? 'Gig-Markt' : 'Act-Markt';
+    const marketIcon = isMusician ? 'fa-calendar-days' : 'fa-guitar';
+    const marketHash = isMusician ? '#/events' : '#/musicians';
+    const themeClass = isMusician ? 'theme-purple' : 'theme-blue';
+
+    const urlParams = new URLSearchParams(hash.includes('?') ? hash.split('?')[1] : '');
+    const toggleFavBtn = document.getElementById('btn-toggle-market-favorites');
+    const isFavActive = (toggleFavBtn && toggleFavBtn.classList.contains('active')) || urlParams.get('fav') === 'true' || urlParams.get('showOnlyFavorites') === 'true';
+    const isMarketActive = isMarketPage && !isFavActive;
+    const isMatchesActive = page === 'matches';
+    const isPostboxActive = page === 'postbox';
+    const isProfileActive = page === 'profile' || page === 'dashboard';
+
+    // Calculate unread count for postbox
+    let unreadCount = 0;
+    if (isLoggedIn) {
+        if (typeof state.getUnreadCount === 'function') {
+            unreadCount = state.getUnreadCount();
+        } else if (typeof state.getUnreadMessageCount === 'function') {
+            unreadCount = state.getUnreadMessageCount();
+        } else if (state.chats && Array.isArray(state.chats)) {
+            state.chats.forEach(c => {
+                if (c && c.unreadBy && c.unreadBy.includes(u.id)) unreadCount++;
+            });
+        }
+    }
+
+    bar.innerHTML = `
+        <div class="bottom-bar-content">
+            <!-- 1. Gig-Markt / Act-Markt -->
+            <button class="bottom-bar-item tab-market ${themeClass} ${isMarketActive ? 'active' : ''}" id="bottom-bar-tab-market" aria-label="${marketTitle}" title="${marketTitle}">
+                <div class="bottom-bar-icon-wrapper">
+                    <i class="fa-solid ${marketIcon}"></i>
+                </div>
+                <span class="bottom-bar-label">${marketTitle}</span>
+            </button>
+
+            <!-- 2. Favoriten -->
+            <button class="bottom-bar-item tab-favorites ${isFavActive ? 'active' : ''}" id="bottom-bar-tab-favorites" aria-label="Favoriten" title="Favoriten">
+                <div class="bottom-bar-icon-wrapper">
+                    <i class="fa-solid fa-heart"></i>
+                </div>
+                <span class="bottom-bar-label">Favoriten</span>
+            </button>
+
+            <!-- 3. Top-Matches -->
+            <button class="bottom-bar-item tab-matches ${isMatchesActive ? 'active' : ''}" id="bottom-bar-tab-matches" aria-label="Top-Matches" title="Top-Matches">
+                <div class="bottom-bar-icon-wrapper">
+                    <i class="fa-solid fa-star"></i>
+                </div>
+                <span class="bottom-bar-label">Top-Matches</span>
+            </button>
+
+            <!-- 4. Postfach -->
+            <button class="bottom-bar-item tab-postbox ${isPostboxActive ? 'active' : ''}" id="bottom-bar-tab-postbox" aria-label="Postfach" title="Postfach">
+                <div class="bottom-bar-icon-wrapper">
+                    <i class="fa-solid fa-envelope"></i>
+                    ${unreadCount > 0 ? `<span class="bottom-bar-badge">${unreadCount}</span>` : ''}
+                </div>
+                <span class="bottom-bar-label">Postfach</span>
+            </button>
+
+            <!-- 5. Profil -->
+            <button class="bottom-bar-item tab-profile ${isProfileActive ? 'active' : ''}" id="bottom-bar-tab-profile" aria-label="Profil" title="Profil">
+                <div class="bottom-bar-icon-wrapper">
+                    <i class="fa-regular fa-circle-user"></i>
+                </div>
+                <span class="bottom-bar-label">Profil</span>
+            </button>
+        </div>
+    `;
+
+    // Click handler: Market
+    const btnMarket = bar.querySelector('#bottom-bar-tab-market');
+    if (btnMarket) {
+        btnMarket.addEventListener('click', () => {
+            if (isMarketPage && isFavActive) {
+                // If on market with fav active, clear fav filter
+                const favBtn = document.getElementById('btn-toggle-market-favorites');
+                if (favBtn && favBtn.classList.contains('active')) {
+                    favBtn.click();
+                } else {
+                    window.location.hash = marketHash;
+                }
+            } else if (window.location.hash !== marketHash) {
+                window.location.hash = marketHash;
+            } else {
+                handleRouting();
+            }
+        });
+    }
+
+    // Click handler: Favorites
+    const btnFavorites = bar.querySelector('#bottom-bar-tab-favorites');
+    if (btnFavorites) {
+        btnFavorites.addEventListener('click', () => {
+            if (!isLoggedIn) {
+                showModal('auth');
+                return;
+            }
+            if (isMarketPage) {
+                const favBtn = document.getElementById('btn-toggle-market-favorites');
+                if (favBtn) {
+                    favBtn.click();
+                } else {
+                    const targetBase = isMusician ? '#/events' : '#/musicians';
+                    window.location.hash = isFavActive ? targetBase : `${targetBase}?fav=true`;
+                }
+            } else {
+                const targetBase = isMusician ? '#/events' : '#/musicians';
+                window.location.hash = `${targetBase}?fav=true`;
+            }
+        });
+    }
+
+    // Click handler: Top-Matches
+    const btnMatches = bar.querySelector('#bottom-bar-tab-matches');
+    if (btnMatches) {
+        btnMatches.addEventListener('click', () => {
+            if (!isLoggedIn) {
+                showModal('auth');
+                return;
+            }
+            if (window.location.hash !== '#/matches') {
+                window.location.hash = '#/matches';
+            } else {
+                handleRouting();
+            }
+        });
+    }
+
+    // Click handler: Postbox
+    const btnPostbox = bar.querySelector('#bottom-bar-tab-postbox');
+    if (btnPostbox) {
+        btnPostbox.addEventListener('click', () => {
+            if (!isLoggedIn) {
+                showModal('auth');
+                return;
+            }
+            if (window.location.hash !== '#/postbox') {
+                window.location.hash = '#/postbox';
+            } else {
+                handleRouting();
+            }
+        });
+    }
+
+    // Click handler: Profile
+    const btnProfile = bar.querySelector('#bottom-bar-tab-profile');
+    if (btnProfile) {
+        btnProfile.addEventListener('click', () => {
+            if (!isLoggedIn) {
+                showModal('auth');
+                return;
+            }
+            if (window.location.hash !== '#/profile') {
+                window.location.hash = '#/profile';
+            } else {
+                handleRouting();
+            }
+        });
+    }
+};
+
 function updateNavbar(forceLanding) {
     const nav = document.getElementById('main-nav');
     const authArea = document.getElementById('auth-area');
@@ -16033,6 +16253,7 @@ function updateNavbar(forceLanding) {
         if (header) header.classList.remove('transparent-header');
         if (main) main.classList.remove('landing-active-main');
         if (footer) footer.style.display = 'none';
+        if (typeof window.updateBottomBar === 'function') window.updateBottomBar();
         return;
     }
 
@@ -16245,6 +16466,10 @@ function updateNavbar(forceLanding) {
                 });
             });
         }
+    }
+
+    if (typeof window.updateBottomBar === 'function') {
+        window.updateBottomBar();
     }
 }
 
@@ -16510,6 +16735,9 @@ function handleRouting() {
     }
 
     navigate(page);
+    if (typeof window.updateBottomBar === 'function') {
+        window.updateBottomBar();
+    }
 }
 
 // Global scope initialization
@@ -16613,6 +16841,7 @@ function initGigConnActApp() {
     });
 
     if (typeof updateNavbar === 'function') updateNavbar();
+    if (typeof window.updateBottomBar === 'function') window.updateBottomBar();
     window.addEventListener('hashchange', handleRouting);
     if (typeof handleRouting === 'function') handleRouting();
     if (typeof initAllLocationAutocompletes === 'function') initAllLocationAutocompletes();
@@ -16662,6 +16891,7 @@ function initGigConnActApp() {
     document.addEventListener('user-state-changed', () => {
         console.log('[DEBUG] user-state-changed event received. activeMusicianId:', state.activeMusicianId, 'activeEventId:', state.activeEventId);
         if (typeof updateNavbar === 'function') updateNavbar();
+        if (typeof window.updateBottomBar === 'function') window.updateBottomBar();
         
         const currentHash = window.location.hash;
         const isUserSame = window.lastUserSessionId === (state && state.currentUser ? state.currentUser.id : null);
