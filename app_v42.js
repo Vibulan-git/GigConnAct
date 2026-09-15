@@ -814,10 +814,12 @@ window.normalizeCityName = function(city) {
 // 1. MOCK DATA & CONSTANTS
 // ==========================================
 
+const GIGCONNACT_DEMO_VERSION = '20260915_demo_v2';
+
 const initialMusicians = [
     {
         id: "mus_1",
-        name: "The Neon Beats",
+        name: "[Demo] The Neon Beats",
         bluffName: "Heisse Elektro-Pop Coverband",
         type: "Band",
         location: "Hamburg",
@@ -827,7 +829,12 @@ const initialMusicians = [
         minDuration: 2,
         maxDuration: 4, // in hours
         minBudget: 1200,
-        maxBudget: 2500, // EUR
+        maxBudget: 2500,
+        minPublikum: 100,
+        maxPublikum: 300,
+        publikum: "100 - 300",
+        isDemo: true,
+        isActive: true, // EUR
         eventTypes: ["Bar/Kneipe/Club", "Festival", "Firmenfeier", "Hochzeit – Party"],
         availability: ["Friday", "Saturday"],
         description: "Wir bringen jeden Dancefloor zum Glühen! Mit unserem einzigartigen Elektro-Pop Sound und Covers der 80er, 90er und heutigen Hits im modernen Gewand. Eigene PA- und Lichttechnik ist immer inklusive.",
@@ -854,7 +861,7 @@ const initialMusicians = [
     },
     {
         id: "mus_2",
-        name: "Clara Lichtblick",
+        name: "[Demo] Clara Lichtblick",
         bluffName: "Klassische & Pop-Pianistin",
         type: "Solo",
         location: "München",
@@ -865,6 +872,11 @@ const initialMusicians = [
         maxDuration: 3,
         minBudget: 450,
         maxBudget: 800,
+        minPublikum: 30,
+        maxPublikum: 100,
+        publikum: "30 - 100",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Hochzeit - Trauung", "Firmenfeier", "Geburtstag"],
         availability: ["Saturday", "Sunday"],
         description: "Elegante Hintergrundmusik am Klavier für Ihre Trauung, den Sektempfang oder ein festliches Dinner. Ich spiele sowohl klassische Meisterwerke als auch moderne Pop-Balladen im sanften Klavier-Arrangement. Keyboard bringe ich bei Bedarf mit.",
@@ -885,7 +897,7 @@ const initialMusicians = [
     },
     {
         id: "mus_3",
-        name: "DJ Soundwave",
+        name: "[Demo] DJ Soundwave",
         bluffName: "Professional Club & Event DJ",
         type: "DJ",
         location: "Köln",
@@ -896,6 +908,11 @@ const initialMusicians = [
         maxDuration: 8,
         minBudget: 850,
         maxBudget: 1500,
+        minPublikum: 80,
+        maxPublikum: 250,
+        publikum: "80 - 250",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Bar/Kneipe/Club", "Firmenfeier", "Hochzeit – Party", "Geburtstag"],
         availability: ["Friday", "Saturday", "Sunday"],
         description: "Seit 10 Jahren als DJ auf Hochzeiten, Firmenfeiern und in Clubs unterwegs. Professionelle High-End Licht- und Tontechnik für Events bis 300 Personen bringe ich komplett selbst mit.",
@@ -916,7 +933,7 @@ const initialMusicians = [
     },
     {
         id: "mus_4",
-        name: "Acoustic Duo Breeze",
+        name: "[Demo] Acoustic Duo Breeze",
         bluffName: "Charmantes Akustik-Duo",
         type: "Duo",
         location: "Frankfurt",
@@ -927,6 +944,11 @@ const initialMusicians = [
         maxDuration: 3.5,
         minBudget: 700,
         maxBudget: 1200,
+        minPublikum: 40,
+        maxPublikum: 120,
+        publikum: "40 - 120",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Hochzeit - Trauung", "Firmenfeier", "Geburtstag", "Festival"],
         availability: ["Saturday", "Sunday", "Thursday"],
         description: "Zweistimmiger Gesang, feine Akustikgitarren-Klänge und sanfte Rhythmen. Wir bieten den perfekten Soundtrack für chillige Sommerevents, Gartenpartys oder romantische Trauungen. Kompakte Akustikanlage ist vorhanden.",
@@ -947,7 +969,7 @@ const initialMusicians = [
     },
     {
         id: "mus_5",
-        name: "Blackwood Syndicate",
+        name: "[Demo] Blackwood Syndicate",
         bluffName: "Klassische Rock & Hard Rock Coverband",
         type: "Band",
         location: "Berlin",
@@ -958,6 +980,11 @@ const initialMusicians = [
         maxDuration: 5,
         minBudget: 1800,
         maxBudget: 3000,
+        minPublikum: 150,
+        maxPublikum: 400,
+        publikum: "150 - 400",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Bar/Kneipe/Club", "Festival", "Firmenfeier"],
         availability: ["Friday", "Saturday"],
         description: "Echte Rock-Klassiker und harte Riffs von AC/DC bis Led Zeppelin. Wir spielen 100% live, energetisch und laut. Ton- und Lichtanlage (PA) müssen vom Veranstalter gestellt werden.",
@@ -978,7 +1005,7 @@ const initialMusicians = [
     },
     {
         id: "mus_6",
-        name: "Sax & Soul (Leo Berg)",
+        name: "[Demo] Sax & Soul (Leo Berg)",
         bluffName: "Premium Jazz-Saxophonist",
         type: "Solo",
         location: "Stuttgart",
@@ -989,6 +1016,11 @@ const initialMusicians = [
         maxDuration: 3,
         minBudget: 350,
         maxBudget: 600,
+        minPublikum: 30,
+        maxPublikum: 100,
+        publikum: "30 - 100",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Sommerfest", "Firmenfeier", "Hochzeit – Party", "Jubiläum"],
         availability: ["Saturday", "Sunday", "Wednesday"],
         description: "Sinnliche Saxophonklänge und samtige Vocals. Begleitung beim Sektempfang, Dinnermusik oder als Live-Highlight zu Lounge-Beats. Professionelle, platzsparende Beschallungsanlage vorhanden.",
@@ -1008,7 +1040,7 @@ const initialMusicians = [
     },
     {
         id: "mus_zero",
-        name: "Leo Null",
+        name: "[Demo] Leo Null",
         bluffName: "Gitarrist & SÄnger (0 Credits Demo)",
         type: "Solo",
         location: "Bremen",
@@ -1019,6 +1051,11 @@ const initialMusicians = [
         maxDuration: 3,
         minBudget: 250,
         maxBudget: 250,
+        minPublikum: 20,
+        maxPublikum: 80,
+        publikum: "20 - 80",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Geburtstag", "Hochzeit – Party"],
         availability: ["Saturday", "Sunday"],
         description: "Demo-Musiker-Account mit 0 Credits zum Testen des Bezahlfensters.",
@@ -1035,7 +1072,7 @@ const initialMusicians = [
     },
     {
         id: "mus_five",
-        name: "Fynn Fünf",
+        name: "[Demo] Fynn Fünf",
         bluffName: "Singer-Songwriter (5 Credits Demo)",
         type: "Solo",
         location: "Dortmund",
@@ -1046,6 +1083,11 @@ const initialMusicians = [
         maxDuration: 4,
         minBudget: 500,
         maxBudget: 800,
+        minPublikum: 30,
+        maxPublikum: 90,
+        publikum: "30 - 90",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Firmenfeier", "Geburtstag"],
         availability: ["Friday", "Saturday"],
         description: "Demo-Musiker-Account mit 5 Credits zum Testen der Einzelfreischaltung.",
@@ -1062,7 +1104,7 @@ const initialMusicians = [
     },
     {
         id: "mus_7",
-        name: "The Munich Jazz Syndicate",
+        name: "[Demo] The Munich Jazz Syndicate",
         bluffName: "Klassisches Jazz- & Swing-Quintett",
         type: "Band",
         location: "München",
@@ -1073,6 +1115,11 @@ const initialMusicians = [
         maxDuration: 5,
         minBudget: 1500,
         maxBudget: 2800,
+        minPublikum: 80,
+        maxPublikum: 250,
+        publikum: "80 - 250",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Firmenfeier", "Jubiläum", "Hochzeit – Party", "Festival"],
         availability: ["Friday", "Saturday", "Sunday"],
         description: "Bringen Sie das goldene Zeitalter des Jazz auf Ihr Event. Von sanfter Lounge-Hintergrundmusik zum Sektempfang bis hin zu treibenden Swing-Rhythmen, die Ihre Gäste auf die Tanzfläche locken. Professioneller Sound garantiert.",
@@ -1099,7 +1146,7 @@ const initialMusicians = [
     },
     {
         id: "mus_8",
-        name: "Lara & the Strings",
+        name: "[Demo] Lara & the Strings",
         bluffName: "Modernes Akustik-Trio mit Cello",
         type: "Trio",
         location: "Berlin",
@@ -1110,6 +1157,11 @@ const initialMusicians = [
         maxDuration: 4,
         minBudget: 950,
         maxBudget: 1800,
+        minPublikum: 50,
+        maxPublikum: 150,
+        publikum: "50 - 150",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Hochzeit - Trauung", "Firmenfeier", "Geburtstag", "Gartenparty"],
         availability: ["Friday", "Saturday", "Sunday"],
         description: "Durch die seltene Kombination aus kraftvollem Gesang, Akustikgitarre und warmen Celloklängen verleihen wir bekannten Pophits und Klassikern eine ganz persönliche Note. Ideal für Hochzeiten und gehobene Events.",
@@ -1136,7 +1188,7 @@ const initialMusicians = [
     },
     {
         id: "mus_9",
-        name: "Electric Violin Show",
+        name: "[Demo] Electric Violin Show",
         bluffName: "Atemberaubende E-Violinen Performance",
         type: "Solo",
         location: "Frankfurt",
@@ -1147,6 +1199,11 @@ const initialMusicians = [
         maxDuration: 2.5,
         minBudget: 700,
         maxBudget: 1400,
+        minPublikum: 100,
+        maxPublikum: 300,
+        publikum: "100 - 300",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Firmenfeier", "Festival", "Club-Show", "Produktpräsentation"],
         availability: ["Thursday", "Friday", "Saturday"],
         description: "Hochenergetische Fusion aus klassischer Geige und modernen elektronischen Beats. Die perfekte Show als packendes Opening, Highlight-Act zwischen Gängen oder pulsierender Live-Act neben dem DJ.",
@@ -1171,7 +1228,7 @@ const initialMusicians = [
     },
     {
         id: "mus_10",
-        name: "DJane Melody (Vanessa)",
+        name: "[Demo] DJane Melody (Vanessa)",
         bluffName: "Premium DJane für Hochzeiten & Firmenevents",
         type: "DJ",
         location: "Hamburg",
@@ -1182,6 +1239,11 @@ const initialMusicians = [
         maxDuration: 10,
         minBudget: 800,
         maxBudget: 1600,
+        minPublikum: 100,
+        maxPublikum: 350,
+        publikum: "100 - 350",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Hochzeit – Party", "Firmenfeier", "Geburtstag", "Club-Gig"],
         availability: ["Friday", "Saturday", "Sunday"],
         description: "Bester Club-Sound & feine Partyklassiker nahtlos gemixt. Mit feinem Gespür für die Tanzfläche und exzellenter Sound- und Lichtanlage verwandle ich Ihr Event in eine ausgelassene Party. Musikwünsche sind willkommen!",
@@ -1208,7 +1270,7 @@ const initialMusicians = [
     },
     {
         id: "mus_11",
-        name: "The Rock N Rollers",
+        name: "[Demo] The Rock N Rollers",
         bluffName: "Hochenergetische 50s & 60s Rock'n'Roll Band",
         type: "Band",
         location: "Stuttgart",
@@ -1219,6 +1281,11 @@ const initialMusicians = [
         maxDuration: 4.5,
         minBudget: 1600,
         maxBudget: 3200,
+        minPublikum: 120,
+        maxPublikum: 350,
+        publikum: "120 - 350",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Firmenfeier", "Stadtfest", "Hochzeit – Party", "Geburtstag"],
         availability: ["Friday", "Saturday"],
         description: "Wir bringen den rohen, ehrlichen Groove der Ära von Elvis Presley, Chuck Berry und den Beatles auf Ihre Bühne. 100% tanzbar, handgemacht und mit authentischen Outfits. Eigene Ton- und Lichttechnik vorhanden.",
@@ -1245,7 +1312,7 @@ const initialMusicians = [
     },
     {
         id: "mus_12",
-        name: "Marc & Sophie Duo",
+        name: "[Demo] Marc & Sophie Duo",
         bluffName: "Gefühlvolles Akustik- & Gesangsduo",
         type: "Duo",
         location: "Köln",
@@ -1256,6 +1323,11 @@ const initialMusicians = [
         maxDuration: 4,
         minBudget: 750,
         maxBudget: 1350,
+        minPublikum: 40,
+        maxPublikum: 120,
+        publikum: "40 - 120",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Hochzeit - Trauung", "Sektempfang", "Geburtstag", "Firmenfeier"],
         availability: ["Saturday", "Sunday", "Friday"],
         description: "Gänsehautmomente bei Ihrer Trauung oder elegante Unplugged-Hintergrundmusik für Ihr Firmenevent. Mit zweistimmigem Gesang und feiner instrumentaler Untermalung schaffen wir eine einzigartige Atmosphäre.",
@@ -1281,7 +1353,7 @@ const initialMusicians = [
     },
     {
         id: "mus_13",
-        name: "Brass Power Band",
+        name: "[Demo] Brass Power Band",
         bluffName: "Energetische Brass-, Funk- & Soul-Combo",
         type: "Band",
         location: "Hannover",
@@ -1292,6 +1364,11 @@ const initialMusicians = [
         maxDuration: 3,
         minBudget: 1700,
         maxBudget: 3000,
+        minPublikum: 150,
+        maxPublikum: 450,
+        publikum: "150 - 450",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Stadtfest", "Festival", "Firmenfeier", "Hochzeit – Party"],
         availability: ["Friday", "Saturday", "Sunday"],
         description: "Fette Bläsersätze und ein unaufhaltsamer Groove! Wir interpretieren Funk-Klassiker sowie moderne Chart-Hits in mitreißenden Brass-Arrangements neu. Hoher Spaßfaktor und Tanzgarantie!",
@@ -1318,7 +1395,7 @@ const initialMusicians = [
     },
     {
         id: "mus_14",
-        name: "Elena Petrov - Harfenklänge",
+        name: "[Demo] Elena Petrov - Harfenklänge",
         bluffName: "Virtuose Solo-Harfenistin",
         type: "Solo",
         location: "Dresden",
@@ -1329,6 +1406,11 @@ const initialMusicians = [
         maxDuration: 3,
         minBudget: 480,
         maxBudget: 900,
+        minPublikum: 20,
+        maxPublikum: 80,
+        publikum: "20 - 80",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Hochzeit - Trauung", "Sektempfang", "Vernissage", "Hintergrundmusik"],
         availability: ["Saturday", "Sunday"],
         description: "Zauberhafte, elegante Klänge für ganz besondere Anlässe. Neben klassischen Meilensteinen spiele ich auch romantische Filmmusik (z.B. Amélie, Disney) und moderne Liebeslieder im verträumten Harfen-Stil.",
@@ -1354,7 +1436,7 @@ const initialMusicians = [
     },
     {
         id: "mus_15",
-        name: "The Blues Project",
+        name: "[Demo] The Blues Project",
         bluffName: "Grooviges Blues- & Soul-Trio",
         type: "Trio",
         location: "Hamburg",
@@ -1365,6 +1447,11 @@ const initialMusicians = [
         maxDuration: 4.5,
         minBudget: 1000,
         maxBudget: 1900,
+        minPublikum: 60,
+        maxPublikum: 180,
+        publikum: "60 - 180",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Bar/Kneipe/Club", "Firmenfeier", "Geburtstag", "Sommerfest"],
         availability: ["Friday", "Saturday", "Thursday"],
         description: "Handgemachter, rauer Blues mit einer Extraportion Soul. Von tiefen Delta-Blues-Klängen bis hin zu treibendem Chicago-Blues zum Tanzen. Eigene kleine PA-Anlage ist für Events bis 100 Personen vorhanden.",
@@ -1389,7 +1476,7 @@ const initialMusicians = [
     },
     {
         id: "mus_16",
-        name: "Folk & Beyond",
+        name: "[Demo] Folk & Beyond",
         bluffName: "Kreatives Indie-Folk & Americana Duo",
         type: "Duo",
         location: "Berlin",
@@ -1400,6 +1487,11 @@ const initialMusicians = [
         maxDuration: 4,
         minBudget: 780,
         maxBudget: 1300,
+        minPublikum: 40,
+        maxPublikum: 120,
+        publikum: "40 - 120",
+        isDemo: true,
+        isActive: true,
         eventTypes: ["Hochzeit - Trauung", "Gartenparty", "Firmenfeier", "Festival"],
         availability: ["Saturday", "Sunday", "Friday"],
         description: "Mehrstimmiger Gesang kombiniert mit Banjo, Gitarre und Mandoline. Wir entführen Ihre Gäste in die weiten Welten des Folk-Pops und bringen mitreißende Rythmen auf Ihre Garten- oder Hochzeitsfeier.",
@@ -1429,7 +1521,7 @@ const initialMusicians = [
 const initialEvents = [
     {
         id: "evt_1",
-        name: "Traumhochzeit am See",
+        name: "[Demo] Traumhochzeit am See",
         type: "Hochzeit - Trauung",
         organizerType: "Privater Veranstalter",
         company: "Privatperson",
@@ -1445,6 +1537,10 @@ const initialEvents = [
         minBudget: 800,
         maxBudget: 1200,
         budget: 950,
+        minPublikum: 40,
+        maxPublikum: 100,
+        publikum: "40 - 100",
+        isDemo: true,
         musicianTypes: ["Solo", "Duo"],
         description: "Für unsere kirchliche Trauung und den anschließenden Sektempfang direkt am See suchen wir eine gefühlvolle musikalische Untermalung (Klavier & Gesang). Gewünscht sind ca. 3 Lieder während der Zeremonie und 1.5 Stunden Hintergrundmusik beim Empfang.",
         contactName: "Julia & Michael",
@@ -1459,7 +1555,7 @@ const initialEvents = [
     },
     {
         id: "evt_2",
-        name: "Sommerfestival Stadtstrand",
+        name: "[Demo] Sommerfestival Stadtstrand",
         type: "Festival",
         organizerType: "Festivalveranstalter",
         company: "Eventagentur SommerSonne",
@@ -1475,6 +1571,10 @@ const initialEvents = [
         minBudget: 2000,
         maxBudget: 3000,
         budget: 2500,
+        minPublikum: 200,
+        maxPublikum: 500,
+        publikum: "200 - 500",
+        isDemo: true,
         musicianTypes: ["Band", "DJ"],
         description: "Großes Sommer-Event am Stadtstrand! Wir suchen eine energiegeladene Live-Band oder einen DJ, der für fette Beats und Sommerstimmung sorgt. PA-Anlage und Bühne sind vorhanden. Verpflegung wird gestellt.",
         contactName: "Eventagentur SommerSonne",
@@ -1489,7 +1589,7 @@ const initialEvents = [
     },
     {
         id: "evt_3",
-        name: "Firmenjubiläum TechCorp",
+        name: "[Demo] Firmenjubiläum TechCorp",
         type: "Firmenfeier",
         organizerType: "Firma",
         company: "TechCorp GmbH",
@@ -1505,6 +1605,10 @@ const initialEvents = [
         minBudget: 1200,
         maxBudget: 1800,
         budget: 1500,
+        minPublikum: 80,
+        maxPublikum: 150,
+        publikum: "80 - 150",
+        isDemo: true,
         musicianTypes: ["Band", "Duo"],
         description: "Wir feiern unser 10-jähriges Bestehen und suchen eine Band für den Abend. Zuerst gediegener Jazz zum Dinner, danach Pop/Rock-Klassiker zum Tanzen. Licht/Ton muss mitgebracht werden.",
         contactName: "Sandra Meier (TechCorp HR)",
@@ -1519,7 +1623,7 @@ const initialEvents = [
     },
     {
         id: "evt_4",
-        name: "Electronic Beach Party",
+        name: "[Demo] Electronic Beach Party",
         type: "Bar/Kneipe/Club",
         organizerType: "Event-Agentur",
         company: "Club Seeufer Frankfurt",
@@ -1535,6 +1639,10 @@ const initialEvents = [
         minBudget: 600,
         maxBudget: 900,
         budget: 800,
+        minPublikum: 150,
+        maxPublikum: 350,
+        publikum: "150 - 350",
+        isDemo: true,
         musicianTypes: ["DJ"],
         description: "Wir veranstalten unser alljährliches Open Air am See und suchen einen professionellen Club-DJ für fette EDM, House & Techno-Beats. Sound- & Lichtanlage sind komplett vorhanden.",
         contactName: "Club Seeufer Frankfurt",
@@ -1549,7 +1657,7 @@ const initialEvents = [
     },
     {
         id: "evt_5",
-        name: "50. Geburtstag im Gewölbekeller",
+        name: "[Demo] 50. Geburtstag im Gewölbekeller",
         type: "Geburtstag",
         organizerType: "Privater Veranstalter",
         company: "Privatperson",
@@ -1565,6 +1673,10 @@ const initialEvents = [
         minBudget: 400,
         maxBudget: 600,
         budget: 600,
+        minPublikum: 30,
+        maxPublikum: 60,
+        publikum: "30 - 60",
+        isDemo: true,
         musicianTypes: ["Duo", "Solo", "Band"],
         description: "Zu meinem 50. Geburtstag suche ich ein Akustik-Duo oder einen Solo-Musiker, der alte Rock- und Popklassiker spielt und für gute Laune im Kellergewölbe sorgt. Platz ist begrenzt, Strom vorhanden.",
         contactName: "Thomas Wagner",
@@ -1613,10 +1725,10 @@ function generateRemainingMusicians(existing) {
         let name = "";
         let bluffName = "";
         if (type === "Band" || type === "Duo") {
-            name = `The ${adjectives[Math.floor(Math.random() * adjectives.length)]} ${nouns[Math.floor(Math.random() * nouns.length)]}`;
+            name = `[Demo] The ${adjectives[Math.floor(Math.random() * adjectives.length)]} ${nouns[Math.floor(Math.random() * nouns.length)]}`;
             bluffName = `Professionelle ${genresPool[Math.floor(Math.random() * genresPool.length)]}-${type}`;
         } else {
-            name = contactName;
+            name = `[Demo] ${contactName}`;
             bluffName = type === "DJ" ? `Erfahrener Event-DJ` : `Akustik-Solo-Künstler`;
         }
 
@@ -1655,6 +1767,10 @@ function generateRemainingMusicians(existing) {
             if (!eventTypes.includes(et)) eventTypes.push(et);
         }
 
+        const minPublikum = [20, 50, 100, 150, 200, 300][Math.floor(Math.random() * 6)];
+        const maxPublikum = minPublikum + [30, 50, 100, 200][Math.floor(Math.random() * 4)];
+        const publikum = `${minPublikum} - ${maxPublikum}`;
+
         musicians.push({
             id: `mus_gen_${i}`,
             name,
@@ -1668,6 +1784,10 @@ function generateRemainingMusicians(existing) {
             maxDuration,
             minBudget,
             maxBudget,
+            minPublikum,
+            maxPublikum,
+            publikum,
+            isDemo: true,
             eventTypes,
             availability,
             description: `Hallo, wir sind ${name}! Mit viel Herzblut und Leidenschaft spielen wir ${genres.join(" & ")} für Ihre Veranstaltung in ${location} und Umgebung. Kontaktieren Sie uns gerne!`,
@@ -1711,9 +1831,9 @@ function generateRemainingEvents(existing) {
         
         let eventName = "";
         if (eventType.includes("Hochzeit")) {
-            eventName = `Traumhochzeit von ${firstNames[Math.floor(Math.random() * firstNames.length)]} & ${firstNames[Math.floor(Math.random() * firstNames.length)]}`;
+            eventName = `[Demo] Traumhochzeit von ${firstNames[Math.floor(Math.random() * firstNames.length)]} & ${firstNames[Math.floor(Math.random() * firstNames.length)]}`;
         } else {
-            eventName = `${eventAdjectives[Math.floor(Math.random() * eventAdjectives.length)]} ${eventType} in ${location}`;
+            eventName = `[Demo] ${eventAdjectives[Math.floor(Math.random() * eventAdjectives.length)]} ${eventType} in ${location}`;
         }
 
         const genresCount = Math.floor(Math.random() * 2) + 1;
@@ -1773,6 +1893,7 @@ function generateRemainingEvents(existing) {
         events.push({
             id: `evt_gen_${i}`,
             name: eventName,
+            isDemo: true,
             type: eventType,
             date,
             eventStartTime,
@@ -1852,6 +1973,13 @@ class StateManager {
         
         // Hydrate state synchronously from localStorage cache to enable instant rendering without spinners
         try {
+            const storedDemoVer = localStorage.getItem('GigConnAct_demo_version');
+            if (storedDemoVer !== GIGCONNACT_DEMO_VERSION) {
+                console.log("[GigConnAct] Demo version updated to " + GIGCONNACT_DEMO_VERSION + ", refreshing demo cache...");
+                localStorage.removeItem('GigConnAct_musicians');
+                localStorage.removeItem('GigConnAct_events');
+                localStorage.setItem('GigConnAct_demo_version', GIGCONNACT_DEMO_VERSION);
+            }
             const storedUser = localStorage.getItem('GigConnAct_current_user');
             if (storedUser) {
                 this.currentUser = JSON.parse(storedUser);
@@ -1904,6 +2032,24 @@ class StateManager {
         } catch (e) {
             clearTimeout(timeoutId);
             console.error("Firebase init failed, continuing with cached/local state:", e);
+        }
+    }
+
+    async syncDemosToFirestore() {
+        if (typeof auth === 'undefined' || !auth.currentUser) return;
+        const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(auth.currentUser.email);
+        if (!isAdmin) return;
+        try {
+            console.log("[GigConnAct] Admin logged in: Syncing demo cards to Firestore...");
+            const demoMus = this.musicians.filter(m => m.isDemo || m.id.startsWith('mus_1') || m.id.startsWith('mus_2') || m.id.startsWith('mus_gen_') || initialMusicians.some(init => init.id === m.id));
+            const demoEvt = this.events.filter(e => e.isDemo || e.id.startsWith('evt_1') || e.id.startsWith('evt_2') || e.id.startsWith('evt_gen_') || initialEvents.some(init => init.id === e.id));
+            const promises = [];
+            demoMus.forEach(m => promises.push(db.collection('musicians').doc(m.id).set(m, { merge: true })));
+            demoEvt.forEach(e => promises.push(db.collection('events').doc(e.id).set(e, { merge: true })));
+            await Promise.allSettled(promises);
+            console.log("[GigConnAct] All demo cards successfully synced to Firestore!");
+        } catch (err) {
+            console.warn("syncDemosToFirestore notice:", err);
         }
     }
 
@@ -2248,6 +2394,7 @@ class StateManager {
                         this.currentUser = { id: doc.id, ...doc.data() };
                         if (this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
                             this.currentUser.role = 'organizer';
+                            this.syncDemosToFirestore().catch(e => console.warn(e));
                         }
                         
                         await this.fetchUserOwnData();
@@ -2853,13 +3000,9 @@ class StateManager {
         try {
             const storedMusicians = localStorage.getItem('GigConnAct_musicians');
             const parsed = storedMusicians ? JSON.parse(storedMusicians) : [];
-            const filtered = Array.isArray(parsed) ? parsed.filter(m => m.id && !m.id.startsWith('mus_gen_')) : [];
-            let base = filtered.length > 0 ? filtered : [...initialMusicians];
-            initialMusicians.forEach(init => {
-                if (!base.some(m => m.id === init.id)) {
-                    base.push(init);
-                }
-            });
+            // Preserve only genuine user-created musician profiles, never stale demo items
+            const userCreated = Array.isArray(parsed) ? parsed.filter(m => m.id && !m.id.startsWith('mus_gen_') && !initialMusicians.some(init => init.id === m.id) && !m.isDemo) : [];
+            let base = [...initialMusicians, ...userCreated];
             this.musicians = generateRemainingMusicians(base).map(m => {
                 if (m.isActive === undefined) {
                     m.isActive = true;
@@ -2907,13 +3050,9 @@ class StateManager {
         try {
             const storedEvents = localStorage.getItem('GigConnAct_events');
             const parsed = storedEvents ? JSON.parse(storedEvents) : [];
-            const filtered = Array.isArray(parsed) ? parsed.filter(e => e.id && !e.id.startsWith('evt_gen_')) : [];
-            let base = filtered.length > 0 ? filtered : [...initialEvents];
-            initialEvents.forEach(init => {
-                if (!base.some(e => e.id === init.id)) {
-                    base.push(init);
-                }
-            });
+            // Preserve only genuine user-created events, never stale demo events
+            const userEvents = Array.isArray(parsed) ? parsed.filter(e => e.id && !e.id.startsWith('evt_gen_') && !initialEvents.some(init => init.id === e.id) && !e.isDemo) : [];
+            let base = [...initialEvents, ...userEvents];
             this.events = generateRemainingEvents(base).map(e => {
                 // Ensure minPublikum and maxPublikum exist on all events
                 if (e.minPublikum === undefined || e.minPublikum === null) {
@@ -8968,8 +9107,8 @@ window.openItemDetailModal = function(id, isEvents) {
                             ${(state && state.currentUser)
                                 ? (item.name || item.title || '')
                                 : isEvents
-                                    ? `<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span> <i class="fa-solid fa-lock" style="color: #7c3aed; font-size: 1.5rem; margin-left: 0.6rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
-                                    : `<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: #2563eb; font-size: 1.5rem; margin-left: 0.6rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
+                                    ? `${(item.isDemo || (item.id && (item.id.startsWith('mus_') || item.id.startsWith('evt_')))) ? '[Demo] ' : ''}<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span> <i class="fa-solid fa-lock" style="color: #7c3aed; font-size: 1.5rem; margin-left: 0.6rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
+                                    : `${(item.isDemo || (item.id && (item.id.startsWith('mus_') || item.id.startsWith('evt_')))) ? '[Demo] ' : ''}<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: #2563eb; font-size: 1.5rem; margin-left: 0.6rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
                             }
                         </h2>
                     </div>
@@ -18310,11 +18449,12 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
         const description = (isEvents && isMediation) ? window.cleanEventDescription(rawDesc, true) : rawDesc;
 
         const bandName = item.name || item.title || '';
+        const isDemoTile = item.isDemo || (item.id && (item.id.startsWith('mus_') || item.id.startsWith('evt_')));
         const displayName = (state && state.currentUser)
             ? bandName
             : isEvents
-                ? `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span> <i class="fa-solid fa-lock" style="color: #7c3aed; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
-                : `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: #2563eb; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`;
+                ? `${isDemoTile ? '[Demo] ' : ''}<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span> <i class="fa-solid fa-lock" style="color: #7c3aed; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
+                : `${isDemoTile ? '[Demo] ' : ''}<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: #2563eb; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`;
 
         return `
             <div class="market-tile-card" style="cursor: default; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0);">
@@ -18620,6 +18760,7 @@ try {
     console.error("StateManager failsafe init error, using fallback:", e);
 }
 console.log("StateManager initialized. Events IDs:", state.events.map(e => e.id).join(", "));
+window.syncDemosToFirestore = () => state && typeof state.syncDemosToFirestore === 'function' && state.syncDemosToFirestore();
 
 if (!state) {
     state = {
