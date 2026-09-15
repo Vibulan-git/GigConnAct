@@ -3048,13 +3048,13 @@ body.landing-page-active .app-container {
     }
     
     .hero-cta-buttons .btn {
-        padding: 0.95rem 0.3rem 0.85rem !important;
-        border-radius: 16px !important;
+        padding: 1.25rem 0.4rem 1.15rem !important;
+        border-radius: 18px !important;
         min-width: 0 !important;
         width: 0 !important;
         flex: 1 1 0px !important;
-        min-height: 155px !important;
-        max-height: 195px !important;
+        min-height: 168px !important;
+        max-height: 210px !important;
         justify-content: center !important;
         align-items: center !important;
     }

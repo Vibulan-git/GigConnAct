@@ -6113,24 +6113,18 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
     if (mode === 'musician') {
         return `
             <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; box-sizing: border-box;">
-                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.25rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: space-between; flex: 1 1 0px; width: 0; min-width: 0; min-height: 145px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
-                    <div style="display: flex; flex-direction: column; align-items: center; flex: 1; text-align: center;">
-                        <i class="fa-solid fa-guitar" style="font-size: clamp(1.75rem, 4vw, 2.2rem); margin-bottom: 0.45rem; color: #ffffff;"></i>
-                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; line-height: 1.2; text-align: center; color: #ffffff;">Ich möchte selbst</span>
-                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.25rem;">Veranstalter kontaktieren</span>
-                    </div>
-                    <div class="cta-arrow-circle" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 0.6rem; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
-                        <i class="fa-solid fa-arrow-right" style="color: #ffffff; font-size: 1.15rem;"></i>
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.6rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center;">
+                        <i class="fa-solid fa-guitar" style="font-size: clamp(1.85rem, 4.2vw, 2.3rem); margin-bottom: 0.55rem; color: #ffffff;"></i>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; line-height: 1.25; text-align: center; color: #ffffff;">Ich möchte selbst</span>
+                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.3rem;">Veranstalter kontaktieren</span>
                     </div>
                 </button>
-                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.25rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: space-between; flex: 1 1 0px; width: 0; min-width: 0; min-height: 145px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
-                    <div style="display: flex; flex-direction: column; align-items: center; flex: 1; text-align: center;">
-                        <i class="fa-solid fa-handshake" style="font-size: clamp(1.75rem, 4vw, 2.2rem); margin-bottom: 0.45rem; color: #ffffff;"></i>
-                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; line-height: 1.2; text-align: center; color: #ffffff;">Ich möchte Veranstalter</span>
-                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.25rem;">vermittelt bekommen</span>
-                    </div>
-                    <div class="cta-arrow-circle" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 0.6rem; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
-                        <i class="fa-solid fa-arrow-right" style="color: #ffffff; font-size: 1.15rem;"></i>
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.6rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center;">
+                        <i class="fa-solid fa-handshake" style="font-size: clamp(1.85rem, 4.2vw, 2.3rem); margin-bottom: 0.55rem; color: #ffffff;"></i>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; line-height: 1.25; text-align: center; color: #ffffff;">Ich möchte Veranstalter</span>
+                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.3rem;">vermittelt bekommen</span>
                     </div>
                 </button>
                 <div style="position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; justify-content: center; pointer-events: auto;">
@@ -6145,24 +6139,18 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
     if (mode === 'organizer') {
         return `
             <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; box-sizing: border-box;">
-                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('musicians')" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.25rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: space-between; flex: 1 1 0px; width: 0; min-width: 0; min-height: 145px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
-                    <div style="display: flex; flex-direction: column; align-items: center; flex: 1; text-align: center;">
-                        <i class="fa-solid fa-guitar" style="font-size: clamp(1.75rem, 4vw, 2.2rem); margin-bottom: 0.45rem; color: #ffffff;"></i>
-                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; line-height: 1.2; text-align: center; color: #ffffff;">Ich möchte selbst</span>
-                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.25rem;">Musiker kontaktieren</span>
-                    </div>
-                    <div class="cta-arrow-circle" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 0.6rem; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
-                        <i class="fa-solid fa-arrow-right" style="color: #ffffff; font-size: 1.15rem;"></i>
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('musicians')" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.6rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center;">
+                        <i class="fa-solid fa-guitar" style="font-size: clamp(1.85rem, 4.2vw, 2.3rem); margin-bottom: 0.55rem; color: #ffffff;"></i>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; line-height: 1.25; text-align: center; color: #ffffff;">Ich möchte selbst</span>
+                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.3rem;">Musiker kontaktieren</span>
                     </div>
                 </button>
-                <button class="btn hero-cta-card-btn" onclick="window.showAgencyBookingForm()" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.25rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: space-between; flex: 1 1 0px; width: 0; min-width: 0; min-height: 145px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
-                    <div style="display: flex; flex-direction: column; align-items: center; flex: 1; text-align: center;">
-                        <i class="fa-solid fa-file-pen" style="font-size: clamp(1.75rem, 4vw, 2.2rem); margin-bottom: 0.45rem; color: #ffffff;"></i>
-                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; line-height: 1.2; text-align: center; color: #ffffff;">Ich möchte Musiker</span>
-                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.25rem;">vermittelt bekommen</span>
-                    </div>
-                    <div class="cta-arrow-circle" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 0.6rem; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
-                        <i class="fa-solid fa-arrow-right" style="color: #ffffff; font-size: 1.15rem;"></i>
+                <button class="btn hero-cta-card-btn" onclick="window.showAgencyBookingForm()" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.6rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center;">
+                        <i class="fa-solid fa-file-pen" style="font-size: clamp(1.85rem, 4.2vw, 2.3rem); margin-bottom: 0.55rem; color: #ffffff;"></i>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; line-height: 1.25; text-align: center; color: #ffffff;">Ich möchte Musiker</span>
+                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.3rem;">vermittelt bekommen</span>
                     </div>
                 </button>
                 <div style="position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; justify-content: center; pointer-events: auto;">
@@ -6178,26 +6166,20 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
     return `
         <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; box-sizing: border-box;">
             <!-- Button 1: Musiker -->
-            <button class="btn hero-cta-card-btn" id="btn-hero-musician" onclick="window.setHeroCtaMode('musician', 'forward')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.3rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: space-between; flex: 1 1 0px; width: 0; min-width: 0; min-height: 145px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
-                <div style="display: flex; flex-direction: column; align-items: center; flex: 1; text-align: center;">
-                    <i class="fa-solid fa-guitar" style="font-size: clamp(1.85rem, 4vw, 2.3rem); margin-bottom: 0.45rem; color: #ffffff;"></i>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.15rem, 2.5vw, 1.45rem); font-weight: 800; line-height: 1.2; text-align: center; color: #ffffff;">Ich bin Musiker</span>
-                    <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.25rem;">und suche Gigs</span>
-                </div>
-                <div class="cta-arrow-circle" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 0.6rem; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
-                    <i class="fa-solid fa-arrow-right" style="color: #ffffff; font-size: 1.15rem;"></i>
+            <button class="btn hero-cta-card-btn" id="btn-hero-musician" onclick="window.setHeroCtaMode('musician', 'forward')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.6rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center;">
+                    <i class="fa-solid fa-guitar" style="font-size: clamp(2rem, 4.5vw, 2.5rem); margin-bottom: 0.6rem; color: #ffffff;"></i>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.15rem, 2.5vw, 1.45rem); font-weight: 800; line-height: 1.25; text-align: center; color: #ffffff;">Ich bin Musiker</span>
+                    <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.35rem;">und suche Gigs</span>
                 </div>
             </button>
 
             <!-- Button 2: Veranstalter -->
-            <button class="btn hero-cta-card-btn" id="btn-hero-organizer" onclick="window.setHeroCtaMode('organizer', 'forward')" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.3rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: space-between; flex: 1 1 0px; width: 0; min-width: 0; min-height: 145px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
-                <div style="display: flex; flex-direction: column; align-items: center; flex: 1; text-align: center;">
-                    <i class="fa-solid fa-calendar-check" style="font-size: clamp(1.85rem, 4vw, 2.3rem); margin-bottom: 0.45rem; color: #ffffff;"></i>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.15rem, 2.5vw, 1.45rem); font-weight: 800; line-height: 1.2; text-align: center; color: #ffffff;">Ich bin Veranstalter</span>
-                    <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.25rem;">und suche Acts</span>
-                </div>
-                <div class="cta-arrow-circle" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.22); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 0.6rem; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
-                    <i class="fa-solid fa-arrow-right" style="color: #ffffff; font-size: 1.15rem;"></i>
+            <button class="btn hero-cta-card-btn" id="btn-hero-organizer" onclick="window.setHeroCtaMode('organizer', 'forward')" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.6rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center;">
+                    <i class="fa-solid fa-calendar-check" style="font-size: clamp(2rem, 4.5vw, 2.5rem); margin-bottom: 0.6rem; color: #ffffff;"></i>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.15rem, 2.5vw, 1.45rem); font-weight: 800; line-height: 1.25; text-align: center; color: #ffffff;">Ich bin Veranstalter</span>
+                    <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.35rem;">und suche Acts</span>
                 </div>
             </button>
         </div>
@@ -6288,7 +6270,7 @@ function renderLandingPage(container, onNavigate) {
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(124, 58, 237, 0.82) 100%); z-index: 2;"></div>
 
                 <!-- Upper Group: Logo and Slogan (flush with 540px CTA buttons, balanced upper margin) -->
-                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.6rem, 1.8vh, 1.3rem); width: 100%; max-width: 540px; margin-top: clamp(0.6rem, 1.8vh, 1.6rem); margin-bottom: auto; box-sizing: border-box;">
+                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.6rem, 1.8vh, 1.3rem); width: 100%; max-width: 540px; margin-top: clamp(2.2rem, 5.5vh, 4.4rem); margin-bottom: auto; box-sizing: border-box;">
                     
                     <!-- 1/4: Logo (fills full width of 540px container, discoball + GigConnAct, unclipping g descender) -->
                     <div class="brand-logo-center" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin: 0 auto; padding: 0.15rem 0; overflow: visible; box-sizing: border-box;">
@@ -18667,8 +18649,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
 
                         <!-- 3. Event-Typ + 'Mehr Details' Button -->
                         <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35;">
-                            <div style="display: flex; align-items: flex-start; gap: 0.6rem; min-width: 130px; flex: 1 1 auto;">
-                                <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem; flex-shrink: 0;"></i>
+                            <div style="display: flex; align-items: flex-start; gap: 0.75rem; min-width: 130px; flex: 1 1 auto;">
+                                <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem; flex-shrink: 0;"></i>
                                 <span style="word-break: break-word; line-height: 1.35; flex: 1;">${formatTruncatedValue((Array.isArray(item.eventTypes) && item.eventTypes.length > 0) ? item.eventTypes.join(', ') : (item.type || item.eventType || 'Event'), themeColor, item.id, 'eventtype')}</span>
                             </div>
                             <button id="toggle-details-btn-${item.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
@@ -18739,8 +18721,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
 
                         <!-- 3. Musiker-Art + 'Mehr Details' Button -->
                         <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35;">
-                            <div style="display: flex; align-items: flex-start; gap: 0.6rem; min-width: 130px; flex: 1 1 auto;">
-                                <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem; flex-shrink: 0;"></i>
+                            <div style="display: flex; align-items: flex-start; gap: 0.75rem; min-width: 130px; flex: 1 1 auto;">
+                                <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem; flex-shrink: 0;"></i>
                                 <span style="word-break: break-word; line-height: 1.35; flex: 1;">${formatTruncatedValue(item.type || item.category || 'Solo / Band', themeColor, item.id, 'mustype')}</span>
                             </div>
                             <button id="toggle-details-btn-${item.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
