@@ -17,14 +17,21 @@
             div.style.width = '100%';
             div.style.background = '#ef4444';
             div.style.color = '#fff';
-            div.style.padding = '1rem';
+            div.style.padding = '0.75rem 1rem';
             div.style.zIndex = '999999';
             div.style.fontFamily = 'monospace';
-            div.style.fontSize = '0.9rem';
+            div.style.fontSize = '0.85rem';
             div.style.boxSizing = 'border-box';
             div.style.textAlign = 'left';
-            div.innerHTML = '<strong>JavaScript Fehler:</strong> ' + message + '<br>Datei: ' + source + '<br>Zeile: ' + lineno + ' | Spalte: ' + colno;
-            document.body.appendChild(div);
+            div.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+            div.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;"><div><strong>JavaScript Fehler:</strong> ' + message + '<br><span style="opacity:0.85;font-size:0.75rem;">Datei: ' + source + ' | Zeile: ' + lineno + ' | Spalte: ' + colno + '</span></div><button onclick="this.parentElement.parentElement.remove()" style="background:#fff;color:#ef4444;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:0.8rem;flex-shrink:0;">✕ Schließen</button></div>';
+            if (document.body) {
+                document.body.appendChild(div);
+            } else {
+                window.addEventListener('DOMContentLoaded', function() {
+                    if (document.body) document.body.appendChild(div);
+                });
+            }
             return false;
         };
     </script>
@@ -43,7 +50,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=20260915_2158">
+    <link rel="stylesheet" href="style.css?v=20260915_2215">
     
     <!-- Firebase CDN SDKs (Compat Version) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -82,7 +89,7 @@
         <nav id="app-bottom-bar" class="app-bottom-bar hidden" aria-label="Hauptnavigation"></nav>
     </div>
 
-    <script src="app_v42.js?v=20260915_2158"></script>
+    <script src="app_v42.js?v=20260915_2215"></script>
 
 </body>
 </html>

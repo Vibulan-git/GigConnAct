@@ -3377,57 +3377,95 @@ class StateManager {
     }
 
     isChatUnread(chat) {
-        if (!this.currentUser) return false;
-        if (!chat) return false;
+        try {
+            if (!this.currentUser) return false;
+            if (!chat || typeof chat !== 'object') return false;
 
-        // Gather all participant IDs of the current user
-        const userParticipantIds = [this.currentUser.id];
-        if (this.currentUser.role === 'musician') {
-            const profiles = (this.musicians || []).filter(m => m && m.creatorId === this.currentUser.id);
-            profiles.forEach(m => { if (m && m.id) userParticipantIds.push(m.id); });
-            if (this.currentUser.profileId) {
-                userParticipantIds.push(this.currentUser.profileId);
+            // Gather all participant IDs of the current user
+            const userParticipantIds = [this.currentUser.id];
+            if (this.currentUser.role === 'musician') {
+                const profiles = (Array.isArray(this.musicians) ? this.musicians : []).filter(m => m && m.creatorId === this.currentUser.id);
+                profiles.forEach(m => { if (m && m.id) userParticipantIds.push(m.id); });
+                if (this.currentUser.profileId) {
+                    userParticipantIds.push(this.currentUser.profileId);
+                }
+            } else {
+                const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
+                const userEvents = (Array.isArray(this.events) ? this.events : []).filter(e => e && (
+                    e.creatorId === this.currentUser.id ||
+                    (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
+                ));
+                userEvents.forEach(e => { if (e && e.id) userParticipantIds.push(e.id); });
             }
-        } else {
-            const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
-            const userEvents = (this.events || []).filter(e => e && (
-                e.creatorId === this.currentUser.id ||
-                (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
-            ));
-            userEvents.forEach(e => { if (e && e.id) userParticipantIds.push(e.id); });
-        }
 
-        // Check if the current user is a participant
-        if (!chat.participants || !chat.participants.some(pid => userParticipantIds.includes(pid))) {
-            return false;
-        }
-
-        // Check if the last message was sent by someone else
-        if (!chat.messages || chat.messages.length === 0) {
-            return false;
-        }
-        const lastMsg = chat.messages[chat.messages.length - 1];
-        if (userParticipantIds.includes(lastMsg.senderId)) {
-            return false;
-        }
-
-        // Check if the chat is read based on the last read message timestamp
-        if (this.readChats) {
-            if (Array.isArray(this.readChats)) {
-                return !this.readChats.includes(chat.id);
-            } else if (typeof this.readChats === 'object') {
-                const lastReadTime = this.readChats[chat.id];
-                if (!lastReadTime) return true; // Never read
-                return new Date(lastMsg.timestamp) > new Date(lastReadTime);
+            // Normalize participants to array
+            let participants = [];
+            if (Array.isArray(chat.participants)) {
+                participants = chat.participants;
+            } else if (chat.participants && typeof chat.participants === 'object') {
+                participants = Object.keys(chat.participants);
             }
+
+            if (!participants || !participants.some(pid => userParticipantIds.includes(pid))) {
+                return false;
+            }
+
+            // Normalize messages to array
+            let messages = [];
+            if (Array.isArray(chat.messages)) {
+                messages = chat.messages;
+            } else if (chat.messages && typeof chat.messages === 'object') {
+                messages = Object.values(chat.messages);
+            }
+
+            if (!messages || messages.length === 0) {
+                return false;
+            }
+
+            const lastMsg = messages[messages.length - 1];
+            if (!lastMsg || typeof lastMsg !== 'object') {
+                return false;
+            }
+
+            if (lastMsg.senderId && userParticipantIds.includes(lastMsg.senderId)) {
+                return false;
+            }
+
+            // Check if the chat is read based on the last read message timestamp
+            if (this.readChats) {
+                if (Array.isArray(this.readChats)) {
+                    return !this.readChats.includes(chat.id);
+                } else if (typeof this.readChats === 'object') {
+                    const lastReadTime = this.readChats[chat.id];
+                    if (!lastReadTime) return true; // Never read
+                    if (lastMsg.timestamp) {
+                        return new Date(lastMsg.timestamp) > new Date(lastReadTime);
+                    }
+                    return true;
+                }
+            }
+            return true;
+        } catch (e) {
+            console.warn("isChatUnread error:", e);
+            return false;
         }
-        return true;
     }
 
     getUnreadCount() {
-        if (!this.currentUser) return 0;
-        const chatsList = this.chats || [];
-        return chatsList.filter(c => this.isChatUnread(c)).length;
+        try {
+            if (!this.currentUser) return 0;
+            const chatsList = Array.isArray(this.chats) ? this.chats : [];
+            return chatsList.filter(c => {
+                try {
+                    return this.isChatUnread(c);
+                } catch (e) {
+                    return false;
+                }
+            }).length;
+        } catch (err) {
+            console.warn("getUnreadCount error:", err);
+            return 0;
+        }
     }
 
     getChatsForUser(userId) {
@@ -16043,196 +16081,230 @@ function setActiveLink(linkId) {
 }
 
 window.updateBottomBar = function() {
-    const bar = document.getElementById('app-bottom-bar');
-    if (!bar) return;
+    try {
+        const bar = document.getElementById('app-bottom-bar');
+        if (!bar) return;
 
-    const hash = window.location.hash || '#/';
-    let pageWithQuery = hash.replace('#/', '').replace('#', '');
-    let page = pageWithQuery.split('?')[0].toLowerCase();
-    if (page.endsWith('/')) page = page.slice(0, -1);
-    if (page === 'top-matches') page = 'matches';
+        const hash = window.location.hash || '#/';
+        let pageWithQuery = hash.replace('#/', '').replace('#', '');
+        let page = pageWithQuery.split('?')[0].toLowerCase();
+        if (page.endsWith('/')) page = page.slice(0, -1);
+        if (page === 'top-matches') page = 'matches';
 
-    const isLanding = !page || page === '' || page === '/';
-    const isExternalPage = page.startsWith('recommendation/') || page.startsWith('mediation-response/');
-    const isMarketPage = page === 'events' || page === 'musicians';
-    const u = (state && state.currentUser && state.currentUser.id) ? state.currentUser : null;
-    const isLoggedIn = !!u;
+        const isLanding = !page || page === '' || page === '/';
+        const isExternalPage = page.startsWith('recommendation/') || page.startsWith('mediation-response/');
+        const isMarketPage = page === 'events' || page === 'musicians';
+        const u = (state && state.currentUser && state.currentUser.id) ? state.currentUser : null;
+        const isLoggedIn = !!u;
 
-    // Show on market pages OR any page when user is logged in (excluding external standalone recommendation pages and unauthenticated landing)
-    const shouldShow = !isExternalPage && (isMarketPage || (isLoggedIn && !isLanding));
+        // Show on market pages OR any page when user is logged in (excluding external standalone recommendation pages and unauthenticated landing)
+        const shouldShow = !isExternalPage && (isMarketPage || (isLoggedIn && !isLanding));
 
-    if (!shouldShow) {
-        bar.classList.add('hidden');
-        bar.innerHTML = '';
-        document.body.classList.remove('has-bottom-bar');
-        return;
-    }
-
-    bar.classList.remove('hidden');
-    document.body.classList.add('has-bottom-bar');
-
-    const isMusician = isLoggedIn ? (u.role === 'musician') : (page !== 'musicians');
-    const marketTitle = isMusician ? 'Gig-Markt' : 'Act-Markt';
-    const marketIcon = isMusician ? 'fa-calendar-days' : 'fa-guitar';
-    const marketHash = isMusician ? '#/events' : '#/musicians';
-    const themeClass = isMusician ? 'theme-purple' : 'theme-blue';
-
-    const urlParams = new URLSearchParams(hash.includes('?') ? hash.split('?')[1] : '');
-    const toggleFavBtn = document.getElementById('btn-toggle-market-favorites');
-    const isFavActive = (toggleFavBtn && toggleFavBtn.classList.contains('active')) || urlParams.get('fav') === 'true' || urlParams.get('showOnlyFavorites') === 'true';
-    const isMarketActive = isMarketPage && !isFavActive;
-    const isMatchesActive = page === 'matches';
-    const isPostboxActive = page === 'postbox';
-    const isProfileActive = page === 'profile' || page === 'dashboard';
-
-    // Calculate unread count for postbox
-    let unreadCount = 0;
-    if (isLoggedIn) {
-        if (typeof state.getUnreadCount === 'function') {
-            unreadCount = state.getUnreadCount();
-        } else if (typeof state.getUnreadMessageCount === 'function') {
-            unreadCount = state.getUnreadMessageCount();
-        } else if (state.chats && Array.isArray(state.chats)) {
-            state.chats.forEach(c => {
-                if (c && c.unreadBy && c.unreadBy.includes(u.id)) unreadCount++;
-            });
+        if (!shouldShow) {
+            bar.classList.add('hidden');
+            bar.innerHTML = '';
+            if (document.body) document.body.classList.remove('has-bottom-bar');
+            return;
         }
-    }
 
-    bar.innerHTML = `
-        <div class="bottom-bar-content">
-            <!-- 1. Gig-Markt / Act-Markt -->
-            <button class="bottom-bar-item tab-market ${themeClass} ${isMarketActive ? 'active' : ''}" id="bottom-bar-tab-market" aria-label="${marketTitle}" title="${marketTitle}">
-                <div class="bottom-bar-icon-wrapper">
-                    <i class="fa-solid ${marketIcon}"></i>
-                </div>
-                <span class="bottom-bar-label">${marketTitle}</span>
-            </button>
+        bar.classList.remove('hidden');
+        if (document.body) document.body.classList.add('has-bottom-bar');
 
-            <!-- 2. Favoriten -->
-            <button class="bottom-bar-item tab-favorites ${isFavActive ? 'active' : ''}" id="bottom-bar-tab-favorites" aria-label="Favoriten" title="Favoriten">
-                <div class="bottom-bar-icon-wrapper">
-                    <i class="fa-solid fa-heart"></i>
-                </div>
-                <span class="bottom-bar-label">Favoriten</span>
-            </button>
+        const isMusician = isLoggedIn ? (u.role === 'musician') : (page !== 'musicians');
+        const marketTitle = isMusician ? 'Gig-Markt' : 'Act-Markt';
+        const marketIcon = isMusician ? 'fa-calendar-days' : 'fa-guitar';
+        const marketHash = isMusician ? '#/events' : '#/musicians';
+        const themeClass = isMusician ? 'theme-purple' : 'theme-blue';
 
-            <!-- 3. Top-Matches -->
-            <button class="bottom-bar-item tab-matches ${isMatchesActive ? 'active' : ''}" id="bottom-bar-tab-matches" aria-label="Top-Matches" title="Top-Matches">
-                <div class="bottom-bar-icon-wrapper">
-                    <i class="fa-solid fa-star"></i>
-                </div>
-                <span class="bottom-bar-label">Top-Matches</span>
-            </button>
+        let isFavActive = false;
+        try {
+            const urlParams = new URLSearchParams(hash.includes('?') ? hash.split('?')[1] : '');
+            const toggleFavBtn = document.getElementById('btn-toggle-market-favorites');
+            isFavActive = (toggleFavBtn && toggleFavBtn.classList.contains('active')) || urlParams.get('fav') === 'true' || urlParams.get('showOnlyFavorites') === 'true';
+        } catch (e) {
+            isFavActive = false;
+        }
 
-            <!-- 4. Postfach -->
-            <button class="bottom-bar-item tab-postbox ${isPostboxActive ? 'active' : ''}" id="bottom-bar-tab-postbox" aria-label="Postfach" title="Postfach">
-                <div class="bottom-bar-icon-wrapper">
-                    <i class="fa-solid fa-envelope"></i>
-                    ${unreadCount > 0 ? `<span class="bottom-bar-badge">${unreadCount}</span>` : ''}
-                </div>
-                <span class="bottom-bar-label">Postfach</span>
-            </button>
+        const isMarketActive = isMarketPage && !isFavActive;
+        const isMatchesActive = page === 'matches';
+        const isPostboxActive = page === 'postbox';
+        const isProfileActive = page === 'profile' || page === 'dashboard';
 
-            <!-- 5. Profil -->
-            <button class="bottom-bar-item tab-profile ${isProfileActive ? 'active' : ''}" id="bottom-bar-tab-profile" aria-label="Profil" title="Profil">
-                <div class="bottom-bar-icon-wrapper">
-                    <i class="fa-regular fa-circle-user"></i>
-                </div>
-                <span class="bottom-bar-label">Profil</span>
-            </button>
-        </div>
-    `;
+        // Calculate unread count for postbox
+        let unreadCount = 0;
+        if (isLoggedIn && state) {
+            try {
+                if (typeof state.getUnreadCount === 'function') {
+                    unreadCount = state.getUnreadCount() || 0;
+                } else if (typeof state.getUnreadMessageCount === 'function') {
+                    unreadCount = state.getUnreadMessageCount() || 0;
+                } else if (state.chats && Array.isArray(state.chats)) {
+                    state.chats.forEach(c => {
+                        if (c && c.unreadBy && Array.isArray(c.unreadBy) && c.unreadBy.includes(u.id)) unreadCount++;
+                    });
+                }
+            } catch (unreadErr) {
+                console.warn("Error calculating unread count in bottom bar:", unreadErr);
+                unreadCount = 0;
+            }
+        }
 
-    // Click handler: Market
-    const btnMarket = bar.querySelector('#bottom-bar-tab-market');
-    if (btnMarket) {
-        btnMarket.addEventListener('click', () => {
-            if (isMarketPage && isFavActive) {
-                // If on market with fav active, clear fav filter
-                const favBtn = document.getElementById('btn-toggle-market-favorites');
-                if (favBtn && favBtn.classList.contains('active')) {
-                    favBtn.click();
-                } else {
+        bar.innerHTML = `
+            <div class="bottom-bar-content">
+                <!-- 1. Gig-Markt / Act-Markt -->
+                <button class="bottom-bar-item tab-market ${themeClass} ${isMarketActive ? 'active' : ''}" id="bottom-bar-tab-market" aria-label="${marketTitle}" title="${marketTitle}">
+                    <div class="bottom-bar-icon-wrapper">
+                        <i class="fa-solid ${marketIcon}"></i>
+                    </div>
+                    <span class="bottom-bar-label">${marketTitle}</span>
+                </button>
+
+                <!-- 2. Favoriten -->
+                <button class="bottom-bar-item tab-favorites ${isFavActive ? 'active' : ''}" id="bottom-bar-tab-favorites" aria-label="Favoriten" title="Favoriten">
+                    <div class="bottom-bar-icon-wrapper">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <span class="bottom-bar-label">Favoriten</span>
+                </button>
+
+                <!-- 3. Top-Matches -->
+                <button class="bottom-bar-item tab-matches ${isMatchesActive ? 'active' : ''}" id="bottom-bar-tab-matches" aria-label="Top-Matches" title="Top-Matches">
+                    <div class="bottom-bar-icon-wrapper">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <span class="bottom-bar-label">Top-Matches</span>
+                </button>
+
+                <!-- 4. Postfach -->
+                <button class="bottom-bar-item tab-postbox ${isPostboxActive ? 'active' : ''}" id="bottom-bar-tab-postbox" aria-label="Postfach" title="Postfach">
+                    <div class="bottom-bar-icon-wrapper">
+                        <i class="fa-solid fa-envelope"></i>
+                        ${unreadCount > 0 ? `<span class="bottom-bar-badge">${unreadCount}</span>` : ''}
+                    </div>
+                    <span class="bottom-bar-label">Postfach</span>
+                </button>
+
+                <!-- 5. Profil -->
+                <button class="bottom-bar-item tab-profile ${isProfileActive ? 'active' : ''}" id="bottom-bar-tab-profile" aria-label="Profil" title="Profil">
+                    <div class="bottom-bar-icon-wrapper">
+                        <i class="fa-regular fa-circle-user"></i>
+                    </div>
+                    <span class="bottom-bar-label">Profil</span>
+                </button>
+            </div>
+        `;
+
+        // Click handler: Market
+        const btnMarket = bar.querySelector('#bottom-bar-tab-market');
+        if (btnMarket) {
+            btnMarket.addEventListener('click', () => {
+                try {
+                    if (isMarketPage && isFavActive) {
+                        const favBtn = document.getElementById('btn-toggle-market-favorites');
+                        if (favBtn && favBtn.classList.contains('active')) {
+                            favBtn.click();
+                        } else {
+                            window.location.hash = marketHash;
+                        }
+                    } else if (window.location.hash !== marketHash) {
+                        window.location.hash = marketHash;
+                    } else if (typeof handleRouting === 'function') {
+                        handleRouting();
+                    }
+                } catch (e) {
                     window.location.hash = marketHash;
                 }
-            } else if (window.location.hash !== marketHash) {
-                window.location.hash = marketHash;
-            } else {
-                handleRouting();
-            }
-        });
-    }
+            });
+        }
 
-    // Click handler: Favorites
-    const btnFavorites = bar.querySelector('#bottom-bar-tab-favorites');
-    if (btnFavorites) {
-        btnFavorites.addEventListener('click', () => {
-            if (!isLoggedIn) {
-                showModal('auth');
-                return;
-            }
-            if (isMarketPage) {
-                const favBtn = document.getElementById('btn-toggle-market-favorites');
-                if (favBtn) {
-                    favBtn.click();
-                } else {
-                    const targetBase = isMusician ? '#/events' : '#/musicians';
-                    window.location.hash = isFavActive ? targetBase : `${targetBase}?fav=true`;
+        // Click handler: Favorites
+        const btnFavorites = bar.querySelector('#bottom-bar-tab-favorites');
+        if (btnFavorites) {
+            btnFavorites.addEventListener('click', () => {
+                try {
+                    if (!isLoggedIn) {
+                        if (typeof showModal === 'function') showModal('auth');
+                        return;
+                    }
+                    if (isMarketPage) {
+                        const favBtn = document.getElementById('btn-toggle-market-favorites');
+                        if (favBtn) {
+                            favBtn.click();
+                        } else {
+                            const targetBase = isMusician ? '#/events' : '#/musicians';
+                            window.location.hash = isFavActive ? targetBase : `${targetBase}?fav=true`;
+                        }
+                    } else {
+                        const targetBase = isMusician ? '#/events' : '#/musicians';
+                        window.location.hash = `${targetBase}?fav=true`;
+                    }
+                } catch (e) {
+                    console.error("Favorites click error:", e);
                 }
-            } else {
-                const targetBase = isMusician ? '#/events' : '#/musicians';
-                window.location.hash = `${targetBase}?fav=true`;
-            }
-        });
-    }
+            });
+        }
 
-    // Click handler: Top-Matches
-    const btnMatches = bar.querySelector('#bottom-bar-tab-matches');
-    if (btnMatches) {
-        btnMatches.addEventListener('click', () => {
-            if (!isLoggedIn) {
-                showModal('auth');
-                return;
-            }
-            if (window.location.hash !== '#/matches') {
-                window.location.hash = '#/matches';
-            } else {
-                handleRouting();
-            }
-        });
-    }
+        // Click handler: Top-Matches
+        const btnMatches = bar.querySelector('#bottom-bar-tab-matches');
+        if (btnMatches) {
+            btnMatches.addEventListener('click', () => {
+                try {
+                    if (!isLoggedIn) {
+                        if (typeof showModal === 'function') showModal('auth');
+                        return;
+                    }
+                    if (window.location.hash !== '#/matches') {
+                        window.location.hash = '#/matches';
+                    } else if (typeof handleRouting === 'function') {
+                        handleRouting();
+                    }
+                } catch (e) {
+                    window.location.hash = '#/matches';
+                }
+            });
+        }
 
-    // Click handler: Postbox
-    const btnPostbox = bar.querySelector('#bottom-bar-tab-postbox');
-    if (btnPostbox) {
-        btnPostbox.addEventListener('click', () => {
-            if (!isLoggedIn) {
-                showModal('auth');
-                return;
-            }
-            if (window.location.hash !== '#/postbox') {
-                window.location.hash = '#/postbox';
-            } else {
-                handleRouting();
-            }
-        });
-    }
+        // Click handler: Postbox
+        const btnPostbox = bar.querySelector('#bottom-bar-tab-postbox');
+        if (btnPostbox) {
+            btnPostbox.addEventListener('click', () => {
+                try {
+                    if (!isLoggedIn) {
+                        if (typeof showModal === 'function') showModal('auth');
+                        return;
+                    }
+                    if (window.location.hash !== '#/postbox') {
+                        window.location.hash = '#/postbox';
+                    } else if (typeof handleRouting === 'function') {
+                        handleRouting();
+                    }
+                } catch (e) {
+                    window.location.hash = '#/postbox';
+                }
+            });
+        }
 
-    // Click handler: Profile
-    const btnProfile = bar.querySelector('#bottom-bar-tab-profile');
-    if (btnProfile) {
-        btnProfile.addEventListener('click', () => {
-            if (!isLoggedIn) {
-                showModal('auth');
-                return;
-            }
-            if (window.location.hash !== '#/profile') {
-                window.location.hash = '#/profile';
-            } else {
-                handleRouting();
-            }
-        });
+        // Click handler: Profile
+        const btnProfile = bar.querySelector('#bottom-bar-tab-profile');
+        if (btnProfile) {
+            btnProfile.addEventListener('click', () => {
+                try {
+                    if (!isLoggedIn) {
+                        if (typeof showModal === 'function') showModal('auth');
+                        return;
+                    }
+                    if (window.location.hash !== '#/profile') {
+                        window.location.hash = '#/profile';
+                    } else if (typeof handleRouting === 'function') {
+                        handleRouting();
+                    }
+                } catch (e) {
+                    window.location.hash = '#/profile';
+                }
+            });
+        }
+    } catch (bottomBarErr) {
+        console.error("Error in updateBottomBar:", bottomBarErr);
     }
 };
 
@@ -16255,7 +16327,7 @@ function updateNavbar(forceLanding) {
         return;
     }
 
-    const u = state.currentUser;
+    const u = (state && state.currentUser && state.currentUser.id) ? state.currentUser : null;
     const isLanding = forceLanding !== undefined 
         ? forceLanding 
         : (!window.location.hash || window.location.hash === '#/' || window.location.hash === '#');
@@ -16292,7 +16364,12 @@ function updateNavbar(forceLanding) {
         nav.className = `main-nav ${u.role === 'musician' ? 'nav-purple' : 'nav-blue'}`;
         nav.innerHTML = ''; // Hide text-based navigation links since icon buttons are used instead
         
-        const unreadCount = state.getUnreadCount();
+        let unreadCount = 0;
+        try {
+            unreadCount = (state && typeof state.getUnreadCount === 'function') ? (state.getUnreadCount() || 0) : 0;
+        } catch (e) {
+            unreadCount = 0;
+        }
 
         let creditsBadgeHtml = '';
         const isProfileActive = window.location.hash === '#/profile';
