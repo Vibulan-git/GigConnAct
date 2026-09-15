@@ -6273,7 +6273,7 @@ function renderLandingPage(container, onNavigate) {
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 50% 40%, rgba(13, 16, 32, 0.45) 0%, rgba(10, 11, 22, 0.75) 100%), linear-gradient(180deg, rgba(7, 8, 16, 0.55) 0%, rgba(12, 10, 26, 0.25) 35%, rgba(10, 11, 24, 0.65) 70%, rgba(6, 7, 14, 0.92) 100%); z-index: 2;"></div>
 
                 <!-- Upper Group: Logo and Slogan (flush with 540px CTA buttons, positioned lower in hero) -->
-                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.7rem, 2vh, 1.4rem); width: 100%; max-width: 540px; margin-top: clamp(3.2rem, 8.5vh, 5.8rem); margin-bottom: clamp(1.2rem, 2.8vh, 2rem); box-sizing: border-box;">
+                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.7rem, 2vh, 1.4rem); width: 100%; max-width: 540px; margin-top: clamp(3.2rem, 8.5vh, 5.8rem); margin-bottom: clamp(0.7rem, 1.8vh, 1.3rem); box-sizing: border-box;">
                     
                     <!-- 1/4: Logo (fills full width of 540px container, discoball + GigConnAct, unclipping g descender) -->
                     <div class="brand-logo-center" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin: 0 auto; padding: 0.15rem 0; overflow: visible; box-sizing: border-box;">
@@ -6286,7 +6286,7 @@ function renderLandingPage(container, onNavigate) {
                         </div>
                     </div>
 
-                    <!-- 2/4: Slogan & Subtitle -->
+                    <!-- 2/4: Slogan -->
                     <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.25rem; width: 100%; margin: 0 auto; box-sizing: border-box;">
                         <span style="font-family: var(--font-heading); font-size: clamp(1.7rem, 5.5vw, 3.1rem); font-weight: 900; letter-spacing: -0.2px; color: #ffffff; line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.6);">
                             Die Vermittlungsplattform
@@ -6294,19 +6294,16 @@ function renderLandingPage(container, onNavigate) {
                         <span style="font-family: var(--font-heading); font-size: clamp(3rem, 9.8vw, 5.6rem); font-weight: 900; letter-spacing: 0.5px; color: #ffffff; line-height: 1.1; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.6);">
                             für Live-Musik
                         </span>
-                        <p style="font-family: var(--font-body); font-size: clamp(0.92rem, 2.2vw, 1.2rem); font-weight: 500; color: rgba(255, 255, 255, 0.88); margin: 0.4rem 0 0; text-align: center; letter-spacing: 0.1px; text-shadow: 0 2px 8px rgba(0,0,0,0.7);">
-                            Musiker finden. Gigs entdecken. Einfach zusammenkommen.
-                        </p>
                     </div>
                 </div>
 
-                <!-- 3/4: CTA Buttons (anchored close below slogan, pulled higher in hero) -->
-                <div class="hero-cta-buttons" id="hero-cta-container" style="position: relative; z-index: 3; margin: 0 auto clamp(1rem, 2.5vh, 1.8rem); width: 100%; max-width: 540px; box-sizing: border-box; display: flex; justify-content: center;">
+                <!-- 3/4: CTA Buttons (anchored closer below slogan, positioned higher in hero) -->
+                <div class="hero-cta-buttons" id="hero-cta-container" style="position: relative; z-index: 3; margin: 0 auto clamp(0.8rem, 1.8vh, 1.4rem); width: 100%; max-width: 540px; box-sizing: border-box; display: flex; justify-content: center;">
                     ${window.getHeroCtaHTML('initial')}
                 </div>
 
                 <!-- 4/4: Infinite Scrolling Category Marquee (directly below buttons, pulled higher in hero) -->
-                <div class="logo-marquee-wrapper" style="position: relative; z-index: 3; margin: 0 auto clamp(1rem, 3vh, 2.4rem); width: 100%; max-width: 780px; padding: 0.5rem 0.8rem; box-sizing: border-box; mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);">
+                <div class="logo-marquee-wrapper" style="position: relative; z-index: 3; margin: 0 auto clamp(0.8rem, 2vh, 1.8rem); width: 100%; max-width: 780px; padding: 0.5rem 0.8rem; box-sizing: border-box; mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);">
                     <div class="logo-marquee-track" style="animation-duration: 34s; gap: 1.2rem;">
                         <!-- Set 1 -->
                         <span class="marquee-item-glass"><i class="fa-solid fa-ring" style="color: #c084fc;"></i> Hochzeiten</span>
@@ -6347,16 +6344,9 @@ function renderLandingPage(container, onNavigate) {
                 </div>
 
                 <!-- 5. Sleek Discreet Hero Footer / Legal Bar -->
-                <div style="position: relative; z-index: 3; margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 0.35rem; margin-bottom: clamp(0.4rem, 1.2vh, 0.8rem); width: 100%;">
-                    <div style="font-size: clamp(0.74rem, 1.6vw, 0.84rem); color: rgba(255,255,255,0.55); letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 0.8rem; user-select: none;">
-                        <span style="width: 25px; height: 1px; background: rgba(255,255,255,0.25);"></span>
-                        <span>Live-Musik verbindet Menschen</span>
-                        <span style="width: 25px; height: 1px; background: rgba(255,255,255,0.25);"></span>
-                    </div>
+                <div style="position: relative; z-index: 3; margin-top: auto; display: flex; flex-direction: column; align-items: center; margin-bottom: clamp(0.4rem, 1.2vh, 0.8rem); width: 100%;">
                     <div class="hero-legal-bar" style="display: flex; align-items: center; justify-content: center; gap: clamp(0.5rem, 1.8vw, 1.1rem); flex-wrap: wrap; font-size: clamp(0.72rem, 1.5vw, 0.82rem); color: rgba(255, 255, 255, 0.55); font-weight: 500; margin: 0 auto; padding: 0.15rem 0.5rem; user-select: none;">
                         <span>&copy; 2026 GigConnAct</span>
-                        <span style="color: rgba(255,255,255,0.2);">&bull;</span>
-                        <span>Köln</span>
                         <span style="color: rgba(255,255,255,0.2);">&bull;</span>
                         <a href="mailto:info@gigconnact.de" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#c084fc';" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)';">info@gigconnact.de</a>
                         <span style="color: rgba(255,255,255,0.2);">&bull;</span>
