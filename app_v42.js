@@ -814,7 +814,7 @@ window.normalizeCityName = function(city) {
 // 1. MOCK DATA & CONSTANTS
 // ==========================================
 
-const GIGCONNACT_DEMO_VERSION = '20260915_flag_v5';
+const GIGCONNACT_DEMO_VERSION = '20260915_flag_v6';
 
 const initialMusicians = [
     {
@@ -18509,12 +18509,6 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                             <i class="fa-solid ${typeTagIcon}" style="color: #ffffff; font-size: 0.72rem;"></i>
                             <span style="color: #ffffff; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--font-heading); max-width: 135px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${typeTagText}</span>
                         </div>
-
-                        ${(state.currentUser && item.matchScore >= 70) ? `
-                            <div class="tile-top-match-badge" title="Top Match" style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(254, 240, 138, 0.35); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.35);">
-                                <i class="fa-solid fa-star" style="color: #eab308; font-size: 0.85rem; margin: 0;"></i>
-                            </div>
-                        ` : ''}
                     </div>
 
                     <span class="tile-gallery-counter" style="position: absolute; bottom: 12px; left: 12px; z-index: 4; font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.9); padding: 0.25rem 0.5rem; border-radius: 6px; pointer-events: none; border: 1px solid rgba(255,255,255,0.15);">
@@ -18564,11 +18558,19 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
                     </div>
 
-                    <!-- Match-Faktor Badge oben rechts - Only if user is logged in -->
+                    <!-- Match-Faktor Badge & Favoriten/Top-Match-Stern oben rechts - Only if user is logged in -->
                     ${state.currentUser ? `
-                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 48px;">
-                        <span style="font-size: 0.95rem; font-weight: 900;">${item.matchScore !== undefined ? item.matchScore : '96'}%</span>
-                        <span style="font-size: 0.45rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
+                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                        <div style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 48px;">
+                            <span style="font-size: 0.95rem; font-weight: 900;">${item.matchScore !== undefined ? item.matchScore : '96'}%</span>
+                            <span style="font-size: 0.45rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
+                        </div>
+
+                        ${(item.matchScore >= 70 || (state && typeof state.isFavorite === 'function' && state.isFavorite(item.id))) ? `
+                            <button class="tile-top-match-badge" onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" title="${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? 'In Favoriten gespeichert' : 'Top Match (Klicken zum Favorisieren)'}" style="background: rgba(15, 23, 42, 0.9); border: 1px solid ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? '#eab308' : 'rgba(254, 240, 138, 0.4)'}; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; box-shadow: ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? '0 0 10px rgba(234, 179, 8, 0.6)' : '0 2px 8px rgba(0,0,0,0.35)'}; cursor: pointer; padding: 0; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
+                                <i class="fa-solid fa-star" style="color: #eab308; font-size: 0.85rem; margin: 0;"></i>
+                            </button>
+                        ` : ''}
                     </div>
                     ` : ''}
 
@@ -20457,16 +20459,20 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                             <span style="color: #ffffff; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--font-heading); max-width: 135px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${mus.type || 'Band'}</span>
                                         </div>
 
-                                        ${mus.matchScore >= 70 ? `
-                                            <div class="tile-top-match-badge" title="Top Match" style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(254, 240, 138, 0.35); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.35);">
-                                                <i class="fa-solid fa-star" style="color: #eab308; font-size: 0.85rem; margin: 0;"></i>
-                                            </div>
-                                        ` : ''}
                                     </div>
                                     
-                                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: #fff; padding: 0.35rem 0.45rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 48px;">
-                                        <span style="font-size: 0.95rem; font-weight: 900;">${mus.matchScore}%</span>
-                                        <span style="font-size: 0.45rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
+                                    <!-- Match-Faktor Badge & Favoriten/Top-Match-Stern oben rechts -->
+                                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                                        <div style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: #fff; padding: 0.35rem 0.45rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 48px;">
+                                            <span style="font-size: 0.95rem; font-weight: 900;">${mus.matchScore}%</span>
+                                            <span style="font-size: 0.45rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
+                                        </div>
+
+                                        ${mus.matchScore >= 70 ? `
+                                            <button class="tile-top-match-badge" onclick="event.stopPropagation(); window.toggleFavorite('${mus.id}')" title="Top Match" style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(254, 240, 138, 0.35); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.35); cursor: pointer; padding: 0; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
+                                                <i class="fa-solid fa-star" style="color: #eab308; font-size: 0.85rem; margin: 0;"></i>
+                                            </button>
+                                        ` : ''}
                                     </div>
                                     <div id="combo-slider-${mus.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
                                         ${photos.map(img => `<div style="width: 100%; height: 100%; flex-shrink: 0;"><img src="${img}" style="width: 100%; height: 100%; object-fit: cover;"></div>`).join('')}
