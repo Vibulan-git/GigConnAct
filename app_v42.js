@@ -6302,8 +6302,8 @@ function renderLandingPage(container, onNavigate) {
                     ${window.getHeroCtaHTML('initial')}
                 </div>
 
-                <!-- 4/4: Infinite Scrolling Category Marquee (directly below buttons, pulled higher in hero) -->
-                <div class="logo-marquee-wrapper" style="position: relative; z-index: 3; margin: 0 auto clamp(0.8rem, 2vh, 1.8rem); width: 100%; max-width: 780px; padding: 0.5rem 0.8rem; box-sizing: border-box; mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);">
+                <!-- 4/4: Infinite Scrolling Category Marquee (anchored lower in hero above legal bar) -->
+                <div class="logo-marquee-wrapper" style="position: relative; z-index: 3; margin: auto auto clamp(0.6rem, 1.6vh, 1.2rem); width: 100%; max-width: 780px; padding: 0.5rem 0.8rem; box-sizing: border-box; mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);">
                     <div class="logo-marquee-track" style="animation-duration: 34s; gap: 1.2rem;">
                         <!-- Set 1 -->
                         <span class="marquee-item-glass"><i class="fa-solid fa-ring" style="color: #c084fc;"></i> Hochzeiten</span>
@@ -6343,12 +6343,10 @@ function renderLandingPage(container, onNavigate) {
                     </div>
                 </div>
 
-                <!-- 5. Sleek Discreet Hero Footer / Legal Bar -->
-                <div style="position: relative; z-index: 3; margin-top: auto; display: flex; flex-direction: column; align-items: center; margin-bottom: clamp(0.4rem, 1.2vh, 0.8rem); width: 100%;">
-                    <div class="hero-legal-bar" style="display: flex; align-items: center; justify-content: center; gap: clamp(0.5rem, 1.8vw, 1.1rem); flex-wrap: wrap; font-size: clamp(0.72rem, 1.5vw, 0.82rem); color: rgba(255, 255, 255, 0.55); font-weight: 500; margin: 0 auto; padding: 0.15rem 0.5rem; user-select: none;">
+                <!-- 5. Sleek Discreet Hero Footer / Legal Bar (Single Line: Unternehmen, Impressum, Datenschutz) -->
+                <div style="position: relative; z-index: 3; margin-top: 0; display: flex; flex-direction: column; align-items: center; margin-bottom: clamp(0.3rem, 1vh, 0.6rem); width: 100%;">
+                    <div class="hero-legal-bar" style="display: flex; align-items: center; justify-content: center; gap: clamp(0.6rem, 2vw, 1.2rem); flex-wrap: nowrap; white-space: nowrap; font-size: clamp(0.74rem, 1.5vw, 0.84rem); color: rgba(255, 255, 255, 0.55); font-weight: 500; margin: 0 auto; padding: 0.15rem 0.5rem; user-select: none;">
                         <span>&copy; 2026 GigConnAct</span>
-                        <span style="color: rgba(255,255,255,0.2);">&bull;</span>
-                        <a href="mailto:info@gigconnact.de" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#c084fc';" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)';">info@gigconnact.de</a>
                         <span style="color: rgba(255,255,255,0.2);">&bull;</span>
                         <a href="#/impressum" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#c084fc';" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)';">Impressum</a>
                         <span style="color: rgba(255,255,255,0.2);">&bull;</span>
