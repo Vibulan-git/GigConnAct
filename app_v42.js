@@ -814,7 +814,7 @@ window.normalizeCityName = function(city) {
 // 1. MOCK DATA & CONSTANTS
 // ==========================================
 
-const GIGCONNACT_DEMO_VERSION = '20260915_flag_v8';
+const GIGCONNACT_DEMO_VERSION = '20260915_flag_v9';
 
 const initialMusicians = [
     {
@@ -9099,16 +9099,14 @@ window.openItemDetailModal = function(id, isEvents) {
                 <div style="position: relative; height: 260px; width: 100%; background: #0f172a;">
                     <img src="${photo}" style="width: 100%; height: 100%; object-fit: cover;">
                     <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,0.9) 0%, transparent 60%);"></div>
-                    <!-- Top Tags im Detailfenster oben links -->
+                    <!-- Top Tags im Detailfenster oben links (ohne Icons) -->
                     <div style="position: absolute; top: 15px; left: 15px; z-index: 6; display: flex; align-items: center; gap: 6px; pointer-events: none; flex-wrap: wrap; max-width: calc(100% - 80px);">
                         ${(item.isDemo || (item.id && (item.id.startsWith('mus_') || item.id.startsWith('evt_')))) ? `
-                            <div style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)'}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid ${isEvents ? 'rgba(216, 180, 254, 0.45)' : 'rgba(147, 197, 253, 0.45)'}; border-radius: 8px; padding: 0.32rem 0.75rem; display: inline-flex; align-items: center; gap: 0.4rem; box-shadow: ${isEvents ? '0 4px 12px rgba(124, 58, 237, 0.45)' : '0 4px 12px rgba(30, 58, 138, 0.45)'};">
-                                <i class="fa-solid fa-flag" style="color: #ffffff; font-size: 0.78rem;"></i>
+                            <div style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)'}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid ${isEvents ? 'rgba(216, 180, 254, 0.45)' : 'rgba(147, 197, 253, 0.45)'}; border-radius: 8px; padding: 0.32rem 0.75rem; display: inline-flex; align-items: center; box-shadow: ${isEvents ? '0 4px 12px rgba(124, 58, 237, 0.45)' : '0 4px 12px rgba(30, 58, 138, 0.45)'};">
                                 <span style="color: #ffffff; font-size: 0.76rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-heading);">Demo</span>
                             </div>
                         ` : ''}
-                        <div style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)'}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid ${isEvents ? 'rgba(216, 180, 254, 0.45)' : 'rgba(147, 197, 253, 0.45)'}; border-radius: 8px; padding: 0.32rem 0.75rem; display: inline-flex; align-items: center; gap: 0.4rem; box-shadow: ${isEvents ? '0 4px 12px rgba(124, 58, 237, 0.45)' : '0 4px 12px rgba(30, 58, 138, 0.45)'};">
-                            <i class="fa-solid ${isEvents ? 'fa-calendar-check' : 'fa-guitar'}" style="color: #ffffff; font-size: 0.78rem;"></i>
+                        <div style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)'}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid ${isEvents ? 'rgba(216, 180, 254, 0.45)' : 'rgba(147, 197, 253, 0.45)'}; border-radius: 8px; padding: 0.32rem 0.75rem; display: inline-flex; align-items: center; box-shadow: ${isEvents ? '0 4px 12px rgba(124, 58, 237, 0.45)' : '0 4px 12px rgba(30, 58, 138, 0.45)'};">
                             <span style="color: #ffffff; font-size: 0.76rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--font-heading);">${isEvents ? (item.eventType || (Array.isArray(item.eventTypes) && item.eventTypes.length > 0 ? item.eventTypes[0] : item.type) || 'Event') : (item.type || item.category || 'Band')}</span>
                         </div>
                     </div>
@@ -18494,26 +18492,25 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
                     
-                    <!-- Tags oben links: Demo-Tag (falls Demo) + Typ-Tag (Musiker-Typ bzw. Event-Typ) -->
-                    <div class="tile-top-tags" style="position: absolute; top: 12px; left: 12px; z-index: 6; display: flex; align-items: center; gap: 6px; pointer-events: none; flex-wrap: wrap; max-width: calc(100% - 75px);">
-                        ${isDemoTile ? `
-                            <!-- Demo-Flagge / Tag -->
-                            <div class="tile-demo-flag" style="background: ${tagThemeBg}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.28rem 0.65rem; display: inline-flex; align-items: center; gap: 0.4rem; box-shadow: ${tagThemeShadow};">
-                                <i class="fa-solid fa-flag" style="color: #ffffff; font-size: 0.72rem;"></i>
-                                <span style="color: #ffffff; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-heading);">Demo</span>
-                            </div>
-                        ` : ''}
-
-                        <!-- Typ-Flagge / Tag (Musiker-Typ oder Event-Typ) -->
-                        <div class="tile-type-flag" style="background: ${tagThemeBg}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.28rem 0.65rem; display: inline-flex; align-items: center; gap: 0.4rem; box-shadow: ${tagThemeShadow};">
-                            <i class="fa-solid ${typeTagIcon}" style="color: #ffffff; font-size: 0.72rem;"></i>
-                            <span style="color: #ffffff; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--font-heading); max-width: 135px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${typeTagText}</span>
+                    <!-- Tag oben links: Musiker-Typ bzw. Event-Typ (ohne Icon) -->
+                    <div class="tile-top-tags" style="position: absolute; top: 12px; left: 12px; z-index: 6; pointer-events: none; max-width: calc(100% - 75px);">
+                        <div class="tile-type-flag" style="background: ${tagThemeBg}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.28rem 0.65rem; display: inline-flex; align-items: center; box-shadow: ${tagThemeShadow};">
+                            <span style="color: #ffffff; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--font-heading); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${typeTagText}</span>
                         </div>
                     </div>
 
-                    <span class="tile-gallery-counter" style="position: absolute; bottom: 12px; left: 12px; z-index: 4; font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.9); padding: 0.25rem 0.5rem; border-radius: 6px; pointer-events: none; border: 1px solid rgba(255,255,255,0.15);">
-                        📷 1 / ${photos.length}
-                    </span>
+                    <!-- Unten links in der Galerie: Demo-Tag (falls Demo, ohne Icon) + Galerie-Zähler -->
+                    <div style="position: absolute; bottom: 12px; left: 12px; z-index: 6; display: flex; align-items: center; gap: 6px; pointer-events: none;">
+                        ${isDemoTile ? `
+                            <div class="tile-demo-flag" style="background: ${tagThemeBg}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.25rem 0.55rem; display: inline-flex; align-items: center; box-shadow: ${tagThemeShadow};">
+                                <span style="color: #ffffff; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-heading);">Demo</span>
+                            </div>
+                        ` : ''}
+
+                        <span class="tile-gallery-counter" style="font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.9); padding: 0.25rem 0.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center;">
+                            📷 1 / ${photos.length}
+                        </span>
+                    </div>
 
                     <div id="combo-slider-${item.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
                         
@@ -20443,22 +20440,24 @@ window.renderRecommendationPage = async function(container, mediationId) {
                         return `
                             <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0);">
                                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 215px; background: #0f172a; overflow: hidden;">
-                                    <!-- Tags oben links: Demo-Tag (falls Demo) + Musiker-Typ Tag -->
-                                    <div class="tile-top-tags" style="position: absolute; top: 12px; left: 12px; z-index: 6; display: flex; align-items: center; gap: 6px; pointer-events: none; flex-wrap: wrap; max-width: calc(100% - 75px);">
+                                    <!-- Tag oben links: Musiker-Typ (ohne Icon) -->
+                                    <div class="tile-top-tags" style="position: absolute; top: 12px; left: 12px; z-index: 6; pointer-events: none; max-width: calc(100% - 75px);">
+                                        <div class="tile-type-flag" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(147, 197, 253, 0.45); border-radius: 8px; padding: 0.28rem 0.65rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.45);">
+                                            <span style="color: #ffffff; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--font-heading); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${mus.type || 'Band'}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Unten links in der Galerie: Demo-Tag (falls Demo, ohne Icon) + Galerie-Zähler -->
+                                    <div style="position: absolute; bottom: 12px; left: 12px; z-index: 6; display: flex; align-items: center; gap: 6px; pointer-events: none;">
                                         ${(mus.isDemo || (mus.id && mus.id.startsWith('mus_'))) ? `
-                                            <!-- Demo-Flagge / Tag -->
-                                            <div class="tile-demo-flag" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(147, 197, 253, 0.45); border-radius: 8px; padding: 0.28rem 0.65rem; display: inline-flex; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.45);">
-                                                <i class="fa-solid fa-flag" style="color: #ffffff; font-size: 0.72rem;"></i>
-                                                <span style="color: #ffffff; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-heading);">Demo</span>
+                                            <div class="tile-demo-flag" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(147, 197, 253, 0.45); border-radius: 8px; padding: 0.25rem 0.55rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.45);">
+                                                <span style="color: #ffffff; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-heading);">Demo</span>
                                             </div>
                                         ` : ''}
 
-                                        <!-- Typ-Flagge / Tag (Musiker-Typ) -->
-                                        <div class="tile-type-flag" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(147, 197, 253, 0.45); border-radius: 8px; padding: 0.28rem 0.65rem; display: inline-flex; align-items: center; gap: 0.4rem; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.45);">
-                                            <i class="fa-solid fa-guitar" style="color: #ffffff; font-size: 0.72rem;"></i>
-                                            <span style="color: #ffffff; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--font-heading); max-width: 135px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${mus.type || 'Band'}</span>
-                                        </div>
-
+                                        <span class="tile-gallery-counter" style="font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.9); padding: 0.25rem 0.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center;">
+                                            📷 1 / ${photos.length}
+                                        </span>
                                     </div>
                                     
                                     <!-- Match-Faktor Badge & Favoriten/Top-Match-Stern oben rechts -->

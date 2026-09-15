@@ -4661,19 +4661,13 @@ input[type="range"].input-field {
     color: var(--text-muted);
 }
 
-/* Blue theme (musician) for Event-Markt filters */
-.theme-musician .market-controls-row {
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.92) 100%) !important;
-    border: 2px solid rgba(167, 139, 250, 0.6) !important;
-    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.45) !important;
-    color: #ffffff !important;
-}
-
-/* Blue theme (organizer) for Musiker-Markt filters */
-.theme-organizer .market-controls-row {
-    background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.92) 100%) !important;
-    border: 2px solid rgba(96, 165, 250, 0.6) !important;
-    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.45) !important;
+/* Brand gradient theme (matching login button) for market-controls-row */
+.theme-musician .market-controls-row,
+.theme-organizer .market-controls-row,
+.market-controls-row {
+    background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%) !important;
+    border: 2px solid rgba(196, 181, 253, 0.45) !important;
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.35) !important;
     color: #ffffff !important;
 }
 
