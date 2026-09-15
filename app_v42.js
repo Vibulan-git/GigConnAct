@@ -814,7 +814,7 @@ window.normalizeCityName = function(city) {
 // 1. MOCK DATA & CONSTANTS
 // ==========================================
 
-const GIGCONNACT_DEMO_VERSION = '20260915_flag_v3';
+const GIGCONNACT_DEMO_VERSION = '20260915_flag_v4';
 
 const initialMusicians = [
     {
@@ -9101,8 +9101,8 @@ window.openItemDetailModal = function(id, isEvents) {
                     <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,0.9) 0%, transparent 60%);"></div>
                     ${(item.isDemo || (item.id && (item.id.startsWith('mus_') || item.id.startsWith('evt_')))) ? `
                         <!-- Demo-Flagge im Detailfenster oben links -->
-                        <div style="position: absolute; top: 15px; left: 15px; z-index: 6; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 8px; padding: 0.32rem 0.75rem; display: inline-flex; align-items: center; gap: 0.4rem; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
-                            <i class="fa-solid fa-flag" style="color: #38bdf8; font-size: 0.78rem;"></i>
+                        <div style="position: absolute; top: 15px; left: 15px; z-index: 6; background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)'}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid ${isEvents ? 'rgba(216, 180, 254, 0.45)' : 'rgba(147, 197, 253, 0.45)'}; border-radius: 8px; padding: 0.32rem 0.75rem; display: inline-flex; align-items: center; gap: 0.4rem; pointer-events: none; box-shadow: ${isEvents ? '0 4px 12px rgba(124, 58, 237, 0.45)' : '0 4px 12px rgba(30, 58, 138, 0.45)'};">
+                            <i class="fa-solid fa-flag" style="color: #ffffff; font-size: 0.78rem;"></i>
                             <span style="color: #ffffff; font-size: 0.76rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-heading);">Demo</span>
                         </div>
                     ` : ''}
@@ -18471,8 +18471,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     
                     ${isDemoTile ? `
                         <!-- Demo-Flagge / Tag oben links -->
-                        <div class="tile-demo-flag" style="position: absolute; top: 12px; left: 12px; z-index: 6; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 8px; padding: 0.28rem 0.65rem; display: inline-flex; align-items: center; gap: 0.4rem; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
-                            <i class="fa-solid fa-flag" style="color: #38bdf8; font-size: 0.72rem;"></i>
+                        <div class="tile-demo-flag" style="position: absolute; top: 12px; left: 12px; z-index: 6; background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)'}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid ${isEvents ? 'rgba(216, 180, 254, 0.45)' : 'rgba(147, 197, 253, 0.45)'}; border-radius: 8px; padding: 0.28rem 0.65rem; display: inline-flex; align-items: center; gap: 0.4rem; pointer-events: none; box-shadow: ${isEvents ? '0 4px 12px rgba(124, 58, 237, 0.45)' : '0 4px 12px rgba(30, 58, 138, 0.45)'};">
+                            <i class="fa-solid fa-flag" style="color: #ffffff; font-size: 0.72rem;"></i>
                             <span style="color: #ffffff; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-heading);">Demo</span>
                         </div>
                     ` : ''}
@@ -18568,65 +18568,74 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     </div>
 
                     ${isEvents ? `
-                    <!-- All 10 fields completely visible and readable for Events (no collapse/accordion needed) -->
-                    <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.86rem; color: var(--text-main); margin-bottom: 0.6rem;">
+                    <!-- 2. Einspaltige Informationen mit Icons (Top 3 Infos immer sichtbar) für Events -->
+                    <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.6rem;">
                         <!-- 1. Ort -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${window.normalizeCityName(item.location || 'Deutschlandweit')}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(window.normalizeCityName(item.location || 'Deutschlandweit'), themeColor, item.id, 'location')}</span>
                         </div>
                         
                         <!-- 2. Datum -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${dateDisplay}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'date')}</span>
                         </div>
 
-                        <!-- 3. Event-Typ -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${(Array.isArray(item.eventTypes) && item.eventTypes.length > 0) ? item.eventTypes.join(', ') : (item.type || item.eventType || 'Event')}</span>
+                        <!-- 3. Event-Typ + 'Mehr Details' Button -->
+                        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35;">
+                            <div style="display: flex; align-items: flex-start; gap: 0.6rem; min-width: 130px; flex: 1 1 auto;">
+                                <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem; flex-shrink: 0;"></i>
+                                <span style="word-break: break-word; line-height: 1.35; flex: 1;">${formatTruncatedValue((Array.isArray(item.eventTypes) && item.eventTypes.length > 0) ? item.eventTypes.join(', ') : (item.type || item.eventType || 'Event'), themeColor, item.id, 'eventtype')}</span>
+                            </div>
+                            <button id="toggle-details-btn-${item.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
+                                <span id="toggle-text-${item.id}">Mehr Details</span>
+                                <i class="fa-solid fa-chevron-down" id="toggle-icon-${item.id}" style="font-size: 0.75rem; transition: transform 0.25s ease;"></i>
+                            </button>
                         </div>
+                    </div>
 
+                    <!-- Collapsible details wrapper (opens on click with all remaining infos) für Events -->
+                    <div id="collapsible-details-${item.id}" style="display: none; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.6rem;">
                         <!-- 4. Gesucht (Musiker-Typen) -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band')), themeColor, item.id, 'musiciantype', true)}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band')), themeColor, item.id, 'musiciantype')}</span>
                         </div>
 
                         <!-- 5. Genres -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, item.id, 'genres', true)}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                            <i class="fa-solid fa-music" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(genresArr, themeColor, item.id, 'genres')}</span>
                         </div>
 
                         <!-- 6. Instrumente -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-drum" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(instrumentsArr, themeColor, item.id, 'instruments', true)}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                            <i class="fa-solid fa-drum" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(instrumentsArr, themeColor, item.id, 'instruments')}</span>
                         </div>
 
                         <!-- 7. Spielzeit -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${durationDisplay}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                            <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(durationDisplay, themeColor, item.id, 'duration')}</span>
                         </div>
 
                         <!-- 8. Publikum -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                            <i class="fa-solid fa-users" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${formatPublikumHelper(item.minPublikum, item.maxPublikum, '50 - 150')} Personen</span>
                         </div>
 
                         <!-- 9. Technik -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, item.id, 'tech', true) : 'nach Vereinbarung'}</span>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                            <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, item.id, 'tech') : 'nach Vereinbarung'}</span>
                         </div>
 
                         <!-- 10. Gage/Budget -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-coins" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                            <i class="fa-solid fa-coins" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${budgetDisplay}</span>
                         </div>
                     </div>
@@ -20398,12 +20407,19 @@ window.renderRecommendationPage = async function(container, mediationId) {
                         return `
                             <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0);">
                                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 215px; background: #0f172a; overflow: hidden;">
+                                    ${(mus.isDemo || (mus.id && mus.id.startsWith('mus_'))) ? `
+                                        <!-- Demo-Flagge / Tag oben links -->
+                                        <div class="tile-demo-flag" style="position: absolute; top: 12px; left: 12px; z-index: 6; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(147, 197, 253, 0.45); border-radius: 8px; padding: 0.28rem 0.65rem; display: inline-flex; align-items: center; gap: 0.4rem; pointer-events: none; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.45);">
+                                            <i class="fa-solid fa-flag" style="color: #ffffff; font-size: 0.72rem;"></i>
+                                            <span style="color: #ffffff; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-heading);">Demo</span>
+                                        </div>
+                                    ` : ''}
                                     <span class="tile-gallery-counter" style="position: absolute; bottom: 12px; left: 12px; z-index: 4; font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.9); padding: 0.25rem 0.5rem; border-radius: 6px; pointer-events: none;">
                                         📷 1 / ${photos.length}
                                     </span>
                                     
                                     ${mus.matchScore >= 70 ? `
-                                    <div class="tile-top-match-badge" title="Top Match" style="position: absolute; top: 12px; left: 12px; z-index: 5; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(254, 240, 138, 0.35); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; pointer-events: none;">
+                                    <div class="tile-top-match-badge" title="Top Match" style="position: absolute; top: 12px; left: ${(mus.isDemo || (mus.id && mus.id.startsWith('mus_'))) ? '88px' : '12px'}; z-index: 5; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(254, 240, 138, 0.35); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; pointer-events: none;">
                                         <i class="fa-solid fa-star" style="color: #eab308; font-size: 0.85rem;"></i>
                                     </div>
                                     ` : ''}
