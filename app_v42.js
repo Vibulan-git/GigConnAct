@@ -814,7 +814,7 @@ window.normalizeCityName = function(city) {
 // 1. MOCK DATA & CONSTANTS
 // ==========================================
 
-const GIGCONNACT_DEMO_VERSION = '20260915_flag_v6';
+const GIGCONNACT_DEMO_VERSION = '20260915_flag_v7';
 
 const initialMusicians = [
     {
@@ -6252,7 +6252,7 @@ function renderLandingPage(container, onNavigate) {
                     <div class="brand-logo-center" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin: 0 auto; padding: 0.2rem 0; overflow: visible; box-sizing: border-box;">
                         <!-- Large PNG Disco Ball (nested wrapper to keep entry animations, but static without rotation) -->
                         <div class="${logoClass}" style="width: clamp(3.6rem, 9.5vw, 5.4rem); height: clamp(3.6rem, 9.5vw, 5.4rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: visible;">
-                            <img src="discoball.svg" style="width: 100%; height: 100%; object-fit: contain; opacity: 1; pointer-events: none;">
+                            <img src="discoball.png" style="width: 100%; height: 100%; object-fit: contain; opacity: 1; pointer-events: none;">
                         </div>
                         <div class="${textClass}" style="font-family: var(--font-heading); font-size: clamp(3.2rem, 8.8vw, 5.4rem); font-weight: 900; letter-spacing: -2px; display: flex; white-space: nowrap; background: linear-gradient(135deg, #6d28d9 0%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.18; padding-bottom: 0.12em; padding-top: 0.05em; overflow: visible;">
                             GigConnAct
@@ -6332,7 +6332,7 @@ function renderLandingPage(container, onNavigate) {
                 <div style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
                     <!-- Brand / Name with PNG Disco Ball -->
                     <div style="display: flex; align-items: center; gap: 0.6rem; justify-content: center; margin-bottom: 0.5rem;">
-                        <img src="discoball.svg" alt="GigConnAct Logo" style="width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(124,58,237,0.15));">
+                        <img src="discoball.png" alt="GigConnAct Logo" style="width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(124,58,237,0.15));">
                         <div style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 900; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">
                             GigConnAct
                         </div>
@@ -8301,7 +8301,7 @@ function renderMarket(container, type, onNavigate) {
             if (list.length === 0 && isLoading) {
                 grid.innerHTML = `
                     <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem;">
-                        <img src="discoball.svg" style="width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(124,58,237,0.25)); animation: spin 5s linear infinite;" alt="Laden...">
+                        <img src="discoball.png" style="width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(124,58,237,0.25)); animation: spin 5s linear infinite;" alt="Laden...">
                         <p style="color: var(--text-muted); margin-top: 1rem; font-weight: 600;">${isEvents ? 'Lade Gigs...' : 'Lade Profile...'}</p>
                     </div>
                 `;
@@ -20173,7 +20173,7 @@ window.showAdminRecommendationDialog = function(musicianIds) {
 window.renderRecommendationPage = async function(container, mediationId) {
     container.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
-            <img src="discoball.svg" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
+            <img src="discoball.png" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
             <span>Lade Vorschläge...</span>
         </div>
     `;
@@ -20847,7 +20847,7 @@ window.removeMediationEvent = function(mediationId) {
 window.renderMediationResponsePage = function(container, mediationId) {
     container.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
-            <img src="discoball.svg" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
+            <img src="discoball.png" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
             <span>Lade Anfrage...</span>
         </div>
     `;
