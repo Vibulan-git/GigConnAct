@@ -814,12 +814,12 @@ window.normalizeCityName = function(city) {
 // 1. MOCK DATA & CONSTANTS
 // ==========================================
 
-const GIGCONNACT_DEMO_VERSION = '20260915_demo_v2';
+const GIGCONNACT_DEMO_VERSION = '20260915_flag_v3';
 
 const initialMusicians = [
     {
         id: "mus_1",
-        name: "[Demo] The Neon Beats",
+        name: "The Neon Beats",
         bluffName: "Heisse Elektro-Pop Coverband",
         type: "Band",
         location: "Hamburg",
@@ -861,7 +861,7 @@ const initialMusicians = [
     },
     {
         id: "mus_2",
-        name: "[Demo] Clara Lichtblick",
+        name: "Clara Lichtblick",
         bluffName: "Klassische & Pop-Pianistin",
         type: "Solo",
         location: "München",
@@ -897,7 +897,7 @@ const initialMusicians = [
     },
     {
         id: "mus_3",
-        name: "[Demo] DJ Soundwave",
+        name: "DJ Soundwave",
         bluffName: "Professional Club & Event DJ",
         type: "DJ",
         location: "Köln",
@@ -933,7 +933,7 @@ const initialMusicians = [
     },
     {
         id: "mus_4",
-        name: "[Demo] Acoustic Duo Breeze",
+        name: "Acoustic Duo Breeze",
         bluffName: "Charmantes Akustik-Duo",
         type: "Duo",
         location: "Frankfurt",
@@ -969,7 +969,7 @@ const initialMusicians = [
     },
     {
         id: "mus_5",
-        name: "[Demo] Blackwood Syndicate",
+        name: "Blackwood Syndicate",
         bluffName: "Klassische Rock & Hard Rock Coverband",
         type: "Band",
         location: "Berlin",
@@ -1005,7 +1005,7 @@ const initialMusicians = [
     },
     {
         id: "mus_6",
-        name: "[Demo] Sax & Soul (Leo Berg)",
+        name: "Sax & Soul (Leo Berg)",
         bluffName: "Premium Jazz-Saxophonist",
         type: "Solo",
         location: "Stuttgart",
@@ -1040,7 +1040,7 @@ const initialMusicians = [
     },
     {
         id: "mus_zero",
-        name: "[Demo] Leo Null",
+        name: "Leo Null",
         bluffName: "Gitarrist & SÄnger (0 Credits Demo)",
         type: "Solo",
         location: "Bremen",
@@ -1072,7 +1072,7 @@ const initialMusicians = [
     },
     {
         id: "mus_five",
-        name: "[Demo] Fynn Fünf",
+        name: "Fynn Fünf",
         bluffName: "Singer-Songwriter (5 Credits Demo)",
         type: "Solo",
         location: "Dortmund",
@@ -1104,7 +1104,7 @@ const initialMusicians = [
     },
     {
         id: "mus_7",
-        name: "[Demo] The Munich Jazz Syndicate",
+        name: "The Munich Jazz Syndicate",
         bluffName: "Klassisches Jazz- & Swing-Quintett",
         type: "Band",
         location: "München",
@@ -1146,7 +1146,7 @@ const initialMusicians = [
     },
     {
         id: "mus_8",
-        name: "[Demo] Lara & the Strings",
+        name: "Lara & the Strings",
         bluffName: "Modernes Akustik-Trio mit Cello",
         type: "Trio",
         location: "Berlin",
@@ -1188,7 +1188,7 @@ const initialMusicians = [
     },
     {
         id: "mus_9",
-        name: "[Demo] Electric Violin Show",
+        name: "Electric Violin Show",
         bluffName: "Atemberaubende E-Violinen Performance",
         type: "Solo",
         location: "Frankfurt",
@@ -1228,7 +1228,7 @@ const initialMusicians = [
     },
     {
         id: "mus_10",
-        name: "[Demo] DJane Melody (Vanessa)",
+        name: "DJane Melody (Vanessa)",
         bluffName: "Premium DJane für Hochzeiten & Firmenevents",
         type: "DJ",
         location: "Hamburg",
@@ -1270,7 +1270,7 @@ const initialMusicians = [
     },
     {
         id: "mus_11",
-        name: "[Demo] The Rock N Rollers",
+        name: "The Rock N Rollers",
         bluffName: "Hochenergetische 50s & 60s Rock'n'Roll Band",
         type: "Band",
         location: "Stuttgart",
@@ -1312,7 +1312,7 @@ const initialMusicians = [
     },
     {
         id: "mus_12",
-        name: "[Demo] Marc & Sophie Duo",
+        name: "Marc & Sophie Duo",
         bluffName: "Gefühlvolles Akustik- & Gesangsduo",
         type: "Duo",
         location: "Köln",
@@ -1353,7 +1353,7 @@ const initialMusicians = [
     },
     {
         id: "mus_13",
-        name: "[Demo] Brass Power Band",
+        name: "Brass Power Band",
         bluffName: "Energetische Brass-, Funk- & Soul-Combo",
         type: "Band",
         location: "Hannover",
@@ -1395,7 +1395,7 @@ const initialMusicians = [
     },
     {
         id: "mus_14",
-        name: "[Demo] Elena Petrov - Harfenklänge",
+        name: "Elena Petrov - Harfenklänge",
         bluffName: "Virtuose Solo-Harfenistin",
         type: "Solo",
         location: "Dresden",
@@ -1436,7 +1436,7 @@ const initialMusicians = [
     },
     {
         id: "mus_15",
-        name: "[Demo] The Blues Project",
+        name: "The Blues Project",
         bluffName: "Grooviges Blues- & Soul-Trio",
         type: "Trio",
         location: "Hamburg",
@@ -1476,7 +1476,7 @@ const initialMusicians = [
     },
     {
         id: "mus_16",
-        name: "[Demo] Folk & Beyond",
+        name: "Folk & Beyond",
         bluffName: "Kreatives Indie-Folk & Americana Duo",
         type: "Duo",
         location: "Berlin",
@@ -1521,7 +1521,7 @@ const initialMusicians = [
 const initialEvents = [
     {
         id: "evt_1",
-        name: "[Demo] Traumhochzeit am See",
+        name: "Traumhochzeit am See",
         type: "Hochzeit - Trauung",
         organizerType: "Privater Veranstalter",
         company: "Privatperson",
@@ -1555,7 +1555,7 @@ const initialEvents = [
     },
     {
         id: "evt_2",
-        name: "[Demo] Sommerfestival Stadtstrand",
+        name: "Sommerfestival Stadtstrand",
         type: "Festival",
         organizerType: "Festivalveranstalter",
         company: "Eventagentur SommerSonne",
@@ -1589,7 +1589,7 @@ const initialEvents = [
     },
     {
         id: "evt_3",
-        name: "[Demo] Firmenjubiläum TechCorp",
+        name: "Firmenjubiläum TechCorp",
         type: "Firmenfeier",
         organizerType: "Firma",
         company: "TechCorp GmbH",
@@ -1623,7 +1623,7 @@ const initialEvents = [
     },
     {
         id: "evt_4",
-        name: "[Demo] Electronic Beach Party",
+        name: "Electronic Beach Party",
         type: "Bar/Kneipe/Club",
         organizerType: "Event-Agentur",
         company: "Club Seeufer Frankfurt",
@@ -1657,7 +1657,7 @@ const initialEvents = [
     },
     {
         id: "evt_5",
-        name: "[Demo] 50. Geburtstag im Gewölbekeller",
+        name: "50. Geburtstag im Gewölbekeller",
         type: "Geburtstag",
         organizerType: "Privater Veranstalter",
         company: "Privatperson",
@@ -1725,10 +1725,10 @@ function generateRemainingMusicians(existing) {
         let name = "";
         let bluffName = "";
         if (type === "Band" || type === "Duo") {
-            name = `[Demo] The ${adjectives[Math.floor(Math.random() * adjectives.length)]} ${nouns[Math.floor(Math.random() * nouns.length)]}`;
+            name = `The ${adjectives[Math.floor(Math.random() * adjectives.length)]} ${nouns[Math.floor(Math.random() * nouns.length)]}`;
             bluffName = `Professionelle ${genresPool[Math.floor(Math.random() * genresPool.length)]}-${type}`;
         } else {
-            name = `[Demo] ${contactName}`;
+            name = `${contactName}`;
             bluffName = type === "DJ" ? `Erfahrener Event-DJ` : `Akustik-Solo-Künstler`;
         }
 
@@ -1831,9 +1831,9 @@ function generateRemainingEvents(existing) {
         
         let eventName = "";
         if (eventType.includes("Hochzeit")) {
-            eventName = `[Demo] Traumhochzeit von ${firstNames[Math.floor(Math.random() * firstNames.length)]} & ${firstNames[Math.floor(Math.random() * firstNames.length)]}`;
+            eventName = `Traumhochzeit von ${firstNames[Math.floor(Math.random() * firstNames.length)]} & ${firstNames[Math.floor(Math.random() * firstNames.length)]}`;
         } else {
-            eventName = `[Demo] ${eventAdjectives[Math.floor(Math.random() * eventAdjectives.length)]} ${eventType} in ${location}`;
+            eventName = `${eventAdjectives[Math.floor(Math.random() * eventAdjectives.length)]} ${eventType} in ${location}`;
         }
 
         const genresCount = Math.floor(Math.random() * 2) + 1;
@@ -9099,6 +9099,13 @@ window.openItemDetailModal = function(id, isEvents) {
                 <div style="position: relative; height: 260px; width: 100%; background: #0f172a;">
                     <img src="${photo}" style="width: 100%; height: 100%; object-fit: cover;">
                     <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,0.9) 0%, transparent 60%);"></div>
+                    ${(item.isDemo || (item.id && (item.id.startsWith('mus_') || item.id.startsWith('evt_')))) ? `
+                        <!-- Demo-Flagge im Detailfenster oben links -->
+                        <div style="position: absolute; top: 15px; left: 15px; z-index: 6; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 8px; padding: 0.32rem 0.75rem; display: inline-flex; align-items: center; gap: 0.4rem; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                            <i class="fa-solid fa-flag" style="color: #38bdf8; font-size: 0.78rem;"></i>
+                            <span style="color: #ffffff; font-size: 0.76rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-heading);">Demo</span>
+                        </div>
+                    ` : ''}
                     <div style="position: absolute; bottom: 20px; left: 25px; right: 25px;">
                         <span style="display: inline-block; padding: 0.3rem 0.8rem; border-radius: 20px; background: ${roleColor}; color: #fff; font-size: 0.8rem; font-weight: 800; margin-bottom: 0.5rem;">
                             ${isEvents ? (item.eventType || 'Event') : (item.type || item.category || 'Musiker')}
@@ -9107,8 +9114,8 @@ window.openItemDetailModal = function(id, isEvents) {
                             ${(state && state.currentUser)
                                 ? (item.name || item.title || '')
                                 : isEvents
-                                    ? `${(item.isDemo || (item.id && (item.id.startsWith('mus_') || item.id.startsWith('evt_')))) ? '[Demo] ' : ''}<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span> <i class="fa-solid fa-lock" style="color: #7c3aed; font-size: 1.5rem; margin-left: 0.6rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
-                                    : `${(item.isDemo || (item.id && (item.id.startsWith('mus_') || item.id.startsWith('evt_')))) ? '[Demo] ' : ''}<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: #2563eb; font-size: 1.5rem; margin-left: 0.6rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
+                                    ? `<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span> <i class="fa-solid fa-lock" style="color: #7c3aed; font-size: 1.5rem; margin-left: 0.6rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
+                                    : `<span style="filter: blur(7px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: #2563eb; font-size: 1.5rem; margin-left: 0.6rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
                             }
                         </h2>
                     </div>
@@ -18453,8 +18460,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
         const displayName = (state && state.currentUser)
             ? bandName
             : isEvents
-                ? `${isDemoTile ? '[Demo] ' : ''}<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span> <i class="fa-solid fa-lock" style="color: #7c3aed; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
-                : `${isDemoTile ? '[Demo] ' : ''}<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: #2563eb; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`;
+                ? `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Privates Event</span> <i class="fa-solid fa-lock" style="color: #7c3aed; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
+                : `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block;">Band / Künstler</span> <i class="fa-solid fa-lock" style="color: #2563eb; font-size: 1.25rem; margin-left: 0.55rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`;
 
         return `
             <div class="market-tile-card" style="cursor: default; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0);">
@@ -18462,8 +18469,16 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
                     
+                    ${isDemoTile ? `
+                        <!-- Demo-Flagge / Tag oben links -->
+                        <div class="tile-demo-flag" style="position: absolute; top: 12px; left: 12px; z-index: 6; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 8px; padding: 0.28rem 0.65rem; display: inline-flex; align-items: center; gap: 0.4rem; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+                            <i class="fa-solid fa-flag" style="color: #38bdf8; font-size: 0.72rem;"></i>
+                            <span style="color: #ffffff; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; font-family: var(--font-heading);">Demo</span>
+                        </div>
+                    ` : ''}
+
                     ${(state.currentUser && item.matchScore >= 70) ? `
-                        <div class="tile-top-match-badge" title="Top Match" style="position: absolute; top: 12px; left: 12px; z-index: 5; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(254, 240, 138, 0.35); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; pointer-events: none;">
+                        <div class="tile-top-match-badge" title="Top Match" style="position: absolute; top: 12px; left: ${isDemoTile ? '88px' : '12px'}; z-index: 5; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(254, 240, 138, 0.35); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; pointer-events: none;">
                             <i class="fa-solid fa-star" style="color: #eab308; font-size: 0.85rem; margin: 0;"></i>
                         </div>
                     ` : ''}
