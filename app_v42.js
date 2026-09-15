@@ -1700,7 +1700,7 @@ function generateRemainingEvents(existing) {
     const genresPool = ["Pop", "Rock", "Electro", "Jazz", "Klassik", "Schlager", "Karneval"];
     const instrumentsPool = ["E-Gitarre", "Akustikgitarre", "Klavier", "Keyboard", "Schlagzeug", "Gesang"];
     const musicianTypesPool = ["Band", "DJ", "Solo", "Duo"];
-    const orgTypesPool = ["Privater Veranstalter", "Firma", "Verein", "Event-Agentur", "Festivalveranstalter"];
+    const orgTypesPool = ["Privater Veranstalter", "Firma", "Künstlermanager", "Verein", "Event-Agentur", "Festivalveranstalter"];
     const techPool = ["Technik vorhanden", "Technik ist noch unklar", "Technik nicht vorhanden"];
 
     for (let i = existing.length; i < targetCount; i++) {
@@ -1755,6 +1755,7 @@ function generateRemainingEvents(existing) {
         if (organizerType !== "Privater Veranstalter") {
             const orgNames = {
                 "Firma": ["TechCorp GmbH", "Müller & Söhne KG", "InnoWave Solutions", "FutureMedia Group", "Hansa Logistik"],
+                "Künstlermanager": ["Star Artists Management", "NextLevel Artists", "Talent Pool Management", "ShowTime Artists Management"],
                 "Verein": ["Musikverein e.V.", "Kulturverein Regenbogen", "Sportfreunde 1920", "Stadtjugendring", "Förderverein Kunst"],
                 "Event-Agentur": ["SommerSonne Events", "StarGigs Agency", "GoldenMoment Weddings", "BlueMoon Entertainment", "Epic Events"],
                 "Festivalveranstalter": ["BeachBeat Festival Group", "Rock am See GmbH", "JazzTime e.V.", "CityFestivals UG", "SoundScape Productions"],
@@ -9520,9 +9521,7 @@ function renderProfilePage(container) {
                                 <option value="Hochzeitsplaner" ${u.organizerType === 'Hochzeitsplaner' ? 'selected' : ''}>Hochzeitsplaner</option>
                                 <option value="Eventlocation" ${u.organizerType === 'Eventlocation' ? 'selected' : ''}>Eventlocation</option>
                                 <option value="Firma" ${u.organizerType === 'Firma' ? 'selected' : ''}>Firma</option>
-                                <option value="Hotel" ${u.organizerType === 'Hotel' ? 'selected' : ''}>Hotel</option>
-                                <option value="Restaurant" ${u.organizerType === 'Restaurant' ? 'selected' : ''}>Restaurant</option>
-                                <option value="Bar" ${u.organizerType === 'Bar' ? 'selected' : ''}>Bar</option>
+                                <option value="Künstlermanager" ${u.organizerType === 'Künstlermanager' ? 'selected' : ''}>Künstlermanager</option>
                                 <option value="Stadtmarketing" ${u.organizerType === 'Stadtmarketing' ? 'selected' : ''}>Stadtmarketing</option>
                                 <option value="Festivalveranstalter" ${u.organizerType === 'Festivalveranstalter' ? 'selected' : ''}>Festivalveranstalter</option>
                                 <option value="Verein" ${u.organizerType === 'Verein' ? 'selected' : ''}>Verein</option>
@@ -13365,9 +13364,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                             <option value="Hochzeitsplaner">Hochzeitsplaner</option>
                             <option value="Eventlocation">Eventlocation</option>
                             <option value="Firma">Firma</option>
-                            <option value="Hotel">Hotel</option>
-                            <option value="Restaurant">Restaurant</option>
-                            <option value="Bar">Bar</option>
+                            <option value="Künstlermanager">Künstlermanager</option>
                             <option value="Stadtmarketing">Stadtmarketing</option>
                             <option value="Festivalveranstalter">Festivalveranstalter</option>
                             <option value="Verein">Verein</option>
@@ -13868,8 +13865,13 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             const val = regOrgTypeSelect.value;
             if (val && val !== 'Privater Veranstalter') {
                 dynamicContainer.classList.remove('hidden');
-                dynamicLabel.textContent = `Name ${val}`;
-                dynamicInput.setAttribute('placeholder', `Name ${val} eingeben`);
+                if (val === 'Künstlermanager') {
+                    dynamicLabel.textContent = 'Name Management / Agentur';
+                    dynamicInput.setAttribute('placeholder', 'z.B. Star Artists Management');
+                } else {
+                    dynamicLabel.textContent = `Name ${val}`;
+                    dynamicInput.setAttribute('placeholder', `Name ${val} eingeben`);
+                }
                 dynamicInput.setAttribute('required', '');
             } else {
                 dynamicContainer.classList.add('hidden');
@@ -17663,9 +17665,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                             <option value="Hochzeitsplaner">Hochzeitsplaner</option>
                             <option value="Eventlocation">Eventlocation</option>
                             <option value="Firma">Firma</option>
-                            <option value="Hotel">Hotel</option>
-                            <option value="Restaurant">Restaurant</option>
-                            <option value="Bar">Bar</option>
+                            <option value="Künstlermanager">Künstlermanager</option>
                             <option value="Stadtmarketing">Stadtmarketing</option>
                             <option value="Festivalveranstalter">Festivalveranstalter</option>
                             <option value="Verein">Verein</option>
@@ -17904,6 +17904,9 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                 } else if (val === 'Eventlocation' || val === 'Hotel' || val === 'Restaurant' || val === 'Bar') {
                     orgCompanyLabel.textContent = 'Name der Location';
                     orgCompanyInput.placeholder = 'z.B. Gasthof Adler';
+                } else if (val === 'Künstlermanager') {
+                    orgCompanyLabel.textContent = 'Name Management / Agentur';
+                    orgCompanyInput.placeholder = 'z.B. Star Artists Management';
                 } else {
                     orgCompanyLabel.textContent = 'Name Organisation / Firma';
                     orgCompanyInput.placeholder = 'z.B. Event-Agentur Müller';
