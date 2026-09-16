@@ -2289,8 +2289,78 @@ body {
 
 .profile-section-card {
     background: #ffffff !important;
-    border: 1px solid rgba(15, 23, 42, 0.08) !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 18px !important;
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+    padding: 2rem 2.2rem !important;
+    margin-bottom: 2.5rem !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.profile-section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1.5px solid #f1f5f9;
+    padding-bottom: 1.1rem;
+    margin-bottom: 1.6rem;
+    flex-wrap: wrap;
+}
+
+.profile-section-badge-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.profile-section-title-group h3 {
+    margin: 0 !important;
+    font-family: var(--font-heading) !important;
+    font-size: 1.25rem !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    letter-spacing: -0.3px !important;
+    line-height: 1.25 !important;
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+}
+
+.profile-section-title-group p {
+    margin: 0.25rem 0 0 0 !important;
+    font-size: 0.84rem !important;
+    color: #64748b !important;
+    line-height: 1.4 !important;
+    font-weight: 500 !important;
+}
+
+.profile-section-card.musician-profile {
+    border-top: 4px solid #7c3aed !important;
+}
+
+.profile-section-card.contact-details {
+    border-top: 4px solid #2563eb !important;
+}
+
+.profile-section-card.subscription-manage {
+    border-top: 4px solid #9333ea !important;
+}
+
+.profile-section-card.privacy-manage {
+    border-top: 4px solid #475569 !important;
+}
+
+.profile-page .portal-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2.5rem !important;
 }
 
 .filter-sidebar {
@@ -4022,10 +4092,8 @@ body.landing-page-active .app-container {
     }
 
     .profile-section-card {
-        padding: 1.25rem 0px !important;
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
+        padding: 1.5rem 1.15rem !important;
+        margin-bottom: 2rem !important;
     }
 }
 
@@ -4843,6 +4911,14 @@ input[type="range"].input-field {
     box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
+}
+
+/* No icons in top navigation bars */
+.market-controls-row i,
+.matches-controls-row i,
+.profile-controls-row i,
+.postbox-controls-row i {
+    display: none !important;
 }
 
 .controls-row-inner,

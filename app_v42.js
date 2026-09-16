@@ -7192,11 +7192,9 @@ function renderMarket(container, type, onNavigate) {
                         </span>
                     </div>
 
-                    <!-- 2. Aktionen-Container: Filter-Button rechts -->
+                    <!-- 2. Aktionen-Container: Filter-Button rechts (ohne Icon) -->
                     <div class="market-controls-actions ${showOnlyFavorites ? 'hidden' : ''}" style="grid-column: 3; justify-self: end; margin: 0; display: ${showOnlyFavorites ? 'none !important' : 'flex'}; align-items: center; gap: 0.55rem;">
-                        <!-- Filter-Symbol + "Filter" -->
-                        <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.45rem 1.05rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" title="Filter öffnen">
-                            <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; color: #ffffff; transition: color 0.3s ease;"></i>
+                        <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="display: inline-flex; align-items: center; justify-content: center; padding: 0.45rem 1.15rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" title="Filter öffnen">
                             <span style="color: #ffffff;">Filter</span>
                         </button>
                     </div>
@@ -7240,7 +7238,7 @@ function renderMarket(container, type, onNavigate) {
                         
                                                 <!-- Right: Mobile Close Button -->
                         <div class="filter-header-close-wrapper" style="flex: 1; display: flex; justify-content: flex-end;">
-                            <button id="btn-close-filters-m" class="btn-close-filters-m" style="margin: 0; width: 42px; height: 42px; background: ${isOrganizerTheme ? '#2563eb' : '#7c3aed'} !important; border: 1px solid ${isOrganizerTheme ? '#2563eb' : '#7c3aed'} !important; box-shadow: 0 2px 8px ${isOrganizerTheme ? 'rgba(37, 99, 235, 0.35)' : 'rgba(124, 58, 237, 0.35)'} !important; color: #ffffff !important;" title="Filter anwenden & Fenster schließen">
+                            <button id="btn-close-filters-m" class="btn-close-filters-m" style="margin: 0; width: 42px; height: 42px; background: ${isOrganizerTheme ? '#2563eb' : '#7c3aed'} !important; border: 1px solid ${isOrganizerTheme ? '#2563eb' : '#7c3aed'} !important; box-shadow: 0 2px 8px ${isOrganizerTheme ? 'rgba(37, 99, 235, 0.35)' : 'rgba(124, 58, 237, 0.35)'} !important; color: #ffffff !important;" title="Filter anwenden">
                                 <i class="fa-solid fa-check"></i>
                             </button>
                         </div>
@@ -7615,8 +7613,8 @@ function renderMarket(container, type, onNavigate) {
 
                     <!-- Bottom Close Action for Filter Drawer -->
                     <div class="market-filter-bottom-actions">
-                        <button type="button" class="btn btn-close-filters-bottom" id="btn-close-filters-bottom" title="Filter anwenden & Fenster schließen" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.85rem 1.5rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; letter-spacing: -0.2px; color: #ffffff !important; border: 1px solid ${isOrganizerTheme ? '#2563eb' : '#7c3aed'} !important; cursor: pointer; transition: all 0.2s ease; background: ${isOrganizerTheme ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'} !important; box-shadow: ${isOrganizerTheme ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'} !important;">
-                            <i class="fa-solid fa-check"></i> <span>Filter anwenden & Fenster schließen</span>
+                        <button type="button" class="btn btn-close-filters-bottom" id="btn-close-filters-bottom" title="Filter anwenden" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 0.85rem 1.5rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; letter-spacing: -0.2px; color: #ffffff !important; border: 1px solid ${isOrganizerTheme ? '#2563eb' : '#7c3aed'} !important; cursor: pointer; transition: all 0.2s ease; background: ${isOrganizerTheme ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'} !important; box-shadow: ${isOrganizerTheme ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'} !important;">
+                            <span>Filter anwenden</span>
                         </button>
                     </div>
                 </div>
@@ -7643,9 +7641,7 @@ function renderMarket(container, type, onNavigate) {
         this.classList.toggle('active');
         const isOpen = filterWrapper.classList.contains('open');
         overlay?.classList.toggle('open', isOpen);
-        this.innerHTML = isOpen 
-            ? `<i class="fa-solid fa-xmark" style="font-size: 0.95rem; margin: 0;"></i> <span>Filter</span>` 
-            : `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; transition: color 0.3s ease;"></i> <span>Filter</span>`;
+        this.innerHTML = '<span>Filter</span>';
         if (!isOpen) {
             updateFilterIconGlow(isFilterActiveCurrently);
         }
@@ -7657,7 +7653,7 @@ function renderMarket(container, type, onNavigate) {
         overlay?.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {
-            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; transition: color 0.3s ease;"></i> <span>Filter</span>`;
+            toggleBtn.innerHTML = '<span>Filter</span>';
             updateFilterIconGlow(isFilterActiveCurrently);
         }
     });
@@ -7668,7 +7664,7 @@ function renderMarket(container, type, onNavigate) {
         overlay?.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {
-            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; transition: color 0.3s ease;"></i> <span>Filter</span>`;
+            toggleBtn.innerHTML = '<span>Filter</span>';
             updateFilterIconGlow(isFilterActiveCurrently);
         }
         if (window.innerWidth <= 900) {
@@ -7689,7 +7685,7 @@ function renderMarket(container, type, onNavigate) {
         overlay.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {
-            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; transition: color 0.3s ease;"></i> <span>Filter</span>`;
+            toggleBtn.innerHTML = '<span>Filter</span>';
             updateFilterIconGlow(isFilterActiveCurrently);
         }
     });
@@ -9917,9 +9913,8 @@ function renderProfilePage(container) {
                     <!-- Spacer left -->
                     <div class="profile-controls-spacer" style="grid-column: 1;"></div>
 
-                    <!-- Titel Mittig -->
-                    <div class="profile-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0;">
-                        <i class="fa-regular fa-circle-user" style="color: #ffffff; font-size: 1.1rem; transform: translateY(0); margin-right: 0.2rem;"></i>
+                    <!-- Titel Mittig (ohne Icon) -->
+                    <div class="profile-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                         <span id="profile-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
                             Profil
                         </span>
@@ -9935,10 +9930,18 @@ function renderProfilePage(container) {
             <div class="profile-content-wrapper" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0 1.2rem; box-sizing: border-box;">
                 <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem; max-width: 800px; margin: 0 auto; padding: 0;">
                 <div id="profile-my-items-container"></div>
-            <div class="profile-section-card">
-                <h3 style="color: ${themeColor}; margin-top: 0; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.6rem;">
-                    <i class="fa-solid fa-address-card ${themeClass}"></i> Persönliche Kontaktdaten
-                </h3>
+            <div class="profile-section-card contact-details">
+                <div class="profile-section-header">
+                    <div style="display: flex; align-items: center; gap: 0.85rem;">
+                        <div class="profile-section-badge-icon" style="background: ${isMusician ? 'rgba(124, 58, 237, 0.1)' : 'rgba(37, 99, 235, 0.1)'}; color: ${themeColor};">
+                            <i class="fa-solid fa-address-card"></i>
+                        </div>
+                        <div class="profile-section-title-group">
+                            <h3>Persönliche Kontaktdaten</h3>
+                            <p>Deine Stammdaten und Kontaktaufnahme-Optionen für ${isMusician ? 'Veranstalter' : 'Musiker'}.</p>
+                        </div>
+                    </div>
+                </div>
                 <form id="profile-details-form">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                         <div class="form-group">
@@ -9997,10 +10000,18 @@ function renderProfilePage(container) {
             </div>
 
             ${u.role === 'musician' ? `
-            <div class="profile-section-card">
-                <h3 style="color: ${themeColor}; margin-top: 0; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.6rem;">
-                    <i class="fa-solid fa-credit-card ${themeClass}"></i> Abonnement verwalten
-                </h3>
+            <div class="profile-section-card subscription-manage">
+                <div class="profile-section-header">
+                    <div style="display: flex; align-items: center; gap: 0.85rem;">
+                        <div class="profile-section-badge-icon" style="background: rgba(147, 51, 234, 0.1); color: #9333ea;">
+                            <i class="fa-solid fa-credit-card"></i>
+                        </div>
+                        <div class="profile-section-title-group">
+                            <h3>Abonnement verwalten</h3>
+                            <p>Tarifdetails, Vertragslaufzeiten, automatische Verlängerung und Tarifoptionen.</p>
+                        </div>
+                    </div>
+                </div>
                 
                 <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 1.2rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                     <div>
@@ -10103,10 +10114,18 @@ function renderProfilePage(container) {
             ` : ''}
 
             <!-- DSGVO Datenschutz & Kontoverwaltung Sektion -->
-            <div class="profile-section-card" style="margin-top: 1rem;">
-                <h3 style="color: ${themeColor}; margin-top: 0; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.6rem;">
-                    <i class="fa-solid fa-shield-halved ${themeClass}"></i> Datenschutz & Kontoverwaltung
-                </h3>
+            <div class="profile-section-card privacy-manage">
+                <div class="profile-section-header">
+                    <div style="display: flex; align-items: center; gap: 0.85rem;">
+                        <div class="profile-section-badge-icon" style="background: rgba(71, 85, 105, 0.1); color: #475569;">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div class="profile-section-title-group">
+                            <h3>Datenschutz & Kontoverwaltung</h3>
+                            <p>DSGVO-Selbstauskunft, Cookie-Einstellungen, Zahlungsdaten und Kontolöschung.</p>
+                        </div>
+                    </div>
+                </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.2rem;">
                     Hier kannst du deine Betroffenenrechte gemäß DSGVO ausüben. Du kannst deine Cookie-Einstellungen anpassen, dein Benutzerkonto unwiderruflich löschen oder einen manuellen Datenexport anfordern.
                 </p>
@@ -10631,9 +10650,8 @@ function renderMatchesPage(container) {
                         <!-- Spacer left -->
                         <div class="matches-controls-spacer" style="grid-column: 1;"></div>
 
-                        <!-- Center: Star & Title & Count (Mittig) -->
-                        <div class="matches-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0;">
-                            <i class="fa-solid fa-star" style="color: #fde047; font-size: 1.1rem; transform: translateY(0); margin-right: 0.2rem;"></i>
+                        <!-- Center: Title & Count (Mittig, ohne Icon) -->
+                        <div class="matches-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                             <span id="top-matches-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
                                 Top-Matches (<span id="top-matches-count">${selectedId ? '0' : '0'}</span>)
                             </span>
@@ -10643,7 +10661,6 @@ function renderMatchesPage(container) {
                         <div class="matches-controls-actions" style="grid-column: 3; justify-self: end; display: flex; align-items: center; margin: 0;">
                             ${profiles.length > 1 ? `
                                 <div class="matches-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); border-radius: 12px; padding: 0.35rem 0.8rem; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-                                    <i class="${isMusician ? 'fa-solid fa-guitar' : 'fa-solid fa-calendar-day'}" style="color: #ffffff; font-size: 0.85rem;"></i>
                                     <label for="select-profile" style="font-size: 0.82rem; font-weight: 700; color: #ffffff; margin: 0; white-space: nowrap;">Profil:</label>
                                     <select id="select-profile" style="background: transparent; border: none; color: #ffffff; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; outline: none; cursor: pointer; padding: 0.1rem 0; max-width: 170px;">
                                         ${selectOptionsHtml}
@@ -11060,10 +11077,19 @@ function renderMyEventsContent(container) {
 
 
     container.innerHTML = `
-        <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;"><!-- Active Events -->
-            <div class="profile-section-card" style="padding-top: 1.2rem;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom: 1px solid var(--border-glass); padding-bottom:0.6rem; flex-wrap: wrap; gap:1rem;">
-                    <h3 style="margin:0;"><i class="fa-solid fa-calendar-check text-cyan"></i> Aktive Events (${activeEvents.length})</h3>
+        <div class="portal-layout" style="display:flex; flex-direction:column; gap:2.5rem;">
+            <!-- Active Events -->
+            <div class="profile-section-card contact-details" style="padding-top: 1.6rem;">
+                <div class="profile-section-header">
+                    <div style="display: flex; align-items: center; gap: 0.85rem;">
+                        <div class="profile-section-badge-icon" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                        <div class="profile-section-title-group">
+                            <h3>Meine Ausschreibungen (${activeEvents.length})</h3>
+                            <p>Verwalte deine Event-Ausschreibungen und erstelle neue Gigs.</p>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="my-events-list">
@@ -11086,24 +11112,27 @@ function renderMyEventsContent(container) {
             </div>
 
             <!-- Deactivated / Finished Events -->
-            <div class="profile-section-card" style="opacity:0.85;">
-                <div style="margin-bottom:1.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom:0.8rem;">
-                    <h3 style="margin:0; color:var(--text-muted);"><i class="fa-solid fa-calendar-minus"></i> Deaktivierte & Beendete Events (${deactivatedEvents.length})</h3>
+            ${deactivatedEvents.length > 0 ? `
+            <div class="profile-section-card" style="opacity:0.9; border-top: 4px solid #94a3b8 !important;">
+                <div class="profile-section-header">
+                    <div style="display: flex; align-items: center; gap: 0.85rem;">
+                        <div class="profile-section-badge-icon" style="background: rgba(148, 163, 184, 0.15); color: #64748b;">
+                            <i class="fa-solid fa-calendar-minus"></i>
+                        </div>
+                        <div class="profile-section-title-group">
+                            <h3 style="color: #475569 !important;">Beendete & Deaktivierte Events (${deactivatedEvents.length})</h3>
+                            <p>Diese Ausschreibungen sind aktuell im Markt nicht sichtbar.</p>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="my-events-list">
-                    ${deactivatedEvents.length === 0 ? `
-                        <div style="padding:2rem 1rem; text-align:center; color:var(--text-muted);">
-                            <i class="fa-solid fa-calendar-xmark" style="font-size:2.5rem; color:var(--border-glass); margin-bottom:0.8rem;"></i>
-                            <p>Keine deaktivierten oder beendeten Events.</p>
-                        </div>
-                    ` : `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: 1.5rem;">
-                            ${deactivatedEvents.map(e => renderOrganizerEventItem(e, false)).join('')}
-                        </div>
-                    `}
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: 1.5rem;">
+                        ${deactivatedEvents.map(e => renderOrganizerEventItem(e, false)).join('')}
+                    </div>
                 </div>
             </div>
+            ` : ''}
         </div>
     `;
 
@@ -11545,11 +11574,19 @@ function renderMyMusiciansContent(container) {
     const isLimitReached = allMyMusicians.length >= 5;
 
     container.innerHTML = `
-        <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem;">
+        <div class="portal-layout" style="display:flex; flex-direction:column; gap:2.5rem;">
             <!-- Active Musicians -->
-            <div class="profile-section-card" style="padding-top: 1.2rem;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom: 1px solid var(--border-glass); padding-bottom:0.6rem; flex-wrap: wrap; gap:1rem;">
-                    <h3 style="margin:0; color:#2563eb;"><i class="fa-solid fa-guitar"></i> Aktive Musiker-Profile (${activeMusicians.length})</h3>
+            <div class="profile-section-card musician-profile" style="padding-top: 1.6rem;">
+                <div class="profile-section-header">
+                    <div style="display: flex; align-items: center; gap: 0.85rem;">
+                        <div class="profile-section-badge-icon" style="background: rgba(124, 58, 237, 0.1); color: #7c3aed;">
+                            <i class="fa-solid fa-guitar"></i>
+                        </div>
+                        <div class="profile-section-title-group">
+                            <h3>Musiker-Profile (${activeMusicians.length})</h3>
+                            <p>Verwalte deine Musiker-Profile, erstelle neue Profile oder bearbeite Details.</p>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="my-musicians-list">
@@ -11564,7 +11601,7 @@ function renderMyMusiciansContent(container) {
                         </div>
                     `}
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem; flex-direction: column; align-items: center; gap: 0.5rem;">
-                        <button class="btn btn-primary" id="btn-create-musician-modal" style="margin:0; background: #2563eb; border-color: #2563eb; color: #ffffff;">
+                        <button class="btn btn-primary" id="btn-create-musician-modal" style="margin:0; background: #7c3aed; border-color: #7c3aed; color: #ffffff;">
                             <i class="fa-solid fa-plus"></i> Profil hinzufügen
                         </button>
                     </div>
@@ -11572,24 +11609,27 @@ function renderMyMusiciansContent(container) {
             </div>
 
             <!-- Paused / Inactive Musicians -->
-            <div class="profile-section-card" style="opacity:0.85;">
-                <div style="margin-bottom:1.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom:0.8rem;">
-                    <h3 style="margin:0; color:var(--text-muted);"><i class="fa-solid fa-pause"></i> Pausierte & Inaktive Profile (${deactivatedMusicians.length})</h3>
+            ${deactivatedMusicians.length > 0 ? `
+            <div class="profile-section-card" style="opacity:0.9; border-top: 4px solid #94a3b8 !important;">
+                <div class="profile-section-header">
+                    <div style="display: flex; align-items: center; gap: 0.85rem;">
+                        <div class="profile-section-badge-icon" style="background: rgba(148, 163, 184, 0.15); color: #64748b;">
+                            <i class="fa-solid fa-pause"></i>
+                        </div>
+                        <div class="profile-section-title-group">
+                            <h3 style="color: #475569 !important;">Pausierte & Inaktive Profile (${deactivatedMusicians.length})</h3>
+                            <p>Diese Profile sind aktuell im Markt ausgeblendet.</p>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="my-musicians-list">
-                    ${deactivatedMusicians.length === 0 ? `
-                        <div style="padding:2rem 1rem; text-align:center; color:var(--text-muted);">
-                            <i class="fa-solid fa-guitar" style="font-size:2.5rem; color:var(--border-glass); margin-bottom:0.8rem; filter: grayscale(1);"></i>
-                            <p>Keine pausierten oder inaktiven Profile.</p>
-                        </div>
-                    ` : `
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: 1.5rem;">
-                            ${deactivatedMusicians.map(m => renderMyMusicianItem(m, false)).join('')}
-                        </div>
-                    `}
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: 1.5rem;">
+                        ${deactivatedMusicians.map(m => renderMyMusicianItem(m, false)).join('')}
+                    </div>
                 </div>
             </div>
+            ` : ''}
         </div>
     `;
 
@@ -17425,18 +17465,16 @@ function renderPostbox(container) {
                         <!-- Spacer left -->
                         <div class="postbox-controls-spacer" style="grid-column: 1;"></div>
 
-                        <!-- Center: Envelope & Title (Mittig) -->
-                        <div class="postbox-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0;">
-                            <i class="fa-solid fa-envelope" style="color: #ffffff; font-size: 1.1rem; transform: translateY(0); margin-right: 0.2rem;"></i>
+                        <!-- Center: Title (Mittig, ohne Icon) -->
+                        <div class="postbox-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                             <span id="postbox-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
                                 Postfach (${nonSystemChats.length})
                             </span>
                         </div>
 
-                        <!-- Postbox Filter Button in Toolbar (rechts) -->
+                        <!-- Postbox Filter Button in Toolbar (rechts, ohne Icon) -->
                         <div class="postbox-controls-actions" style="grid-column: 3; justify-self: end; margin: 0; display: flex; align-items: center; gap: 0.55rem;">
-                            <button class="market-filter-mobile-toggle ${window.postboxShowFilters ? 'active' : ''}" id="btn-toggle-postbox-filters-bar" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.45rem 1.05rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: ${window.postboxShowFilters ? '#ffffff' : 'rgba(255, 255, 255, 0.18)'}; border: 1.5px solid ${window.postboxShowFilters ? '#ffffff' : 'rgba(255, 255, 255, 0.45)'}; color: ${window.postboxShowFilters ? (isMusician ? '#7c3aed' : '#2563eb') : '#ffffff'}; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: ${window.postboxShowFilters ? '0 0 15px rgba(255, 255, 255, 0.45)' : '0 2px 8px rgba(0,0,0,0.15)'};" title="Filter ${window.postboxShowFilters ? 'schließen' : 'öffnen'}">
-                                <i class="fa-solid fa-sliders" style="font-size: 0.95rem; margin: 0; color: ${window.postboxShowFilters ? (isMusician ? '#7c3aed' : '#2563eb') : '#ffffff'};"></i>
+                            <button class="market-filter-mobile-toggle ${window.postboxShowFilters ? 'active' : ''}" id="btn-toggle-postbox-filters-bar" style="display: inline-flex; align-items: center; justify-content: center; padding: 0.45rem 1.15rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: ${window.postboxShowFilters ? '#ffffff' : 'rgba(255, 255, 255, 0.18)'}; border: 1.5px solid ${window.postboxShowFilters ? '#ffffff' : 'rgba(255, 255, 255, 0.45)'}; color: ${window.postboxShowFilters ? (isMusician ? '#7c3aed' : '#2563eb') : '#ffffff'}; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: ${window.postboxShowFilters ? '0 0 15px rgba(255, 255, 255, 0.45)' : '0 2px 8px rgba(0,0,0,0.15)'};" title="Filter ${window.postboxShowFilters ? 'schließen' : 'öffnen'}">
                                 <span style="color: ${window.postboxShowFilters ? (isMusician ? '#7c3aed' : '#2563eb') : '#ffffff'};">Filter</span>
                             </button>
                         </div>
