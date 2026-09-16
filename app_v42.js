@@ -7171,36 +7171,38 @@ function renderMarket(container, type, onNavigate) {
     window.lastProfilePrefillHash = currentPrefillHash;
 
     container.innerHTML = `
-        <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'} ${showOnlyFavorites ? 'favorites-mode' : ''}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0px 5rem; box-sizing: border-box;">
+        <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'} ${showOnlyFavorites ? 'favorites-mode' : ''}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
-            <div class="market-controls-row ${showOnlyFavorites ? 'favorites-mode' : ''}" style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isEvents ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isEvents ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.65rem 1.2rem; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
-                
-                <!-- 1. Trefferanzahl (Weiß auf farbiger Leiste) -->
-                <div id="market-results-header" style="display: flex; align-items: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px; cursor: ${showOnlyFavorites ? 'default' : 'pointer'};" onclick="if (!window.currentMarketShowFavorites) document.getElementById('btn-toggle-mobile-filters')?.click();" title="${showOnlyFavorites ? '' : 'Filter öffnen'}">
-                    <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
-                        ${getItems().length}
+            <div class="market-controls-row ${showOnlyFavorites ? 'favorites-mode' : ''}" style="background: ${isEvents ? 'linear-gradient(135deg, rgba(124, 58, 237, 0.96) 0%, rgba(109, 40, 217, 0.96) 100%)' : 'linear-gradient(135deg, rgba(30, 64, 175, 0.96) 0%, rgba(37, 99, 235, 0.96) 100%)'} !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: ${isEvents ? '0 6px 24px rgba(124, 58, 237, 0.35)' : '0 6px 24px rgba(37, 99, 235, 0.35)'} !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+                <div class="market-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box;">
+                    <!-- 1. Trefferanzahl (Weiß auf farbiger Leiste) -->
+                    <div id="market-results-header" style="display: flex; align-items: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px; cursor: ${showOnlyFavorites ? 'default' : 'pointer'};" onclick="if (!window.currentMarketShowFavorites) document.getElementById('btn-toggle-mobile-filters')?.click();" title="${showOnlyFavorites ? '' : 'Filter öffnen'}">
+                        <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
+                            ${getItems().length}
+                        </div>
+                        <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
+                            ${showOnlyFavorites ? 'Favoriten' : (isEvents ? 'Events' : 'Musiker')}
+                        </span>
                     </div>
-                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                        ${showOnlyFavorites ? 'Favoriten' : (isEvents ? 'Events' : 'Musiker')}
-                    </span>
-                </div>
 
-                <!-- 2. Aktionen-Container: Filter-Button weiter links -->
-                <div class="market-controls-actions ${showOnlyFavorites ? 'hidden' : ''}" style="margin: 0 0 0 auto; display: ${showOnlyFavorites ? 'none !important' : 'flex'}; align-items: center; gap: 0.55rem;">
-                    <!-- Filter-Symbol + "Filter" -->
-                    <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.45rem 1.05rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" title="Filter öffnen">
-                        <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; color: #ffffff; transition: color 0.3s ease;"></i>
-                        <span style="color: #ffffff;">Filter</span>
-                    </button>
+                    <!-- 2. Aktionen-Container: Filter-Button weiter links -->
+                    <div class="market-controls-actions ${showOnlyFavorites ? 'hidden' : ''}" style="margin: 0 0 0 auto; display: ${showOnlyFavorites ? 'none !important' : 'flex'}; align-items: center; gap: 0.55rem;">
+                        <!-- Filter-Symbol + "Filter" -->
+                        <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.45rem 1.05rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" title="Filter öffnen">
+                            <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; color: #ffffff; transition: color 0.3s ease;"></i>
+                            <span style="color: #ffffff;">Filter</span>
+                        </button>
+                    </div>
+     
+                    <!-- Versteckte Steuerungsbuttons für Top-Matches und Favoriten (für programmatische Aufrufe der Bottom-Bar) -->
+                    <button id="btn-toggle-market-top-matches" style="display: none !important;" aria-hidden="true"></button>
+                    <button id="btn-toggle-market-favorites" style="display: none !important;" aria-hidden="true"></button>
                 </div>
- 
-                <!-- Versteckte Steuerungsbuttons für Top-Matches und Favoriten (für programmatische Aufrufe der Bottom-Bar) -->
-                <button id="btn-toggle-market-top-matches" style="display: none !important;" aria-hidden="true"></button>
-                <button id="btn-toggle-market-favorites" style="display: none !important;" aria-hidden="true"></button>
             </div>
 
             <!-- Main Layout: Left Sticky Sidebar Filters + Center Content -->
-            <div class="market-layout-container ${showOnlyFavorites ? 'no-filters' : ''}">
+            <div class="market-content-wrapper" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0 1.2rem; box-sizing: border-box;">
+                <div class="market-layout-container ${showOnlyFavorites ? 'no-filters' : ''}">
                 
                 <!-- Left Sidebar Filters (Responsive Wrapper) -->
                 <div id="market-filters-wrapper" class="market-filter-card" style="${showOnlyFavorites ? 'display: none !important;' : ''}">
@@ -7618,6 +7620,7 @@ function renderMarket(container, type, onNavigate) {
                         ${renderMarketGridHTML(getItems(), isEvents)}
                     </div>
                 </div>
+            </div>
             </div>
             <div id="market-filters-overlay" class="market-filters-overlay"></div>
         </div>
@@ -9899,22 +9902,25 @@ function renderProfilePage(container) {
     let selectedPlan = activePlan;
 
     container.innerHTML = `
-        <div class="profile-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0px 5rem; box-sizing: border-box; width: 100%;">
+        <div class="profile-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
             <!-- Profile Controls Row (Lila bei Musikern / Blau bei Veranstaltern) -->
-            <div class="profile-controls-row" style="background: ${isMusician ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isMusician ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isMusician ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.65rem 1.2rem; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
-                <div style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0;">
-                    <i class="fa-regular fa-circle-user" style="color: #ffffff; font-size: 1.1rem; transform: translateY(1px); margin-right: 0.2rem;"></i>
-                    <span id="profile-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                        Profil
-                    </span>
-                </div>
-                <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.85); font-weight: 600;">
-                    ${u.email || ''}
+            <div class="profile-controls-row" style="background: ${isMusician ? 'linear-gradient(135deg, rgba(124, 58, 237, 0.96) 0%, rgba(109, 40, 217, 0.96) 100%)' : 'linear-gradient(135deg, rgba(30, 64, 175, 0.96) 0%, rgba(37, 99, 235, 0.96) 100%)'} !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: ${isMusician ? '0 6px 24px rgba(124, 58, 237, 0.35)' : '0 6px 24px rgba(37, 99, 235, 0.35)'} !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+                <div class="profile-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box;">
+                    <div style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0;">
+                        <i class="fa-regular fa-circle-user" style="color: #ffffff; font-size: 1.1rem; transform: translateY(1px); margin-right: 0.2rem;"></i>
+                        <span id="profile-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
+                            Profil
+                        </span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.85); font-weight: 600;">
+                        ${u.email || ''}
+                    </div>
                 </div>
             </div>
 
-            <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem; max-width: 800px; margin: 0 auto; padding: 0;">
+            <div class="profile-content-wrapper" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0 1.2rem; box-sizing: border-box;">
+                <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem; max-width: 800px; margin: 0 auto; padding: 0;">
                 <div id="profile-my-items-container"></div>
             <div class="profile-section-card">
                 <h3 style="color: ${themeColor}; margin-top: 0; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.6rem;">
@@ -10109,6 +10115,7 @@ function renderProfilePage(container) {
                 </p>
             </div>
 
+            </div>
             </div>
         </div>
     `;
@@ -10603,49 +10610,53 @@ function renderMatchesPage(container) {
         }).join('');
 
         container.innerHTML = `
-            <div class="market-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0px 5rem; box-sizing: border-box; width: 100%;">
+            <div class="market-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
                 
                 <!-- Controls Row: Left = Title & Count, Right = Profile Switcher -->
-                <div class="matches-controls-row" style="background: ${isMusician ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isMusician ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isMusician ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.65rem 1.2rem; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
-                    
-                    <!-- Left: Star & Title & Count (Lila bei Musikern / Blau bei Veranstaltern) -->
-                    <div style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0;">
-                        <i class="fa-solid fa-star" style="color: #fde047; font-size: 1.1rem; transform: translateY(1px); margin-right: 0.2rem;"></i>
-                        <span id="top-matches-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                            Top-Matches (<span id="top-matches-count">${selectedId ? '0' : '0'}</span>)
-                        </span>
-                    </div>
-
-                    <!-- Right: Profile Dropdown (if multiple) -->
-                    ${profiles.length > 1 ? `
-                        <div style="display: flex; gap: 0.75rem; align-items: center; margin-left: auto;">
-                            <div class="matches-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); border-radius: 12px; padding: 0.35rem 0.8rem; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-                                <i class="${isMusician ? 'fa-solid fa-guitar' : 'fa-solid fa-calendar-day'}" style="color: #ffffff; font-size: 0.85rem;"></i>
-                                <label for="select-profile" style="font-size: 0.82rem; font-weight: 700; color: #ffffff; margin: 0; white-space: nowrap;">Profil:</label>
-                                <select id="select-profile" style="background: transparent; border: none; color: #ffffff; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; outline: none; cursor: pointer; padding: 0.1rem 0; max-width: 170px;">
-                                    ${selectOptionsHtml}
-                                </select>
-                            </div>
+                <div class="matches-controls-row" style="background: ${isMusician ? 'linear-gradient(135deg, rgba(124, 58, 237, 0.96) 0%, rgba(109, 40, 217, 0.96) 100%)' : 'linear-gradient(135deg, rgba(30, 64, 175, 0.96) 0%, rgba(37, 99, 235, 0.96) 100%)'} !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: ${isMusician ? '0 6px 24px rgba(124, 58, 237, 0.35)' : '0 6px 24px rgba(37, 99, 235, 0.35)'} !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+                    <div class="matches-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box;">
+                        <!-- Left: Star & Title & Count (Lila bei Musikern / Blau bei Veranstaltern) -->
+                        <div style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0;">
+                            <i class="fa-solid fa-star" style="color: #fde047; font-size: 1.1rem; transform: translateY(1px); margin-right: 0.2rem;"></i>
+                            <span id="top-matches-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
+                                Top-Matches (<span id="top-matches-count">${selectedId ? '0' : '0'}</span>)
+                            </span>
                         </div>
-                    ` : `
-                        <input type="hidden" id="select-profile" value="${selectedId || ''}">
-                    `}
+
+                        <!-- Right: Profile Dropdown (if multiple) -->
+                        ${profiles.length > 1 ? `
+                            <div style="display: flex; gap: 0.75rem; align-items: center; margin-left: auto;">
+                                <div class="matches-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); border-radius: 12px; padding: 0.35rem 0.8rem; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                    <i class="${isMusician ? 'fa-solid fa-guitar' : 'fa-solid fa-calendar-day'}" style="color: #ffffff; font-size: 0.85rem;"></i>
+                                    <label for="select-profile" style="font-size: 0.82rem; font-weight: 700; color: #ffffff; margin: 0; white-space: nowrap;">Profil:</label>
+                                    <select id="select-profile" style="background: transparent; border: none; color: #ffffff; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; outline: none; cursor: pointer; padding: 0.1rem 0; max-width: 170px;">
+                                        ${selectOptionsHtml}
+                                    </select>
+                                </div>
+                            </div>
+                        ` : `
+                            <input type="hidden" id="select-profile" value="${selectedId || ''}">
+                        `}
+                    </div>
                 </div>
 
-                <!-- Matches Grid or Empty State -->
-                ${!selectedId ? `
-                    <div class="profile-section-card" style="text-align: center; padding: 3rem 1.5rem; margin-top: 1rem;">
-                        <i class="fa-solid fa-guitar" style="font-size: 3rem; color: var(--border-glass); margin-bottom: 1rem;"></i>
-                        <h4>Erstelle zuerst ein Profil</h4>
-                        <p style="color: var(--text-muted); max-width: 400px; margin: 0.5rem auto 1.5rem;">Um Matches und passende Partner zu sehen, musst du mindestens eine Ausschreibung oder ein Musiker-Profil aktiv haben.</p>
-                        <button class="btn btn-primary" id="btn-create-profile-matches" style="margin: 0;">
-                            <i class="fa-solid fa-plus"></i> Profil erstellen
-                        </button>
-                    </div>
-                ` : `
-                    <div id="top-matches-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; width: 100%;">
-                    </div>
-                `}
+                <!-- Matches Content Wrapper -->
+                <div class="matches-content-wrapper" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0 1.2rem; box-sizing: border-box;">
+                    <!-- Matches Grid or Empty State -->
+                    ${!selectedId ? `
+                        <div class="profile-section-card" style="text-align: center; padding: 3rem 1.5rem; margin-top: 1rem;">
+                            <i class="fa-solid fa-guitar" style="font-size: 3rem; color: var(--border-glass); margin-bottom: 1rem;"></i>
+                            <h4>Erstelle zuerst ein Profil</h4>
+                            <p style="color: var(--text-muted); max-width: 400px; margin: 0.5rem auto 1.5rem;">Um Matches und passende Partner zu sehen, musst du mindestens eine Ausschreibung oder ein Musiker-Profil aktiv haben.</p>
+                            <button class="btn btn-primary" id="btn-create-profile-matches" style="margin: 0;">
+                                <i class="fa-solid fa-plus"></i> Profil erstellen
+                            </button>
+                        </div>
+                    ` : `
+                        <div id="top-matches-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; width: 100%;">
+                        </div>
+                    `}
+                </div>
             </div>
         `;
 
@@ -17391,26 +17402,29 @@ function renderPostbox(container) {
                     }
                 }
             </style>
-            <div class="postbox-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0px 5rem; box-sizing: border-box; width: 100%; overflow-x: clip;">
+            <div class="postbox-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box; overflow-x: clip;">
                 <!-- Postbox Controls Row (Lila bei Musikern / Blau bei Veranstaltern) -->
-                <div class="postbox-controls-row" style="background: ${isMusician ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isMusician ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isMusician ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.65rem 1.2rem; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
-                    <div style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0;">
-                        <i class="fa-solid fa-envelope" style="color: #ffffff; font-size: 1.1rem; transform: translateY(1px); margin-right: 0.2rem;"></i>
-                        <span id="postbox-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                            Postfach (${nonSystemChats.length})
-                        </span>
-                    </div>
+                <div class="postbox-controls-row" style="background: ${isMusician ? 'linear-gradient(135deg, rgba(124, 58, 237, 0.96) 0%, rgba(109, 40, 217, 0.96) 100%)' : 'linear-gradient(135deg, rgba(30, 64, 175, 0.96) 0%, rgba(37, 99, 235, 0.96) 100%)'} !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: ${isMusician ? '0 6px 24px rgba(124, 58, 237, 0.35)' : '0 6px 24px rgba(37, 99, 235, 0.35)'} !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+                    <div class="postbox-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box;">
+                        <div style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0;">
+                            <i class="fa-solid fa-envelope" style="color: #ffffff; font-size: 1.1rem; transform: translateY(1px); margin-right: 0.2rem;"></i>
+                            <span id="postbox-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
+                                Postfach (${nonSystemChats.length})
+                            </span>
+                        </div>
 
-                    <!-- Postbox Filter Button in Toolbar (wie beim Gig-Markt) -->
-                    <div class="postbox-controls-actions" style="margin: 0 0 0 auto; display: flex; align-items: center; gap: 0.55rem;">
-                        <button class="market-filter-mobile-toggle ${window.postboxShowFilters ? 'active' : ''}" id="btn-toggle-postbox-filters-bar" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.45rem 1.05rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: ${window.postboxShowFilters ? '#ffffff' : 'rgba(255, 255, 255, 0.18)'}; border: 1.5px solid ${window.postboxShowFilters ? '#ffffff' : 'rgba(255, 255, 255, 0.45)'}; color: ${window.postboxShowFilters ? (isMusician ? '#7c3aed' : '#2563eb') : '#ffffff'}; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: ${window.postboxShowFilters ? '0 0 15px rgba(255, 255, 255, 0.45)' : '0 2px 8px rgba(0,0,0,0.15)'};" title="Filter ${window.postboxShowFilters ? 'schließen' : 'öffnen'}">
-                            <i class="fa-solid fa-sliders" style="font-size: 0.95rem; margin: 0; color: ${window.postboxShowFilters ? (isMusician ? '#7c3aed' : '#2563eb') : '#ffffff'};"></i>
-                            <span style="color: ${window.postboxShowFilters ? (isMusician ? '#7c3aed' : '#2563eb') : '#ffffff'};">Filter</span>
-                        </button>
+                        <!-- Postbox Filter Button in Toolbar (wie beim Gig-Markt) -->
+                        <div class="postbox-controls-actions" style="margin: 0 0 0 auto; display: flex; align-items: center; gap: 0.55rem;">
+                            <button class="market-filter-mobile-toggle ${window.postboxShowFilters ? 'active' : ''}" id="btn-toggle-postbox-filters-bar" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.45rem 1.05rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: ${window.postboxShowFilters ? '#ffffff' : 'rgba(255, 255, 255, 0.18)'}; border: 1.5px solid ${window.postboxShowFilters ? '#ffffff' : 'rgba(255, 255, 255, 0.45)'}; color: ${window.postboxShowFilters ? (isMusician ? '#7c3aed' : '#2563eb') : '#ffffff'}; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: ${window.postboxShowFilters ? '0 0 15px rgba(255, 255, 255, 0.45)' : '0 2px 8px rgba(0,0,0,0.15)'};" title="Filter ${window.postboxShowFilters ? 'schließen' : 'öffnen'}">
+                                <i class="fa-solid fa-sliders" style="font-size: 0.95rem; margin: 0; color: ${window.postboxShowFilters ? (isMusician ? '#7c3aed' : '#2563eb') : '#ffffff'};"></i>
+                                <span style="color: ${window.postboxShowFilters ? (isMusician ? '#7c3aed' : '#2563eb') : '#ffffff'};">Filter</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="portal-layout ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="display: flex !important; flex-direction: row !important; gap: 1.5rem; height: calc(100vh - 220px); min-height: 600px; width: 100%; max-width: 100%; box-sizing: border-box;">
+                <div class="postbox-content-wrapper" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0 1.2rem; box-sizing: border-box;">
+                    <div class="portal-layout ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="display: flex !important; flex-direction: row !important; gap: 1.5rem; height: calc(100vh - 220px); min-height: 600px; width: 100%; max-width: 100%; box-sizing: border-box;">
                     
                     <!-- Left Sidebar: Categories & Chat Threads List -->
                     <div class="postbox-sidebar" style="width: 340px; max-width: 100%; flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); height: 100%; box-sizing: border-box;">
@@ -17735,7 +17749,8 @@ function renderPostbox(container) {
                 </div>
             </div>
         </div>
-        `;
+    </div>
+    `;
 
         // Add Event Listeners for tabs & buttons
         container.querySelectorAll('.tab-btn-postbox').forEach(btn => {
