@@ -5851,3 +5851,57 @@ body.has-bottom-bar .toast-container {
     cursor: default !important;
     user-select: none !important;
 }
+
+/* Legal Pages (Datenschutz & Impressum) Responsive Containment */
+.legal-page-container {
+    max-width: 800px;
+    width: 100%;
+    margin: 2rem auto 4rem;
+    padding: 2.5rem 2rem;
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    box-sizing: border-box !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    hyphens: auto;
+}
+
+@media (max-width: 768px) {
+    .legal-page-container {
+        margin: 1rem auto 3rem !important;
+        padding: 1.5rem 1rem !important;
+        border-radius: 12px !important;
+    }
+
+    .legal-page-container h1 {
+        font-size: 1.5rem !important;
+    }
+
+    .legal-page-container h2 {
+        font-size: 1.15rem !important;
+    }
+
+    .legal-page-container h3 {
+        font-size: 1rem !important;
+    }
+}
+
+/* Event submission button styling */
+#btn-submit-event,
+.btn-event-submit {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
+    border-color: #1e40af !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+}
+
+#btn-submit-event:hover,
+.btn-event-submit:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+    border-color: #1d4ed8 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+    filter: brightness(1.1);
+}

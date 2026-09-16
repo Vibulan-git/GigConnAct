@@ -12446,7 +12446,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
     const currentMusicianTypes = eventObj?.musicianTypes || (eventObj?.musicianType ? eventObj.musicianType.split(',').map(s => s.trim()) : []);
 
     modalWrapper.innerHTML = `
-        <div class="modal-content" style="max-width: 650px; max-height: 85vh; overflow-y: auto; text-align: left;">
+        <div class="modal-content theme-organizer" style="max-width: 650px; max-height: 85vh; overflow-y: auto; text-align: left;">
             <div class="modal-header">
                 <h3>${title}</h3>
                 <button class="close-modal-btn" id="btn-close-event-modal">&times;</button>
@@ -12581,7 +12581,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     <div class="form-group">
                         <div class="slider-value-display">
                             <label>Spieldauer (Std.)</label>
-                            <span id="edit-val-org-spieldauer">${String(eventObj?.minDuration !== undefined ? eventObj.minDuration : 0.5).replace('.', ',')} - ${String(eventObj?.maxDuration !== undefined ? eventObj.maxDuration : 2.0).replace('.', ',')} Std.</span>
+                            <span id="edit-val-org-spieldauer">${String(eventObj?.minDuration !== undefined ? eventObj.minDuration : 0.5).replace('.', ',')} - ${String(eventObj?.maxDuration !== undefined ? eventObj.maxDuration : 2.0).replace('.', ',')}</span>
                         </div>
                         <div class="dual-range-slider" id="edit-slider-org-spieldauer-container">
                             <div class="dual-range-track"></div>
@@ -12665,7 +12665,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
 
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
-                        <button type="submit" class="btn btn-primary" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: #2563eb; border-color: #2563eb;">
+                        <button type="submit" id="btn-submit-event" class="btn btn-primary btn-event-submit" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important; border-color: #1e40af !important; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important; color: #ffffff !important;">
                             ${isEdit ? 'Änderungen speichern' : 'Event ausschreiben'}
                         </button>
                     </div>
@@ -12796,7 +12796,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
     }
 
     // Dual sliders initialization (scoped to modalWrapper to avoid duplicate ID issues)
-    initDualSlider('edit-slider-org-spieldauer-container', 'edit-input-org-spieldauer-min', 'edit-input-org-spieldauer-max', 'edit-track-org-spieldauer', 'edit-val-org-spieldauer', 'Std.', false, modalWrapper);
+    initDualSlider('edit-slider-org-spieldauer-container', 'edit-input-org-spieldauer-min', 'edit-input-org-spieldauer-max', 'edit-track-org-spieldauer', 'edit-val-org-spieldauer', '', false, modalWrapper);
     initDualSlider('edit-slider-org-publikum-container', 'edit-input-org-publikum-min', 'edit-input-org-publikum-max', 'edit-track-org-publikum', 'edit-val-org-publikum', 'Personen', false, modalWrapper);
     initDualSlider('edit-slider-org-gage-container', 'edit-input-org-gage-min', 'edit-input-org-gage-max', 'edit-track-org-gage', 'edit-val-org-gage', '€', true, modalWrapper);
 
@@ -13640,7 +13640,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         <div class="form-group">
                             <div class="slider-value-display">
                                 <label>Spieldauer (Std.)</label>
-                                <span id="val-org-spieldauer">0,5 - 2,0 Std.</span>
+                                <span id="val-org-spieldauer">0,5 - 2,0</span>
                             </div>
                             <div class="dual-range-slider" id="slider-org-spieldauer-container">
                                 <div class="dual-range-track"></div>
@@ -14330,7 +14330,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
     initDualSlider('slider-publikum-container', 'input-publikum-min', 'input-publikum-max', 'track-publikum', 'val-publikum', 'Personen', false);
 
     // Initialize Organizer Dual Sliders
-    initDualSlider('slider-org-spieldauer-container', 'input-org-spieldauer-min', 'input-org-spieldauer-max', 'track-org-spieldauer', 'val-org-spieldauer', 'Std.', false);
+    initDualSlider('slider-org-spieldauer-container', 'input-org-spieldauer-min', 'input-org-spieldauer-max', 'track-org-spieldauer', 'val-org-spieldauer', '', false);
     initDualSlider('slider-org-publikum-container', 'input-org-publikum-min', 'input-org-publikum-max', 'track-org-publikum', 'val-org-publikum', 'Personen', false);
     initDualSlider('slider-org-gage-container', 'input-org-gage-min', 'input-org-gage-max', 'track-org-gage', 'val-org-gage', '€', true);
 
@@ -20295,36 +20295,36 @@ window.renderVerifyEmailPage = renderVerifyEmailPage;
 
 function renderImpressumPage(container) {
     container.innerHTML = `
-        <div class="market-container" style="max-width: 800px; margin: 3rem auto; padding: 2.5rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg);">
-            <h1 style="font-family: var(--font-heading); color: var(--text-main); font-size: 2rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.75rem;">Impressum</h1>
+        <div class="legal-page-container" style="max-width: 800px; width: 100%; margin: 2rem auto 4rem; padding: 2.5rem 2rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg); box-sizing: border-box; overflow-wrap: break-word; word-break: break-word;">
+            <h1 style="font-family: var(--font-heading); color: var(--text-main); font-size: 2rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.75rem; overflow-wrap: break-word; word-break: break-word;">Impressum</h1>
             
-            <div style="line-height: 1.8; color: var(--text-main); font-size: 0.95rem;">
-                <h3 style="margin-top: 1.5rem; color: var(--text-main);">Angaben gemäß § 5 DDG</h3>
+            <div style="line-height: 1.8; color: var(--text-main); font-size: 0.95rem; overflow-wrap: break-word; word-break: break-word;">
+                <h3 style="margin-top: 1.5rem; color: var(--text-main); overflow-wrap: break-word; word-break: break-word;">Angaben gemäß § 5 DDG</h3>
                 <p>
                     Vibulan Sivanathan<br>
                     Montanusstraße 49<br>
                     51065 Köln
                 </p>
 
-                <h3 style="margin-top: 1.5rem; color: var(--text-main);">Kontakt</h3>
+                <h3 style="margin-top: 1.5rem; color: var(--text-main); overflow-wrap: break-word; word-break: break-word;">Kontakt</h3>
                 <p>
                     Telefon: +49 15788703998<br>
-                    E-Mail: info@gigconnact.de
+                    E-Mail: <a href="mailto:info@gigconnact.de" style="color: var(--color-purple); text-decoration: underline; word-break: break-all;">info@gigconnact.de</a>
                 </p>
 
-                <h3 style="margin-top: 1.5rem; color: var(--text-main);">Umsatzsteuer-Identifikationsnummer (USt-IdNr.)</h3>
+                <h3 style="margin-top: 1.5rem; color: var(--text-main); overflow-wrap: break-word; word-break: break-word;">Umsatzsteuer-Identifikationsnummer (USt-IdNr.)</h3>
                 <p style="color: var(--text-muted); font-style: italic;">
                     [Hier nach der Gewerbeanmeldung deine USt-IdNr. eintragen, z. B. DE123456789]
                 </p>
 
-                <h3 style="margin-top: 1.5rem; color: var(--text-main);">EU-Streitschlichtung</h3>
+                <h3 style="margin-top: 1.5rem; color: var(--text-main); overflow-wrap: break-word; word-break: break-word;">EU-Streitschlichtung</h3>
                 <p>
                     Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:<br>
-                    <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" style="color: var(--color-purple); text-decoration: underline;">https://ec.europa.eu/consumers/odr/</a>.<br>
+                    <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" style="color: var(--color-purple); text-decoration: underline; word-break: break-all;">https://ec.europa.eu/consumers/odr/</a>.<br>
                     Unsere E-Mail-Adresse finden Sie oben im Impressum.
                 </p>
 
-                <h3 style="margin-top: 1.5rem; color: var(--text-main);">Verbraucherstreitbeilegung/Universalschlichtungsstelle</h3>
+                <h3 style="margin-top: 1.5rem; color: var(--text-main); overflow-wrap: break-word; word-break: break-word;">Verbraucherstreitbeilegung / Universalschlichtungsstelle</h3>
                 <p>
                     Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
                 </p>
@@ -20337,28 +20337,28 @@ window.renderImpressumPage = renderImpressumPage;
 
 function renderDatenschutzPage(container) {
     container.innerHTML = `
-        <div class="market-container" style="max-width: 800px; margin: 3rem auto; padding: 2.5rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg);">
-            <h1 style="font-family: var(--font-heading); color: var(--text-main); font-size: 2rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.75rem;">Datenschutzerklärung</h1>
+        <div class="legal-page-container" style="max-width: 800px; width: 100%; margin: 2rem auto 4rem; padding: 2.5rem 2rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg); box-sizing: border-box; overflow-wrap: break-word; word-break: break-word;">
+            <h1 style="font-family: var(--font-heading); color: var(--text-main); font-size: 2rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.75rem; overflow-wrap: break-word; word-break: break-word;">Datenschutzerklärung</h1>
             
-            <div style="line-height: 1.8; color: var(--text-main); font-size: 0.95rem;">
-                <h2 style="font-size: 1.3rem; margin-top: 1.5rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem;">1. Datenschutz auf einen Blick</h2>
-                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Allgemeine Hinweise</h3>
+            <div style="line-height: 1.8; color: var(--text-main); font-size: 0.95rem; overflow-wrap: break-word; word-break: break-word;">
+                <h2 style="font-size: 1.3rem; margin-top: 1.5rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem; overflow-wrap: break-word; word-break: break-word;">1. Datenschutz auf einen Blick</h2>
+                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main); overflow-wrap: break-word; word-break: break-word;">Allgemeine Hinweise</h3>
                 <p>
                     Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.
                 </p>
-                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Datenerfassung auf unserer Website</h3>
+                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main); overflow-wrap: break-word; word-break: break-word;">Datenerfassung auf unserer Website</h3>
                 <p>
                     Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten können Sie dem Abschnitt „Verantwortliche Stelle“ entnehmen. Ihre Daten werden zum einen dadurch erhoben, dass Sie uns diese mitteilen (z. B. durch Registrierung). Andere Daten werden automatisch oder nach Ihrer Einwilligung beim Besuch der Website durch unsere IT-Systeme erfasst (z. B. IP-Adresse oder Browsertyp).
                 </p>
 
-                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem;">2. Allgemeine Hinweise und Pflichtinformationen</h2>
-                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main);">Verantwortliche Stelle</h3>
+                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem; overflow-wrap: break-word; word-break: break-word;">2. Allgemeine Hinweise und Pflichtinformationen</h2>
+                <h3 style="font-size: 1.1rem; margin-top: 1rem; color: var(--text-main); overflow-wrap: break-word; word-break: break-word;">Verantwortliche Stelle</h3>
                 <p>
                     Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:<br>
                     <strong>Vibulan Sivanathan</strong><br>
                     Montanusstraße 49<br>
                     51065 Köln<br>
-                    E-Mail: <a href="mailto:info@gigconnact.de" style="color: var(--color-purple); text-decoration: underline;">info@gigconnact.de</a><br>
+                    E-Mail: <a href="mailto:info@gigconnact.de" style="color: var(--color-purple); text-decoration: underline; word-break: break-all;">info@gigconnact.de</a><br>
                     Telefon: +49 15788703998
                 </p>
                 <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
@@ -20444,7 +20444,7 @@ function renderDatenschutzPage(container) {
                 <p>
                     Zur Abwicklung von kostenpflichtigen Abonnements nutzen wir den Zahlungsdienstleister <strong>Stripe</strong> (Stripe Payments Europe Ltd., 1 Grand Canal Street Lower, Grand Canal Dock, Dublin, Irland).
                     Wenn Sie ein Abonnement abschließen, werden Ihre Zahlungsdaten (z. B. Name, E-Mail-Adresse, IBAN/BIC oder Kreditkarteninformationen) verschlüsselt an Stripe übertragen. Stripe verarbeitet diese Daten als eigenständiger datenschutzrechtlich Verantwortlicher, um Zahlungen einzuziehen und Betrug vorzubeugen.
-                    Die Weitergabe erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Zahlungsabwicklung zur Vertragserfüllung). Stripe übermittelt Daten teilweise auch an das Mutterunternehmen Stripe, Inc. in den USA. Diese Übertragungen sind durch die Standardvertragsklauseln der EU-Kommission und die Zertifizierung unter dem EU-US Data Privacy Framework abgesichert. Weitere Informationen finden Sie in der Datenschutzerklärung von Stripe unter <a href="https://stripe.com/de/privacy" target="_blank" rel="noopener noreferrer" style="color: var(--color-purple); text-decoration: underline;">https://stripe.com/de/privacy</a>.
+                    Die Weitergabe erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Zahlungsabwicklung zur Vertragserfüllung). Stripe übermittelt Daten teilweise auch an das Mutterunternehmen Stripe, Inc. in den USA. Diese Übertragungen sind durch die Standardvertragsklauseln der EU-Kommission und die Zertifizierung unter dem EU-US Data Privacy Framework abgesichert. Weitere Informationen finden Sie in der Datenschutzerklärung von Stripe unter <a href="https://stripe.com/de/privacy" target="_blank" rel="noopener noreferrer" style="color: var(--color-purple); text-decoration: underline; word-break: break-all;">https://stripe.com/de/privacy</a>.
                 </p>
 
                 <h3 style="font-size: 1.1rem; margin-top: 1.5rem; color: var(--text-main);">Cookies & Einwilligungs-Management (Cookie-Banner)</h3>
