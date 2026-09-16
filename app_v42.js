@@ -7171,10 +7171,10 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'} ${showOnlyFavorites ? 'favorites-mode' : ''}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0px 5rem; box-sizing: border-box;">
             
-            <div class="market-controls-row ${showOnlyFavorites ? 'favorites-mode' : ''}" style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isEvents ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isEvents ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.65rem 1.2rem; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
+            <div class="market-controls-row ${showOnlyFavorites ? 'favorites-mode' : ''}" style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isEvents ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isEvents ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.65rem 1.2rem; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
                 
                 <!-- 1. Trefferanzahl (Weiß auf farbiger Leiste) -->
-                <div id="market-results-header" style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0; cursor: ${showOnlyFavorites ? 'default' : 'pointer'};" onclick="if (!window.currentMarketShowFavorites) document.getElementById('btn-toggle-mobile-filters')?.click();" title="${showOnlyFavorites ? '' : 'Filter öffnen'}">
+                <div id="market-results-header" style="display: flex; align-items: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px; cursor: ${showOnlyFavorites ? 'default' : 'pointer'};" onclick="if (!window.currentMarketShowFavorites) document.getElementById('btn-toggle-mobile-filters')?.click();" title="${showOnlyFavorites ? '' : 'Filter öffnen'}">
                     <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
                         ${getItems().length}
                     </div>
@@ -10915,20 +10915,22 @@ function renderOrganizerEventItem(e, isActive) {
 
                     <!-- Single column list with all 10 fields fully visible -->
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
-                        <!-- 1. Ort -->
+                        <!-- 1. Event-Typ als Tag -->
+                        <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                            <span class="tile-type-flag" style="background: ${dotActiveColor}; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+                                <i class="fa-solid fa-calendar-check" style="font-size: 0.72rem; color: #ffffff;"></i>
+                                <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${eventTypeDisplay}</span>
+                            </span>
+                        </div>
+                        <!-- 2. Ort -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>${window.normalizeCityName(e.location)}</span>
                         </div>
-                        <!-- 2. Datum -->
+                        <!-- 3. Datum -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>${formattedDate}</span>
-                        </div>
-                        <!-- 3. Event-Typ -->
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${eventTypeDisplay}</span>
                         </div>
                         <!-- 4. Gesucht (Musiker-Typen) -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
@@ -11405,20 +11407,22 @@ function renderMyMusicianItem(m, isActive) {
 
                     <!-- Single column list matching market style -->
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
-                        <!-- 1. Ort -->
+                        <!-- 1. Musiker-Typ als Tag -->
+                        <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                            <span class="tile-type-flag" style="background: ${dotActiveColor}; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+                                <i class="fa-solid fa-guitar" style="font-size: 0.72rem; color: #ffffff;"></i>
+                                <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${m.type || 'Musiker'}</span>
+                            </span>
+                        </div>
+                        <!-- 2. Ort -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>${window.normalizeCityName(m.location)}</span>
                         </div>
-                        <!-- 2. Verfügbarkeit -->
+                        <!-- 3. Verfügbarkeit -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>${availDaysStr}</span>
-                        </div>
-                        <!-- 3. Musiker-Typ -->
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${m.type}</span>
                         </div>
                         <!-- 4. Event-Typen (Gesucht) -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
@@ -19045,13 +19049,9 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
                     
-                    <!-- Unten links in der Galerie: Tag der Musiker- oder Event-Typen + Galerie-Zähler -->
-                    <div style="position: absolute; bottom: 12px; left: 12px; z-index: 6; display: flex; align-items: center; gap: 6px; pointer-events: none; max-width: calc(100% - 75px);">
-                        <div class="tile-type-flag" style="background: ${tagThemeBg}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.28rem 0.65rem; display: inline-flex; align-items: center; box-shadow: ${tagThemeShadow};">
-                            <span style="color: #ffffff; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--font-heading); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${typeTagText}</span>
-                        </div>
-
-                        <span class="tile-gallery-counter" style="font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.9); padding: 0.25rem 0.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center;">
+                    <!-- Galerie-Zähler (unsichtbar) -->
+                    <div style="position: absolute; bottom: 12px; left: 12px; z-index: 6; display: none; align-items: center; pointer-events: none;">
+                        <span class="tile-gallery-counter">
                             📷 1 / ${photos.length}
                         </span>
                     </div>
@@ -19153,23 +19153,25 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     ${isEvents ? `
                     <!-- 2. Einspaltige Informationen mit Icons (Top 3 Infos immer sichtbar) für Events -->
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.6rem;">
-                        <!-- 1. Ort -->
+                        <!-- 1. Event-Typ als Tag -->
+                        <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                            <span class="tile-type-flag" style="background: ${tagThemeBg}; border: 1px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; gap: 0.35rem; box-shadow: ${tagThemeShadow};">
+                                <i class="fa-solid fa-calendar-check" style="font-size: 0.72rem; color: #ffffff;"></i>
+                                <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${typeTagText}</span>
+                            </span>
+                        </div>
+
+                        <!-- 2. Ort -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${formatTruncatedValue(window.normalizeCityName(item.location || 'Deutschlandweit'), themeColor, item.id, 'location')}</span>
                         </div>
                         
-                        <!-- 2. Datum -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'date')}</span>
-                        </div>
-
-                        <!-- 3. Event-Typ + 'Mehr Details' Button -->
+                        <!-- 3. Datum + 'Mehr Details' Button -->
                         <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35;">
                             <div style="display: flex; align-items: flex-start; gap: 0.75rem; min-width: 130px; flex: 1 1 auto;">
-                                <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem; flex-shrink: 0;"></i>
-                                <span style="word-break: break-word; line-height: 1.35; flex: 1;">${formatTruncatedValue((Array.isArray(item.eventTypes) && item.eventTypes.length > 0) ? item.eventTypes.join(', ') : (item.type || item.eventType || 'Event'), themeColor, item.id, 'eventtype')}</span>
+                                <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem; flex-shrink: 0;"></i>
+                                <span style="word-break: break-word; line-height: 1.35; flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'date')}</span>
                             </div>
                             <button id="toggle-details-btn-${item.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
                                 <span id="toggle-text-${item.id}">Mehr Details</span>
@@ -19180,9 +19182,16 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
 
                     <!-- Collapsible details wrapper (opens on click with all remaining infos) für Events -->
                     <div id="collapsible-details-${item.id}" style="display: none; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.6rem;">
-                        <!-- 4. Gesucht (Musiker-Typen) -->
+                        ${(Array.isArray(item.eventTypes) && item.eventTypes.length > 1) ? `
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
                             <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(item.eventTypes.join(', '), themeColor, item.id, 'allevents')}</span>
+                        </div>
+                        ` : ''}
+
+                        <!-- 4. Gesucht (Musiker-Typen) -->
+                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                            <i class="fa-solid fa-user-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${formatTruncatedValue((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band')), themeColor, item.id, 'musiciantype')}</span>
                         </div>
 
@@ -19225,23 +19234,25 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     ` : `
                     <!-- 2. Einspaltige Informationen mit Icons (Top 3 Infos immer sichtbar) für Musiker -->
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.6rem;">
-                        <!-- 1. Ort -->
+                        <!-- 1. Musiker-Typ als Tag -->
+                        <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                            <span class="tile-type-flag" style="background: ${tagThemeBg}; border: 1px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; gap: 0.35rem; box-shadow: ${tagThemeShadow};">
+                                <i class="fa-solid fa-guitar" style="font-size: 0.72rem; color: #ffffff;"></i>
+                                <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${typeTagText}</span>
+                            </span>
+                        </div>
+
+                        <!-- 2. Ort -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${formatTruncatedValue(window.normalizeCityName(item.location || 'Deutschlandweit'), themeColor, item.id, 'location')}</span>
                         </div>
                         
-                        <!-- 2. Datum/Verfügbarkeit -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
-                            <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'avail')}</span>
-                        </div>
-
-                        <!-- 3. Musiker-Art + 'Mehr Details' Button -->
+                        <!-- 3. Datum/Verfügbarkeit + 'Mehr Details' Button -->
                         <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35;">
                             <div style="display: flex; align-items: flex-start; gap: 0.75rem; min-width: 130px; flex: 1 1 auto;">
-                                <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem; flex-shrink: 0;"></i>
-                                <span style="word-break: break-word; line-height: 1.35; flex: 1;">${formatTruncatedValue(item.type || item.category || 'Solo / Band', themeColor, item.id, 'mustype')}</span>
+                                <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem; flex-shrink: 0;"></i>
+                                <span style="word-break: break-word; line-height: 1.35; flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'avail')}</span>
                             </div>
                             <button id="toggle-details-btn-${item.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
                                 <span id="toggle-text-${item.id}">Mehr Details</span>
@@ -20996,13 +21007,9 @@ window.renderRecommendationPage = async function(container, mediationId) {
                         return `
                             <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0);">
                                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 215px; background: #0f172a; overflow: hidden;">
-                                    <!-- Unten links in der Galerie: Musiker-Typ + Galerie-Zähler -->
-                                    <div style="position: absolute; bottom: 12px; left: 12px; z-index: 6; display: flex; align-items: center; gap: 6px; pointer-events: none; max-width: calc(100% - 75px);">
-                                        <div class="tile-type-flag" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(147, 197, 253, 0.45); border-radius: 8px; padding: 0.28rem 0.65rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.45);">
-                                            <span style="color: #ffffff; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--font-heading); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${mus.type || 'Band'}</span>
-                                        </div>
-
-                                        <span class="tile-gallery-counter" style="font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.9); padding: 0.25rem 0.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center;">
+                                    <!-- Galerie-Zähler (unsichtbar) -->
+                                    <div style="position: absolute; bottom: 12px; left: 12px; z-index: 6; display: none; align-items: center; pointer-events: none;">
+                                        <span class="tile-gallery-counter">
                                             📷 1 / ${photos.length}
                                         </span>
                                     </div>
@@ -21054,21 +21061,25 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                         <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.8rem; line-height: 1.25;"><span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; vertical-align: middle; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.45rem; filter: none !important;" title="Name geschützt"></i>${(mus.isDemo || (mus.id && mus.id.startsWith('mus_'))) ? ` <span class="tile-demo-flag" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: #ffffff; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; font-family: var(--font-heading); padding: 0.18rem 0.5rem; border-radius: 6px; border: 1px solid rgba(147, 197, 253, 0.45); box-shadow: 0 2px 6px rgba(30, 58, 138, 0.35); vertical-align: middle; display: inline-flex; align-items: center; line-height: 1.1;">Demo</span>` : ''}</h3>
                                         <div style="display: flex; gap: 0.5rem; justify-content: space-between;">
                                             <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); flex: 1;">
-                                                <!-- 1. Ort -->
+                                                <!-- 1. Musiker-Typ als Tag -->
+                                                <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                                                    <span class="tile-type-flag" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); border: 1px solid rgba(147, 197, 253, 0.45); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; gap: 0.35rem; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.45);">
+                                                        <i class="fa-solid fa-guitar" style="font-size: 0.72rem; color: #ffffff;"></i>
+                                                        <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${mus.type || 'Solo / Band'}</span>
+                                                    </span>
+                                                </div>
+
+                                                <!-- 2. Ort -->
                                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                                                     <i class="fa-solid fa-location-dot" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                                                     <span style="flex: 1;">${(mus.location || '').split(' (')[0]}</span>
                                                 </div>
-                                                <!-- 2. Verfügbarkeit -->
-                                                <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                                                    <i class="fa-solid fa-calendar-days" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                                                    <span style="flex: 1;">${dateDisplay}</span>
-                                                </div>
-                                                <!-- 3. Musiker-Typ + 'Mehr Details' Button -->
+
+                                                <!-- 3. Verfügbarkeit + 'Mehr Details' Button -->
                                                 <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35;">
                                                     <div style="display: flex; align-items: flex-start; gap: 0.6rem; min-width: 130px; flex: 1 1 auto;">
-                                                        <i class="fa-solid fa-guitar" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem; flex-shrink: 0;"></i>
-                                                        <span style="word-break: break-word; line-height: 1.35; flex: 1;">${mus.type || 'Solo / Band'}</span>
+                                                        <i class="fa-solid fa-calendar-days" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem; flex-shrink: 0;"></i>
+                                                        <span style="word-break: break-word; line-height: 1.35; flex: 1;">${dateDisplay}</span>
                                                     </div>
                                                     <button id="toggle-details-btn-${mus.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${mus.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: #2563eb; font-family: var(--font-heading); font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
                                                         <span id="toggle-text-${mus.id}">Mehr Details</span>

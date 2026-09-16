@@ -4701,7 +4701,9 @@ input[type="range"].input-field {
 
 /* Market controls toolbar / bar (Trefferanzahl + Filter) */
 .market-controls-row,
-.matches-controls-row {
+.matches-controls-row,
+.profile-controls-row,
+.postbox-controls-row {
     position: sticky !important;
     top: 52px !important;
     z-index: 40 !important;
@@ -4709,12 +4711,20 @@ input[type="range"].input-field {
     align-items: center !important;
     justify-content: space-between !important;
     padding: 0.65rem 1.2rem !important;
+    min-height: 58px !important;
     margin-bottom: 1.2rem !important;
     width: 100% !important;
     box-sizing: border-box !important;
     border-radius: 14px !important;
     backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
+}
+
+.market-controls-row.favorites-mode {
+    min-height: 58px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 /* Actions Container on the right */
@@ -4776,6 +4786,26 @@ input[type="range"].input-field {
 .market-layout-container.no-filters,
 .market-page.favorites-mode .market-layout-container {
     grid-template-columns: 1fr !important;
+}
+
+/* Ensure favorites cards match the exact width of market cards */
+.market-page.favorites-mode #market-items-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 388px)) !important;
+    gap: 2rem !important;
+    width: 100% !important;
+}
+
+.market-page.favorites-mode #market-items-grid .market-tile-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+@media (max-width: 900px) {
+    .market-page.favorites-mode #market-items-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
 }
 
 /* Musician Theme (Lila Leiste): Event-Markt */
