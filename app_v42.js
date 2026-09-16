@@ -7229,7 +7229,7 @@ function renderMarket(container, type, onNavigate) {
                         
                                                 <!-- Right: Mobile Close Button -->
                         <div class="filter-header-close-wrapper" style="flex: 1; display: flex; justify-content: flex-end;">
-                            <button id="btn-close-filters-m" class="btn-close-filters-m" style="margin: 0; width: 42px; height: 42px;" title="Filter anwenden">
+                            <button id="btn-close-filters-m" class="btn-close-filters-m" style="margin: 0; width: 42px; height: 42px; background: ${isEvents ? '#7c3aed' : '#2563eb'} !important; border-color: ${isEvents ? '#7c3aed' : '#2563eb'} !important; box-shadow: 0 2px 8px ${isEvents ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'} !important;" title="Filter anwenden">
                                 <i class="fa-solid fa-check"></i>
                             </button>
                         </div>
@@ -7601,6 +7601,13 @@ function renderMarket(container, type, onNavigate) {
 
                         </div>
                     `}
+
+                    <!-- Bottom Close Action for Filter Drawer (Mobile) -->
+                    <div class="market-filter-bottom-actions">
+                        <button type="button" class="btn btn-primary btn-close-filters-bottom" id="btn-close-filters-bottom" title="Filter anwenden & Fenster schließen">
+                            <i class="fa-solid fa-check"></i> <span>Filter anwenden / Schließen</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Center Main Section -->
@@ -7640,6 +7647,20 @@ function renderMarket(container, type, onNavigate) {
         if (toggleBtn) {
             toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; transition: color 0.3s ease;"></i> <span>Filter</span>`;
             updateFilterIconGlow(isFilterActiveCurrently);
+        }
+    });
+
+    const closeBtnBottom = container.querySelector('#btn-close-filters-bottom');
+    closeBtnBottom?.addEventListener('click', function() {
+        filterWrapper.classList.remove('open');
+        overlay?.classList.remove('open');
+        toggleBtn?.classList.remove('active');
+        if (toggleBtn) {
+            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; transition: color 0.3s ease;"></i> <span>Filter</span>`;
+            updateFilterIconGlow(isFilterActiveCurrently);
+        }
+        if (window.innerWidth <= 900) {
+            document.getElementById('market-results-header')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     });
 
