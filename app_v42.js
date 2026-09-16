@@ -7161,10 +7161,10 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0px 5rem; box-sizing: border-box;">
             
-            <div class="market-controls-row" style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isEvents ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isEvents ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.65rem 1.2rem; width: 100%; box-sizing: border-box;">
+            <div class="market-controls-row" style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isEvents ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isEvents ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.65rem 1.2rem; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
                 
                 <!-- 1. Trefferanzahl (Weiß auf farbiger Leiste) -->
-                <div style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0; cursor: pointer;" onclick="document.getElementById('btn-toggle-mobile-filters')?.click();" title="Filter öffnen">
+                <div id="market-results-header" style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0; cursor: pointer;" onclick="if (!window.currentMarketShowFavorites) document.getElementById('btn-toggle-mobile-filters')?.click();" title="Filter öffnen">
                     <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
                         ${getItems().length}
                     </div>
@@ -7173,11 +7173,31 @@ function renderMarket(container, type, onNavigate) {
                     </span>
                 </div>
 
-                <!-- 2. Filter-Symbol + "Filter" (Weiß auf farbiger Leiste) -->
-                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0 0 0 auto; display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.45rem 1.15rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" title="Filter öffnen">
-                    <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; color: #ffffff; transition: color 0.3s ease;"></i>
-                    <span style="color: #ffffff;">Filter</span>
-                </button>
+                <!-- 2. Aktionen-Container: Filter-Button weiter links, rechts daneben Zurücksetzen und Sortierung als Icon -->
+                <div class="market-controls-actions" style="margin: 0 0 0 auto; display: flex; align-items: center; gap: 0.55rem;">
+                    <!-- Filter-Symbol + "Filter" -->
+                    <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.45rem 1.05rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" title="Filter öffnen">
+                        <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; color: #ffffff; transition: color 0.3s ease;"></i>
+                        <span style="color: #ffffff;">Filter</span>
+                    </button>
+
+                    <!-- Zurücksetzen-Icon -->
+                    <button class="market-bar-icon-btn" id="btn-reset-filters-bar" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 12px; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15); padding: 0;" title="Filter zurücksetzen" aria-label="Filter zurücksetzen">
+                        <i class="fa-solid fa-rotate-left" style="font-size: 0.95rem; color: #ffffff;"></i>
+                    </button>
+
+                    <!-- Sortierungs-Icon -->
+                    <div class="market-bar-icon-btn market-sort-container-bar" title="Sortierung" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 12px; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15); position: relative; padding: 0;">
+                        <i class="fa-solid fa-arrow-down-wide-short" style="font-size: 0.95rem; color: #ffffff; pointer-events: none;"></i>
+                        <select id="sort-select-bar" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; margin: 0; z-index: 5;">
+                            <option value="match" style="background: #ffffff; color: #0f172a;">Match-Faktor</option>
+                            <option value="newest" style="background: #ffffff; color: #0f172a;">Neueste zuerst</option>
+                            <option value="price" style="background: #ffffff; color: #0f172a;">Günstig zuerst</option>
+                            <option value="distance" style="background: #ffffff; color: #0f172a;">Nächste zuerst</option>
+                            <option value="name" style="background: #ffffff; color: #0f172a;">Name (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
  
                 <!-- Versteckte Steuerungsbuttons für Top-Matches und Favoriten (für programmatische Aufrufe der Bottom-Bar) -->
                 <button id="btn-toggle-market-top-matches" style="display: none !important;" aria-hidden="true"></button>
@@ -7648,9 +7668,15 @@ function renderMarket(container, type, onNavigate) {
         }
     });
 
-    const sortSelects = container.querySelectorAll('#sort-select, #sort-select-m');
+    const sortSelects = container.querySelectorAll('#sort-select, #sort-select-m, #sort-select-bar');
     const sortSelect = sortSelects[0] || null;
     const resetBtn = container.querySelector('#btn-reset-filters');
+    const resetBtnBar = container.querySelector('#btn-reset-filters-bar');
+    if (resetBtnBar) {
+        resetBtnBar.addEventListener('click', () => {
+            resetBtn?.click();
+        });
+    }
     const marketProfileSelect = container.querySelector('#market-profile-select');
     if (marketProfileSelect) {
         marketProfileSelect.addEventListener('change', function() {
@@ -8428,7 +8454,7 @@ function renderMarket(container, type, onNavigate) {
                     `;
                 }
                 
-                if (isFilterActiveCurrently || state.currentUser !== null) {
+                if (!showOnlyFavorites && (isFilterActiveCurrently || state.currentUser !== null)) {
                     buttonsHtml += `
                         <button class="btn btn-secondary" id="btn-market-bottom-reset" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: ${themeColor}; border: 2px solid ${themeColor}; background: transparent; transition: all 0.2s; margin: 0;">
                             <i class="fa-solid fa-rotate-right"></i> Filter zurücksetzen
@@ -8517,22 +8543,44 @@ function renderMarket(container, type, onNavigate) {
 
 
 
+        window.currentMarketShowFavorites = showOnlyFavorites;
+        const resultsHeaderEl = container.querySelector('#market-results-header');
+        if (resultsHeaderEl) {
+            resultsHeaderEl.style.cursor = showOnlyFavorites ? 'default' : 'pointer';
+            resultsHeaderEl.title = showOnlyFavorites ? '' : 'Filter öffnen';
+        }
+
+        const layoutContainer = container.querySelector('.market-layout-container');
+        const filterSidebar = container.querySelector('#market-filters-wrapper');
+        const actionsContainer = container.querySelector('.market-controls-actions');
+
+        if (showOnlyFavorites) {
+            if (layoutContainer) layoutContainer.classList.add('no-filters');
+            if (filterSidebar) filterSidebar.style.display = 'none';
+            if (actionsContainer) actionsContainer.style.display = 'none';
+            filterSidebar?.classList.remove('open');
+            container.querySelector('.market-filter-overlay')?.classList.remove('open');
+        } else {
+            if (layoutContainer) layoutContainer.classList.remove('no-filters');
+            if (filterSidebar) filterSidebar.style.display = '';
+            if (actionsContainer) actionsContainer.style.display = 'flex';
+        }
+
         const toggleBtn = container.querySelector('#btn-toggle-mobile-filters');
         if (toggleBtn) {
-            const primaryColor = isEvents ? '#7c3aed' : '#2563eb';
             const iconEl = toggleBtn.querySelector('i');
             if (isFilterActive) {
-                toggleBtn.style.boxShadow = isEvents ? '0 0 14px rgba(124, 58, 237, 0.45)' : '0 0 14px rgba(37, 99, 235, 0.45)';
-                toggleBtn.style.background = isEvents ? 'rgba(124, 58, 237, 0.2)' : 'rgba(37, 99, 235, 0.2)';
-                toggleBtn.style.color = primaryColor;
-                toggleBtn.style.border = `2px solid ${primaryColor}`;
-                if (iconEl) iconEl.style.color = primaryColor;
+                toggleBtn.style.boxShadow = '0 0 14px rgba(255, 255, 255, 0.6)';
+                toggleBtn.style.background = 'rgba(255, 255, 255, 0.35)';
+                toggleBtn.style.color = '#ffffff';
+                toggleBtn.style.border = '1.5px solid #ffffff';
+                if (iconEl) iconEl.style.color = '#ffffff';
             } else {
-                toggleBtn.style.boxShadow = '';
-                toggleBtn.style.background = isEvents ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)';
-                toggleBtn.style.color = primaryColor;
-                toggleBtn.style.border = isEvents ? '1.5px solid rgba(124, 58, 237, 0.35)' : '1.5px solid rgba(37, 99, 235, 0.35)';
-                if (iconEl) iconEl.style.color = primaryColor;
+                toggleBtn.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.15)';
+                toggleBtn.style.background = 'rgba(255, 255, 255, 0.18)';
+                toggleBtn.style.color = '#ffffff';
+                toggleBtn.style.border = '1.5px solid rgba(255, 255, 255, 0.45)';
+                if (iconEl) iconEl.style.color = '#ffffff';
             }
         }
 
@@ -10394,46 +10442,34 @@ function renderMatchesPage(container) {
         container.innerHTML = `
             <div class="market-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0.5rem 5rem; box-sizing: border-box;">
                 
-                <!-- Controls Row: Left = Title & Count, Right = Profile Switcher & Sort -->
-                <div class="matches-controls-row" style="background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; padding: 0.2rem 0.2rem; width: 100%; box-sizing: border-box;">
+                <!-- Controls Row: Left = Title & Count, Right = Profile Switcher -->
+                <div class="matches-controls-row" style="background: ${isMusician ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isMusician ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isMusician ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; padding: 0.65rem 1.2rem; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
                     
                     <!-- Left: Star & Title & Count (Lila bei Musikern / Blau bei Veranstaltern) -->
-                    <div style="display: flex; align-items: baseline; gap: 0.5rem; flex-shrink: 0;">
-                        <i class="fa-solid fa-star" style="color: #eab308; font-size: 1.25rem; transform: translateY(1px);"></i>
-                        <h2 style="margin: 0; font-family: var(--font-heading); font-size: 1.45rem; font-weight: 900; color: #0f172a; line-height: 1; letter-spacing: -0.5px;">
+                    <div style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0;">
+                        <i class="fa-solid fa-star" style="color: #fde047; font-size: 1.25rem; transform: translateY(1px);"></i>
+                        <h2 style="margin: 0; font-family: var(--font-heading); font-size: 1.45rem; font-weight: 900; color: #ffffff !important; line-height: 1; letter-spacing: -0.5px;">
                             Top-Matches
                         </h2>
-                        <span style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: ${isMusician ? '#7c3aed' : '#2563eb'}; white-space: nowrap;">
+                        <span style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap;">
                             (<span id="top-matches-count">${selectedId ? '0' : '0'}</span>)
                         </span>
                     </div>
 
-                    <!-- Right: Profile Dropdown (if multiple) & Sort Dropdown -->
-                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-left: auto;">
-                        ${profiles.length > 1 ? `
-                            <div class="matches-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem; background: ${isMusician ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)'}; border: 1.5px solid ${isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'}; border-radius: 12px; padding: 0.35rem 0.8rem; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
-                                <i class="${isMusician ? 'fa-solid fa-guitar' : 'fa-solid fa-calendar-day'}" style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; font-size: 0.85rem;"></i>
-                                <label for="select-profile" style="font-size: 0.82rem; font-weight: 700; color: #0f172a; margin: 0; white-space: nowrap;">Profil:</label>
-                                <select id="select-profile" style="background: transparent; border: none; color: #0f172a; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; outline: none; cursor: pointer; padding: 0.1rem 0; max-width: 170px;">
+                    <!-- Right: Profile Dropdown (if multiple) -->
+                    ${profiles.length > 1 ? `
+                        <div style="display: flex; gap: 0.75rem; align-items: center; margin-left: auto;">
+                            <div class="matches-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); border-radius: 12px; padding: 0.35rem 0.8rem; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                <i class="${isMusician ? 'fa-solid fa-guitar' : 'fa-solid fa-calendar-day'}" style="color: #ffffff; font-size: 0.85rem;"></i>
+                                <label for="select-profile" style="font-size: 0.82rem; font-weight: 700; color: #ffffff; margin: 0; white-space: nowrap;">Profil:</label>
+                                <select id="select-profile" style="background: transparent; border: none; color: #ffffff; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; outline: none; cursor: pointer; padding: 0.1rem 0; max-width: 170px;">
                                     ${selectOptionsHtml}
                                 </select>
                             </div>
-                        ` : `
-                            <input type="hidden" id="select-profile" value="${selectedId || ''}">
-                        `}
-
-                        <div class="matches-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem; background: ${isMusician ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)'}; border: 1.5px solid ${isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'}; border-radius: 12px; padding: 0.35rem 0.8rem; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
-                            <i class="fa-solid fa-arrow-down-short-wide" style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; font-size: 0.85rem;"></i>
-                            <label for="select-sort" style="font-size: 0.82rem; font-weight: 700; color: #0f172a; margin: 0; white-space: nowrap;">Sortierung:</label>
-                            <select id="select-sort" style="background: transparent; border: none; color: #0f172a; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; outline: none; cursor: pointer; padding: 0.1rem 0;">
-                                <option value="match" style="background: #ffffff; color: #0f172a;" selected>Match-Faktor</option>
-                                <option value="newest" style="background: #ffffff; color: #0f172a;">Neueste zuerst</option>
-                                <option value="price-asc" style="background: #ffffff; color: #0f172a;">Gage (aufsteigend)</option>
-                                <option value="price-desc" style="background: #ffffff; color: #0f172a;">Gage (absteigend)</option>
-                                <option value="name" style="background: #ffffff; color: #0f172a;">Name (A-Z)</option>
-                            </select>
                         </div>
-                    </div>
+                    ` : `
+                        <input type="hidden" id="select-profile" value="${selectedId || ''}">
+                    `}
                 </div>
 
                 <!-- Matches Grid or Empty State -->
@@ -10461,7 +10497,6 @@ function renderMatchesPage(container) {
         }
 
         const selectProfile = document.getElementById('select-profile');
-        const selectSort = document.getElementById('select-sort');
         const topGrid = document.getElementById('top-matches-grid');
 
         if (!selectedId) return;
@@ -10507,33 +10542,8 @@ function renderMatchesPage(container) {
 
                 const topMatches = candidatesWithMatches.filter(cand => cand && cand.match && (cand.match.score >= 70 || (targetId && cand.item && cand.item.id === targetId)));
 
-                const sortVal = selectSort?.value || 'match';
-                topMatches.sort((a, b) => {
-                    if (sortVal === 'match') {
-                        return (b.match?.score || 0) - (a.match?.score || 0);
-                    }
-                    if (sortVal === 'newest') {
-                        const dateA = a.item?.createdAt ? new Date(a.item.createdAt) : new Date(0);
-                        const dateB = b.item?.createdAt ? new Date(b.item.createdAt) : new Date(0);
-                        return dateB - dateA;
-                    }
-                    if (sortVal === 'price-asc') {
-                        const valA = a.item?.minBudget !== undefined ? a.item.minBudget : (a.item?.budget || 0);
-                        const valB = b.item?.minBudget !== undefined ? b.item.minBudget : (b.item?.budget || 0);
-                        return valA - valB;
-                    }
-                    if (sortVal === 'price-desc') {
-                        const valA = a.item?.minBudget !== undefined ? a.item.minBudget : (a.item?.budget || 0);
-                        const valB = b.item?.minBudget !== undefined ? b.item.minBudget : (b.item?.budget || 0);
-                        return valB - valA;
-                    }
-                    if (sortVal === 'name') {
-                        const nameA = a.item?.name || a.item?.title || '';
-                        const nameB = b.item?.name || b.item?.title || '';
-                        return nameA.localeCompare(nameB);
-                    }
-                    return 0;
-                });
+                // Sort purely by match score descending (no manual sorting needed for Top-Matches)
+                topMatches.sort((a, b) => (b.match?.score || 0) - (a.match?.score || 0));
 
                 if (targetId) {
                     const targetIndex = topMatches.findIndex(cand => cand.item && cand.item.id === targetId);
@@ -10626,9 +10636,6 @@ function renderMatchesPage(container) {
                     console.error("selectProfile change error:", err);
                 }
             });
-        }
-        if (selectSort) {
-            selectSort.addEventListener('change', updateMatches);
         }
         window.matchesUpdate = updateMatches;
         updateMatches();
@@ -18752,6 +18759,15 @@ function showAgencySuccessModal(email, mediationId) {
 
 function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
     if (!items || items.length === 0) {
+        if (window.currentMarketShowFavorites) {
+            return `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass);">
+                    <i class="fa-regular fa-heart" style="font-size: 3rem; color: #ef4444; margin-bottom: 1rem; opacity: 0.85;"></i>
+                    <h3 style="margin-bottom: 0.5rem; color: var(--text-main);">Noch keine Favoriten gespeichert</h3>
+                    <p style="color: var(--text-muted); max-width: 420px; margin: 0 auto;">Klicke bei Profilen oder Events auf das Herz-Symbol, um sie als Favoriten zu speichern.</p>
+                </div>
+            `;
+        }
         return `
             <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass);">
                 <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
