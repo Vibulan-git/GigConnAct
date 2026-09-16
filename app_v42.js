@@ -9658,13 +9658,13 @@ window.toggleFavorite = function(id) {
             }
         });
 
-        // 2. In-place update for star container if present
+        // 2. In-place update for star container if present (keep strictly tied to top-match >= 70%)
         const starContainers = document.querySelectorAll(`.tile-fav-star-container[data-item-id="${id}"]`);
         starContainers.forEach(starContainer => {
             const hasMatch = starContainer.getAttribute('data-has-match') === 'true';
-            if (isFav || hasMatch) {
+            if (hasMatch) {
                 starContainer.innerHTML = `
-                    <div class="tile-top-match-badge" title="${isFav ? 'In Favoriten gespeichert' : 'Top Match'}" style="background: transparent; border: none; box-shadow: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; pointer-events: none; cursor: default; padding: 0;">
+                    <div class="tile-top-match-badge" title="Top Match" style="background: transparent; border: none; box-shadow: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; pointer-events: none; cursor: default; padding: 0;">
                         <i class="fa-solid fa-star" style="color: #eab308; font-size: 1.15rem; margin: 0; filter: drop-shadow(0 1px 3px rgba(234, 179, 8, 0.4));"></i>
                     </div>
                 `;
@@ -10660,7 +10660,7 @@ function renderMatchesPage(container) {
                         <!-- Right: Profile Dropdown (if multiple) -->
                         <div class="matches-controls-actions" style="grid-column: 3; justify-self: end; display: flex; align-items: center; margin: 0;">
                             ${profiles.length > 1 ? `
-                                <div class="matches-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); border-radius: 12px; padding: 0.35rem 0.8rem; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                <div class="matches-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem; background: ${isMusician ? '#7c3aed' : '#2563eb'} !important; border: 1.5px solid ${isMusician ? '#6d28d9' : '#1d4ed8'} !important; border-radius: 12px; padding: 0.35rem 0.8rem; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 2px 10px ${isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'};">
                                     <label for="select-profile" style="font-size: 0.82rem; font-weight: 700; color: #ffffff; margin: 0; white-space: nowrap;">Profil:</label>
                                     <select id="select-profile" style="background: transparent; border: none; color: #ffffff; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; outline: none; cursor: pointer; padding: 0.1rem 0; max-width: 170px;">
                                         ${selectOptionsHtml}
@@ -16679,14 +16679,14 @@ function updateNavbar(forceLanding) {
             : '';
 
         const profileSelectorHtml = `
-            <div class="profile-switcher-wrapper" style="display: flex; align-items: center; gap: 0.25rem; background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.08); border-radius: 20px; padding: 0.2rem 0.5rem; margin: 0; max-width: 140px; height: 32px; box-sizing: border-box; flex-shrink: 0; font-family: var(--font-heading);">
-                <i class="${isMusician ? 'fa-solid fa-guitar' : 'fa-solid fa-calendar-day'}" style="color: ${isMusician ? 'var(--color-purple)' : 'var(--color-cyan)'}; font-size: 0.75rem; flex-shrink: 0;"></i>
-                <select id="navbar-profile-select" style="width: 100%; height: 24px; padding: 0 0.15rem; font-size: 0.7rem; margin: 0; border: none; background: transparent; cursor: pointer; color: #1e293b; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; outline: none; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
+            <div class="profile-switcher-wrapper ${isMusician ? 'role-musician' : 'role-organizer'}" style="background: ${isMusician ? '#7c3aed' : '#2563eb'} !important; border: 1.5px solid ${isMusician ? '#6d28d9' : '#1d4ed8'} !important; border-radius: 20px !important; box-shadow: 0 2px 10px ${isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'} !important; display: flex !important; align-items: center !important; gap: 0.35rem !important; padding: 0.28rem 0.8rem !important; margin: 0 !important; max-width: 175px !important; height: 35px !important; box-sizing: border-box !important; flex-shrink: 0 !important; font-family: var(--font-heading) !important;" title="Profil wechseln oder abmelden">
+                <select id="navbar-profile-select" style="width: 100% !important; height: 26px !important; padding: 0 0.15rem !important; font-size: 0.8rem !important; margin: 0 !important; border: none !important; background: transparent !important; cursor: pointer !important; color: #ffffff !important; font-weight: 700 !important; text-overflow: ellipsis !important; white-space: nowrap !important; overflow: hidden !important; outline: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;">
                     ${defaultProfileOption}
                     ${profileOptions}
                     <option disabled style="color: #94a3b8; background: #ffffff;">──────────</option>
                     <option value="logout" style="color: #ef4444; font-weight: 800; background: #ffffff;">Abmelden</option>
                 </select>
+                <i class="fa-solid fa-chevron-down switcher-caret" style="color: rgba(255, 255, 255, 0.85) !important; font-size: 0.68rem !important; pointer-events: none !important; flex-shrink: 0 !important;"></i>
             </div>
         `;
 
@@ -18864,7 +18864,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
             });
 
             scoredMusicians.sort((a, b) => b.score - a.score);
-            const top5MusicianIds = scoredMusicians.slice(0, 5).map(m => m.id);
+            const top5MusicianIds = scoredMusicians.filter(m => m.score >= 70).slice(0, 5).map(m => m.id);
 
             const eventIds = adminUids.map((_, idx) => 'evt_agency_' + Date.now() + '_' + idx);
 
@@ -19040,18 +19040,18 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
     if (!items || items.length === 0) {
         if (window.currentMarketShowFavorites) {
             return `
-                <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass);">
+                <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.22);">
                     <i class="fa-regular fa-heart" style="font-size: 3rem; color: #ef4444; margin-bottom: 1rem; opacity: 0.85;"></i>
-                    <h3 style="margin-bottom: 0.5rem; color: var(--text-main);">Noch keine Favoriten gespeichert</h3>
-                    <p style="color: var(--text-muted); max-width: 420px; margin: 0 auto;">Klicke bei Profilen oder Events auf das Herz-Symbol, um sie als Favoriten zu speichern.</p>
+                    <h3 style="margin-bottom: 0.5rem; color: #0f172a;">Noch keine Favoriten gespeichert</h3>
+                    <p style="color: #64748b; max-width: 420px; margin: 0 auto;">Klicke bei Profilen oder Events auf das Herz-Symbol, um sie als Favoriten zu speichern.</p>
                 </div>
             `;
         }
         return `
-            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass);">
-                <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
-                <h3 style="margin-bottom: 0.5rem; color: var(--text-main);">Keine Ergebnisse gefunden</h3>
-                <p style="color: var(--text-muted);">Versuche deine Filterkriterien anzupassen.</p>
+            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.22);">
+                <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: #64748b; margin-bottom: 1rem;"></i>
+                <h3 style="margin-bottom: 0.5rem; color: #0f172a;">Keine Ergebnisse gefunden</h3>
+                <p style="color: #64748b;">Versuche deine Filterkriterien anzupassen.</p>
             </div>
         `;
     }
@@ -19310,10 +19310,10 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                                 `}
                             </button>
 
-                            <!-- Favoriten / Top-Match-Stern unter dem Herzen (ohne schwarzen Hintergrund) -->
+                            <!-- Top-Match-Stern unter dem Herzen (nur bei echtem Top-Match >= 70%) -->
                             <div class="tile-fav-star-container" data-item-id="${item.id}" data-has-match="${(item.matchScore !== undefined && item.matchScore >= 70) ? 'true' : 'false'}" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px;">
-                                ${((item.matchScore !== undefined && item.matchScore >= 70) || (state && typeof state.isFavorite === 'function' && state.isFavorite(item.id))) ? `
-                                    <div class="tile-top-match-badge" title="${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? 'In Favoriten gespeichert' : 'Top Match'}" style="background: transparent; border: none; box-shadow: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; pointer-events: none; cursor: default; padding: 0;">
+                                ${(item.matchScore !== undefined && item.matchScore >= 70) ? `
+                                    <div class="tile-top-match-badge" title="Top Match (${item.matchScore}%)" style="background: transparent; border: none; box-shadow: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; pointer-events: none; cursor: default; padding: 0;">
                                         <i class="fa-solid fa-star" style="color: #eab308; font-size: 1.15rem; margin: 0; filter: drop-shadow(0 1px 3px rgba(234, 179, 8, 0.4));"></i>
                                     </div>
                                 ` : ''}
