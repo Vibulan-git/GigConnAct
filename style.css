@@ -5904,4 +5904,15 @@ body.has-bottom-bar .toast-container {
     color: #ffffff !important;
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
     filter: brightness(1.1);
-}
+}
+
+/* Demo text display */
+.tile-demo-text {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+    font-weight: 800 !important;
+    display: inline-block;
+    vertical-align: middle;
+    letter-spacing: 0.2px;
+}
+
