@@ -3537,8 +3537,18 @@ class StateManager {
         };
 
         if (!this.events.some(e => e.id === id)) {
-            this.events.push(newEvent);
+            this.events.unshift(newEvent);
         }
+
+        this.activeEventId = id;
+        if (this.currentUser) {
+            this.currentUser.profileId = id;
+        }
+        window.lastActiveProfileId = id;
+        window.selectedFilterDates = Array.isArray(newEvent.dates) && newEvent.dates.length > 0 
+            ? [...newEvent.dates] 
+            : (newEvent.date ? [newEvent.date] : []);
+        window.marketFilterExplicitlyReset = false;
 
         try {
             db.collection('events').doc(id).set(newEvent)
@@ -3558,8 +3568,9 @@ class StateManager {
             console.error("addEvent Firestore write failed sync:", err);
         }
 
+        this.saveState();
         this.notify();
-        return { success: true };
+        return { success: true, id: id };
     }
 
     updateEvent(eventId, updatedData) {
@@ -3595,6 +3606,16 @@ class StateManager {
             });
         }
 
+        if (this.activeEventId === eventId) {
+            if (cleanData.dates || cleanData.date) {
+                window.selectedFilterDates = Array.isArray(cleanData.dates) && cleanData.dates.length > 0 
+                    ? [...cleanData.dates] 
+                    : (cleanData.date ? [cleanData.date] : []);
+            }
+            window.lastActiveProfileId = null;
+        }
+
+        this.saveState();
         this.notify();
         return { success: true };
     }
@@ -3994,7 +4015,6 @@ class StateManager {
                 .catch(err => console.error("toggleFavorite failed:", err));
             this.saveState();
             this.notify();
-            document.dispatchEvent(new CustomEvent('user-state-changed'));
             return true;
         }
 
@@ -4014,7 +4034,6 @@ class StateManager {
 
         this.saveState();
         this.notify();
-        document.dispatchEvent(new CustomEvent('user-state-changed'));
         return true;
     }
 
@@ -7090,12 +7109,19 @@ function renderMarket(container, type, onNavigate) {
     const hashForSingleFetch = window.location.hash;
     const queryStringForSingleFetch = hashForSingleFetch.split('?')[1] || '';
     const urlParamsForSingleFetch = new URLSearchParams(queryStringForSingleFetch);
-    const targetIdForSingleFetch = urlParamsForSingleFetch.get('id') || urlParamsForSingleFetch.get('profileId') || urlParamsForSingleFetch.get('eventId');
-    if (targetIdForSingleFetch) {
+    const targetIdForSingleFetch = urlParamsForSingleFetch.get('id') || urlParamsForSingleFetch.get('profileId');
+    if (targetIdForSingleFetch && (!isEvents ? !String(targetIdForSingleFetch).startsWith('evt_') : !String(targetIdForSingleFetch).startsWith('mus_'))) {
         showOnlyTopMatches = true;
         const itemExists = getItems().some(item => item && item.id === targetIdForSingleFetch);
         if (!itemExists && typeof state.fetchSingleItem === 'function') {
             state.fetchSingleItem(isEvents ? 'events' : 'musicians', targetIdForSingleFetch);
+        }
+    }
+
+    if (!isEvents && state.activeEventId && typeof state.fetchSingleItem === 'function') {
+        const evtExists = (state.events || []).some(e => e && e.id === state.activeEventId);
+        if (!evtExists) {
+            state.fetchSingleItem('events', state.activeEventId);
         }
     }
 
@@ -7228,14 +7254,21 @@ function renderMarket(container, type, onNavigate) {
                 }
             }
         } else if (!isEvents && state.currentUser.role === 'organizer') {
-            const myProfile = state.events.find(e => e.id === state.activeEventId) 
-                || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) 
-                || state.events.find(e => e.creatorId === state.currentUser.id);
+            const userEvents = (state.events || []).filter(e => e && e.creatorId === state.currentUser.id && e.isActive !== false);
+            userEvents.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+            const myProfile = (state.activeEventId && (state.events || []).find(e => e.id === state.activeEventId))
+                || userEvents[0]
+                || (state.events || []).find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) 
+                || (state.events || []).find(e => e.creatorId === state.currentUser.id);
             if (myProfile) {
                 hasProfile = true;
+                if (!state.activeEventId) {
+                    state.activeEventId = myProfile.id;
+                }
 
-                if (window.lastActiveProfileId !== myProfile.id || selectedFilterDates === null || selectedFilterDates === undefined) {
-                    if (Array.isArray(myProfile.dates)) {
+                if (window.lastActiveProfileId !== myProfile.id || selectedFilterDates === null || selectedFilterDates === undefined || (Array.isArray(myProfile.dates) && myProfile.dates.length > 0 && (!selectedFilterDates || selectedFilterDates.length === 0))) {
+                    if (Array.isArray(myProfile.dates) && myProfile.dates.length > 0) {
                         selectedFilterDates = [...myProfile.dates];
                     } else if (myProfile.date) {
                         selectedFilterDates = [myProfile.date];
@@ -7836,12 +7869,16 @@ function renderMarket(container, type, onNavigate) {
             const val = this.value;
             console.log("[DEBUG] market-profile-select changed to:", val);
             if (state.currentUser) {
+                window.marketFilterExplicitlyReset = false;
+                window.lastActiveProfileId = null;
+                window.selectedFilterDates = null;
                 if (state.currentUser.role === 'musician') {
                     state.activeMusicianId = val;
                 } else {
                     state.activeEventId = val;
                 }
                 state.notify();
+                document.dispatchEvent(new CustomEvent('user-state-changed'));
             }
         });
     }
@@ -8113,6 +8150,7 @@ function renderMarket(container, type, onNavigate) {
                     // 10. Date
                     if (selectedFilterDates && selectedFilterDates.length > 0) {
                         virtualEvent.date = selectedFilterDates[0];
+                        virtualEvent.dates = selectedFilterDates;
                     }
 
                     list.forEach(item => {
@@ -8240,23 +8278,7 @@ function renderMarket(container, type, onNavigate) {
                 ? (container.querySelector('#filter-location')?.value || '').trim().toLowerCase()
                 : (container.querySelector('#filter-location-m')?.value || '').trim().toLowerCase();
             
-            let locInput = rawLocInput;
-            if (!locInput && state.currentUser) {
-                if (isEvents) {
-                    const activeMus = state.musicians.find(m => m.id === state.activeMusicianId) 
-                        || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId);
-                    if (activeMus && activeMus.location) {
-                        locInput = activeMus.location.toLowerCase();
-                    }
-                } else {
-                    const activeEvt = state.events.find(e => e.id === state.activeEventId) 
-                        || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId)
-                        || state.events.find(e => e.creatorId === state.currentUser.id);
-                    if (activeEvt && activeEvt.location) {
-                        locInput = activeEvt.location.toLowerCase();
-                    }
-                }
-            }
+            const locInput = rawLocInput;
 
             if (locInput) {
                 const cleanQuery = rawLocInput ? rawLocInput.split(' (')[0].toLowerCase().trim() : '';
@@ -9024,6 +9046,7 @@ function renderMarket(container, type, onNavigate) {
     }
 
     resetBtn?.addEventListener('click', () => {
+        window.marketFilterExplicitlyReset = true;
         // 1. Clear all text search inputs (location, keywords, etc.)
         container.querySelectorAll('input[type="text"]').forEach(el => {
             el.value = '';
@@ -9773,7 +9796,7 @@ window.toggleFavorite = function(id) {
     }
     const currentScrollY = window.scrollY || document.documentElement.scrollTop;
     window.isTogglingFavorite = true;
-    setTimeout(() => { window.isTogglingFavorite = false; }, 350);
+    setTimeout(() => { window.isTogglingFavorite = false; }, 800);
 
     if (state.toggleFavorite(id)) {
         const isFav = state.isFavorite(id);
@@ -11228,19 +11251,24 @@ function renderOrganizerEventItem(e, isActive) {
             </div>
 
             <!-- Actions Grid at the Bottom (Purple theme with white text) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #7c3aed;">
-                <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
-                    <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: flex; flex-direction: column; gap: 0.4rem; background: #7c3aed;">
+                <button class="btn btn-sm btn-find-matching-acts" data-id="${e.id}" style="width: 100%; font-size: 0.8rem; font-weight: 700; padding: 0.45rem 0.6rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.4rem; color: #ffffff; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+                    <i class="fa-solid fa-users-viewfinder" style="color: #ffffff;"></i> Passende Acts finden
                 </button>
-                <button class="btn btn-sm btn-glass btn-duplicate-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
-                    <i class="fa-solid fa-copy" style="color: #ffffff;"></i> Duplizieren
-                </button>
-                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
-                    <i class="fa-solid fa-${isActive ? 'pause' : 'play'}" style="color: #ffffff;"></i> ${isActive ? 'Pausieren' : 'Aktivieren'}
-                </button>
-                <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
-                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
-                </button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
+                    <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                        <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
+                    </button>
+                    <button class="btn btn-sm btn-glass btn-duplicate-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                        <i class="fa-solid fa-copy" style="color: #ffffff;"></i> Duplizieren
+                    </button>
+                    <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                        <i class="fa-solid fa-${isActive ? 'pause' : 'play'}" style="color: #ffffff;"></i> ${isActive ? 'Pausieren' : 'Aktivieren'}
+                    </button>
+                    <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                        <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
+                    </button>
+                </div>
             </div>
         </div>
     `;
@@ -11336,6 +11364,23 @@ function renderMyEventsContent(container) {
             showEventModal(null);
         });
     }
+
+    container.querySelectorAll('.btn-find-matching-acts').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            const event = state.events.find(e => e.id === id);
+            if (event) {
+                state.activeEventId = id;
+                if (state.currentUser) {
+                    state.currentUser.profileId = id;
+                }
+                window.lastActiveProfileId = null;
+                window.selectedFilterDates = null;
+                window.marketFilterExplicitlyReset = false;
+                window.location.hash = `#/musicians?eventId=${id}`;
+            }
+        });
+    });
 
     container.querySelectorAll('.btn-pause-my-event').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -13374,6 +13419,18 @@ function showEventModal(eventObj = null, isDuplication = false) {
             }
             const res = state.addEvent(data);
             if (res && res.success === false) return;
+            const newEventId = (res && res.id) || data.id;
+            if (newEventId) {
+                state.activeEventId = newEventId;
+                if (state.currentUser) {
+                    state.currentUser.profileId = newEventId;
+                }
+                window.lastActiveProfileId = newEventId;
+                window.selectedFilterDates = Array.isArray(data.dates) && data.dates.length > 0 
+                    ? [...data.dates] 
+                    : (data.date ? [data.date] : []);
+                window.marketFilterExplicitlyReset = false;
+            }
             showToast({
                 title: "Event erstellt! 📅",
                 message: `Das Event "${data.name}" wurde erfolgreich veröffentlicht.`
@@ -17193,21 +17250,63 @@ function handleRouting() {
         const urlParams = new URLSearchParams(hashQuery);
         const isMusicianPage = page === 'musicians';
         
-        const rawId = urlParams.get('id') || urlParams.get('profileId');
+        const rawId = urlParams.get('id') || urlParams.get('profileId') || urlParams.get('eventId');
         if (rawId) {
             targetId = rawId;
         }
 
+        const eventId = urlParams.get('eventId');
+
+        // Check if an organizer is accessing dashboard, my-events, or events with an event ID from email
+        if ((page === 'dashboard' || page === 'my-events' || page === 'events') && (eventId || (rawId && String(rawId).startsWith('evt_')))) {
+            const targetEvtId = eventId || rawId;
+            console.log("[DEBUG] Redirecting event link to musicians market with active event:", targetEvtId);
+            state.activeEventId = targetEvtId;
+            if (state.currentUser) {
+                state.currentUser.profileId = targetEvtId;
+            }
+            window.lastActiveProfileId = null;
+            window.selectedFilterDates = null;
+            window.marketFilterExplicitlyReset = false;
+            if (state.events && !state.events.some(e => e && e.id === targetEvtId) && typeof state.fetchSingleItem === 'function') {
+                state.fetchSingleItem('events', targetEvtId);
+            }
+            window.location.hash = `#/musicians?eventId=${targetEvtId}`;
+            return;
+        }
+
         if (isMusicianPage) {
             // Target is a musician profile, active profile is an event (for organizers)
-            const eventId = urlParams.get('eventId');
             if (eventId) {
                 console.log("[DEBUG] Storing activeEventId from URL parameter:", eventId);
                 state.activeEventId = eventId;
+                if (state.currentUser) {
+                    state.currentUser.profileId = eventId;
+                }
+                window.lastActiveProfileId = null;
+                window.selectedFilterDates = null;
+                window.marketFilterExplicitlyReset = false;
+                if (state.events && !state.events.some(e => e && e.id === eventId) && typeof state.fetchSingleItem === 'function') {
+                    state.fetchSingleItem('events', eventId);
+                }
             }
             if (rawId) {
-                console.log("[DEBUG] Storing activeMusicianId (target) from URL parameter:", rawId);
-                state.activeMusicianId = rawId;
+                if (String(rawId).startsWith('evt_')) {
+                    console.log("[DEBUG] rawId is an eventId on musicians page, setting state.activeEventId:", rawId);
+                    state.activeEventId = rawId;
+                    if (state.currentUser) {
+                        state.currentUser.profileId = rawId;
+                    }
+                    window.lastActiveProfileId = null;
+                    window.selectedFilterDates = null;
+                    window.marketFilterExplicitlyReset = false;
+                    if (state.events && !state.events.some(e => e && e.id === rawId) && typeof state.fetchSingleItem === 'function') {
+                        state.fetchSingleItem('events', rawId);
+                    }
+                } else {
+                    console.log("[DEBUG] Storing activeMusicianId (target) from URL parameter:", rawId);
+                    state.activeMusicianId = rawId;
+                }
             }
         } else {
             // Target is an event profile, active profile is a musician (for musicians)
@@ -17444,6 +17543,10 @@ function initGigConnActApp() {
     }
 
     document.addEventListener('user-state-changed', () => {
+        if (window.isTogglingFavorite) {
+            console.log('[DEBUG] user-state-changed ignored because isTogglingFavorite is true');
+            return;
+        }
         console.log('[DEBUG] user-state-changed event received. activeMusicianId:', state.activeMusicianId, 'activeEventId:', state.activeEventId);
         if (typeof updateNavbar === 'function') updateNavbar();
         if (typeof window.updateBottomBar === 'function') window.updateBottomBar();
@@ -17452,40 +17555,10 @@ function initGigConnActApp() {
         const isUserSame = window.lastUserSessionId === (state && state.currentUser ? state.currentUser.id : null);
         console.log('[DEBUG] user-state-changed info - currentHash:', currentHash, 'isUserSame:', isUserSame, 'lastUserSessionId:', window.lastUserSessionId);
         
-        // Calculate the current profile prefill hash to see if it changed
-        let currentPrefillHash = '';
-        if (state && state.currentUser) {
-            const isMusician = state.currentUser.role === 'musician';
-            const musicians = state.musicians || [];
-            const events = state.events || [];
-            const activeMusicianId = state.activeMusicianId || '';
-            const activeEventId = state.activeEventId || '';
-            const myProfile = isMusician 
-                ? (musicians.find(m => m && m.id === activeMusicianId) || musicians.find(m => m && (m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId)))
-                : (events.find(e => e && e.id === activeEventId) || events.find(e => e && (e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId)) || events.find(e => e && e.creatorId === state.currentUser.id));
-            if (myProfile) {
-                currentPrefillHash = JSON.stringify({
-                    location: myProfile.location || '',
-                    genres: myProfile.genres || [],
-                    instruments: myProfile.instruments || [],
-                    minBudget: myProfile.minBudget || myProfile.budget || 0,
-                    maxBudget: myProfile.maxBudget || myProfile.budget || 5000,
-                    minDuration: myProfile.minDuration || myProfile.duration || 0.5,
-                    maxDuration: myProfile.maxDuration || myProfile.duration || 10.0,
-                    minPublikum: myProfile.minPublikum || 0,
-                    maxPublikum: myProfile.maxPublikum || 500,
-                    technik: Array.isArray(myProfile.technik) ? myProfile.technik : (typeof myProfile.technik === 'string' && myProfile.technik.trim() !== '' ? [myProfile.technik] : []),
-                    musicianTypes: myProfile.musicianTypes || (myProfile.musicianType ? [myProfile.musicianType] : []),
-                    eventTypes: myProfile.type || myProfile.eventType ? [myProfile.type || myProfile.eventType] : []
-                });
-            }
-        }
-
-        const profileChanged = window.lastProfilePrefillHash !== currentPrefillHash;
         const activeMusicianIdChanged = window.lastActiveMusicianId !== (state ? state.activeMusicianId : null);
         const activeEventIdChanged = window.lastActiveEventId !== (state ? state.activeEventId : null);
-        const activeProfileChanged = profileChanged || activeMusicianIdChanged || activeEventIdChanged;
-        console.log('[DEBUG] user-state-changed: profileChanged =', profileChanged, 'activeProfileChanged =', activeProfileChanged);
+        const activeProfileChanged = activeMusicianIdChanged || activeEventIdChanged;
+        console.log('[DEBUG] user-state-changed: activeProfileChanged =', activeProfileChanged);
 
         const isMarketPage = document.getElementById('market-items-grid') !== null;
 
@@ -17508,9 +17581,11 @@ function initGigConnActApp() {
             }
         }
 
-        if (!activeProfileChanged && isUserSame && isMarketPage && typeof window.marketApplyFilters === 'function') {
-            console.log('[DEBUG] user-state-changed: calling window.marketApplyFilters()');
-            window.marketApplyFilters();
+        if (!activeProfileChanged && isUserSame && isMarketPage) {
+            if (typeof window.marketApplyFilters === 'function') {
+                console.log('[DEBUG] user-state-changed: calling window.marketApplyFilters()');
+                window.marketApplyFilters();
+            }
         } else {
             console.log('[DEBUG] user-state-changed: calling handleRouting()');
             if (typeof handleRouting === 'function') handleRouting();

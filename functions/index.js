@@ -1557,6 +1557,7 @@ exports.onEventProfileCreated = functions
 
         const userDetails = await getUserDetails(event.creatorId);
         const email = event.email || (userDetails ? userDetails.email : null);
+        const eventId = (context && context.params && context.params.eventId) ? context.params.eventId : snapshot.id;
         const name = event.contactName || (userDetails ? userDetails.name : 'Veranstalter');
 
         if (email) {
@@ -1572,7 +1573,7 @@ exports.onEventProfileCreated = functions
                     <p>deine Ausschreibung für das Event <strong>"${event.name}"</strong> ist jetzt erfolgreich auf unserem Marktplatz online geschaltet.</p>
                     <p>Interessierte Musiker können ab sofort ihr Interesse bekunden. Zudem analysiert unser System bereits die Datenbank, um dir passende Acts vorzuschlagen.</p>
                     <p style="margin-top: 25px; text-align: center;">
-                        <a href="https://gigconnact.de/#/musicians" style="background: #0ea5e9; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Acts finden</a>
+                        <a href="https://gigconnact.de/#/musicians?eventId=${eventId}" style="background: #0ea5e9; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Passende Acts finden</a>
                     </p>
                     <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 15px;">
                     <p style="font-size: 0.8rem; color: #a0aec0; text-align: center;">GigConnAct — Dein Live-Musik Marktplatz</p>
