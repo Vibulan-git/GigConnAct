@@ -10079,7 +10079,6 @@ function renderProfilePage(container) {
                         </div>
                         <div class="profile-section-title-group">
                             <h3>Persönliche Kontaktdaten</h3>
-                            <p>Deine Stammdaten und Kontaktaufnahme-Optionen für ${isMusician ? 'Veranstalter' : 'Musiker'}.</p>
                         </div>
                     </div>
                 </div>
@@ -10149,7 +10148,6 @@ function renderProfilePage(container) {
                         </div>
                         <div class="profile-section-title-group">
                             <h3>Abonnement verwalten</h3>
-                            <p>Tarifdetails, Vertragslaufzeiten, automatische Verlängerung und Tarifoptionen.</p>
                         </div>
                     </div>
                 </div>
@@ -10258,12 +10256,11 @@ function renderProfilePage(container) {
             <div class="profile-section-card privacy-manage">
                 <div class="profile-section-header">
                     <div style="display: flex; align-items: center; gap: 0.85rem;">
-                        <div class="profile-section-badge-icon" style="background: rgba(71, 85, 105, 0.1); color: #475569;">
+                        <div class="profile-section-badge-icon" style="background: rgba(124, 58, 237, 0.1); color: #7c3aed;">
                             <i class="fa-solid fa-shield-halved"></i>
                         </div>
                         <div class="profile-section-title-group">
                             <h3>Datenschutz & Kontoverwaltung</h3>
-                            <p>DSGVO-Selbstauskunft, Cookie-Einstellungen, Zahlungsdaten und Kontolöschung.</p>
                         </div>
                     </div>
                 </div>
@@ -10847,9 +10844,12 @@ function renderMatchesPage(container) {
                         <div class="matches-controls-spacer" style="grid-column: 1;"></div>
 
                         <!-- Center: Title & Count (Mittig, ohne Icon) -->
-                        <div class="matches-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <div class="matches-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px;">
+                            <div id="top-matches-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
+                                ${selectedId ? '0' : '0'}
+                            </div>
                             <span id="top-matches-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                                <span id="top-matches-count">${selectedId ? '0' : '0'}</span> Top-Matches
+                                Top-Matches
                             </span>
                         </div>
 
@@ -11274,7 +11274,6 @@ function renderMyEventsContent(container) {
                         </div>
                         <div class="profile-section-title-group">
                             <h3>Meine Ausschreibungen (${activeEvents.length})</h3>
-                            <p>Verwalte deine Event-Ausschreibungen und erstelle neue Gigs.</p>
                         </div>
                     </div>
                 </div>
@@ -11771,7 +11770,6 @@ function renderMyMusiciansContent(container) {
                         </div>
                         <div class="profile-section-title-group">
                             <h3>Musiker-Profile (${activeMusicians.length})</h3>
-                            <p>Verwalte deine Musiker-Profile, erstelle neue Profile oder bearbeite Details.</p>
                         </div>
                     </div>
                 </div>
@@ -13591,24 +13589,6 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     <button type="submit" class="btn btn-primary" id="btn-send-magic" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: none !important; font-weight: 700;">
                         Jetzt anmelden
                     </button>
-
-                    <div style="margin-top: 1.5rem; padding-top: 1.2rem; border-top: 1px solid rgba(255,255,255,0.12); text-align: center;">
-                        <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Schnellzugang (1-Klick)</p>
-                        <div style="display: flex; flex-direction: column; gap: 0.45rem;">
-                            <button type="button" class="btn-quick-acc" data-email="vibu.music22@gmail.com" style="background: rgba(37, 99, 235, 0.12); border: 1px solid rgba(37, 99, 235, 0.35); color: #60a5fa; font-size: 0.8rem; border-radius: 10px; padding: 0.55rem 0.8rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; text-align: left;">
-                                <span><i class="fa-solid fa-calendar-days" style="margin-right: 0.5rem; color: #3b82f6;"></i><strong>Hochzeit Marie</strong> (Veranstalter)</span>
-                                <span style="font-size: 0.72rem; opacity: 0.85; font-family: monospace;">vibu.music22@... &rarr;</span>
-                            </button>
-                            <button type="button" class="btn-quick-acc" data-email="vibulan22@gmail.com" style="background: rgba(124, 58, 237, 0.12); border: 1px solid rgba(124, 58, 237, 0.35); color: #c084fc; font-size: 0.8rem; border-radius: 10px; padding: 0.55rem 0.8rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; text-align: left;">
-                                <span><i class="fa-solid fa-guitar" style="margin-right: 0.5rem; color: #a855f7;"></i><strong>MIAMI PINK 3</strong> (Musiker)</span>
-                                <span style="font-size: 0.72rem; opacity: 0.85; font-family: monospace;">vibulan22@... &rarr;</span>
-                            </button>
-                            <button type="button" class="btn-quick-acc" data-email="info@gigconnact.de" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.18); color: #e2e8f0; font-size: 0.8rem; border-radius: 10px; padding: 0.55rem 0.8rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; text-align: left;">
-                                <span><i class="fa-solid fa-shield-halved" style="margin-right: 0.5rem; color: #94a3b8;"></i><strong>GigConnAct Team</strong> (Admin)</span>
-                                <span style="font-size: 0.72rem; opacity: 0.85; font-family: monospace;">info@gigconnact.de &rarr;</span>
-                            </button>
-                        </div>
-                    </div>
                 </form>
 
                 <form id="auth-register-form" class="hidden">
@@ -14408,48 +14388,6 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             }
         });
     }
-
-    // Quick Login Buttons
-    const quickAccBtns = wrapper.querySelectorAll('.btn-quick-acc');
-    quickAccBtns.forEach(qBtn => {
-        qBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const targetEmail = qBtn.getAttribute('data-email');
-            if (magicForm && magicForm.elements.email) {
-                magicForm.elements.email.value = targetEmail;
-            }
-            const btn = document.getElementById('btn-send-magic');
-            if (btn) {
-                btn.disabled = true;
-                btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Anmeldung läuft...`;
-            }
-            const res = await state.loginPasswordless(targetEmail);
-            if (res.success && res.instantLogin) {
-                closeModal();
-                showToast({
-                    title: "Erfolgreich angemeldet!",
-                    message: `Willkommen zurück, ${state.currentUser.firstName || state.currentUser.name || 'Nutzer'}!`
-                });
-                if (typeof onSuccessCallback === 'function') {
-                    onSuccessCallback();
-                } else if (typeof navigateAfterLogin === 'function') {
-                    navigateAfterLogin();
-                } else {
-                    handleRouting();
-                }
-            } else if (!res.success) {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = `Jetzt anmelden`;
-                }
-                const errDiv = document.getElementById('magic-error-msg');
-                if (errDiv) {
-                    errDiv.innerText = res.message || "Fehler beim Anmelden.";
-                    errDiv.style.display = 'block';
-                }
-            }
-        });
-    });
 
 
     const pickerMus = document.getElementById('role-picker-mus');
@@ -17072,9 +17010,8 @@ function updateNavbar(forceLanding) {
             authArea.innerHTML = '';
         } else {
             authArea.innerHTML = `
-                <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger" title="Einloggen / Registrieren" style="padding: 0.45rem 1.15rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; height: 38px; border-radius: 20px; border: none; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); color: #ffffff; font-weight: 700; font-size: 0.85rem; box-shadow: 0 2px 10px rgba(124, 58, 237, 0.35); cursor: pointer; text-decoration: none;">
-                    <i class="fa-solid fa-right-to-bracket header-login-icon" style="margin: 0; font-size: 0.95rem;"></i>
-                    <span style="font-weight: 700;">Anmelden</span>
+                <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger" title="Einloggen / Registrieren">
+                    <i class="fa-solid fa-right-to-bracket header-login-icon"></i>
                 </button>
             `;
             
@@ -17749,9 +17686,12 @@ function renderPostbox(container) {
                         <div class="postbox-controls-spacer" style="grid-column: 1;"></div>
 
                         <!-- Center: Title (Mittig, ohne Icon) -->
-                        <div class="postbox-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <div class="postbox-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px;">
+                            <div id="postbox-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
+                                ${nonSystemChats.length}
+                            </div>
                             <span id="postbox-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                                <span id="postbox-count">${nonSystemChats.length}</span> ${nonSystemChats.length === 1 ? 'Nachricht' : 'Nachrichten'}
+                                ${nonSystemChats.length === 1 ? 'Nachricht' : 'Nachrichten'}
                             </span>
                         </div>
 
