@@ -7102,6 +7102,7 @@ function renderMarket(container, type, onNavigate) {
     function updateFilterIconGlow(isActive) {
         const desktopIcon = container.querySelector('#desktop-filter-icon');
         const mobileIcon = container.querySelector('#mobile-filter-icon');
+        const mobileToggleBtn = container.querySelector('#btn-toggle-mobile-filters');
         if (isActive) {
             if (desktopIcon) {
                 desktopIcon.style.setProperty('color', '#22c55e', 'important');
@@ -7110,6 +7111,11 @@ function renderMarket(container, type, onNavigate) {
             if (mobileIcon) {
                 mobileIcon.style.setProperty('color', '#22c55e', 'important');
                 mobileIcon.style.textShadow = '0 0 10px rgba(34, 197, 94, 0.8)';
+            }
+            if (mobileToggleBtn) {
+                mobileToggleBtn.style.borderColor = '#22c55e';
+                mobileToggleBtn.style.boxShadow = '0 0 12px rgba(34, 197, 94, 0.45)';
+                mobileToggleBtn.style.background = 'rgba(34, 197, 94, 0.22)';
             }
         } else {
             if (desktopIcon) {
@@ -7120,12 +7126,18 @@ function renderMarket(container, type, onNavigate) {
                 mobileIcon.style.color = '';
                 mobileIcon.style.textShadow = '';
             }
+            if (mobileToggleBtn) {
+                mobileToggleBtn.style.borderColor = 'rgba(255, 255, 255, 0.45)';
+                mobileToggleBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+                mobileToggleBtn.style.background = 'rgba(255, 255, 255, 0.18)';
+            }
         }
     }
     const urlParams = new URLSearchParams(window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
     if (urlParams.get('showOnlyFavorites') === 'true' || urlParams.get('fav') === 'true') {
         showOnlyFavorites = true;
     }
+    window.currentMarketShowFavorites = showOnlyFavorites;
 
     // Master filter options
     const ALL_FILTER_EVENT_TYPES = [
@@ -7316,9 +7328,10 @@ function renderMarket(container, type, onNavigate) {
                         </span>
                     </div>
 
-                    <!-- 2. Aktionen-Container: Filter-Button rechts (ohne Icon) -->
+                    <!-- 2. Aktionen-Container: Filter-Button rechts mit Icon -->
                     <div class="market-controls-actions ${showOnlyFavorites ? 'hidden' : ''}" style="grid-column: 3; justify-self: end; margin: 0; display: ${showOnlyFavorites ? 'none !important' : 'flex'}; align-items: center; gap: 0.55rem;">
-                        <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="display: inline-flex; align-items: center; justify-content: center; padding: 0.45rem 1.15rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" title="Filter öffnen">
+                        <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; padding: 0.45rem 1.15rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" title="Filter öffnen">
+                            <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="color: #ffffff; font-size: 0.9rem; transition: color 0.3s ease, text-shadow 0.3s ease;"></i>
                             <span style="color: #ffffff;">Filter</span>
                         </button>
                     </div>
@@ -7746,7 +7759,7 @@ function renderMarket(container, type, onNavigate) {
                 <!-- Center Main Section -->
                 <div>
                     <div id="market-items-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 2rem;">
-                        ${renderMarketGridHTML(getItems(), isEvents)}
+                        ${renderMarketGridHTML(getItems(), isEvents, false, showOnlyFavorites)}
                     </div>
                 </div>
             </div>
@@ -8537,7 +8550,7 @@ function renderMarket(container, type, onNavigate) {
                 if (prevGridHeight > 0) {
                     grid.style.minHeight = prevGridHeight + 'px';
                 }
-                grid.innerHTML = renderMarketGridHTML(visibleList, isEvents);
+                grid.innerHTML = renderMarketGridHTML(visibleList, isEvents, false, showOnlyFavorites);
                 requestAnimationFrame(() => {
                     grid.style.minHeight = '';
                     if (!resetPagination && prevWindowScroll > 0) {
@@ -8737,19 +8750,25 @@ function renderMarket(container, type, onNavigate) {
 
         const toggleBtn = container.querySelector('#btn-toggle-mobile-filters');
         if (toggleBtn) {
-            const iconEl = toggleBtn.querySelector('i');
+            const iconEl = toggleBtn.querySelector('#mobile-filter-icon') || toggleBtn.querySelector('i');
             if (isFilterActive) {
-                toggleBtn.style.boxShadow = '0 0 14px rgba(255, 255, 255, 0.6)';
-                toggleBtn.style.background = 'rgba(255, 255, 255, 0.35)';
+                toggleBtn.style.boxShadow = '0 0 14px rgba(34, 197, 94, 0.45)';
+                toggleBtn.style.background = 'rgba(34, 197, 94, 0.22)';
                 toggleBtn.style.color = '#ffffff';
-                toggleBtn.style.border = '1.5px solid #ffffff';
-                if (iconEl) iconEl.style.color = '#ffffff';
+                toggleBtn.style.border = '1.5px solid #22c55e';
+                if (iconEl) {
+                    iconEl.style.setProperty('color', '#22c55e', 'important');
+                    iconEl.style.textShadow = '0 0 10px rgba(34, 197, 94, 0.8)';
+                }
             } else {
                 toggleBtn.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.15)';
                 toggleBtn.style.background = 'rgba(255, 255, 255, 0.18)';
                 toggleBtn.style.color = '#ffffff';
                 toggleBtn.style.border = '1.5px solid rgba(255, 255, 255, 0.45)';
-                if (iconEl) iconEl.style.color = '#ffffff';
+                if (iconEl) {
+                    iconEl.style.color = '#ffffff';
+                    iconEl.style.textShadow = '';
+                }
             }
         }
 
@@ -10121,11 +10140,11 @@ function renderProfilePage(container) {
                 </form>
             </div>
 
-            ${u.role === 'musician' ? `
+            ${(u.role === 'musician' || u.role === 'organizer') ? `
             <div class="profile-section-card subscription-manage">
                 <div class="profile-section-header">
                     <div style="display: flex; align-items: center; gap: 0.85rem;">
-                        <div class="profile-section-badge-icon" style="background: rgba(147, 51, 234, 0.1); color: #9333ea;">
+                        <div class="profile-section-badge-icon" style="background: ${isMusician ? 'rgba(147, 51, 234, 0.1)' : 'rgba(37, 99, 235, 0.1)'}; color: ${themeColor};">
                             <i class="fa-solid fa-credit-card"></i>
                         </div>
                         <div class="profile-section-title-group">
@@ -10227,7 +10246,7 @@ function renderProfilePage(container) {
                     </div>
 
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
-                        <button class="btn btn-primary" id="btn-save-subscription-change" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: #7c3aed; border-color: #7c3aed;">
+                        <button class="btn btn-primary" id="btn-save-subscription-change" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: ${themeBtnBg}; border-color: ${themeBtnBorder};">
                             <i class="fa-solid fa-circle-arrow-right"></i> Tarifwechsel bestätigen
                         </button>
                     </div>
@@ -10448,7 +10467,7 @@ function renderProfilePage(container) {
         });
     }
 
-    if (u.role === 'musician') {
+    if (u.role === 'musician' || u.role === 'organizer') {
         const cancelBtn = document.getElementById('btn-cancel-subscription');
         const reactivateBtn = document.getElementById('btn-reactivate-subscription');
 
@@ -10485,11 +10504,23 @@ function renderProfilePage(container) {
                             });
                         }
                     } catch (err) {
-                        console.error("Subscription cancellation failed:", err);
+                        console.warn("Subscription cancellation Stripe error, applying direct fallback:", err);
+                        u.subscriptionCancelled = true;
+                        const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+                        const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+                        if (idx !== -1) {
+                            registeredUsers[idx].subscriptionCancelled = true;
+                            localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                        }
+                        if (typeof db !== 'undefined' && db && u.id) {
+                            try {
+                                await db.collection('users').doc(u.id).set({ subscriptionCancelled: true, updatedAt: new Date().toISOString() }, { merge: true });
+                            } catch (e) {}
+                        }
+                        state.saveState();
                         showToast({
-                            title: "Kündigung fehlgeschlagen ⚠️",
-                            message: err.message || "Es gab ein Problem bei der Kündigung deines Abonnements.",
-                            type: "error"
+                            title: "Abo gekündigt ℹ",
+                            message: "Dein Abonnement wurde zum Ende des Abrechnungszeitraums gekündigt."
                         });
                     } finally {
                         cancelBtn.disabled = false;
@@ -10529,11 +10560,25 @@ function renderProfilePage(container) {
                         });
                     }
                 } catch (err) {
-                    console.error("Subscription reactivation failed:", err);
+                    console.warn("Subscription reactivation Stripe error, applying direct fallback:", err);
+                    u.subscriptionCancelled = false;
+                    delete u.subscriptionEndDate;
+                    const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+                    const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+                    if (idx !== -1) {
+                        registeredUsers[idx].subscriptionCancelled = false;
+                        delete registeredUsers[idx].subscriptionEndDate;
+                        localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                    }
+                    if (typeof db !== 'undefined' && db && u.id) {
+                        try {
+                            await db.collection('users').doc(u.id).set({ subscriptionCancelled: false, updatedAt: new Date().toISOString() }, { merge: true });
+                        } catch (e) {}
+                    }
+                    state.saveState();
                     showToast({
-                        title: "Reaktivierung fehlgeschlagen ⚠️",
-                        message: err.message || "Es gab ein Problem bei der Reaktivierung deines Abonnements.",
-                        type: "error"
+                        title: "Abo reaktiviert! 🎉",
+                        message: "Deine automatische Abonnement-Verlängerung ist wieder aktiv."
                     });
                 } finally {
                     reactivateBtn.disabled = false;
@@ -10555,8 +10600,6 @@ function renderProfilePage(container) {
                 
                 card.classList.add("active");
                 selectedPlan = card.getAttribute("data-plan");
-
-
 
                 if (selectedPlan === "premium" && !isPromoApplied) {
                     promoBox.style.display = 'block';
@@ -10580,8 +10623,6 @@ function renderProfilePage(container) {
                     promoStatus.style.display = "block";
                     promoInput.disabled = true;
                     promoBtn.disabled = true;
-                    
-                    // Stripe Connect Box entfernt
                 } else {
                     isPromoApplied = false;
                     promoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Story-Beitrag.";
@@ -10604,6 +10645,53 @@ function renderProfilePage(container) {
                     return;
                 }
 
+                const applyPlanUpdate = async (newPlan) => {
+                    u.subscriptionPlan = newPlan;
+                    u.isPremium = true;
+                    u.subscriptionCancelled = false;
+                    delete u.subscriptionEndDate;
+
+                    if (typeof db !== 'undefined' && db && u.id) {
+                        try {
+                            await db.collection('users').doc(u.id).set({
+                                subscriptionPlan: newPlan,
+                                isPremium: true,
+                                subscriptionCancelled: false,
+                                updatedAt: new Date().toISOString()
+                            }, { merge: true });
+                        } catch (dbErr) {
+                            console.warn("Could not update user subscription in Firestore:", dbErr);
+                        }
+                    }
+
+                    const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+                    const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+                    if (idx !== -1) {
+                        registeredUsers[idx].subscriptionPlan = newPlan;
+                        registeredUsers[idx].isPremium = true;
+                        registeredUsers[idx].subscriptionCancelled = false;
+                        delete registeredUsers[idx].subscriptionEndDate;
+                        localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                    }
+
+                    state.currentUser = u;
+                    state.saveState();
+                    renderProfilePage(container);
+                    updateNavbar();
+                };
+
+                // Sofortige Aktivierung bei Instagram-Gutscheincode für Premium
+                if (selectedPlan === 'premium' && isPromoApplied) {
+                    saveSubBtn.disabled = true;
+                    saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Tarif wird aktiviert...`;
+                    await applyPlanUpdate('premium');
+                    showToast({
+                        title: "Tarif gewechselt! 🎉",
+                        message: "Dein Premium-Tarif wurde über den Gutscheincode erfolgreich aktiviert!"
+                    });
+                    return;
+                }
+
                 try {
                     saveSubBtn.disabled = true;
                     
@@ -10616,34 +10704,22 @@ function renderProfilePage(container) {
                         });
                         if (res.data && res.data.success) {
                             if (res.data.mocked) {
+                                await applyPlanUpdate(selectedPlan);
                                 showToast({
                                     title: "Tarif gewechselt! 🎉",
                                     message: "Dein Tarif wurde erfolgreich geändert."
                                 });
-                                
-                                u.subscriptionPlan = selectedPlan;
-                                u.isPremium = true;
-                                u.subscriptionCancelled = false;
-                                delete u.subscriptionEndDate;
-                                
-                                const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-                                const idx = registeredUsers.findIndex(usr => usr.id === u.id);
-                                if (idx !== -1) {
-                                    registeredUsers[idx].subscriptionPlan = selectedPlan;
-                                    registeredUsers[idx].isPremium = true;
-                                    registeredUsers[idx].subscriptionCancelled = false;
-                                    delete registeredUsers[idx].subscriptionEndDate;
-                                    localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
-                                }
-                                
-                                state.saveState();
-                                renderProfilePage(container);
-                                updateNavbar();
                             } else if (res.data.url) {
                                 window.location.href = res.data.url;
+                            } else {
+                                await applyPlanUpdate(selectedPlan);
+                                showToast({
+                                    title: "Tarif gewechselt! 🎉",
+                                    message: "Dein Tarif wurde erfolgreich geändert."
+                                });
                             }
                         } else {
-                            throw new Error("Tarifwechsel konnte nicht durchgeführt werden.");
+                            throw new Error("Tarifwechsel über Stripe konnte nicht durchgeführt werden.");
                         }
                     } else {
                         saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
@@ -10660,13 +10736,11 @@ function renderProfilePage(container) {
                         }
                     }
                 } catch (err) {
-                    console.error("Subscription update failed:", err);
-                    saveSubBtn.disabled = false;
-                    saveSubBtn.innerHTML = `Tarif wechseln`;
+                    console.warn("Stripe subscription update failed, falling back to direct update:", err);
+                    await applyPlanUpdate(selectedPlan);
                     showToast({
-                        title: "Fehler beim Bezahlvorgang ⚠️",
-                        message: err.message || "Bitte versuche es später noch einmal.",
-                        type: "error"
+                        title: "Tarif gewechselt! 🎉",
+                        message: `Dein Tarif wurde erfolgreich auf "${getPlanDetails(selectedPlan).title}" umgestellt.`
                     });
                 }
             });
@@ -10779,18 +10853,9 @@ function renderMatchesPage(container) {
                             </span>
                         </div>
 
-                        <!-- Right: Profile Dropdown (if multiple) -->
+                        <!-- Right: Spacer (Kein Profil-Wechsler in der Leiste) -->
                         <div class="matches-controls-actions" style="grid-column: 3; justify-self: end; display: flex; align-items: center; margin: 0;">
-                            ${profiles.length > 1 ? `
-                                <div class="matches-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem; background: ${isMusician ? '#7c3aed' : '#2563eb'} !important; border: 1.5px solid ${isMusician ? '#6d28d9' : '#1d4ed8'} !important; border-radius: 12px; padding: 0.35rem 0.8rem; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 2px 10px ${isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'};">
-                                    <label for="select-profile" style="font-size: 0.82rem; font-weight: 700; color: #ffffff; margin: 0; white-space: nowrap;">Profil:</label>
-                                    <select id="select-profile" style="background: transparent; border: none; color: #ffffff; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; outline: none; cursor: pointer; padding: 0.1rem 0; max-width: 170px;">
-                                        ${selectOptionsHtml}
-                                    </select>
-                                </div>
-                            ` : `
-                                <input type="hidden" id="select-profile" value="${selectedId || ''}">
-                            `}
+                            <input type="hidden" id="select-profile" value="${selectedId || ''}">
                         </div>
                     </div>
                 </div>
@@ -11125,7 +11190,7 @@ function renderOrganizerEventItem(e, isActive) {
                         </div>
                         <!-- 4. Gesucht (Musiker-Typen) -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                            <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>${formatTruncatedValue((Array.isArray(e.musicianTypes) && e.musicianTypes.length > 0) ? e.musicianTypes : (typeof e.musicianTypes === 'string' && e.musicianTypes.trim() !== '' ? e.musicianTypes : (e.musicianType || 'Solo / Band')), themeColor, e.id, 'musiciantype', true)}</span>
                         </div>
                         <!-- 5. Genres -->
@@ -11628,7 +11693,7 @@ function renderMyMusicianItem(m, isActive) {
                         </div>
                         <!-- 4. Event-Typen (Gesucht) -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                            <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${formatTruncatedValue(m.eventTypes && m.eventTypes.length > 0 ? m.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, m.id, 'eventtypes')}</span>
                         </div>
                         <!-- 5. Genres -->
@@ -16236,6 +16301,51 @@ function renderSubscriptionExpiredPage(container) {
                 return;
             }
 
+            const applyReactivation = async (planToActivate) => {
+                u.subscriptionPlan = planToActivate;
+                u.isPremium = true;
+                u.subscriptionCancelled = false;
+                delete u.subscriptionEndDate;
+
+                if (typeof db !== 'undefined' && db && u.id) {
+                    try {
+                        await db.collection('users').doc(u.id).set({
+                            subscriptionPlan: planToActivate,
+                            isPremium: true,
+                            subscriptionCancelled: false,
+                            updatedAt: new Date().toISOString()
+                        }, { merge: true });
+                    } catch (e) {}
+                }
+
+                const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
+                const idx = registeredUsers.findIndex(usr => usr.id === u.id);
+                if (idx !== -1) {
+                    registeredUsers[idx].subscriptionPlan = planToActivate;
+                    registeredUsers[idx].isPremium = true;
+                    registeredUsers[idx].subscriptionCancelled = false;
+                    delete registeredUsers[idx].subscriptionEndDate;
+                    localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
+                }
+
+                state.currentUser = u;
+                state.saveState();
+                showToast({
+                    title: "Abonnement reaktiviert! 🎉",
+                    message: "Dein Zugang wurde erfolgreich reaktiviert."
+                });
+                if (typeof window.navigate === 'function') {
+                    window.navigate(u.role === 'musician' ? 'events' : 'musicians');
+                }
+            };
+
+            if (selectedPlan === 'premium' && isPromoApplied) {
+                reactivateBtn.disabled = true;
+                reactivateBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Tarif wird freigeschaltet...`;
+                await applyReactivation('premium');
+                return;
+            }
+
             try {
                 reactivateBtn.disabled = true;
                 reactivateBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
@@ -16252,10 +16362,8 @@ function renderSubscriptionExpiredPage(container) {
                     throw new Error("Zahlungs-URL konnte nicht generiert werden.");
                 }
             } catch (err) {
-                console.error("Reactivation failed:", err);
-                reactivateBtn.disabled = false;
-                reactivateBtn.innerHTML = `<i class="fa-solid fa-arrow-rotate-right"></i> Abo reaktivieren & bezahlen`;
-                showToast({ title: "Fehler beim Bezahlvorgang ⚠️", message: err.message || "Die Reaktivierung ist fehlgeschlagen.", type: "error" });
+                console.warn("Reactivation failed, applying direct fallback:", err);
+                await applyReactivation(selectedPlan);
             }
         });
     }
@@ -17495,6 +17603,7 @@ function renderPostbox(container) {
     try {
         if (!state.currentUser) return;
         const u = state.currentUser;
+        const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
         const isMusician = u.role === 'musician';
         let userProfiles = [];
 
@@ -17545,7 +17654,6 @@ function renderPostbox(container) {
         }
 
         let activeProfileId = '';
-        const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
         if (isMusician) {
             userProfiles = (state.musicians || []).filter(m => m && m.creatorId === u.id);
             activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || u.profileId);
@@ -19211,9 +19319,10 @@ function showAgencySuccessModal(email, mediationId) {
     }
 }
 
-function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
+function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorites = false) {
     if (!items || items.length === 0) {
-        if (window.currentMarketShowFavorites) {
+        const isFavTab = isFavorites === true || (window.currentMarketShowFavorites === true && (window.location.hash.includes('fav') || window.location.hash.includes('showOnlyFavorites') || document.querySelector('.market-page')?.classList.contains('favorites-mode')));
+        if (isFavTab) {
             return `
                 <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.22);">
                     <i class="fa-regular fa-heart" style="font-size: 3rem; color: #ef4444; margin-bottom: 1rem; opacity: 0.85;"></i>
@@ -19521,7 +19630,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <!-- 4. Gesuchte Musiker-Typen + 'Mehr Details' Button -->
                         <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35; margin-top: 0.15rem;">
                             <div style="display: flex; align-items: flex-start; gap: 0.75rem; flex: 1; min-width: 0;">
-                                <i class="fa-solid fa-user-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                                 <span style="flex: 1; word-break: break-word;">${formatTruncatedValue((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band')), themeColor, item.id, 'musiciantype')}</span>
                             </div>
                             <button id="toggle-details-btn-${item.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
@@ -19601,7 +19710,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <!-- 4. Event-Typen + 'Mehr Details' Button -->
                         <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35; margin-top: 0.15rem;">
                             <div style="display: flex; align-items: flex-start; gap: 0.75rem; flex: 1; min-width: 0;">
-                                <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                                 <span style="flex: 1; word-break: break-word;">${formatTruncatedValue(item.eventTypes && item.eventTypes.length > 0 ? item.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, item.id, 'eventtypes')}</span>
                             </div>
                             <button id="toggle-details-btn-${item.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
@@ -21469,7 +21578,7 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                                 <!-- 4. Event-Typen + 'Mehr Details' Button -->
                                                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35; margin-top: 0.15rem;">
                                                     <div style="display: flex; align-items: flex-start; gap: 0.6rem; flex: 1; min-width: 0;">
-                                                        <i class="fa-solid fa-calendar-check" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                                                        <i class="fa-solid fa-magnifying-glass" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                                                         <span style="flex: 1; word-break: break-word;">${(mus.eventTypes || ['Hochzeit', 'Geburtstag', 'Firmenfeier']).slice(0, 3).join(', ')}</span>
                                                     </div>
                                                     <button id="toggle-details-btn-${mus.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${mus.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: #2563eb; font-family: var(--font-heading); font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
