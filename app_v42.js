@@ -7161,22 +7161,22 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0px 5rem; box-sizing: border-box;">
             
-            <div class="market-controls-row" style="background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.2rem 0.6rem; width: 100%; box-sizing: border-box;">
+            <div class="market-controls-row" style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isEvents ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isEvents ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.65rem 1.2rem; width: 100%; box-sizing: border-box;">
                 
-                <!-- 1. Trefferanzahl (Lila bei Musikern / Blau bei Veranstaltern) -->
-                <div style="display: flex; align-items: baseline; gap: 0.5rem; flex-shrink: 0; cursor: pointer;" onclick="document.getElementById('btn-toggle-mobile-filters')?.click();" title="Filter öffnen">
-                    <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: ${isEvents ? '#7c3aed' : '#2563eb'}; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
+                <!-- 1. Trefferanzahl (Weiß auf farbiger Leiste) -->
+                <div style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0; cursor: pointer;" onclick="document.getElementById('btn-toggle-mobile-filters')?.click();" title="Filter öffnen">
+                    <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
                         ${getItems().length}
                     </div>
-                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: ${isEvents ? 'rgba(124, 58, 237, 0.85)' : 'rgba(37, 99, 235, 0.85)'}; white-space: nowrap; letter-spacing: -0.2px;">
+                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
                         ${isEvents ? 'Events' : 'Musiker'}
                     </span>
                 </div>
 
-                <!-- 2. Filter-Symbol + "Filter" (Lila bei Musikern / Blau bei Veranstaltern) -->
-                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0 0 0 auto; display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.45rem 1.05rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; cursor: pointer; background: ${isEvents ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)'}; border: 1.5px solid ${isEvents ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'}; color: ${isEvents ? '#7c3aed' : '#2563eb'}; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s;" title="Filter öffnen">
-                    <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; color: ${isEvents ? '#7c3aed' : '#2563eb'}; transition: color 0.3s ease;"></i>
-                    <span>Filter</span>
+                <!-- 2. Filter-Symbol + "Filter" (Weiß auf farbiger Leiste) -->
+                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0 0 0 auto; display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.45rem 1.15rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" title="Filter öffnen">
+                    <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; color: #ffffff; transition: color 0.3s ease;"></i>
+                    <span style="color: #ffffff;">Filter</span>
                 </button>
  
                 <!-- Versteckte Steuerungsbuttons für Top-Matches und Favoriten (für programmatische Aufrufe der Bottom-Bar) -->
@@ -16475,96 +16475,8 @@ function updateNavbar(forceLanding) {
         authArea.innerHTML = `
             <div style="display:flex; align-items:center; gap:0.6rem;">
                 ${profileSelectorHtml}
-                
-                <div class="profile-dropdown-container">
-                    <button class="profile-avatar-btn ${isMusician ? 'profile-avatar-purple' : 'profile-avatar-blue'} ${isProfileActive ? 'active' : ''}" id="btn-profile-dropdown" aria-label="Benutzermenü" style="position: relative;">
-                        <i class="fa-regular fa-circle-user"></i>
-                        ${unreadCount > 0 ? `
-                            <span style="position: absolute; top: -2px; right: -2px; background: var(--color-red); width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--bg-card); display: block;"></span>
-                        ` : ''}
-                    </button>
-                    <div class="profile-dropdown-menu" id="profile-dropdown-menu">
-                        <!-- Event-Markt / Musiker-Markt Link -->
-                        <a href="${marketLink}" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isMarketActive ? 'active' : ''}" id="dropdown-link-market">
-                            <i class="fa-solid ${marketIcon}"></i>
-                            <span>${marketTitle}</span>
-                        </a>
-
-                        <!-- Postfach Link -->
-                        <a href="#/postbox" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isPostboxActive ? 'active' : ''}" id="dropdown-link-postbox" style="position: relative;">
-                            <i class="fa-solid fa-envelope"></i>
-                            <span>Postfach</span>
-                            ${unreadCount > 0 ? `
-                                <span style="margin-left: auto; background: var(--color-red); color: white; font-size: 0.65rem; font-weight: 800; min-width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0 2px; box-sizing: border-box; line-height: 1;">
-                                    ${unreadCount}
-                                </span>
-                            ` : ''}
-                        </a>
-                        
-
-                        
-                        <a href="#/profile" class="profile-dropdown-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'} ${isProfileActive ? 'active' : ''}" id="dropdown-link-profile">
-                            <i class="fa-solid fa-user-gear"></i>
-                            <span>Profil bearbeiten</span>
-                        </a>
-                        
-                        <div class="profile-dropdown-divider"></div>
-                        <a href="javascript:void(0)" class="profile-dropdown-item logout-item ${isMusician ? 'profile-dropdown-purple' : 'profile-dropdown-blue'}" id="dropdown-btn-logout">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                            <span>Abmelden</span>
-                        </a>
-                    </div>
-                </div>
             </div>
         `;
-
-        // Toggle dropdown logic
-        const trigger = document.getElementById('btn-profile-dropdown');
-        const menu = document.getElementById('profile-dropdown-menu');
-        
-        if (trigger && menu) {
-            trigger.addEventListener('click', (e) => {
-                e.stopPropagation();
-                menu.classList.toggle('show');
-            });
-        }
-
-        // Dropdown internal link navigation handles closing menu
-        const marketLinkBtn = document.getElementById('dropdown-link-market');
-        if (marketLinkBtn) {
-            marketLinkBtn.addEventListener('click', () => {
-                menu.classList.remove('show');
-            });
-        }
-
-        const postboxLinkBtn = document.getElementById('dropdown-link-postbox');
-        if (postboxLinkBtn) {
-            postboxLinkBtn.addEventListener('click', () => {
-                menu.classList.remove('show');
-            });
-        }
-
-        const profileLink = document.getElementById('dropdown-link-profile');
-        if (profileLink) {
-            profileLink.addEventListener('click', () => {
-                menu.classList.remove('show');
-            });
-        }
-        
-        const myTabLink = document.getElementById('dropdown-link-my-tab');
-        if (myTabLink) {
-            myTabLink.addEventListener('click', () => {
-                menu.classList.remove('show');
-            });
-        }
-
-        const logoutBtn = document.getElementById('dropdown-btn-logout');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => {
-                menu.classList.remove('show');
-                window.handleLogoutRedirect();
-            });
-        }
 
         const navbarProfileSelect = document.getElementById('navbar-profile-select');
         if (navbarProfileSelect) {
@@ -19031,19 +18943,13 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
                     </div>
 
-                    <!-- Match-Faktor Badge & Favoriten/Top-Match-Stern oben rechts - Only if user is logged in -->
+                    <!-- Match-Faktor Badge oben rechts - Only if user is logged in -->
                     ${state.currentUser ? `
-                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; display: flex; flex-direction: column; align-items: center;">
                         <div style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 48px;">
                             <span style="font-size: 0.95rem; font-weight: 900;">${item.matchScore !== undefined ? item.matchScore : '96'}%</span>
                             <span style="font-size: 0.45rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
                         </div>
-
-                        ${(item.matchScore >= 70 || (state && typeof state.isFavorite === 'function' && state.isFavorite(item.id))) ? `
-                            <button class="tile-top-match-badge" onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" title="${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? 'In Favoriten gespeichert' : 'Top Match (Klicken zum Favorisieren)'}" style="background: rgba(15, 23, 42, 0.9); border: 1px solid ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? '#eab308' : 'rgba(254, 240, 138, 0.4)'}; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; box-shadow: ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? '0 0 10px rgba(234, 179, 8, 0.6)' : '0 2px 8px rgba(0,0,0,0.35)'}; cursor: pointer; padding: 0; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
-                                <i class="fa-solid fa-star" style="color: #eab308; font-size: 0.85rem; margin: 0;"></i>
-                            </button>
-                        ` : ''}
                     </div>
                     ` : ''}
 
@@ -19058,22 +18964,32 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 <!-- Tile Body Content -->
                 <div class="tile-body-content" style="padding: 1.3rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
                     
-                    <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favoriten-Herz rechts -->
+                    <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favoriten-Herz & Stern rechts -->
                     <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.8rem;">
                         <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.25; min-height: 2.5em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; flex: 1;">${displayName}</h3>
                         
-                        <!-- Heart (Favorite Button) -->
-                        <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none; width: 28px; height: 28px; flex-shrink: 0;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
-                            ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? `
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444" width="26" height="26" style="display: block;">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                </svg>
-                            ` : `
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" width="26" height="26" style="display: block;">
-                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                                </svg>
-                            `}
-                        </button>
+                        <!-- Spalte für Herz & Favoriten-Stern darunter -->
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0;">
+                            <!-- Heart (Favorite Button) -->
+                            <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none; width: 28px; height: 28px;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
+                                ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? `
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444" width="26" height="26" style="display: block;">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                    </svg>
+                                ` : `
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" width="26" height="26" style="display: block;">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                    </svg>
+                                `}
+                            </button>
+
+                            <!-- Favoriten / Top-Match-Stern unter dem Herzen -->
+                            ${((item.matchScore !== undefined && item.matchScore >= 70) || (state && typeof state.isFavorite === 'function' && state.isFavorite(item.id))) ? `
+                                <button class="tile-top-match-badge" onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" title="${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? 'In Favoriten gespeichert' : 'Top Match (Klicken zum Favorisieren)'}" style="background: rgba(15, 23, 42, 0.9); border: 1px solid ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? '#eab308' : 'rgba(254, 240, 138, 0.4)'}; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; box-shadow: ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? '0 0 10px rgba(234, 179, 8, 0.6)' : '0 2px 8px rgba(0,0,0,0.35)'}; cursor: pointer; padding: 0; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
+                                    <i class="fa-solid fa-star" style="color: #eab308; font-size: 0.8rem; margin: 0;"></i>
+                                </button>
+                            ` : ''}
+                        </div>
                     </div>
 
                     ${isEvents ? `
