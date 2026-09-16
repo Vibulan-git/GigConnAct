@@ -6393,6 +6393,26 @@ body.has-bottom-bar .toast-container {
     box-shadow: 0 4px 14px rgba(124, 58, 237, 0.45) !important;
 }
 
+/* =============================================================
+ * Market Tile Card Title Clamping (1 line initially, 2 on details expand)
+ * ============================================================= */
+.tile-card-title {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 1 !important;
+    line-clamp: 1 !important;
+    overflow: hidden !important;
+    word-break: break-word !important;
+    line-height: 1.25 !important;
+    min-height: 0 !important;
+    transition: all 0.2s ease !important;
+}
+
+.tile-card-title.expanded {
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+}
+
 
 
 

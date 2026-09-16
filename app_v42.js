@@ -17574,12 +17574,20 @@ window.toggleTileDetails = function(itemId) {
     const el = document.getElementById(`collapsible-details-${itemId}`);
     const icon = document.getElementById(`toggle-icon-${itemId}`);
     const textSpan = document.getElementById(`toggle-text-${itemId}`);
+    const titleEl = document.getElementById(`tile-title-${itemId}`) || el?.closest('.market-tile-card')?.querySelector('.tile-card-title');
     if (el) {
         const isCollapsed = (el.style.display === 'none' || el.style.display === '');
         if (isCollapsed) {
             el.style.display = 'flex';
             if (icon) icon.className = 'fa-solid fa-chevron-up';
             if (textSpan) textSpan.textContent = 'Weniger Details';
+            
+            // Expand title to 2 lines
+            if (titleEl) {
+                titleEl.classList.add('expanded');
+                titleEl.style.setProperty('-webkit-line-clamp', '2', 'important');
+                titleEl.style.setProperty('line-clamp', '2', 'important');
+            }
             
             // Expand all truncated text fields for this card
             const container = el.closest('.market-tile-card');
@@ -17593,6 +17601,13 @@ window.toggleTileDetails = function(itemId) {
             el.style.display = 'none';
             if (icon) icon.className = 'fa-solid fa-chevron-down';
             if (textSpan) textSpan.textContent = 'Mehr Details';
+            
+            // Collapse title back to 1 line
+            if (titleEl) {
+                titleEl.classList.remove('expanded');
+                titleEl.style.setProperty('-webkit-line-clamp', '1', 'important');
+                titleEl.style.setProperty('line-clamp', '1', 'important');
+            }
             
             // Collapse all truncated text fields for this card
             const container = el.closest('.market-tile-card');
@@ -19741,8 +19756,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                 <div class="tile-body-content" style="padding: 1.3rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
                     
                     <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favoriten-Herz & Stern rechts -->
-                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.8rem;">
-                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.25; min-height: 2.5em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; flex: 1;">${displayName}</h3>
+                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.45rem;">
+                        <h3 id="tile-title-${item.id}" class="tile-card-title" style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; flex: 1; min-width: 0; transition: all 0.2s ease;">${displayName}</h3>
                         
                         <!-- Spalte für Herz & Favoriten-Stern darunter -->
                         <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; min-width: 28px;">
@@ -21718,7 +21733,7 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                 
                                 <div style="padding: 1.2rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; background: var(--bg-card);">
                                     <div>
-                                        <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.8rem; line-height: 1.25;"><span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; vertical-align: middle; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.45rem; filter: none !important;" title="Name geschützt"></i>${(mus.isDemo || (mus.id && mus.id.startsWith('mus_'))) ? ` <span class="tile-demo-text" style="color: #000000 !important; font-weight: 800; font-size: 0.92rem; vertical-align: middle; margin-left: 0.35rem; filter: none !important; -webkit-text-fill-color: #000000 !important; user-select: none;">[Demo]</span>` : ''}</h3>
+                                        <h3 id="tile-title-${mus.id}" class="tile-card-title" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.45rem; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; min-width: 0;"><span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; vertical-align: middle; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.45rem; filter: none !important;" title="Name geschützt"></i>${(mus.isDemo || (mus.id && mus.id.startsWith('mus_'))) ? ` <span class="tile-demo-text" style="color: #000000 !important; font-weight: 800; font-size: 0.92rem; vertical-align: middle; margin-left: 0.35rem; filter: none !important; -webkit-text-fill-color: #000000 !important; user-select: none;">[Demo]</span>` : ''}</h3>
                                         <div style="display: flex; gap: 0.5rem; justify-content: space-between;">
                                             <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); flex: 1;">
                                                 <!-- 1. Musiker-Typ als Tag (oben über Ort) -->
