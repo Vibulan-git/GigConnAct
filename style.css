@@ -6278,4 +6278,36 @@ body.has-bottom-bar .toast-container {
     flex-shrink: 0 !important;
 }
 
+/* =============================================================
+ * Postbox Mobile Chat Responsive Layout
+ * ============================================================= */
+@media (max-width: 900px) {
+    .postbox-page .portal-layout {
+        flex-direction: column !important;
+        height: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .postbox-page .postbox-sidebar {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        flex-shrink: 1 !important;
+        box-sizing: border-box !important;
+    }
+    .postbox-page .postbox-chat-detail {
+        display: none !important;
+    }
+    .postbox-page .mobile-chat-accordion {
+        display: block !important;
+    }
+}
+
+@media (min-width: 901px) {
+    .postbox-page .mobile-chat-accordion {
+        display: none !important;
+    }
+}
+
+
 

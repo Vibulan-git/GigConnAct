@@ -9920,10 +9920,8 @@ function renderProfilePage(container) {
                         </span>
                     </div>
 
-                    <!-- Actions rechts (E-Mail) -->
-                    <div class="profile-controls-actions" style="grid-column: 3; justify-self: end; font-size: 0.85rem; color: rgba(255, 255, 255, 0.85); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px;">
-                        ${u.email || ''}
-                    </div>
+                    <!-- Spacer right (symmetrische Zentrierung) -->
+                    <div class="profile-controls-actions" style="grid-column: 3; justify-self: end;"></div>
                 </div>
             </div>
 
@@ -10653,7 +10651,7 @@ function renderMatchesPage(container) {
                         <!-- Center: Title & Count (Mittig, ohne Icon) -->
                         <div class="matches-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                             <span id="top-matches-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                                Top-Matches (<span id="top-matches-count">${selectedId ? '0' : '0'}</span>)
+                                <span id="top-matches-count">${selectedId ? '0' : '0'}</span> Top-Matches
                             </span>
                         </div>
 
@@ -16447,13 +16445,13 @@ window.updateBottomBar = function() {
                     <span class="bottom-bar-label">Top-Matches</span>
                 </button>
 
-                <!-- 4. Postfach -->
-                <button class="bottom-bar-item tab-postbox ${isPostboxActive ? 'active' : ''}" id="bottom-bar-tab-postbox" aria-label="Postfach" title="Postfach">
+                <!-- 4. Nachrichten -->
+                <button class="bottom-bar-item tab-postbox ${isPostboxActive ? 'active' : ''}" id="bottom-bar-tab-postbox" aria-label="Nachrichten" title="Nachrichten">
                     <div class="bottom-bar-icon-wrapper">
                         <i class="fa-solid fa-envelope"></i>
                         ${unreadCount > 0 ? `<span class="bottom-bar-badge">${unreadCount}</span>` : ''}
                     </div>
-                    <span class="bottom-bar-label">Postfach</span>
+                    <span class="bottom-bar-label">Nachrichten</span>
                 </button>
 
                 <!-- 5. Profil -->
@@ -17408,56 +17406,6 @@ function renderPostbox(container) {
             window.postboxShowFilters = window.postboxShowFilters !== undefined ? window.postboxShowFilters : false;
 
             container.innerHTML = `
-            <style>
-                @media(max-width: 900px) {
-                    .portal-layout {
-                        flex-direction: column !important;
-                        height: auto !important;
-                    }
-                    .postbox-sidebar {
-                        width: 100% !important;
-                        height: auto !important;
-                    }
-                    .postbox-chat-detail {
-                        display: none !important;
-                    }
-                    .mobile-chat-accordion {
-                        display: block !important;
-                    }
-                }
-                @media(min-width: 901px) {
-                    .mobile-chat-accordion {
-                        display: none !important;
-                    }
-                }
-            </style>
-                @media(max-width: 900px) {
-                    .portal-layout {
-                        flex-direction: column !important;
-                        height: auto !important;
-                        width: 100% !important;
-                        max-width: 100% !important;
-                    }
-                    .postbox-sidebar {
-                        width: 100% !important;
-                        max-width: 100% !important;
-                        height: auto !important;
-                        flex-shrink: 1 !important;
-                        box-sizing: border-box !important;
-                    }
-                    .postbox-chat-detail {
-                        display: none !important;
-                    }
-                    .mobile-chat-accordion {
-                        display: block !important;
-                    }
-                }
-                @media(min-width: 901px) {
-                    .mobile-chat-accordion {
-                        display: none !important;
-                    }
-                }
-            </style>
             <div class="postbox-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box; overflow-x: clip;">
                 <!-- Postbox Controls Row (Lila-Blau-Verlauf wie unten in der Leiste) -->
                 <div class="postbox-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
@@ -17468,7 +17416,7 @@ function renderPostbox(container) {
                         <!-- Center: Title (Mittig, ohne Icon) -->
                         <div class="postbox-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                             <span id="postbox-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                                Postfach (${nonSystemChats.length})
+                                <span id="postbox-count">${nonSystemChats.length}</span> ${nonSystemChats.length === 1 ? 'Nachricht' : 'Nachrichten'}
                             </span>
                         </div>
 
