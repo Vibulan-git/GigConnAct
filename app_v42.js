@@ -6310,8 +6310,8 @@ function renderLandingPage(container, onNavigate) {
                 <!-- Atmospheric dark overlay gradient with stage lighting transparency -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 50% 40%, rgba(13, 16, 32, 0.45) 0%, rgba(10, 11, 22, 0.75) 100%), linear-gradient(180deg, rgba(7, 8, 16, 0.55) 0%, rgba(12, 10, 26, 0.25) 35%, rgba(10, 11, 24, 0.65) 70%, rgba(6, 7, 14, 0.92) 100%); z-index: 2;"></div>
 
-                <!-- 1/3: Slogan (Elevated higher in hero) -->
-                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.2rem, 0.8vh, 0.5rem); width: 100%; max-width: 600px; margin-top: clamp(2.4rem, 6.5vh, 4.2rem); margin-bottom: clamp(0.8rem, 2vh, 1.4rem); box-sizing: border-box;">
+                <!-- 1/3: Slogan (Lowered slightly as requested) -->
+                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.2rem, 0.8vh, 0.5rem); width: 100%; max-width: 600px; margin-top: clamp(4.5rem, 11vh, 7.5rem); margin-bottom: clamp(0.6rem, 1.5vh, 1.2rem); box-sizing: border-box;">
                     <span style="font-family: var(--font-heading); font-size: clamp(1.8rem, 5.8vw, 3.4rem); font-weight: 900; letter-spacing: -0.2px; color: #ffffff; line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.6);">
                         Die Vermittlungsplattform
                     </span>
@@ -6321,12 +6321,12 @@ function renderLandingPage(container, onNavigate) {
                 </div>
 
                 <!-- 2/3: CTA Buttons (Positioned directly below slogan) -->
-                <div class="hero-cta-buttons" id="hero-cta-container" style="position: relative; z-index: 3; margin: 0 auto clamp(0.8rem, 2vh, 1.4rem); width: 100%; max-width: 540px; box-sizing: border-box; display: flex; justify-content: center;">
+                <div class="hero-cta-buttons" id="hero-cta-container" style="position: relative; z-index: 3; margin: 0 auto clamp(0.6rem, 1.5vh, 1.2rem); width: 100%; max-width: 540px; box-sizing: border-box; display: flex; justify-content: center;">
                     ${window.getHeroCtaHTML('initial')}
                 </div>
 
-                <!-- 3/3: Infinite Scrolling Category Marquee (Elevated higher directly below CTA buttons) -->
-                <div class="logo-marquee-wrapper" style="position: relative; z-index: 3; margin: 0 auto clamp(1rem, 2.5vh, 2rem); width: 100%; max-width: 780px; padding: 0.5rem 0.8rem; box-sizing: border-box; mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);">
+                <!-- 3/3: Infinite Scrolling Category Marquee (Directly below CTA buttons) -->
+                <div class="logo-marquee-wrapper" style="position: relative; z-index: 3; margin: 0 auto clamp(0.8rem, 2vh, 1.5rem); width: 100%; max-width: 780px; padding: 0.5rem 0.8rem; box-sizing: border-box; mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);">
                     <div class="logo-marquee-track" style="animation-duration: 34s; gap: 1.2rem;">
                         <!-- Set 1 -->
                         <span class="marquee-item-glass"><i class="fa-solid fa-ring" style="color: #c084fc;"></i> Hochzeiten</span>
@@ -7147,19 +7147,19 @@ function renderMarket(container, type, onNavigate) {
             
             <div class="market-controls-row" style="background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.2rem 0.6rem; width: 100%; box-sizing: border-box;">
                 
-                <!-- 1. Trefferanzahl -->
+                <!-- 1. Trefferanzahl (Lila bei Musikern / Blau bei Veranstaltern) -->
                 <div style="display: flex; align-items: baseline; gap: 0.5rem; flex-shrink: 0; cursor: pointer;" onclick="document.getElementById('btn-toggle-mobile-filters')?.click();" title="Filter öffnen">
-                    <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.45rem; font-weight: 900; color: #ffffff; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
+                    <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: ${isEvents ? '#7c3aed' : '#2563eb'}; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
                         ${getItems().length}
                     </div>
-                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.75); white-space: nowrap; letter-spacing: -0.2px;">
+                    <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: ${isEvents ? 'rgba(124, 58, 237, 0.85)' : 'rgba(37, 99, 235, 0.85)'}; white-space: nowrap; letter-spacing: -0.2px;">
                         ${isEvents ? 'Events' : 'Musiker'}
                     </span>
                 </div>
 
-                <!-- 2. Filter-Symbol + "Filter" -->
-                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0 0 0 auto; display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.45rem 1.05rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; cursor: pointer; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.22); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s;" title="Filter öffnen">
-                    <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; transition: color 0.3s ease;"></i>
+                <!-- 2. Filter-Symbol + "Filter" (Lila bei Musikern / Blau bei Veranstaltern) -->
+                <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="margin: 0 0 0 auto; display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.45rem 1.05rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; cursor: pointer; background: ${isEvents ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)'}; border: 1.5px solid ${isEvents ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'}; color: ${isEvents ? '#7c3aed' : '#2563eb'}; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s;" title="Filter öffnen">
+                    <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; color: ${isEvents ? '#7c3aed' : '#2563eb'}; transition: color 0.3s ease;"></i>
                     <span>Filter</span>
                 </button>
  
@@ -8503,16 +8503,20 @@ function renderMarket(container, type, onNavigate) {
 
         const toggleBtn = container.querySelector('#btn-toggle-mobile-filters');
         if (toggleBtn) {
+            const primaryColor = isEvents ? '#7c3aed' : '#2563eb';
+            const iconEl = toggleBtn.querySelector('i');
             if (isFilterActive) {
-                toggleBtn.style.boxShadow = isEvents ? '0 0 14px rgba(124, 58, 237, 0.75)' : '0 0 14px rgba(37, 99, 235, 0.75)';
-                toggleBtn.style.background = isEvents ? 'rgba(124, 58, 237, 0.25)' : 'rgba(37, 99, 235, 0.25)';
-                toggleBtn.style.color = isEvents ? '#c084fc' : '#60a5fa';
-                toggleBtn.style.border = isEvents ? '2px solid #7c3aed' : '2px solid #2563eb';
+                toggleBtn.style.boxShadow = isEvents ? '0 0 14px rgba(124, 58, 237, 0.45)' : '0 0 14px rgba(37, 99, 235, 0.45)';
+                toggleBtn.style.background = isEvents ? 'rgba(124, 58, 237, 0.2)' : 'rgba(37, 99, 235, 0.2)';
+                toggleBtn.style.color = primaryColor;
+                toggleBtn.style.border = `2px solid ${primaryColor}`;
+                if (iconEl) iconEl.style.color = primaryColor;
             } else {
                 toggleBtn.style.boxShadow = '';
-                toggleBtn.style.background = '';
-                toggleBtn.style.color = '';
-                toggleBtn.style.border = '';
+                toggleBtn.style.background = isEvents ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)';
+                toggleBtn.style.color = primaryColor;
+                toggleBtn.style.border = isEvents ? '1.5px solid rgba(124, 58, 237, 0.35)' : '1.5px solid rgba(37, 99, 235, 0.35)';
+                if (iconEl) iconEl.style.color = primaryColor;
             }
         }
 
@@ -10376,7 +10380,7 @@ function renderMatchesPage(container) {
         
         const selectOptionsHtml = profiles.map(p => {
             const pName = p.name || p.title || p.stageName || p.contactName || 'Profil';
-            return `<option value="${p.id}" ${p.id === selectedId ? 'selected' : ''} style="background: #1e1b4b; color: #ffffff;">${pName}</option>`;
+            return `<option value="${p.id}" ${p.id === selectedId ? 'selected' : ''} style="background: #ffffff; color: #0f172a;">${pName}</option>`;
         }).join('');
 
         container.innerHTML = `
@@ -10385,24 +10389,24 @@ function renderMatchesPage(container) {
                 <!-- Controls Row: Left = Title & Count, Right = Profile Switcher & Sort -->
                 <div class="matches-controls-row" style="background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; padding: 0.2rem 0.2rem; width: 100%; box-sizing: border-box;">
                     
-                    <!-- Left: Star & Title & Count -->
+                    <!-- Left: Star & Title & Count (Lila bei Musikern / Blau bei Veranstaltern) -->
                     <div style="display: flex; align-items: baseline; gap: 0.5rem; flex-shrink: 0;">
                         <i class="fa-solid fa-star" style="color: #eab308; font-size: 1.25rem; transform: translateY(1px);"></i>
-                        <h2 style="margin: 0; font-family: var(--font-heading); font-size: 1.45rem; font-weight: 900; color: #ffffff; line-height: 1; letter-spacing: -0.5px;">
+                        <h2 style="margin: 0; font-family: var(--font-heading); font-size: 1.45rem; font-weight: 900; color: #0f172a; line-height: 1; letter-spacing: -0.5px;">
                             Top-Matches
                         </h2>
-                        <span style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.75); white-space: nowrap;">
-                            (<span id="top-matches-count">0</span>)
+                        <span style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: ${isMusician ? '#7c3aed' : '#2563eb'}; white-space: nowrap;">
+                            (<span id="top-matches-count">${selectedId ? '0' : '0'}</span>)
                         </span>
                     </div>
 
                     <!-- Right: Profile Dropdown (if multiple) & Sort Dropdown -->
                     <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-left: auto;">
                         ${profiles.length > 1 ? `
-                            <div class="matches-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.22); border-radius: 12px; padding: 0.35rem 0.8rem; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
-                                <i class="${isMusician ? 'fa-solid fa-guitar' : 'fa-solid fa-calendar-day'}" style="color: rgba(255, 255, 255, 0.8); font-size: 0.85rem;"></i>
-                                <label for="select-profile" style="font-size: 0.82rem; font-weight: 700; color: rgba(255, 255, 255, 0.8); margin: 0; white-space: nowrap;">Profil:</label>
-                                <select id="select-profile" style="background: transparent; border: none; color: #ffffff; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; outline: none; cursor: pointer; padding: 0.1rem 0; max-width: 170px;">
+                            <div class="matches-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem; background: ${isMusician ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)'}; border: 1.5px solid ${isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'}; border-radius: 12px; padding: 0.35rem 0.8rem; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+                                <i class="${isMusician ? 'fa-solid fa-guitar' : 'fa-solid fa-calendar-day'}" style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; font-size: 0.85rem;"></i>
+                                <label for="select-profile" style="font-size: 0.82rem; font-weight: 700; color: #0f172a; margin: 0; white-space: nowrap;">Profil:</label>
+                                <select id="select-profile" style="background: transparent; border: none; color: #0f172a; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; outline: none; cursor: pointer; padding: 0.1rem 0; max-width: 170px;">
                                     ${selectOptionsHtml}
                                 </select>
                             </div>
@@ -10410,15 +10414,15 @@ function renderMatchesPage(container) {
                             <input type="hidden" id="select-profile" value="${selectedId || ''}">
                         `}
 
-                        <div class="matches-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.22); border-radius: 12px; padding: 0.35rem 0.8rem; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
-                            <i class="fa-solid fa-arrow-down-short-wide" style="color: rgba(255, 255, 255, 0.8); font-size: 0.85rem;"></i>
-                            <label for="select-sort" style="font-size: 0.82rem; font-weight: 700; color: rgba(255, 255, 255, 0.8); margin: 0; white-space: nowrap;">Sortierung:</label>
-                            <select id="select-sort" style="background: transparent; border: none; color: #ffffff; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; outline: none; cursor: pointer; padding: 0.1rem 0;">
-                                <option value="match" style="background: #1e1b4b; color: #ffffff;" selected>Match-Faktor</option>
-                                <option value="newest" style="background: #1e1b4b; color: #ffffff;">Neueste zuerst</option>
-                                <option value="price-asc" style="background: #1e1b4b; color: #ffffff;">Gage (aufsteigend)</option>
-                                <option value="price-desc" style="background: #1e1b4b; color: #ffffff;">Gage (absteigend)</option>
-                                <option value="name" style="background: #1e1b4b; color: #ffffff;">Name (A-Z)</option>
+                        <div class="matches-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem; background: ${isMusician ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)'}; border: 1.5px solid ${isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'}; border-radius: 12px; padding: 0.35rem 0.8rem; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+                            <i class="fa-solid fa-arrow-down-short-wide" style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; font-size: 0.85rem;"></i>
+                            <label for="select-sort" style="font-size: 0.82rem; font-weight: 700; color: #0f172a; margin: 0; white-space: nowrap;">Sortierung:</label>
+                            <select id="select-sort" style="background: transparent; border: none; color: #0f172a; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 700; outline: none; cursor: pointer; padding: 0.1rem 0;">
+                                <option value="match" style="background: #ffffff; color: #0f172a;" selected>Match-Faktor</option>
+                                <option value="newest" style="background: #ffffff; color: #0f172a;">Neueste zuerst</option>
+                                <option value="price-asc" style="background: #ffffff; color: #0f172a;">Gage (aufsteigend)</option>
+                                <option value="price-desc" style="background: #ffffff; color: #0f172a;">Gage (absteigend)</option>
+                                <option value="name" style="background: #ffffff; color: #0f172a;">Name (A-Z)</option>
                             </select>
                         </div>
                     </div>
