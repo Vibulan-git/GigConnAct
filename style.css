@@ -4719,10 +4719,19 @@ input[type="range"].input-field {
 
 /* Actions Container on the right */
 .market-controls-actions {
-    display: flex !important;
-    align-items: center !important;
-    gap: 0.55rem !important;
-    margin-left: auto !important;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-left: auto;
+}
+
+/* Hide all actions (Filter, Reset, Sort) and sidebar in Favoriten */
+.market-page.favorites-mode .market-controls-actions,
+.market-controls-row.favorites-mode .market-controls-actions,
+.market-controls-actions.hidden,
+.market-page.favorites-mode #market-filters-wrapper,
+.market-layout-container.no-filters #market-filters-wrapper {
+    display: none !important;
 }
 
 /* Icon Buttons on the Market Bar (Reset & Sort) */

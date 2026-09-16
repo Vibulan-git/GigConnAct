@@ -1575,14 +1575,17 @@ const initialEvents = [
         maxPublikum: 500,
         publikum: "200 - 500",
         isDemo: true,
+        isAgencyRequest: true,
+        isMediation: true,
+        contactType: "mediation",
         musicianTypes: ["Band", "DJ"],
         description: "Großes Sommer-Event am Stadtstrand! Wir suchen eine energiegeladene Live-Band oder einen DJ, der für fette Beats und Sommerstimmung sorgt. PA-Anlage und Bühne sind vorhanden. Verpflegung wird gestellt.",
-        contactName: "Eventagentur SommerSonne",
+        contactName: "GigConnAct Vermittlung",
         phone: "+49 89 9876540",
         hidePhone: true,
-        email: "info@sommersonne-events.de",
+        email: "info@gigconnact.de",
         isOnline: true,
-        creatorId: "org_2",
+        creatorId: "info-gigconnact-admin",
         technik: ["Technik vorhanden"],
         photos: ["https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80"],
         videos: []
@@ -1643,14 +1646,17 @@ const initialEvents = [
         maxPublikum: 350,
         publikum: "150 - 350",
         isDemo: true,
+        isAgencyRequest: true,
+        isMediation: true,
+        contactType: "mediation",
         musicianTypes: ["DJ"],
         description: "Wir veranstalten unser alljährliches Open Air am See und suchen einen professionellen Club-DJ für fette EDM, House & Techno-Beats. Sound- & Lichtanlage sind komplett vorhanden.",
-        contactName: "Club Seeufer Frankfurt",
+        contactName: "GigConnAct Vermittlung",
         phone: "+49 69 555666",
         hidePhone: true,
-        email: "booking@seeufer-frankfurt.de",
+        email: "info@gigconnact.de",
         isOnline: true,
-        creatorId: "org_4",
+        creatorId: "info-gigconnact-admin",
         technik: ["Technik vorhanden"],
         photos: ["https://images.unsplash.com/photo-1484755560693-a4074577af3a?auto=format&fit=crop&w=800&q=80"],
         videos: []
@@ -1890,10 +1896,14 @@ function generateRemainingEvents(existing) {
         const publikum = `${minPublikum} - ${maxPublikum}`;
         const duration = parseFloat(((minDuration + maxDuration) / 2).toFixed(1));
 
+        const isMediationGen = (i % 3 === 0);
         events.push({
             id: `evt_gen_${i}`,
             name: eventName,
             isDemo: true,
+            isAgencyRequest: isMediationGen,
+            isMediation: isMediationGen,
+            contactType: isMediationGen ? 'mediation' : 'direct',
             type: eventType,
             date,
             eventStartTime,
@@ -1915,9 +1925,9 @@ function generateRemainingEvents(existing) {
             company: generatedCompany,
             musicianTypes: [musicianTypesPool[Math.floor(Math.random() * musicianTypesPool.length)]],
             description: `Für unsere Veranstaltung '${eventName}' suchen wir einen passenden Live-Act. Wir freuen uns auf eure Bewerbung!`,
-            contactName,
+            contactName: isMediationGen ? 'GigConnAct Vermittlung' : contactName,
             phone: `+49 176 ${Math.floor(10000000 + Math.random() * 90000000)}`,
-            email: `event_${i}@example.com`,
+            email: isMediationGen ? 'info@gigconnact.de' : `event_${i}@example.com`,
             isOnline: true,
             photos: [`https://images.unsplash.com/photo-${[
                 '1511671782779-c97d3d27a1d4',
@@ -1927,7 +1937,7 @@ function generateRemainingEvents(existing) {
                 '1465847899084-d164df4dedc6'
             ][i % 5]}?auto=format&fit=crop&w=800&q=80`],
             videos: [],
-            creatorId: `org_gen_${i}`,
+            creatorId: isMediationGen ? 'info-gigconnact-admin' : `org_gen_${i}`,
             createdAt: new Date(Date.now() - i * 6 * 60 * 60 * 1000).toISOString()
         });
     }
@@ -7159,22 +7169,22 @@ function renderMarket(container, type, onNavigate) {
     window.lastProfilePrefillHash = currentPrefillHash;
 
     container.innerHTML = `
-        <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0px 5rem; box-sizing: border-box;">
+        <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'} ${showOnlyFavorites ? 'favorites-mode' : ''}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0px 5rem; box-sizing: border-box;">
             
-            <div class="market-controls-row" style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isEvents ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isEvents ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.65rem 1.2rem; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
+            <div class="market-controls-row ${showOnlyFavorites ? 'favorites-mode' : ''}" style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isEvents ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isEvents ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.65rem 1.2rem; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
                 
                 <!-- 1. Trefferanzahl (Weiß auf farbiger Leiste) -->
-                <div id="market-results-header" style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0; cursor: pointer;" onclick="if (!window.currentMarketShowFavorites) document.getElementById('btn-toggle-mobile-filters')?.click();" title="Filter öffnen">
+                <div id="market-results-header" style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0; cursor: ${showOnlyFavorites ? 'default' : 'pointer'};" onclick="if (!window.currentMarketShowFavorites) document.getElementById('btn-toggle-mobile-filters')?.click();" title="${showOnlyFavorites ? '' : 'Filter öffnen'}">
                     <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
                         ${getItems().length}
                     </div>
                     <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                        ${isEvents ? 'Events' : 'Musiker'}
+                        ${showOnlyFavorites ? 'Favoriten' : (isEvents ? 'Events' : 'Musiker')}
                     </span>
                 </div>
 
                 <!-- 2. Aktionen-Container: Filter-Button weiter links, rechts daneben Zurücksetzen und Sortierung als Icon -->
-                <div class="market-controls-actions" style="margin: 0 0 0 auto; display: flex; align-items: center; gap: 0.55rem;">
+                <div class="market-controls-actions ${showOnlyFavorites ? 'hidden' : ''}" style="margin: 0 0 0 auto; display: ${showOnlyFavorites ? 'none !important' : 'flex'}; align-items: center; gap: 0.55rem;">
                     <!-- Filter-Symbol + "Filter" -->
                     <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.45rem 1.05rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" title="Filter öffnen">
                         <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; color: #ffffff; transition: color 0.3s ease;"></i>
@@ -7205,10 +7215,10 @@ function renderMarket(container, type, onNavigate) {
             </div>
 
             <!-- Main Layout: Left Sticky Sidebar Filters + Center Content -->
-            <div class="market-layout-container">
+            <div class="market-layout-container ${showOnlyFavorites ? 'no-filters' : ''}">
                 
                 <!-- Left Sidebar Filters (Responsive Wrapper) -->
-                <div id="market-filters-wrapper" class="market-filter-card">
+                <div id="market-filters-wrapper" class="market-filter-card" style="${showOnlyFavorites ? 'display: none !important;' : ''}">
                                         <div class="filter-header-sticky" style="display: flex; align-items: center; position: relative; width: calc(100% - 1.2rem) !important;">
                         <!-- Left: Title -->
                         <span class="filter-header-title" style="flex: 1; text-align: left; font-family: var(--font-heading); font-weight: 900; font-size: 1.1rem; letter-spacing: -0.3px; display: flex; align-items: center; gap: 0.4rem;">
@@ -8184,11 +8194,15 @@ function renderMarket(container, type, onNavigate) {
                 if (contactTypeGrid) {
                     const selContactTypes = getCheckedValues(contactTypeGridId);
                     list = list.filter(item => {
-                        const itemIsMediation = (
+                        const itemIsMediation = Boolean(
+                            item.isMediation === true ||
                             item.isAgencyRequest === true || 
+                            item.contactType === 'mediation' ||
+                            item.mediation === true ||
                             item.email === 'info@gigconnact.de' || 
                             item.clientEmail === 'info@gigconnact.de' || 
-                            item.creatorId === 'info-gigconnact-admin'
+                            item.creatorId === 'info-gigconnact-admin' ||
+                            (item.id && String(item.id).startsWith('evt_agency_'))
                         );
                         const isMediationSelected = selContactTypes.includes('mediation');
                         const isDirectSelected = selContactTypes.includes('direct');
@@ -8340,22 +8354,24 @@ function renderMarket(container, type, onNavigate) {
         }
 
         // Sortierung
-        const sortVal = sortSelect?.value || 'match';
-        if (sortVal === 'match') {
-            list.sort((a, b) => (b.matchScore !== undefined ? b.matchScore : 95) - (a.matchScore !== undefined ? a.matchScore : 95));
-        } else if (sortVal === 'newest') {
-            list.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
-        } else if (sortVal === 'price') {
-            const parsePrice = (str) => {
-                if (typeof str === 'number') return str;
-                const match = (str || '').match(/\d+/g);
-                return match ? parseInt(match.join('')) : 999999;
-            };
-            list.sort((a, b) => parsePrice(a.price || a.budget || a.minBudget) - parsePrice(b.price || b.budget || b.minBudget));
-        } else if (sortVal === 'distance') {
-            list.sort((a, b) => (parseInt(a.distance || 50) - parseInt(b.distance || 50)));
-        } else if (sortVal === 'name') {
-            list.sort((a, b) => (isEvents ? a.title : a.name).localeCompare(isEvents ? b.title : b.name));
+        if (!showOnlyFavorites) {
+            const sortVal = sortSelect?.value || 'match';
+            if (sortVal === 'match') {
+                list.sort((a, b) => (b.matchScore !== undefined ? b.matchScore : 95) - (a.matchScore !== undefined ? a.matchScore : 95));
+            } else if (sortVal === 'newest') {
+                list.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+            } else if (sortVal === 'price') {
+                const parsePrice = (str) => {
+                    if (typeof str === 'number') return str;
+                    const match = (str || '').match(/\d+/g);
+                    return match ? parseInt(match.join('')) : 999999;
+                };
+                list.sort((a, b) => parsePrice(a.price || a.budget || a.minBudget) - parsePrice(b.price || b.budget || b.minBudget));
+            } else if (sortVal === 'distance') {
+                list.sort((a, b) => (parseInt(a.distance || 50) - parseInt(b.distance || 50)));
+            } else if (sortVal === 'name') {
+                list.sort((a, b) => (isEvents ? a.title : a.name).localeCompare(isEvents ? b.title : b.name));
+            }
         }
 
         if (targetId && targetItem) {
@@ -8566,15 +8582,27 @@ function renderMarket(container, type, onNavigate) {
         const actionsContainer = container.querySelector('.market-controls-actions');
 
         if (showOnlyFavorites) {
+            container.querySelector('.market-page')?.classList.add('favorites-mode');
+            container.querySelector('.market-controls-row')?.classList.add('favorites-mode');
             if (layoutContainer) layoutContainer.classList.add('no-filters');
-            if (filterSidebar) filterSidebar.style.display = 'none';
-            if (actionsContainer) actionsContainer.style.display = 'none';
-            filterSidebar?.classList.remove('open');
+            if (filterSidebar) {
+                filterSidebar.style.setProperty('display', 'none', 'important');
+                filterSidebar.classList.remove('open');
+            }
+            if (actionsContainer) {
+                actionsContainer.style.setProperty('display', 'none', 'important');
+                actionsContainer.classList.add('hidden');
+            }
             container.querySelector('.market-filter-overlay')?.classList.remove('open');
         } else {
+            container.querySelector('.market-page')?.classList.remove('favorites-mode');
+            container.querySelector('.market-controls-row')?.classList.remove('favorites-mode');
             if (layoutContainer) layoutContainer.classList.remove('no-filters');
             if (filterSidebar) filterSidebar.style.display = '';
-            if (actionsContainer) actionsContainer.style.display = 'flex';
+            if (actionsContainer) {
+                actionsContainer.style.setProperty('display', 'flex', 'important');
+                actionsContainer.classList.remove('hidden');
+            }
         }
 
         const toggleBtn = container.querySelector('#btn-toggle-mobile-filters');
@@ -9514,13 +9542,15 @@ window.showMediationNoticeBeforeAuth = function() {
     const existing = document.getElementById('modal-mediation-notice-overlay');
     if (existing) existing.remove();
 
+    const isLoggedIn = !!(state && state.currentUser);
+
     const overlay = document.createElement('div');
     overlay.id = 'modal-mediation-notice-overlay';
     overlay.className = 'custom-video-modal-overlay';
     overlay.style.cssText = "position:fixed; inset:0; background:rgba(15,23,42,0.6); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); padding:1rem;";
     
     overlay.innerHTML = `
-        <div style="width:100%; max-width:450px; background:#ffffff; border:1px solid #cbd5e1; border-radius:18px; padding:2.2rem 2rem; text-align:center; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); position:relative; font-family:var(--font-heading); color:#0f172a; box-sizing:border-box;">
+        <div style="width:100%; max-width:460px; background:#ffffff; border:1px solid #cbd5e1; border-radius:18px; padding:2.2rem 2rem; text-align:center; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); position:relative; font-family:var(--font-heading); color:#0f172a; box-sizing:border-box;">
             <button id="btn-close-mediation-cross" style="position: absolute; top: 1rem; right: 1.2rem; background: transparent; border: none; font-size: 1.8rem; line-height: 1; color: #64748b; cursor: pointer; padding: 0.2rem; border-radius: 6px; transition: color 0.2s;" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#64748b'" title="Schließen">&times;</button>
             
             <div style="width: 58px; height: 58px; border-radius: 50%; background: rgba(124, 58, 237, 0.1); color: #7c3aed; display: inline-flex; align-items: center; justify-content: center; font-size: 1.7rem; margin-bottom: 1rem;">
@@ -9532,17 +9562,25 @@ window.showMediationNoticeBeforeAuth = function() {
             </h3>
             
             <p style="font-size: 0.92rem; color: #475569; line-height: 1.55; margin-bottom: 1.6rem; text-align: left; font-family: var(--font-body);">
-                Der Erstkontakt erfolgt ausschließlich durch den Veranstalter. Bei Vermittlungs-Gigs bleiben die Kontaktdaten geschützt – Du selbst kannst keine direkte Vermittlungsanfrage an den Veranstalter senden.<br><br>
-                Erstelle Dein Musiker-Profil und werde für Veranstalter sichtbar, um passende Vermittlungsanfragen zu erhalten.
+                Der Erstkontakt erfolgt nur durch den Veranstalter. Bei Vermittlungs-Gigs bleiben die Kontaktdaten geschützt – Du selbst kannst keine direkte Vermittlungsanfrage an den Veranstalter senden.<br><br>
+                ${isLoggedIn 
+                    ? 'Sobald Dein Profil zum Gig passt, erhält der Veranstalter Deinen Kontakt und kann Dich anfragen.' 
+                    : 'Erstelle Dein Musiker-Profil und werde für Veranstalter sichtbar, um passende Vermittlungsanfragen zu erhalten.'}
             </p>
             
             <div style="display: flex; flex-direction: column; gap: 0.65rem;">
-                <button id="btn-proceed-mediation-auth" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; color: #ffffff !important; border: none !important; cursor: pointer; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3) !important; margin: 0;">
-                    Weiter zur Registrierung / Login
-                </button>
-                <button id="btn-cancel-mediation-notice" class="btn btn-secondary" style="width: 100%; padding: 0.7rem; font-size: 0.88rem; font-weight: 700; border-radius: 10px; cursor: pointer; margin: 0; background: transparent; border: 1px solid #cbd5e1; color: #64748b;">
-                    Abbrechen
-                </button>
+                ${isLoggedIn ? `
+                    <button id="btn-confirm-mediation-notice" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; color: #ffffff !important; border: none !important; cursor: pointer; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3) !important; margin: 0;">
+                        Verstanden
+                    </button>
+                ` : `
+                    <button id="btn-proceed-mediation-auth" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; color: #ffffff !important; border: none !important; cursor: pointer; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3) !important; margin: 0;">
+                        Weiter zur Registrierung / Login
+                    </button>
+                    <button id="btn-cancel-mediation-notice" class="btn btn-secondary" style="width: 100%; padding: 0.7rem; font-size: 0.88rem; font-weight: 700; border-radius: 10px; cursor: pointer; margin: 0; background: transparent; border: 1px solid #cbd5e1; color: #64748b;">
+                        Abbrechen
+                    </button>
+                `}
             </div>
         </div>
     `;
@@ -9551,6 +9589,7 @@ window.showMediationNoticeBeforeAuth = function() {
     const closeNotice = () => overlay.remove();
     overlay.querySelector('#btn-close-mediation-cross')?.addEventListener('click', closeNotice);
     overlay.querySelector('#btn-cancel-mediation-notice')?.addEventListener('click', closeNotice);
+    overlay.querySelector('#btn-confirm-mediation-notice')?.addEventListener('click', closeNotice);
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) closeNotice();
     });
@@ -18895,11 +18934,15 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
     return items.map(item => {
         const isUnlocked = state ? ((typeof state.isUnlocked === 'function') ? state.isUnlocked(item.id) : (state.unlockedContacts && state.unlockedContacts.includes(item.id))) : false;
         const isAdmin = state && state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email);
-        const isMediation = (
+        const isMediation = Boolean(
+            item.isMediation === true ||
             item.isAgencyRequest === true || 
+            item.contactType === 'mediation' ||
+            item.mediation === true ||
             item.email === 'info@gigconnact.de' || 
-            item.clientEmail === 'info@gigconnact.de' ||
-            item.creatorId === 'info-gigconnact-admin'
+            item.clientEmail === 'info@gigconnact.de' || 
+            item.creatorId === 'info-gigconnact-admin' ||
+            (item.id && String(item.id).startsWith('evt_agency_'))
         );
         
         // Up to 5 photos
@@ -19010,7 +19053,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
         const displayName = `${nameContent}${lockIconHtml}${demoTagHtml}`;
 
         return `
-            <div class="market-tile-card" style="cursor: default; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0);">
+            <div class="market-tile-card" ${isMediation && (!state || !state.currentUser) ? `onclick="window.showMediationNoticeBeforeAuth()"` : ''} style="cursor: ${isMediation && (!state || !state.currentUser) ? 'pointer' : 'default'}; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0);">
                 
                 <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
@@ -19319,7 +19362,13 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 ) : (
                     `
                         <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
-                            <button class="btn btn-primary" onclick="event.stopPropagation(); ${state && state.currentUser ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : (isEvents ? (isMediation ? `window.showMediationNoticeBeforeAuth()` : `showModal('auth', null, 'musician')`) : (isMediation ? `window.showAgencyBookingForm('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : `showModal('auth', null, 'organizer')`))}" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
+                            <button class="btn btn-primary" onclick="event.stopPropagation(); ${
+                                isMediation 
+                                    ? `window.showMediationNoticeBeforeAuth()` 
+                                    : (state && state.currentUser 
+                                        ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` 
+                                        : (isEvents ? `showModal('auth', null, 'musician')` : `showModal('auth', null, 'organizer')`))
+                            }" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
                                 <i class="fa-solid fa-lock"></i> ${isEvents ? (isMediation ? 'Vermittlung' : 'Direktkontakt') : (isMediation ? 'Vermittlung' : 'Kontaktdaten freischalten')}
                             </button>
                         </div>
