@@ -4267,17 +4267,16 @@ html {
     transform: scale(1.05) !important;
 }
 
-.btn-close-filters-m {
+.btn-close-filters-m,
+#btn-close-filters-m,
+.filter-header-close-wrapper {
     display: none !important;
 }
 
 /* Global definitions for theme-based filter close buttons */
 .theme-organizer .btn-close-filters-m,
 .theme-organizer #btn-close-filters-m {
-    background: #2563eb !important;
-    border: 1px solid #2563eb !important;
-    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35) !important;
-    color: #ffffff !important;
+    display: none !important;
 }
 
 .theme-organizer .btn-close-filters-m:hover,
@@ -4286,17 +4285,12 @@ html {
 .theme-organizer #btn-close-filters-m:active,
 .theme-organizer .btn-close-filters-m:focus,
 .theme-organizer #btn-close-filters-m:focus {
-    background: #1d4ed8 !important;
-    border-color: #1d4ed8 !important;
-    color: #ffffff !important;
+    display: none !important;
 }
 
 .theme-musician .btn-close-filters-m,
 .theme-musician #btn-close-filters-m {
-    background: #7c3aed !important;
-    border: 1px solid #7c3aed !important;
-    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35) !important;
-    color: #ffffff !important;
+    display: none !important;
 }
 
 .theme-musician .btn-close-filters-m:hover,
@@ -4305,15 +4299,13 @@ html {
 .theme-musician #btn-close-filters-m:active,
 .theme-musician .btn-close-filters-m:focus,
 .theme-musician #btn-close-filters-m:focus {
-    background: #6d28d9 !important;
-    border-color: #6d28d9 !important;
-    color: #ffffff !important;
+    display: none !important;
 }
 
 .theme-organizer .btn-close-filters-bottom,
 .theme-organizer #btn-close-filters-bottom {
     background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
-    border: 1px solid #2563eb !important;
+    border-color: #2563eb !important;
     box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
     color: #ffffff !important;
 }
@@ -4333,7 +4325,7 @@ html {
 .theme-musician .btn-close-filters-bottom,
 .theme-musician #btn-close-filters-bottom {
     background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
-    border: 1px solid #7c3aed !important;
+    border-color: #7c3aed !important;
     box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35) !important;
     color: #ffffff !important;
 }
@@ -4355,17 +4347,13 @@ html {
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
-    padding: 0.9rem 1.2rem !important;
-    background: #ffffff !important;
+    padding: 1.5rem 1.2rem 3rem !important;
+    background: transparent !important;
     border: none !important;
-    border-top: 1px solid #e2e8f0 !important;
-    border-radius: 0 0 14px 14px !important;
     box-sizing: border-box !important;
     width: 100% !important;
-    position: sticky !important;
-    bottom: 0 !important;
-    z-index: 50 !important;
-    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08) !important;
+    position: static !important;
+    box-shadow: none !important;
 }
 
 .btn-close-filters-bottom {
@@ -4393,20 +4381,10 @@ html {
     .btn-reset-round:hover {
         transform: translateX(-12px) scale(1.05) !important;
     }
-    .btn-close-filters-m {
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        color: #ffffff !important;
-        font-size: 1.1rem !important;
-        cursor: pointer;
-        transition: background 0.2s, color 0.2s, transform 0.2s;
-    }
-    .btn-close-filters-m:hover {
-        transform: scale(1.05);
+    .btn-close-filters-m,
+    #btn-close-filters-m,
+    .filter-header-close-wrapper {
+        display: none !important;
     }
 }
 
@@ -5094,6 +5072,62 @@ input[type="range"].input-field {
 .market-bar-icon-btn i {
     color: #ffffff !important;
     font-size: 0.95rem !important;
+}
+
+/* Market Filter Mobile Toggle Button */
+.market-filter-mobile-toggle {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.45rem !important;
+    padding: 0.45rem 1.15rem !important;
+    border-radius: 12px !important;
+    font-family: var(--font-heading) !important;
+    font-size: 0.92rem !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    background: rgba(255, 255, 255, 0.18) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+    color: #ffffff !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.market-filter-mobile-toggle:hover {
+    background: rgba(255, 255, 255, 0.28) !important;
+    border-color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.market-filter-mobile-toggle i,
+.market-filter-mobile-toggle #mobile-filter-icon {
+    color: #ffffff !important;
+    font-size: 0.9rem !important;
+    transition: color 0.3s ease, text-shadow 0.3s ease !important;
+}
+
+.market-filter-mobile-toggle span {
+    color: #ffffff !important;
+    transition: color 0.3s ease !important;
+}
+
+/* When filter is active: Icon + "Filter" text MUST be green */
+.market-filter-mobile-toggle.has-active-filters {
+    border-color: #22c55e !important;
+    background: rgba(34, 197, 94, 0.22) !important;
+    box-shadow: 0 0 14px rgba(34, 197, 94, 0.45) !important;
+    color: #22c55e !important;
+}
+
+.market-filter-mobile-toggle.has-active-filters i,
+.market-filter-mobile-toggle.has-active-filters #mobile-filter-icon {
+    color: #22c55e !important;
+    text-shadow: 0 0 10px rgba(34, 197, 94, 0.8) !important;
+}
+
+.market-filter-mobile-toggle.has-active-filters span {
+    color: #22c55e !important;
 }
 
 /* Grid layout with filters hidden (e.g. favorites) */
@@ -6223,29 +6257,23 @@ body.has-bottom-bar .toast-container {
 
 
 /* =============================================================
- * Market Background: Identical Live-Concert Background to Hero
+ * Market Background: Transparent to show body gradient (Purple/Blue)
  * ============================================================= */
 .market-page {
     position: relative !important;
     width: 100% !important;
     min-height: 100vh !important;
-    background-color: #0d0e12 !important;
-    background-image: 
-        radial-gradient(ellipse at 50% 40%, rgba(13, 16, 32, 0.55) 0%, rgba(10, 11, 22, 0.82) 100%),
-        linear-gradient(180deg, rgba(7, 8, 16, 0.65) 0%, rgba(12, 10, 26, 0.35) 35%, rgba(10, 11, 24, 0.70) 70%, rgba(6, 7, 14, 0.95) 100%),
-        url('hero_bg.jpg') !important;
-    background-repeat: no-repeat !important;
-    background-position: center top !important;
-    background-size: cover !important;
-    background-attachment: fixed !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
 }
 
-/* Market Cards: Solid Crisp White Cards for Maximum Contrast over Dark Concert Backdrop */
+/* Market Cards: Solid Crisp White Cards for Maximum Contrast over Gradient Backdrop */
 .market-tile-card {
     background: #ffffff !important;
     border: 1px solid #e2e8f0 !important;
     border-radius: 18px !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.22) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
     color: #0f172a !important;
 }
 

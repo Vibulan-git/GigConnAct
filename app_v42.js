@@ -7297,50 +7297,41 @@ function renderMarket(container, type, onNavigate) {
     function updateFilterIconGlow(isActive) {
         const desktopIcon = container.querySelector('#desktop-filter-icon');
         const desktopTitle = container.querySelector('.filter-header-title');
-        const mobileIcon = container.querySelector('#mobile-filter-icon');
         const mobileToggleBtn = container.querySelector('#btn-toggle-mobile-filters');
-        if (isActive) {
-            if (desktopIcon) {
+        const color = isActive ? '#22c55e' : '#ffffff';
+
+        if (desktopIcon) {
+            desktopIcon.className = 'fa-solid fa-filter';
+            if (isActive) {
                 desktopIcon.style.setProperty('color', '#22c55e', 'important');
                 desktopIcon.style.textShadow = '0 0 10px rgba(34, 197, 94, 0.8)';
-            }
-            if (desktopTitle) {
-                desktopTitle.style.setProperty('color', '#22c55e', 'important');
-            }
-            if (mobileIcon) {
-                mobileIcon.style.setProperty('color', '#22c55e', 'important');
-                mobileIcon.style.textShadow = '0 0 10px rgba(34, 197, 94, 0.8)';
-            }
-            if (mobileToggleBtn) {
-                mobileToggleBtn.classList.add('has-active-filters');
-                mobileToggleBtn.style.setProperty('border-color', '#22c55e', 'important');
-                mobileToggleBtn.style.setProperty('box-shadow', '0 0 12px rgba(34, 197, 94, 0.45)', 'important');
-                mobileToggleBtn.style.setProperty('background', 'rgba(34, 197, 94, 0.22)', 'important');
-                mobileToggleBtn.style.setProperty('color', '#22c55e', 'important');
-                const span = mobileToggleBtn.querySelector('span');
-                if (span) span.style.setProperty('color', '#22c55e', 'important');
-            }
-        } else {
-            if (desktopIcon) {
+            } else {
                 desktopIcon.style.color = '';
                 desktopIcon.style.textShadow = '';
             }
-            if (desktopTitle) {
+        }
+        if (desktopTitle) {
+            if (isActive) {
+                desktopTitle.style.setProperty('color', '#22c55e', 'important');
+            } else {
                 desktopTitle.style.color = '';
             }
-            if (mobileIcon) {
-                mobileIcon.style.color = '#ffffff';
-                mobileIcon.style.textShadow = '';
-            }
-            if (mobileToggleBtn) {
+        }
+        if (mobileToggleBtn) {
+            if (isActive) {
+                mobileToggleBtn.classList.add('has-active-filters');
+                mobileToggleBtn.style.setProperty('border', '1.5px solid #22c55e', 'important');
+                mobileToggleBtn.style.setProperty('box-shadow', '0 0 14px rgba(34, 197, 94, 0.45)', 'important');
+                mobileToggleBtn.style.setProperty('background', 'rgba(34, 197, 94, 0.22)', 'important');
+                mobileToggleBtn.style.setProperty('color', '#22c55e', 'important');
+            } else {
                 mobileToggleBtn.classList.remove('has-active-filters');
                 mobileToggleBtn.style.borderColor = 'rgba(255, 255, 255, 0.45)';
                 mobileToggleBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
                 mobileToggleBtn.style.background = 'rgba(255, 255, 255, 0.18)';
                 mobileToggleBtn.style.color = '#ffffff';
-                const span = mobileToggleBtn.querySelector('span');
-                if (span) span.style.color = '#ffffff';
             }
+            mobileToggleBtn.innerHTML = `<i class="fa-solid fa-filter" id="mobile-filter-icon" style="color: ${color} !important; font-size: 0.9rem; margin-right: 0.25rem; transition: color 0.3s ease, text-shadow 0.3s ease; ${isActive ? 'text-shadow: 0 0 10px rgba(34, 197, 94, 0.8);' : ''}"></i><span style="color: ${color} !important;">Filter</span>`;
         }
     }
     const urlParams = new URLSearchParams(window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
@@ -7548,7 +7539,7 @@ function renderMarket(container, type, onNavigate) {
                     <!-- 2. Aktionen-Container: Filter-Button rechts mit Icon -->
                     <div class="market-controls-actions ${showOnlyFavorites ? 'hidden' : ''}" style="grid-column: 3; justify-self: end; margin: 0; display: ${showOnlyFavorites ? 'none !important' : 'flex'}; align-items: center; gap: 0.55rem;">
                         <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; padding: 0.45rem 1.15rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" title="Filter öffnen">
-                            <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="color: #ffffff; font-size: 0.9rem; transition: color 0.3s ease, text-shadow 0.3s ease;"></i>
+                            <i class="fa-solid fa-filter" id="mobile-filter-icon" style="color: #ffffff; font-size: 0.9rem; margin-right: 0.25rem; transition: color 0.3s ease, text-shadow 0.3s ease;"></i>
                             <span style="color: #ffffff;">Filter</span>
                         </button>
                     </div>
@@ -7568,7 +7559,7 @@ function renderMarket(container, type, onNavigate) {
                                         <div class="filter-header-sticky" style="display: flex; align-items: center; position: relative; width: calc(100% - 1.2rem) !important;">
                         <!-- Left: Title -->
                         <span class="filter-header-title" style="flex: 1; text-align: left; font-family: var(--font-heading); font-weight: 900; font-size: 1.1rem; letter-spacing: -0.3px; display: flex; align-items: center; gap: 0.4rem;">
-                            <i class="fa-solid fa-sliders" id="desktop-filter-icon" style="transition: color 0.3s ease;"></i> Filter
+                            <i class="fa-solid fa-filter" id="desktop-filter-icon" style="transition: color 0.3s ease;"></i> Filter
                         </span>
                         
                         <!-- Center: Sort and Reset -->
@@ -7590,12 +7581,8 @@ function renderMarket(container, type, onNavigate) {
                             </button>
                         </div>
                         
-                                                <!-- Right: Mobile Close Button -->
-                        <div class="filter-header-close-wrapper" style="flex: 1; display: flex; justify-content: flex-end;">
-                            <button id="btn-close-filters-m" class="btn-close-filters-m" style="margin: 0; width: 42px; height: 42px; background: ${isOrganizerTheme ? '#2563eb' : '#7c3aed'} !important; border: 1px solid ${isOrganizerTheme ? '#2563eb' : '#7c3aed'} !important; box-shadow: 0 2px 8px ${isOrganizerTheme ? 'rgba(37, 99, 235, 0.35)' : 'rgba(124, 58, 237, 0.35)'} !important; color: #ffffff !important;" title="Filter anwenden">
-                                <i class="fa-solid fa-check"></i>
-                            </button>
-                        </div>
+                        <!-- Right: Spacer (Close button removed, only bottom action button used) -->
+                        <div class="filter-header-close-wrapper" style="flex: 1;"></div>
                     </div>
                     
                     ${isEvents ? `
@@ -7995,19 +7982,7 @@ function renderMarket(container, type, onNavigate) {
         this.classList.toggle('active');
         const isOpen = filterWrapper.classList.contains('open');
         overlay?.classList.toggle('open', isOpen);
-        this.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="color: ${isFilterActiveCurrently ? '#22c55e' : '#ffffff'}; font-size: 0.9rem; transition: color 0.3s ease, text-shadow 0.3s ease;"></i> <span style="color: ${isFilterActiveCurrently ? '#22c55e' : '#ffffff'};">Filter</span>`;
         updateFilterIconGlow(isFilterActiveCurrently);
-    });
-
-    const closeBtnM = container.querySelector('#btn-close-filters-m');
-    closeBtnM?.addEventListener('click', function() {
-        filterWrapper.classList.remove('open');
-        overlay?.classList.remove('open');
-        toggleBtn?.classList.remove('active');
-        if (toggleBtn) {
-            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="color: ${isFilterActiveCurrently ? '#22c55e' : '#ffffff'}; font-size: 0.9rem; transition: color 0.3s ease, text-shadow 0.3s ease;"></i> <span style="color: ${isFilterActiveCurrently ? '#22c55e' : '#ffffff'};">Filter</span>`;
-            updateFilterIconGlow(isFilterActiveCurrently);
-        }
     });
 
     const closeBtnBottom = container.querySelector('#btn-close-filters-bottom');
@@ -8015,10 +7990,7 @@ function renderMarket(container, type, onNavigate) {
         filterWrapper.classList.remove('open');
         overlay?.classList.remove('open');
         toggleBtn?.classList.remove('active');
-        if (toggleBtn) {
-            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="color: ${isFilterActiveCurrently ? '#22c55e' : '#ffffff'}; font-size: 0.9rem; transition: color 0.3s ease, text-shadow 0.3s ease;"></i> <span style="color: ${isFilterActiveCurrently ? '#22c55e' : '#ffffff'};">Filter</span>`;
-            updateFilterIconGlow(isFilterActiveCurrently);
-        }
+        updateFilterIconGlow(isFilterActiveCurrently);
         if (window.innerWidth <= 900) {
             document.getElementById('market-results-header')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -8036,10 +8008,7 @@ function renderMarket(container, type, onNavigate) {
         filterWrapper.classList.remove('open');
         overlay.classList.remove('open');
         toggleBtn?.classList.remove('active');
-        if (toggleBtn) {
-            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="color: ${isFilterActiveCurrently ? '#22c55e' : '#ffffff'}; font-size: 0.9rem; transition: color 0.3s ease, text-shadow 0.3s ease;"></i> <span style="color: ${isFilterActiveCurrently ? '#22c55e' : '#ffffff'};">Filter</span>`;
-            updateFilterIconGlow(isFilterActiveCurrently);
-        }
+        updateFilterIconGlow(isFilterActiveCurrently);
     });
 
     const sortSelects = container.querySelectorAll('#sort-select, #sort-select-m');
@@ -8949,39 +8918,6 @@ function renderMarket(container, type, onNavigate) {
             if (actionsContainer) {
                 actionsContainer.style.setProperty('display', 'flex', 'important');
                 actionsContainer.classList.remove('hidden');
-            }
-        }
-
-        const toggleBtn = container.querySelector('#btn-toggle-mobile-filters');
-        if (toggleBtn) {
-            const iconEl = toggleBtn.querySelector('#mobile-filter-icon') || toggleBtn.querySelector('i');
-            const spanEl = toggleBtn.querySelector('span');
-            if (isFilterActive) {
-                toggleBtn.classList.add('has-active-filters');
-                toggleBtn.style.boxShadow = '0 0 14px rgba(34, 197, 94, 0.45)';
-                toggleBtn.style.background = 'rgba(34, 197, 94, 0.22)';
-                toggleBtn.style.setProperty('color', '#22c55e', 'important');
-                toggleBtn.style.setProperty('border', '1.5px solid #22c55e', 'important');
-                if (spanEl) {
-                    spanEl.style.setProperty('color', '#22c55e', 'important');
-                }
-                if (iconEl) {
-                    iconEl.style.setProperty('color', '#22c55e', 'important');
-                    iconEl.style.textShadow = '0 0 10px rgba(34, 197, 94, 0.8)';
-                }
-            } else {
-                toggleBtn.classList.remove('has-active-filters');
-                toggleBtn.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.15)';
-                toggleBtn.style.background = 'rgba(255, 255, 255, 0.18)';
-                toggleBtn.style.color = '#ffffff';
-                toggleBtn.style.border = '1.5px solid rgba(255, 255, 255, 0.45)';
-                if (spanEl) {
-                    spanEl.style.color = '#ffffff';
-                }
-                if (iconEl) {
-                    iconEl.style.color = '#ffffff';
-                    iconEl.style.textShadow = '';
-                }
             }
         }
 
@@ -16598,21 +16534,23 @@ window.renderSubscriptionExpiredPage = renderSubscriptionExpiredPage;
 
 window.updateBodyBackground = function(page) {
     let gradient = 'linear-gradient(to right, #eddffd 0%, #e0e7ff 50%, #bae6fd 100%)'; // default combined
+    const role = (state && state.currentUser) ? state.currentUser.role : null;
     
-    if (page === 'events') {
-        gradient = 'linear-gradient(to right, #f5f3ff 0%, #eddffd 50%, #ebd8ff 100%)'; // purple
-    } else if (page === 'musicians' || page === 'matchmaking-choice') {
+    if (role === 'organizer') {
         gradient = 'linear-gradient(to right, #eff6ff 0%, #e0f2fe 50%, #bae6fd 100%)'; // blue
-    } else if (['postbox', 'dashboard', 'my-musicians', 'my-events', 'matches', 'profile', 'credits'].includes(page)) {
-        const role = (state && state.currentUser) ? state.currentUser.role : null;
-        if (role === 'organizer') {
-            gradient = 'linear-gradient(to right, #eff6ff 0%, #e0f2fe 50%, #bae6fd 100%)'; // blue
-        } else if (role === 'musician') {
+    } else if (role === 'musician') {
+        gradient = 'linear-gradient(to right, #f5f3ff 0%, #eddffd 50%, #ebd8ff 100%)'; // purple
+    } else {
+        if (page === 'events') {
             gradient = 'linear-gradient(to right, #f5f3ff 0%, #eddffd 50%, #ebd8ff 100%)'; // purple
+        } else if (page === 'musicians' || page === 'matchmaking-choice') {
+            gradient = 'linear-gradient(to right, #eff6ff 0%, #e0f2fe 50%, #bae6fd 100%)'; // blue
         }
     }
     
     document.body.style.setProperty('background-image', gradient, 'important');
+    document.body.style.setProperty('background-color', '#f8fafc', 'important');
+    document.documentElement.style.setProperty('background-color', '#f8fafc', 'important');
 };
 
 let navigateCallDepth = 0;
@@ -17784,6 +17722,9 @@ function initGigConnActApp() {
         console.log('[DEBUG] user-state-changed event received. activeMusicianId:', state.activeMusicianId, 'activeEventId:', state.activeEventId);
         if (typeof updateNavbar === 'function') updateNavbar();
         if (typeof window.updateBottomBar === 'function') window.updateBottomBar();
+        if (typeof window.updateBodyBackground === 'function') {
+            window.updateBodyBackground(window.location.hash.replace('#', '').split('?')[0]);
+        }
         
         const currentHash = window.location.hash;
         const isUserSame = window.lastUserSessionId === (state && state.currentUser ? state.currentUser.id : null);
