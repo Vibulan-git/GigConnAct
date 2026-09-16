@@ -5791,3 +5791,10 @@ body.has-bottom-bar .app-footer {
 body.has-bottom-bar .toast-container {
     bottom: calc(74px + env(safe-area-inset-bottom, 0px)) !important;
 }
+
+/* Star badge: static display only, never clickable */
+.tile-top-match-badge {
+    pointer-events: none !important;
+    cursor: default !important;
+    user-select: none !important;
+}

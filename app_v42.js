@@ -9577,9 +9577,6 @@ window.showMediationNoticeBeforeAuth = function() {
                     <button id="btn-proceed-mediation-auth" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; color: #ffffff !important; border: none !important; cursor: pointer; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3) !important; margin: 0;">
                         Weiter zur Registrierung / Login
                     </button>
-                    <button id="btn-cancel-mediation-notice" class="btn btn-secondary" style="width: 100%; padding: 0.7rem; font-size: 0.88rem; font-weight: 700; border-radius: 10px; cursor: pointer; margin: 0; background: transparent; border: 1px solid #cbd5e1; color: #64748b;">
-                        Abbrechen
-                    </button>
                 `}
             </div>
         </div>
@@ -9588,7 +9585,6 @@ window.showMediationNoticeBeforeAuth = function() {
 
     const closeNotice = () => overlay.remove();
     overlay.querySelector('#btn-close-mediation-cross')?.addEventListener('click', closeNotice);
-    overlay.querySelector('#btn-cancel-mediation-notice')?.addEventListener('click', closeNotice);
     overlay.querySelector('#btn-confirm-mediation-notice')?.addEventListener('click', closeNotice);
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) closeNotice();
@@ -9640,9 +9636,9 @@ window.toggleFavorite = function(id) {
             const hasMatch = starContainer.getAttribute('data-has-match') === 'true';
             if (isFav || hasMatch) {
                 starContainer.innerHTML = `
-                    <button class="tile-top-match-badge" onclick="event.stopPropagation(); window.toggleFavorite('${id}')" title="${isFav ? 'In Favoriten gespeichert' : 'Top Match (Klicken zum Favorisieren)'}" style="background: transparent; border: none; box-shadow: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+                    <div class="tile-top-match-badge" title="${isFav ? 'In Favoriten gespeichert' : 'Top Match'}" style="background: transparent; border: none; box-shadow: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; pointer-events: none; cursor: default; padding: 0;">
                         <i class="fa-solid fa-star" style="color: #eab308; font-size: 1.15rem; margin: 0; filter: drop-shadow(0 1px 3px rgba(234, 179, 8, 0.4));"></i>
-                    </button>
+                    </div>
                 `;
             } else {
                 starContainer.innerHTML = '';
@@ -9881,18 +9877,23 @@ function renderProfilePage(container) {
     let selectedPlan = activePlan;
 
     container.innerHTML = `
-        <div class="portal-layout ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="display:flex; flex-direction:column; gap:2rem; max-width: 800px; margin: 0 auto; padding: 1rem 0;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding: 0 0.5rem; margin-bottom: -0.5rem;">
-                <div>
-                    <h2 style="font-family: var(--font-heading); font-size: 1.45rem; font-weight: 800; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 0.6rem;">
-                        <i class="fa-regular fa-circle-user" style="color: ${themeColor};"></i> Mein Profil
-                    </h2>
-                    <p style="font-size: 0.84rem; color: var(--text-muted); margin: 0.2rem 0 0 0;">
-                        Angemeldet als <strong>${u.email || ''}</strong> (${isMusician ? 'Musiker' : 'Veranstalter'})
-                    </p>
+        <div class="profile-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0.5rem 5rem; box-sizing: border-box;">
+            
+            <!-- Profile Controls Row (Lila bei Musikern / Blau bei Veranstaltern) -->
+            <div class="profile-controls-row" style="background: ${isMusician ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isMusician ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isMusician ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; padding: 0.65rem 1.2rem; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
+                <div style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0;">
+                    <i class="fa-regular fa-circle-user" style="color: #ffffff; font-size: 1.1rem; transform: translateY(1px); margin-right: 0.2rem;"></i>
+                    <span id="profile-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
+                        Mein Profil
+                    </span>
+                </div>
+                <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.85); font-weight: 600;">
+                    ${u.email || ''}
                 </div>
             </div>
-            <div id="profile-my-items-container"></div>
+
+            <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem; max-width: 800px; margin: 0 auto; padding: 0;">
+                <div id="profile-my-items-container"></div>
             <div class="profile-section-card">
                 <h3 style="color: ${themeColor}; margin-top: 0; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.6rem;">
                     <i class="fa-solid fa-address-card ${themeClass}"></i> Persönliche Kontaktdaten
@@ -10077,9 +10078,6 @@ function renderProfilePage(container) {
                         <i class="fa-solid fa-credit-card"></i> Zahlungsdaten verwalten
                     </button>
                     ` : ''}
-                    <button class="btn btn-secondary btn-sm" id="btn-profile-logout" style="margin: 0; display: flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-glass); color: var(--text-main); font-weight: 700;">
-                        <i class="fa-solid fa-right-from-bracket"></i> Abmelden
-                    </button>
                     <button class="btn btn-glass btn-sm" id="btn-delete-useraccount" style="margin: 0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); display: flex; align-items: center; gap: 0.5rem;">
                         <i class="fa-solid fa-trash-can"></i> Konto unwiderruflich löschen
                     </button>
@@ -10089,6 +10087,7 @@ function renderProfilePage(container) {
                 </p>
             </div>
 
+            </div>
         </div>
     `;
 
@@ -10527,13 +10526,6 @@ function renderProfilePage(container) {
         deleteBtn.addEventListener('click', window.deleteCurrentUserAccount);
     }
 
-    const logoutBtn = document.getElementById('btn-profile-logout');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            window.handleLogoutRedirect();
-        });
-    }
-
     const myItemsContainer = container.querySelector('#profile-my-items-container');
     if (myItemsContainer) {
         if (isMusician) {
@@ -10596,12 +10588,9 @@ function renderMatchesPage(container) {
                     
                     <!-- Left: Star & Title & Count (Lila bei Musikern / Blau bei Veranstaltern) -->
                     <div style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0;">
-                        <i class="fa-solid fa-star" style="color: #fde047; font-size: 1.25rem; transform: translateY(1px);"></i>
-                        <h2 style="margin: 0; font-family: var(--font-heading); font-size: 1.45rem; font-weight: 900; color: #ffffff !important; line-height: 1; letter-spacing: -0.5px;">
-                            Top-Matches
-                        </h2>
-                        <span style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap;">
-                            (<span id="top-matches-count">${selectedId ? '0' : '0'}</span>)
+                        <i class="fa-solid fa-star" style="color: #fde047; font-size: 1.1rem; transform: translateY(1px); margin-right: 0.2rem;"></i>
+                        <span id="top-matches-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
+                            Top-Matches (<span id="top-matches-count">${selectedId ? '0' : '0'}</span>)
                         </span>
                     </div>
 
@@ -11061,21 +11050,8 @@ function renderMyEventsContent(container) {
                     `}
                 </div>
             </div>
-
-            <!-- Abmelden Bereich unter pausierten & inaktiven Profilen / Events -->
-            <div class="profile-logout-section" style="display: flex; justify-content: flex-end; align-items: center; padding: 0.5rem 0.2rem; margin-top: -0.5rem;">
-                <button class="btn btn-secondary btn-sm btn-profile-section-logout" style="margin: 0; display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1.5px solid rgba(239, 68, 68, 0.35); font-weight: 700; border-radius: 10px; cursor: pointer; padding: 0.55rem 1.1rem; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)';" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)';">
-                    <i class="fa-solid fa-right-from-bracket"></i> Abmelden
-                </button>
-            </div>
         </div>
     `;
-
-    container.querySelectorAll('.btn-profile-section-logout').forEach(btn => {
-        btn.addEventListener('click', () => {
-            window.handleLogoutRedirect();
-        });
-    });
 
     const createBtn = document.getElementById('btn-create-event-modal');
     if (createBtn) {
@@ -11559,21 +11535,8 @@ function renderMyMusiciansContent(container) {
                     `}
                 </div>
             </div>
-
-            <!-- Abmelden Bereich unter pausierten & inaktiven Profilen -->
-            <div class="profile-logout-section" style="display: flex; justify-content: flex-end; align-items: center; padding: 0.5rem 0.2rem; margin-top: -0.5rem;">
-                <button class="btn btn-secondary btn-sm btn-profile-section-logout" style="margin: 0; display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1.5px solid rgba(239, 68, 68, 0.35); font-weight: 700; border-radius: 10px; cursor: pointer; padding: 0.55rem 1.1rem; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)';" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)';">
-                    <i class="fa-solid fa-right-from-bracket"></i> Abmelden
-                </button>
-            </div>
         </div>
     `;
-
-    container.querySelectorAll('.btn-profile-section-logout').forEach(btn => {
-        btn.addEventListener('click', () => {
-            window.handleLogoutRedirect();
-        });
-    });
 
     const createBtn = document.getElementById('btn-create-musician-modal');
     if (createBtn) {
@@ -16615,18 +16578,22 @@ function updateNavbar(forceLanding) {
             if (activeProfileId) state.activeEventId = activeProfileId;
         }
 
-        let profileSelectorHtml = '';
-        if (userProfiles.length > 0) {
-            const options = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''} style="background: #ffffff; color: #1e293b;">${p.name || p.contactName || p.title || 'Profil'}</option>`).join('');
-            profileSelectorHtml = `
-                <div class="profile-switcher-wrapper" style="display: flex; align-items: center; gap: 0.25rem; background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.08); border-radius: 20px; padding: 0.2rem 0.5rem; margin: 0; max-width: 140px; height: 32px; box-sizing: border-box; flex-shrink: 0; font-family: var(--font-heading);">
-                    <i class="${isMusician ? 'fa-solid fa-guitar' : 'fa-solid fa-calendar-day'}" style="color: ${isMusician ? 'var(--color-purple)' : 'var(--color-cyan)'}; font-size: 0.75rem; flex-shrink: 0;"></i>
-                    <select id="navbar-profile-select" style="width: 100%; height: 24px; padding: 0 0.15rem; font-size: 0.7rem; margin: 0; border: none; background: transparent; cursor: pointer; color: #1e293b; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; outline: none; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
-                        ${options}
-                    </select>
-                </div>
-            `;
-        }
+        const profileOptions = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''} style="background: #ffffff; color: #1e293b;">${p.name || p.contactName || p.title || 'Profil'}</option>`).join('');
+        const defaultProfileOption = (userProfiles.length === 0)
+            ? `<option value="profile" selected style="background: #ffffff; color: #1e293b;">${u.email || 'Mein Profil'}</option>`
+            : '';
+
+        const profileSelectorHtml = `
+            <div class="profile-switcher-wrapper" style="display: flex; align-items: center; gap: 0.25rem; background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.08); border-radius: 20px; padding: 0.2rem 0.5rem; margin: 0; max-width: 140px; height: 32px; box-sizing: border-box; flex-shrink: 0; font-family: var(--font-heading);">
+                <i class="${isMusician ? 'fa-solid fa-guitar' : 'fa-solid fa-calendar-day'}" style="color: ${isMusician ? 'var(--color-purple)' : 'var(--color-cyan)'}; font-size: 0.75rem; flex-shrink: 0;"></i>
+                <select id="navbar-profile-select" style="width: 100%; height: 24px; padding: 0 0.15rem; font-size: 0.7rem; margin: 0; border: none; background: transparent; cursor: pointer; color: #1e293b; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; outline: none; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
+                    ${defaultProfileOption}
+                    ${profileOptions}
+                    <option disabled style="color: #94a3b8; background: #ffffff;">──────────</option>
+                    <option value="logout" style="color: #ef4444; font-weight: 800; background: #ffffff;">Abmelden</option>
+                </select>
+            </div>
+        `;
 
         authArea.innerHTML = `
             <div style="display:flex; align-items:center; gap:0.6rem;">
@@ -16638,6 +16605,14 @@ function updateNavbar(forceLanding) {
         if (navbarProfileSelect) {
             navbarProfileSelect.addEventListener('change', function() {
                 const val = this.value;
+                if (val === 'logout') {
+                    window.handleLogoutRedirect();
+                    return;
+                }
+                if (val === 'profile') {
+                    navigate('profile');
+                    return;
+                }
                 console.log("[DEBUG] navbar-profile-select changed to:", val);
                 if (isMusician) {
                     state.activeMusicianId = val;
@@ -17361,10 +17336,21 @@ function renderPostbox(container) {
                     }
                 }
             </style>
-            <div class="portal-layout ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="display: flex !important; flex-direction: row !important; gap: 1.5rem; height: calc(100vh - 180px); min-height: 600px; width: 100%;">
-                
-                <!-- Left Sidebar: Categories & Chat Threads List -->
-                <div class="postbox-sidebar" style="width: 340px; flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); height: 100%;">
+            <div class="postbox-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0.5rem 5rem; box-sizing: border-box;">
+                <!-- Postbox Controls Row (Lila bei Musikern / Blau bei Veranstaltern) -->
+                <div class="postbox-controls-row" style="background: ${isMusician ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isMusician ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isMusician ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.2rem; padding: 0.65rem 1.2rem; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
+                    <div style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0;">
+                        <i class="fa-solid fa-envelope" style="color: #ffffff; font-size: 1.1rem; transform: translateY(1px); margin-right: 0.2rem;"></i>
+                        <span id="postbox-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
+                            Postfach (${nonSystemChats.length})
+                        </span>
+                    </div>
+                </div>
+
+                <div class="portal-layout ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="display: flex !important; flex-direction: row !important; gap: 1.5rem; height: calc(100vh - 220px); min-height: 600px; width: 100%;">
+                    
+                    <!-- Left Sidebar: Categories & Chat Threads List -->
+                    <div class="postbox-sidebar" style="width: 340px; flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); height: 100%;">
                     
                                         <!-- Postbox Header & Tabs -->
                     <div style="padding: 1rem; border-bottom: 1px solid var(--border-glass); background: rgba(255,255,255,0.01);">
@@ -17685,6 +17671,7 @@ function renderPostbox(container) {
                     })()}
                 </div>
             </div>
+        </div>
         `;
 
         // Add Event Listeners for tabs & buttons
@@ -19155,9 +19142,9 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                             <!-- Favoriten / Top-Match-Stern unter dem Herzen (ohne schwarzen Hintergrund) -->
                             <div class="tile-fav-star-container" data-item-id="${item.id}" data-has-match="${(item.matchScore !== undefined && item.matchScore >= 70) ? 'true' : 'false'}" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px;">
                                 ${((item.matchScore !== undefined && item.matchScore >= 70) || (state && typeof state.isFavorite === 'function' && state.isFavorite(item.id))) ? `
-                                    <button class="tile-top-match-badge" onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" title="${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? 'In Favoriten gespeichert' : 'Top Match (Klicken zum Favorisieren)'}" style="background: transparent; border: none; box-shadow: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+                                    <div class="tile-top-match-badge" title="${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? 'In Favoriten gespeichert' : 'Top Match'}" style="background: transparent; border: none; box-shadow: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; pointer-events: none; cursor: default; padding: 0;">
                                         <i class="fa-solid fa-star" style="color: #eab308; font-size: 1.15rem; margin: 0; filter: drop-shadow(0 1px 3px rgba(234, 179, 8, 0.4));"></i>
-                                    </button>
+                                    </div>
                                 ` : ''}
                             </div>
                         </div>
@@ -21028,9 +21015,9 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                         </div>
 
                                         ${mus.matchScore >= 70 ? `
-                                            <button class="tile-top-match-badge" onclick="event.stopPropagation(); window.toggleFavorite('${mus.id}')" title="Top Match" style="background: transparent; border: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; box-shadow: none; cursor: pointer; padding: 0; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+                                            <div class="tile-top-match-badge" title="Top Match" style="background: transparent; border: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; box-shadow: none; pointer-events: none; cursor: default; padding: 0;">
                                                 <i class="fa-solid fa-star" style="color: #eab308; font-size: 1.15rem; margin: 0; filter: drop-shadow(0 1px 3px rgba(234, 179, 8, 0.4));"></i>
-                                            </button>
+                                            </div>
                                         ` : ''}
                                     </div>
                                     <div id="combo-slider-${mus.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
