@@ -19249,26 +19249,32 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                     </div>
 
                     ${isEvents ? `
-                    <!-- 2. Einspaltige Informationen mit Icons (Top 3 Infos immer sichtbar) für Events -->
+                    <!-- 2. Einspaltige Informationen mit Icons (Immer sichtbar: Tag, Ort, Datum, Gesuchte Musiker-Typen) für Events -->
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.6rem;">
-                        <!-- 1. Ort -->
+                        <!-- 1. Event-Typ als Tag (oben über Ort) -->
+                        <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                            <span class="tile-type-flag" style="background: ${tagThemeBg}; border: 1px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: ${tagThemeShadow};">
+                                <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${typeTagText}</span>
+                            </span>
+                        </div>
+
+                        <!-- 2. Ort -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${formatTruncatedValue(window.normalizeCityName(item.location || 'Deutschlandweit'), themeColor, item.id, 'location')}</span>
                         </div>
                         
-                        <!-- 2. Datum -->
+                        <!-- 3. Datum -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem; flex-shrink: 0;"></i>
                             <span style="word-break: break-word; line-height: 1.35; flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'date')}</span>
                         </div>
 
-                        <!-- 3. Event-Typ als Tag (ohne Icon, max 1 Typ) + 'Mehr Details' Button -->
+                        <!-- 4. Gesuchte Musiker-Typen + 'Mehr Details' Button -->
                         <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35; margin-top: 0.15rem;">
-                            <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                                <span class="tile-type-flag" style="background: ${tagThemeBg}; border: 1px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: ${tagThemeShadow};">
-                                    <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${typeTagText}</span>
-                                </span>
+                            <div style="display: flex; align-items: flex-start; gap: 0.75rem; flex: 1; min-width: 0;">
+                                <i class="fa-solid fa-user-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                <span style="flex: 1; word-break: break-word;">${formatTruncatedValue((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band')), themeColor, item.id, 'musiciantype')}</span>
                             </div>
                             <button id="toggle-details-btn-${item.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
                                 <span id="toggle-text-${item.id}">Mehr Details</span>
@@ -19285,12 +19291,6 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                             <span style="flex: 1;">${formatTruncatedValue(item.eventTypes.join(', '), themeColor, item.id, 'allevents')}</span>
                         </div>
                         ` : ''}
-
-                        <!-- 4. Gesucht (Musiker-Typen) -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
-                            <i class="fa-solid fa-user-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band')), themeColor, item.id, 'musiciantype')}</span>
-                        </div>
 
                         <!-- 5. Genres -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
@@ -19329,26 +19329,32 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         </div>
                     </div>
                     ` : `
-                    <!-- 2. Einspaltige Informationen mit Icons (Top 3 Infos immer sichtbar) für Musiker -->
+                    <!-- 2. Einspaltige Informationen mit Icons (Immer sichtbar: Tag, Ort, Verfügbarkeit, Event-Typen) für Musiker -->
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.6rem;">
-                        <!-- 1. Ort -->
+                        <!-- 1. Musiker-Typ als Tag (oben über Ort) -->
+                        <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                            <span class="tile-type-flag" style="background: ${tagThemeBg}; border: 1px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: ${tagThemeShadow};">
+                                <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${typeTagText}</span>
+                            </span>
+                        </div>
+
+                        <!-- 2. Ort -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-location-dot" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                             <span style="flex: 1;">${formatTruncatedValue(window.normalizeCityName(item.location || 'Deutschlandweit'), themeColor, item.id, 'location')}</span>
                         </div>
                         
-                        <!-- 2. Datum/Verfügbarkeit -->
+                        <!-- 3. Datum/Verfügbarkeit -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
                             <span style="word-break: break-word; line-height: 1.35; flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'avail')}</span>
                         </div>
 
-                        <!-- 3. Musiker-Typ als Tag (ohne Icon, max 1 Typ) + 'Mehr Details' Button -->
+                        <!-- 4. Event-Typen + 'Mehr Details' Button -->
                         <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35; margin-top: 0.15rem;">
-                            <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                                <span class="tile-type-flag" style="background: ${tagThemeBg}; border: 1px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: ${tagThemeShadow};">
-                                    <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${typeTagText}</span>
-                                </span>
+                            <div style="display: flex; align-items: flex-start; gap: 0.75rem; flex: 1; min-width: 0;">
+                                <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                <span style="flex: 1; word-break: break-word;">${formatTruncatedValue(item.eventTypes && item.eventTypes.length > 0 ? item.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, item.id, 'eventtypes')}</span>
                             </div>
                             <button id="toggle-details-btn-${item.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
                                 <span id="toggle-text-${item.id}">Mehr Details</span>
@@ -19359,11 +19365,12 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
 
                     <!-- Collapsible details wrapper (opens on click with all remaining infos) -->
                     <div id="collapsible-details-${item.id}" style="display: none; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.6rem;">
-                        <!-- 4. Event-Typen -->
+                        ${(Array.isArray(item.musicianTypes) && item.musicianTypes.length > 1) ? `
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
-                            <i class="fa-solid fa-calendar-check" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(item.eventTypes && item.eventTypes.length > 0 ? item.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, item.id, 'eventtypes')}</span>
+                            <i class="fa-solid fa-guitar" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                            <span style="flex: 1;">${formatTruncatedValue(item.musicianTypes.join(', '), themeColor, item.id, 'allmusicians')}</span>
                         </div>
+                        ` : ''}
 
                         <!-- 5. Genres -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
@@ -21192,24 +21199,30 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                         <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.8rem; line-height: 1.25;"><span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; vertical-align: middle; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.45rem; filter: none !important;" title="Name geschützt"></i>${(mus.isDemo || (mus.id && mus.id.startsWith('mus_'))) ? ` <span class="tile-demo-text" style="color: #000000 !important; font-weight: 800; font-size: 0.92rem; vertical-align: middle; margin-left: 0.35rem; filter: none !important; -webkit-text-fill-color: #000000 !important; user-select: none;">[Demo]</span>` : ''}</h3>
                                         <div style="display: flex; gap: 0.5rem; justify-content: space-between;">
                                             <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); flex: 1;">
-                                                <!-- 1. Ort -->
+                                                <!-- 1. Musiker-Typ als Tag (oben über Ort) -->
+                                                <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                                                    <span class="tile-type-flag" style="background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border: 1px solid rgba(191, 219, 254, 0.5); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);">
+                                                        <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${((Array.isArray(mus.musicianTypes) && mus.musicianTypes.length > 0) ? mus.musicianTypes[0] : String(mus.type || 'Solo / Band')).split(',')[0].split('/')[0].split(' - ')[0].trim()}</span>
+                                                    </span>
+                                                </div>
+
+                                                <!-- 2. Ort -->
                                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                                                     <i class="fa-solid fa-location-dot" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
                                                     <span style="flex: 1;">${(mus.location || '').split(' (')[0]}</span>
                                                 </div>
 
-                                                <!-- 2. Verfügbarkeit -->
+                                                <!-- 3. Verfügbarkeit -->
                                                 <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                                                     <i class="fa-solid fa-calendar-days" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem; flex-shrink: 0;"></i>
                                                     <span style="word-break: break-word; line-height: 1.35; flex: 1;">${dateDisplay}</span>
                                                 </div>
 
-                                                <!-- 3. Musiker-Typ als Tag (ohne Icon, max 1 Typ) + 'Mehr Details' Button -->
+                                                <!-- 4. Event-Typen + 'Mehr Details' Button -->
                                                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35; margin-top: 0.15rem;">
-                                                    <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                                                        <span class="tile-type-flag" style="background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border: 1px solid rgba(191, 219, 254, 0.5); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);">
-                                                            <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${((Array.isArray(mus.musicianTypes) && mus.musicianTypes.length > 0) ? mus.musicianTypes[0] : String(mus.type || 'Solo / Band')).split(',')[0].split('/')[0].split(' - ')[0].trim()}</span>
-                                                        </span>
+                                                    <div style="display: flex; align-items: flex-start; gap: 0.6rem; flex: 1; min-width: 0;">
+                                                        <i class="fa-solid fa-calendar-check" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                                                        <span style="flex: 1; word-break: break-word;">${(mus.eventTypes || ['Hochzeit', 'Geburtstag', 'Firmenfeier']).slice(0, 3).join(', ')}</span>
                                                     </div>
                                                     <button id="toggle-details-btn-${mus.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${mus.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: #2563eb; font-family: var(--font-heading); font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
                                                         <span id="toggle-text-${mus.id}">Mehr Details</span>
@@ -21219,11 +21232,6 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                             </div>
                                         </div>
                                         <div id="collapsible-details-${mus.id}" style="display: none; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.75rem;">
-                                            <!-- 4. Event-Typen -->
-                                            <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35; font-size: 0.84rem; color: var(--text-main);">
-                                                <i class="fa-solid fa-calendar-check" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                                                <span style="flex: 1;">${(mus.eventTypes || ['Hochzeit', 'Geburtstag', 'Firmenfeier']).slice(0, 3).join(', ')}</span>
-                                            </div>
                                             <!-- 5. Genres -->
                                             <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35; font-size: 0.84rem; color: var(--text-main);">
                                                 <i class="fa-solid fa-music" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
