@@ -3373,7 +3373,8 @@ class StateManager {
         if (!this.currentUser) return;
         const unreadKey = `GigConnAct_unread_matches_${this.currentUser.id}`;
         localStorage.setItem(unreadKey, JSON.stringify([]));
-        this.notify();
+        if (typeof updateNavbar === 'function') updateNavbar();
+        if (typeof window.updateBottomBar === 'function') window.updateBottomBar();
     }
 
     isChatUnread(chat) {
@@ -4040,11 +4041,13 @@ class StateManager {
         
         const recipientId = eventId || targetId;
         const senderId = this.currentUser.role === 'musician' 
-            ? (this.activeMusicianId || this.currentUser.profileId) 
-            : (this.activeEventId || this.currentUser.id);
+            ? (this.activeMusicianId || (this.musicians && this.musicians.find(m => m && m.creatorId === this.currentUser.id)?.id) || this.currentUser.profileId) 
+            : (this.activeEventId || (this.events && this.events.find(e => e && e.creatorId === this.currentUser.id)?.id) || this.currentUser.id);
+
+        if (!this.chats) this.chats = [];
 
         let chat = this.chats.find(c => 
-            c.participants.includes(senderId) && c.participants.includes(recipientId)
+            c && c.participants && c.participants.includes(senderId) && c.participants.includes(recipientId)
         );
 
         const newId = chat ? chat.id : "chat_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
@@ -4057,11 +4060,17 @@ class StateManager {
                 updatedAt: new Date().toISOString(),
                 initiatorId: senderId
             };
+            if (eventId) chat.eventId = eventId;
+            this.chats.push(chat);
+            this.saveState();
             try {
                 await db.collection('chats').doc(newId).set(chat);
             } catch (err) {
-                console.error("initiateContact failed to create chat:", err);
+                console.error("initiateContact failed to create chat in db:", err);
             }
+        } else if (eventId && !chat.eventId) {
+            chat.eventId = eventId;
+            this.saveState();
         }
         
         const newContactRequests = (this.currentUser.contactRequests || 0) + 1;
@@ -4079,8 +4088,8 @@ class StateManager {
     async sendMessage(recipientId, text, eventId) {
         if (!this.currentUser) return { success: false, message: "Bitte melde dich an." };
         const senderId = this.currentUser.role === 'musician' 
-            ? (this.activeMusicianId || this.currentUser.profileId) 
-            : (this.activeEventId || this.currentUser.id);
+            ? (this.activeMusicianId || (this.musicians && this.musicians.find(m => m && m.creatorId === this.currentUser.id)?.id) || this.currentUser.profileId) 
+            : (this.activeEventId || (this.events && this.events.find(e => e && e.creatorId === this.currentUser.id)?.id) || this.currentUser.id);
         
         if (!senderId) {
             return { success: false, message: "Kein aktives Absender-Profil gefunden. Bitte wähle ein Profil aus." };
@@ -4089,7 +4098,9 @@ class StateManager {
             return { success: false, message: "Kein Empfänger für diesen Chat definiert." };
         }
 
-        let chat = (this.chats || []).find(c => 
+        if (!this.chats) this.chats = [];
+
+        let chat = this.chats.find(c => 
             c && c.participants && c.participants.includes(senderId) && c.participants.includes(recipientId)
         );
 
@@ -4110,6 +4121,8 @@ class StateManager {
                 initiatorId: senderId
             };
             if (eventId) chat.eventId = eventId;
+            this.chats.push(chat);
+            this.saveState();
             try {
                 await db.collection('chats').doc(newId).set(chat);
             } catch (err) {
@@ -4118,10 +4131,13 @@ class StateManager {
             }
         } else {
             const updatedMessages = [...(chat.messages || []), newMessage];
+            chat.messages = updatedMessages;
+            chat.updatedAt = new Date().toISOString();
+            this.saveState();
             try {
                 await db.collection('chats').doc(newId).update({
                     messages: updatedMessages,
-                    updatedAt: new Date().toISOString()
+                    updatedAt: chat.updatedAt
                 });
             } catch (err) {
                 console.error("sendMessage failed to update chat:", err);
@@ -9346,6 +9362,7 @@ window.initiateMarketContact = async function(targetId, targetName, eventId) {
         }
         window.postboxActiveChatId = result.chatId;
         window.postboxActiveTab = 'all';
+        window.postboxJustOpened = false;
         showToast({
             title: "Verbindung initiiert!",
             message: `Chat mit ${targetName} geöffnet.`,
@@ -9677,9 +9694,6 @@ function renderProfilePage(container) {
                         Angemeldet als <strong>${u.email || ''}</strong> (${isMusician ? 'Musiker' : 'Veranstalter'})
                     </p>
                 </div>
-                <button class="btn btn-secondary btn-sm" id="btn-profile-top-logout" style="margin: 0; display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35); font-weight: 700; border-radius: 8px; cursor: pointer; padding: 0.45rem 0.9rem; transition: all 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)';" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)';">
-                    <i class="fa-solid fa-right-from-bracket"></i> Abmelden
-                </button>
             </div>
             <div id="profile-my-items-container"></div>
             <div class="profile-section-card">
@@ -10323,13 +10337,6 @@ function renderProfilePage(container) {
         });
     }
 
-    const topLogoutBtn = document.getElementById('btn-profile-top-logout');
-    if (topLogoutBtn) {
-        topLogoutBtn.addEventListener('click', () => {
-            window.handleLogoutRedirect();
-        });
-    }
-
     const myItemsContainer = container.querySelector('#profile-my-items-container');
     if (myItemsContainer) {
         if (isMusician) {
@@ -10372,10 +10379,11 @@ function renderMatchesPage(container) {
         }
         
         let selectedId = isMusician ? state.activeMusicianId : state.activeEventId;
-        if (!selectedId && profiles.length > 0) {
+        if (profiles.length > 0 && (!selectedId || !profiles.some(p => p && p.id === selectedId))) {
             selectedId = profiles[0].id;
             if (isMusician) state.activeMusicianId = selectedId;
             else state.activeEventId = selectedId;
+            state.saveState();
         }
         
         const selectOptionsHtml = profiles.map(p => {
@@ -10459,144 +10467,163 @@ function renderMatchesPage(container) {
         if (!selectedId) return;
 
         const updateMatches = () => {
-            const activeId = selectProfile ? selectProfile.value : (isMusician ? state.activeMusicianId : state.activeEventId);
-            if (!activeId) return;
-            
-            if (isMusician) state.activeMusicianId = activeId;
-            else state.activeEventId = activeId;
+            try {
+                const activeId = selectProfile ? selectProfile.value : (isMusician ? state.activeMusicianId : state.activeEventId);
+                if (!activeId) return;
+                
+                if (isMusician) state.activeMusicianId = activeId;
+                else state.activeEventId = activeId;
 
-            const myProfile = isMusician 
-                ? (state.musicians || []).find(m => m && m.id === activeId)
-                : (state.events || []).find(e => e && e.id === activeId);
+                const myProfile = isMusician 
+                    ? (state.musicians || []).find(m => m && m.id === activeId)
+                    : (state.events || []).find(e => e && e.id === activeId);
 
-            if (!myProfile) return;
-
-            const candidates = isMusician 
-                ? (state.events || []).filter(e => isEventActive(e))
-                : (state.musicians || []).filter(m => m && m.isActive !== false);
-
-            const candidatesWithMatches = candidates.map(item => {
-                let match = { score: 0 };
-                try {
-                    match = isMusician ? calculateMatch(myProfile, item, 'musician') : calculateMatch(item, myProfile, 'organizer');
-                } catch (calcErr) {
-                    console.error("Match calculation error:", calcErr);
+                if (!myProfile) {
+                    if (topGrid) {
+                        topGrid.innerHTML = `
+                            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass); width: 100%;">
+                                <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                                <h3 style="margin-bottom: 0.5rem; color: var(--text-main);">Kein Profil gefunden</h3>
+                                <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0 auto; max-width: 400px;">Bitte wähle oben ein gültiges Profil aus.</p>
+                            </div>
+                        `;
+                    }
+                    return;
                 }
-                return { item, match: match || { score: 0 } };
-            });
 
-            const topMatches = candidatesWithMatches.filter(cand => cand && cand.match && (cand.match.score >= 70 || (targetId && cand.item && cand.item.id === targetId)));
+                const candidates = isMusician 
+                    ? (state.events || []).filter(e => isEventActive(e))
+                    : (state.musicians || []).filter(m => m && m.isActive !== false);
 
-            const sortVal = selectSort?.value || 'match';
-            topMatches.sort((a, b) => {
-                if (sortVal === 'match') {
-                    return (b.match?.score || 0) - (a.match?.score || 0);
-                }
-                if (sortVal === 'newest') {
-                    const dateA = a.item?.createdAt ? new Date(a.item.createdAt) : new Date(0);
-                    const dateB = b.item?.createdAt ? new Date(b.item.createdAt) : new Date(0);
-                    return dateB - dateA;
-                }
-                if (sortVal === 'price-asc') {
-                    const valA = a.item?.minBudget !== undefined ? a.item.minBudget : (a.item?.budget || 0);
-                    const valB = b.item?.minBudget !== undefined ? b.item.minBudget : (b.item?.budget || 0);
-                    return valA - valB;
-                }
-                if (sortVal === 'price-desc') {
-                    const valA = a.item?.minBudget !== undefined ? a.item.minBudget : (a.item?.budget || 0);
-                    const valB = b.item?.minBudget !== undefined ? b.item.minBudget : (b.item?.budget || 0);
-                    return valB - valA;
-                }
-                if (sortVal === 'name') {
-                    const nameA = a.item?.name || a.item?.title || '';
-                    const nameB = b.item?.name || b.item?.title || '';
-                    return nameA.localeCompare(nameB);
-                }
-                return 0;
-            });
+                const candidatesWithMatches = candidates.map(item => {
+                    let match = { score: 0 };
+                    try {
+                        match = isMusician ? calculateMatch(myProfile, item, 'musician') : calculateMatch(item, myProfile, 'organizer');
+                    } catch (calcErr) {
+                        console.error("Match calculation error:", calcErr);
+                    }
+                    return { item, match: match || { score: 0 } };
+                });
 
-            if (targetId) {
-                const targetIndex = topMatches.findIndex(cand => cand.item && cand.item.id === targetId);
-                if (targetIndex > -1) {
-                    const targetCand = topMatches[targetIndex];
-                    topMatches.splice(targetIndex, 1);
-                    topMatches.unshift(targetCand);
-                }
-            }
+                const topMatches = candidatesWithMatches.filter(cand => cand && cand.match && (cand.match.score >= 70 || (targetId && cand.item && cand.item.id === targetId)));
 
-            const countEl = document.getElementById('top-matches-count');
-            if (countEl) {
-                countEl.textContent = topMatches.length;
-            }
+                const sortVal = selectSort?.value || 'match';
+                topMatches.sort((a, b) => {
+                    if (sortVal === 'match') {
+                        return (b.match?.score || 0) - (a.match?.score || 0);
+                    }
+                    if (sortVal === 'newest') {
+                        const dateA = a.item?.createdAt ? new Date(a.item.createdAt) : new Date(0);
+                        const dateB = b.item?.createdAt ? new Date(b.item.createdAt) : new Date(0);
+                        return dateB - dateA;
+                    }
+                    if (sortVal === 'price-asc') {
+                        const valA = a.item?.minBudget !== undefined ? a.item.minBudget : (a.item?.budget || 0);
+                        const valB = b.item?.minBudget !== undefined ? b.item.minBudget : (b.item?.budget || 0);
+                        return valA - valB;
+                    }
+                    if (sortVal === 'price-desc') {
+                        const valA = a.item?.minBudget !== undefined ? a.item.minBudget : (a.item?.budget || 0);
+                        const valB = b.item?.minBudget !== undefined ? b.item.minBudget : (b.item?.budget || 0);
+                        return valB - valA;
+                    }
+                    if (sortVal === 'name') {
+                        const nameA = a.item?.name || a.item?.title || '';
+                        const nameB = b.item?.name || b.item?.title || '';
+                        return nameA.localeCompare(nameB);
+                    }
+                    return 0;
+                });
 
-            if (topGrid) {
-                if (topMatches.length === 0) {
-                    topGrid.innerHTML = `
-                        <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass); width: 100%;">
-                            <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
-                            <h3 style="margin-bottom: 0.5rem; color: var(--text-main);">Keine Ergebnisse gefunden</h3>
-                            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0 auto; max-width: 400px;">Keine passenden Top-Matches gefunden (Matching-Faktor >= 70 %).</p>
-                        </div>
-                    `;
-                } else {
-                    const isEventMarket = isMusician;
-                    const items = topMatches.map(cand => {
-                        if (cand.item) {
-                            cand.item.matchScore = cand.match?.score || 0;
-                        }
-                        return cand.item;
-                    }).filter(Boolean);
-                    topGrid.innerHTML = renderMarketGridHTML(items, isEventMarket);
-
-                    if (targetId) {
-                        setTimeout(() => {
-                            try {
-                                const card = document.getElementById(`collapsible-details-${targetId}`);
-                                if (card) {
-                                    // Scroll it into view
-                                    const tileCard = card.closest('.market-tile-card');
-                                    if (tileCard) {
-                                        try {
-                                            tileCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                        } catch (scrollErr) {
-                                            try {
-                                                tileCard.scrollIntoView();
-                                            } catch (scrollErr2) {}
-                                        }
-                                        // Highlight effect (glow)
-                                        tileCard.style.outline = '3px solid var(--color-purple)';
-                                        tileCard.style.outlineOffset = '4px';
-                                        tileCard.style.borderRadius = '16px';
-                                        setTimeout(() => {
-                                            tileCard.style.transition = 'outline 1.5s ease-out';
-                                            tileCard.style.outline = '3px solid transparent';
-                                        }, 3000);
-                                    }
-                                }
-                            } catch (cardErr) {
-                                console.error("Failed to scroll target match into view:", cardErr);
-                            }
-                        }, 300);
+                if (targetId) {
+                    const targetIndex = topMatches.findIndex(cand => cand.item && cand.item.id === targetId);
+                    if (targetIndex > -1) {
+                        const targetCand = topMatches[targetIndex];
+                        topMatches.splice(targetIndex, 1);
+                        topMatches.unshift(targetCand);
                     }
                 }
+
+                const countEl = document.getElementById('top-matches-count');
+                if (countEl) {
+                    countEl.textContent = topMatches.length;
+                }
+
+                if (topGrid) {
+                    if (topMatches.length === 0) {
+                        topGrid.innerHTML = `
+                            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass); width: 100%;">
+                                <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                                <h3 style="margin-bottom: 0.5rem; color: var(--text-main);">Keine Ergebnisse gefunden</h3>
+                                <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0 auto; max-width: 400px;">Keine passenden Top-Matches gefunden (Matching-Faktor >= 70 %).</p>
+                            </div>
+                        `;
+                    } else {
+                        const isEventMarket = isMusician;
+                        const items = topMatches.map(cand => {
+                            if (cand.item) {
+                                cand.item.matchScore = cand.match?.score || 0;
+                            }
+                            return cand.item;
+                        }).filter(Boolean);
+                        topGrid.innerHTML = renderMarketGridHTML(items, isEventMarket);
+
+                        if (targetId) {
+                            setTimeout(() => {
+                                try {
+                                    const card = document.getElementById(`collapsible-details-${targetId}`);
+                                    if (card) {
+                                        // Scroll it into view
+                                        const tileCard = card.closest('.market-tile-card');
+                                        if (tileCard) {
+                                            try {
+                                                tileCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                            } catch (scrollErr) {
+                                                try {
+                                                    tileCard.scrollIntoView();
+                                                } catch (scrollErr2) {}
+                                            }
+                                            // Highlight effect (glow)
+                                            tileCard.style.outline = '3px solid var(--color-purple)';
+                                            tileCard.style.outlineOffset = '4px';
+                                            tileCard.style.borderRadius = '16px';
+                                            setTimeout(() => {
+                                                tileCard.style.transition = 'outline 1.5s ease-out';
+                                                tileCard.style.outline = '3px solid transparent';
+                                            }, 3000);
+                                        }
+                                    }
+                                } catch (cardErr) {
+                                    console.error("Failed to scroll target match into view:", cardErr);
+                                }
+                            }, 300);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Error inside updateMatches:", err);
             }
         };
 
         if (selectProfile) {
             selectProfile.addEventListener('change', function() {
-                const val = this.value;
-                if (val) {
-                    if (isMusician) state.activeMusicianId = val;
-                    else state.activeEventId = val;
-                    state.saveState();
+                try {
+                    const val = this.value;
+                    if (val) {
+                        if (isMusician) state.activeMusicianId = val;
+                        else state.activeEventId = val;
+                        state.saveState();
 
-                    // Sync navbar profile selector if present
-                    const navSelect = document.getElementById('navbar-profile-select');
-                    if (navSelect && navSelect.value !== val) {
-                        navSelect.value = val;
+                        // Sync navbar profile selector if present
+                        const navSelect = document.getElementById('navbar-profile-select');
+                        if (navSelect && navSelect.value !== val) {
+                            navSelect.value = val;
+                        }
+
+                        updateMatches();
                     }
-
-                    updateMatches();
+                } catch (err) {
+                    console.error("selectProfile change error:", err);
                 }
             });
         }
@@ -10878,8 +10905,21 @@ function renderMyEventsContent(container) {
                     `}
                 </div>
             </div>
+
+            <!-- Abmelden Bereich unter pausierten & inaktiven Profilen / Events -->
+            <div class="profile-logout-section" style="display: flex; justify-content: flex-end; align-items: center; padding: 0.5rem 0.2rem; margin-top: -0.5rem;">
+                <button class="btn btn-secondary btn-sm btn-profile-section-logout" style="margin: 0; display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1.5px solid rgba(239, 68, 68, 0.35); font-weight: 700; border-radius: 10px; cursor: pointer; padding: 0.55rem 1.1rem; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)';" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)';">
+                    <i class="fa-solid fa-right-from-bracket"></i> Abmelden
+                </button>
+            </div>
         </div>
     `;
+
+    container.querySelectorAll('.btn-profile-section-logout').forEach(btn => {
+        btn.addEventListener('click', () => {
+            window.handleLogoutRedirect();
+        });
+    });
 
     const createBtn = document.getElementById('btn-create-event-modal');
     if (createBtn) {
@@ -11363,8 +11403,21 @@ function renderMyMusiciansContent(container) {
                     `}
                 </div>
             </div>
+
+            <!-- Abmelden Bereich unter pausierten & inaktiven Profilen -->
+            <div class="profile-logout-section" style="display: flex; justify-content: flex-end; align-items: center; padding: 0.5rem 0.2rem; margin-top: -0.5rem;">
+                <button class="btn btn-secondary btn-sm btn-profile-section-logout" style="margin: 0; display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1.5px solid rgba(239, 68, 68, 0.35); font-weight: 700; border-radius: 10px; cursor: pointer; padding: 0.55rem 1.1rem; font-size: 0.88rem; transition: all 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)';" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)';">
+                    <i class="fa-solid fa-right-from-bracket"></i> Abmelden
+                </button>
+            </div>
         </div>
     `;
+
+    container.querySelectorAll('.btn-profile-section-logout').forEach(btn => {
+        btn.addEventListener('click', () => {
+            window.handleLogoutRedirect();
+        });
+    });
 
     const createBtn = document.getElementById('btn-create-musician-modal');
     if (createBtn) {
@@ -15797,7 +15850,14 @@ window.updateBodyBackground = function(page) {
     document.body.style.setProperty('background-image', gradient, 'important');
 };
 
+let navigateCallDepth = 0;
 function navigate(page) {
+    if (navigateCallDepth > 2) {
+        console.warn("[DEBUG] navigate maximum call depth exceeded, blocking recursion for page:", page);
+        return;
+    }
+    navigateCallDepth++;
+    try {
     window.onNavigate = navigate;
     const mainContainer = document.getElementById('app-main');
     if (!mainContainer) return;
@@ -15918,6 +15978,7 @@ function navigate(page) {
     window.lastEventsCount = currentEventsCount;
     window.lastActiveMusicianId = activeMusicianId;
     window.lastActiveEventId = activeEventId;
+    window.lastProfilePrefillHash = currentPrefillHash;
     window.lastChatTimestamp = maxChatTimestamp;
     window.lastUpdateVersion = currentUpdateVersion;
 
@@ -16017,15 +16078,14 @@ function navigate(page) {
                 navigate('');
                 showModal('auth');
             } else {
-                try {
-                    window.postboxJustOpened = true;
+                if (typeof window.renderPostbox === 'function') {
+                    window.renderPostbox(mainContainer);
+                } else {
                     renderPostbox(mainContainer);
-                    setActiveLink('link-postbox');
-                    if (!window.location.hash.startsWith('#/postbox')) {
-                        window.location.hash = '#/postbox';
-                    }
-                } catch (navPostboxErr) {
-                    console.error("navigate postbox error:", navPostboxErr);
+                }
+                setActiveLink('link-postbox');
+                if (!window.location.hash.startsWith('#/postbox')) {
+                    window.location.hash = '#/postbox';
                 }
             }
             break;
@@ -16067,6 +16127,9 @@ function navigate(page) {
                 history.replaceState(null, '', '#/');
             }
             break;
+    }
+    } finally {
+        navigateCallDepth--;
     }
 }
 
@@ -17018,6 +17081,25 @@ function initGigConnActApp() {
 
         const isMarketPage = document.getElementById('market-items-grid') !== null;
 
+        if (currentHash.includes('matches')) {
+            if (isUserSame) {
+                if (activeProfileChanged && typeof window.matchesUpdate === 'function') {
+                    console.log('[DEBUG] user-state-changed on matches: calling window.matchesUpdate()');
+                    window.matchesUpdate();
+                }
+                runMatchingMonitor();
+                return;
+            }
+        }
+
+        if (currentHash.includes('postbox')) {
+            if (isUserSame) {
+                console.log('[DEBUG] user-state-changed on postbox: user is same, skipping handleRouting()');
+                runMatchingMonitor();
+                return;
+            }
+        }
+
         if (!activeProfileChanged && isUserSame && isMarketPage && typeof window.marketApplyFilters === 'function') {
             console.log('[DEBUG] user-state-changed: calling window.marketApplyFilters()');
             window.marketApplyFilters();
@@ -17053,8 +17135,26 @@ function renderPostbox(container) {
         const isMusician = u.role === 'musician';
         let userProfiles = [];
 
-        // Auto-select profile & chat with unread messages when first opening the postbox
-        if (window.postboxJustOpened) {
+        // If an explicit chat was requested (e.g. from "Nachricht schreiben")
+        if (window.postboxActiveChatId) {
+            window.postboxJustOpened = false;
+            const targetChat = (state.chats || []).find(c => c && c.id === window.postboxActiveChatId);
+            if (targetChat && Array.isArray(targetChat.participants)) {
+                if (isMusician) {
+                    const profiles = (state.musicians || []).filter(m => m && m.creatorId === u.id);
+                    const matchingProfile = profiles.find(m => m && targetChat.participants.includes(m.id));
+                    if (matchingProfile) {
+                        state.activeMusicianId = matchingProfile.id;
+                    }
+                } else {
+                    const userEvents = (state.events || []).filter(e => e && (e.creatorId === u.id || (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de'))));
+                    const matchingEvent = userEvents.find(e => e && targetChat.participants.includes(e.id));
+                    if (matchingEvent) {
+                        state.activeEventId = matchingEvent.id;
+                    }
+                }
+            }
+        } else if (window.postboxJustOpened) {
             window.postboxJustOpened = false;
             if (state.chats && state.chats.length > 0) {
                 const unreadChats = state.chats.filter(c => c && state.isChatUnread(c));
@@ -17108,7 +17208,18 @@ function renderPostbox(container) {
         }
 
         const renderView = () => {
-            const chats = (state.getChatsForUser(currentUserId) || []).filter(Boolean);
+            if (window.postboxActiveChatId) {
+                activeChatId = window.postboxActiveChatId;
+            }
+
+            let chats = (state.getChatsForUser(currentUserId) || []).filter(Boolean);
+            if (activeChatId && !chats.some(c => c && c.id === activeChatId)) {
+                const fallbackChat = (state.chats || []).find(c => c && c.id === activeChatId);
+                if (fallbackChat) {
+                    chats.unshift(fallbackChat);
+                }
+            }
+
             window.postboxActiveTab = activeTab;
             window.postboxActiveChatId = activeChatId;
 
@@ -17135,11 +17246,22 @@ function renderPostbox(container) {
             else if (activeTab === 'sent') currentCategoryChats = sentChats;
             else if (activeTab === 'system') currentCategoryChats = [];
 
+            if (activeChatId && !currentCategoryChats.some(c => c && c.id === activeChatId)) {
+                if (nonSystemChats.some(c => c && c.id === activeChatId)) {
+                    activeTab = 'all';
+                    window.postboxActiveTab = 'all';
+                    currentCategoryChats = nonSystemChats;
+                }
+            }
+
             if (!currentCategoryChats.some(c => c && c.id === activeChatId) && currentCategoryChats.length > 0) {
                 activeChatId = currentCategoryChats[0].id;
             }
 
-            const activeChat = chats.find(c => c && c.id === activeChatId);
+            let activeChat = chats.find(c => c && c.id === activeChatId);
+            if (!activeChat && activeChatId) {
+                activeChat = (state.chats || []).find(c => c && c.id === activeChatId);
+            }
 
             if (activeChat && activeChat.id) {
                 state.markChatAsRead(activeChat.id, true);
@@ -17501,6 +17623,7 @@ function renderPostbox(container) {
         container.querySelectorAll('.tab-btn-postbox').forEach(btn => {
             btn.addEventListener('click', () => {
                 activeTab = btn.getAttribute('data-tab');
+                window.postboxActiveChatId = null;
                 renderView();
             });
         });
@@ -17513,8 +17636,10 @@ function renderPostbox(container) {
                 const clickedChatId = item.getAttribute('data-chat-id');
                 if (activeChatId === clickedChatId) {
                     activeChatId = null;
+                    window.postboxActiveChatId = null;
                 } else {
                     activeChatId = clickedChatId;
+                    window.postboxActiveChatId = clickedChatId;
                     state.markChatAsRead(clickedChatId); // Force mark as read immediately on click!
                 }
                 renderView();
@@ -17569,6 +17694,7 @@ function renderPostbox(container) {
                         });
                     } else {
                         input.value = '';
+                        renderView();
                     }
                 } catch (sendErr) {
                     console.error("Desktop sendMessage error:", sendErr);
@@ -17599,6 +17725,7 @@ function renderPostbox(container) {
                         });
                     } else {
                         input.value = '';
+                        renderView();
                     }
                 } catch (sendErr) {
                     console.error("Mobile sendMessage error:", sendErr);
