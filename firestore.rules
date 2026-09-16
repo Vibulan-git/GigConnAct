@@ -35,9 +35,9 @@ service cloud.firestore {
 
     // 2. Pending Registrations (Pre-authentication)
     match /pendingRegistrations/{email} {
-      allow get: if true; // Allow checking pending registration by email key
-      allow create: if request.resource.data.email.lower() == email; // Allow writing own registration
-      allow delete: if request.auth != null; // Deletion is performed once authenticated
+      allow read: if true; // Allow checking pending registration by email key
+      allow create, update: if request.resource.data.email.lower() == email; // Allow writing/updating own registration
+      allow delete: if true; // Allow deletion once authenticated or during cleanup
     }
 
     // 3. Musicians

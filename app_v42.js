@@ -2226,6 +2226,7 @@ class StateManager {
     async fetchUserOwnData() {
         if (!this.currentUser) return;
         const uid = this.currentUser.id;
+        const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
         try {
             console.log("[DEBUG] StateManager.fetchUserOwnData() called for uid:", uid);
             const musSnapshot = await db.collection('musicians').where('creatorId', '==', uid).get();
@@ -2239,6 +2240,18 @@ class StateManager {
                 }
             });
 
+            // If musician profileId exists directly, ensure it's loaded
+            if (this.currentUser.profileId && this.currentUser.profileId.startsWith('mus_')) {
+                try {
+                    const mDoc = await db.collection('musicians').doc(this.currentUser.profileId).get();
+                    if (mDoc.exists) {
+                        const mData = { id: mDoc.id, ...mDoc.data() };
+                        const idx = this.musicians.findIndex(m => m.id === mData.id);
+                        if (idx > -1) this.musicians[idx] = mData; else this.musicians.push(mData);
+                    }
+                } catch (e) {}
+            }
+
             const evtSnapshot = await db.collection('events').where('creatorId', '==', uid).get();
             evtSnapshot.forEach(doc => {
                 const data = { id: doc.id, ...doc.data() };
@@ -2249,6 +2262,150 @@ class StateManager {
                     this.events.push(data);
                 }
             });
+
+            // If event profileId exists directly, ensure it's loaded
+            if (this.currentUser.profileId && this.currentUser.profileId.startsWith('evt_')) {
+                try {
+                    const eDoc = await db.collection('events').doc(this.currentUser.profileId).get();
+                    if (eDoc.exists) {
+                        const eData = { id: eDoc.id, ...eDoc.data() };
+                        const idx = this.events.findIndex(e => e.id === eData.id);
+                        if (idx > -1) this.events[idx] = eData; else this.events.push(eData);
+                    }
+                } catch (e) {}
+            }
+
+            // Fallback for organizer: check by user email in events
+            if (this.currentUser.role === 'organizer' && this.currentUser.email) {
+                try {
+                    const emailEvtSnap = await db.collection('events').where('email', '==', this.currentUser.email).get();
+                    emailEvtSnap.forEach(doc => {
+                        const data = { id: doc.id, ...doc.data() };
+                        const idx = this.events.findIndex(e => e.id === data.id);
+                        if (idx > -1) this.events[idx] = data; else this.events.push(data);
+                    });
+                } catch (e) {}
+            }
+
+            // AUTO-RECOVERY FOR ORGANIZER: If organizer has no events, check pendingRegistrations or auto-create initial event
+            if (this.currentUser.role === 'organizer') {
+                let userEvts = this.events.filter(e => e && (e.creatorId === uid || (this.currentUser.profileId && e.id === this.currentUser.profileId) || (this.currentUser.email && e.email === this.currentUser.email)));
+                if (userEvts.length === 0 && this.currentUser.email) {
+                    const emailKey = this.currentUser.email.toLowerCase().trim();
+                    try {
+                        const pendingDoc = await db.collection('pendingRegistrations').doc(emailKey).get();
+                        if (pendingDoc.exists) {
+                            const pData = pendingDoc.data();
+                            console.log("[GigConnAct] Auto-converting pending registration into active event for organizer:", emailKey);
+                            const newProfileId = 'evt_' + uid;
+                            const restoredEvent = {
+                                id: newProfileId,
+                                creatorId: uid,
+                                name: pData.eventName || this.currentUser.eventName || 'Mein Event',
+                                type: pData.orgEventTypes ? pData.orgEventTypes[0] : (pData.type || 'Privates Event'),
+                                eventTypes: pData.orgEventTypes || pData.eventTypes || ['Sonstiges'],
+                                musicianTypes: pData.orgMusicianTypes || pData.musicianTypes || ['Solokünstler', 'Band'],
+                                date: pData.eventDates ? pData.eventDates[0] : (pData.date || ''),
+                                dates: pData.eventDates || pData.dates || [],
+                                eventStartTime: pData.eventStartTime || '18:00',
+                                eventEndTime: pData.eventEndTime || '22:00',
+                                location: pData.orgLocations ? pData.orgLocations.join(', ') : (pData.location || 'München'),
+                                locations: pData.orgLocations || pData.locations || ['München'],
+                                genres: pData.orgGenres || pData.genres || ['Pop'],
+                                instruments: pData.orgInstruments || pData.instruments || ['Gesang'],
+                                minDuration: parseFloat(pData.orgMinDuration) || 2.0,
+                                maxDuration: parseFloat(pData.orgMaxDuration) || 4.0,
+                                duration: parseFloat(pData.orgMinDuration) || 2.0,
+                                minPublikum: parseInt(pData.orgMinPublikum) || 50,
+                                maxPublikum: parseInt(pData.orgMaxPublikum) || 150,
+                                publikum: `${pData.orgMinPublikum || 50} - ${pData.orgMaxPublikum || 150}`,
+                                minBudget: parseFloat(pData.orgMinBudget) || 300,
+                                maxBudget: parseFloat(pData.orgMaxBudget) || 800,
+                                budget: parseFloat(pData.orgMinBudget) || 300,
+                                description: pData.orgDescription || pData.description || 'Event-Ausschreibung',
+                                technik: pData.technik || ['Technik ist noch unklar'],
+                                company: this.currentUser.company || pData.company || 'Privatperson',
+                                organizerType: this.currentUser.organizerType || pData.organizerType || 'Privater Veranstalter',
+                                contactName: `${this.currentUser.firstName || ''} ${this.currentUser.lastName || ''}`.trim() || 'Veranstalter',
+                                phone: this.currentUser.phone || pData.phone || '',
+                                hidePhone: this.currentUser.hidePhone || false,
+                                email: this.currentUser.email,
+                                isOnline: true,
+                                isActive: true,
+                                createdAt: new Date().toISOString()
+                            };
+                            await db.collection('events').doc(newProfileId).set(restoredEvent, { merge: true });
+                            await db.collection('pendingRegistrations').doc(emailKey).delete().catch(()=>{});
+                            const idx = this.events.findIndex(e => e.id === newProfileId);
+                            if (idx > -1) this.events[idx] = restoredEvent; else this.events.push(restoredEvent);
+                            this.currentUser.profileId = newProfileId;
+                            this.currentUser.eventName = restoredEvent.name;
+                            this.activeEventId = newProfileId;
+                            await db.collection('users').doc(uid).set({ profileId: newProfileId, eventName: restoredEvent.name }, { merge: true });
+                            this.saveState();
+                        } else if (!isAdmin) {
+                            // If no pending registration and not admin, auto-create a default initial event so the organizer always has an event
+                            const newProfileId = 'evt_' + uid;
+                            const defaultEvent = {
+                                id: newProfileId,
+                                creatorId: uid,
+                                name: this.currentUser.eventName || 'Mein Event',
+                                type: 'Privates Event',
+                                eventTypes: ['Sonstiges'],
+                                musicianTypes: ['Solokünstler', 'Band'],
+                                date: '',
+                                dates: [],
+                                eventStartTime: '18:00',
+                                eventEndTime: '22:00',
+                                location: 'München',
+                                locations: ['München'],
+                                genres: ['Pop', 'Rock'],
+                                instruments: ['Gesang', 'Akustikgitarre'],
+                                minDuration: 2.0,
+                                maxDuration: 4.0,
+                                duration: 2.0,
+                                minPublikum: 50,
+                                maxPublikum: 150,
+                                publikum: '50 - 150',
+                                minBudget: 300,
+                                maxBudget: 800,
+                                budget: 300,
+                                description: 'Event-Ausschreibung',
+                                technik: ['Technik ist noch unklar'],
+                                company: this.currentUser.company || 'Privatperson',
+                                organizerType: this.currentUser.organizerType || 'Privater Veranstalter',
+                                contactName: `${this.currentUser.firstName || ''} ${this.currentUser.lastName || ''}`.trim() || 'Veranstalter',
+                                phone: this.currentUser.phone || '',
+                                hidePhone: this.currentUser.hidePhone || false,
+                                email: this.currentUser.email,
+                                isOnline: true,
+                                isActive: true,
+                                createdAt: new Date().toISOString()
+                            };
+                            await db.collection('events').doc(newProfileId).set(defaultEvent, { merge: true });
+                            const idx = this.events.findIndex(e => e.id === newProfileId);
+                            if (idx > -1) this.events[idx] = defaultEvent; else this.events.push(defaultEvent);
+                            this.currentUser.profileId = newProfileId;
+                            this.currentUser.eventName = defaultEvent.name;
+                            this.activeEventId = newProfileId;
+                            await db.collection('users').doc(uid).set({ profileId: newProfileId, eventName: defaultEvent.name }, { merge: true });
+                            this.saveState();
+                        }
+                    } catch (recErr) {
+                        console.warn("[GigConnAct] Error recovering organizer event:", recErr);
+                    }
+                }
+
+                // Make sure activeEventId points to a valid event
+                const myEvt = this.events.find(e => e && (e.creatorId === uid || (this.currentUser.profileId && e.id === this.currentUser.profileId) || (this.currentUser.email && e.email === this.currentUser.email)));
+                if (myEvt) {
+                    this.activeEventId = myEvt.id;
+                    if (!this.currentUser.profileId) {
+                        this.currentUser.profileId = myEvt.id;
+                    }
+                }
+            }
+
             this.updateVersion = (this.updateVersion || 0) + 1;
             this.notify();
         } catch (e) {
@@ -2624,273 +2781,285 @@ class StateManager {
                 const urlParams = new URLSearchParams(window.location.search);
                 const userDoc = await db.collection('users').doc(user.uid).get();
 
-                if (userDoc.exists) {
+                // Check if there is a pending registration (in localStorage or Firestore)
+                let pendingReg = null;
+                const pendingRegStr = window.localStorage.getItem('GigConnAct_pending_registration');
+                if (pendingRegStr) {
+                    try { pendingReg = JSON.parse(pendingRegStr); } catch (e) {}
+                }
+                if (!pendingReg || !pendingReg.email || pendingReg.email.toLowerCase() !== email.toLowerCase()) {
+                    console.log("Pending registration not found in localStorage or email mismatch. Fetching from Firestore...");
+                    try {
+                        const pendingDoc = await db.collection('pendingRegistrations').doc(email.toLowerCase()).get();
+                        if (pendingDoc.exists) {
+                            pendingReg = pendingDoc.data();
+                        }
+                    } catch (pErr) {
+                        console.warn("Could not get pendingDoc from Firestore:", pErr);
+                    }
+                }
+
+                let redirectToStripe = false;
+                let targetPlan = 'flex';
+
+                if (pendingReg && pendingReg.email && pendingReg.email.toLowerCase() === email.toLowerCase()) {
+                    console.log("Completing registration for user:", email);
+                    const profileId = pendingReg.role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
+                    const isPromo = pendingReg.subscriptionPlan === 'premium' && pendingReg.isPromoCodeApplied === true;
+
+                    const newUser = {
+                        id: user.uid,
+                        role: pendingReg.role,
+                        firstName: pendingReg.firstName || "",
+                        lastName: pendingReg.lastName || "",
+                        company: pendingReg.company || "Privatperson",
+                        organizerType: pendingReg.organizerType || "",
+                        phone: pendingReg.phone || "",
+                        hidePhone: pendingReg.hidePhone || false,
+                        email: pendingReg.email || email,
+                        profileId: profileId,
+                        eventName: pendingReg.eventName || 'Mein Event',
+                        isPremium: isPromo,
+                        subscriptionPlan: pendingReg.subscriptionPlan || "flex",
+                        successfulGigs: 0,
+                        contactRequests: 0,
+                        favorites: [],
+                        interests: [],
+                        createdAt: new Date().toISOString()
+                    };
+
+                    await db.collection('users').doc(user.uid).set(newUser, { merge: true });
+
+                    if (pendingReg.role === 'musician') {
+                        const newMusician = {
+                            id: profileId,
+                            name: pendingReg.bandName,
+                            bluffName: `Anonyme/r ${pendingReg.musicianType} (${pendingReg.genres && pendingReg.genres[0] ? pendingReg.genres[0] : 'Musik'})`,
+                            type: pendingReg.musicianType,
+                            location: pendingReg.locations ? pendingReg.locations.join(', ') : (pendingReg.location || 'München'),
+                            locations: pendingReg.locations || [pendingReg.location || 'München'],
+                            radius: parseInt(pendingReg.radius) || 50,
+                            genres: pendingReg.genres || [],
+                            instruments: pendingReg.instruments || [],
+                            minDuration: parseFloat(pendingReg.minDuration) || 1,
+                            maxDuration: parseFloat(pendingReg.maxDuration) || 3,
+                            minBudget: parseFloat(pendingReg.minBudget) || 150,
+                            maxBudget: parseFloat(pendingReg.maxBudget) || 1000,
+                            eventTypes: pendingReg.eventTypes || [],
+                            availability: pendingReg.availability || {},
+                            minPublikum: parseInt(pendingReg.minPublikum) || 0,
+                            maxPublikum: parseInt(pendingReg.maxPublikum) || 500,
+                            description: pendingReg.description || "",
+                            technik: pendingReg.technik || ["Technik ist noch unklar"],
+                            company: newUser.company || "Privatperson",
+                            contactName: `${newUser.firstName} ${newUser.lastName}`.trim() || 'Musiker',
+                            phone: newUser.phone,
+                            hidePhone: pendingReg.hidePhone || false,
+                            email: newUser.email,
+                            isPremium: newUser.isPremium,
+                            subscriptionPlan: pendingReg.subscriptionPlan || "flex",
+                            credits: 0,
+                            unlockedContacts: [],
+                            socialLinks: { spotify: "", youtube: "", instagram: "" },
+                            photos: pendingReg.photos || [],
+                            videos: pendingReg.videos || [],
+                            audio: pendingReg.audio || pendingReg.audios || [],
+                            isActive: true,
+                            createdAt: new Date().toISOString(),
+                            creatorId: user.uid
+                        };
+                        await db.collection('musicians').doc(profileId).set(newMusician, { merge: true });
+                        const idx = state.musicians.findIndex(m => m.id === profileId);
+                        if (idx > -1) state.musicians[idx] = newMusician; else state.musicians.push(newMusician);
+                        state.activeMusicianId = profileId;
+                    } else {
+                        const newEvent = {
+                            id: profileId,
+                            name: pendingReg.eventName || 'Mein Event',
+                            type: pendingReg.orgEventTypes ? pendingReg.orgEventTypes[0] : "",
+                            eventTypes: pendingReg.orgEventTypes || [],
+                            musicianTypes: pendingReg.orgMusicianTypes || [],
+                            date: pendingReg.eventDates ? pendingReg.eventDates[0] : "",
+                            dates: pendingReg.eventDates || [],
+                            eventStartTime: pendingReg.eventStartTime || "18:00",
+                            eventEndTime: pendingReg.eventEndTime || "22:00",
+                            location: pendingReg.orgLocations ? pendingReg.orgLocations.join(', ') : "",
+                            locations: pendingReg.orgLocations || [],
+                            genres: pendingReg.orgGenres || [],
+                            instruments: pendingReg.orgInstruments || [],
+                            minDuration: parseFloat(pendingReg.orgMinDuration) || 2.0,
+                            maxDuration: parseFloat(pendingReg.orgMaxDuration) || 4.0,
+                            duration: parseFloat(pendingReg.orgMinDuration) || 2.0,
+                            minPublikum: parseInt(pendingReg.orgMinPublikum) || 50,
+                            maxPublikum: parseInt(pendingReg.orgMaxPublikum) || 150,
+                            publikum: `${pendingReg.orgMinPublikum || 50} - ${pendingReg.orgMaxPublikum || 150}`,
+                            minBudget: parseFloat(pendingReg.orgMinBudget) || 300,
+                            maxBudget: parseFloat(pendingReg.orgMaxBudget) || 800,
+                            budget: parseFloat(pendingReg.orgMinBudget) || 300,
+                            description: pendingReg.orgDescription || "",
+                            technik: pendingReg.technik || ["Technik ist noch unklar"],
+                            company: newUser.company || "Privatperson",
+                            organizerType: newUser.organizerType || "Privater Veranstalter",
+                            contactName: `${newUser.firstName} ${newUser.lastName}`.trim() || 'Veranstalter',
+                            phone: newUser.phone,
+                            hidePhone: pendingReg.hidePhone || false,
+                            email: newUser.email,
+                            isOnline: true,
+                            isActive: true,
+                            createdAt: new Date().toISOString(),
+                            photos: pendingReg.photos || [],
+                            videos: pendingReg.videos || [],
+                            audio: pendingReg.audio || pendingReg.audios || [],
+                            creatorId: user.uid,
+                            isPremium: newUser.isPremium,
+                            subscriptionPlan: pendingReg.subscriptionPlan || "flex"
+                        };
+                        await db.collection('events').doc(profileId).set(newEvent, { merge: true });
+                        const idx = state.events.findIndex(e => e.id === profileId);
+                        if (idx > -1) state.events[idx] = newEvent; else state.events.push(newEvent);
+                        state.activeEventId = profileId;
+                    }
+
+                    state.currentUser = newUser;
+                    localStorage.setItem('GigConnAct_current_user', JSON.stringify(newUser));
+                    state.saveState();
+                    await state.fetchUserOwnData().catch(e => console.warn(e));
+                    state.notify();
+
+                    window.localStorage.removeItem('GigConnAct_pending_registration');
+                    db.collection('pendingRegistrations').doc(email.toLowerCase()).delete().catch(()=>{});
+
+                    targetPlan = pendingReg.subscriptionPlan || 'flex';
+                    if (targetPlan === 'flex' || targetPlan === 'plus' || targetPlan === 'pro') {
+                        redirectToStripe = true;
+                    } else {
+                        showToast({
+                            title: "Registrierung abgeschlossen! 🎉",
+                            message: "Dein Profil wurde erfolgreich erstellt."
+                        });
+                    }
+                } else if (userDoc.exists) {
                     console.log("Existing user signed in successfully!");
                     state.currentUser = { id: userDoc.id, ...userDoc.data() };
                     if (state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email)) {
                         state.currentUser.role = 'organizer';
                     }
-                    window.history.replaceState({}, document.title, window.location.origin + window.location.pathname + window.location.hash);
+                    localStorage.setItem('GigConnAct_current_user', JSON.stringify(state.currentUser));
+                    await state.fetchUserOwnData().catch(e => console.warn(e));
+                    state.saveState();
+                    state.notify();
                 } else {
-                    const pendingRegStr = window.localStorage.getItem('GigConnAct_pending_registration');
-                    let pendingReg = pendingRegStr ? JSON.parse(pendingRegStr) : null;
+                    console.log("Creating default user profile on the fly...");
+                    const role = urlParams.get('role') || 'musician';
+                    const profileId = role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
+                    
+                    const newUser = {
+                        id: user.uid,
+                        role: role,
+                        firstName: role === 'musician' ? 'Demo-Musiker' : 'Demo-Veranstalter',
+                        lastName: 'Gast',
+                        company: 'Privatperson',
+                        organizerType: role === 'organizer' ? 'Privater Veranstalter' : '',
+                        phone: '+49 170 1234567',
+                        email: email,
+                        profileId: profileId,
+                        eventName: role === 'organizer' ? 'Demo Veranstaltung' : '',
+                        isPremium: true,
+                        subscriptionPlan: 'flex',
+                        credits: 0,
+                        unlockedContacts: [],
+                        successfulGigs: 0,
+                        contactRequests: 0,
+                        favorites: [],
+                        interests: [],
+                        createdAt: new Date().toISOString()
+                    };
 
-                    if (!pendingReg || pendingReg.email.toLowerCase() !== email.toLowerCase()) {
-                        console.log("Pending registration not found in localStorage or email mismatch. Fetching from Firestore...");
-                        const pendingDoc = await db.collection('pendingRegistrations').doc(email.toLowerCase()).get();
-                        if (pendingDoc.exists) {
-                            pendingReg = pendingDoc.data();
-                        }
-                    }
-
-                    if (pendingReg && pendingReg.email.toLowerCase() === email.toLowerCase()) {
-                        console.log("Completing registration for new user:", email);
-                        const profileId = pendingReg.role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
-                        
-                        const isPromo = pendingReg.subscriptionPlan === 'premium' && pendingReg.isPromoCodeApplied === true;
-
-                        const newUser = {
-                            id: user.uid,
-                            role: pendingReg.role,
-                            firstName: pendingReg.firstName,
-                            lastName: pendingReg.lastName,
-                            company: pendingReg.company || "Privatperson",
-                            organizerType: pendingReg.organizerType || "",
-                            phone: pendingReg.phone,
-                            hidePhone: pendingReg.hidePhone || false,
-                            email: pendingReg.email,
-                            profileId: profileId,
-                            isPremium: isPromo,
-                            subscriptionPlan: pendingReg.subscriptionPlan || "flex",
-                            successfulGigs: 0,
-                            contactRequests: 0,
-                            favorites: [],
-                            interests: []
-                        };
-
-                        await db.collection('users').doc(user.uid).set(newUser);
-
-                        if (pendingReg.role === 'musician') {
-                            const newMusician = {
-                                id: profileId,
-                                name: pendingReg.bandName,
-                                bluffName: `Anonyme/r ${pendingReg.musicianType} (${pendingReg.genres[0] || 'Musik'})`,
-                                type: pendingReg.musicianType,
-                                location: pendingReg.locations ? pendingReg.locations.join(', ') : (pendingReg.location || 'München'),
-                                locations: pendingReg.locations || [pendingReg.location || 'München'],
-                                radius: parseInt(pendingReg.radius) || 50,
-                                genres: pendingReg.genres,
-                                instruments: pendingReg.instruments,
-                                minDuration: parseFloat(pendingReg.minDuration) || 1,
-                                maxDuration: parseFloat(pendingReg.maxDuration) || 3,
-                                minBudget: parseFloat(pendingReg.minBudget) || 150,
-                                maxBudget: parseFloat(pendingReg.maxBudget) || 1000,
-                                eventTypes: pendingReg.eventTypes,
-                                availability: pendingReg.availability,
-                                minPublikum: parseInt(pendingReg.minPublikum) || 0,
-                                maxPublikum: parseInt(pendingReg.maxPublikum) || 500,
-                                description: pendingReg.description,
-                                technik: pendingReg.technik || ["Technik ist noch unklar"],
-                                company: newUser.company || "Privatperson",
-                                contactName: `${newUser.firstName} ${newUser.lastName}`,
-                                phone: newUser.phone,
-                                hidePhone: pendingReg.hidePhone || false,
-                                email: newUser.email,
-                                isPremium: newUser.isPremium,
-                                subscriptionPlan: pendingReg.subscriptionPlan || "flex",
-                                credits: 0,
-                                unlockedContacts: [],
-                                socialLinks: { spotify: "", youtube: "", instagram: "" },
-                                photos: pendingReg.photos || [],
-                                videos: pendingReg.videos || [],
-                                audio: [],
-                                creatorId: user.uid
-                            };
-                            await db.collection('musicians').doc(profileId).set(newMusician);
-                        } else {
-                            const newEvent = {
-                                id: profileId,
-                                name: pendingReg.eventName,
-                                type: pendingReg.orgEventTypes ? pendingReg.orgEventTypes[0] : "",
-                                eventTypes: pendingReg.orgEventTypes || [],
-                                date: pendingReg.eventDates ? pendingReg.eventDates[0] : "",
-                                dates: pendingReg.eventDates || [],
-                                eventStartTime: pendingReg.eventStartTime || "18:00",
-                                eventEndTime: pendingReg.eventEndTime || "22:00",
-                                location: pendingReg.orgLocations ? pendingReg.orgLocations.join(', ') : "",
-                                locations: pendingReg.orgLocations || [],
-                                genres: pendingReg.orgGenres || [],
-                                instruments: pendingReg.orgInstruments || [],
-                                minDuration: parseFloat(pendingReg.orgMinDuration) || 2.0,
-                                maxDuration: parseFloat(pendingReg.orgMaxDuration) || 4.0,
-                                duration: parseFloat(pendingReg.orgMinDuration) || 2.0,
-                                minPublikum: parseInt(pendingReg.orgMinPublikum) || 50,
-                                maxPublikum: parseInt(pendingReg.orgMaxPublikum) || 150,
-                                publikum: `${pendingReg.orgMinPublikum || 50} - ${pendingReg.orgMaxPublikum || 150}`,
-                                minBudget: parseFloat(pendingReg.orgMinBudget) || 300,
-                                maxBudget: parseFloat(pendingReg.orgMaxBudget) || 800,
-                                budget: parseFloat(pendingReg.orgMinBudget) || 300,
-                                description: pendingReg.orgDescription || "",
-                                technik: pendingReg.technik || ["Technik ist noch unklar"],
-                                company: newUser.company || "Privatperson",
-                                organizerType: newUser.organizerType || "Privater Veranstalter",
-                                contactName: `${newUser.firstName} ${newUser.lastName}`,
-                                phone: newUser.phone,
-                                hidePhone: pendingReg.hidePhone || false,
-                                email: newUser.email,
-                                isOnline: true,
-                                creatorId: user.uid,
-                                isPremium: newUser.isPremium,
-                                subscriptionPlan: pendingReg.subscriptionPlan || "flex"
-                            };
-                            await db.collection('events').doc(profileId).set(newEvent);
-                        }
-                        window.localStorage.removeItem('GigConnAct_pending_registration');
-                        db.collection('pendingRegistrations').doc(email.toLowerCase()).delete().catch(()=>{});
-                        
-                        // Set registration redirecting flag to prevent early paywall blocker
-                        window.isRegisteringRedirecting = true;
-
-                        const isPaidPlan = (pendingReg.subscriptionPlan === 'flex' || pendingReg.subscriptionPlan === 'plus' || pendingReg.subscriptionPlan === 'pro');
-                        if (isPaidPlan) {
-                            showToast({
-                                title: "Registrierung abgeschlossen! 💳",
-                                message: "Du wirst jetzt zur sicheren Zahlungsseite weitergeleitet..."
-                            });
-                            try {
-                                const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
-                                const res = await createStripeSession({ 
-                                    planKey: pendingReg.subscriptionPlan,
-                                    baseUrl: window.location.origin
-                                });
-                                if (res.data && res.data.url) {
-                                    window.location.href = res.data.url;
-                                    return;
-                                }
-                            } catch (stripeErr) {
-                                window.isRegisteringRedirecting = false;
-                                console.error("Stripe Checkout Redirect failed during passwordless registration:", stripeErr);
-                                showToast({
-                                    title: "Weiterleitung fehlgeschlagen ⚠️",
-                                    message: stripeErr.message || "Es gab ein Problem bei der Weiterleitung zur Bezahlseite.",
-                                    type: "error"
-                                });
-                            }
-                        } else {
-                            window.isRegisteringRedirecting = false;
-                            showToast({
-                                title: "Registrierung abgeschlossen! 🎉",
-                                message: "Dein Profil wurde erfolgreich erstellt."
-                            });
-                        }
-                    } else {
-                        console.log("Creating default user profile on the fly...");
-                        const role = urlParams.get('role') || 'musician';
-                        const profileId = role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
-                        
-                        const newUser = {
-                            id: user.uid,
-                            role: role,
-                            firstName: role === 'musician' ? 'Demo-Musiker' : 'Demo-Veranstalter',
-                            lastName: 'Gast',
-                            company: 'Privatperson',
-                            organizerType: role === 'organizer' ? 'Privater Veranstalter' : '',
-                            phone: '+49 170 1234567',
+                    await db.collection('users').doc(user.uid).set(newUser);
+                    
+                    if (role === 'musician') {
+                        const newMusician = {
+                            id: profileId,
+                            name: "Demo Musiker",
+                            bluffName: "Akustik-Solo-Künstler",
+                            type: "Solo",
+                            location: "München",
+                            locations: ["München"],
+                            radius: 100,
+                            genres: ["Pop", "Rock"],
+                            instruments: ["Gesang", "Akustikgitarre"],
+                            minDuration: 1,
+                            maxDuration: 3,
+                            minBudget: 150,
+                            maxBudget: 1000,
+                            eventTypes: ["Geburtstag", "Sommerfest"],
+                            availability: {
+                                friday: { available: true, startTime: '18:00', endTime: '23:59' },
+                                saturday: { available: true, startTime: '00:01', endTime: '23:59' }
+                            },
+                            minPublikum: 0,
+                            maxPublikum: 500,
+                            description: "Professioneller Solo-Künstler für Events aller Art.",
+                            technik: ["Technik vorhanden"],
+                            company: "Privatperson",
+                            contactName: "Demo-Musiker Gast",
+                            phone: "+49 170 1234567",
                             email: email,
-                            profileId: profileId,
-                            isPremium: true,
-                            subscriptionPlan: 'flex',
+                            isPremium: false,
+                            isActive: true,
+                            subscriptionPlan: "flex",
                             credits: 0,
                             unlockedContacts: [],
-                            successfulGigs: 0,
-                            contactRequests: 0,
-                            favorites: [],
-                            interests: []
+                            socialLinks: { spotify: "", youtube: "", instagram: "" },
+                            photos: [],
+                            videos: [],
+                            audio: [],
+                            creatorId: user.uid,
+                            createdAt: new Date().toISOString()
                         };
-
-                        await db.collection('users').doc(user.uid).set(newUser);
-                        
-                        if (role === 'musician') {
-                            const newMusician = {
-                                id: profileId,
-                                name: "Demo Musiker",
-                                bluffName: "Akustik-Solo-Künstler",
-                                type: "Solo",
-                                location: "München",
-                                locations: ["München"],
-                                radius: 100,
-                                genres: ["Pop", "Rock"],
-                                instruments: ["Gesang", "Akustikgitarre"],
-                                minDuration: 1,
-                                maxDuration: 3,
-                                minBudget: 150,
-                                maxBudget: 1000,
-                                eventTypes: ["Geburtstag", "Sommerfest"],
-                                availability: {
-                                    friday: { available: true, startTime: '18:00', endTime: '23:59' },
-                                    saturday: { available: true, startTime: '00:01', endTime: '23:59' }
-                                },
-                                minPublikum: 0,
-                                maxPublikum: 500,
-                                description: "Professioneller Solo-Künstler für Events aller Art.",
-                                technik: ["Technik vorhanden"],
-                                company: "Privatperson",
-                                contactName: "Demo-Musiker Gast",
-                                phone: "+49 170 1234567",
-                                email: email,
-                                isPremium: false,
-                                subscriptionPlan: "flex",
-                                credits: 0,
-                                unlockedContacts: [],
-                                socialLinks: { spotify: "", youtube: "", instagram: "" },
-                                photos: [],
-                                videos: [],
-                                audio: [],
-                                creatorId: user.uid
-                            };
-                            await db.collection('musicians').doc(profileId).set(newMusician);
-                        } else {
-                            const newEvent = {
-                                id: profileId,
-                                name: "Demo Veranstaltung",
-                                type: "Geburtstag",
-                                eventTypes: ["Geburtstag"],
-                                date: "2026-08-15",
-                                dates: ["2026-08-15"],
-                                location: "München",
-                                locations: ["München"],
-                                genres: ["Pop", "Rock"],
-                                instruments: ["Gesang", "Akustikgitarre"],
-                                minDuration: 2.0,
-                                maxDuration: 4.0,
-                                duration: 4.0,
-                                minPublikum: 50,
-                                maxPublikum: 150,
-                                publikum: "50 - 150",
-                                minBudget: 300,
-                                maxBudget: 800,
-                                description: "Private Feier in München. Wir suchen einen netten Live-Act.",
-                                technik: ["Technik ist noch unklar"],
-                                company: "Privatperson",
-                                organizerType: "Privater Veranstalter",
-                                contactName: "Demo-Veranstalter Gast",
-                                phone: "+49 170 1234567",
-                                email: email,
-                                isOnline: true,
-                                creatorId: user.uid
-                            };
-                            await db.collection('events').doc(profileId).set(newEvent);
-                        }
+                        await db.collection('musicians').doc(profileId).set(newMusician);
+                        state.musicians.push(newMusician);
+                        state.activeMusicianId = profileId;
+                    } else {
+                        const newEvent = {
+                            id: profileId,
+                            name: "Demo Veranstaltung",
+                            type: "Geburtstag",
+                            eventTypes: ["Geburtstag"],
+                            date: "2026-08-15",
+                            dates: ["2026-08-15"],
+                            location: "München",
+                            locations: ["München"],
+                            genres: ["Pop", "Rock"],
+                            instruments: ["Gesang", "Akustikgitarre"],
+                            minDuration: 2.0,
+                            maxDuration: 4.0,
+                            duration: 4.0,
+                            minPublikum: 50,
+                            maxPublikum: 150,
+                            publikum: "50 - 150",
+                            minBudget: 300,
+                            maxBudget: 800,
+                            description: "Private Feier in München. Wir suchen einen netten Live-Act.",
+                            technik: ["Technik ist noch unklar"],
+                            company: "Privatperson",
+                            organizerType: "Privater Veranstalter",
+                            contactName: "Demo-Veranstalter Gast",
+                            phone: "+49 170 1234567",
+                            email: email,
+                            isOnline: true,
+                            isActive: true,
+                            creatorId: user.uid,
+                            createdAt: new Date().toISOString()
+                        };
+                        await db.collection('events').doc(profileId).set(newEvent);
+                        state.events.push(newEvent);
+                        state.activeEventId = profileId;
                     }
-                }
-                
-                let redirectToStripe = false;
-                let targetPlan = 'flex';
-                if (pendingReg && pendingReg.email.toLowerCase() === email.toLowerCase()) {
-                    targetPlan = pendingReg.subscriptionPlan || 'flex';
-                    if (targetPlan === 'flex' || targetPlan === 'plus' || targetPlan === 'pro') {
-                        redirectToStripe = true;
-                    }
+                    state.currentUser = newUser;
+                    localStorage.setItem('GigConnAct_current_user', JSON.stringify(newUser));
+                    state.saveState();
+                    state.notify();
                 }
                 
                 window.history.replaceState({}, document.title, window.location.origin + window.location.pathname + window.location.hash);
@@ -15381,7 +15550,8 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     phone: payload.phone,
                     hidePhone: payload.hidePhone || false,
                     email: user.email,
-                    profileId: payload.role === 'musician' ? profileId : null,
+                    profileId: profileId,
+                    eventName: payload.eventName || 'Mein Event',
                     isPremium: isPromo,
                     subscriptionPlan: payload.subscriptionPlan || "free",
                     successfulGigs: 0,
@@ -15426,17 +15596,23 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         socialLinks: { spotify: "", youtube: "", instagram: "" },
                         photos: payload.photos || [],
                         videos: payload.videos || [],
-                        audio: payload.audios || []
+                        audio: payload.audios || [],
+                        isActive: true,
+                        createdAt: new Date().toISOString()
                     };
-                    await db.collection('users').doc(user.uid).set(newUser);
-                    await db.collection('musicians').doc(profileId).set(newMusician);
+                    await db.collection('users').doc(user.uid).set(newUser, { merge: true });
+                    await db.collection('musicians').doc(profileId).set(newMusician, { merge: true });
+                    const idx = state.musicians.findIndex(m => m.id === profileId);
+                    if (idx > -1) state.musicians[idx] = newMusician; else state.musicians.push(newMusician);
+                    state.activeMusicianId = profileId;
                 } else {
                     const newEvent = {
                         id: profileId,
                         creatorId: user.uid,
-                        name: payload.eventName,
+                        name: payload.eventName || 'Mein Event',
                         type: payload.orgEventTypes ? payload.orgEventTypes[0] : "",
                         eventTypes: payload.orgEventTypes || [],
+                        musicianTypes: payload.orgMusicianTypes || [],
                         date: payload.eventDates ? payload.eventDates[0] : "",
                         dates: payload.eventDates || [],
                         eventStartTime: payload.eventStartTime || "18:00",
@@ -15463,15 +15639,26 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         hidePhone: payload.hidePhone || false,
                         email: newUser.email,
                         isOnline: true,
+                        isActive: true,
+                        createdAt: new Date().toISOString(),
                         photos: payload.photos || [],
                         videos: payload.videos || [],
                         audio: payload.audios || [],
                         isPremium: newUser.isPremium,
                         subscriptionPlan: payload.subscriptionPlan || "flex"
                     };
-                    await db.collection('users').doc(user.uid).set(newUser);
-                    await db.collection('events').doc(profileId).set(newEvent);
+                    await db.collection('users').doc(user.uid).set(newUser, { merge: true });
+                    await db.collection('events').doc(profileId).set(newEvent, { merge: true });
+                    const idx = state.events.findIndex(e => e.id === profileId);
+                    if (idx > -1) state.events[idx] = newEvent; else state.events.push(newEvent);
+                    state.activeEventId = profileId;
                 }
+
+                state.currentUser = newUser;
+                localStorage.setItem('GigConnAct_current_user', JSON.stringify(newUser));
+                state.saveState();
+                await state.fetchUserOwnData().catch(e => console.warn(e));
+                state.notify();
 
                 window.googleRegistrationUser = null;
                 
@@ -17003,21 +17190,27 @@ function updateNavbar(forceLanding) {
         let activeProfileId = '';
         const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
         if (isMusician) {
-            userProfiles = (state.musicians || []).filter(m => m && m.creatorId === u.id);
-            activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || '');
+            userProfiles = (state.musicians || []).filter(m => m && (m.creatorId === u.id || (u.profileId && m.id === u.profileId)));
+            activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || u.profileId || '');
             if (activeProfileId) state.activeMusicianId = activeProfileId;
         } else {
             userProfiles = (state.events || []).filter(e => e && (
                 e.creatorId === u.id || 
+                (u.profileId && e.id === u.profileId) ||
+                (u.email && (e.email === u.email || e.clientEmail === u.email)) ||
                 (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
             ));
-            activeProfileId = state.activeEventId || (userProfiles[0]?.id || '');
+            activeProfileId = state.activeEventId || (userProfiles[0]?.id || u.profileId || '');
             if (activeProfileId) state.activeEventId = activeProfileId;
         }
 
-        const profileOptions = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''} style="background: #ffffff; color: #1e293b;">${p.name || p.contactName || p.title || 'Profil'}</option>`).join('');
+        const profileOptions = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''} style="background: #ffffff; color: #1e293b;">${p.name || p.title || p.contactName || (isMusician ? 'Mein Profil' : 'Mein Event')}</option>`).join('');
+
+        const organizerEventFallback = u.eventName || (state.events && state.events.find(e => e && (e.creatorId === u.id || e.id === u.profileId))?.name) || 'Mein Event';
+        const fallbackProfileTitle = isMusician ? (u.bandName || u.firstName || 'Mein Profil') : organizerEventFallback;
+
         const defaultProfileOption = (userProfiles.length === 0)
-            ? `<option value="profile" selected style="background: #ffffff; color: #1e293b;">${u.email || 'Profil'}</option>`
+            ? `<option value="profile" selected style="background: #ffffff; color: #1e293b;">${fallbackProfileTitle}</option>`
             : '';
 
         const profileSelectorHtml = `
@@ -17686,15 +17879,17 @@ function renderPostbox(container) {
 
         let activeProfileId = '';
         if (isMusician) {
-            userProfiles = (state.musicians || []).filter(m => m && m.creatorId === u.id);
+            userProfiles = (state.musicians || []).filter(m => m && (m.creatorId === u.id || (u.profileId && m.id === u.profileId)));
             activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || u.profileId);
             state.activeMusicianId = activeProfileId;
         } else {
             userProfiles = (state.events || []).filter(e => e && (
                 e.creatorId === u.id || 
+                (u.profileId && e.id === u.profileId) ||
+                (u.email && (e.email === u.email || e.clientEmail === u.email)) ||
                 (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
             ));
-            activeProfileId = state.activeEventId || (userProfiles[0]?.id || u.id);
+            activeProfileId = state.activeEventId || (userProfiles[0]?.id || u.profileId || u.id);
             state.activeEventId = activeProfileId;
         }
 
@@ -17789,12 +17984,8 @@ function renderPostbox(container) {
                             </span>
                         </div>
 
-                        <!-- Postbox Filter Button in Toolbar (rechts, ohne Icon) -->
-                        <div class="postbox-controls-actions" style="grid-column: 3; justify-self: end; margin: 0; display: flex; align-items: center; gap: 0.55rem;">
-                            <button class="market-filter-mobile-toggle ${window.postboxShowFilters ? 'active' : ''}" id="btn-toggle-postbox-filters-bar" style="display: inline-flex; align-items: center; justify-content: center; padding: 0.45rem 1.15rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: ${window.postboxShowFilters ? '#ffffff' : 'rgba(255, 255, 255, 0.18)'}; border: 1.5px solid ${window.postboxShowFilters ? '#ffffff' : 'rgba(255, 255, 255, 0.45)'}; color: ${window.postboxShowFilters ? (isMusician ? '#7c3aed' : '#2563eb') : '#ffffff'}; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: ${window.postboxShowFilters ? '0 0 15px rgba(255, 255, 255, 0.45)' : '0 2px 8px rgba(0,0,0,0.15)'};" title="Filter ${window.postboxShowFilters ? 'schließen' : 'öffnen'}">
-                                <span style="color: ${window.postboxShowFilters ? (isMusician ? '#7c3aed' : '#2563eb') : '#ffffff'};">Filter</span>
-                            </button>
-                        </div>
+                        <!-- Spacer right to keep title centered -->
+                        <div class="postbox-controls-actions" style="grid-column: 3; justify-self: end; margin: 0;"></div>
                     </div>
                 </div>
 
@@ -17804,11 +17995,11 @@ function renderPostbox(container) {
                     <!-- Left Sidebar: Categories & Chat Threads List -->
                     <div class="postbox-sidebar" style="width: 340px; max-width: 100%; flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); height: 100%; box-sizing: border-box;">
                     
-                                        <!-- Postbox Header & Tabs -->
-                    <div style="${(window.postboxShowFilters || profileSelectorHtml) ? 'padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-glass);' : 'display: none;'} background: rgba(255,255,255,0.01);">
+                    <!-- Postbox Header & Tabs (Always visible) -->
+                    <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-glass); background: rgba(255,255,255,0.01);">
                         ${profileSelectorHtml}
-                        <!-- 3 Category Tabs (3 Columns) -->
-                        <div id="postbox-filters-container" style="display: ${window.postboxShowFilters ? 'grid' : 'none'}; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; ${profileSelectorHtml ? 'margin-top: 0.5rem;' : ''}">
+                        <!-- 3 Category Tabs (3 Columns) - Always expanded -->
+                        <div id="postbox-filters-container" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; ${profileSelectorHtml ? 'margin-top: 0.5rem;' : ''}">
                             <button class="btn btn-sm ${activeTab === 'all' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="all" style="font-size: 0.72rem; padding: 0.4rem 0.1rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Alle Nachrichten">
                                 <i class="fa-solid fa-folder-open" style="margin-right: 4px;"></i> Alle
                             </button>
@@ -18229,21 +18420,6 @@ function renderPostbox(container) {
                 }
             });
         });
-
-        const toggleFiltersBtn = container.querySelector('#btn-toggle-postbox-filters');
-        if (toggleFiltersBtn) {
-            toggleFiltersBtn.addEventListener('click', () => {
-                window.postboxShowFilters = !window.postboxShowFilters;
-                renderView();
-            });
-        }
-        const toggleFiltersBarBtn = container.querySelector('#btn-toggle-postbox-filters-bar');
-        if (toggleFiltersBarBtn) {
-            toggleFiltersBarBtn.addEventListener('click', () => {
-                window.postboxShowFilters = !window.postboxShowFilters;
-                renderView();
-            });
-        }
 
         const postboxProfileSelect = container.querySelector('#postbox-profile-select');
         if (postboxProfileSelect) {
@@ -19353,7 +19529,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                 <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.22);">
                     <i class="fa-regular fa-heart" style="font-size: 3rem; color: #ef4444; margin-bottom: 1rem; opacity: 0.85;"></i>
                     <h3 style="margin-bottom: 0.5rem; color: #0f172a;">Noch keine Favoriten gespeichert</h3>
-                    <p style="color: #64748b; max-width: 420px; margin: 0 auto;">Klicke bei Profilen oder Events auf das Herz-Symbol, um sie als Favoriten zu speichern.</p>
+                    <p style="color: #64748b; max-width: 420px; margin: 0 auto;">Klicke bei den Profilen auf dem Markt auf das Herz-Symbol, um sie als Favoriten zu speichern.</p>
                 </div>
             `;
         }

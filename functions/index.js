@@ -742,8 +742,9 @@ exports.sendCustomSignInEmail = functions
         }
 
         try {
+            const roleParam = role ? `&role=${encodeURIComponent(role)}` : '';
             const actionCodeSettings = {
-                url: `https://www.gigconnact.de/?email=${encodeURIComponent(email)}`,
+                url: `https://www.gigconnact.de/?email=${encodeURIComponent(email)}${roleParam}`,
                 handleCodeInApp: true
             };
 
