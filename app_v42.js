@@ -7183,30 +7183,13 @@ function renderMarket(container, type, onNavigate) {
                     </span>
                 </div>
 
-                <!-- 2. Aktionen-Container: Filter-Button weiter links, rechts daneben Zurücksetzen und Sortierung als Icon -->
+                <!-- 2. Aktionen-Container: Filter-Button weiter links -->
                 <div class="market-controls-actions ${showOnlyFavorites ? 'hidden' : ''}" style="margin: 0 0 0 auto; display: ${showOnlyFavorites ? 'none !important' : 'flex'}; align-items: center; gap: 0.55rem;">
                     <!-- Filter-Symbol + "Filter" -->
                     <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.45rem 1.05rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" title="Filter öffnen">
                         <i class="fa-solid fa-sliders" id="mobile-filter-icon" style="font-size: 0.95rem; margin: 0; color: #ffffff; transition: color 0.3s ease;"></i>
                         <span style="color: #ffffff;">Filter</span>
                     </button>
-
-                    <!-- Zurücksetzen-Icon -->
-                    <button class="market-bar-icon-btn" id="btn-reset-filters-bar" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 12px; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15); padding: 0;" title="Filter zurücksetzen" aria-label="Filter zurücksetzen">
-                        <i class="fa-solid fa-rotate-left" style="font-size: 0.95rem; color: #ffffff;"></i>
-                    </button>
-
-                    <!-- Sortierungs-Icon -->
-                    <div class="market-bar-icon-btn market-sort-container-bar" title="Sortierung" style="display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 12px; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15); position: relative; padding: 0;">
-                        <i class="fa-solid fa-arrow-down-wide-short" style="font-size: 0.95rem; color: #ffffff; pointer-events: none;"></i>
-                        <select id="sort-select-bar" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; margin: 0; z-index: 5;">
-                            <option value="match" style="background: #ffffff; color: #0f172a;">Match-Faktor</option>
-                            <option value="newest" style="background: #ffffff; color: #0f172a;">Neueste zuerst</option>
-                            <option value="price" style="background: #ffffff; color: #0f172a;">Günstig zuerst</option>
-                            <option value="distance" style="background: #ffffff; color: #0f172a;">Nächste zuerst</option>
-                            <option value="name" style="background: #ffffff; color: #0f172a;">Name (A-Z)</option>
-                        </select>
-                    </div>
                 </div>
  
                 <!-- Versteckte Steuerungsbuttons für Top-Matches und Favoriten (für programmatische Aufrufe der Bottom-Bar) -->
@@ -7678,15 +7661,9 @@ function renderMarket(container, type, onNavigate) {
         }
     });
 
-    const sortSelects = container.querySelectorAll('#sort-select, #sort-select-m, #sort-select-bar');
+    const sortSelects = container.querySelectorAll('#sort-select, #sort-select-m');
     const sortSelect = sortSelects[0] || null;
     const resetBtn = container.querySelector('#btn-reset-filters');
-    const resetBtnBar = container.querySelector('#btn-reset-filters-bar');
-    if (resetBtnBar) {
-        resetBtnBar.addEventListener('click', () => {
-            resetBtn?.click();
-        });
-    }
     const marketProfileSelect = container.querySelector('#market-profile-select');
     if (marketProfileSelect) {
         marketProfileSelect.addEventListener('change', function() {
@@ -9877,14 +9854,14 @@ function renderProfilePage(container) {
     let selectedPlan = activePlan;
 
     container.innerHTML = `
-        <div class="profile-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0.5rem 5rem; box-sizing: border-box;">
+        <div class="profile-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0px 5rem; box-sizing: border-box; width: 100%;">
             
             <!-- Profile Controls Row (Lila bei Musikern / Blau bei Veranstaltern) -->
-            <div class="profile-controls-row" style="background: ${isMusician ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isMusician ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isMusician ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; padding: 0.65rem 1.2rem; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
+            <div class="profile-controls-row" style="background: ${isMusician ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isMusician ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isMusician ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.65rem 1.2rem; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
                 <div style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0;">
                     <i class="fa-regular fa-circle-user" style="color: #ffffff; font-size: 1.1rem; transform: translateY(1px); margin-right: 0.2rem;"></i>
                     <span id="profile-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                        Mein Profil
+                        Profil
                     </span>
                 </div>
                 <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.85); font-weight: 600;">
@@ -10581,10 +10558,10 @@ function renderMatchesPage(container) {
         }).join('');
 
         container.innerHTML = `
-            <div class="market-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0.5rem 5rem; box-sizing: border-box;">
+            <div class="market-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0px 5rem; box-sizing: border-box; width: 100%;">
                 
                 <!-- Controls Row: Left = Title & Count, Right = Profile Switcher -->
-                <div class="matches-controls-row" style="background: ${isMusician ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isMusician ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isMusician ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; padding: 0.65rem 1.2rem; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
+                <div class="matches-controls-row" style="background: ${isMusician ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isMusician ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isMusician ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.65rem 1.2rem; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
                     
                     <!-- Left: Star & Title & Count (Lila bei Musikern / Blau bei Veranstaltern) -->
                     <div style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0;">
@@ -16584,7 +16561,7 @@ function updateNavbar(forceLanding) {
 
         const profileOptions = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''} style="background: #ffffff; color: #1e293b;">${p.name || p.contactName || p.title || 'Profil'}</option>`).join('');
         const defaultProfileOption = (userProfiles.length === 0)
-            ? `<option value="profile" selected style="background: #ffffff; color: #1e293b;">${u.email || 'Mein Profil'}</option>`
+            ? `<option value="profile" selected style="background: #ffffff; color: #1e293b;">${u.email || 'Profil'}</option>`
             : '';
 
         const profileSelectorHtml = `
@@ -17340,21 +17317,56 @@ function renderPostbox(container) {
                     }
                 }
             </style>
-            <div class="postbox-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0.5rem 5rem; box-sizing: border-box;">
+                @media(max-width: 900px) {
+                    .portal-layout {
+                        flex-direction: column !important;
+                        height: auto !important;
+                        width: 100% !important;
+                        max-width: 100% !important;
+                    }
+                    .postbox-sidebar {
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        height: auto !important;
+                        flex-shrink: 1 !important;
+                        box-sizing: border-box !important;
+                    }
+                    .postbox-chat-detail {
+                        display: none !important;
+                    }
+                    .mobile-chat-accordion {
+                        display: block !important;
+                    }
+                }
+                @media(min-width: 901px) {
+                    .mobile-chat-accordion {
+                        display: none !important;
+                    }
+                }
+            </style>
+            <div class="postbox-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="max-width: 1520px; margin: 0 auto; padding: 1.5rem 0px 5rem; box-sizing: border-box; width: 100%; overflow-x: clip;">
                 <!-- Postbox Controls Row (Lila bei Musikern / Blau bei Veranstaltern) -->
-                <div class="postbox-controls-row" style="background: ${isMusician ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isMusician ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isMusician ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.2rem; padding: 0.65rem 1.2rem; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
+                <div class="postbox-controls-row" style="background: ${isMusician ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'} !important; border: 1px solid ${isMusician ? 'rgba(124, 58, 237, 0.4)' : 'rgba(37, 99, 235, 0.4)'} !important; border-radius: 14px !important; box-shadow: ${isMusician ? '0 4px 16px rgba(124, 58, 237, 0.25)' : '0 4px 16px rgba(37, 99, 235, 0.25)'} !important; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding: 0.65rem 1.2rem; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
                     <div style="display: flex; align-items: baseline; gap: 0.55rem; flex-shrink: 0;">
                         <i class="fa-solid fa-envelope" style="color: #ffffff; font-size: 1.1rem; transform: translateY(1px); margin-right: 0.2rem;"></i>
                         <span id="postbox-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
                             Postfach (${nonSystemChats.length})
                         </span>
                     </div>
+
+                    <!-- Postbox Filter Button in Toolbar (wie beim Gig-Markt) -->
+                    <div class="postbox-controls-actions" style="margin: 0 0 0 auto; display: flex; align-items: center; gap: 0.55rem;">
+                        <button class="market-filter-mobile-toggle ${window.postboxShowFilters ? 'active' : ''}" id="btn-toggle-postbox-filters-bar" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.45rem 1.05rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: ${window.postboxShowFilters ? '#ffffff' : 'rgba(255, 255, 255, 0.18)'}; border: 1.5px solid ${window.postboxShowFilters ? '#ffffff' : 'rgba(255, 255, 255, 0.45)'}; color: ${window.postboxShowFilters ? (isMusician ? '#7c3aed' : '#2563eb') : '#ffffff'}; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: ${window.postboxShowFilters ? '0 0 15px rgba(255, 255, 255, 0.45)' : '0 2px 8px rgba(0,0,0,0.15)'};" title="Filter ${window.postboxShowFilters ? 'schließen' : 'öffnen'}">
+                            <i class="fa-solid fa-sliders" style="font-size: 0.95rem; margin: 0; color: ${window.postboxShowFilters ? (isMusician ? '#7c3aed' : '#2563eb') : '#ffffff'};"></i>
+                            <span style="color: ${window.postboxShowFilters ? (isMusician ? '#7c3aed' : '#2563eb') : '#ffffff'};">Filter</span>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="portal-layout ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="display: flex !important; flex-direction: row !important; gap: 1.5rem; height: calc(100vh - 220px); min-height: 600px; width: 100%;">
+                <div class="portal-layout ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="display: flex !important; flex-direction: row !important; gap: 1.5rem; height: calc(100vh - 220px); min-height: 600px; width: 100%; max-width: 100%; box-sizing: border-box;">
                     
                     <!-- Left Sidebar: Categories & Chat Threads List -->
-                    <div class="postbox-sidebar" style="width: 340px; flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); height: 100%;">
+                    <div class="postbox-sidebar" style="width: 340px; max-width: 100%; flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); height: 100%; box-sizing: border-box;">
                     
                                         <!-- Postbox Header & Tabs -->
                     <div style="padding: 1rem; border-bottom: 1px solid var(--border-glass); background: rgba(255,255,255,0.01);">
@@ -17553,7 +17565,7 @@ function renderPostbox(container) {
                 </div>
 
                 <!-- Right Detail View: Chat Messages & Controls -->
-                <div class="postbox-chat-detail" style="flex: 1; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); height: 100%;">
+                <div class="postbox-chat-detail" style="flex: 1; min-width: 0; max-width: 100%; box-sizing: border-box; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); height: 100%;">
                     ${!activeChat ? `
                         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); padding: 2rem; text-align: center;">
                             <i class="fa-regular fa-comments" style="font-size: 3.5rem; color: var(--border-glass); margin-bottom: 1rem;"></i>
@@ -17795,6 +17807,13 @@ function renderPostbox(container) {
         const toggleFiltersBtn = container.querySelector('#btn-toggle-postbox-filters');
         if (toggleFiltersBtn) {
             toggleFiltersBtn.addEventListener('click', () => {
+                window.postboxShowFilters = !window.postboxShowFilters;
+                renderView();
+            });
+        }
+        const toggleFiltersBarBtn = container.querySelector('#btn-toggle-postbox-filters-bar');
+        if (toggleFiltersBarBtn) {
+            toggleFiltersBarBtn.addEventListener('click', () => {
                 window.postboxShowFilters = !window.postboxShowFilters;
                 renderView();
             });

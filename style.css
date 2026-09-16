@@ -3973,14 +3973,18 @@ body.landing-page-active .app-container {
         box-sizing: border-box !important;
     }
 
-    .market-controls-row {
+    .market-controls-row,
+    .matches-controls-row,
+    .profile-controls-row,
+    .postbox-controls-row {
         gap: 0.5rem !important;
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
         flex-wrap: nowrap !important;
-        padding: 0.4rem 0.2rem 0.6rem !important;
+        padding: 0.4rem 0.6rem !important;
         justify-content: space-between !important;
+        min-height: 58px !important;
     }
 
     .market-filter-mobile-toggle {
@@ -4015,8 +4019,14 @@ body.landing-page-active .app-container {
         padding: 0.25rem 1rem 1.5rem !important;
     }
     
-    .market-page {
+    .market-page,
+    .matches-page,
+    .profile-page,
+    .postbox-page {
         padding: 0.1rem 0px 3rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
 
     .profile-section-card {
@@ -4728,7 +4738,8 @@ input[type="range"].input-field {
 }
 
 /* Actions Container on the right */
-.market-controls-actions {
+.market-controls-actions,
+.postbox-controls-actions {
     display: flex;
     align-items: center;
     gap: 0.55rem;
@@ -4808,8 +4819,11 @@ input[type="range"].input-field {
     }
 }
 
-/* Musician Theme (Lila Leiste): Event-Markt */
-.theme-musician .market-controls-row {
+/* Musician Theme (Lila Leiste): Event-Markt, Matches, Profile, Postbox */
+.theme-musician .market-controls-row,
+.theme-musician .matches-controls-row,
+.theme-musician .profile-controls-row,
+.theme-musician .postbox-controls-row {
     background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
     border: 1px solid rgba(124, 58, 237, 0.4) !important;
     box-shadow: 0 4px 16px rgba(124, 58, 237, 0.25) !important;
@@ -4824,7 +4838,10 @@ input[type="range"].input-field {
     line-height: 1 !important;
 }
 
-.theme-musician .market-controls-row #market-title-label {
+.theme-musician .market-controls-row #market-title-label,
+.theme-musician .matches-controls-row #top-matches-label,
+.theme-musician .profile-controls-row #profile-title-label,
+.theme-musician .postbox-controls-row #postbox-title-label {
     color: rgba(255, 255, 255, 0.92) !important;
     font-family: var(--font-heading) !important;
     font-size: 1.1rem !important;
@@ -4832,7 +4849,7 @@ input[type="range"].input-field {
     letter-spacing: -0.2px !important;
 }
 
-.theme-musician .market-controls-row .market-filter-mobile-toggle {
+.theme-musician .market-filter-mobile-toggle {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -4854,12 +4871,12 @@ input[type="range"].input-field {
     text-decoration: none !important;
 }
 
-.theme-musician .market-controls-row .market-filter-mobile-toggle i,
-.theme-musician .market-controls-row .market-filter-mobile-toggle span {
+.theme-musician .market-filter-mobile-toggle i,
+.theme-musician .market-filter-mobile-toggle span {
     color: #ffffff !important;
 }
 
-.theme-musician .market-controls-row .market-filter-mobile-toggle:hover {
+.theme-musician .market-filter-mobile-toggle:hover {
     background: rgba(255, 255, 255, 0.28) !important;
     border-color: rgba(255, 255, 255, 0.75) !important;
     color: #ffffff !important;
@@ -4867,21 +4884,24 @@ input[type="range"].input-field {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
-.theme-musician .market-controls-row .market-filter-mobile-toggle.active {
+.theme-musician .market-filter-mobile-toggle.active {
     background: #ffffff !important;
     border-color: #ffffff !important;
     color: #7c3aed !important;
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.45) !important;
 }
 
-.theme-musician .market-controls-row .market-filter-mobile-toggle.active i,
-.theme-musician .market-controls-row .market-filter-mobile-toggle.active span {
+.theme-musician .market-filter-mobile-toggle.active i,
+.theme-musician .market-filter-mobile-toggle.active span {
     color: #7c3aed !important;
 }
 
 
-/* Organizer Theme (Blaue Leiste): Musiker-Markt */
-.theme-organizer .market-controls-row {
+/* Organizer Theme (Blaue Leiste): Musiker-Markt, Matches, Profile, Postbox */
+.theme-organizer .market-controls-row,
+.theme-organizer .matches-controls-row,
+.theme-organizer .profile-controls-row,
+.theme-organizer .postbox-controls-row {
     background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important;
     border: 1px solid rgba(37, 99, 235, 0.4) !important;
     box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25) !important;
@@ -4896,7 +4916,10 @@ input[type="range"].input-field {
     line-height: 1 !important;
 }
 
-.theme-organizer .market-controls-row #market-title-label {
+.theme-organizer .market-controls-row #market-title-label,
+.theme-organizer .matches-controls-row #top-matches-label,
+.theme-organizer .profile-controls-row #profile-title-label,
+.theme-organizer .postbox-controls-row #postbox-title-label {
     color: rgba(255, 255, 255, 0.92) !important;
     font-family: var(--font-heading) !important;
     font-size: 1.1rem !important;
@@ -4904,7 +4927,7 @@ input[type="range"].input-field {
     letter-spacing: -0.2px !important;
 }
 
-.theme-organizer .market-controls-row .market-filter-mobile-toggle {
+.theme-organizer .market-filter-mobile-toggle {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -4926,12 +4949,12 @@ input[type="range"].input-field {
     text-decoration: none !important;
 }
 
-.theme-organizer .market-controls-row .market-filter-mobile-toggle i,
-.theme-organizer .market-controls-row .market-filter-mobile-toggle span {
+.theme-organizer .market-filter-mobile-toggle i,
+.theme-organizer .market-filter-mobile-toggle span {
     color: #ffffff !important;
 }
 
-.theme-organizer .market-controls-row .market-filter-mobile-toggle:hover {
+.theme-organizer .market-filter-mobile-toggle:hover {
     background: rgba(255, 255, 255, 0.28) !important;
     border-color: rgba(255, 255, 255, 0.75) !important;
     color: #ffffff !important;
@@ -4939,15 +4962,15 @@ input[type="range"].input-field {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
-.theme-organizer .market-controls-row .market-filter-mobile-toggle.active {
+.theme-organizer .market-filter-mobile-toggle.active {
     background: #ffffff !important;
     border-color: #ffffff !important;
     color: #2563eb !important;
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.45) !important;
 }
 
-.theme-organizer .market-controls-row .market-filter-mobile-toggle.active i,
-.theme-organizer .market-controls-row .market-filter-mobile-toggle.active span {
+.theme-organizer .market-filter-mobile-toggle.active i,
+.theme-organizer .market-filter-mobile-toggle.active span {
     color: #2563eb !important;
 }
 
