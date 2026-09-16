@@ -5641,23 +5641,25 @@ window.renderInfoPage = function(container, type) {
     }
 
     const contactBarStripHTML = `
-        <div style="border-radius: 14px; padding: 0.85rem 1.1rem; background: ${isMusician ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #ffffff; display: flex; flex-direction: column; gap: 0.6rem; box-shadow: 0 8px 20px ${isMusician ? 'rgba(124,58,237,0.25)' : 'rgba(37,99,235,0.25)'}; margin-top: 1rem;">
-            <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
-                <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1rem;" title="Veranstalter-Typ">
-                    <i class="fa-solid fa-building"></i>
-                </div>
-                <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1rem;" title="Name">
-                    <i class="fa-solid fa-user"></i>
-                </div>
-                <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1rem;" title="Telefon">
-                    <i class="fa-solid fa-phone"></i>
-                </div>
-                <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1rem;" title="E-Mail">
-                    <i class="fa-solid fa-envelope"></i>
-                </div>
-                <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1rem;" title="Chat">
-                    <i class="fa-solid fa-comments"></i>
-                </div>
+        <div style="border-radius: 14px; padding: 1rem; background: #f8fafc; border: 1.5px solid ${isMusician ? 'rgba(124, 58, 237, 0.25)' : 'rgba(37, 99, 235, 0.25)'}; color: #0f172a; display: flex; flex-direction: column; gap: 0.65rem; box-shadow: 0 4px 16px rgba(0,0,0,0.04); margin-top: 1rem; text-align: left;">
+            <div style="background: ${isMusician ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; font-weight: 800; font-size: 0.88rem; padding: 0.65rem 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                <i class="fa-solid fa-address-card"></i> <span>Kontaktdaten anzeigen</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.65rem; font-size: 0.86rem;">
+                <i class="fa-solid fa-building" style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; width: 18px; text-align: center;"></i>
+                <span style="font-weight: 600;">${isMusician ? 'Privater Veranstalter' : 'Privatperson'}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.65rem; font-size: 0.86rem;">
+                <i class="fa-solid fa-user" style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; width: 18px; text-align: center;"></i>
+                <span style="font-weight: 600;">${isMusician ? 'Markus Weber' : 'The Sound Experience'}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.65rem; font-size: 0.86rem;">
+                <i class="fa-solid fa-phone" style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; width: 18px; text-align: center;"></i>
+                <span style="font-weight: 600;">+49 170 1234567</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.65rem; font-size: 0.86rem;">
+                <i class="fa-solid fa-envelope" style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; width: 18px; text-align: center;"></i>
+                <span style="font-weight: 600;">kontakt@gigconnact.de</span>
             </div>
         </div>
     `;
@@ -9457,6 +9459,28 @@ window.initiateMarketContact = async function(targetId, targetName, eventId) {
             actionTab: "postbox"
         });
         navigate('postbox');
+    }
+};
+
+window.toggleMarketContactDetails = function(itemId, btn) {
+    const detailsBox = document.getElementById(`contact-details-${itemId}`);
+    if (!detailsBox) return;
+    
+    const isHidden = detailsBox.style.display === 'none' || detailsBox.style.display === '';
+    if (isHidden) {
+        detailsBox.style.display = 'block';
+        if (btn) {
+            btn.innerHTML = `<i class="fa-solid fa-eye-slash"></i> <span>Kontaktdaten verbergen</span>`;
+            btn.classList.add('active');
+            btn.setAttribute('title', 'Kontaktdaten verbergen');
+        }
+    } else {
+        detailsBox.style.display = 'none';
+        if (btn) {
+            btn.innerHTML = `<i class="fa-solid fa-address-card"></i> <span>Kontaktdaten anzeigen</span>`;
+            btn.classList.remove('active');
+            btn.setAttribute('title', 'Kontaktdaten anzeigen');
+        }
     }
 };
 
@@ -19106,6 +19130,17 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
             : '';
         const displayName = `${nameContent}${lockIconHtml}${demoTagHtml}`;
 
+        const companyVal = isEvents 
+            ? ((!item.organizerType || item.organizerType === 'Privater Veranstalter' || item.company === 'Privatperson') ? 'Privatperson' : (item.company || 'Privatperson'))
+            : (item.company || 'Privatperson');
+        const contactNameVal = item.contactName || (isEvents ? 'Demo Kontakt' : (item.name || 'Demo Kontakt'));
+        const isPhoneHidden = Boolean(item.hidePhone && !(state && state.currentUser && (item.creatorId === state.currentUser.id || item.id === state.currentUser.profileId)));
+        const phoneDisplayVal = isPhoneHidden ? 'Vom Nutzer ausgeblendet' : (item.phone || '+49 170 1234567');
+        const emailVal = item.email || 'kontakt@gigconnact.de';
+        const chatRecId = isEvents ? item.creatorId : item.id;
+        const chatRecName = (item.name || item.title || '').replace(/"/g, '&quot;');
+        const chatEvId = isEvents ? item.id : '';
+
         return `
             <div class="market-tile-card" ${isMediation && (!state || !state.currentUser) ? `onclick="window.showMediationNoticeBeforeAuth()"` : ''} style="cursor: ${isMediation && (!state || !state.currentUser) ? 'pointer' : 'default'}; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0);">
                 
@@ -19379,43 +19414,78 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                             </button>
                         </div>
                     ` : `
-                        <!-- Solid Colored Unlocked Contact Footer Box -->
-                        <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 1rem 1.3rem; background: ${footerGradient}; color: #ffffff; display: flex; flex-direction: column; gap: 0.8rem; border-radius: 0 0 18px 18px;">
-                            <!-- Row of circular action buttons -->
-                            <div style="display: flex; align-items: center; justify-content: center; gap: 1.2rem;">
-                                <!-- Organizer Type Button -->
-                                <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'company', '${(item.company || 'Privatperson').replace(/'/g, "\\'")}', this)" 
-                                        title="Veranstalter-Typ anzeigen">
-                                    <i class="fa-solid fa-building"></i>
-                                </button>
+                        <!-- Unlocked Direct Contact Section: Single "Kontaktdaten anzeigen" Button & Expandable Details -->
+                        <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; width: 100%; box-sizing: border-box;">
+                            <button class="btn btn-primary btn-toggle-contact-details" 
+                                    id="btn-toggle-contact-${item.id}" 
+                                    onclick="event.stopPropagation(); window.toggleMarketContactDetails('${item.id}', this)" 
+                                    style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important; cursor: pointer;"
+                                    title="Kontaktdaten anzeigen">
+                                <i class="fa-solid fa-address-card"></i> <span>Kontaktdaten anzeigen</span>
+                            </button>
 
-                                <!-- Contact Name Button -->
-                                <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'name', '${(item.contactName || 'Demo Kontakt').replace(/'/g, "\\'")}', this)" 
-                                        title="Vor- und Nachname anzeigen">
-                                    <i class="fa-solid fa-user"></i>
-                                </button>
+                            <!-- Untereinander aufgelistete Kontaktdaten mit Icon -->
+                            <div id="contact-details-${item.id}" class="market-contact-details-panel" style="display: none; margin-top: 0.85rem; padding: 0.95rem 1rem; background: #f8fafc; border: 1.5px solid ${isEvents ? 'rgba(124, 58, 237, 0.25)' : 'rgba(37, 99, 235, 0.25)'}; border-radius: 12px; font-size: 0.86rem; text-align: left; color: #0f172a; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); animation: fadeIn 0.2s ease;">
+                                <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+                                    
+                                    <!-- 1. Veranstalter-Typ / Profil-Typ -->
+                                    <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                        <i class="fa-solid fa-building" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
+                                        <span style="font-weight: 600; color: #0f172a; word-break: break-word;">${companyVal}</span>
+                                    </div>
 
-                                <!-- Phone Button -->
-                                <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'phone', '${(item.hidePhone && !(state && state.currentUser && (item.creatorId === state.currentUser.id || item.id === state.currentUser.profileId))) ? 'Vom Nutzer ausgeblendet' : (item.phone || '+49 170 1234567')}', this)" 
-                                        title="Telefonnummer anzeigen">
-                                    <i class="fa-solid fa-phone"></i>
-                                </button>
+                                    <!-- 2. Kontaktperson / Name -->
+                                    <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                        <i class="fa-solid fa-user" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
+                                        <span style="font-weight: 600; color: #0f172a; word-break: break-word;">${contactNameVal}</span>
+                                    </div>
 
-                                <!-- Email Button -->
-                                <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'email', '${item.email || 'kontakt@gigconnact.de'}', this)" 
-                                        title="E-Mail-Adresse anzeigen">
-                                    <i class="fa-solid fa-envelope"></i>
-                                </button>
+                                    <!-- 3. Telefon -->
+                                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                                        <div style="display: flex; align-items: center; gap: 0.65rem; min-width: 0;">
+                                            <i class="fa-solid fa-phone" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
+                                            <span style="font-weight: 600; color: ${isPhoneHidden ? '#64748b' : '#0f172a'}; ${isPhoneHidden ? 'font-style: italic;' : ''} word-break: break-word; user-select: all;">${phoneDisplayVal}</span>
+                                        </div>
+                                        ${!isPhoneHidden ? `
+                                            <button type="button" onclick="event.stopPropagation(); navigator.clipboard.writeText('${phoneDisplayVal}'); this.innerHTML='<i class=\\'fa-solid fa-check\\'></i>'; setTimeout(() => this.innerHTML='<i class=\\'fa-solid fa-copy\\'></i>', 1800);" 
+                                                    style="background: #ffffff; border: 1px solid #cbd5e1; color: #475569; width: 26px; height: 26px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s;" 
+                                                    onmouseover="this.style.background='#e2e8f0';" 
+                                                    onmouseout="this.style.background='#ffffff';"
+                                                    title="Telefonnummer kopieren">
+                                                <i class="fa-solid fa-copy"></i>
+                                            </button>
+                                        ` : ''}
+                                    </div>
 
-                                <!-- Chat / Message Button -->
-                                <button class="market-contact-btn" onclick="event.stopPropagation(); window.revealMarketContact('${item.id}', 'chat', '${isEvents ? item.creatorId : item.id}|${(item.name || item.title || '').replace(/'/g, "\\'")}|${isEvents ? item.id : ''}', this)" 
-                                        title="Nachricht schreiben">
-                                    <i class="fa-solid fa-comments"></i>
-                                </button>
+                                    <!-- 4. E-Mail -->
+                                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                                        <div style="display: flex; align-items: center; gap: 0.65rem; min-width: 0;">
+                                            <i class="fa-solid fa-envelope" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
+                                            <span style="font-weight: 600; color: #0f172a; word-break: break-all; user-select: all;">${emailVal}</span>
+                                        </div>
+                                        <button type="button" onclick="event.stopPropagation(); navigator.clipboard.writeText('${emailVal}'); this.innerHTML='<i class=\\'fa-solid fa-check\\'></i>'; setTimeout(() => this.innerHTML='<i class=\\'fa-solid fa-copy\\'></i>', 1800);" 
+                                                style="background: #ffffff; border: 1px solid #cbd5e1; color: #475569; width: 26px; height: 26px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s;" 
+                                                onmouseover="this.style.background='#e2e8f0';" 
+                                                onmouseout="this.style.background='#ffffff';"
+                                                title="E-Mail-Adresse kopieren">
+                                            <i class="fa-solid fa-copy"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- 5. Nachricht schreiben -->
+                                    <div style="margin-top: 0.3rem; padding-top: 0.65rem; border-top: 1px solid #e2e8f0;">
+                                        <button type="button" class="btn btn-primary" 
+                                                onclick="event.stopPropagation(); window.handleChatButtonClick(this)" 
+                                                data-rec-id="${chatRecId}" 
+                                                data-rec-name="${chatRecName}" 
+                                                data-ev-id="${chatEvId}"
+                                                style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.55rem 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; box-shadow: ${btnBoxShadow} !important;">
+                                            <i class="fa-solid fa-comments"></i> <span>Nachricht schreiben</span>
+                                        </button>
+                                    </div>
+
+                                </div>
                             </div>
-
-                            <!-- Reveal panel for contact data -->
-                            <div id="contact-reveal-${item.id}" style="display: none; width: 100%; align-self: stretch; box-sizing: border-box; text-align: center; font-size: 0.82rem; padding: 0.55rem; background: rgba(255,255,255,0.15); border-radius: 8px; animation: fadeIn 0.2s; word-break: break-all;"></div>
                         </div>
                     `
                 ) : (

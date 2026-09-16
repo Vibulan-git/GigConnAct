@@ -5382,6 +5382,17 @@ input[type="range"].input-field {
     color: #0f172a !important;
 }
 
+/* Market card contact details accordion panel */
+.btn-toggle-contact-details {
+    transition: all 0.2s ease-in-out;
+}
+.btn-toggle-contact-details:hover {
+    transform: translateY(-1px);
+}
+.market-contact-details-panel {
+    transition: all 0.25s ease-in-out;
+}
+
 /* Mobile responsiveness for weekly availability grid */
 @media (max-width: 480px) {
     .availability-day-times input[type="time"] {
