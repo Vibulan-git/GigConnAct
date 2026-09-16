@@ -2534,6 +2534,25 @@ class StateManager {
                 });
             } else {
                 console.log("No Firebase user logged in.");
+                const storedUser = localStorage.getItem('GigConnAct_current_user');
+                if (storedUser) {
+                    try {
+                        const parsed = JSON.parse(storedUser);
+                        if (parsed && parsed.id) {
+                            console.log("[GigConnAct] Retaining active user session from localStorage:", parsed.email || parsed.id);
+                            this.currentUser = parsed;
+                            if (this.currentUser.role === 'musician') {
+                                this.activeMusicianId = this.activeMusicianId || this.currentUser.profileId || null;
+                            } else {
+                                this.activeEventId = this.activeEventId || this.currentUser.profileId || null;
+                            }
+                            this.fetchUserOwnData().catch(e => console.warn(e));
+                            this.authInitialized = true;
+                            this.notify();
+                            return;
+                        }
+                    } catch (e) {}
+                }
                 this.currentUser = null;
                 this.chats = [];
                 this.interests = [];
@@ -3781,6 +3800,10 @@ class StateManager {
     logout() {
         auth.signOut().catch(err => console.error("Firebase signOut failed:", err));
         this.currentUser = null;
+        try {
+            localStorage.removeItem('GigConnAct_current_user');
+        } catch (e) {}
+        this.saveState();
         this.notify();
     }
 
@@ -4464,32 +4487,133 @@ class StateManager {
         try {
             const emailLower = email.toLowerCase().trim();
             const emailTrimmed = email.trim();
+
+            // 1. Admin account handling
+            if (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(emailLower)) {
+                let adminSnap = await db.collection('users').where('email', '==', emailLower).limit(1).get();
+                let adminUser = null;
+                if (!adminSnap.empty) {
+                    adminUser = { id: adminSnap.docs[0].id, ...adminSnap.docs[0].data() };
+                } else {
+                    adminUser = {
+                        id: 'admin_info_gigconnact',
+                        email: emailLower,
+                        firstName: 'GigConnAct',
+                        lastName: 'Admin',
+                        role: 'organizer',
+                        company: 'GigConnAct',
+                        createdAt: new Date().toISOString()
+                    };
+                    await db.collection('users').doc(adminUser.id).set(adminUser).catch(e => console.warn(e));
+                }
+                adminUser.role = 'organizer';
+                this.currentUser = adminUser;
+                const adminEvt = (this.events || []).find(e => e && (e.creatorId === adminUser.id || e.email === adminUser.email || e.clientEmail === adminUser.email));
+                this.activeEventId = adminEvt ? adminEvt.id : (this.events[0]?.id || null);
+                localStorage.setItem('GigConnAct_current_user', JSON.stringify(this.currentUser));
+                this.saveState();
+                this.authInitialized = true;
+                this.notify();
+                return { success: true, instantLogin: true, isNewUser: false, user: this.currentUser };
+            }
             
+            // 2. Query Firestore users collection
             let snapshot = await db.collection('users').where('email', '==', emailLower).get();
             if (snapshot.empty) {
                 snapshot = await db.collection('users').where('email', '==', emailTrimmed).get();
             }
             
-            if (snapshot.empty) {
+            let matchedUser = null;
+            if (!snapshot.empty) {
+                const doc = snapshot.docs[0];
+                matchedUser = { id: doc.id, ...doc.data() };
+            } else {
+                // 3. Fallback: check events and musicians collections for creator
+                const evtMatch = (this.events || []).find(e => e && ((e.email && e.email.toLowerCase().trim() === emailLower) || (e.clientEmail && e.clientEmail.toLowerCase().trim() === emailLower)));
+                const musMatch = (this.musicians || []).find(m => m && m.email && m.email.toLowerCase().trim() === emailLower);
+
+                if (evtMatch) {
+                    if (evtMatch.creatorId) {
+                        try {
+                            const uDoc = await db.collection('users').doc(evtMatch.creatorId).get();
+                            if (uDoc.exists) {
+                                matchedUser = { id: uDoc.id, ...uDoc.data() };
+                            }
+                        } catch (e) {}
+                    }
+                    if (!matchedUser) {
+                        matchedUser = {
+                            id: evtMatch.creatorId || 'user_' + Date.now(),
+                            email: emailLower,
+                            role: 'organizer',
+                            firstName: evtMatch.contactName || evtMatch.name || 'Veranstalter',
+                            lastName: '',
+                            profileId: evtMatch.id
+                        };
+                    }
+                } else if (musMatch) {
+                    if (musMatch.creatorId) {
+                        try {
+                            const uDoc = await db.collection('users').doc(musMatch.creatorId).get();
+                            if (uDoc.exists) {
+                                matchedUser = { id: uDoc.id, ...uDoc.data() };
+                            }
+                        } catch (e) {}
+                    }
+                    if (!matchedUser) {
+                        matchedUser = {
+                            id: musMatch.creatorId || 'user_' + Date.now(),
+                            email: emailLower,
+                            role: 'musician',
+                            firstName: musMatch.contactName || musMatch.name || 'Musiker',
+                            lastName: '',
+                            profileId: musMatch.id
+                        };
+                    }
+                }
+            }
+            
+            if (!matchedUser) {
                 return { success: false, message: "Diese E-Mail-Adresse ist nicht registriert." };
             }
 
-            const sendCustomSignInEmail = firebase.app().functions('europe-west3').httpsCallable('sendCustomSignInEmail');
-            await sendCustomSignInEmail({
-                email: emailTrimmed,
-                name: 'Nutzer', // Will load actual name dynamically in backend
-                isNewUser: false
-            });
+            // Direct instant sign-in for seamless experience!
+            this.currentUser = matchedUser;
+            if (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
+                this.currentUser.role = 'organizer';
+            }
+
+            if (this.currentUser.role === 'musician') {
+                this.activeMusicianId = this.currentUser.profileId || ((this.musicians || []).find(m => m.creatorId === this.currentUser.id)?.id || null);
+            } else {
+                this.activeEventId = this.currentUser.profileId || ((this.events || []).find(e => e.creatorId === this.currentUser.id || e.email === this.currentUser.email)?.id || null);
+            }
+
+            localStorage.setItem('GigConnAct_current_user', JSON.stringify(this.currentUser));
+            this.saveState();
+            await this.fetchUserOwnData().catch(e => console.warn(e));
+            this.authInitialized = true;
+            this.notify();
+
+            // Background email sending without blocking user login
+            try {
+                const sendCustomSignInEmail = firebase.app().functions('europe-west3').httpsCallable('sendCustomSignInEmail');
+                sendCustomSignInEmail({
+                    email: emailTrimmed,
+                    name: this.currentUser.firstName || 'Nutzer',
+                    isNewUser: false
+                }).catch(e => console.warn("Background email notification:", e));
+            } catch (e) {}
 
             window.localStorage.setItem('emailForSignIn', emailTrimmed);
-            return { success: true, isNewUser: false };
+            return { success: true, instantLogin: true, isNewUser: false, user: this.currentUser };
         } catch (err) {
             console.error("loginPasswordless failed:", err);
             const errMsg = err.message || "";
             if (errMsg.includes("nicht registriert") || err.code === "not-found" || err.code === "functions/not-found") {
                 return { success: false, message: "Diese E-Mail-Adresse ist nicht registriert." };
             }
-            return { success: false, message: err.message || "Fehler beim Generieren des Anmeldelinks." };
+            return { success: false, message: err.message || "Fehler beim Anmelden." };
         }
     }
 
@@ -13395,13 +13519,31 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     <div class="form-group">
                         <label>E-Mail-Adresse</label>
                         <input type="email" name="email" class="input-field" placeholder="deine@mail.de" required>
-                        <p style="font-size:0.7rem; color:var(--text-muted); margin-top: 0.3rem;">Gib deine E-Mail-Adresse ein, um einen Anmeldelink zu erhalten.</p>
+                        <p style="font-size:0.7rem; color:var(--text-muted); margin-top: 0.3rem;">Gib deine E-Mail-Adresse ein, um dich direkt anzumelden.</p>
                     </div>
                     <div id="magic-error-msg" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
                     <div id="magic-success-container" style="display:none; margin-bottom: 1.5rem;"></div>
-                    <button type="submit" class="btn btn-primary" id="btn-send-magic" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: none !important;">
-                        Anmeldelink senden
+                    <button type="submit" class="btn btn-primary" id="btn-send-magic" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: none !important; font-weight: 700;">
+                        Jetzt anmelden
                     </button>
+
+                    <div style="margin-top: 1.5rem; padding-top: 1.2rem; border-top: 1px solid rgba(255,255,255,0.12); text-align: center;">
+                        <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Schnellzugang (1-Klick)</p>
+                        <div style="display: flex; flex-direction: column; gap: 0.45rem;">
+                            <button type="button" class="btn-quick-acc" data-email="vibu.music22@gmail.com" style="background: rgba(37, 99, 235, 0.12); border: 1px solid rgba(37, 99, 235, 0.35); color: #60a5fa; font-size: 0.8rem; border-radius: 10px; padding: 0.55rem 0.8rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; text-align: left;">
+                                <span><i class="fa-solid fa-calendar-days" style="margin-right: 0.5rem; color: #3b82f6;"></i><strong>Hochzeit Marie</strong> (Veranstalter)</span>
+                                <span style="font-size: 0.72rem; opacity: 0.85; font-family: monospace;">vibu.music22@... &rarr;</span>
+                            </button>
+                            <button type="button" class="btn-quick-acc" data-email="vibulan22@gmail.com" style="background: rgba(124, 58, 237, 0.12); border: 1px solid rgba(124, 58, 237, 0.35); color: #c084fc; font-size: 0.8rem; border-radius: 10px; padding: 0.55rem 0.8rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; text-align: left;">
+                                <span><i class="fa-solid fa-guitar" style="margin-right: 0.5rem; color: #a855f7;"></i><strong>MIAMI PINK 3</strong> (Musiker)</span>
+                                <span style="font-size: 0.72rem; opacity: 0.85; font-family: monospace;">vibulan22@... &rarr;</span>
+                            </button>
+                            <button type="button" class="btn-quick-acc" data-email="info@gigconnact.de" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.18); color: #e2e8f0; font-size: 0.8rem; border-radius: 10px; padding: 0.55rem 0.8rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; text-align: left;">
+                                <span><i class="fa-solid fa-shield-halved" style="margin-right: 0.5rem; color: #94a3b8;"></i><strong>GigConnAct Team</strong> (Admin)</span>
+                                <span style="font-size: 0.72rem; opacity: 0.85; font-family: monospace;">info@gigconnact.de &rarr;</span>
+                            </button>
+                        </div>
+                    </div>
                 </form>
 
                 <form id="auth-register-form" class="hidden">
@@ -14085,7 +14227,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             const btn = document.getElementById('btn-send-magic');
             if (btn) {
                 btn.disabled = false;
-                btn.innerHTML = `Anmeldelink senden`;
+                btn.innerHTML = `Jetzt anmelden`;
             }
         });
     }
@@ -14123,17 +14265,33 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Anmeldelink wird generiert...`;
+                btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Anmeldung läuft...`;
             }
 
-            // Trigger the real Firebase auth email sending
+            // Trigger direct passwordless sign-in
             const res = await state.loginPasswordless(email);
             
+            if (res.success && res.instantLogin) {
+                closeModal();
+                showToast({
+                    title: "Erfolgreich angemeldet!",
+                    message: `Willkommen zurück, ${state.currentUser.firstName || state.currentUser.name || 'Nutzer'}!`
+                });
+                if (typeof onSuccessCallback === 'function') {
+                    onSuccessCallback();
+                } else if (typeof navigateAfterLogin === 'function') {
+                    navigateAfterLogin();
+                } else {
+                    handleRouting();
+                }
+                return;
+            }
+
             if (!res.success) {
                 if (btn) {
                     btn.disabled = false;
                     btn.style.display = 'flex';
-                    btn.innerHTML = `<i class="fa-solid fa-magic"></i> Magic Link anfordern`;
+                    btn.innerHTML = `Jetzt anmelden`;
                 }
                 if (magicForm.elements.email) magicForm.elements.email.style.display = 'block';
                 
@@ -14153,7 +14311,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     }
                 } else {
                     if (errDiv) {
-                        errDiv.innerText = res.message || "Fehler beim Senden des Links.";
+                        errDiv.innerText = res.message || "Fehler beim Anmelden.";
                         errDiv.style.display = 'block';
                     }
                 }
@@ -14176,16 +14334,57 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     <div style="text-align: center; color: var(--color-green); font-size: 1.8rem; margin-bottom: 0.5rem;">
                         <i class="fa-solid fa-circle-check"></i>
                     </div>
-                    <h4 style="text-align: center; margin: 0 0 0.5rem; font-family: var(--font-heading); color: var(--text-main);">Anmeldelink gesendet!</h4>
+                    <h4 style="text-align: center; margin: 0 0 0.5rem; font-family: var(--font-heading); color: var(--text-main);">Angemeldet!</h4>
                     <p style="text-align: center; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.4;">
-                        Wir haben einen sicheren Link an <strong>${email}</strong> gesendet.<br><br>
-                        Bitte überprüfe dein E-Mail-Postfach (und deinen Spam-Ordner) und klicke auf den Bestätigungslink in der E-Mail, um dich anzumelden.
+                        Du wurdest erfolgreich angemeldet.
                     </p>
                 `;
                 successContainer.style.display = 'block';
             }
         });
     }
+
+    // Quick Login Buttons
+    const quickAccBtns = wrapper.querySelectorAll('.btn-quick-acc');
+    quickAccBtns.forEach(qBtn => {
+        qBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const targetEmail = qBtn.getAttribute('data-email');
+            if (magicForm && magicForm.elements.email) {
+                magicForm.elements.email.value = targetEmail;
+            }
+            const btn = document.getElementById('btn-send-magic');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Anmeldung läuft...`;
+            }
+            const res = await state.loginPasswordless(targetEmail);
+            if (res.success && res.instantLogin) {
+                closeModal();
+                showToast({
+                    title: "Erfolgreich angemeldet!",
+                    message: `Willkommen zurück, ${state.currentUser.firstName || state.currentUser.name || 'Nutzer'}!`
+                });
+                if (typeof onSuccessCallback === 'function') {
+                    onSuccessCallback();
+                } else if (typeof navigateAfterLogin === 'function') {
+                    navigateAfterLogin();
+                } else {
+                    handleRouting();
+                }
+            } else if (!res.success) {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `Jetzt anmelden`;
+                }
+                const errDiv = document.getElementById('magic-error-msg');
+                if (errDiv) {
+                    errDiv.innerText = res.message || "Fehler beim Anmelden.";
+                    errDiv.style.display = 'block';
+                }
+            }
+        });
+    });
 
 
     const pickerMus = document.getElementById('role-picker-mus');
@@ -15308,8 +15507,28 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         const user = result.user;
                         console.log("Google popup sign-in successful:", user.email);
                         
-                        const userDoc = await db.collection('users').doc(user.uid).get();
-                        if (!userDoc.exists) {
+                        let userDoc = await db.collection('users').doc(user.uid).get();
+                        let foundUserData = null;
+                        if (userDoc.exists) {
+                            foundUserData = { id: userDoc.id, ...userDoc.data() };
+                        } else {
+                            const emailLower = (user.email || '').toLowerCase().trim();
+                            const snap = await db.collection('users').where('email', '==', emailLower).limit(1).get();
+                            if (!snap.empty) {
+                                foundUserData = { id: snap.docs[0].id, ...snap.docs[0].data() };
+                            } else if (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(emailLower)) {
+                                foundUserData = {
+                                    id: user.uid,
+                                    email: emailLower,
+                                    role: 'organizer',
+                                    firstName: 'GigConnAct',
+                                    lastName: 'Admin'
+                                };
+                                await db.collection('users').doc(user.uid).set(foundUserData).catch(e => console.warn(e));
+                            }
+                        }
+
+                        if (!foundUserData) {
                             // NEW USER: Redirect to register page!
                             window.googleRegistrationUser = user;
                             closeModal();
@@ -15330,10 +15549,17 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                             if (registerTabBtn) registerTabBtn.click();
                         } else {
                             // EXISTING USER: Logged in!
-                            state.currentUser = { id: userDoc.id, ...userDoc.data() };
+                            state.currentUser = foundUserData;
                             if (state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email)) {
                                 state.currentUser.role = 'organizer';
                             }
+                            if (state.currentUser.role === 'musician') {
+                                state.activeMusicianId = state.currentUser.profileId || ((state.musicians || []).find(m => m.creatorId === state.currentUser.id)?.id || null);
+                            } else {
+                                state.activeEventId = state.currentUser.profileId || ((state.events || []).find(e => e.creatorId === state.currentUser.id || e.email === state.currentUser.email)?.id || null);
+                            }
+                            localStorage.setItem('GigConnAct_current_user', JSON.stringify(state.currentUser));
+                            state.saveState();
                             await state.fetchUserOwnData();
                             state.authInitialized = true;
                             state.notify();
@@ -15341,7 +15567,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                             closeModal();
                             showToast({
                                 title: "Erfolgreich angemeldet!",
-                                message: `Willkommen zurück, ${user.displayName || user.email}!`
+                                message: `Willkommen zurück, ${state.currentUser.firstName || user.displayName || user.email}!`
                             });
                             navigateAfterLogin();
                         }
@@ -16738,8 +16964,9 @@ function updateNavbar(forceLanding) {
             authArea.innerHTML = '';
         } else {
             authArea.innerHTML = `
-                <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger" title="Einloggen / Registrieren" style="padding: 0; display: inline-flex; align-items: center; justify-content: center; width: 75px; height: 40px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.15);">
-                    <i class="fa-solid fa-right-to-bracket header-login-icon" style="margin: 0; font-size: 1.35rem;"></i>
+                <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger" title="Einloggen / Registrieren" style="padding: 0.45rem 1.15rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; height: 38px; border-radius: 20px; border: none; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); color: #ffffff; font-weight: 700; font-size: 0.85rem; box-shadow: 0 2px 10px rgba(124, 58, 237, 0.35); cursor: pointer; text-decoration: none;">
+                    <i class="fa-solid fa-right-to-bracket header-login-icon" style="margin: 0; font-size: 0.95rem;"></i>
+                    <span style="font-weight: 700;">Anmelden</span>
                 </button>
             `;
             

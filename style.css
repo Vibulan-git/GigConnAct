@@ -6176,32 +6176,6 @@ body.has-bottom-bar .toast-container {
     letter-spacing: 0.2px;
 }
 
-/* =============================================================
- * Market Background: Identical Live-Concert Background to Hero
- * ============================================================= */
-.market-page {
-    position: relative !important;
-    width: 100% !important;
-    min-height: 100vh !important;
-    background-color: #0d0e12 !important;
-    background-image: 
-        radial-gradient(ellipse at 50% 40%, rgba(13, 16, 32, 0.55) 0%, rgba(10, 11, 22, 0.82) 100%),
-        linear-gradient(180deg, rgba(7, 8, 16, 0.65) 0%, rgba(12, 10, 26, 0.35) 35%, rgba(10, 11, 24, 0.70) 70%, rgba(6, 7, 14, 0.95) 100%),
-        url('hero_bg.jpg') !important;
-    background-repeat: no-repeat !important;
-    background-position: center top !important;
-    background-size: cover !important;
-    background-attachment: fixed !important;
-}
-
-/* Market Cards: Solid Crisp White Cards for Maximum Contrast over Dark Concert Backdrop */
-.market-tile-card {
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 18px !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.22) !important;
-    color: #0f172a !important;
-}
 
 /* =============================================================
  * Header Profile Switcher Button: Lila (Musiker) / Blau (Veranstalter)
@@ -6308,6 +6282,27 @@ body.has-bottom-bar .toast-container {
         display: none !important;
     }
 }
+
+/* Quick login buttons in Auth Modal */
+.btn-quick-acc {
+    transition: all 0.2s ease !important;
+}
+.btn-quick-acc:hover {
+    filter: brightness(1.2) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Header Login Button */
+.header-login-btn {
+    transition: all 0.2s ease !important;
+}
+.header-login-btn:hover {
+    filter: brightness(1.12) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.45) !important;
+}
+
 
 
 
