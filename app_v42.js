@@ -7296,6 +7296,7 @@ function renderMarket(container, type, onNavigate) {
 
     function updateFilterIconGlow(isActive) {
         const desktopIcon = container.querySelector('#desktop-filter-icon');
+        const desktopTitle = container.querySelector('.filter-header-title');
         const mobileIcon = container.querySelector('#mobile-filter-icon');
         const mobileToggleBtn = container.querySelector('#btn-toggle-mobile-filters');
         if (isActive) {
@@ -7303,28 +7304,42 @@ function renderMarket(container, type, onNavigate) {
                 desktopIcon.style.setProperty('color', '#22c55e', 'important');
                 desktopIcon.style.textShadow = '0 0 10px rgba(34, 197, 94, 0.8)';
             }
+            if (desktopTitle) {
+                desktopTitle.style.setProperty('color', '#22c55e', 'important');
+            }
             if (mobileIcon) {
                 mobileIcon.style.setProperty('color', '#22c55e', 'important');
                 mobileIcon.style.textShadow = '0 0 10px rgba(34, 197, 94, 0.8)';
             }
             if (mobileToggleBtn) {
-                mobileToggleBtn.style.borderColor = '#22c55e';
-                mobileToggleBtn.style.boxShadow = '0 0 12px rgba(34, 197, 94, 0.45)';
-                mobileToggleBtn.style.background = 'rgba(34, 197, 94, 0.22)';
+                mobileToggleBtn.classList.add('has-active-filters');
+                mobileToggleBtn.style.setProperty('border-color', '#22c55e', 'important');
+                mobileToggleBtn.style.setProperty('box-shadow', '0 0 12px rgba(34, 197, 94, 0.45)', 'important');
+                mobileToggleBtn.style.setProperty('background', 'rgba(34, 197, 94, 0.22)', 'important');
+                mobileToggleBtn.style.setProperty('color', '#22c55e', 'important');
+                const span = mobileToggleBtn.querySelector('span');
+                if (span) span.style.setProperty('color', '#22c55e', 'important');
             }
         } else {
             if (desktopIcon) {
                 desktopIcon.style.color = '';
                 desktopIcon.style.textShadow = '';
             }
+            if (desktopTitle) {
+                desktopTitle.style.color = '';
+            }
             if (mobileIcon) {
-                mobileIcon.style.color = '';
+                mobileIcon.style.color = '#ffffff';
                 mobileIcon.style.textShadow = '';
             }
             if (mobileToggleBtn) {
+                mobileToggleBtn.classList.remove('has-active-filters');
                 mobileToggleBtn.style.borderColor = 'rgba(255, 255, 255, 0.45)';
                 mobileToggleBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
                 mobileToggleBtn.style.background = 'rgba(255, 255, 255, 0.18)';
+                mobileToggleBtn.style.color = '#ffffff';
+                const span = mobileToggleBtn.querySelector('span');
+                if (span) span.style.color = '#ffffff';
             }
         }
     }
@@ -7980,10 +7995,8 @@ function renderMarket(container, type, onNavigate) {
         this.classList.toggle('active');
         const isOpen = filterWrapper.classList.contains('open');
         overlay?.classList.toggle('open', isOpen);
-        this.innerHTML = '<span>Filter</span>';
-        if (!isOpen) {
-            updateFilterIconGlow(isFilterActiveCurrently);
-        }
+        this.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="color: ${isFilterActiveCurrently ? '#22c55e' : '#ffffff'}; font-size: 0.9rem; transition: color 0.3s ease, text-shadow 0.3s ease;"></i> <span style="color: ${isFilterActiveCurrently ? '#22c55e' : '#ffffff'};">Filter</span>`;
+        updateFilterIconGlow(isFilterActiveCurrently);
     });
 
     const closeBtnM = container.querySelector('#btn-close-filters-m');
@@ -7992,7 +8005,7 @@ function renderMarket(container, type, onNavigate) {
         overlay?.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {
-            toggleBtn.innerHTML = '<span>Filter</span>';
+            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="color: ${isFilterActiveCurrently ? '#22c55e' : '#ffffff'}; font-size: 0.9rem; transition: color 0.3s ease, text-shadow 0.3s ease;"></i> <span style="color: ${isFilterActiveCurrently ? '#22c55e' : '#ffffff'};">Filter</span>`;
             updateFilterIconGlow(isFilterActiveCurrently);
         }
     });
@@ -8003,7 +8016,7 @@ function renderMarket(container, type, onNavigate) {
         overlay?.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {
-            toggleBtn.innerHTML = '<span>Filter</span>';
+            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="color: ${isFilterActiveCurrently ? '#22c55e' : '#ffffff'}; font-size: 0.9rem; transition: color 0.3s ease, text-shadow 0.3s ease;"></i> <span style="color: ${isFilterActiveCurrently ? '#22c55e' : '#ffffff'};">Filter</span>`;
             updateFilterIconGlow(isFilterActiveCurrently);
         }
         if (window.innerWidth <= 900) {
@@ -8024,7 +8037,7 @@ function renderMarket(container, type, onNavigate) {
         overlay.classList.remove('open');
         toggleBtn?.classList.remove('active');
         if (toggleBtn) {
-            toggleBtn.innerHTML = '<span>Filter</span>';
+            toggleBtn.innerHTML = `<i class="fa-solid fa-sliders" id="mobile-filter-icon" style="color: ${isFilterActiveCurrently ? '#22c55e' : '#ffffff'}; font-size: 0.9rem; transition: color 0.3s ease, text-shadow 0.3s ease;"></i> <span style="color: ${isFilterActiveCurrently ? '#22c55e' : '#ffffff'};">Filter</span>`;
             updateFilterIconGlow(isFilterActiveCurrently);
         }
     });
@@ -8942,20 +8955,29 @@ function renderMarket(container, type, onNavigate) {
         const toggleBtn = container.querySelector('#btn-toggle-mobile-filters');
         if (toggleBtn) {
             const iconEl = toggleBtn.querySelector('#mobile-filter-icon') || toggleBtn.querySelector('i');
+            const spanEl = toggleBtn.querySelector('span');
             if (isFilterActive) {
+                toggleBtn.classList.add('has-active-filters');
                 toggleBtn.style.boxShadow = '0 0 14px rgba(34, 197, 94, 0.45)';
                 toggleBtn.style.background = 'rgba(34, 197, 94, 0.22)';
-                toggleBtn.style.color = '#ffffff';
-                toggleBtn.style.border = '1.5px solid #22c55e';
+                toggleBtn.style.setProperty('color', '#22c55e', 'important');
+                toggleBtn.style.setProperty('border', '1.5px solid #22c55e', 'important');
+                if (spanEl) {
+                    spanEl.style.setProperty('color', '#22c55e', 'important');
+                }
                 if (iconEl) {
                     iconEl.style.setProperty('color', '#22c55e', 'important');
                     iconEl.style.textShadow = '0 0 10px rgba(34, 197, 94, 0.8)';
                 }
             } else {
+                toggleBtn.classList.remove('has-active-filters');
                 toggleBtn.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.15)';
                 toggleBtn.style.background = 'rgba(255, 255, 255, 0.18)';
                 toggleBtn.style.color = '#ffffff';
                 toggleBtn.style.border = '1.5px solid rgba(255, 255, 255, 0.45)';
+                if (spanEl) {
+                    spanEl.style.color = '#ffffff';
+                }
                 if (iconEl) {
                     iconEl.style.color = '#ffffff';
                     iconEl.style.textShadow = '';
@@ -10356,7 +10378,7 @@ function renderProfilePage(container) {
                 <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 1.2rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                     <div>
                         <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Aktueller Tarif</div>
-                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--color-purple); display: flex; align-items: center; gap: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.8rem;">
+                        <div style="font-size: 1.4rem; font-weight: 800; color: ${themeColor}; display: flex; align-items: center; gap: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.8rem;">
                             ${planInfo.title} <span style="font-size:1rem; font-weight:400; color:var(--text-main);">(${planInfo.priceText})</span>
                         </div>
                         
@@ -10430,14 +10452,14 @@ function renderProfilePage(container) {
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
                         </div>
-                    </div><div id="profile-promo-code-box" style="display: none; margin-bottom: 1.5rem; background: rgba(124, 58, 237, 0.05); border: 1px dashed var(--color-purple); padding: 1rem; border-radius: var(--radius-md);">
-                        <h5 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--color-purple);"><i class="fa-brands fa-instagram"></i> Premium-Freischaltung</h5>
+                    </div><div id="profile-promo-code-box" style="display: none; margin-bottom: 1.5rem; background: ${isMusician ? 'rgba(124, 58, 237, 0.05)' : 'rgba(37, 99, 235, 0.05)'}; border: 1px dashed ${themeColor}; padding: 1rem; border-radius: var(--radius-md);">
+                        <h5 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: ${themeColor};"><i class="fa-brands fa-instagram"></i> Premium-Freischaltung</h5>
                         <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.35;">
                             Um in den exklusiven Premium-Tarif zu wechseln, gib bitte deinen Gutscheincode ein (Instagram Story-Aktion):
                         </p>
                         <div style="display: flex; gap: 0.5rem;">
                             <input type="text" id="prof-promo-code" class="input-field" placeholder="Gutscheincode" style="margin:0; text-transform: uppercase;">
-                            <button type="button" class="btn btn-secondary btn-sm" id="btn-prof-apply-promo" style="margin:0; font-size:0.75rem; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple);">Code prüfen</button>
+                            <button type="button" class="btn btn-secondary btn-sm" id="btn-prof-apply-promo" style="margin:0; font-size:0.75rem; white-space:nowrap; background:${themeBtnBg}; border-color:${themeBtnBorder};">Code prüfen</button>
                         </div>
                         <div id="prof-promo-status-msg" style="font-size: 0.7rem; margin-top: 0.4rem; display: none;"></div>
                         
@@ -10457,7 +10479,7 @@ function renderProfilePage(container) {
             <div class="profile-section-card privacy-manage">
                 <div class="profile-section-header">
                     <div style="display: flex; align-items: center; gap: 0.85rem;">
-                        <div class="profile-section-badge-icon" style="background: rgba(124, 58, 237, 0.1); color: #7c3aed;">
+                        <div class="profile-section-badge-icon" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;">
                             <i class="fa-solid fa-shield-halved"></i>
                         </div>
                         <div class="profile-section-title-group">
@@ -10482,7 +10504,7 @@ function renderProfilePage(container) {
                     </button>
                 </div>
                 <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; margin-bottom: 0;">
-                    Für eine Auskunft oder einen Export deiner Daten sende bitte eine formlose E-Mail an <a href="mailto:info@gigconnact.de" style="color: var(--color-purple); text-decoration: underline;">info@gigconnact.de</a>.
+                    Für eine Auskunft oder einen Export deiner Daten sende bitte eine formlose E-Mail an <a href="mailto:info@gigconnact.de" style="color: #2563eb; text-decoration: underline;">info@gigconnact.de</a>.
                 </p>
             </div>
 
@@ -11428,8 +11450,8 @@ function renderOrganizerEventItem(e, isActive) {
                 </div>
             </div>
 
-            <!-- Actions Grid at the Bottom (Purple theme with white text) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: flex; flex-direction: column; gap: 0.4rem; background: #7c3aed;">
+            <!-- Actions Grid at the Bottom (Organizer Blue theme with white text) -->
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: flex; flex-direction: column; gap: 0.4rem; background: #2563eb;">
                 <button class="btn btn-sm btn-find-matching-acts" data-id="${e.id}" style="width: 100%; font-size: 0.8rem; font-weight: 700; padding: 0.45rem 0.6rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.4rem; color: #ffffff; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
                     <i class="fa-solid fa-users-viewfinder" style="color: #ffffff;"></i> Passende Acts finden
                 </button>
@@ -11479,7 +11501,7 @@ function renderMyEventsContent(container) {
                             <i class="fa-solid fa-calendar-check"></i>
                         </div>
                         <div class="profile-section-title-group">
-                            <h3>Meine Ausschreibungen (${activeEvents.length})</h3>
+                            <h3>Meine Events (${activeEvents.length})</h3>
                         </div>
                     </div>
                 </div>
@@ -11488,7 +11510,7 @@ function renderMyEventsContent(container) {
                     ${activeEvents.length === 0 ? `
                         <div style="padding:2rem 1rem; text-align:center; color:var(--text-muted); margin-bottom: 1rem;">
                             <i class="fa-solid fa-calendar-days" style="font-size:2.5rem; color:var(--border-glass); margin-bottom:0.8rem;"></i>
-                            <p>Keine aktiven Ausschreibungen vorhanden.</p>
+                            <p>Keine aktiven Events vorhanden.</p>
                         </div>
                     ` : `
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
@@ -11513,7 +11535,7 @@ function renderMyEventsContent(container) {
                         </div>
                         <div class="profile-section-title-group">
                             <h3 style="color: #475569 !important;">Beendete & Deaktivierte Events (${deactivatedEvents.length})</h3>
-                            <p>Diese Ausschreibungen sind aktuell im Markt nicht sichtbar.</p>
+                            <p>Diese Events sind aktuell im Markt nicht sichtbar.</p>
                         </div>
                     </div>
                 </div>
@@ -11992,7 +12014,7 @@ function renderMyMusiciansContent(container) {
                             <i class="fa-solid fa-guitar"></i>
                         </div>
                         <div class="profile-section-title-group">
-                            <h3>Musiker-Profile (${activeMusicians.length})</h3>
+                            <h3>Meine Musiker (${activeMusicians.length})</h3>
                         </div>
                     </div>
                 </div>
@@ -12001,7 +12023,7 @@ function renderMyMusiciansContent(container) {
                     ${activeMusicians.length === 0 ? `
                         <div style="padding:2rem 1rem; text-align:center; color:var(--text-muted); margin-bottom: 1rem;">
                             <i class="fa-solid fa-guitar" style="font-size:2.5rem; color:var(--border-glass); margin-bottom:0.8rem;"></i>
-                            <p>Keine aktiven Profile vorhanden.</p>
+                            <p>Keine aktiven Musiker vorhanden.</p>
                         </div>
                     ` : `
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr)); gap: 1.5rem; margin-bottom: 1rem;">
@@ -12010,7 +12032,7 @@ function renderMyMusiciansContent(container) {
                     `}
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem; flex-direction: column; align-items: center; gap: 0.5rem;">
                         <button class="btn btn-primary" id="btn-create-musician-modal" style="margin:0; background: #7c3aed; border-color: #7c3aed; color: #ffffff;">
-                            <i class="fa-solid fa-plus"></i> Profil hinzufügen
+                            <i class="fa-solid fa-plus"></i> Musiker hinzufügen
                         </button>
                     </div>
                 </div>
@@ -12025,8 +12047,8 @@ function renderMyMusiciansContent(container) {
                             <i class="fa-solid fa-pause"></i>
                         </div>
                         <div class="profile-section-title-group">
-                            <h3 style="color: #475569 !important;">Pausierte & Inaktive Profile (${deactivatedMusicians.length})</h3>
-                            <p>Diese Profile sind aktuell im Markt ausgeblendet.</p>
+                            <h3 style="color: #475569 !important;">Pausierte & Inaktive Musiker (${deactivatedMusicians.length})</h3>
+                            <p>Diese Musiker sind aktuell im Markt ausgeblendet.</p>
                         </div>
                     </div>
                 </div>

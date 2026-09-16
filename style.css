@@ -3524,6 +3524,43 @@ body.landing-page-active .app-container {
     color: #7c3aed;
 }
 
+/* Organizer Theme: Blue styling for subscription management */
+.theme-organizer .subscription-card {
+    border-color: rgba(37, 99, 235, 0.4) !important;
+}
+.theme-organizer .subscription-card:hover {
+    border-color: rgba(37, 99, 235, 0.85) !important;
+    background: rgba(37, 99, 235, 0.05) !important;
+    box-shadow: 0 0 15px rgba(37, 99, 235, 0.35) !important;
+}
+.theme-organizer .subscription-card.active {
+    border-color: #2563eb !important;
+    background: #2563eb !important;
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4) !important;
+    color: #ffffff !important;
+}
+.theme-organizer .subscription-card .price {
+    color: #2563eb !important;
+}
+.theme-organizer .subscription-card .plan-features li i,
+.theme-organizer .plan-features li i {
+    color: #2563eb !important;
+}
+.theme-organizer .subscription-card.active .plan-features li i {
+    color: #ffffff !important;
+}
+.theme-organizer #profile-promo-code-box {
+    background: rgba(37, 99, 235, 0.05) !important;
+    border-color: #2563eb !important;
+}
+.theme-organizer #profile-promo-code-box h5 {
+    color: #2563eb !important;
+}
+.theme-organizer #btn-prof-apply-promo {
+    background: #2563eb !important;
+    border-color: #2563eb !important;
+}
+
 #auth-register-form.role-musician-active {
     --market-primary: #7c3aed;
     --market-primary-rgb: 124, 58, 237;
@@ -3824,15 +3861,23 @@ body.landing-page-active .app-container {
     box-shadow: 0 4px 18px rgba(var(--market-primary-rgb), 0.12);
 }
 
-.market-filter-mobile-toggle.active {
-    background: rgba(239, 68, 68, 0.08);
-    border-color: rgba(239, 68, 68, 0.3);
-    color: #f87171;
+.market-filter-mobile-toggle.active,
+.market-filter-mobile-toggle.has-active-filters {
+    background: rgba(34, 197, 94, 0.22) !important;
+    border-color: #22c55e !important;
+    color: #22c55e !important;
+    box-shadow: 0 0 14px rgba(34, 197, 94, 0.45) !important;
 }
 
-.market-filter-mobile-toggle.active:hover {
-    background: rgba(239, 68, 68, 0.15);
-    border-color: rgba(239, 68, 68, 0.5);
+.market-filter-mobile-toggle.active *,
+.market-filter-mobile-toggle.has-active-filters * {
+    color: #22c55e !important;
+}
+
+.market-filter-mobile-toggle.active:hover,
+.market-filter-mobile-toggle.has-active-filters:hover {
+    background: rgba(34, 197, 94, 0.32) !important;
+    border-color: #22c55e !important;
 }
 
 .market-sort-container {
