@@ -8386,7 +8386,18 @@ function renderMarket(container, type, onNavigate) {
                 }
                 const totalMatchesCount = displayList.length;
                 const visibleList = displayList.slice(0, displayedItemsCount);
+                const prevGridHeight = grid.offsetHeight;
+                const prevWindowScroll = window.scrollY || document.documentElement.scrollTop;
+                if (prevGridHeight > 0) {
+                    grid.style.minHeight = prevGridHeight + 'px';
+                }
                 grid.innerHTML = renderMarketGridHTML(visibleList, isEvents);
+                requestAnimationFrame(() => {
+                    grid.style.minHeight = '';
+                    if (!resetPagination && prevWindowScroll > 0) {
+                        window.scrollTo({ top: prevWindowScroll, behavior: 'instant' });
+                    }
+                });
 
                 if (targetId) {
                     setTimeout(() => {
@@ -9023,6 +9034,9 @@ function renderMarket(container, type, onNavigate) {
             unsubscribeMarket();
             return;
         }
+        if (window.isTogglingFavorite && !window.currentMarketShowFavorites) {
+            return;
+        }
         if (marketUpdateTimer) clearTimeout(marketUpdateTimer);
         marketUpdateTimer = setTimeout(() => {
             applyAllFiltersAndSort(false);
@@ -9496,23 +9510,119 @@ window.revealMarketContact = async function(itemId, type, value, clickedBtn) {
     container.innerHTML = contentHtml;
 };
 
+window.showMediationNoticeBeforeAuth = function() {
+    const existing = document.getElementById('modal-mediation-notice-overlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'modal-mediation-notice-overlay';
+    overlay.className = 'custom-video-modal-overlay';
+    overlay.style.cssText = "position:fixed; inset:0; background:rgba(15,23,42,0.6); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); padding:1rem;";
+    
+    overlay.innerHTML = `
+        <div style="width:100%; max-width:450px; background:#ffffff; border:1px solid #cbd5e1; border-radius:18px; padding:2.2rem 2rem; text-align:center; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); position:relative; font-family:var(--font-heading); color:#0f172a; box-sizing:border-box;">
+            <button id="btn-close-mediation-cross" style="position: absolute; top: 1rem; right: 1.2rem; background: transparent; border: none; font-size: 1.8rem; line-height: 1; color: #64748b; cursor: pointer; padding: 0.2rem; border-radius: 6px; transition: color 0.2s;" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#64748b'" title="Schließen">&times;</button>
+            
+            <div style="width: 58px; height: 58px; border-radius: 50%; background: rgba(124, 58, 237, 0.1); color: #7c3aed; display: inline-flex; align-items: center; justify-content: center; font-size: 1.7rem; margin-bottom: 1rem;">
+                <i class="fa-solid fa-handshake"></i>
+            </div>
+            
+            <h3 style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin-bottom: 0.75rem; letter-spacing: -0.3px;">
+                Hinweis zur Vermittlung
+            </h3>
+            
+            <p style="font-size: 0.92rem; color: #475569; line-height: 1.55; margin-bottom: 1.6rem; text-align: left; font-family: var(--font-body);">
+                Der Erstkontakt erfolgt ausschließlich durch den Veranstalter. Bei Vermittlungs-Gigs bleiben die Kontaktdaten geschützt – Du selbst kannst keine direkte Vermittlungsanfrage an den Veranstalter senden.<br><br>
+                Erstelle Dein Musiker-Profil und werde für Veranstalter sichtbar, um passende Vermittlungsanfragen zu erhalten.
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+                <button id="btn-proceed-mediation-auth" class="btn btn-primary" style="width: 100%; padding: 0.85rem; font-size: 0.95rem; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; color: #ffffff !important; border: none !important; cursor: pointer; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3) !important; margin: 0;">
+                    Weiter zur Registrierung / Login
+                </button>
+                <button id="btn-cancel-mediation-notice" class="btn btn-secondary" style="width: 100%; padding: 0.7rem; font-size: 0.88rem; font-weight: 700; border-radius: 10px; cursor: pointer; margin: 0; background: transparent; border: 1px solid #cbd5e1; color: #64748b;">
+                    Abbrechen
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const closeNotice = () => overlay.remove();
+    overlay.querySelector('#btn-close-mediation-cross')?.addEventListener('click', closeNotice);
+    overlay.querySelector('#btn-cancel-mediation-notice')?.addEventListener('click', closeNotice);
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeNotice();
+    });
+    overlay.querySelector('#btn-proceed-mediation-auth')?.addEventListener('click', () => {
+        closeNotice();
+        showModal('auth', null, 'musician');
+    });
+};
+
 window.toggleFavorite = function(id) {
     if (!state.currentUser) {
         showModal('auth');
         return;
     }
+    const currentScrollY = window.scrollY || document.documentElement.scrollTop;
+    window.isTogglingFavorite = true;
+    setTimeout(() => { window.isTogglingFavorite = false; }, 350);
+
     if (state.toggleFavorite(id)) {
         const isFav = state.isFavorite(id);
+        const isAct = (state.musicians || []).some(m => m && m.id === id) || window.location.hash.includes('/musicians');
+        const itemTerm = isAct ? "Dieser Act" : "Dieser Gig";
         showToast({
             title: isFav ? "Favorit hinzugefügt!" : "Favorit entfernt",
-            message: isFav ? "Dieses Angebot wurde in deinen Favoriten gespeichert." : "Dieses Angebot wurde aus deinen Favoriten entfernt."
+            message: isFav ? `${itemTerm} wurde in deinen Favoriten gespeichert.` : `${itemTerm} wurde aus deinen Favoriten entfernt.`
         });
-        if (typeof window.marketApplyFilters === 'function') {
-            window.marketApplyFilters();
-        } else if (typeof window.matchesUpdate === 'function') {
-            window.matchesUpdate();
-        } else if (typeof window.handleRouting === 'function') {
-            window.handleRouting();
+
+        // 1. In-place update for heart icons in the DOM across cards and detail modals
+        const heartButtons = document.querySelectorAll(`button[onclick*="toggleFavorite('${id}')"]`);
+        heartButtons.forEach(btn => {
+            const svg = btn.querySelector('svg');
+            if (svg) {
+                if (isFav) {
+                    svg.setAttribute('fill', '#ef4444');
+                    svg.removeAttribute('stroke');
+                    svg.removeAttribute('stroke-width');
+                } else {
+                    svg.setAttribute('fill', 'none');
+                    svg.setAttribute('stroke', '#ef4444');
+                    svg.setAttribute('stroke-width', '2');
+                }
+            }
+        });
+
+        // 2. In-place update for star container if present
+        const starContainers = document.querySelectorAll(`.tile-fav-star-container[data-item-id="${id}"]`);
+        starContainers.forEach(starContainer => {
+            const hasMatch = starContainer.getAttribute('data-has-match') === 'true';
+            if (isFav || hasMatch) {
+                starContainer.innerHTML = `
+                    <button class="tile-top-match-badge" onclick="event.stopPropagation(); window.toggleFavorite('${id}')" title="${isFav ? 'In Favoriten gespeichert' : 'Top Match (Klicken zum Favorisieren)'}" style="background: transparent; border: none; box-shadow: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+                        <i class="fa-solid fa-star" style="color: #eab308; font-size: 1.15rem; margin: 0; filter: drop-shadow(0 1px 3px rgba(234, 179, 8, 0.4));"></i>
+                    </button>
+                `;
+            } else {
+                starContainer.innerHTML = '';
+            }
+        });
+
+        // 3. If currently in Favorites-only view, re-filter so the unfavorited item is removed from the grid
+        if (window.currentMarketShowFavorites) {
+            if (typeof window.marketApplyFilters === 'function') {
+                window.marketApplyFilters(false);
+            }
+        }
+
+        // 4. Ensure scroll position stays identical
+        if (currentScrollY > 0) {
+            window.scrollTo({ top: currentScrollY, behavior: 'instant' });
+            requestAnimationFrame(() => {
+                window.scrollTo({ top: currentScrollY, behavior: 'instant' });
+            });
         }
     }
 };
@@ -18985,9 +19095,9 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                         <h3 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.25; min-height: 2.5em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; flex: 1;">${displayName}</h3>
                         
                         <!-- Spalte für Herz & Favoriten-Stern darunter -->
-                        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; min-width: 28px;">
                             <!-- Heart (Favorite Button) -->
-                            <button onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none; width: 28px; height: 28px;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
+                            <button class="tile-favorite-heart-btn" data-item-id="${item.id}" onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" style="background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; outline: none; width: 28px; height: 28px;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Zu Favoriten hinzufügen/entfernen">
                                 ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? `
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444" width="26" height="26" style="display: block;">
                                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -18999,12 +19109,14 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                                 `}
                             </button>
 
-                            <!-- Favoriten / Top-Match-Stern unter dem Herzen -->
-                            ${((item.matchScore !== undefined && item.matchScore >= 70) || (state && typeof state.isFavorite === 'function' && state.isFavorite(item.id))) ? `
-                                <button class="tile-top-match-badge" onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" title="${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? 'In Favoriten gespeichert' : 'Top Match (Klicken zum Favorisieren)'}" style="background: rgba(15, 23, 42, 0.9); border: 1px solid ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? '#eab308' : 'rgba(254, 240, 138, 0.4)'}; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; box-shadow: ${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? '0 0 10px rgba(234, 179, 8, 0.6)' : '0 2px 8px rgba(0,0,0,0.35)'}; cursor: pointer; padding: 0; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
-                                    <i class="fa-solid fa-star" style="color: #eab308; font-size: 0.8rem; margin: 0;"></i>
-                                </button>
-                            ` : ''}
+                            <!-- Favoriten / Top-Match-Stern unter dem Herzen (ohne schwarzen Hintergrund) -->
+                            <div class="tile-fav-star-container" data-item-id="${item.id}" data-has-match="${(item.matchScore !== undefined && item.matchScore >= 70) ? 'true' : 'false'}" style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px;">
+                                ${((item.matchScore !== undefined && item.matchScore >= 70) || (state && typeof state.isFavorite === 'function' && state.isFavorite(item.id))) ? `
+                                    <button class="tile-top-match-badge" onclick="event.stopPropagation(); window.toggleFavorite('${item.id}')" title="${(state && typeof state.isFavorite === 'function' && state.isFavorite(item.id)) ? 'In Favoriten gespeichert' : 'Top Match (Klicken zum Favorisieren)'}" style="background: transparent; border: none; box-shadow: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+                                        <i class="fa-solid fa-star" style="color: #eab308; font-size: 1.15rem; margin: 0; filter: drop-shadow(0 1px 3px rgba(234, 179, 8, 0.4));"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
                         </div>
                     </div>
 
@@ -19207,7 +19319,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false) {
                 ) : (
                     `
                         <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
-                            <button class="btn btn-primary" onclick="event.stopPropagation(); ${state && state.currentUser ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : (isEvents ? `showModal('auth', null, 'musician')` : (isMediation ? `window.showAgencyBookingForm('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : `showModal('auth', null, 'organizer')`))}" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
+                            <button class="btn btn-primary" onclick="event.stopPropagation(); ${state && state.currentUser ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : (isEvents ? (isMediation ? `window.showMediationNoticeBeforeAuth()` : `showModal('auth', null, 'musician')`) : (isMediation ? `window.showAgencyBookingForm('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` : `showModal('auth', null, 'organizer')`))}" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
                                 <i class="fa-solid fa-lock"></i> ${isEvents ? (isMediation ? 'Vermittlung' : 'Direktkontakt') : (isMediation ? 'Vermittlung' : 'Kontaktdaten freischalten')}
                             </button>
                         </div>
@@ -20867,8 +20979,8 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                         </div>
 
                                         ${mus.matchScore >= 70 ? `
-                                            <button class="tile-top-match-badge" onclick="event.stopPropagation(); window.toggleFavorite('${mus.id}')" title="Top Match" style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(254, 240, 138, 0.35); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.35); cursor: pointer; padding: 0; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
-                                                <i class="fa-solid fa-star" style="color: #eab308; font-size: 0.85rem; margin: 0;"></i>
+                                            <button class="tile-top-match-badge" onclick="event.stopPropagation(); window.toggleFavorite('${mus.id}')" title="Top Match" style="background: transparent; border: none; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; box-shadow: none; cursor: pointer; padding: 0; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+                                                <i class="fa-solid fa-star" style="color: #eab308; font-size: 1.15rem; margin: 0; filter: drop-shadow(0 1px 3px rgba(234, 179, 8, 0.4));"></i>
                                             </button>
                                         ` : ''}
                                     </div>
