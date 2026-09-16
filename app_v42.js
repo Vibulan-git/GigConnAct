@@ -7170,10 +7170,14 @@ function renderMarket(container, type, onNavigate) {
     });
     window.lastProfilePrefillHash = currentPrefillHash;
 
+    const isUserLoggedIn = !!(state && state.currentUser && state.currentUser.id);
+    const userRole = isUserLoggedIn ? state.currentUser.role : null;
+    const isOrganizerTheme = userRole === 'organizer' || (!isEvents && userRole !== 'musician');
+
     container.innerHTML = `
-        <div class="market-page ${isEvents ? 'theme-musician' : 'theme-organizer'} ${showOnlyFavorites ? 'favorites-mode' : ''}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
+        <div class="market-page ${isOrganizerTheme ? 'theme-organizer' : 'theme-musician'} ${showOnlyFavorites ? 'favorites-mode' : ''}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
-            <div class="market-controls-row ${showOnlyFavorites ? 'favorites-mode' : ''}" style="background: ${isEvents ? 'linear-gradient(135deg, rgba(124, 58, 237, 0.96) 0%, rgba(109, 40, 217, 0.96) 100%)' : 'linear-gradient(135deg, rgba(30, 64, 175, 0.96) 0%, rgba(37, 99, 235, 0.96) 100%)'} !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: ${isEvents ? '0 6px 24px rgba(124, 58, 237, 0.35)' : '0 6px 24px rgba(37, 99, 235, 0.35)'} !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+            <div class="market-controls-row ${showOnlyFavorites ? 'favorites-mode' : ''}" style="background: ${isOrganizerTheme ? 'linear-gradient(135deg, rgba(30, 64, 175, 0.96) 0%, rgba(37, 99, 235, 0.96) 100%)' : 'linear-gradient(135deg, rgba(124, 58, 237, 0.96) 0%, rgba(109, 40, 217, 0.96) 100%)'} !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: ${isOrganizerTheme ? '0 6px 24px rgba(37, 99, 235, 0.35)' : '0 6px 24px rgba(124, 58, 237, 0.35)'} !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
                 <div class="market-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box;">
                     <!-- 1. Trefferanzahl (Weiß auf farbiger Leiste) -->
                     <div id="market-results-header" style="display: flex; align-items: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px; cursor: ${showOnlyFavorites ? 'default' : 'pointer'};" onclick="if (!window.currentMarketShowFavorites) document.getElementById('btn-toggle-mobile-filters')?.click();" title="${showOnlyFavorites ? '' : 'Filter öffnen'}">
@@ -7233,7 +7237,7 @@ function renderMarket(container, type, onNavigate) {
                         
                                                 <!-- Right: Mobile Close Button -->
                         <div class="filter-header-close-wrapper" style="flex: 1; display: flex; justify-content: flex-end;">
-                            <button id="btn-close-filters-m" class="btn-close-filters-m" style="margin: 0; width: 42px; height: 42px; background: ${isEvents ? '#7c3aed' : '#2563eb'} !important; border-color: ${isEvents ? '#7c3aed' : '#2563eb'} !important; box-shadow: 0 2px 8px ${isEvents ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'} !important;" title="Filter anwenden">
+                            <button id="btn-close-filters-m" class="btn-close-filters-m" style="margin: 0; width: 42px; height: 42px; background: ${isOrganizerTheme ? '#2563eb' : '#7c3aed'} !important; border: 1px solid ${isOrganizerTheme ? '#2563eb' : '#7c3aed'} !important; box-shadow: 0 2px 8px ${isOrganizerTheme ? 'rgba(37, 99, 235, 0.35)' : 'rgba(124, 58, 237, 0.35)'} !important; color: #ffffff !important;" title="Filter anwenden & Fenster schließen">
                                 <i class="fa-solid fa-check"></i>
                             </button>
                         </div>
@@ -7606,10 +7610,10 @@ function renderMarket(container, type, onNavigate) {
                         </div>
                     `}
 
-                    <!-- Bottom Close Action for Filter Drawer (Mobile) -->
+                    <!-- Bottom Close Action for Filter Drawer -->
                     <div class="market-filter-bottom-actions">
-                        <button type="button" class="btn btn-primary btn-close-filters-bottom" id="btn-close-filters-bottom" title="Filter anwenden & Fenster schließen">
-                            <i class="fa-solid fa-check"></i> <span>Filter anwenden / Schließen</span>
+                        <button type="button" class="btn btn-close-filters-bottom" id="btn-close-filters-bottom" title="Filter anwenden & Fenster schließen" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.85rem 1.5rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; letter-spacing: -0.2px; color: #ffffff !important; border: 1px solid ${isOrganizerTheme ? '#2563eb' : '#7c3aed'} !important; cursor: pointer; transition: all 0.2s ease; background: ${isOrganizerTheme ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'} !important; box-shadow: ${isOrganizerTheme ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'} !important;">
+                            <i class="fa-solid fa-check"></i> <span>Filter anwenden & Fenster schließen</span>
                         </button>
                     </div>
                 </div>
