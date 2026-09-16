@@ -7258,9 +7258,9 @@ function renderMarket(container, type, onNavigate) {
             userEvents.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
             const myProfile = (state.activeEventId && (state.events || []).find(e => e.id === state.activeEventId))
-                || userEvents[0]
-                || (state.events || []).find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) 
-                || (state.events || []).find(e => e.creatorId === state.currentUser.id);
+                || (!state.activeEventId ? userEvents[0] : null)
+                || (!state.activeEventId ? (state.events || []).find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) : null)
+                || (!state.activeEventId ? (state.events || []).find(e => e.creatorId === state.currentUser.id) : null);
             if (myProfile) {
                 hasProfile = true;
                 if (!state.activeEventId) {
@@ -9209,19 +9209,28 @@ function renderMarket(container, type, onNavigate) {
     applyAllFiltersAndSort();
 
     // Re-render dynamically if profile loads late (with one-time guard)
-    if (!hasProfile) {
+    const isTargetPending = (!isEvents && state.activeEventId && !(state.events || []).some(e => e && e.id === state.activeEventId))
+        || (isEvents && state.activeMusicianId && !(state.musicians || []).some(m => m && m.id === state.activeMusicianId));
+    if (!hasProfile || isTargetPending) {
         let hasTriggeredLateProfile = false;
         const unsubscribeProfile = state.subscribe(() => {
             if (!document.body.contains(container) || !container.querySelector('#market-items-grid') || hasTriggeredLateProfile) {
                 unsubscribeProfile();
                 return;
             }
+            const targetFound = isEvents 
+                ? (state.activeMusicianId ? (state.musicians || []).some(m => m && m.id === state.activeMusicianId) : false)
+                : (state.activeEventId ? (state.events || []).some(e => e && e.id === state.activeEventId) : false);
+
             const currentProfile = isEvents 
                 ? (state.currentUser && (state.musicians.find(m => m.id === state.activeMusicianId) || state.musicians.find(m => m.creatorId === state.currentUser.id || m.id === state.currentUser.profileId)))
-                : (state.currentUser && (state.events.find(e => e.id === state.activeEventId) || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) || state.events.find(e => e.creatorId === state.currentUser.id)));
-            if (currentProfile) {
+                : (state.currentUser && ((state.activeEventId && state.events.find(e => e.id === state.activeEventId)) || state.events.find(e => e.creatorId === state.currentUser.id || e.id === state.currentUser.profileId) || state.events.find(e => e.creatorId === state.currentUser.id)));
+            if (targetFound || (!state.activeEventId && !state.activeMusicianId && currentProfile)) {
                 hasTriggeredLateProfile = true;
                 unsubscribeProfile();
+                window.lastActiveProfileId = null;
+                window.selectedFilterDates = null;
+                window.marketFilterExplicitlyReset = false;
                 renderMarket(container, type, onNavigate);
             }
         });
@@ -13665,6 +13674,9 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     </div>
 
                     <div id="reg-fields-musician">
+                        <h4 style="font-family: var(--font-heading); font-size: 1rem; margin-bottom: 1rem; color: #000000; font-weight: 700;">
+                            <i class="fa-solid fa-guitar" style="color: #000000;"></i> Daten zum Musiker
+                        </h4>
                         
                         <!-- 1. Musikername -->
                         <div class="form-group">
@@ -13878,6 +13890,9 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     </div>
 
                     <div id="reg-fields-organizer" class="hidden">
+                        <h4 style="font-family: var(--font-heading); font-size: 1rem; margin-bottom: 1rem; color: #000000; font-weight: 700;">
+                            <i class="fa-solid fa-calendar-days" style="color: #000000;"></i> Daten zum Event
+                        </h4>
                         
                         <!-- 1. Eventname -->
                         <div class="form-group">
@@ -14084,7 +14099,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
 
                     <!-- Personal details at the end -->
                     <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
-                    <h4 style="font-family: var(--font-heading); font-size:1rem; margin-bottom:1rem; color:var(--text-main);"><i class="fa-solid fa-user-lock"></i> Persönliche Kontaktdaten</h4>
+                    <h4 style="font-family: var(--font-heading); font-size: 1rem; margin-bottom: 1rem; color: #000000; font-weight: 700;"><i class="fa-solid fa-user-lock" style="color: #000000;"></i> Persönliche Kontaktdaten</h4>
 
                     <div class="form-group hidden" id="reg-organizer-type-container">
                         <label>Veranstalter-Typ</label>
@@ -16373,18 +16388,18 @@ function renderSubscriptionExpiredPage(container) {
 window.renderSubscriptionExpiredPage = renderSubscriptionExpiredPage;
 
 window.updateBodyBackground = function(page) {
-    let gradient = 'linear-gradient(to right, #f3e8ff 0%, #faf5ff 50%, #e0f2fe 100%)'; // default combined (softer)
+    let gradient = 'linear-gradient(to right, #eddffd 0%, #e0e7ff 50%, #bae6fd 100%)'; // default combined
     
     if (page === 'events') {
-        gradient = 'linear-gradient(to right, #f3e8ff 0%, #faf5ff 50%, #f3e8ff 100%)'; // purple symmetric (softer)
+        gradient = 'linear-gradient(to right, #f5f3ff 0%, #eddffd 50%, #ebd8ff 100%)'; // purple
     } else if (page === 'musicians' || page === 'matchmaking-choice') {
-        gradient = 'linear-gradient(to right, #e0f2fe 0%, #f0f9ff 50%, #e0f2fe 100%)'; // blue symmetric (softer)
+        gradient = 'linear-gradient(to right, #eff6ff 0%, #e0f2fe 50%, #bae6fd 100%)'; // blue
     } else if (['postbox', 'dashboard', 'my-musicians', 'my-events', 'matches', 'profile', 'credits'].includes(page)) {
         const role = (state && state.currentUser) ? state.currentUser.role : null;
         if (role === 'organizer') {
-            gradient = 'linear-gradient(to right, #e0f2fe 0%, #f0f9ff 50%, #e0f2fe 100%)'; // blue symmetric (softer)
+            gradient = 'linear-gradient(to right, #eff6ff 0%, #e0f2fe 50%, #bae6fd 100%)'; // blue
         } else if (role === 'musician') {
-            gradient = 'linear-gradient(to right, #f3e8ff 0%, #faf5ff 50%, #f3e8ff 100%)'; // purple symmetric (softer)
+            gradient = 'linear-gradient(to right, #f5f3ff 0%, #eddffd 50%, #ebd8ff 100%)'; // purple
         }
     }
     
@@ -17265,6 +17280,7 @@ function handleRouting() {
             if (state.currentUser) {
                 state.currentUser.profileId = targetEvtId;
             }
+            state.saveState();
             window.lastActiveProfileId = null;
             window.selectedFilterDates = null;
             window.marketFilterExplicitlyReset = false;
@@ -17283,6 +17299,7 @@ function handleRouting() {
                 if (state.currentUser) {
                     state.currentUser.profileId = eventId;
                 }
+                state.saveState();
                 window.lastActiveProfileId = null;
                 window.selectedFilterDates = null;
                 window.marketFilterExplicitlyReset = false;
@@ -17297,6 +17314,7 @@ function handleRouting() {
                     if (state.currentUser) {
                         state.currentUser.profileId = rawId;
                     }
+                    state.saveState();
                     window.lastActiveProfileId = null;
                     window.selectedFilterDates = null;
                     window.marketFilterExplicitlyReset = false;
@@ -17306,6 +17324,7 @@ function handleRouting() {
                 } else {
                     console.log("[DEBUG] Storing activeMusicianId (target) from URL parameter:", rawId);
                     state.activeMusicianId = rawId;
+                    state.saveState();
                 }
             }
         } else {
@@ -17786,21 +17805,10 @@ function renderPostbox(container) {
                     <div class="postbox-sidebar" style="width: 340px; max-width: 100%; flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); height: 100%; box-sizing: border-box;">
                     
                                         <!-- Postbox Header & Tabs -->
-                    <div style="padding: 1rem; border-bottom: 1px solid var(--border-glass); background: rgba(255,255,255,0.01);">
-                        <h3 style="margin: 0 0 0.8rem; font-size: 1.15rem; font-family: var(--font-heading); display:flex; align-items:center; gap:0.5rem; color:var(--text-main); justify-content: space-between;">
-                            <span style="display:flex; align-items:baseline; gap:0.4rem; flex-wrap: wrap;">
-                                <span style="display:flex; align-items:center; gap:0.5rem;">
-                                    <i class="fa-solid fa-envelope ${isMusician ? 'text-purple' : 'text-cyan'}"></i> 
-                                    Postfach 
-                                    <span style="font-size: 1.15rem; color: ${isMusician ? 'var(--color-purple)' : 'var(--color-cyan)'}; font-weight: 800; margin-left: 0.2rem;">(${currentCategoryChats.length})</span>
-                                </span>
-                            </span>
-                            <i class="fa-solid fa-sliders" id="btn-toggle-postbox-filters" style="color: ${window.postboxShowFilters ? (isMusician ? 'var(--color-purple)' : 'var(--color-cyan)') : 'var(--text-muted)'}; cursor: pointer; font-size: 1.05rem; transition: color 0.2s;" title="Filter ein-/ausblenden"></i>
-                        </h3>
-                        
+                    <div style="${(window.postboxShowFilters || profileSelectorHtml) ? 'padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-glass);' : 'display: none;'} background: rgba(255,255,255,0.01);">
                         ${profileSelectorHtml}
                         <!-- 3 Category Tabs (3 Columns) -->
-                        <div id="postbox-filters-container" style="display: ${window.postboxShowFilters ? 'grid' : 'none'}; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;">
+                        <div id="postbox-filters-container" style="display: ${window.postboxShowFilters ? 'grid' : 'none'}; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; ${profileSelectorHtml ? 'margin-top: 0.5rem;' : ''}">
                             <button class="btn btn-sm ${activeTab === 'all' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="all" style="font-size: 0.72rem; padding: 0.4rem 0.1rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Alle Nachrichten">
                                 <i class="fa-solid fa-folder-open" style="margin-right: 4px;"></i> Alle
                             </button>
@@ -18575,6 +18583,9 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
             <div class="modal-body" style="padding: 1.5rem 2rem; max-height: 70vh; overflow-y: auto;">
 
                 <form id="auth-register-form" class="role-organizer-active">
+                    <h4 style="font-family: var(--font-heading); font-size: 1rem; margin-bottom: 1rem; color: #000000; font-weight: 700;">
+                        <i class="fa-solid fa-calendar-days" style="color: #000000;"></i> Daten zum Event
+                    </h4>
                     <!-- 1. Eventname -->
                     <div class="form-group">
                         <label>Eventname</label>
@@ -18774,7 +18785,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
 
                     <!-- Personal Details -->
                     <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
-                    <h4 style="font-family: var(--font-heading); font-size:1rem; margin-bottom:0.5rem; color:var(--text-main);"><i class="fa-solid fa-user-lock"></i> Persönliche Kontaktdaten</h4>
+                    <h4 style="font-family: var(--font-heading); font-size: 1rem; margin-bottom: 0.5rem; color: #000000; font-weight: 700;"><i class="fa-solid fa-user-lock" style="color: #000000;"></i> Persönliche Kontaktdaten</h4>
                     <div style="margin-bottom: 1.2rem; background: rgba(37, 99, 235, 0.05); border: 1px dashed rgba(37, 99, 235, 0.2); padding: 0.75rem; border-radius: 8px; font-size: 0.75rem; color: var(--text-main); line-height: 1.45; text-align: left; display: flex; gap: 0.4rem; align-items: flex-start;">
                         <i class="fa-solid fa-shield-halved" style="color: #2563eb; margin-top: 2px; flex-shrink: 0;"></i>
                         <span>Deine Kontaktdaten werden ausschließlich Musikern angezeigt, an die du eine Anfrage senden möchtest. Erst nach einer erfolgreichen Vermittlung werden die Kontaktdaten vollständig freigegeben.</span>
