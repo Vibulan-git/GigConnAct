@@ -48,12 +48,20 @@ const mockVideoSources = [
 
 window.registrationMedia = {
     musician: {
-        photos: ['https://picsum.photos/id/453/400/300'],
+        photos: [
+            'https://picsum.photos/id/453/400/300',
+            'https://picsum.photos/id/280/400/300',
+            'https://picsum.photos/id/1025/400/300'
+        ],
         videos: [],
         audios: []
     },
     organizer: {
-        photos: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'],
+        photos: [
+            'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80'
+        ],
         videos: [],
         audios: []
     }
@@ -740,30 +748,59 @@ window.openFullscreenGallery = function(items, startIndex = 0, title = '', relat
 
 window.openFullscreenFromSlider = function(itemId, targetIndex) {
     const slider = document.getElementById('combo-slider-' + itemId);
-    if (!slider) return;
-
-    let curIndex = (targetIndex !== undefined) ? targetIndex : parseInt(slider.getAttribute('data-idx') || '0');
+    let curIndex = (targetIndex !== undefined) ? targetIndex : (slider ? parseInt(slider.getAttribute('data-idx') || '0') : 0);
     const mediaItems = [];
     let activeMediaIndex = 0;
 
     const titleEl = document.getElementById('tile-title-' + itemId);
-    const title = titleEl ? titleEl.innerText.trim() : '';
+    let title = titleEl ? titleEl.innerText.trim() : '';
 
-    const slides = Array.from(slider.children);
-    slides.forEach((slide, idx) => {
-        const img = slide.querySelector('img');
-        const vid = slide.querySelector('video');
-        if (img) {
-            if (idx === curIndex) activeMediaIndex = mediaItems.length;
-            mediaItems.push({ type: 'image', url: img.src, title: title });
-        } else if (vid) {
-            const src = vid.querySelector('source')?.src || vid.src;
-            if (src) {
+    if (slider) {
+        const slides = Array.from(slider.children);
+        slides.forEach((slide, idx) => {
+            const img = slide.querySelector('img');
+            const vid = slide.querySelector('video');
+            if (img && img.src) {
                 if (idx === curIndex) activeMediaIndex = mediaItems.length;
-                mediaItems.push({ type: 'video', url: src, poster: vid.poster || '', title: title });
+                mediaItems.push({ type: 'image', url: img.src, title: title });
+            } else if (vid) {
+                const src = vid.querySelector('source')?.src || vid.src;
+                if (src) {
+                    if (idx === curIndex) activeMediaIndex = mediaItems.length;
+                    mediaItems.push({ type: 'video', url: src, poster: vid.poster || '', title: title });
+                }
+            }
+        });
+    }
+
+    // Safety fallback: If mediaItems contains at most 1 item, but the item object in state has multiple photos, populate all of them!
+    if (window.state) {
+        const item = (window.state.events && window.state.events.find(e => e.id === itemId)) ||
+                     (window.state.musicians && window.state.musicians.find(m => m.id === itemId));
+        if (item) {
+            if (!title) title = item.name || item.title || '';
+            const rawPhotos = Array.isArray(item.photos) && item.photos.length > 0 
+                ? item.photos 
+                : (item.image || item.photo || item.profilePic ? [item.image || item.photo || item.profilePic] : []);
+            
+            if (mediaItems.length <= 1 && rawPhotos.length > 1) {
+                mediaItems.length = 0;
+                rawPhotos.forEach((p, pIdx) => {
+                    const url = typeof p === 'string' ? p : (p && p.url ? p.url : '');
+                    if (url) {
+                        if (pIdx === curIndex) activeMediaIndex = mediaItems.length;
+                        mediaItems.push({ type: 'image', url: url, title: title });
+                    }
+                });
+                const vids = window.sanitizeVideos ? window.sanitizeVideos(item.videos) : [];
+                vids.forEach((v) => {
+                    if (v && v.url) {
+                        mediaItems.push({ type: 'video', url: v.url, poster: rawPhotos[0] || '', title: title });
+                    }
+                });
             }
         }
-    });
+    }
 
     if (mediaItems.length === 0) return;
     window.openFullscreenGallery(mediaItems, activeMediaIndex, title, itemId);
@@ -1102,7 +1139,7 @@ window.normalizeCityName = function(city) {
 // 1. MOCK DATA & CONSTANTS
 // ==========================================
 
-const GIGCONNACT_DEMO_VERSION = '20260915_flag_v9';
+const GIGCONNACT_DEMO_VERSION = '20260917_flag_v10';
 
 const initialMusicians = [
     {
@@ -1137,7 +1174,11 @@ const initialMusicians = [
             youtube: "https://youtube.com/c/neonbeats",
             instagram: "https://instagram.com/neonbeats"
         },
-        photos: ["https://picsum.photos/id/453/400/300", "https://picsum.photos/id/280/400/300"],
+        photos: [
+            "https://picsum.photos/id/453/400/300",
+            "https://picsum.photos/id/280/400/300",
+            "https://picsum.photos/id/1025/400/300"
+        ],
         videos: [],
         audio: [],
         technik: ["Technik vorhanden"],
@@ -1178,7 +1219,11 @@ const initialMusicians = [
             youtube: "https://youtube.com/c/clarapiano",
             instagram: "https://instagram.com/clara_lichtblick"
         },
-        photos: ["https://picsum.photos/id/1082/400/300"],
+        photos: [
+            "https://picsum.photos/id/1082/400/300",
+            "https://picsum.photos/id/1062/400/300",
+            "https://picsum.photos/id/1074/400/300"
+        ],
         videos: [],
         audio: [],
         technik: ["Technik nicht vorhanden"]
@@ -1214,7 +1259,11 @@ const initialMusicians = [
             youtube: "",
             instagram: "https://instagram.com/dj_soundwave"
         },
-        photos: ["https://picsum.photos/id/342/400/300"],
+        photos: [
+            "https://picsum.photos/id/342/400/300",
+            "https://picsum.photos/id/653/400/300",
+            "https://picsum.photos/id/1025/400/300"
+        ],
         videos: [],
         audio: [],
         technik: ["Technik vorhanden"]
@@ -1250,7 +1299,11 @@ const initialMusicians = [
             youtube: "https://youtube.com/c/acousticbreeze",
             instagram: "https://instagram.com/acoustic_breeze"
         },
-        photos: ["https://picsum.photos/id/325/400/300"],
+        photos: [
+            "https://picsum.photos/id/325/400/300",
+            "https://picsum.photos/id/453/400/300",
+            "https://picsum.photos/id/280/400/300"
+        ],
         videos: [],
         audio: [],
         technik: ["Technik vorhanden"]
@@ -1286,7 +1339,11 @@ const initialMusicians = [
             youtube: "https://youtube.com/c/blackwood",
             instagram: "https://instagram.com/blackwood_rock"
         },
-        photos: ["https://picsum.photos/id/109/400/300"],
+        photos: [
+            "https://picsum.photos/id/109/400/300",
+            "https://picsum.photos/id/342/400/300",
+            "https://picsum.photos/id/1082/400/300"
+        ],
         videos: [],
         audio: [],
         technik: ["Technik nicht vorhanden"]
@@ -1321,7 +1378,11 @@ const initialMusicians = [
             youtube: "",
             instagram: "https://instagram.com/leo_sax_soul"
         },
-        photos: ["https://picsum.photos/id/357/400/300"],
+        photos: [
+            "https://picsum.photos/id/357/400/300",
+            "https://picsum.photos/id/325/400/300",
+            "https://picsum.photos/id/453/400/300"
+        ],
         videos: [],
         audio: [],
         technik: ["Technik vorhanden"]
@@ -1353,7 +1414,11 @@ const initialMusicians = [
         isPremium: false,
         credits: 0,
         socialLinks: { spotify: "", youtube: "", instagram: "" },
-        photos: ["https://picsum.photos/id/111/400/300"],
+        photos: [
+            "https://picsum.photos/id/111/400/300",
+            "https://picsum.photos/id/280/400/300",
+            "https://picsum.photos/id/109/400/300"
+        ],
         videos: [],
         audio: [],
         technik: ["Technik vorhanden"]
@@ -1385,7 +1450,11 @@ const initialMusicians = [
         isPremium: false,
         credits: 5,
         socialLinks: { spotify: "", youtube: "", instagram: "" },
-        photos: ["https://picsum.photos/id/280/400/300"],
+        photos: [
+            "https://picsum.photos/id/280/400/300",
+            "https://picsum.photos/id/357/400/300",
+            "https://picsum.photos/id/342/400/300"
+        ],
         videos: [],
         audio: [],
         technik: ["Technik nicht vorhanden"]
@@ -1504,7 +1573,8 @@ const initialMusicians = [
         socialLinks: { spotify: "https://spotify.com", youtube: "https://youtube.com", instagram: "https://instagram.com" },
         photos: [
             "https://images.unsplash.com/photo-1507838153414-b4b713384a76?auto=format&fit=crop&w=400&q=80",
-            "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=400&q=80"
+            "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=400&q=80",
+            "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=400&q=80"
         ],
         videos: [
             { title: "Club Performance Live", url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" }
@@ -1838,7 +1908,11 @@ const initialEvents = [
         isOnline: true,
         creatorId: "org_1",
         technik: ["Technik vorhanden"],
-        photos: ["https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80"],
+        photos: [
+            "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80"
+        ],
         videos: []
     },
     {
@@ -1875,7 +1949,11 @@ const initialEvents = [
         isOnline: true,
         creatorId: "info-gigconnact-admin",
         technik: ["Technik vorhanden"],
-        photos: ["https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80"],
+        photos: [
+            "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80"
+        ],
         videos: []
     },
     {
@@ -1909,7 +1987,11 @@ const initialEvents = [
         isOnline: true,
         creatorId: "org_3",
         technik: ["Technik nicht vorhanden"],
-        photos: ["https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80"],
+        photos: [
+            "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1511192336575-5a79af67a629?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=800&q=80"
+        ],
         videos: []
     },
     {
@@ -1946,7 +2028,11 @@ const initialEvents = [
         isOnline: true,
         creatorId: "info-gigconnact-admin",
         technik: ["Technik vorhanden"],
-        photos: ["https://images.unsplash.com/photo-1484755560693-a4074577af3a?auto=format&fit=crop&w=800&q=80"],
+        photos: [
+            "https://images.unsplash.com/photo-1484755560693-a4074577af3a?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1429962714451-bb934ecdc4ec?auto=format&fit=crop&w=800&q=80"
+        ],
         videos: []
     },
     {
@@ -1980,7 +2066,11 @@ const initialEvents = [
         isOnline: true,
         creatorId: "org_5",
         technik: ["Technik nicht vorhanden"],
-        photos: ["https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80"],
+        photos: [
+            "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=800&q=80",
+            "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=800&q=80"
+        ],
         videos: []
     }
 ];
@@ -2090,7 +2180,11 @@ function generateRemainingMusicians(existing) {
             email: `${name.toLowerCase().replace(/[^a-z0-9]/g, "")}@example.com`,
             isPremium: Math.random() > 0.5,
             socialLinks: { spotify: "", youtube: "", instagram: "" },
-            photos: [`https://picsum.photos/id/${(i * 17) % 500 + 100}/400/300`],
+            photos: [
+                `https://picsum.photos/id/${(i * 17) % 500 + 100}/400/300`,
+                `https://picsum.photos/id/${(i * 23) % 500 + 100}/400/300`,
+                `https://picsum.photos/id/${(i * 31) % 500 + 100}/400/300`
+            ],
             videos: [],
             audio: [],
             technik,
@@ -2217,13 +2311,29 @@ function generateRemainingEvents(existing) {
             phone: `+49 176 ${Math.floor(10000000 + Math.random() * 90000000)}`,
             email: isMediationGen ? 'info@gigconnact.de' : `event_${i}@example.com`,
             isOnline: true,
-            photos: [`https://images.unsplash.com/photo-${[
-                '1511671782779-c97d3d27a1d4',
-                '1470225620780-dba8ba36b745',
-                '1514525253161-7a46d19cd819',
-                '1484755560693-a4074577af3a',
-                '1465847899084-d164df4dedc6'
-            ][i % 5]}?auto=format&fit=crop&w=800&q=80`],
+            photos: [
+                `https://images.unsplash.com/photo-${[
+                    '1511671782779-c97d3d27a1d4',
+                    '1470225620780-dba8ba36b745',
+                    '1514525253161-7a46d19cd819',
+                    '1484755560693-a4074577af3a',
+                    '1465847899084-d164df4dedc6'
+                ][i % 5]}?auto=format&fit=crop&w=800&q=80`,
+                `https://images.unsplash.com/photo-${[
+                    '1501386761578-eac5c94b800a',
+                    '1511192336575-5a79af67a629',
+                    '1493225457124-a3eb161ffa5f',
+                    '1516450360452-9312f5e86fc7',
+                    '1506157786151-b8491531f063'
+                ][i % 5]}?auto=format&fit=crop&w=800&q=80`,
+                `https://images.unsplash.com/photo-${[
+                    '1519741497674-611481863552',
+                    '1465495976277-4387d4b0b4c6',
+                    '1492684223066-81342ee5ff30',
+                    '1429962714451-bb934ecdc4ec',
+                    '1517457373958-b7bdd4587205'
+                ][i % 5]}?auto=format&fit=crop&w=800&q=80`
+            ],
             videos: [],
             creatorId: isMediationGen ? 'info-gigconnact-admin' : `org_gen_${i}`,
             createdAt: new Date(Date.now() - i * 6 * 60 * 60 * 1000).toISOString()
@@ -9892,6 +10002,9 @@ window.openItemDetailModal = function(id, isEvents) {
     const techDisplay = (isEvents ? (item.technik || 'Technik vorhanden') : (item.technik || 'Technik vorhanden'));
     const techDisplayStr = Array.isArray(techDisplay) ? techDisplay.join(', ') : String(techDisplay);
 
+    const detailPhotos = (item.photos && item.photos.length > 0) ? item.photos : [photo];
+    const detailMediaJson = JSON.stringify(detailPhotos.map(p => ({ type: 'image', url: p, title: item.name || item.title || '' }))).replace(/"/g, '&quot;');
+
     const modalHTML = `
         <div class="modal-overlay active ${isEvents ? 'theme-musician' : 'theme-organizer'}" id="modal-item-detail" style="position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
             <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 20px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); position: relative;">
@@ -9902,7 +10015,7 @@ window.openItemDetailModal = function(id, isEvents) {
                 </button>
 
                 <!-- Full Hero Banner & Photo Gallery -->
-                <div class="detail-hero-banner" style="position: relative; height: 260px; width: 100%; background: #0f172a; cursor: pointer;" onclick="window.openFullscreenGallery([{type: 'image', url: '${photo}', title: '${(item.name || item.title || '').replace(/'/g, "\\'")}'}], 0, '${(item.name || item.title || '').replace(/'/g, "\\'")}');">
+                <div class="detail-hero-banner" style="position: relative; height: 260px; width: 100%; background: #0f172a; cursor: pointer;" onclick="window.openFullscreenGallery(${detailMediaJson}, 0, '${(item.name || item.title || '').replace(/'/g, "\\'")}');">
                     <img src="${photo}" style="width: 100%; height: 100%; object-fit: cover;">
                     <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,0.9) 0%, transparent 60%); pointer-events: none;"></div>
                     <!-- Top Tags im Detailfenster oben links (ohne Icons) -->
@@ -20035,14 +20148,12 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                     </div>
                     ` : ''}
 
-                    <!-- Dots container inside the slider (only visible when logged in) -->
-                    ${(state && state.currentUser) ? `
+                    <!-- Dots container inside the slider (visible for all users) -->
                     <div class="tile-gallery-dots" id="combo-dots-${item.id}" data-theme="${isEvents ? '#7c3aed' : '#2563eb'}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
                         ${Array.from({ length: photos.length + videos.length + audios.length + 1 }).map((_, dIdx) => `
                             <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${item.id}', ${dIdx})" style="width: 10px; height: 10px; border-radius: 50%; background: ${dIdx === 0 ? (isEvents ? '#7c3aed' : '#2563eb') : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? (isEvents ? '#7c3aed' : '#2563eb') : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + (isEvents ? '#7c3aed' : '#2563eb') : '0 1px 2px rgba(0,0,0,0.2)'}; cursor: pointer;"></span>
                         `).join('')}
                     </div>
-                    ` : ''}
                 </div>
 
                 <!-- Tile Body Content -->
@@ -20266,32 +20377,32 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                             </button>
 
                             <!-- Untereinander aufgelistete Kontaktdaten mit Icon -->
-                            <div id="contact-details-${item.id}" class="market-contact-details-panel" style="display: none; margin-top: 0.85rem; padding: 0.95rem 1rem; background: #f8fafc; border: 1.5px solid ${isEvents ? 'rgba(124, 58, 237, 0.25)' : 'rgba(37, 99, 235, 0.25)'}; border-radius: 12px; font-size: 0.86rem; text-align: left; color: #0f172a; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); animation: fadeIn 0.2s ease;">
-                                <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+                            <div id="contact-details-${item.id}" class="market-contact-details-panel" style="display: none; margin-top: 0.85rem; padding: 0.75rem 0 0 0; border-top: 1px dashed var(--border-glass); font-size: 0.88rem; text-align: left; color: var(--text-main); animation: fadeIn 0.2s ease;">
+                                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                                     
                                     <!-- 1. Veranstalter-Typ / Profil-Typ -->
-                                    <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.75rem; line-height: 1.35;">
                                         <i class="fa-solid fa-building" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
-                                        <span style="font-weight: 600; color: #0f172a; word-break: break-word;">${companyVal}</span>
+                                        <span style="font-weight: 600; color: var(--text-main); word-break: break-word;">${companyVal}</span>
                                     </div>
 
                                     <!-- 2. Kontaktperson / Name -->
-                                    <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.75rem; line-height: 1.35;">
                                         <i class="fa-solid fa-user" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
-                                        <span style="font-weight: 600; color: #0f172a; word-break: break-word;">${contactNameVal}</span>
+                                        <span style="font-weight: 600; color: var(--text-main); word-break: break-word;">${contactNameVal}</span>
                                     </div>
 
                                     <!-- 3. Telefon -->
-                                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
-                                        <div style="display: flex; align-items: center; gap: 0.65rem; min-width: 0;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; line-height: 1.35;">
+                                        <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 0;">
                                             <i class="fa-solid fa-phone" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
-                                            <span style="font-weight: 600; color: ${isPhoneHidden ? '#64748b' : '#0f172a'}; ${isPhoneHidden ? 'font-style: italic;' : ''} word-break: break-word; user-select: all;">${phoneDisplayVal}</span>
+                                            <span style="font-weight: 600; color: ${isPhoneHidden ? 'var(--text-muted)' : 'var(--text-main)'}; ${isPhoneHidden ? 'font-style: italic;' : ''} word-break: break-word; user-select: all;">${phoneDisplayVal}</span>
                                         </div>
                                         ${!isPhoneHidden ? `
                                             <button type="button" onclick="event.stopPropagation(); navigator.clipboard.writeText('${phoneDisplayVal}'); this.innerHTML='<i class=\\'fa-solid fa-check\\'></i>'; setTimeout(() => this.innerHTML='<i class=\\'fa-solid fa-copy\\'></i>', 1800);" 
-                                                    style="background: #ffffff; border: 1px solid #cbd5e1; color: #475569; width: 26px; height: 26px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s;" 
-                                                    onmouseover="this.style.background='#e2e8f0';" 
-                                                    onmouseout="this.style.background='#ffffff';"
+                                                    style="background: transparent; border: 1px solid var(--border-glass); color: var(--text-muted); width: 26px; height: 26px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s;" 
+                                                    onmouseover="this.style.background='rgba(255,255,255,0.08)';" 
+                                                    onmouseout="this.style.background='transparent';"
                                                     title="Telefonnummer kopieren">
                                                 <i class="fa-solid fa-copy"></i>
                                             </button>
@@ -20299,22 +20410,22 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                                     </div>
 
                                     <!-- 4. E-Mail -->
-                                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
-                                        <div style="display: flex; align-items: center; gap: 0.65rem; min-width: 0;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; line-height: 1.35;">
+                                        <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 0;">
                                             <i class="fa-solid fa-envelope" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
-                                            <span style="font-weight: 600; color: #0f172a; word-break: break-all; user-select: all;">${emailVal}</span>
+                                            <span style="font-weight: 600; color: var(--text-main); word-break: break-all; user-select: all;">${emailVal}</span>
                                         </div>
                                         <button type="button" onclick="event.stopPropagation(); navigator.clipboard.writeText('${emailVal}'); this.innerHTML='<i class=\\'fa-solid fa-check\\'></i>'; setTimeout(() => this.innerHTML='<i class=\\'fa-solid fa-copy\\'></i>', 1800);" 
-                                                style="background: #ffffff; border: 1px solid #cbd5e1; color: #475569; width: 26px; height: 26px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s;" 
-                                                onmouseover="this.style.background='#e2e8f0';" 
-                                                onmouseout="this.style.background='#ffffff';"
+                                                style="background: transparent; border: 1px solid var(--border-glass); color: var(--text-muted); width: 26px; height: 26px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s;" 
+                                                onmouseover="this.style.background='rgba(255,255,255,0.08)';" 
+                                                onmouseout="this.style.background='transparent';"
                                                 title="E-Mail-Adresse kopieren">
                                             <i class="fa-solid fa-copy"></i>
                                         </button>
                                     </div>
 
                                     <!-- 5. Nachricht schreiben -->
-                                    <div style="margin-top: 0.3rem; padding-top: 0.65rem; border-top: 1px solid #e2e8f0;">
+                                    <div style="margin-top: 0.4rem; padding-top: 0.5rem; border-top: 1px dashed var(--border-glass);">
                                         <button type="button" class="btn btn-primary" 
                                                 onclick="event.stopPropagation(); window.handleChatButtonClick(this)" 
                                                 data-rec-id="${chatRecId}" 
