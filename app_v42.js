@@ -90,6 +90,7 @@ window.updateRegMediaPreview = function(role) {
                 return `
                     <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
                         <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
+                        <button type="button" onclick="window.cropRegPhoto('${role}', ${idx})" title="Foto-Ausschnitt anpassen" style="position: absolute; top: 1px; left: 1px; background: rgba(124, 58, 237, 0.9); border: none; color: #fff; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.55rem; z-index: 2;"><i class="fa-solid fa-crop-simple"></i></button>
                         <button type="button" onclick="window.deleteRegMedia('${role}', 'photo', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
                     </div>
                 `;
@@ -401,6 +402,17 @@ window.deleteRegMedia = function(role, type, idx) {
     const list = window.registrationMedia[role][listKey];
     list.splice(idx, 1);
     window.updateRegMediaPreview(role);
+};
+
+window.cropRegPhoto = function(role, idx) {
+    const list = window.registrationMedia[role] ? window.registrationMedia[role].photos : null;
+    if (!list || !list[idx] || list[idx] === 'loading') return;
+    if (typeof window.openImageCropperModal === 'function') {
+        window.openImageCropperModal(list[idx], (newUrl) => {
+            list[idx] = newUrl;
+            window.updateRegMediaPreview(role);
+        });
+    }
 };
 window.toggleSelectAll = function(gridId, linkEl) {
     const grid = document.getElementById(gridId);
@@ -6966,18 +6978,20 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
     if (mode === 'organizer') {
         return `
             <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; box-sizing: border-box;">
-                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('musicians')" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.6rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center;">
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('musicians')" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.6rem 1.2rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; line-height: 1.3;">
                         <i class="fa-solid fa-guitar" style="font-size: clamp(1.85rem, 4.2vw, 2.3rem); margin-bottom: 0.55rem; color: #ffffff;"></i>
-                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; line-height: 1.25; text-align: center; color: #ffffff;">Ich möchte selbst</span>
-                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.3rem;">Musiker kontaktieren</span>
+                        <span style="font-family: var(--font-heading); font-size: clamp(0.9rem, 2vw, 1.05rem); font-weight: 600; text-align: center; color: rgba(255, 255, 255, 0.9);">Ich möchte</span>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.7rem, 4vw, 2.3rem) !important; font-weight: 900 !important; color: #ffffff; letter-spacing: 0.5px; text-transform: uppercase; margin: 0.15rem 0; line-height: 1.15;">DIREKT</span>
+                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">Kontakt aufnehmen</span>
                     </div>
                 </button>
-                <button class="btn hero-cta-card-btn" onclick="window.showAgencyBookingForm()" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.6rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center;">
-                        <i class="fa-solid fa-file-pen" style="font-size: clamp(1.85rem, 4.2vw, 2.3rem); margin-bottom: 0.55rem; color: #ffffff;"></i>
-                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; line-height: 1.25; text-align: center; color: #ffffff;">Ich möchte Musiker</span>
-                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.3rem;">vermittelt bekommen</span>
+                <button class="btn hero-cta-card-btn" onclick="window.showAgencyBookingForm()" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.6rem 1.2rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; line-height: 1.3;">
+                        <i class="fa-solid fa-handshake" style="font-size: clamp(1.85rem, 4.2vw, 2.3rem); margin-bottom: 0.55rem; color: #ffffff;"></i>
+                        <span style="font-family: var(--font-heading); font-size: clamp(0.9rem, 2vw, 1.05rem); font-weight: 600; text-align: center; color: rgba(255, 255, 255, 0.9);">Ich möchte</span>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.7rem, 4vw, 2.3rem) !important; font-weight: 900 !important; color: #ffffff; letter-spacing: 0.5px; text-transform: uppercase; margin: 0.15rem 0; line-height: 1.15;">VERMITTELT</span>
+                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">werden</span>
                     </div>
                 </button>
                 <div style="position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; justify-content: center; pointer-events: auto;">
@@ -12957,6 +12971,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         <i class="fa-solid fa-spinner fa-spin" style="color: #a855f7; font-size: 1.1rem;"></i>
                     ` : `
                         <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
+                        <button type="button" class="btn-crop-modal-photo" data-idx="${idx}" title="Foto-Ausschnitt anpassen" style="position: absolute; top: 1px; left: 1px; background: rgba(124, 58, 237, 0.9); border: none; color: #fff; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.55rem; z-index: 2;"><i class="fa-solid fa-crop-simple"></i></button>
                     `}
                     <button type="button" class="btn-delete-modal-photo" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
                 </div>
@@ -12990,7 +13005,20 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                 `).join('');
         }
 
-        // Bind delete listeners
+        // Bind crop and delete listeners
+        photosContainer.querySelectorAll('.btn-crop-modal-photo').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                if (localMedia.photos[idx] && localMedia.photos[idx] !== 'loading') {
+                    window.openImageCropperModal(localMedia.photos[idx], (newUrl) => {
+                        localMedia.photos[idx] = newUrl;
+                        updateLocalMediaPreview();
+                    });
+                }
+            });
+        });
+
         photosContainer.querySelectorAll('.btn-delete-modal-photo').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -13794,6 +13822,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
             : localMedia.photos.map((p, idx) => `
                 <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
                     <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
+                    <button type="button" class="btn-crop-event-modal-photo" data-idx="${idx}" title="Foto-Ausschnitt anpassen" style="position: absolute; top: 1px; left: 1px; background: rgba(37, 99, 235, 0.9); border: none; color: #fff; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.55rem; z-index: 2;"><i class="fa-solid fa-crop-simple"></i></button>
                     <button type="button" class="btn-delete-event-modal-photo" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
                 </div>
             `).join('');
@@ -13818,7 +13847,20 @@ function showEventModal(eventObj = null, isDuplication = false) {
                 `).join('');
         }
 
-        // Bind delete listeners
+        // Bind crop and delete listeners
+        photosContainer.querySelectorAll('.btn-crop-event-modal-photo').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                if (localMedia.photos[idx] && localMedia.photos[idx] !== 'loading') {
+                    window.openImageCropperModal(localMedia.photos[idx], (newUrl) => {
+                        localMedia.photos[idx] = newUrl;
+                        updateLocalEventMediaPreview();
+                    });
+                }
+            });
+        });
+
         photosContainer.querySelectorAll('.btn-delete-event-modal-photo').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -20890,6 +20932,477 @@ function initMockEmailWidget() {
     window.refreshMockEmailWidget();
 }
 
+// =============================================================
+// Interactive Image Cropper Modal (Pure HTML5 Canvas & Vanilla JS)
+// =============================================================
+window._imageCropperQueue = window._imageCropperQueue || [];
+window._isImageCropperOpen = false;
+
+window.openImageCropperModal = function(imageSrc, onCrop, onCancel) {
+    if (window._isImageCropperOpen) {
+        window._imageCropperQueue.push({ imageSrc, onCrop, onCancel });
+        return;
+    }
+    window._isImageCropperOpen = true;
+
+    const processNextInQueue = () => {
+        window._isImageCropperOpen = false;
+        if (window._imageCropperQueue.length > 0) {
+            const next = window._imageCropperQueue.shift();
+            window.openImageCropperModal(next.imageSrc, next.onCrop, next.onCancel);
+        }
+    };
+
+    const modalOverlay = document.createElement('div');
+    modalOverlay.id = 'image-cropper-modal-overlay';
+    modalOverlay.style.cssText = `
+        position: fixed; inset: 0; z-index: 1000000;
+        background: rgba(15, 23, 42, 0.88);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        display: flex; align-items: center; justify-content: center;
+        padding: 0.8rem; box-sizing: border-box;
+        font-family: var(--font-heading, sans-serif);
+    `;
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+
+    const cleanup = () => {
+        if (modalOverlay.parentElement) {
+            modalOverlay.remove();
+        }
+        processNextInQueue();
+    };
+
+    img.onload = () => {
+        let currentAspect = 1.6; // 16:10 default (matches market card thumbnail)
+        let zoom = 1.0;
+        let panX = 0;
+        let panY = 0;
+        let rotation = 0; // 0, 90, 180, 270
+
+        modalOverlay.innerHTML = `
+            <div style="background: #1e293b; border: 1.5px solid rgba(255, 255, 255, 0.18); border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); width: 100%; max-width: 480px; max-height: 94vh; display: flex; flex-direction: column; overflow: hidden; box-sizing: border-box; animation: modalFadeIn 0.25s ease;">
+                <!-- Header -->
+                <div style="padding: 1rem 1.25rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.03);">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.12rem; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-crop-simple" style="color: #a855f7;"></i> Foto-Ausschnitt wählen
+                        </h3>
+                        <p style="margin: 0.2rem 0 0; font-size: 0.78rem; color: #94a3b8; font-family: var(--font-body, sans-serif);">
+                            Verschiebe und zoome das Bild für die optimale Vorschau
+                        </p>
+                    </div>
+                    <button id="cropper-btn-close" style="background: none; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer; padding: 0.2rem 0.5rem; transition: color 0.2s;" title="Abbrechen">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Aspect Selector Tabs -->
+                <div style="padding: 0.65rem 1rem 0; display: flex; gap: 0.4rem; justify-content: center; background: rgba(0,0,0,0.2);">
+                    <button class="cropper-aspect-btn active" data-aspect="1.6" style="flex: 1; padding: 0.4rem 0.6rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; border: 1px solid #7c3aed; background: #7c3aed; color: #fff; cursor: pointer;">
+                        16:10 (Karte)
+                    </button>
+                    <button class="cropper-aspect-btn" data-aspect="1.0" style="flex: 1; padding: 0.4rem 0.6rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #cbd5e1; cursor: pointer;">
+                        1:1 (Quadrat)
+                    </button>
+                    <button class="cropper-aspect-btn" data-aspect="1.333" style="flex: 1; padding: 0.4rem 0.6rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #cbd5e1; cursor: pointer;">
+                        4:3 (Foto)
+                    </button>
+                </div>
+
+                <!-- Crop Canvas Viewport Container -->
+                <div style="padding: 0.8rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0f172a; position: relative;">
+                    <div id="cropper-viewport" style="position: relative; width: 100%; max-width: 420px; height: 260px; overflow: hidden; border-radius: 12px; box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.6), 0 12px 28px rgba(0,0,0,0.5); cursor: grab; user-select: none; touch-action: none; background: #000; display: flex; align-items: center; justify-content: center;">
+                        <canvas id="cropper-canvas" style="display: block; width: 100%; height: 100%; pointer-events: none;"></canvas>
+                        
+                        <!-- Grid overlay (Rule of Thirds) -->
+                        <div style="position: absolute; inset: 0; pointer-events: none; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; border: 1px solid rgba(255,255,255,0.35);">
+                            <div style="border-right: 1px dashed rgba(255,255,255,0.25); border-bottom: 1px dashed rgba(255,255,255,0.25);"></div>
+                            <div style="border-right: 1px dashed rgba(255,255,255,0.25); border-bottom: 1px dashed rgba(255,255,255,0.25);"></div>
+                            <div style="border-bottom: 1px dashed rgba(255,255,255,0.25);"></div>
+                            <div style="border-right: 1px dashed rgba(255,255,255,0.25); border-bottom: 1px dashed rgba(255,255,255,0.25);"></div>
+                            <div style="border-right: 1px dashed rgba(255,255,255,0.25); border-bottom: 1px dashed rgba(255,255,255,0.25);"></div>
+                            <div style="border-bottom: 1px dashed rgba(255,255,255,0.25);"></div>
+                            <div style="border-right: 1px dashed rgba(255,255,255,0.25);"></div>
+                            <div style="border-right: 1px dashed rgba(255,255,255,0.25);"></div>
+                            <div></div>
+                        </div>
+
+                        <!-- Badge hint -->
+                        <div style="position: absolute; bottom: 6px; right: 8px; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); color: rgba(255,255,255,0.85); font-size: 0.68rem; font-weight: 600; padding: 2px 6px; border-radius: 6px; pointer-events: none;">
+                            <i class="fa-solid fa-arrows-up-down-left-right"></i> Ziehen zum Verschieben
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls: Presets & Zoom -->
+                <div style="padding: 0.8rem 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; background: rgba(255, 255, 255, 0.02); border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                    <!-- Fast Presets: Top / Center / Bottom & Rotate -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+                        <span style="font-size: 0.78rem; font-weight: 700; color: #94a3b8;">Fokus:</span>
+                        <div style="display: flex; gap: 0.35rem;">
+                            <button id="cropper-preset-top" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.55rem; font-size: 0.74rem; font-weight: 700; border-radius: 6px; color: #ffffff;" title="Oben ausrichten (Gesichter/Porträts)">
+                                <i class="fa-solid fa-arrow-up"></i> Oben
+                            </button>
+                            <button id="cropper-preset-center" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.55rem; font-size: 0.74rem; font-weight: 700; border-radius: 6px; color: #ffffff;" title="Zentrieren">
+                                <i class="fa-solid fa-arrows-to-dot"></i> Mitte
+                            </button>
+                            <button id="cropper-preset-bottom" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.55rem; font-size: 0.74rem; font-weight: 700; border-radius: 6px; color: #ffffff;" title="Unten ausrichten">
+                                <i class="fa-solid fa-arrow-down"></i> Unten
+                            </button>
+                        </div>
+                        <div style="display: flex; gap: 0.35rem; margin-left: auto;">
+                            <button id="cropper-btn-rotate" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.55rem; font-size: 0.74rem; font-weight: 700; border-radius: 6px; color: #38bdf8;" title="90° Drehen">
+                                <i class="fa-solid fa-rotate-right"></i> 90°
+                            </button>
+                            <button id="cropper-btn-reset" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.55rem; font-size: 0.74rem; font-weight: 700; border-radius: 6px; color: #94a3b8;" title="Zurücksetzen">
+                                <i class="fa-solid fa-arrow-rotate-left"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Zoom Slider -->
+                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        <button id="cropper-zoom-out" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #ffffff; width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem;">-</button>
+                        <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8; font-size: 0.75rem;"></i>
+                        <input id="cropper-zoom-slider" type="range" min="1.0" max="3.0" step="0.02" value="1.0" style="flex: 1; accent-color: #7c3aed; cursor: pointer; height: 6px;">
+                        <span id="cropper-zoom-label" style="font-size: 0.75rem; color: #94a3b8; min-width: 38px; text-align: right; font-weight: 600;">100%</span>
+                        <button id="cropper-zoom-in" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #ffffff; width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem;">+</button>
+                    </div>
+                </div>
+
+                <!-- Footer Buttons -->
+                <div style="padding: 0.9rem 1.25rem; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; background: rgba(0,0,0,0.25);">
+                    <button id="cropper-btn-original" class="btn btn-sm btn-glass" style="margin: 0; padding: 0.45rem 0.8rem; font-size: 0.82rem; font-weight: 600; border-radius: 10px; color: #cbd5e1;" title="Das gesamte Originalbild unbeschnitten verwenden">
+                        Original belassen
+                    </button>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button id="cropper-btn-cancel" class="btn btn-sm btn-glass" style="margin: 0; padding: 0.45rem 0.8rem; font-size: 0.82rem; font-weight: 600; border-radius: 10px; color: #ef4444;">
+                            Abbrechen
+                        </button>
+                        <button id="cropper-btn-apply" class="btn btn-sm" style="margin: 0; padding: 0.45rem 1.1rem; font-size: 0.85rem; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; border: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35); cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
+                            <i class="fa-solid fa-check"></i> Ausschnitt übernehmen
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modalOverlay);
+
+        const canvas = modalOverlay.querySelector('#cropper-canvas');
+        const viewport = modalOverlay.querySelector('#cropper-viewport');
+        const ctx = canvas.getContext('2d');
+        const zoomSlider = modalOverlay.querySelector('#cropper-zoom-slider');
+        const zoomLabel = modalOverlay.querySelector('#cropper-zoom-label');
+
+        const updateViewportDims = () => {
+            const vpW = Math.min(420, modalOverlay.clientWidth - 40);
+            const vpH = Math.round(vpW / currentAspect);
+            viewport.style.width = vpW + 'px';
+            viewport.style.height = vpH + 'px';
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = vpW * dpr;
+            canvas.height = vpH * dpr;
+        };
+
+        const getEffectiveDims = () => {
+            const is90or270 = rotation === 90 || rotation === 270;
+            return {
+                w: is90or270 ? img.naturalHeight : img.naturalWidth,
+                h: is90or270 ? img.naturalWidth : img.naturalHeight
+            };
+        };
+
+        const render = () => {
+            const vpW = viewport.clientWidth;
+            const vpH = viewport.clientHeight;
+            if (!vpW || !vpH) return;
+
+            const eff = getEffectiveDims();
+            const fitCoverScale = Math.max(vpW / eff.w, vpH / eff.h);
+            const currentScale = fitCoverScale * zoom;
+
+            const renderedW = eff.w * currentScale;
+            const renderedH = eff.h * currentScale;
+
+            const maxPanX = Math.max(0, (renderedW - vpW) / 2);
+            const maxPanY = Math.max(0, (renderedH - vpH) / 2);
+
+            panX = Math.max(-maxPanX, Math.min(maxPanX, panX));
+            panY = Math.max(-maxPanY, Math.min(maxPanY, panY));
+
+            const dpr = window.devicePixelRatio || 1;
+            ctx.save();
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, vpW, vpH);
+
+            ctx.translate(vpW / 2 + panX, vpH / 2 + panY);
+            ctx.rotate((rotation * Math.PI) / 180);
+
+            const drawW = img.naturalWidth * currentScale;
+            const drawH = img.naturalHeight * currentScale;
+            ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+
+            ctx.restore();
+        };
+
+        updateViewportDims();
+        render();
+
+        // Dragging handlers
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let origPanX = 0, origPanY = 0;
+
+        const onPointerDown = (clientX, clientY) => {
+            isDragging = true;
+            startX = clientX;
+            startY = clientY;
+            origPanX = panX;
+            origPanY = panY;
+            viewport.style.cursor = 'grabbing';
+        };
+
+        const onPointerMove = (clientX, clientY) => {
+            if (!isDragging) return;
+            const dx = clientX - startX;
+            const dy = clientY - startY;
+            panX = origPanX + dx;
+            panY = origPanY + dy;
+            render();
+        };
+
+        const onPointerUp = () => {
+            if (isDragging) {
+                isDragging = false;
+                viewport.style.cursor = 'grab';
+            }
+        };
+
+        viewport.addEventListener('mousedown', (e) => onPointerDown(e.clientX, e.clientY));
+        window.addEventListener('mousemove', (e) => { if (isDragging) onPointerMove(e.clientX, e.clientY); });
+        window.addEventListener('mouseup', onPointerUp);
+
+        // Touch handlers (support drag + pinch zoom)
+        let initialPinchDist = null;
+        let initialPinchZoom = 1.0;
+
+        viewport.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
+            } else if (e.touches.length === 2) {
+                isDragging = false;
+                initialPinchDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                initialPinchZoom = zoom;
+            }
+        }, { passive: false });
+
+        viewport.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (e.touches.length === 1 && isDragging) {
+                onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+            } else if (e.touches.length === 2 && initialPinchDist) {
+                const currentDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const factor = currentDist / initialPinchDist;
+                zoom = Math.max(1.0, Math.min(3.0, initialPinchZoom * factor));
+                zoomSlider.value = zoom;
+                zoomLabel.textContent = Math.round(zoom * 100) + '%';
+                render();
+            }
+        }, { passive: false });
+
+        viewport.addEventListener('touchend', (e) => {
+            onPointerUp();
+            if (e.touches.length < 2) {
+                initialPinchDist = null;
+            }
+        });
+
+        // Mouse wheel zoom
+        viewport.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 0.08 : -0.08;
+            zoom = Math.max(1.0, Math.min(3.0, zoom + delta));
+            zoomSlider.value = zoom;
+            zoomLabel.textContent = Math.round(zoom * 100) + '%';
+            render();
+        }, { passive: false });
+
+        // Zoom slider events
+        zoomSlider.addEventListener('input', () => {
+            zoom = parseFloat(zoomSlider.value);
+            zoomLabel.textContent = Math.round(zoom * 100) + '%';
+            render();
+        });
+
+        modalOverlay.querySelector('#cropper-zoom-in').addEventListener('click', () => {
+            zoom = Math.min(3.0, zoom + 0.15);
+            zoomSlider.value = zoom;
+            zoomLabel.textContent = Math.round(zoom * 100) + '%';
+            render();
+        });
+
+        modalOverlay.querySelector('#cropper-zoom-out').addEventListener('click', () => {
+            zoom = Math.max(1.0, zoom - 0.15);
+            zoomSlider.value = zoom;
+            zoomLabel.textContent = Math.round(zoom * 100) + '%';
+            render();
+        });
+
+        // Presets: Top / Center / Bottom
+        modalOverlay.querySelector('#cropper-preset-top').addEventListener('click', () => {
+            const vpW = viewport.clientWidth;
+            const vpH = viewport.clientHeight;
+            const eff = getEffectiveDims();
+            const fitCoverScale = Math.max(vpW / eff.w, vpH / eff.h);
+            const currentScale = fitCoverScale * zoom;
+            const renderedH = eff.h * currentScale;
+            panY = (renderedH - vpH) / 2; // align top (perfect for portrait heads)
+            render();
+        });
+
+        modalOverlay.querySelector('#cropper-preset-center').addEventListener('click', () => {
+            panX = 0;
+            panY = 0;
+            render();
+        });
+
+        modalOverlay.querySelector('#cropper-preset-bottom').addEventListener('click', () => {
+            const vpW = viewport.clientWidth;
+            const vpH = viewport.clientHeight;
+            const eff = getEffectiveDims();
+            const fitCoverScale = Math.max(vpW / eff.w, vpH / eff.h);
+            const currentScale = fitCoverScale * zoom;
+            const renderedH = eff.h * currentScale;
+            panY = -(renderedH - vpH) / 2; // align bottom
+            render();
+        });
+
+        modalOverlay.querySelector('#cropper-btn-rotate').addEventListener('click', () => {
+            rotation = (rotation + 90) % 360;
+            panX = 0;
+            panY = 0;
+            render();
+        });
+
+        modalOverlay.querySelector('#cropper-btn-reset').addEventListener('click', () => {
+            zoom = 1.0;
+            panX = 0;
+            panY = 0;
+            rotation = 0;
+            zoomSlider.value = 1.0;
+            zoomLabel.textContent = '100%';
+            render();
+        });
+
+        // Aspect ratio buttons
+        modalOverlay.querySelectorAll('.cropper-aspect-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                modalOverlay.querySelectorAll('.cropper-aspect-btn').forEach(b => {
+                    b.style.background = 'rgba(255,255,255,0.06)';
+                    b.style.borderColor = 'rgba(255,255,255,0.15)';
+                    b.style.color = '#cbd5e1';
+                });
+                btn.style.background = '#7c3aed';
+                btn.style.borderColor = '#7c3aed';
+                btn.style.color = '#ffffff';
+
+                currentAspect = parseFloat(btn.getAttribute('data-aspect'));
+                panX = 0;
+                panY = 0;
+                updateViewportDims();
+                render();
+            });
+        });
+
+        // Close / Cancel
+        const handleCancel = () => {
+            cleanup();
+            if (onCancel) onCancel();
+        };
+
+        modalOverlay.querySelector('#cropper-btn-close').addEventListener('click', handleCancel);
+        modalOverlay.querySelector('#cropper-btn-cancel').addEventListener('click', handleCancel);
+
+        // Original belassen: uncropped fallback
+        modalOverlay.querySelector('#cropper-btn-original').addEventListener('click', () => {
+            const outCanvas = document.createElement('canvas');
+            const maxDim = 1200;
+            let w = img.naturalWidth;
+            let h = img.naturalHeight;
+            if (w > h) {
+                if (w > maxDim) {
+                    h = Math.round((h * maxDim) / w);
+                    w = maxDim;
+                }
+            } else {
+                if (h > maxDim) {
+                    w = Math.round((w * maxDim) / h);
+                    h = maxDim;
+                }
+            }
+            outCanvas.width = w;
+            outCanvas.height = h;
+            const outCtx = outCanvas.getContext('2d');
+            outCtx.drawImage(img, 0, 0, w, h);
+            const dataUrl = outCanvas.toDataURL('image/jpeg', 0.80);
+            cleanup();
+            onCrop(dataUrl);
+        });
+
+        // Apply Crop
+        modalOverlay.querySelector('#cropper-btn-apply').addEventListener('click', () => {
+            const outCanvas = document.createElement('canvas');
+            const outW = currentAspect === 1.0 ? 1000 : 1200;
+            const outH = Math.round(outW / currentAspect);
+            outCanvas.width = outW;
+            outCanvas.height = outH;
+            const outCtx = outCanvas.getContext('2d');
+
+            const vpW = viewport.clientWidth;
+            const vpH = viewport.clientHeight;
+            const eff = getEffectiveDims();
+            const fitCoverScale = Math.max(vpW / eff.w, vpH / eff.h);
+            const currentScale = fitCoverScale * zoom;
+
+            const exportRatio = outW / vpW;
+
+            outCtx.save();
+            outCtx.translate(outW / 2 + (panX * exportRatio), outH / 2 + (panY * exportRatio));
+            outCtx.rotate((rotation * Math.PI) / 180);
+
+            const drawW = img.naturalWidth * currentScale * exportRatio;
+            const drawH = img.naturalHeight * currentScale * exportRatio;
+            outCtx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+            outCtx.restore();
+
+            const croppedDataUrl = outCanvas.toDataURL('image/jpeg', 0.82);
+            cleanup();
+            onCrop(croppedDataUrl);
+        });
+    };
+
+    img.onerror = () => {
+        showToast({
+            title: "Fehler beim Laden ❌",
+            message: "Das Bild konnte für den Zuschnitt nicht geladen werden."
+        });
+        cleanup();
+        if (onCancel) onCancel();
+    };
+
+    img.src = imageSrc;
+};
+
 function validateAndProcessPhoto(file, callback, errorCallback) {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
     const maxSize = 10 * 1024 * 1024; // 10 MB
@@ -20914,6 +21427,7 @@ function validateAndProcessPhoto(file, callback, errorCallback) {
 
     const reader = new FileReader();
     reader.onload = (e) => {
+        const rawSrc = e.target.result;
         const img = new Image();
         img.onload = () => {
             if (Math.max(img.width, img.height) < 300) {
@@ -20925,28 +21439,24 @@ function validateAndProcessPhoto(file, callback, errorCallback) {
                 return;
             }
 
-            const canvas = document.createElement('canvas');
-            const maxDim = 1200;
-            let w = img.width;
-            let h = img.height;
-            if (w > h) {
-                if (w > maxDim) {
-                    h = Math.round((h * maxDim) / w);
-                    w = maxDim;
-                }
-            } else {
-                if (h > maxDim) {
-                    w = Math.round((w * maxDim) / h);
-                    h = maxDim;
-                }
-            }
-            canvas.width = w;
-            canvas.height = h;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, w, h);
-            callback(canvas.toDataURL('image/jpeg', 0.75)); // compressed to stay well within 1MB Firestore limit
+            // Open interactive cropper modal so user can choose the perfect cutout!
+            window.openImageCropperModal(rawSrc, (croppedDataUrl) => {
+                callback(croppedDataUrl);
+            }, () => {
+                if (errorCallback) errorCallback();
+            });
         };
-        img.src = e.target.result;
+        img.onerror = () => {
+            showToast({
+                title: "Fehler beim Laden ❌",
+                message: "Das Bild konnte nicht geladen werden."
+            });
+            if (errorCallback) errorCallback();
+        };
+        img.src = rawSrc;
+    };
+    reader.onerror = () => {
+        if (errorCallback) errorCallback();
     };
     reader.readAsDataURL(file);
 }
@@ -21088,6 +21598,7 @@ window.showMediaModal = function(itemId, isEvents) {
                         ${photos.map((p, idx) => `
                             <div style="position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-glass);">
                                 <img src="${p}" style="width: 100%; height: 100%; object-fit: cover;">
+                                <button class="btn-crop-media-photo" data-idx="${idx}" title="Foto-Ausschnitt anpassen" style="position: absolute; top: 2px; left: 2px; background: ${isEvents ? 'rgba(37, 99, 235, 0.9)' : 'rgba(124, 58, 237, 0.9)'}; border: none; color: #fff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.65rem; z-index: 2;"><i class="fa-solid fa-crop-simple"></i></button>
                                 <button class="btn-delete-photo" data-idx="${idx}" style="position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.6rem;"><i class="fa-solid fa-times"></i></button>
                             </div>
                         `).join('')}
@@ -21238,6 +21749,19 @@ window.showMediaModal = function(itemId, isEvents) {
             fileInput.click();
         });
     }
+
+    modal.querySelectorAll('.btn-crop-media-photo').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const idx = parseInt(btn.getAttribute('data-idx'));
+            if (photos[idx]) {
+                window.openImageCropperModal(photos[idx], (newCroppedUrl) => {
+                    photos[idx] = newCroppedUrl;
+                    close();
+                    window.showMediaModal(itemId, isEvents);
+                });
+            }
+        });
+    });
 
     modal.querySelectorAll('.btn-delete-photo').forEach(btn => {
         btn.addEventListener('click', () => {

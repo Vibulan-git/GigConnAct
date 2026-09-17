@@ -4113,7 +4113,6 @@ body.landing-page-active .app-container {
     }
 
     .market-filter-mobile-toggle {
-        padding: 0.45rem 0.95rem !important;
         font-size: 0.88rem !important;
         box-sizing: border-box !important;
         white-space: nowrap !important;
@@ -4876,7 +4875,7 @@ input[type="range"].input-field {
 }
 
 /* Header Login Button Styling */
-.header-login-btn {
+.header-login-btn, #btn-login-trigger {
     white-space: nowrap !important;
     line-height: 1.0 !important;
     padding: 0 !important;
@@ -4885,21 +4884,25 @@ input[type="range"].input-field {
     justify-content: center !important;
     width: 96px !important;
     min-width: 96px !important;
+    max-width: 96px !important;
     height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    box-sizing: border-box !important;
     border-radius: 12px !important;
     flex-shrink: 0 !important;
     background: rgba(255, 255, 255, 0.15) !important;
-    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
     transition: all 0.2s ease-in-out !important;
 }
 
-.header-login-btn:hover {
+.header-login-btn:hover, #btn-login-trigger:hover {
     background: rgba(255, 255, 255, 0.25) !important;
     border-color: rgba(255, 255, 255, 0.4) !important;
     transform: scale(1.05);
 }
 
-.header-login-btn .header-login-icon {
+.header-login-btn .header-login-icon, #btn-login-trigger .header-login-icon {
     font-size: 1.25rem !important;
     color: #ffffff !important;
     opacity: 0.95 !important;
@@ -4908,24 +4911,32 @@ input[type="range"].input-field {
 
 /* Mobile responsive styles for the Header Login Button */
 @media (max-width: 768px) {
-    .header-login-btn {
+    .header-login-btn, #btn-login-trigger {
         width: 86px !important;
         min-width: 86px !important;
+        max-width: 86px !important;
         height: 36px !important;
+        min-height: 36px !important;
+        max-height: 36px !important;
+        box-sizing: border-box !important;
         border-radius: 10px !important;
     }
-    .header-login-btn .header-login-icon {
+    .header-login-btn .header-login-icon, #btn-login-trigger .header-login-icon {
         font-size: 1.15rem !important;
     }
 }
 @media (max-width: 380px) {
-    .header-login-btn {
+    .header-login-btn, #btn-login-trigger {
         width: 78px !important;
         min-width: 78px !important;
+        max-width: 78px !important;
         height: 34px !important;
+        min-height: 34px !important;
+        max-height: 34px !important;
+        box-sizing: border-box !important;
         border-radius: 8px !important;
     }
-    .header-login-btn .header-login-icon {
+    .header-login-btn .header-login-icon, #btn-login-trigger .header-login-icon {
         font-size: 1.05rem !important;
     }
 }
@@ -5106,15 +5117,18 @@ input[type="range"].input-field {
 }
 
 /* Market Filter Mobile Toggle Button */
-.market-filter-mobile-toggle {
+.market-filter-mobile-toggle, #btn-toggle-mobile-filters {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.45rem !important;
-    padding: 0.45rem 0.65rem !important;
+    gap: 0.35rem !important;
+    padding: 0 0.45rem !important;
     width: 96px !important;
     min-width: 96px !important;
+    max-width: 96px !important;
     height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
     box-sizing: border-box !important;
     border-radius: 12px !important;
     font-family: var(--font-heading) !important;
@@ -5129,24 +5143,37 @@ input[type="range"].input-field {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
     white-space: nowrap !important;
+    flex-shrink: 0 !important;
 }
 
 @media (max-width: 768px) {
-    .market-filter-mobile-toggle {
+    .market-filter-mobile-toggle, #btn-toggle-mobile-filters,
+    .theme-musician .market-filter-mobile-toggle,
+    .theme-organizer .market-filter-mobile-toggle {
         width: 86px !important;
         min-width: 86px !important;
+        max-width: 86px !important;
         height: 36px !important;
-        padding: 0.4rem 0.5rem !important;
+        min-height: 36px !important;
+        max-height: 36px !important;
+        padding: 0 0.35rem !important;
         font-size: 0.88rem !important;
+        border-radius: 10px !important;
     }
 }
 @media (max-width: 380px) {
-    .market-filter-mobile-toggle {
+    .market-filter-mobile-toggle, #btn-toggle-mobile-filters,
+    .theme-musician .market-filter-mobile-toggle,
+    .theme-organizer .market-filter-mobile-toggle {
         width: 78px !important;
         min-width: 78px !important;
+        max-width: 78px !important;
         height: 34px !important;
-        padding: 0.35rem 0.4rem !important;
+        min-height: 34px !important;
+        max-height: 34px !important;
+        padding: 0 0.25rem !important;
         font-size: 0.82rem !important;
+        border-radius: 8px !important;
     }
 }
 
@@ -5272,11 +5299,14 @@ input[type="range"].input-field {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.45rem !important;
-    padding: 0.45rem 0.65rem !important;
+    gap: 0.35rem !important;
+    padding: 0 0.45rem !important;
     width: 96px !important;
     min-width: 96px !important;
+    max-width: 96px !important;
     height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
     box-sizing: border-box !important;
     background: rgba(255, 255, 255, 0.18) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
@@ -5292,6 +5322,7 @@ input[type="range"].input-field {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
     white-space: nowrap !important;
     text-decoration: none !important;
+    flex-shrink: 0 !important;
 }
 
 .theme-musician .market-filter-mobile-toggle i,
@@ -5388,11 +5419,14 @@ input[type="range"].input-field {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.45rem !important;
-    padding: 0.45rem 0.65rem !important;
+    gap: 0.35rem !important;
+    padding: 0 0.45rem !important;
     width: 96px !important;
     min-width: 96px !important;
+    max-width: 96px !important;
     height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
     box-sizing: border-box !important;
     background: rgba(255, 255, 255, 0.18) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
@@ -5408,6 +5442,7 @@ input[type="range"].input-field {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
     white-space: nowrap !important;
     text-decoration: none !important;
+    flex-shrink: 0 !important;
 }
 
 .theme-organizer .market-filter-mobile-toggle i,
