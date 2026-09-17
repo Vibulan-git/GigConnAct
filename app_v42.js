@@ -12476,7 +12476,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
     // Helper to check if weekday availability day is active
     const isDayActive = (dayKey) => {
-        if (!musicianObj) return false; // Default to unchecked for new profiles
+        if (!musicianObj) return true; // Default to checked for new profiles, exactly like registration
         const avail = musicianObj.availability;
         if (!avail) return false;
         if (Array.isArray(avail)) {
@@ -12506,7 +12506,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
         const defEnd = '23:59';
         const defVal = type === 'start' ? defStart : defEnd;
         
-        if (!musicianObj) return '';
+        if (!musicianObj) return defVal; // Default pre-filled times for new profiles, exactly like registration
         const avail = musicianObj.availability;
         if (!avail || Array.isArray(avail) || typeof avail !== 'object') return defVal;
         
@@ -12693,7 +12693,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                             ${['Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'].map(t => {
                                 const isChecked = Array.isArray(musicianObj?.technik) 
                                     ? musicianObj.technik.includes(t) 
-                                    : (musicianObj?.technik === t || (t === 'Technik ist noch unklar' && !musicianObj?.technik));
+                                    : musicianObj?.technik === t;
                                 return `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="musTechnik" value="${t}" ${isChecked ? 'checked' : ''}>
@@ -13183,9 +13183,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             instruments: Array.from(form.querySelectorAll('input[name="instruments"]:checked')).map(el => el.value),
             eventTypes: Array.from(form.querySelectorAll('input[name="eventTypes"]:checked')).map(el => el.value),
             description: formData.get('description'),
-            technik: Array.from(form.querySelectorAll('input[name="musTechnik"]:checked')).map(el => el.value).length > 0
-                ? Array.from(form.querySelectorAll('input[name="musTechnik"]:checked')).map(el => el.value)
-                : ["Technik ist noch unklar"],
+            technik: Array.from(form.querySelectorAll('input[name="musTechnik"]:checked')).map(el => el.value),
             profilePic: selectedBase64,
             photos: localMedia.photos.filter(p => p !== 'loading'),
             videos: localMedia.videos.filter(v => v.url !== 'loading'),
