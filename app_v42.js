@@ -414,6 +414,88 @@ window.cropRegPhoto = function(role, idx) {
         });
     }
 };
+
+window.cropProfileGalleryPhoto = function(itemId, isMusician) {
+    const s = document.getElementById('combo-slider-' + itemId);
+    if (!s) return;
+    const curIdx = parseInt(s.getAttribute('data-idx') || '0');
+    const activeSlide = s.children[curIdx];
+    if (!activeSlide) return;
+    const imgEl = activeSlide.querySelector('img');
+    if (!imgEl || !imgEl.src) return;
+
+    let photoIdx = 0;
+    for (let i = 0; i < curIdx; i++) {
+        if (s.children[i].querySelector('img')) photoIdx++;
+    }
+
+    if (typeof window.openImageCropperModal !== 'function') return;
+
+    window.openImageCropperModal(imgEl.src, (croppedDataUrl) => {
+        imgEl.src = croppedDataUrl;
+
+        if (isMusician) {
+            const mus = (window.state && window.state.musicians) ? window.state.musicians.find(m => String(m.id) === String(itemId)) : null;
+            if (mus) {
+                if (!Array.isArray(mus.photos)) {
+                    mus.photos = mus.profilePic ? [mus.profilePic] : [];
+                }
+                if (photoIdx < mus.photos.length) {
+                    mus.photos[photoIdx] = croppedDataUrl;
+                } else {
+                    mus.photos.push(croppedDataUrl);
+                }
+                if (photoIdx === 0) {
+                    mus.profilePic = croppedDataUrl;
+                    mus.image = croppedDataUrl;
+                }
+                window.state.updateMusician(mus.id, {
+                    photos: mus.photos,
+                    profilePic: mus.profilePic,
+                    image: mus.image
+                });
+                try {
+                    localStorage.setItem('GigConnAct_musicians', JSON.stringify(window.state.musicians));
+                } catch (e) {
+                    console.error("Failed to save musicians to localStorage:", e);
+                }
+            }
+        } else {
+            const evt = (window.state && window.state.events) ? window.state.events.find(e => String(e.id) === String(itemId)) : null;
+            if (evt) {
+                if (!Array.isArray(evt.photos)) {
+                    evt.photos = evt.profilePic ? [evt.profilePic] : [];
+                }
+                if (photoIdx < evt.photos.length) {
+                    evt.photos[photoIdx] = croppedDataUrl;
+                } else {
+                    evt.photos.push(croppedDataUrl);
+                }
+                if (photoIdx === 0) {
+                    evt.profilePic = croppedDataUrl;
+                    evt.image = croppedDataUrl;
+                }
+                window.state.updateEvent(evt.id, {
+                    photos: evt.photos,
+                    profilePic: evt.profilePic,
+                    image: evt.image
+                });
+                try {
+                    localStorage.setItem('GigConnAct_events', JSON.stringify(window.state.events));
+                } catch (e) {
+                    console.error("Failed to save events to localStorage:", e);
+                }
+            }
+        }
+
+        if (typeof showToast === 'function') {
+            showToast({
+                title: "Foto zugeschnitten ✂️",
+                message: "Das Foto wurde erfolgreich zugeschnitten und gespeichert."
+            });
+        }
+    });
+};
 window.toggleSelectAll = function(gridId, linkEl) {
     const grid = document.getElementById(gridId);
     if (!grid) return;
@@ -500,6 +582,14 @@ window.slideComboGallery = function(itemId, direction) {
             }
         }
     }
+
+    // Toggle crop button visibility (only show on photo slides)
+    const cropBtn = s.parentElement ? s.parentElement.querySelector('.btn-tile-crop') : null;
+    if (cropBtn) {
+        const activeSlide = s.children[cur];
+        const isPhoto = activeSlide ? !!activeSlide.querySelector('img') : false;
+        cropBtn.style.display = isPhoto ? 'flex' : 'none';
+    }
 };
 
 window.sanitizeVideos = function(rawVideos) {
@@ -584,6 +674,14 @@ window.jumpToComboGallerySlide = function(itemId, slideIndex) {
                 dots[i].style.border = '1px solid rgba(0,0,0,0.15)';
             }
         }
+    }
+
+    // Toggle crop button visibility (only show on photo slides)
+    const cropBtn = s.parentElement ? s.parentElement.querySelector('.btn-tile-crop') : null;
+    if (cropBtn) {
+        const activeSlide = s.children[slideIndex];
+        const isPhoto = activeSlide ? !!activeSlide.querySelector('img') : false;
+        cropBtn.style.display = isPhoto ? 'flex' : 'none';
     }
 };
 
@@ -11806,9 +11904,14 @@ function renderOrganizerEventItem(e, isActive) {
                     📷 1 / ${photos.length}
                 </span>
 
-                <!-- Fullscreen Expand Button (Unten links wie gewünscht) -->
-                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${e.id}');" style="position: absolute; bottom: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
+                <!-- Fullscreen Expand Button (Oben links wie gewünscht) -->
+                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${e.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
                     <i class="fa-solid fa-expand" style="font-size: 1.15rem; color: #ffffff; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));"></i>
+                </button>
+
+                <!-- Crop Button (Oben rechts bei den Fotos) -->
+                <button class="btn-tile-crop" onclick="event.stopPropagation(); window.cropProfileGalleryPhoto('${e.id}', false);" style="position: absolute; top: 10px; right: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Foto zuschneiden">
+                    <i class="fa-solid fa-crop-simple" style="font-size: 1.15rem; color: #ffffff; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));"></i>
                 </button>
 
                 <!-- Dots container inside the slider -->
@@ -12295,9 +12398,14 @@ function renderMyMusicianItem(m, isActive) {
                     📷 1 / ${photos.length}
                 </span>
 
-                <!-- Fullscreen Expand Button (Unten links wie gewünscht) -->
-                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${m.id}');" style="position: absolute; bottom: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
+                <!-- Fullscreen Expand Button (Oben links wie gewünscht) -->
+                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${m.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
                     <i class="fa-solid fa-expand" style="font-size: 1.15rem; color: #ffffff; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));"></i>
+                </button>
+
+                <!-- Crop Button (Oben rechts bei den Fotos) -->
+                <button class="btn-tile-crop" onclick="event.stopPropagation(); window.cropProfileGalleryPhoto('${m.id}', true);" style="position: absolute; top: 10px; right: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Foto zuschneiden">
+                    <i class="fa-solid fa-crop-simple" style="font-size: 1.15rem; color: #ffffff; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));"></i>
                 </button>
 
                 <!-- Dots container inside the slider -->
@@ -20994,20 +21102,7 @@ window.openImageCropperModal = function(imageSrc, onCrop, onCancel) {
                     </button>
                 </div>
 
-                <!-- Aspect Selector Tabs -->
-                <div style="padding: 0.65rem 1rem 0; display: flex; gap: 0.4rem; justify-content: center; background: rgba(0,0,0,0.2);">
-                    <button class="cropper-aspect-btn active" data-aspect="1.6" style="flex: 1; padding: 0.4rem 0.6rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; border: 1px solid #7c3aed; background: #7c3aed; color: #fff; cursor: pointer;">
-                        16:10 (Karte)
-                    </button>
-                    <button class="cropper-aspect-btn" data-aspect="1.0" style="flex: 1; padding: 0.4rem 0.6rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #cbd5e1; cursor: pointer;">
-                        1:1 (Quadrat)
-                    </button>
-                    <button class="cropper-aspect-btn" data-aspect="1.333" style="flex: 1; padding: 0.4rem 0.6rem; font-size: 0.78rem; font-weight: 700; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #cbd5e1; cursor: pointer;">
-                        4:3 (Foto)
-                    </button>
-                </div>
-
-                <!-- Crop Canvas Viewport Container -->
+                <!-- Crop Canvas Viewport Container (Locked to card aspect ratio) -->
                 <div style="padding: 0.8rem 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0f172a; position: relative;">
                     <div id="cropper-viewport" style="position: relative; width: 100%; max-width: 420px; height: 260px; overflow: hidden; border-radius: 12px; box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.6), 0 12px 28px rgba(0,0,0,0.5); cursor: grab; user-select: none; touch-action: none; background: #000; display: flex; align-items: center; justify-content: center;">
                         <canvas id="cropper-canvas" style="display: block; width: 100%; height: 100%; pointer-events: none;"></canvas>
@@ -21032,55 +21127,31 @@ window.openImageCropperModal = function(imageSrc, onCrop, onCancel) {
                     </div>
                 </div>
 
-                <!-- Controls: Presets & Zoom -->
-                <div style="padding: 0.8rem 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; background: rgba(255, 255, 255, 0.02); border-top: 1px solid rgba(255, 255, 255, 0.08);">
-                    <!-- Fast Presets: Top / Center / Bottom & Rotate -->
-                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
-                        <span style="font-size: 0.78rem; font-weight: 700; color: #94a3b8;">Fokus:</span>
-                        <div style="display: flex; gap: 0.35rem;">
-                            <button id="cropper-preset-top" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.55rem; font-size: 0.74rem; font-weight: 700; border-radius: 6px; color: #ffffff;" title="Oben ausrichten (Gesichter/Porträts)">
-                                <i class="fa-solid fa-arrow-up"></i> Oben
-                            </button>
-                            <button id="cropper-preset-center" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.55rem; font-size: 0.74rem; font-weight: 700; border-radius: 6px; color: #ffffff;" title="Zentrieren">
-                                <i class="fa-solid fa-arrows-to-dot"></i> Mitte
-                            </button>
-                            <button id="cropper-preset-bottom" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.55rem; font-size: 0.74rem; font-weight: 700; border-radius: 6px; color: #ffffff;" title="Unten ausrichten">
-                                <i class="fa-solid fa-arrow-down"></i> Unten
-                            </button>
-                        </div>
-                        <div style="display: flex; gap: 0.35rem; margin-left: auto;">
-                            <button id="cropper-btn-rotate" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.55rem; font-size: 0.74rem; font-weight: 700; border-radius: 6px; color: #38bdf8;" title="90° Drehen">
-                                <i class="fa-solid fa-rotate-right"></i> 90°
-                            </button>
-                            <button id="cropper-btn-reset" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.55rem; font-size: 0.74rem; font-weight: 700; border-radius: 6px; color: #94a3b8;" title="Zurücksetzen">
-                                <i class="fa-solid fa-arrow-rotate-left"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Zoom Slider -->
+                <!-- Controls: Zoom & Rotate/Reset -->
+                <div style="padding: 0.75rem 1.25rem; display: flex; flex-direction: column; gap: 0.6rem; background: rgba(255, 255, 255, 0.02); border-top: 1px solid rgba(255, 255, 255, 0.08);">
                     <div style="display: flex; align-items: center; gap: 0.6rem;">
-                        <button id="cropper-zoom-out" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #ffffff; width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem;">-</button>
-                        <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8; font-size: 0.75rem;"></i>
+                        <button id="cropper-zoom-out" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #ffffff; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem;">-</button>
+                        <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8; font-size: 0.78rem;"></i>
                         <input id="cropper-zoom-slider" type="range" min="1.0" max="3.0" step="0.02" value="1.0" style="flex: 1; accent-color: #7c3aed; cursor: pointer; height: 6px;">
                         <span id="cropper-zoom-label" style="font-size: 0.75rem; color: #94a3b8; min-width: 38px; text-align: right; font-weight: 600;">100%</span>
-                        <button id="cropper-zoom-in" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #ffffff; width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem;">+</button>
+                        <button id="cropper-zoom-in" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #ffffff; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem;">+</button>
+                        <button id="cropper-btn-rotate" class="btn btn-sm btn-glass" style="margin:0 0 0 0.4rem; padding: 0.3rem 0.55rem; font-size: 0.74rem; font-weight: 700; border-radius: 6px; color: #38bdf8;" title="90° Drehen">
+                            <i class="fa-solid fa-rotate-right"></i> 90°
+                        </button>
+                        <button id="cropper-btn-reset" class="btn btn-sm btn-glass" style="margin:0; padding: 0.3rem 0.55rem; font-size: 0.74rem; font-weight: 700; border-radius: 6px; color: #94a3b8;" title="Zurücksetzen">
+                            <i class="fa-solid fa-arrow-rotate-left"></i>
+                        </button>
                     </div>
                 </div>
 
                 <!-- Footer Buttons -->
-                <div style="padding: 0.9rem 1.25rem; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; background: rgba(0,0,0,0.25);">
-                    <button id="cropper-btn-original" class="btn btn-sm btn-glass" style="margin: 0; padding: 0.45rem 0.8rem; font-size: 0.82rem; font-weight: 600; border-radius: 10px; color: #cbd5e1;" title="Das gesamte Originalbild unbeschnitten verwenden">
-                        Original belassen
+                <div style="padding: 0.85rem 1.25rem; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: flex-end; align-items: center; gap: 0.65rem; background: rgba(0,0,0,0.25);">
+                    <button id="cropper-btn-cancel" class="btn btn-sm btn-glass" style="margin: 0; padding: 0.48rem 0.95rem; font-size: 0.82rem; font-weight: 600; border-radius: 10px; color: #ef4444;">
+                        Abbrechen
                     </button>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button id="cropper-btn-cancel" class="btn btn-sm btn-glass" style="margin: 0; padding: 0.45rem 0.8rem; font-size: 0.82rem; font-weight: 600; border-radius: 10px; color: #ef4444;">
-                            Abbrechen
-                        </button>
-                        <button id="cropper-btn-apply" class="btn btn-sm" style="margin: 0; padding: 0.45rem 1.1rem; font-size: 0.85rem; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; border: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35); cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
-                            <i class="fa-solid fa-check"></i> Ausschnitt übernehmen
-                        </button>
-                    </div>
+                    <button id="cropper-btn-apply" class="btn btn-sm" style="margin: 0; padding: 0.48rem 1.2rem; font-size: 0.85rem; font-weight: 800; border-radius: 10px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; border: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35); cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;">
+                        <i class="fa-solid fa-check"></i> Ausschnitt übernehmen
+                    </button>
                 </div>
             </div>
         `;
@@ -21253,35 +21324,6 @@ window.openImageCropperModal = function(imageSrc, onCrop, onCancel) {
             render();
         });
 
-        // Presets: Top / Center / Bottom
-        modalOverlay.querySelector('#cropper-preset-top').addEventListener('click', () => {
-            const vpW = viewport.clientWidth;
-            const vpH = viewport.clientHeight;
-            const eff = getEffectiveDims();
-            const fitCoverScale = Math.max(vpW / eff.w, vpH / eff.h);
-            const currentScale = fitCoverScale * zoom;
-            const renderedH = eff.h * currentScale;
-            panY = (renderedH - vpH) / 2; // align top (perfect for portrait heads)
-            render();
-        });
-
-        modalOverlay.querySelector('#cropper-preset-center').addEventListener('click', () => {
-            panX = 0;
-            panY = 0;
-            render();
-        });
-
-        modalOverlay.querySelector('#cropper-preset-bottom').addEventListener('click', () => {
-            const vpW = viewport.clientWidth;
-            const vpH = viewport.clientHeight;
-            const eff = getEffectiveDims();
-            const fitCoverScale = Math.max(vpW / eff.w, vpH / eff.h);
-            const currentScale = fitCoverScale * zoom;
-            const renderedH = eff.h * currentScale;
-            panY = -(renderedH - vpH) / 2; // align bottom
-            render();
-        });
-
         modalOverlay.querySelector('#cropper-btn-rotate').addEventListener('click', () => {
             rotation = (rotation + 90) % 360;
             panX = 0;
@@ -21299,26 +21341,6 @@ window.openImageCropperModal = function(imageSrc, onCrop, onCancel) {
             render();
         });
 
-        // Aspect ratio buttons
-        modalOverlay.querySelectorAll('.cropper-aspect-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                modalOverlay.querySelectorAll('.cropper-aspect-btn').forEach(b => {
-                    b.style.background = 'rgba(255,255,255,0.06)';
-                    b.style.borderColor = 'rgba(255,255,255,0.15)';
-                    b.style.color = '#cbd5e1';
-                });
-                btn.style.background = '#7c3aed';
-                btn.style.borderColor = '#7c3aed';
-                btn.style.color = '#ffffff';
-
-                currentAspect = parseFloat(btn.getAttribute('data-aspect'));
-                panX = 0;
-                panY = 0;
-                updateViewportDims();
-                render();
-            });
-        });
-
         // Close / Cancel
         const handleCancel = () => {
             cleanup();
@@ -21327,32 +21349,6 @@ window.openImageCropperModal = function(imageSrc, onCrop, onCancel) {
 
         modalOverlay.querySelector('#cropper-btn-close').addEventListener('click', handleCancel);
         modalOverlay.querySelector('#cropper-btn-cancel').addEventListener('click', handleCancel);
-
-        // Original belassen: uncropped fallback
-        modalOverlay.querySelector('#cropper-btn-original').addEventListener('click', () => {
-            const outCanvas = document.createElement('canvas');
-            const maxDim = 1200;
-            let w = img.naturalWidth;
-            let h = img.naturalHeight;
-            if (w > h) {
-                if (w > maxDim) {
-                    h = Math.round((h * maxDim) / w);
-                    w = maxDim;
-                }
-            } else {
-                if (h > maxDim) {
-                    w = Math.round((w * maxDim) / h);
-                    h = maxDim;
-                }
-            }
-            outCanvas.width = w;
-            outCanvas.height = h;
-            const outCtx = outCanvas.getContext('2d');
-            outCtx.drawImage(img, 0, 0, w, h);
-            const dataUrl = outCanvas.toDataURL('image/jpeg', 0.80);
-            cleanup();
-            onCrop(dataUrl);
-        });
 
         // Apply Crop
         modalOverlay.querySelector('#cropper-btn-apply').addEventListener('click', () => {
@@ -23194,7 +23190,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
                                     📷 1 / ${totalSlides}
                                 </span>
                                 <!-- Fullscreen Expand Button -->
-                                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${eventData.id}');" style="position: absolute; top: 10px; right: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
+                                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${eventData.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
                                     <i class="fa-solid fa-expand" style="font-size: 1.15rem; color: #ffffff; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));"></i>
                                 </button>
                                 <div id="combo-slider-${eventData.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
