@@ -918,7 +918,7 @@ exports.createStripeCheckoutSession = functions
         }
 
         const fallbackBaseUrl = 'https://www.gigconnact.de';
-        const cleanBaseUrl = (baseUrl && (baseUrl.startsWith('http://localhost') || baseUrl.startsWith('https://'))) 
+        const cleanBaseUrl = (baseUrl && (baseUrl.startsWith('http://localhost') || baseUrl.startsWith('http://127.0.0.1') || baseUrl.startsWith('https://'))) 
             ? baseUrl 
             : fallbackBaseUrl;
 
@@ -935,7 +935,9 @@ exports.createStripeCheckoutSession = functions
             const subscriptionStatus = userData.subscriptionStatus || null;
 
             const isOrganizer = userData.role === 'organizer';
-            const marketPath = isOrganizer ? '#/musicians' : '#/events';
+            const defaultMarketPath = isOrganizer ? '#/musicians' : '#/events';
+            const targetPath = data.returnUrl || defaultMarketPath;
+            const sep = targetPath.includes('?') ? '&' : '?';
 
             const sessionParams = {
                 mode: 'subscription',
@@ -943,8 +945,8 @@ exports.createStripeCheckoutSession = functions
                     price: priceId,
                     quantity: 1,
                 }],
-                success_url: `${cleanBaseUrl}/${marketPath}?payment=success`,
-                cancel_url: `${cleanBaseUrl}/${marketPath}?payment=cancel`,
+                success_url: `${cleanBaseUrl}/${targetPath}${sep}payment=success`,
+                cancel_url: `${cleanBaseUrl}/${targetPath}${sep}payment=cancel`,
                 metadata: {
                     userId: context.auth.uid,
                     planKey: planKey
@@ -998,7 +1000,24 @@ exports.createStripeCheckoutSession = functions
                 }
             }
 
-            const session = await stripe.checkout.sessions.create(sessionParams);
+            let session;
+            try {
+                session = await stripe.checkout.sessions.create(sessionParams);
+            } catch (stripeErr) {
+                if (sessionParams.customer && (stripeErr.message?.includes('No such customer') || stripeErr.code === 'resource_missing')) {
+                    console.warn(`Stripe customer ${sessionParams.customer} not found. Retrying without customer ID.`);
+                    delete sessionParams.customer;
+                    if (email) {
+                        sessionParams.customer_email = email;
+                    }
+                    await admin.firestore().collection('users').doc(context.auth.uid).update({
+                        stripeCustomerId: admin.firestore.FieldValue.delete()
+                    }).catch(() => {});
+                    session = await stripe.checkout.sessions.create(sessionParams);
+                } else {
+                    throw stripeErr;
+                }
+            }
 
             return { url: session.url };
         } catch (error) {
@@ -1049,35 +1068,36 @@ exports.updateSubscriptionCancelState = functions
                             subscriptionId: admin.firestore.FieldValue.delete()
                         });
                     }
+                    
+                    const endDate = new Date();
+                    endDate.setMonth(endDate.getMonth() + 1);
+                    endStr = endDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 }
             } else {
                 mocked = true;
+                const endDate = new Date();
+                endDate.setMonth(endDate.getMonth() + 1);
+                endStr = endDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
             }
 
-            if (mocked) {
-                // Mock/test user: locally calculate access end date
-                const end = new Date();
-                const plan = userData.subscriptionPlan || 'flex';
-                if (plan === 'plus') {
-                    end.setDate(end.getDate() + 180);
-                } else if (plan === 'pro' || plan === 'premium') {
-                    end.setDate(end.getDate() + 365);
-                } else {
-                    end.setDate(end.getDate() + 30);
-                }
-                endStr = end.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-            }
-
-            await admin.firestore().collection('users').doc(uid).update({
+            const updateData = {
                 subscriptionCancelled: cancelAtPeriodEnd,
-                subscriptionEndDate: cancelAtPeriodEnd ? endStr : admin.firestore.FieldValue.delete()
-            });
+                updatedAt: new Date().toISOString()
+            };
+
+            if (cancelAtPeriodEnd) {
+                updateData.subscriptionEndDate = endStr;
+            } else {
+                updateData.subscriptionEndDate = admin.firestore.FieldValue.delete();
+            }
+
+            await admin.firestore().collection('users').doc(uid).update(updateData);
 
             return {
                 success: true,
-                mocked: mocked,
                 subscriptionCancelled: cancelAtPeriodEnd,
-                subscriptionEndDate: cancelAtPeriodEnd ? endStr : null
+                subscriptionEndDate: cancelAtPeriodEnd ? endStr : null,
+                mocked: mocked
             };
         } catch (error) {
             console.error("Failed to update subscription cancel state:", error);
@@ -1086,7 +1106,7 @@ exports.updateSubscriptionCancelState = functions
     });
 
 // ==========================================
-// Stripe Subscription Plan In-Place Update
+// Stripe Subscription Plan Change (Upgrade / Downgrade)
 // ==========================================
 exports.changeStripeSubscriptionPlan = functions
     .region('europe-west3')
@@ -1123,15 +1143,134 @@ exports.changeStripeSubscriptionPlan = functions
             const userData = userDoc.data();
             const subscriptionId = userData.subscriptionId;
 
+            const fallbackBaseUrl = 'https://www.gigconnact.de';
+            const cleanBaseUrl = (data.baseUrl && (data.baseUrl.startsWith('http://localhost') || data.baseUrl.startsWith('http://127.0.0.1') || data.baseUrl.startsWith('https://'))) 
+                ? data.baseUrl 
+                : fallbackBaseUrl;
+
+            const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
             if (!subscriptionId) {
-                // Mock user: Update Firestore locally
-                const updateData = {
-                    isPremium: true,
+                // User has no active Stripe subscription yet. Route them directly to Stripe Checkout!
+                const returnUrl = data.returnUrl || '#/profile';
+                const sep = returnUrl.includes('?') ? '&' : '?';
+
+                const checkoutParams = {
+                    mode: 'subscription',
+                    line_items: [{
+                        price: priceId,
+                        quantity: 1,
+                    }],
+                    success_url: `${cleanBaseUrl}/${returnUrl}${sep}payment=success`,
+                    cancel_url: `${cleanBaseUrl}/${returnUrl}${sep}payment=cancel`,
+                    metadata: {
+                        userId: uid,
+                        planKey: planKey
+                    }
+                };
+
+                const email = userData.email || null;
+                const stripeCustomerId = userData.stripeCustomerId || null;
+                if (stripeCustomerId) {
+                    checkoutParams.customer = stripeCustomerId;
+                } else if (email) {
+                    checkoutParams.customer_email = email;
+                }
+
+                let session;
+                try {
+                    session = await stripe.checkout.sessions.create(checkoutParams);
+                } catch (checkoutErr) {
+                    if (checkoutParams.customer && (checkoutErr.message?.includes('No such customer') || checkoutErr.code === 'resource_missing')) {
+                        delete checkoutParams.customer;
+                        if (email) checkoutParams.customer_email = email;
+                        await admin.firestore().collection('users').doc(uid).update({
+                            stripeCustomerId: admin.firestore.FieldValue.delete()
+                        }).catch(() => {});
+                        session = await stripe.checkout.sessions.create(checkoutParams);
+                    } else {
+                        throw checkoutErr;
+                    }
+                }
+
+                return {
+                    success: true,
+                    url: session.url
+                };
+            }
+
+            let subscription;
+            try {
+                subscription = await stripe.subscriptions.retrieve(subscriptionId);
+            } catch (retrieveErr) {
+                if (retrieveErr.message?.includes('No such subscription') || retrieveErr.code === 'resource_missing') {
+                    console.warn(`Stripe subscription ${subscriptionId} not found. Clearing and redirecting to Checkout.`);
+                    await admin.firestore().collection('users').doc(uid).update({
+                        subscriptionId: admin.firestore.FieldValue.delete()
+                    }).catch(() => {});
+                    
+                    const returnUrl = data.returnUrl || '#/profile';
+                    const sep = returnUrl.includes('?') ? '&' : '?';
+
+                    const checkoutParams = {
+                        mode: 'subscription',
+                        line_items: [{ price: priceId, quantity: 1 }],
+                        success_url: `${cleanBaseUrl}/${returnUrl}${sep}payment=success`,
+                        cancel_url: `${cleanBaseUrl}/${returnUrl}${sep}payment=cancel`,
+                        metadata: { userId: uid, planKey: planKey }
+                    };
+                    if (userData.stripeCustomerId) {
+                        checkoutParams.customer = userData.stripeCustomerId;
+                    } else if (userData.email) {
+                        checkoutParams.customer_email = userData.email;
+                    }
+                    const session = await stripe.checkout.sessions.create(checkoutParams);
+                    return { success: true, url: session.url };
+                }
+                throw retrieveErr;
+            }
+
+            const subItemId = subscription.items.data[0].id;
+
+            // Try Stripe Billing Portal first
+            try {
+                const session = await stripe.billingPortal.sessions.create({
+                    customer: userData.stripeCustomerId || subscription.customer,
+                    return_url: `${cleanBaseUrl}/#/profile?payment=success`,
+                    flow: {
+                        type: 'subscription_update_confirm',
+                        subscription_update_confirm: {
+                            subscription: subscriptionId,
+                            items: [{
+                                id: subItemId,
+                                price: priceId,
+                                quantity: 1
+                            }]
+                        }
+                    }
+                });
+
+                return {
+                    success: true,
+                    url: session.url
+                };
+            } catch (portalError) {
+                console.warn("Stripe billing portal update flow failed, falling back to direct Stripe subscription update:", portalError.message);
+                // Update active subscription directly in Stripe
+                await stripe.subscriptions.update(subscriptionId, {
+                    items: [{
+                        id: subItemId,
+                        price: priceId
+                    }],
+                    proration_behavior: 'create_prorations'
+                });
+
+                await admin.firestore().collection('users').doc(uid).update({
                     subscriptionPlan: planKey,
+                    isPremium: true,
                     subscriptionCancelled: false,
                     subscriptionEndDate: admin.firestore.FieldValue.delete()
-                };
-                await admin.firestore().collection('users').doc(uid).update(updateData);
+                });
 
                 if (userData.profileId && userData.role === 'musician') {
                     await admin.firestore().collection('musicians').doc(userData.profileId).update({
@@ -1140,37 +1279,13 @@ exports.changeStripeSubscriptionPlan = functions
                     });
                 }
 
-                return { success: true, mocked: true };
+                return {
+                    success: true,
+                    updatedDirectly: true
+                };
             }
-
-            const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-            const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-            const subItemId = subscription.items.data[0].id;
-            const baseUrl = data.baseUrl || 'https://www.gigconnact.de';
-
-            const session = await stripe.billingPortal.sessions.create({
-                customer: userData.stripeCustomerId || subscription.customer,
-                return_url: `${baseUrl}/#/profile?payment=success`,
-                flow: {
-                    type: 'subscription_update_confirm',
-                    subscription_update_confirm: {
-                        subscription: subscriptionId,
-                        items: [{
-                            id: subItemId,
-                            price: priceId,
-                            quantity: 1
-                        }]
-                    }
-                }
-            });
-
-            return {
-                success: true,
-                mocked: false,
-                url: session.url
-            };
         } catch (error) {
-            console.error("Failed to change Stripe subscription plan via portal:", error);
+            console.error("Failed to change Stripe subscription plan:", error);
             throw new functions.https.HttpsError('internal', error.message || 'Fehler beim Initiieren des Tarifwechsels.');
         }
     });

@@ -10653,6 +10653,18 @@ function renderProfilePage(container) {
                         </div>
                     </div>
 
+                    <div id="profile-promo-code-box" style="display: ${activePlan === 'premium' ? 'block' : 'none'}; max-width: 480px; margin: 1.5rem auto 1rem; background: ${isMusician ? 'rgba(124, 58, 237, 0.05)' : 'rgba(37, 99, 235, 0.05)'}; border: 1.5px dashed ${themeColor}; padding: 1.2rem; border-radius: var(--radius-md); text-align: left;">
+                        <h5 style="margin: 0 0 0.5rem; font-size: 0.95rem; font-weight: 700; color: ${themeColor}; display: flex; align-items: center; gap: 0.5rem;"><i class="fa-brands fa-instagram"></i> Premium-Freischaltung</h5>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.4;">
+                            Um in den exklusiven Premium-Tarif (3 Monate kostenlos, danach 4,99 €/Monat) zu wechseln, gib bitte deinen Instagram- oder Aktionscode ein:
+                        </p>
+                        <div style="display: flex; gap: 0.6rem; align-items: center;">
+                            <input type="text" id="prof-promo-code" class="input-field" placeholder="z. B. GCA-XXX-XXX oder GIGINSTA59" style="margin:0; text-transform: uppercase; font-weight: 600; flex: 1;">
+                            <button type="button" class="btn btn-secondary btn-sm" id="btn-prof-apply-promo" style="margin:0; padding: 0.6rem 1.2rem; font-size:0.85rem; font-weight: 700; white-space:nowrap; background:${themeBtnBg}; border-color:${themeBtnBorder};">Code prüfen</button>
+                        </div>
+                        <div id="prof-promo-status-msg" style="font-size: 0.8rem; margin-top: 0.5rem; font-weight: 600; display: none;"></div>
+                    </div>
+
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
                         <button class="btn btn-primary" id="btn-save-subscription-change" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: ${themeBtnBg}; border-color: ${themeBtnBorder};">
                             <i class="fa-solid fa-circle-arrow-right"></i> Tarifwechsel bestätigen
@@ -10998,6 +11010,70 @@ function renderProfilePage(container) {
 
         const subCards = container.querySelectorAll('.subscription-card');
         selectedPlan = activePlan;
+        let isPromoApplied = (activePlan === 'premium' && u.isPremium);
+
+        const promoBox = document.getElementById('profile-promo-code-box');
+        const promoBtn = document.getElementById('btn-prof-apply-promo');
+        const promoInput = document.getElementById('prof-promo-code');
+        const promoStatus = document.getElementById('prof-promo-status-msg');
+
+        if (promoBtn && promoInput && promoStatus) {
+            const checkPromo = async () => {
+                const code = promoInput.value.trim().toUpperCase();
+                if (!code) {
+                    promoStatus.textContent = "Bitte gib einen Code ein.";
+                    promoStatus.style.color = "#ef4444";
+                    promoStatus.style.display = "block";
+                    return;
+                }
+
+                if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code) || (window.gcaPromoCodes && window.gcaPromoCodes.includes(code))) {
+                    // Check if email has already used trial/promo
+                    const currentEmail = (u.email || '').trim();
+                    if (currentEmail && typeof db !== 'undefined' && db) {
+                        try {
+                            const normEmail = currentEmail.toLowerCase();
+                            const encoder = new TextEncoder();
+                            const data = encoder.encode(normEmail);
+                            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                            const hashArray = Array.from(new Uint8Array(hashBuffer));
+                            const emailHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                            
+                            const doc = await db.collection('used_trials').doc(emailHash).get();
+                            if (doc.exists) {
+                                isPromoApplied = false;
+                                promoStatus.textContent = "❌ Dieser Gutscheincode kann für diesen Account nicht verwendet werden (Testphase bereits genutzt).";
+                                promoStatus.style.color = "#ef4444";
+                                promoStatus.style.display = "block";
+                                return;
+                            }
+                        } catch (err) {
+                            console.warn("Could not check used_trials:", err);
+                        }
+                    }
+
+                    isPromoApplied = true;
+                    promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif freigeschaltet (3 Monate kostenlos, danach 4,99 €/Monat).";
+                    promoStatus.style.color = "#10b981";
+                    promoStatus.style.display = "block";
+                    promoInput.disabled = true;
+                    promoBtn.disabled = true;
+                } else {
+                    isPromoApplied = false;
+                    promoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Story-Beitrag oder gib einen gültigen Aktionscode ein.";
+                    promoStatus.style.color = "#ef4444";
+                    promoStatus.style.display = "block";
+                }
+            };
+
+            promoBtn.addEventListener('click', checkPromo);
+            promoInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    checkPromo();
+                }
+            });
+        }
 
         subCards.forEach(card => {
             card.addEventListener('click', () => {
@@ -11011,16 +11087,39 @@ function renderProfilePage(container) {
                 selectedPlan = card.getAttribute("data-plan");
                 const activeBtn = card.querySelector('.btn-sub-select');
                 if (activeBtn) activeBtn.textContent = 'Ausgewählt';
+
+                if (promoBox) {
+                    if (selectedPlan === 'premium') {
+                        promoBox.style.display = 'block';
+                    } else {
+                        promoBox.style.display = 'none';
+                    }
+                }
             });
         });
 
         const saveSubBtn = document.getElementById('btn-save-subscription-change');
         if (saveSubBtn) {
             saveSubBtn.addEventListener('click', async () => {
-                if (selectedPlan === activePlan && u.isPremium) {
+                if (selectedPlan === 'premium' && !isPromoApplied) {
+                    showToast({
+                        title: "Gutscheincode erforderlich ⚠️",
+                        message: "Bitte gib einen gültigen Aktions- oder Instagram-Code ein, um den Premium-Tarif freizuschalten.",
+                        type: "warning"
+                    });
+                    if (promoInput) {
+                        promoInput.focus();
+                        promoInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    return;
+                }
+
+                if (selectedPlan === activePlan && u.isPremium && !u.subscriptionCancelled) {
                     showToast({ title: "Tarif bereits aktiv", message: "Du nutzt bereits diesen Tarif." });
                     return;
                 }
+
+                const originalBtnHtml = saveSubBtn.innerHTML;
 
                 const applyPlanUpdate = async (newPlan) => {
                     u.subscriptionPlan = newPlan;
@@ -11061,51 +11160,51 @@ function renderProfilePage(container) {
                     saveSubBtn.disabled = true;
                     
                     if (u.subscriptionId) {
-                        saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Tarif wird gewechselt...`;
+                        saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Tarifwechsel wird vorbereitet...`;
                         const changePlan = firebase.app().functions('europe-west3').httpsCallable('changeStripeSubscriptionPlan');
                         const res = await changePlan({ 
                             planKey: selectedPlan,
-                            baseUrl: window.location.origin
+                            baseUrl: window.location.origin,
+                            returnUrl: '#/profile'
                         });
                         if (res.data && res.data.success) {
-                            if (res.data.mocked) {
-                                await applyPlanUpdate(selectedPlan);
-                                showToast({
-                                    title: "Tarif gewechselt! 🎉",
-                                    message: "Dein Tarif wurde erfolgreich geändert."
-                                });
-                            } else if (res.data.url) {
+                            if (res.data.url) {
                                 window.location.href = res.data.url;
-                            } else {
+                                return;
+                            } else if (res.data.updatedDirectly) {
                                 await applyPlanUpdate(selectedPlan);
                                 showToast({
                                     title: "Tarif gewechselt! 🎉",
-                                    message: "Dein Tarif wurde erfolgreich geändert."
+                                    message: `Dein Tarif wurde erfolgreich auf "${getPlanDetails(selectedPlan).title}" umgestellt.`
                                 });
+                                return;
                             }
-                        } else {
-                            throw new Error("Tarifwechsel über Stripe konnte nicht durchgeführt werden.");
                         }
+                        throw new Error(res.data?.message || "Tarifwechsel über Stripe konnte nicht durchgeführt werden.");
                     } else {
                         saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
                         const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
                         const res = await createStripeSession({ 
                             planKey: selectedPlan,
-                            baseUrl: window.location.origin
+                            baseUrl: window.location.origin,
+                            returnUrl: '#/profile'
                         });
 
                         if (res.data && res.data.url) {
                             window.location.href = res.data.url;
+                            return;
                         } else {
                             throw new Error("Zahlungs-URL konnte nicht generiert werden.");
                         }
                     }
                 } catch (err) {
-                    console.warn("Stripe subscription update failed, falling back to direct update:", err);
-                    await applyPlanUpdate(selectedPlan);
+                    console.error("Stripe payment redirection failed:", err);
+                    saveSubBtn.disabled = false;
+                    saveSubBtn.innerHTML = originalBtnHtml;
                     showToast({
-                        title: "Tarif gewechselt! 🎉",
-                        message: `Dein Tarif wurde erfolgreich auf "${getPlanDetails(selectedPlan).title}" umgestellt.`
+                        title: "Fehler beim Bezahlvorgang ❌",
+                        message: err.message || "Es gab ein Problem bei der Weiterleitung zur Bezahlseite. Bitte versuche es erneut.",
+                        type: "error"
                     });
                 }
             });
@@ -14568,7 +14667,17 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         <input type="hidden" name="selectedPlan" id="input-selected-plan" value="flex">
                     </div>
 
-
+                    <div id="reg-promo-code-container" style="display: none; margin-top: 1.2rem; margin-bottom: 1.2rem; background: rgba(124, 58, 237, 0.05); border: 1.5px dashed var(--color-purple); padding: 1.1rem; border-radius: var(--radius-md); text-align: left;">
+                        <h5 style="margin: 0 0 0.5rem; font-size: 0.95rem; font-weight: 700; color: var(--color-purple); display: flex; align-items: center; gap: 0.5rem;"><i class="fa-brands fa-instagram"></i> Premium-Aktionscode</h5>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.4;">
+                            Um den Premium-Tarif (3 Monate kostenlos, danach 4,99 €/Monat) zu wählen, gib bitte deinen Instagram- oder Aktionscode ein:
+                        </p>
+                        <div style="display: flex; gap: 0.6rem; align-items: center;">
+                            <input type="text" id="reg-promo-code" class="input-field" placeholder="z. B. GCA-XXX-XXX oder GIGINSTA59" style="margin:0; text-transform: uppercase; font-weight: 600; flex: 1;">
+                            <button type="button" class="btn btn-secondary btn-sm" id="btn-apply-promo" style="margin:0; padding: 0.6rem 1.2rem; font-size:0.85rem; font-weight: 700; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple); color: #fff;">Code prüfen</button>
+                        </div>
+                        <div id="promo-status-msg" style="font-size: 0.8rem; margin-top: 0.5rem; font-weight: 600; display: none;"></div>
+                    </div>
 
                     <div id="reg-privacy-consent-container" style="margin-top: 1.2rem; margin-bottom: 1.2rem;">
                         <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.8rem; line-height: 1.4; color: var(--text-muted); cursor: pointer;">
@@ -15276,7 +15385,68 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
     // Subscription Selector logic
     const subCards = document.querySelectorAll('.subscription-card');
     const selectedPlanInput = document.getElementById('input-selected-plan');
+    const regPromoBox = document.getElementById('reg-promo-code-container');
+    const regPromoBtn = document.getElementById('btn-apply-promo');
+    const regPromoInput = document.getElementById('reg-promo-code');
+    const regPromoStatus = document.getElementById('promo-status-msg');
+    let isPromoCodeApplied = false;
 
+    if (regPromoBtn && regPromoInput && regPromoStatus) {
+        const checkRegPromo = async () => {
+            const code = regPromoInput.value.trim().toUpperCase();
+            if (!code) {
+                regPromoStatus.textContent = "Bitte gib einen Code ein.";
+                regPromoStatus.style.color = "#ef4444";
+                regPromoStatus.style.display = "block";
+                return;
+            }
+
+            if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code) || (window.gcaPromoCodes && window.gcaPromoCodes.includes(code))) {
+                const currentEmail = (window.googleRegistrationUser?.email || registerForm?.elements?.email?.value || '').trim();
+                if (currentEmail && typeof db !== 'undefined' && db) {
+                    try {
+                        const normEmail = currentEmail.toLowerCase();
+                        const encoder = new TextEncoder();
+                        const data = encoder.encode(normEmail);
+                        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                        const hashArray = Array.from(new Uint8Array(hashBuffer));
+                        const emailHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                        
+                        const doc = await db.collection('used_trials').doc(emailHash).get();
+                        if (doc.exists) {
+                            isPromoCodeApplied = false;
+                            regPromoStatus.textContent = "❌ Dieser Gutscheincode kann für diese E-Mail-Adresse nicht verwendet werden (Testphase bereits genutzt).";
+                            regPromoStatus.style.color = "#ef4444";
+                            regPromoStatus.style.display = "block";
+                            return;
+                        }
+                    } catch (err) {
+                        console.warn("Could not check used_trials in registration:", err);
+                    }
+                }
+
+                isPromoCodeApplied = true;
+                regPromoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif freigeschaltet (3 Monate kostenlos, danach 4,99 €/Monat).";
+                regPromoStatus.style.color = "#10b981";
+                regPromoStatus.style.display = "block";
+                regPromoInput.disabled = true;
+                regPromoBtn.disabled = true;
+            } else {
+                isPromoCodeApplied = false;
+                regPromoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Story-Beitrag oder gib einen gültigen Aktionscode ein.";
+                regPromoStatus.style.color = "#ef4444";
+                regPromoStatus.style.display = "block";
+            }
+        };
+
+        regPromoBtn.addEventListener('click', checkRegPromo);
+        regPromoInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                checkRegPromo();
+            }
+        });
+    }
 
     subCards.forEach(card => {
         card.addEventListener('click', () => {
@@ -15293,20 +15463,13 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 }
             });
 
-            let periodText = 'pro Monat';
-            let priceText = '9,99 €';
-            if (plan === 'plus') {
-                periodText = 'pro Monat (6 Monate Laufzeit)';
-                priceText = '7,99 €';
-            } else if (plan === 'pro') {
-                periodText = 'pro Monat (12 Monate Laufzeit)';
-                priceText = '5,99 €';
-            } else if (plan === 'premium') {
-                periodText = 'pro Monat (12 Monate Laufzeit)';
-                priceText = '4,99 €';
+            if (regPromoBox) {
+                if (plan === 'premium') {
+                    regPromoBox.style.display = 'block';
+                } else {
+                    regPromoBox.style.display = 'none';
+                }
             }
-
-            // No promo container needed for Premium
         });
     });
 
@@ -15365,6 +15528,16 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         const email = registerForm.elements.email.value.trim();
         
         const selectedPlan = document.getElementById('input-selected-plan')?.value || 'flex';
+
+        if (selectedRole === 'musician' && selectedPlan === 'premium' && !isPromoCodeApplied) {
+            const promoInputEl = document.getElementById('reg-promo-code');
+            showValidationError(promoInputEl, null, "Bitte gib einen gültigen Aktionscode ein, um den Premium-Tarif freizuschalten.");
+            if (promoInputEl) {
+                promoInputEl.focus();
+                promoInputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return;
+        }
 
         const emailValidation = validateEmailAddress(email);
         if (!emailValidation.isValid) {
@@ -15599,7 +15772,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             payload.audios = (window.registrationMedia.organizer.audios || []).filter(a => a && a.url !== 'loading');
         }
 
-        payload.isPromoCodeApplied = false;
+        payload.isPromoCodeApplied = (payload.subscriptionPlan === 'premium' && isPromoCodeApplied);
 
         if (submitBtn) {
             submitBtn.disabled = true;
@@ -15610,7 +15783,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             try {
                 const user = window.googleRegistrationUser;
                 const profileId = payload.role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
-                const isPromo = false;
+                const isPromo = payload.subscriptionPlan === 'premium' && isPromoCodeApplied;
 
                 const newUser = {
                     id: user.uid,
@@ -16470,6 +16643,18 @@ function renderSubscriptionExpiredPage(container) {
                         <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.3;">12 Monate Vertragslaufzeit, 3 Monate kostenlos.</p>
                     </div>
                 </div>
+
+                <div id="expired-promo-code-box" style="display: ${selectedPlan === 'premium' ? 'block' : 'none'}; max-width: 480px; margin: 1.5rem auto 1rem; background: rgba(124, 58, 237, 0.05); border: 1.5px dashed var(--color-purple); padding: 1.2rem; border-radius: var(--radius-md); text-align: left;">
+                    <h5 style="margin: 0 0 0.5rem; font-size: 0.95rem; font-weight: 700; color: var(--color-purple); display: flex; align-items: center; gap: 0.5rem;"><i class="fa-brands fa-instagram"></i> Premium-Freischaltung</h5>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.4;">
+                        Um in den exklusiven Premium-Tarif (3 Monate kostenlos, danach 4,99 €/Monat) zu wechseln, gib bitte deinen Instagram- oder Aktionscode ein:
+                    </p>
+                    <div style="display: flex; gap: 0.6rem; align-items: center;">
+                        <input type="text" id="expired-promo-code" class="input-field" placeholder="z. B. GCA-XXX-XXX oder GIGINSTA59" style="margin:0; text-transform: uppercase; font-weight: 600; flex: 1;">
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-expired-apply-promo" style="margin:0; padding: 0.6rem 1.2rem; font-size:0.85rem; font-weight: 700; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple); color: #fff;">Code prüfen</button>
+                    </div>
+                    <div id="expired-promo-status-msg" style="font-size: 0.8rem; margin-top: 0.5rem; font-weight: 600; display: none;"></div>
+                </div>
             </div>
 
             <div style="display: flex; gap: 1rem; justify-content: center; align-items: center; flex-wrap: wrap;">
@@ -16484,6 +16669,45 @@ function renderSubscriptionExpiredPage(container) {
     `;
 
     const subCards = container.querySelectorAll('.subscription-card');
+    const expiredPromoBox = document.getElementById('expired-promo-code-box');
+    const expiredPromoBtn = document.getElementById('btn-expired-apply-promo');
+    const expiredPromoInput = document.getElementById('expired-promo-code');
+    const expiredPromoStatus = document.getElementById('expired-promo-status-msg');
+    let isExpiredPromoApplied = false;
+
+    if (expiredPromoBtn && expiredPromoInput && expiredPromoStatus) {
+        const checkExpiredPromo = async () => {
+            const code = expiredPromoInput.value.trim().toUpperCase();
+            if (!code) {
+                expiredPromoStatus.textContent = "Bitte gib einen Code ein.";
+                expiredPromoStatus.style.color = "#ef4444";
+                expiredPromoStatus.style.display = "block";
+                return;
+            }
+
+            if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code) || (window.gcaPromoCodes && window.gcaPromoCodes.includes(code))) {
+                isExpiredPromoApplied = true;
+                expiredPromoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif freigeschaltet (3 Monate kostenlos, danach 4,99 €/Monat).";
+                expiredPromoStatus.style.color = "#10b981";
+                expiredPromoStatus.style.display = "block";
+                expiredPromoInput.disabled = true;
+                expiredPromoBtn.disabled = true;
+            } else {
+                isExpiredPromoApplied = false;
+                expiredPromoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte gib einen gültigen Aktionscode ein.";
+                expiredPromoStatus.style.color = "#ef4444";
+                expiredPromoStatus.style.display = "block";
+            }
+        };
+
+        expiredPromoBtn.addEventListener('click', checkExpiredPromo);
+        expiredPromoInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                checkExpiredPromo();
+            }
+        });
+    }
 
     subCards.forEach(card => {
         card.addEventListener('click', () => {
@@ -16497,49 +16721,32 @@ function renderSubscriptionExpiredPage(container) {
             card.style.background = 'rgba(124, 58, 237, 0.05)';
             
             selectedPlan = card.getAttribute('data-plan');
+
+            if (expiredPromoBox) {
+                if (selectedPlan === 'premium') {
+                    expiredPromoBox.style.display = 'block';
+                } else {
+                    expiredPromoBox.style.display = 'none';
+                }
+            }
         });
     });
 
     const reactivateBtn = document.getElementById('btn-reactivate-expired-sub');
     if (reactivateBtn) {
         reactivateBtn.addEventListener('click', async () => {
-            const applyReactivation = async (planToActivate) => {
-                u.subscriptionPlan = planToActivate;
-                u.isPremium = true;
-                u.subscriptionCancelled = false;
-                delete u.subscriptionEndDate;
-
-                if (typeof db !== 'undefined' && db && u.id) {
-                    try {
-                        await db.collection('users').doc(u.id).set({
-                            subscriptionPlan: planToActivate,
-                            isPremium: true,
-                            subscriptionCancelled: false,
-                            updatedAt: new Date().toISOString()
-                        }, { merge: true });
-                    } catch (e) {}
-                }
-
-                const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-                const idx = registeredUsers.findIndex(usr => usr.id === u.id);
-                if (idx !== -1) {
-                    registeredUsers[idx].subscriptionPlan = planToActivate;
-                    registeredUsers[idx].isPremium = true;
-                    registeredUsers[idx].subscriptionCancelled = false;
-                    delete registeredUsers[idx].subscriptionEndDate;
-                    localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
-                }
-
-                state.currentUser = u;
-                state.saveState();
+            if (selectedPlan === 'premium' && !isExpiredPromoApplied) {
                 showToast({
-                    title: "Abonnement reaktiviert! 🎉",
-                    message: "Dein Zugang wurde erfolgreich reaktiviert."
+                    title: "Gutscheincode erforderlich ⚠️",
+                    message: "Bitte gib einen gültigen Aktions- oder Instagram-Code ein, um den Premium-Tarif freizuschalten.",
+                    type: "warning"
                 });
-                if (typeof window.navigate === 'function') {
-                    window.navigate(u.role === 'musician' ? 'events' : 'musicians');
+                if (expiredPromoInput) {
+                    expiredPromoInput.focus();
+                    expiredPromoInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
-            };
+                return;
+            }
 
             try {
                 reactivateBtn.disabled = true;
@@ -16548,7 +16755,8 @@ function renderSubscriptionExpiredPage(container) {
                 const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
                 const res = await createStripeSession({ 
                     planKey: selectedPlan,
-                    baseUrl: window.location.origin
+                    baseUrl: window.location.origin,
+                    returnUrl: '#/profile'
                 });
 
                 if (res.data && res.data.url) {
@@ -16557,8 +16765,14 @@ function renderSubscriptionExpiredPage(container) {
                     throw new Error("Zahlungs-URL konnte nicht generiert werden.");
                 }
             } catch (err) {
-                console.warn("Reactivation failed, applying direct fallback:", err);
-                await applyReactivation(selectedPlan);
+                console.error("Reactivation payment redirection failed:", err);
+                reactivateBtn.disabled = false;
+                reactivateBtn.innerHTML = `<i class="fa-solid fa-arrow-rotate-right"></i> Abo reaktivieren & bezahlen`;
+                showToast({
+                    title: "Fehler beim Bezahlvorgang ❌",
+                    message: err.message || "Es gab ein Problem bei der Weiterleitung zur Bezahlseite. Bitte versuche es erneut.",
+                    type: "error"
+                });
             }
         });
     }
