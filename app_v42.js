@@ -22907,7 +22907,7 @@ window.renderRecommendationPage = async function(container, mediationId) {
                     </div>
                 </div>
 
-                <div class="market-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.5rem;">
+                <div class="market-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 2rem; width: 100%; box-sizing: border-box;">
                     ${musicians.map((mus, idx) => {
                         let matchScoreVal = 95;
                         try {
@@ -22926,13 +22926,15 @@ window.renderRecommendationPage = async function(container, mediationId) {
                         const photos = (mus.photos && mus.photos.length > 0) ? mus.photos.slice(0, 5) : [mus.image || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80'];
                         const rawVideos = (typeof window.sanitizeVideos === 'function') ? window.sanitizeVideos(mus.videos) : (Array.isArray(mus.videos) ? mus.videos : []);
                         const videos = rawVideos.slice(0, 3);
-                        const audios = Array.isArray(mus.audio) ? mus.audio : [];
+                        const audios = (Array.isArray(mus.audio) ? mus.audio : []).slice(0, 3);
                         const genresArr = mus.genres || (mus.genre ? [mus.genre] : ['Pop', 'Cover', 'Acoustic']);
                         const instrumentsArr = mus.instruments || (mus.category ? [mus.category] : ['Gesang', 'Gitarre']);
                         const techArr = Array.isArray(mus.technik) 
                             ? mus.technik 
                             : (typeof mus.technik === 'string' && mus.technik.trim() !== '' ? mus.technik.split(',').map(s => s.trim()) : []);
                         
+                        const singleType = ((Array.isArray(mus.musicianTypes) && mus.musicianTypes.length > 0) ? mus.musicianTypes[0] : String(mus.type || 'Solo / Band')).split(',')[0].split('/')[0].split(' - ')[0].trim();
+
                         let dateDisplay = (typeof formatMusicianAvailabilityHelper === 'function')
                             ? formatMusicianAvailabilityHelper(mus)
                             : 'Verfügbar auf Anfrage';
@@ -22981,47 +22983,40 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                     <button onclick="window.sendMediationReminder(event, '${mediationId}', '${mus.id}')" class="btn btn-glass" style="width: 100%; padding: 0.4rem; font-size: 0.72rem; font-weight: 700; margin: 0; border: 1px solid rgba(245,158,11,0.4); color: #f59e0b; background: rgba(245,158,11,0.05); cursor: pointer; border-radius: 8px;">
                                         Keine Antwort seit 1 Woche
                                     </button>
-                                    <button class="btn btn-primary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; margin: 0; background: #2563eb !important; border-color: #2563eb !important; color: #ffffff !important; opacity: 0.7; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 0.4rem; border: 1px solid #2563eb !important;" disabled>
-                                        Angefragt
+                                    <button class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-size: 0.88rem; font-weight: 800; margin: 0; background: #2563eb !important; border-color: #2563eb !important; color: #ffffff !important; opacity: 0.7; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 0.4rem; border-radius: 10px;" disabled>
+                                        <i class="fa-solid fa-check" style="margin-right: 0.4rem;"></i> Angefragt
                                     </button>
                                 </div>
                             `;
                         } else if (status === 'declined') {
                             buttonHtml = `
-                                <button class="btn btn-secondary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; margin: 0; background: #374151; border: 1px solid #374151; color: #9ca3af; cursor: not-allowed; border-radius: 8px;" disabled>
+                                <button class="btn btn-secondary" style="width: 100%; padding: 0.8rem; font-size: 0.88rem; font-weight: 800; margin: 0; background: #374151; border: 1px solid #374151; color: #9ca3af; cursor: not-allowed; border-radius: 10px;" disabled>
                                     Abgesagt
                                 </button>
                             `;
                         } else if (status === 'no_response') {
                             buttonHtml = `
-                                <button class="btn btn-secondary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; margin: 0; background: #374151; border: 1px solid #374151; color: #9ca3af; cursor: not-allowed; border-radius: 8px;" disabled>
+                                <button class="btn btn-secondary" style="width: 100%; padding: 0.8rem; font-size: 0.88rem; font-weight: 800; margin: 0; background: #374151; border: 1px solid #374151; color: #9ca3af; cursor: not-allowed; border-radius: 10px;" disabled>
                                     Nicht geantwortet
                                 </button>
                             `;
                         } else if (status === 'accepted') {
                             buttonHtml = `
-                                <button class="btn btn-primary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; margin: 0; background: #10b981; border: 1px solid #10b981; color: #fff; cursor: not-allowed; border-radius: 8px;" disabled>
+                                <button class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-size: 0.88rem; font-weight: 800; margin: 0; background: #10b981; border: 1px solid #10b981; color: #fff; cursor: not-allowed; border-radius: 10px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35) !important;" disabled>
                                     Gebucht 🎉
                                 </button>
                             `;
                         } else {
                             buttonHtml = `
-                                <button onclick="window.requestMediationAct(event, '${mediationId}', '${mus.id}')" class="btn btn-primary" style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 800; background: #2563eb !important; border-color: #2563eb !important; margin: 0; color: #fff !important; border-radius: 8px; cursor: pointer; border: 1px solid #2563eb !important;">
-                                    Anfrage senden
+                                <button onclick="window.requestMediationAct(event, '${mediationId}', '${mus.id}')" class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-size: 0.88rem; font-weight: 800; background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important; border-color: #1e40af !important; margin: 0; color: #fff !important; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;">
+                                    <i class="fa-solid fa-paper-plane" style="margin-right: 0.4rem;"></i> Anfrage senden
                                 </button>
                             `;
                         }
 
                         return `
-                            <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0);">
-                                <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 215px; background: #0f172a; overflow: hidden;">
-                                    <!-- Galerie-Zähler (unsichtbar) -->
-                                    <div style="position: absolute; bottom: 12px; left: 12px; z-index: 6; display: none; align-items: center; pointer-events: none;">
-                                        <span class="tile-gallery-counter">
-                                            📷 1 / ${photos.length}
-                                        </span>
-                                    </div>
-                                    
+                            <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0); width: 100%; box-sizing: border-box;">
+                                <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
                                     <!-- Match-Faktor Badge & Favoriten/Top-Match-Stern oben rechts -->
                                     <div style="position: absolute; top: 12px; right: 12px; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 6px;">
                                         <div style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: #fff; padding: 0.35rem 0.45rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 48px;">
@@ -23069,82 +23064,84 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                     </div>
                                 </div>
                                 
-                                <div style="padding: 1.2rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; background: var(--bg-card);">
-                                        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.3rem;">
-                                            <h3 id="tile-title-${mus.id}" class="tile-card-title" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; min-width: 0;"><span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; vertical-align: middle; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.45rem; filter: none !important;" title="Name geschützt"></i></h3>
+                                <div class="tile-body-content" style="padding: 1.3rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
+                                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.3rem;">
+                                        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; flex: 1; min-width: 0;">
+                                            <h3 id="tile-title-${mus.id}" class="tile-card-title" style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;"><span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; display: inline-block; vertical-align: middle; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.45rem; filter: none !important;" title="Name geschützt"></i></h3>
                                             ${Boolean(mus.isDemo) ? `<span class="tile-demo-text" style="color: #000000 !important; font-weight: 800; font-size: 0.92rem; vertical-align: middle; filter: none !important; -webkit-text-fill-color: #000000 !important; user-select: none; white-space: nowrap;">[Demo]</span>` : ''}
                                         </div>
-                                        <div style="display: flex; gap: 0.5rem; justify-content: space-between;">
-                                            <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); flex: 1;">
-                                                <!-- 1. Musiker-Typ als Tag (oben über Ort) -->
-                                                <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                                                    <span class="tile-type-flag" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 1px solid rgba(147, 197, 253, 0.5); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);">
-                                                        <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${((Array.isArray(mus.musicianTypes) && mus.musicianTypes.length > 0) ? mus.musicianTypes[0] : String(mus.type || 'Solo / Band')).split(',')[0].split('/')[0].split(' - ')[0].trim()}</span>
-                                                    </span>
-                                                </div>
+                                    </div>
 
-                                                <!-- 2. Ort -->
-                                                <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                                                    <i class="fa-solid fa-location-dot" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                                                    <span style="flex: 1;">${(mus.location || '').split(' (')[0]}</span>
-                                                </div>
-
-                                                <!-- 3. Verfügbarkeit -->
-                                                <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                                                    <i class="fa-solid fa-calendar-days" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem; flex-shrink: 0;"></i>
-                                                    <span style="word-break: break-word; line-height: 1.35; flex: 1;">${dateDisplay}</span>
-                                                </div>
-
-                                                <!-- 4. Event-Typen + 'Mehr Details' Button -->
-                                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35; margin-top: 0.15rem;">
-                                                    <div style="display: flex; align-items: flex-start; gap: 0.6rem; flex: 1; min-width: 0;">
-                                                        <i class="fa-solid fa-magnifying-glass" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                                                        <span style="flex: 1; word-break: break-word;">${(mus.eventTypes || ['Hochzeit', 'Geburtstag', 'Firmenfeier']).slice(0, 3).join(', ')}</span>
-                                                    </div>
-                                                    <button id="toggle-details-btn-${mus.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${mus.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: #2563eb; font-family: var(--font-heading); font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
-                                                        <span id="toggle-text-${mus.id}">Mehr Details</span>
-                                                        <i class="fa-solid fa-chevron-down" id="toggle-icon-${mus.id}" style="font-size: 0.74rem; transition: transform 0.25s ease;"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
+                                    <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.6rem;">
+                                        <!-- 1. Musiker-Typ als Tag (oben über Ort) -->
+                                        <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                                            <span class="tile-type-flag" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 1px solid rgba(147, 197, 253, 0.5); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);">
+                                                <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${singleType}</span>
+                                            </span>
                                         </div>
-                                        <div id="collapsible-details-${mus.id}" style="display: none; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.75rem;">
-                                            <!-- 5. Genres -->
-                                            <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35; font-size: 0.84rem; color: var(--text-main);">
-                                                <i class="fa-solid fa-music" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                                                <span style="flex: 1;">${genresArr.slice(0, 3).join(', ')}</span>
+
+                                        <!-- 2. Ort -->
+                                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                                            <i class="fa-solid fa-location-dot" style="color: #2563eb; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                            <span style="flex: 1;">${(mus.location || 'Deutschlandweit').split(' (')[0]}</span>
+                                        </div>
+
+                                        <!-- 3. Verfügbarkeit -->
+                                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
+                                            <i class="fa-solid fa-calendar-days" style="color: #2563eb; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem; flex-shrink: 0;"></i>
+                                            <span style="word-break: break-word; line-height: 1.35; flex: 1;">${dateDisplay}</span>
+                                        </div>
+
+                                        <!-- 4. Event-Typen + 'Mehr Details' Button -->
+                                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35; margin-top: 0.15rem;">
+                                            <div style="display: flex; align-items: flex-start; gap: 0.75rem; flex: 1; min-width: 0;">
+                                                <i class="fa-solid fa-magnifying-glass" style="color: #2563eb; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                                <span style="flex: 1; word-break: break-word;">${(mus.eventTypes && mus.eventTypes.length > 0 ? mus.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier']).slice(0, 3).join(', ')}</span>
                                             </div>
-                                            <!-- 6. Instrumente -->
-                                            <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35; font-size: 0.84rem; color: var(--text-main);">
-                                                <i class="fa-solid fa-drum" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                                                <span style="flex: 1;">${instrumentsArr.slice(0, 3).join(', ')}</span>
-                                            </div>
-                                            <!-- 7. Spielzeit -->
-                                            <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
-                                                <i class="fa-solid fa-clock" style="color: #2563eb; width: 16px; text-align: center;"></i>
-                                                <span>${durationDisplay}</span>
-                                            </div>
-                                            <!-- 8. Publikum -->
-                                            <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
-                                                <i class="fa-solid fa-users" style="color: #2563eb; width: 16px; text-align: center;"></i>
-                                                <span>${pubDisplay} Personen</span>
-                                            </div>
-                                            <!-- 9. Technik -->
-                                            <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35; font-size: 0.84rem; color: var(--text-main);">
-                                                <i class="fa-solid fa-sliders" style="color: #2563eb; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                                                <span style="flex: 1;">${techArr.length > 0 ? techArr.join(', ') : 'nach Vereinbarung'}</span>
-                                            </div>
-                                            <!-- 10. Gage -->
-                                            <div style="display: flex; align-items: center; gap: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
-                                                <i class="fa-solid fa-coins" style="color: #2563eb; width: 16px; text-align: center;"></i>
-                                                <span>${budgetDisplay}</span>
-                                            </div>
+                                            <button id="toggle-details-btn-${mus.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${mus.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: #2563eb; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
+                                                <span id="toggle-text-${mus.id}">Mehr Details</span>
+                                                <i class="fa-solid fa-chevron-down" id="toggle-icon-${mus.id}" style="font-size: 0.75rem; transition: transform 0.25s ease;"></i>
+                                            </button>
                                         </div>
                                     </div>
-                                    
-                                    <div style="margin-top: 1.25rem;">
-                                        ${buttonHtml}
+
+                                    <!-- Collapsible details wrapper -->
+                                    <div id="collapsible-details-${mus.id}" style="display: none; flex-direction: column; gap: 0.5rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.6rem;">
+                                        <!-- 5. Genres -->
+                                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                                            <i class="fa-solid fa-music" style="color: #2563eb; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                            <span style="flex: 1;">${genresArr.slice(0, 3).join(', ')}</span>
+                                        </div>
+                                        <!-- 6. Instrumente -->
+                                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                                            <i class="fa-solid fa-drum" style="color: #2563eb; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                            <span style="flex: 1;">${instrumentsArr.slice(0, 3).join(', ')}</span>
+                                        </div>
+                                        <!-- 7. Spielzeit -->
+                                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                                            <i class="fa-solid fa-clock" style="color: #2563eb; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                            <span style="flex: 1;">${durationDisplay}</span>
+                                        </div>
+                                        <!-- 8. Publikum -->
+                                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                                            <i class="fa-solid fa-users" style="color: #2563eb; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                            <span style="flex: 1;">${pubDisplay} Personen</span>
+                                        </div>
+                                        <!-- 9. Technik -->
+                                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                                            <i class="fa-solid fa-sliders" style="color: #2563eb; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                            <span style="flex: 1;">${techArr.length > 0 ? techArr.join(', ') : 'nach Vereinbarung'}</span>
+                                        </div>
+                                        <!-- 10. Gage -->
+                                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                                            <i class="fa-solid fa-coins" style="color: #2563eb; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                            <span style="flex: 1;">${budgetDisplay}</span>
+                                        </div>
                                     </div>
+                                </div>
+                                
+                                <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; width: 100%; box-sizing: border-box;">
+                                    ${buttonHtml}
                                 </div>
                             </div>
                         `;
