@@ -6553,7 +6553,7 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
         <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; box-sizing: border-box;">
             <!-- Button 1: Musiker -->
             <button class="btn hero-cta-card-btn" id="btn-hero-musician" onclick="window.setHeroCtaMode('musician', 'forward')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.5rem 1.2rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 175px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; line-height: 1.25;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; text-align: center; line-height: 1.25;">
                     <i class="fa-solid fa-guitar" style="font-size: clamp(2rem, 4.5vw, 2.5rem); margin-bottom: 0.6rem; color: #ffffff;"></i>
                     <span style="font-size: clamp(0.92rem, 2vw, 1.05rem); font-weight: 600; color: rgba(255, 255, 255, 0.9);">Ich bin</span>
                     <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.45rem, 3.4vw, 1.85rem); font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; margin: 0.15rem 0; color: #ffffff;">Musiker</span>
@@ -6563,7 +6563,7 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
 
             <!-- Button 2: Veranstalter -->
             <button class="btn hero-cta-card-btn" id="btn-hero-organizer" onclick="window.setHeroCtaMode('organizer', 'forward')" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.5rem 1.2rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 175px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; line-height: 1.25;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; text-align: center; line-height: 1.25;">
                     <i class="fa-solid fa-calendar-check" style="font-size: clamp(2rem, 4.5vw, 2.5rem); margin-bottom: 0.6rem; color: #ffffff;"></i>
                     <span style="font-size: clamp(0.92rem, 2vw, 1.05rem); font-weight: 600; color: rgba(255, 255, 255, 0.9);">Ich bin</span>
                     <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.45rem, 3.4vw, 1.85rem); font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; margin: 0.15rem 0; color: #ffffff;">Veranstalter</span>
@@ -7598,8 +7598,12 @@ function renderMarket(container, type, onNavigate) {
                             </button>
                         </div>
                         
-                        <!-- Right: Spacer (Close button removed, only bottom action button used) -->
-                        <div class="filter-header-close-wrapper" style="flex: 1;"></div>
+                        <!-- Right: Close Button (Haken) -->
+                        <div class="filter-header-close-wrapper" style="flex: 1; display: flex; justify-content: flex-end;">
+                            <button id="btn-close-filters-top" class="btn-close-filters-m" title="Filter anwenden & schließen" type="button" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; border: 1.5px solid rgba(255, 255, 255, 0.45); background: rgba(255, 255, 255, 0.22); color: #ffffff; backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);">
+                                <i class="fa-solid fa-check" style="font-size: 1.1rem; color: #ffffff;"></i>
+                            </button>
+                        </div>
                     </div>
                     
                     ${isEvents ? `
@@ -8003,7 +8007,8 @@ function renderMarket(container, type, onNavigate) {
     });
 
     const closeBtnBottom = container.querySelector('#btn-close-filters-bottom');
-    closeBtnBottom?.addEventListener('click', function() {
+    const closeBtnTop = container.querySelector('#btn-close-filters-top');
+    const closeFilterDrawerHandler = function() {
         filterWrapper.classList.remove('open');
         overlay?.classList.remove('open');
         toggleBtn?.classList.remove('active');
@@ -8011,7 +8016,9 @@ function renderMarket(container, type, onNavigate) {
         if (window.innerWidth <= 900) {
             document.getElementById('market-results-header')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-    });
+    };
+    closeBtnBottom?.addEventListener('click', closeFilterDrawerHandler);
+    closeBtnTop?.addEventListener('click', closeFilterDrawerHandler);
 
     const resultsCountEl = container.querySelector('#market-results-count');
     resultsCountEl?.addEventListener('click', () => {
@@ -9564,8 +9571,8 @@ window.openItemDetailModal = function(id, isEvents) {
                 </button>
 
                 <!-- Full Hero Banner & Photo Gallery -->
-                <div style="position: relative; height: 260px; width: 100%; background: #0f172a;">
-                    <img src="${photo}" style="width: 100%; height: 100%; object-fit: cover;">
+                <div class="detail-hero-banner" style="position: relative; height: 260px; width: 100%; background: #0f172a;">
+                    <img src="${photo}" style="width: 100%; height: 100%; object-fit: contain; background: #0f172a;">
                     <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,0.9) 0%, transparent 60%);"></div>
                     <!-- Top Tags im Detailfenster oben links (ohne Icons) -->
                     <div style="position: absolute; top: 15px; left: 15px; z-index: 6; display: flex; align-items: center; gap: 6px; pointer-events: none; flex-wrap: wrap; max-width: calc(100% - 80px);">
@@ -10380,7 +10387,7 @@ function renderProfilePage(container) {
                             </div>
                             <ul class="plan-features">
                                 <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
-                                <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
@@ -10398,7 +10405,7 @@ function renderProfilePage(container) {
                             </div>
                             <ul class="plan-features">
                                 <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
-                                <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
@@ -10416,7 +10423,7 @@ function renderProfilePage(container) {
                             </div>
                             <ul class="plan-features">
                                 <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
-                                <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
@@ -10434,7 +10441,7 @@ function renderProfilePage(container) {
                             </div>
                             <ul class="plan-features">
                                 <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
-                                <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
@@ -11307,7 +11314,7 @@ function renderOrganizerEventItem(e, isActive) {
                     <!-- Slides 1-3: Fotos -->
                     ${photos.map((img) => `
                         <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative;">
-                            <img src="${img}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="${img}" style="width: 100%; height: 100%; object-fit: contain; background: #0f172a;">
                         </div>
                     `).join('')}
 
@@ -11806,14 +11813,14 @@ function renderMyMusicianItem(m, isActive) {
                     <!-- Slides: Fotos -->
                     ${photos.map((img) => `
                         <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative;">
-                            <img src="${img}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="${img}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: contain; background: #0f172a;">
                         </div>
                     `).join('')}
 
                     <!-- Slides: Nativ abspielbare HTML5 Videos -->
                     ${videoSources.map((vid, vIdx) => `
                         <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #000; display: flex; align-items: center; justify-content: center;">
-                            <video controls preload="none" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
+                            <video controls preload="none" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: contain; background: #000;" onclick="event.stopPropagation();">
                                 <source src="${vid.url}" type="video/mp4">
                                 Dein Browser unterstützt dieses Video nicht.
                             </video>
@@ -14284,7 +14291,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 </div>
                                 <ul class="plan-features">
                                     <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
                                     <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                                 </ul>
@@ -14302,7 +14309,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 </div>
                                 <ul class="plan-features">
                                     <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
                                     <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                                 </ul>
@@ -14320,7 +14327,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 </div>
                                 <ul class="plan-features">
                                     <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
                                     <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                                 </ul>
@@ -14338,7 +14345,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 </div>
                                 <ul class="plan-features">
                                     <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
                                     <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                                 </ul>
@@ -19518,14 +19525,14 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                         <!-- Slides: Fotos -->
                         ${photos.map((img) => `
                             <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative;">
-                                <img src="${img}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover;">
+                                <img src="${img}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: contain; background: #0f172a;">
                             </div>
                         `).join('')}
 
                         <!-- Slides: Nativ abspielbare HTML5 Videos -->
                         ${videos.map((vid, vIdx) => `
                             <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #000; display: flex; align-items: center; justify-content: center;">
-                                <video controls preload="none" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
+                                <video controls preload="none" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: contain; background: #000;" onclick="event.stopPropagation();">
                                     <source src="${vid.url}" type="video/mp4">
                                     Dein Browser unterstützt dieses Video nicht.
                                 </video>
@@ -19578,6 +19585,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                 <div class="tile-body-content" style="padding: 1.3rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
                     
                     <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favoriten-Herz & Stern rechts -->
+                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.8rem;">
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; flex: 1; min-width: 0;">
                             <h3 id="tile-title-${item.id}" class="tile-card-title" style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; transition: all 0.2s ease;">${displayName}</h3>
                             ${demoTagHtml}
@@ -21527,10 +21535,10 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                         ` : ''}
                                     </div>
                                     <div id="combo-slider-${mus.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
-                                        ${photos.map(img => `<div style="width: 100%; height: 100%; flex-shrink: 0;"><img src="${img}" style="width: 100%; height: 100%; object-fit: cover;"></div>`).join('')}
+                                        ${photos.map(img => `<div style="width: 100%; height: 100%; flex-shrink: 0;"><img src="${img}" style="width: 100%; height: 100%; object-fit: contain; background: #0f172a;"></div>`).join('')}
                                         ${videos.map((vid, vIdx) => `
                                             <div style="width: 100%; height: 100%; flex-shrink: 0; background: #000; display: flex; align-items: center; justify-content: center;">
-                                                <video controls preload="metadata" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
+                                                <video controls preload="metadata" style="width: 100%; height: 100%; object-fit: contain; background: #000;" onclick="event.stopPropagation();">
                                                     <source src="${vid.url}" type="video/mp4">
                                                 </video>
                                             </div>
@@ -22062,10 +22070,10 @@ window.renderMediationResponsePage = function(container, mediationId) {
                                     📷 1 / ${totalSlides}
                                 </span>
                                 <div id="combo-slider-${eventData.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
-                                    ${photos.map(img => `<div style="width: 100%; height: 100%; flex-shrink: 0;"><img src="${img}" style="width: 100%; height: 100%; object-fit: cover;"></div>`).join('')}
+                                    ${photos.map(img => `<div style="width: 100%; height: 100%; flex-shrink: 0;"><img src="${img}" style="width: 100%; height: 100%; object-fit: contain; background: #0f172a;"></div>`).join('')}
                                     ${videos.map((vid, vIdx) => `
                                         <div style="width: 100%; height: 100%; flex-shrink: 0; background: #000; display: flex; align-items: center; justify-content: center;">
-                                            <video controls preload="metadata" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
+                                            <video controls preload="metadata" style="width: 100%; height: 100%; object-fit: contain; background: #000;" onclick="event.stopPropagation();">
                                                 <source src="${vid.url}" type="video/mp4">
                                             </video>
                                         </div>

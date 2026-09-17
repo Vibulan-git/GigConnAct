@@ -2995,11 +2995,14 @@ body {
     box-sizing: border-box;
 }
 
-.hero-cta-buttons .btn {
-    white-space: normal;
-    text-align: center;
+.hero-cta-buttons .btn,
+.hero-cta-card-btn {
+    white-space: normal !important;
+    text-align: center !important;
     transition: all 0.3s ease !important;
-    justify-content: flex-start !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
 }
 
 #btn-hero-musician {
@@ -3381,7 +3384,7 @@ body.landing-page-active .app-container {
 .subscription-card {
     border: 2px solid rgba(168, 85, 247, 0.4);
     border-radius: 12px;
-    padding: 1rem;
+    padding: 1.2rem 1rem 1rem;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -3389,7 +3392,7 @@ body.landing-page-active .app-container {
     background: transparent !important;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    align-items: center;
 }
 
 .subscription-card:hover {
@@ -3493,12 +3496,24 @@ body.landing-page-active .app-container {
 .plan-features {
     list-style: none;
     padding: 0;
-    margin: 1.2rem 0 0 0;
+    margin: 1rem auto;
     text-align: left;
-    font-size: 0.72rem;
-    display: flex;
+    font-size: 0.76rem;
+    display: inline-flex;
     flex-direction: column;
-    gap: 0.4rem;
+    align-items: flex-start;
+    gap: 0.45rem;
+    width: fit-content;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.subscription-card .btn-sub-select-wrapper,
+.subscription-card > div:last-child {
+    margin-top: auto;
+    width: 100%;
+    display: flex;
+    justify-content: center;
 }
 
 .plan-features li {
@@ -4175,18 +4190,26 @@ body.landing-page-active .app-container {
     filter: brightness(1.1);
 }
 
-/* Card slider height adjustments to keep first tile content above the fold */
+/* Card slider height adjustments and unzoomed images (object-fit: contain) */
 .tile-fullwidth-photo-slider {
-    height: 180px !important; /* Reduced from 235px */
+    height: 200px !important;
+    background: #0f172a !important;
     cursor: grab;
 }
 .tile-fullwidth-photo-slider:active {
     cursor: grabbing;
 }
 
+.tile-fullwidth-photo-slider img,
+.tile-fullwidth-photo-slider video,
+.detail-hero-banner img {
+    object-fit: contain !important;
+    background: #0f172a !important;
+}
+
 @media (max-width: 900px) {
     .tile-fullwidth-photo-slider {
-        height: 155px !important; /* Extremely compact on mobile */
+        height: 180px !important;
     }
 }
 
@@ -4267,39 +4290,40 @@ html {
     transform: scale(1.05) !important;
 }
 
+.filter-header-close-wrapper {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-end;
+}
+
 .btn-close-filters-m,
 #btn-close-filters-m,
-.filter-header-close-wrapper {
-    display: none !important;
+#btn-close-filters-top {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    color: #ffffff !important;
+    font-size: 1.05rem !important;
+    cursor: pointer !important;
+    line-height: 1 !important;
+    transition: background 0.2s, transform 0.1s !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    flex-shrink: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
-/* Global definitions for theme-based filter close buttons */
-.theme-organizer .btn-close-filters-m,
-.theme-organizer #btn-close-filters-m {
-    display: none !important;
-}
-
-.theme-organizer .btn-close-filters-m:hover,
-.theme-organizer #btn-close-filters-m:hover,
-.theme-organizer .btn-close-filters-m:active,
-.theme-organizer #btn-close-filters-m:active,
-.theme-organizer .btn-close-filters-m:focus,
-.theme-organizer #btn-close-filters-m:focus {
-    display: none !important;
-}
-
-.theme-musician .btn-close-filters-m,
-.theme-musician #btn-close-filters-m {
-    display: none !important;
-}
-
-.theme-musician .btn-close-filters-m:hover,
-.theme-musician #btn-close-filters-m:hover,
-.theme-musician .btn-close-filters-m:active,
-.theme-musician #btn-close-filters-m:active,
-.theme-musician .btn-close-filters-m:focus,
-.theme-musician #btn-close-filters-m:focus {
-    display: none !important;
+.btn-close-filters-m:hover,
+#btn-close-filters-m:hover,
+#btn-close-filters-top:hover {
+    background: rgba(255, 255, 255, 0.35) !important;
+    border-color: rgba(255, 255, 255, 0.7) !important;
+    transform: scale(1.06) !important;
 }
 
 .theme-organizer .btn-close-filters-bottom,
@@ -4375,16 +4399,8 @@ html {
 }
 
 @media (max-width: 900px) {
-    .btn-reset-round {
-        transform: translateX(-12px) !important;
-    }
     .btn-reset-round:hover {
-        transform: translateX(-12px) scale(1.05) !important;
-    }
-    .btn-close-filters-m,
-    #btn-close-filters-m,
-    .filter-header-close-wrapper {
-        display: none !important;
+        transform: scale(1.05) !important;
     }
 }
 
