@@ -10927,7 +10927,7 @@ function renderProfilePage(container) {
             <div class="profile-section-card privacy-manage">
                 <div class="profile-section-header">
                     <div style="display: flex; align-items: center; gap: 0.85rem;">
-                        <div class="profile-section-badge-icon" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;">
+                        <div class="profile-section-badge-icon" style="background: ${isMusician ? 'rgba(124, 58, 237, 0.1)' : 'rgba(37, 99, 235, 0.1)'}; color: ${themeColor};">
                             <i class="fa-solid fa-shield-halved"></i>
                         </div>
                         <div class="profile-section-title-group">
@@ -11978,7 +11978,7 @@ function renderMyEventsContent(container) {
                             <i class="fa-solid fa-calendar-minus"></i>
                         </div>
                         <div class="profile-section-title-group">
-                            <h3 style="color: #475569 !important;">Beendete & Deaktivierte Events (${deactivatedEvents.length})</h3>
+                            <h3 style="color: #475569 !important;">Inaktive Events (${deactivatedEvents.length})</h3>
                             <p>Diese Events sind aktuell im Markt nicht sichtbar.</p>
                         </div>
                     </div>
@@ -12480,7 +12480,7 @@ function renderMyMusiciansContent(container) {
                             <i class="fa-solid fa-pause"></i>
                         </div>
                         <div class="profile-section-title-group">
-                            <h3 style="color: #475569 !important;">Pausierte & Inaktive Musiker (${deactivatedMusicians.length})</h3>
+                            <h3 style="color: #475569 !important;">Inaktive Musiker (${deactivatedMusicians.length})</h3>
                             <p>Diese Musiker sind aktuell im Markt ausgeblendet.</p>
                         </div>
                     </div>
@@ -18358,6 +18358,14 @@ function renderPostbox(container) {
 
             let activeChat = activeChatId ? (chats.find(c => c && c.id === activeChatId) || (state.chats || []).find(c => c && c.id === activeChatId)) : null;
 
+            if (activeChat && state.isChatUnread(activeChat)) {
+                state.markChatAsRead(activeChat.id, true);
+                if (typeof updateNavbar === 'function') updateNavbar();
+                if (typeof window.updateBottomBar === 'function') window.updateBottomBar();
+            }
+
+            const unreadChatCount = nonSystemChats.filter(c => state.isChatUnread(c)).length;
+
             window.postboxShowFilters = window.postboxShowFilters !== undefined ? window.postboxShowFilters : false;
 
             container.innerHTML = `
@@ -18371,10 +18379,10 @@ function renderPostbox(container) {
                         <!-- Center: Title (Mittig, ohne Icon) -->
                         <div class="postbox-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px;">
                             <div id="postbox-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
-                                ${nonSystemChats.length}
+                                ${unreadChatCount}
                             </div>
                             <span id="postbox-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                                ${nonSystemChats.length === 1 ? 'Nachricht' : 'Nachrichten'}
+                                ${unreadChatCount === 1 ? 'ungelesene Nachricht' : 'ungelesene Nachrichten'}
                             </span>
                         </div>
 
@@ -18443,19 +18451,14 @@ function renderPostbox(container) {
                                 }
                             }
 
-                            let bgColor = 'rgba(255, 255, 255, 0.02)';
-                            let borderColor = 'rgba(255, 255, 255, 0.05)';
-                            let leftBorderColor = 'transparent';
+                            const tileColor = isMusician ? '#7c3aed' : '#2563eb';
+                            const tileRgb = isMusician ? '124, 58, 237' : '37, 99, 235';
 
-                            if (itemType === 'received') {
-                                bgColor = isSelected ? 'rgba(34, 197, 94, 0.12)' : 'rgba(34, 197, 94, 0.04)';
-                                borderColor = isSelected ? 'rgba(34, 197, 94, 0.4)' : 'rgba(34, 197, 94, 0.15)';
-                                leftBorderColor = isUnread ? '#22c55e' : 'transparent';
-                            } else if (itemType === 'sent') {
-                                bgColor = isSelected ? 'rgba(239, 68, 68, 0.12)' : 'rgba(239, 68, 68, 0.04)';
-                                borderColor = isSelected ? 'rgba(239, 68, 68, 0.4)' : 'rgba(239, 68, 68, 0.15)';
-                                leftBorderColor = isUnread ? '#ef4444' : 'transparent';
-                            } else if (itemType === 'system') {
+                            let bgColor = isSelected ? `rgba(${tileRgb}, 0.12)` : `rgba(${tileRgb}, 0.04)`;
+                            let borderColor = isSelected ? `rgba(${tileRgb}, 0.4)` : `rgba(${tileRgb}, 0.15)`;
+                            let leftBorderColor = isUnread ? tileColor : 'transparent';
+
+                            if (itemType === 'system') {
                                 bgColor = isSelected ? 'rgba(234, 179, 8, 0.12)' : 'rgba(234, 179, 8, 0.04)';
                                 borderColor = isSelected ? 'rgba(234, 179, 8, 0.4)' : 'rgba(234, 179, 8, 0.15)';
                                 leftBorderColor = isUnread ? '#eab308' : 'transparent';
@@ -18554,7 +18557,7 @@ function renderPostbox(container) {
                                         <img src="${avatar}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
                                         <div style="flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
                                             <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</span>
-                                            ${isUnread ? '<span class="unread-dot" style="width: 9px; height: 9px; border-radius: 50%; background: #2563eb; box-shadow: 0 0 6px #2563eb; display: inline-block; flex-shrink: 0;" title="Ungelesen"></span>' : ''}
+                                            ${isUnread ? `<span class="unread-dot" style="width: 9px; height: 9px; border-radius: 50%; background: ${tileColor}; box-shadow: 0 0 6px ${tileColor}; display: inline-block; flex-shrink: 0;" title="Ungelesen"></span>` : ''}
                                         </div>
                                     </div>
                                     ${inlineChatHtml}
@@ -18707,6 +18710,8 @@ function renderPostbox(container) {
                     window.postboxActiveChatId = clickedChatId;
                     state.markChatAsRead(clickedChatId); // Force mark as read immediately on click!
                 }
+                if (typeof updateNavbar === 'function') updateNavbar();
+                if (typeof window.updateBottomBar === 'function') window.updateBottomBar();
                 renderView();
             });
         });
