@@ -7213,7 +7213,7 @@ function renderLandingPage(container, onNavigate) {
         : ``;
 
     container.innerHTML = `
-        <div class="landing-page-wrapper" style="position: relative; overflow: hidden; margin: 0; padding: 0; width: 100%; height: 100vh; height: 100dvh;">
+        <div class="landing-page-wrapper" style="position: relative; overflow: hidden; margin: 0; padding: 0; width: 100%; min-height: 100vh; min-height: 100dvh; height: 100%; background-color: #0d0e12;">
             
             <style>
                 .market-tile-card {
@@ -7260,7 +7260,7 @@ function renderLandingPage(container, onNavigate) {
             </style>
             
             <!-- 1. Fullscreen 100vh Hero Background Section (Option 3: Single-Screen / App-Erlebnis ohne Scrollen) -->
-            <div class="landing-hero" style="position: relative; width: 100%; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: clamp(1.2rem, 3vh, 2.4rem) 1.2rem clamp(0.3rem, 1vh, 0.6rem); border-bottom: none; box-shadow: none; background-color: #0d0e12; box-sizing: border-box;">
+            <div class="landing-hero" style="position: relative; width: 100%; min-height: 100vh; min-height: 100dvh; height: 100%; flex: 1 1 auto; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; overflow: hidden; margin: 0; padding: clamp(1.2rem, 3vh, 2.4rem) 1.2rem clamp(0.3rem, 1vh, 0.6rem); border-bottom: none; box-shadow: none; background-color: #0d0e12; box-sizing: border-box;">
                 
                 <!-- Live Concert Background: Singer, Stage & Crowd -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('hero_bg.jpg') no-repeat center top; background-size: cover; z-index: 1;"></div>
@@ -8426,10 +8426,10 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Max. Umkreis</label>
-                                    <span id="val-filter-radius-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb;">500+ km</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Max. Umkreis</label>
+                                    <span id="val-filter-radius-m" style="font-size: 0.85rem; font-weight: 700; color: #7c3aed !important;">500+ km</span>
                                 </div>
-                                <input type="range" class="form-input" id="input-filter-radius-m" min="0" max="500" step="50" value="500" style="width: 100%; accent-color: #2563eb;">
+                                <input type="range" class="form-input" id="input-filter-radius-m" min="0" max="500" step="50" value="500" style="width: 100%; accent-color: #7c3aed !important;">
                             </div>
 
                             <!-- 3. Datum / Kalender -->
@@ -8454,7 +8454,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Musiker-Typ</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">${prefillMusicianTypes.length === ALL_FILTER_MUSICIAN_TYPES.length ? 'alle abwählen' : 'alle auswählen'}</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">${prefillMusicianTypes.length === ALL_FILTER_MUSICIAN_TYPES.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-musician-type-grid">
@@ -8472,7 +8472,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Event-Typen</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">${prefillEventTypes.length === ALL_FILTER_EVENT_TYPES.length ? 'alle abwählen' : 'alle auswählen'}</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">${prefillEventTypes.length === ALL_FILTER_EVENT_TYPES.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
@@ -8490,7 +8490,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Genres</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">${prefillGenres.length === ALL_FILTER_GENRES.length ? 'alle abwählen' : 'alle auswählen'}</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">${prefillGenres.length === ALL_FILTER_GENRES.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-genres-grid-m">
@@ -8508,7 +8508,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Instrumente</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">${prefillInstruments.length === ALL_FILTER_INSTRUMENTS.length ? 'alle abwählen' : 'alle auswählen'}</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">${prefillInstruments.length === ALL_FILTER_INSTRUMENTS.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
@@ -8554,7 +8554,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Technik</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">${prefillTechnik.length === ALL_FILTER_TECHNIK.length ? 'alle abwählen' : 'alle auswählen'}</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">${prefillTechnik.length === ALL_FILTER_TECHNIK.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-technik-grid-m">
@@ -18061,7 +18061,7 @@ function updateNavbar(forceLanding) {
             authArea.innerHTML = '';
         } else {
             authArea.innerHTML = `
-                <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger" title="Einloggen / Registrieren">
+                <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger" title="Einloggen / Registrieren" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: 1.5px solid rgba(255, 255, 255, 0.3) !important; color: #ffffff !important; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3) !important;">
                     <i class="fa-solid fa-right-to-bracket header-login-icon"></i>
                 </button>
             `;
@@ -21362,10 +21362,7 @@ window.openImageCropperModal = function(imageSrc, onCrop, onCancel) {
                         <input id="cropper-zoom-slider" type="range" min="1.0" max="3.0" step="0.02" value="1.0" style="flex: 1; accent-color: #7c3aed; cursor: pointer; height: 6px;">
                         <span id="cropper-zoom-label" style="font-size: 0.75rem; color: #94a3b8; min-width: 38px; text-align: right; font-weight: 600;">100%</span>
                         <button id="cropper-zoom-in" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #ffffff; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem;">+</button>
-                        <button id="cropper-btn-rotate" class="btn btn-sm btn-glass" style="margin:0 0 0 0.4rem; padding: 0.3rem 0.55rem; font-size: 0.74rem; font-weight: 700; border-radius: 6px; color: #38bdf8;" title="90° Drehen">
-                            <i class="fa-solid fa-rotate-right"></i> 90°
-                        </button>
-                        <button id="cropper-btn-reset" class="btn btn-sm btn-glass" style="margin:0; padding: 0.3rem 0.55rem; font-size: 0.74rem; font-weight: 700; border-radius: 6px; color: #94a3b8;" title="Zurücksetzen">
+                        <button id="cropper-btn-reset" class="btn btn-sm btn-glass" style="margin:0 0 0 0.4rem; padding: 0.3rem 0.55rem; font-size: 0.74rem; font-weight: 700; border-radius: 6px; color: #94a3b8;" title="Zurücksetzen">
                             <i class="fa-solid fa-arrow-rotate-left"></i>
                         </button>
                     </div>
@@ -21551,7 +21548,7 @@ window.openImageCropperModal = function(imageSrc, onCrop, onCancel) {
             render();
         });
 
-        modalOverlay.querySelector('#cropper-btn-rotate').addEventListener('click', () => {
+        modalOverlay.querySelector('#cropper-btn-rotate')?.addEventListener('click', () => {
             rotation = (rotation + 90) % 360;
             panX = 0;
             panY = 0;
