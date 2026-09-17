@@ -10449,7 +10449,7 @@ window.revealMarketContact = async function(itemId, type, value, clickedBtn) {
     container.innerHTML = contentHtml;
 };
 
-window.showMediationNoticeBeforeAuth = function() {
+window.showMediationNoticeBeforeAuth = function(eventId, alreadySent = false) {
     const existing = document.getElementById('modal-mediation-notice-overlay');
     if (existing) existing.remove();
 
@@ -10461,7 +10461,7 @@ window.showMediationNoticeBeforeAuth = function() {
     overlay.style.cssText = "position:fixed; inset:0; background:rgba(15,23,42,0.6); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); padding:1rem;";
     
     overlay.innerHTML = `
-        <div style="width:100%; max-width:460px; background:#ffffff; border:1px solid #cbd5e1; border-radius:18px; padding:2.2rem 2rem; text-align:center; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); position:relative; font-family:var(--font-heading); color:#0f172a; box-sizing:border-box;">
+        <div style="width:100%; max-width:480px; background:#ffffff; border:1px solid #cbd5e1; border-radius:18px; padding:2.2rem 2rem; text-align:center; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); position:relative; font-family:var(--font-heading); color:#0f172a; box-sizing:border-box; animation: modalFadeIn 0.25s ease;">
             <button id="btn-close-mediation-cross" style="position: absolute; top: 1rem; right: 1.2rem; background: transparent; border: none; font-size: 1.8rem; line-height: 1; color: #64748b; cursor: pointer; padding: 0.2rem; border-radius: 6px; transition: color 0.2s;" onmouseover="this.style.color='#0f172a'" onmouseout="this.style.color='#64748b'" title="Schließen">&times;</button>
             
             <div style="width: 58px; height: 58px; border-radius: 50%; background: rgba(124, 58, 237, 0.1); color: #7c3aed; display: inline-flex; align-items: center; justify-content: center; font-size: 1.7rem; margin-bottom: 1rem;">
@@ -10473,9 +10473,11 @@ window.showMediationNoticeBeforeAuth = function() {
             </h3>
             
             <p style="font-size: 0.92rem; color: #475569; line-height: 1.55; margin-bottom: 1.6rem; text-align: left; font-family: var(--font-body);">
-                Der Erstkontakt erfolgt nur durch den Veranstalter. Bei Vermittlungs-Gigs bleiben die Kontaktdaten geschützt – Du selbst kannst keine direkte Vermittlungsanfrage an den Veranstalter senden.<br><br>
+                Mit dem Klick auf „Vermittlungsanfrage senden“ wird diesem Veranstalter Dein Profil vorgeschlagen. Der Erstkontakt erfolgt nur durch den Veranstalter. Bei Vermittlungs-Gigs bleiben die Kontaktdaten geschützt.<br><br>
                 ${isLoggedIn 
-                    ? 'Sobald Dein Profil zum Gig passt, erhält der Veranstalter Deinen Kontakt und kann Dich anfragen.' 
+                    ? (alreadySent 
+                        ? '<strong>Hinweis:</strong> Dein Profil wurde diesem Veranstalter bereits vorgeschlagen.' 
+                        : 'Sobald der Veranstalter Interesse an Deinem Profil hat, meldet er sich direkt bei Dir.')
                     : 'Erstelle Dein Musiker-Profil und werde für Veranstalter sichtbar, um passende Vermittlungsanfragen zu erhalten.'}
             </p>
             
@@ -10504,6 +10506,130 @@ window.showMediationNoticeBeforeAuth = function() {
         closeNotice();
         showModal('auth', null, 'musician');
     });
+};
+
+window.handleMediationClick = async function(eventId) {
+    // 1. If not logged in, show the notice modal
+    if (!state || !state.currentUser) {
+        window.showMediationNoticeBeforeAuth(eventId);
+        return;
+    }
+
+    // 2. Identify the active musician ID
+    const musicianId = state.activeMusicianId || state.currentUser.profileId || (state.musicians && state.musicians.find(m => m.creatorId === state.currentUser.id)?.id);
+    if (!musicianId) {
+        showToast({
+            title: "Musiker-Profil erforderlich 🎸",
+            message: "Bitte erstelle zuerst ein Musiker-Profil, um eine Vermittlungsanfrage zu senden.",
+            type: "error"
+        });
+        return;
+    }
+
+    // 3. Find the event in local state or prepare update
+    let eventObj = (state && state.events) ? state.events.find(e => e && e.id === eventId) : null;
+    let eventFavorites = [];
+    if (eventObj && Array.isArray(eventObj.favorites)) {
+        eventFavorites = [...eventObj.favorites];
+    }
+
+    const wasAlreadyInFavs = eventFavorites.includes(musicianId);
+
+    if (!wasAlreadyInFavs) {
+        eventFavorites.push(musicianId);
+        eventFavorites = Array.from(new Set(eventFavorites));
+
+        if (eventObj) {
+            eventObj.favorites = eventFavorites;
+        }
+
+        // Firestore updates: event doc
+        if (typeof db !== 'undefined' && db && db.collection) {
+            try {
+                const eventRef = db.collection('events').doc(eventId);
+                const docSnap = await eventRef.get();
+                let serverFavs = [];
+                if (docSnap && docSnap.exists) {
+                    const data = docSnap.data();
+                    if (Array.isArray(data.favorites)) serverFavs = [...data.favorites];
+                } else if (eventObj && Array.isArray(eventObj.favorites)) {
+                    serverFavs = [...eventObj.favorites];
+                }
+                if (!serverFavs.includes(musicianId)) serverFavs.push(musicianId);
+                serverFavs = Array.from(new Set(serverFavs));
+                
+                if (docSnap && docSnap.exists) {
+                    await eventRef.set({ favorites: serverFavs }, { merge: true });
+                } else if (eventObj) {
+                    await eventRef.set({ ...eventObj, favorites: serverFavs }, { merge: true });
+                }
+            } catch (err) {
+                console.warn("Could not update event favorites in Firestore directly:", err);
+            }
+
+            // Sync with corresponding mediation documents in Firestore
+            try {
+                const medSnap = await db.collection('mediations').where('eventId', '==', eventId).get();
+                if (!medSnap.empty) {
+                    for (const medDoc of medSnap.docs) {
+                        const mData = medDoc.data();
+                        let mMusIds = Array.isArray(mData.musicianIds) ? [...mData.musicianIds] : [];
+                        if (!mMusIds.includes(musicianId)) {
+                            mMusIds.push(musicianId);
+                            mMusIds = Array.from(new Set(mMusIds));
+                            await db.collection('mediations').doc(medDoc.id).update({ musicianIds: mMusIds });
+                        }
+                    }
+                }
+            } catch (medErr) {
+                console.warn("Could not sync mediation document:", medErr);
+            }
+        }
+
+        // Sync with any cached mediations in localStorage
+        try {
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && k.startsWith('gigconnact_med_')) {
+                    const cached = JSON.parse(localStorage.getItem(k));
+                    if (cached && (cached.eventId === eventId || cached.id === eventId)) {
+                        if (!Array.isArray(cached.musicianIds)) cached.musicianIds = [];
+                        if (!cached.musicianIds.includes(musicianId)) {
+                            cached.musicianIds.push(musicianId);
+                            cached.musicianIds = Array.from(new Set(cached.musicianIds));
+                            localStorage.setItem(k, JSON.stringify(cached));
+                        }
+                    }
+                }
+            }
+        } catch(e) {}
+
+        // Record in musician applications
+        if (typeof state.addMusicianApplication === 'function') {
+            try {
+                await state.addMusicianApplication(musicianId, eventId);
+            } catch(appErr) {}
+        }
+
+        state.saveState();
+    }
+
+    // 4. Show the warning notice modal with exact requested wording
+    window.showMediationNoticeBeforeAuth(eventId, wasAlreadyInFavs);
+
+    // 5. Toast notification
+    if (!wasAlreadyInFavs) {
+        showToast({
+            title: "Vermittlungsanfrage gesendet 📨",
+            message: "Dein Profil wurde dem Veranstalter erfolgreich vorgeschlagen!"
+        });
+    }
+
+    // 6. Update button UI immediately on the card
+    const btnEl = document.getElementById(`btn-mediation-action-${eventId}`);
+    if (btnEl) {
+        btnEl.innerHTML = `<i class="fa-solid fa-check"></i> <span>Vermittlungsanfrage gesendet</span>`;
+    }
 };
 
 window.toggleFavorite = function(id) {
@@ -20099,6 +20225,12 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
             item.creatorId === 'info-gigconnact-admin' ||
             (item.id && String(item.id).startsWith('evt_agency_'))
         );
+
+        const isLoggedIn = Boolean(state && state.currentUser);
+        const currentMusId = isLoggedIn ? (state.activeMusicianId || state.currentUser.profileId || (state.musicians && state.musicians.find(m => m.creatorId === state.currentUser.id)?.id)) : null;
+        const isAlreadyApplied = Boolean(currentMusId && Array.isArray(item.favorites) && item.favorites.includes(currentMusId));
+        const mediationBtnText = isLoggedIn ? (isAlreadyApplied ? 'Vermittlungsanfrage gesendet' : 'Vermittlungsanfrage senden') : 'Vermittlung';
+        const mediationBtnIcon = isLoggedIn ? (isAlreadyApplied ? 'fa-check' : 'fa-paper-plane') : 'fa-lock';
         
         // Up to 5 photos
         const photos = (item.photos && item.photos.length > 0)
@@ -20240,7 +20372,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
         const chatEvId = isEvents ? item.id : '';
 
         return `
-            <div class="market-tile-card" ${isMediation && (!state || !state.currentUser) ? `onclick="window.showMediationNoticeBeforeAuth()"` : ''} style="cursor: ${isMediation && (!state || !state.currentUser) ? 'pointer' : 'default'}; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0);">
+            <div class="market-tile-card" ${isMediation && (!state || !state.currentUser) ? `onclick="window.showMediationNoticeBeforeAuth('${item.id}')"` : ''} style="cursor: ${isMediation && (!state || !state.currentUser) ? 'pointer' : 'default'}; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0);">
                 
                 <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
@@ -20519,104 +20651,98 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                 </div>
 
 
-                ${isUnlocked ? (
-                    isMediation ? `
-                        <!-- Unlocked Mediation button -->
-                        <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; width: 100%; box-sizing: border-box;">
-                            <button class="btn btn-primary" onclick="event.stopPropagation(); alert('Kontaktdaten bleiben geschützt. Bei erfolgreicher Vermittlung erhalten beide Seiten die Kontaktdaten des jeweils anderen. Der Erstkontakt erfolgt ausschließlich durch den Veranstalter.');" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
-                                <i class="fa-solid fa-handshake" style="font-size: 1.15rem;"></i> Vermittlung
-                            </button>
-                        </div>
-                    ` : `
-                        <!-- Unlocked Direct Contact Section: Single "Kontaktdaten anzeigen" Button & Expandable Details -->
-                        <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; width: 100%; box-sizing: border-box;">
-                            <button class="btn btn-primary btn-toggle-contact-details" 
-                                    id="btn-toggle-contact-${item.id}" 
-                                    onclick="event.stopPropagation(); window.toggleMarketContactDetails('${item.id}', this)" 
-                                    style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important; cursor: pointer;"
-                                    title="Kontaktdaten anzeigen">
-                                <i class="fa-solid fa-address-card"></i> <span>Kontaktdaten anzeigen</span>
-                            </button>
+                ${isMediation ? `
+                    <!-- Mediation Action Button -->
+                    <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; width: 100%; box-sizing: border-box;">
+                        <button id="btn-mediation-action-${item.id}" class="btn btn-primary" onclick="event.stopPropagation(); window.handleMediationClick('${item.id}');" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important; cursor: pointer;">
+                            <i class="fa-solid ${mediationBtnIcon}"></i> <span>${mediationBtnText}</span>
+                        </button>
+                    </div>
+                ` : (isUnlocked ? `
+                    <!-- Unlocked Direct Contact Section: Single "Kontaktdaten anzeigen" Button & Expandable Details -->
+                    <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; width: 100%; box-sizing: border-box;">
+                        <button class="btn btn-primary btn-toggle-contact-details" 
+                                id="btn-toggle-contact-${item.id}" 
+                                onclick="event.stopPropagation(); window.toggleMarketContactDetails('${item.id}', this)" 
+                                style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important; cursor: pointer;"
+                                title="Kontaktdaten anzeigen">
+                            <i class="fa-solid fa-address-card"></i> <span>Kontaktdaten anzeigen</span>
+                        </button>
 
-                            <!-- Untereinander aufgelistete Kontaktdaten mit Icon -->
-                            <div id="contact-details-${item.id}" class="market-contact-details-panel" style="display: none; margin-top: 0.85rem; padding: 0.75rem 0 0 0; border-top: 1px dashed var(--border-glass); font-size: 0.88rem; text-align: left; color: var(--text-main); animation: fadeIn 0.2s ease;">
-                                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                                    
-                                    <!-- 1. Veranstalter-Typ / Profil-Typ -->
-                                    <div style="display: flex; align-items: center; gap: 0.75rem; line-height: 1.35;">
-                                        <i class="fa-solid fa-building" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
-                                        <span style="font-weight: 600; color: var(--text-main); word-break: break-word;">${companyVal}</span>
+                        <!-- Untereinander aufgelistete Kontaktdaten mit Icon -->
+                        <div id="contact-details-${item.id}" class="market-contact-details-panel" style="display: none; margin-top: 0.85rem; padding: 0.75rem 0 0 0; border-top: 1px dashed var(--border-glass); font-size: 0.88rem; text-align: left; color: var(--text-main); animation: fadeIn 0.2s ease;">
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                
+                                <!-- 1. Veranstalter-Typ / Profil-Typ -->
+                                <div style="display: flex; align-items: center; gap: 0.75rem; line-height: 1.35;">
+                                    <i class="fa-solid fa-building" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
+                                    <span style="font-weight: 600; color: var(--text-main); word-break: break-word;">${companyVal}</span>
+                                </div>
+
+                                <!-- 2. Kontaktperson / Name -->
+                                <div style="display: flex; align-items: center; gap: 0.75rem; line-height: 1.35;">
+                                    <i class="fa-solid fa-user" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
+                                    <span style="font-weight: 600; color: var(--text-main); word-break: break-word;">${contactNameVal}</span>
+                                </div>
+
+                                <!-- 3. Telefon -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; line-height: 1.35;">
+                                    <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 0;">
+                                        <i class="fa-solid fa-phone" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
+                                        <span style="font-weight: 600; color: ${isPhoneHidden ? 'var(--text-muted)' : 'var(--text-main)'}; ${isPhoneHidden ? 'font-style: italic;' : ''} word-break: break-word; user-select: all;">${phoneDisplayVal}</span>
                                     </div>
-
-                                    <!-- 2. Kontaktperson / Name -->
-                                    <div style="display: flex; align-items: center; gap: 0.75rem; line-height: 1.35;">
-                                        <i class="fa-solid fa-user" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
-                                        <span style="font-weight: 600; color: var(--text-main); word-break: break-word;">${contactNameVal}</span>
-                                    </div>
-
-                                    <!-- 3. Telefon -->
-                                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; line-height: 1.35;">
-                                        <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 0;">
-                                            <i class="fa-solid fa-phone" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
-                                            <span style="font-weight: 600; color: ${isPhoneHidden ? 'var(--text-muted)' : 'var(--text-main)'}; ${isPhoneHidden ? 'font-style: italic;' : ''} word-break: break-word; user-select: all;">${phoneDisplayVal}</span>
-                                        </div>
-                                        ${!isPhoneHidden ? `
-                                            <button type="button" onclick="event.stopPropagation(); navigator.clipboard.writeText('${phoneDisplayVal}'); this.innerHTML='<i class=\\'fa-solid fa-check\\'></i>'; setTimeout(() => this.innerHTML='<i class=\\'fa-solid fa-copy\\'></i>', 1800);" 
-                                                    style="background: transparent; border: 1px solid var(--border-glass); color: var(--text-muted); width: 26px; height: 26px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s;" 
-                                                    onmouseover="this.style.background='rgba(255,255,255,0.08)';" 
-                                                    onmouseout="this.style.background='transparent';"
-                                                    title="Telefonnummer kopieren">
-                                                <i class="fa-solid fa-copy"></i>
-                                            </button>
-                                        ` : ''}
-                                    </div>
-
-                                    <!-- 4. E-Mail -->
-                                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; line-height: 1.35;">
-                                        <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 0;">
-                                            <i class="fa-solid fa-envelope" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
-                                            <span style="font-weight: 600; color: var(--text-main); word-break: break-all; user-select: all;">${emailVal}</span>
-                                        </div>
-                                        <button type="button" onclick="event.stopPropagation(); navigator.clipboard.writeText('${emailVal}'); this.innerHTML='<i class=\\'fa-solid fa-check\\'></i>'; setTimeout(() => this.innerHTML='<i class=\\'fa-solid fa-copy\\'></i>', 1800);" 
+                                    ${!isPhoneHidden ? `
+                                        <button type="button" onclick="event.stopPropagation(); navigator.clipboard.writeText('${phoneDisplayVal}'); this.innerHTML='<i class=\\'fa-solid fa-check\\'></i>'; setTimeout(() => this.innerHTML='<i class=\\'fa-solid fa-copy\\'></i>', 1800);" 
                                                 style="background: transparent; border: 1px solid var(--border-glass); color: var(--text-muted); width: 26px; height: 26px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s;" 
                                                 onmouseover="this.style.background='rgba(255,255,255,0.08)';" 
                                                 onmouseout="this.style.background='transparent';"
-                                                title="E-Mail-Adresse kopieren">
+                                                title="Telefonnummer kopieren">
                                             <i class="fa-solid fa-copy"></i>
                                         </button>
-                                    </div>
-
-                                    <!-- 5. Nachricht schreiben -->
-                                    <div style="margin-top: 0.4rem; padding-top: 0.5rem; border-top: 1px dashed var(--border-glass);">
-                                        <button type="button" class="btn btn-primary" 
-                                                onclick="event.stopPropagation(); window.handleChatButtonClick(this)" 
-                                                data-rec-id="${chatRecId}" 
-                                                data-rec-name="${chatRecName}" 
-                                                data-ev-id="${chatEvId}"
-                                                style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.55rem 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; box-shadow: ${btnBoxShadow} !important;">
-                                            <i class="fa-solid fa-comments"></i> <span>Nachricht schreiben</span>
-                                        </button>
-                                    </div>
-
+                                    ` : ''}
                                 </div>
+
+                                <!-- 4. E-Mail -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; line-height: 1.35;">
+                                    <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 0;">
+                                        <i class="fa-solid fa-envelope" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
+                                        <span style="font-weight: 600; color: var(--text-main); word-break: break-all; user-select: all;">${emailVal}</span>
+                                    </div>
+                                    <button type="button" onclick="event.stopPropagation(); navigator.clipboard.writeText('${emailVal}'); this.innerHTML='<i class=\\'fa-solid fa-check\\'></i>'; setTimeout(() => this.innerHTML='<i class=\\'fa-solid fa-copy\\'></i>', 1800);" 
+                                            style="background: transparent; border: 1px solid var(--border-glass); color: var(--text-muted); width: 26px; height: 26px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s;" 
+                                            onmouseover="this.style.background='rgba(255,255,255,0.08)';" 
+                                            onmouseout="this.style.background='transparent';"
+                                            title="E-Mail-Adresse kopieren">
+                                        <i class="fa-solid fa-copy"></i>
+                                    </button>
+                                </div>
+
+                                <!-- 5. Nachricht schreiben -->
+                                <div style="margin-top: 0.4rem; padding-top: 0.5rem; border-top: 1px dashed var(--border-glass);">
+                                    <button type="button" class="btn btn-primary" 
+                                            onclick="event.stopPropagation(); window.handleChatButtonClick(this)" 
+                                            data-rec-id="${chatRecId}" 
+                                            data-rec-name="${chatRecName}" 
+                                            data-ev-id="${chatEvId}"
+                                            style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.55rem 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; box-shadow: ${btnBoxShadow} !important;">
+                                        <i class="fa-solid fa-comments"></i> <span>Nachricht schreiben</span>
+                                    </button>
+                                </div>
+
                             </div>
                         </div>
-                    `
-                ) : (
-                    `
-                        <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
-                            <button class="btn btn-primary" onclick="event.stopPropagation(); ${
-                                isMediation 
-                                    ? `window.showMediationNoticeBeforeAuth()` 
-                                    : (state && state.currentUser 
-                                        ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` 
-                                        : (isEvents ? `showModal('auth', null, 'musician')` : `showModal('auth', null, 'organizer')`))
-                            }" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
-                                <i class="fa-solid fa-lock"></i> ${isEvents ? (isMediation ? 'Vermittlung' : 'Direktkontakt') : (isMediation ? 'Vermittlung' : 'Kontaktdaten freischalten')}
-                            </button>
-                        </div>
-                    `
-                )}
+                    </div>
+                ` : `
+                    <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); ${
+                            state && state.currentUser 
+                                ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` 
+                                : (isEvents ? `showModal('auth', null, 'musician')` : `showModal('auth', null, 'organizer')`)
+                        }" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
+                            <i class="fa-solid fa-lock"></i> ${isEvents ? 'Direktkontakt' : 'Kontaktdaten freischalten'}
+                        </button>
+                    </div>
+                `)}
             </div>
         `;
     }).join('');
@@ -22463,9 +22589,15 @@ window.renderRecommendationPage = async function(container, mediationId) {
             }
         }
 
+        // Deduplicate musician IDs strictly to avoid any duplicates in proposals list
+        musicianIds = Array.from(new Set((musicianIds || []).filter(Boolean)));
+
         // Fetch musician documents with fallback to state.musicians and initialMusicians
         const musicians = [];
+        const seenMusicianIds = new Set();
         for (const id of musicianIds) {
+            if (seenMusicianIds.has(id)) continue;
+            seenMusicianIds.add(id);
             let musData = null;
             try {
                 if (typeof db !== 'undefined' && db && db.collection) {
