@@ -223,7 +223,6 @@
       "region": [
         "europe-west3"
       ],
-      "secretEnvironmentVariables": [],
       "callableTrigger": {},
       "entryPoint": "sendChatMessage"
     },

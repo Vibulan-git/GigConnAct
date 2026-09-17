@@ -952,7 +952,7 @@ exports.createStripeCheckoutSession = functions
                 }
             }
 
-            if (userData.hasHadTrial || userData.subscriptionId || userData.subscriptionPlan) {
+            if (userData.hasHadTrial || userData.subscriptionId || (userData.subscriptionPlan && userData.subscriptionPlan !== 'free')) {
                 hasHadTrial = true;
             }
 

@@ -935,6 +935,19 @@ window.unlockListing = function(targetId, targetName) {
                     <strong style="color:var(--color-purple); font-size:1.1rem;">4,99 €</strong>
                 </div>
             </div>
+
+            <!-- Promo Code Box for Premium in Unlock Modal -->
+            <div id="unlock-promo-code-box" style="display: none; margin-top: 1rem; margin-bottom: 0.8rem; background: rgba(124, 58, 237, 0.05); border: 1.5px dashed var(--color-purple); padding: 0.9rem; border-radius: 12px; text-align: left;">
+                <h5 style="margin: 0 0 0.4rem; font-size: 0.85rem; font-weight: 700; color: var(--color-purple); display: flex; align-items: center; gap: 0.4rem;"><i class="fa-brands fa-instagram"></i> Premium-Aktionscode</h5>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.6rem; line-height: 1.35;">
+                    Gib deinen Instagram- oder Aktionscode ein, um den Premium-Tarif freizuschalten:
+                </p>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input type="text" id="unlock-promo-code" class="input-field" placeholder="z. B. GIGINSTA59" style="margin:0; padding:0.45rem 0.65rem; font-size:0.8rem; text-transform: uppercase; font-weight: 600; flex: 1;">
+                    <button type="button" class="btn btn-secondary btn-sm" id="btn-unlock-apply-promo" style="margin:0; padding: 0.45rem 0.8rem; font-size:0.8rem; font-weight: 700; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple); color: #fff;">Code prüfen</button>
+                </div>
+                <div id="unlock-promo-status-msg" style="font-size: 0.75rem; margin-top: 0.4rem; font-weight: 600; display: none;"></div>
+            </div>
             
             <button class="btn btn-primary" id="btn-subscribe-unlock" style="margin:0; width:100%; font-weight:800; padding:0.9rem; font-size:1rem; border-radius:10px; background:linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important; border:none; color:#fff;">
                 Jetzt abonnieren & freischalten
@@ -945,6 +958,45 @@ window.unlockListing = function(targetId, targetName) {
     document.body.appendChild(modal);
 
     modal.querySelector('#btn-close-unlock-modal').addEventListener('click', () => modal.remove());
+
+    const promoBox = modal.querySelector('#unlock-promo-code-box');
+    const promoInput = modal.querySelector('#unlock-promo-code');
+    const promoBtn = modal.querySelector('#btn-unlock-apply-promo');
+    const promoStatus = modal.querySelector('#unlock-promo-status-msg');
+    let isUnlockPromoApplied = false;
+
+    if (promoBtn && promoInput && promoStatus) {
+        const checkUnlockPromo = () => {
+            const code = promoInput.value.trim().toUpperCase();
+            if (!code) {
+                promoStatus.textContent = "Bitte gib einen Code ein.";
+                promoStatus.style.color = "#ef4444";
+                promoStatus.style.display = "block";
+                return;
+            }
+            if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code) || (window.gcaPromoCodes && window.gcaPromoCodes.includes(code))) {
+                isUnlockPromoApplied = true;
+                promoStatus.textContent = "✔ Aktionscode gültig! Premium freigeschaltet.";
+                promoStatus.style.color = "#10b981";
+                promoStatus.style.display = "block";
+                promoInput.disabled = true;
+                promoBtn.disabled = true;
+            } else {
+                isUnlockPromoApplied = false;
+                promoStatus.textContent = "❌ Ungültiger Aktionscode.";
+                promoStatus.style.color = "#ef4444";
+                promoStatus.style.display = "block";
+            }
+        };
+
+        promoBtn.addEventListener('click', checkUnlockPromo);
+        promoInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                checkUnlockPromo();
+            }
+        });
+    }
 
     const planCards = modal.querySelectorAll('.unlock-plan-card');
     planCards.forEach(card => {
@@ -958,18 +1010,44 @@ window.unlockListing = function(targetId, targetName) {
             card.style.border = '2px solid var(--color-purple)';
             card.style.background = 'rgba(124,58,237,0.06)';
             selectedPlan = card.getAttribute('data-plan');
+
+            if (promoBox) {
+                if (selectedPlan === 'premium') {
+                    promoBox.style.display = 'block';
+                    promoBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    if (promoInput && !isUnlockPromoApplied) promoInput.focus();
+                } else {
+                    promoBox.style.display = 'none';
+                }
+            }
         });
     });
 
     const subBtn = modal.querySelector('#btn-subscribe-unlock');
     subBtn.addEventListener('click', async () => {
+        if (selectedPlan === 'premium' && !isUnlockPromoApplied) {
+            showToast({
+                title: "Aktionscode erforderlich ⚠️",
+                message: "Bitte gib einen gültigen Aktionscode ein, um den Premium-Tarif freizuschalten.",
+                type: "warning"
+            });
+            if (promoBox) {
+                promoBox.style.display = 'block';
+                promoBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+            if (promoInput) promoInput.focus();
+            return;
+        }
+
         subBtn.disabled = true;
         subBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
         try {
+            const isTariffChange = Boolean(state.currentUser?.subscriptionId || state.currentUser?.subscriptionPlan);
             const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
             const res = await createStripeSession({ 
                 planKey: selectedPlan,
-                baseUrl: window.location.origin
+                baseUrl: window.location.origin,
+                isTariffChange: isTariffChange
             });
             if (res.data && res.data.url) {
                 window.location.href = res.data.url;
@@ -10711,6 +10789,18 @@ function renderProfilePage(container) {
                         </div>
                     </div>
 
+                    <div id="profile-promo-code-box" style="display: ${activePlan === 'premium' ? 'block' : 'none'}; margin-top: 1.2rem; margin-bottom: 1.2rem; background: ${isMusician ? 'rgba(124, 58, 237, 0.05)' : 'rgba(37, 99, 235, 0.05)'}; border: 1.5px dashed ${themeColor}; padding: 1.1rem; border-radius: var(--radius-md); text-align: left;">
+                        <h5 style="margin: 0 0 0.5rem; font-size: 0.95rem; font-weight: 700; color: ${themeColor}; display: flex; align-items: center; gap: 0.5rem;"><i class="fa-brands fa-instagram"></i> Premium-Aktionscode</h5>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.4;">
+                            Um in den exklusiven Premium-Tarif (4,99 €/Monat) zu wechseln, gib bitte deinen Instagram- oder Aktionscode ein:
+                        </p>
+                        <div style="display: flex; gap: 0.6rem; align-items: center;">
+                            <input type="text" id="prof-promo-code" class="input-field" placeholder="z. B. GCA-XXX-XXX oder GIGINSTA59" style="margin:0; text-transform: uppercase; font-weight: 600; flex: 1;">
+                            <button type="button" class="btn btn-secondary btn-sm" id="btn-prof-apply-promo" style="margin:0; padding: 0.6rem 1.2rem; font-size:0.85rem; font-weight: 700; white-space:nowrap; background:${themeBtnBg}; border-color:${themeBtnBorder}; color: #ffffff;">Code prüfen</button>
+                        </div>
+                        <div id="prof-promo-status-msg" style="font-size: 0.8rem; margin-top: 0.5rem; font-weight: 600; display: none;"></div>
+                    </div>
+
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
                         <button class="btn btn-primary" id="btn-save-subscription-change" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: ${themeBtnBg}; border-color: ${themeBtnBorder};">
                             <i class="fa-solid fa-circle-arrow-right"></i> Tarifwechsel bestätigen
@@ -11071,7 +11161,46 @@ function renderProfilePage(container) {
         }
 
         const subCards = container.querySelectorAll('.subscription-card');
+        const promoBox = document.getElementById('profile-promo-code-box');
+        const promoBtn = document.getElementById('btn-prof-apply-promo');
+        const promoInput = document.getElementById('prof-promo-code');
+        const promoStatus = document.getElementById('prof-promo-status-msg');
         selectedPlan = activePlan;
+        let isPromoApplied = (activePlan === 'premium' && u.isPremium);
+
+        if (promoBtn && promoInput && promoStatus) {
+            const checkPromo = () => {
+                const code = promoInput.value.trim().toUpperCase();
+                if (!code) {
+                    promoStatus.textContent = "Bitte gib einen Code ein.";
+                    promoStatus.style.color = "#ef4444";
+                    promoStatus.style.display = "block";
+                    return;
+                }
+
+                if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code) || (window.gcaPromoCodes && window.gcaPromoCodes.includes(code))) {
+                    isPromoApplied = true;
+                    promoStatus.textContent = "✔ Aktionscode gültig! Premium-Tarif freigeschaltet (4,99 €/Monat).";
+                    promoStatus.style.color = "#10b981";
+                    promoStatus.style.display = "block";
+                    promoInput.disabled = true;
+                    promoBtn.disabled = true;
+                } else {
+                    isPromoApplied = false;
+                    promoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Story-Beitrag oder gib einen gültigen Aktionscode ein.";
+                    promoStatus.style.color = "#ef4444";
+                    promoStatus.style.display = "block";
+                }
+            };
+
+            promoBtn.addEventListener('click', checkPromo);
+            promoInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    checkPromo();
+                }
+            });
+        }
 
         subCards.forEach(card => {
             card.addEventListener('click', () => {
@@ -11085,12 +11214,36 @@ function renderProfilePage(container) {
                 selectedPlan = card.getAttribute("data-plan");
                 const activeBtn = card.querySelector('.btn-sub-select');
                 if (activeBtn) activeBtn.textContent = 'Ausgewählt';
+
+                if (promoBox) {
+                    if (selectedPlan === 'premium') {
+                        promoBox.style.display = 'block';
+                        promoBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        if (promoInput && !isPromoApplied) promoInput.focus();
+                    } else {
+                        promoBox.style.display = 'none';
+                    }
+                }
             });
         });
 
         const saveSubBtn = document.getElementById('btn-save-subscription-change');
         if (saveSubBtn) {
             saveSubBtn.addEventListener('click', async () => {
+                if (selectedPlan === 'premium' && !isPromoApplied) {
+                    showToast({
+                        title: "Aktionscode erforderlich ⚠️",
+                        message: "Bitte gib einen gültigen Aktionscode ein, um den Premium-Tarif freizuschalten.",
+                        type: "warning"
+                    });
+                    if (promoBox) {
+                        promoBox.style.display = 'block';
+                        promoBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    if (promoInput) promoInput.focus();
+                    return;
+                }
+
                 const originalBtnHtml = saveSubBtn.innerHTML;
 
                 // 1. Bereits aktiver Tarif
@@ -11636,12 +11789,9 @@ function renderOrganizerEventItem(e, isActive) {
                 <button class="btn btn-sm btn-find-matching-acts" data-id="${e.id}" style="width: 100%; font-size: 0.8rem; font-weight: 700; padding: 0.45rem 0.6rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.4rem; color: #ffffff; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
                     <i class="fa-solid fa-users-viewfinder" style="color: #ffffff;"></i> Passende Acts finden
                 </button>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem;">
                     <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                         <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
-                    </button>
-                    <button class="btn btn-sm btn-glass btn-duplicate-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
-                        <i class="fa-solid fa-copy" style="color: #ffffff;"></i> Duplizieren
                     </button>
                     <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                         <i class="fa-solid fa-${isActive ? 'pause' : 'play'}" style="color: #ffffff;"></i> ${isActive ? 'Pausieren' : 'Aktivieren'}
@@ -11777,29 +11927,6 @@ function renderMyEventsContent(container) {
         });
     });
 
-    container.querySelectorAll('.btn-duplicate-my-event').forEach(btn => {
-        btn.addEventListener('click', () => {
-            if (allMyEvents.length >= 200) {
-                showToast({
-                    title: "Limit erreicht ⚠️",
-                    message: "In deinem Veranstalter-Account können maximal 200 Events erstellt werden. Bitte beende oder lösche ein bestehendes Event.",
-                    type: "warning"
-                });
-                return;
-            }
-            const id = btn.getAttribute('data-id');
-            const event = state.events.find(e => e.id === id);
-            if (event) {
-                const duplicatedCopy = { ...event };
-                duplicatedCopy.id = null;
-                duplicatedCopy.name = `${event.name} (Kopie)`;
-                duplicatedCopy.date = '';
-                duplicatedCopy.musicianFound = false;
-                duplicatedCopy.isActive = true;
-                showEventModal(duplicatedCopy, true);
-            }
-        });
-    });
 
     container.querySelectorAll('.btn-edit-my-event').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -12171,12 +12298,9 @@ function renderMyMusicianItem(m, isActive) {
             </div>
 
             <!-- Actions Grid at the Bottom (Lila theme with white text for musicians) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #7c3aed;">
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem; background: #7c3aed;">
                 <button class="btn btn-sm btn-glass btn-edit-my-musician" data-id="${m.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                     <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
-                </button>
-                <button class="btn btn-sm btn-glass btn-duplicate-my-musician" data-id="${m.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
-                    <i class="fa-solid fa-copy" style="color: #ffffff;"></i> Duplizieren
                 </button>
                 <button class="btn btn-sm btn-glass btn-pause-my-musician" data-id="${m.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
                     <i class="fa-solid fa-${isActive ? 'pause' : 'play'}" style="color: #ffffff;"></i> ${isActive ? 'Pausieren' : 'Aktivieren'}
@@ -12288,27 +12412,6 @@ function renderMyMusiciansContent(container) {
         });
     });
 
-    container.querySelectorAll('.btn-duplicate-my-musician').forEach(btn => {
-        btn.addEventListener('click', () => {
-            if (allMyMusicians.length >= 5) {
-                showToast({
-                    title: "Limit erreicht ⚠️",
-                    message: "In deinem Musiker-Account können maximal 5 Musiker-Profile erstellt werden. Bitte lösche oder bearbeite ein bestehendes Profil.",
-                    type: "warning"
-                });
-                return;
-            }
-            const id = btn.getAttribute('data-id');
-            const musician = state.musicians.find(m => m.id === id);
-            if (musician) {
-                const duplicatedCopy = { ...musician };
-                duplicatedCopy.id = null;
-                duplicatedCopy.name = `${musician.name} (Kopie)`;
-                duplicatedCopy.isActive = true;
-                showMusicianModal(duplicatedCopy, true);
-            }
-        });
-    });
 
     container.querySelectorAll('.btn-edit-my-musician').forEach(btn => {
         btn.addEventListener('click', () => {
