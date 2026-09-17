@@ -3374,8 +3374,8 @@ body.landing-page-active .app-container {
 .subscription-cards {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-top: 0.5rem;
+    gap: 16px;
+    margin-top: 1.8rem !important;
 }
 
 .subscription-card {
@@ -4855,8 +4855,9 @@ input[type="range"].input-field {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 75px !important;
-    height: 40px !important;
+    width: 96px !important;
+    min-width: 96px !important;
+    height: 38px !important;
     border-radius: 12px !important;
     flex-shrink: 0 !important;
     background: rgba(255, 255, 255, 0.15) !important;
@@ -4871,7 +4872,7 @@ input[type="range"].input-field {
 }
 
 .header-login-btn .header-login-icon {
-    font-size: 1.35rem !important;
+    font-size: 1.25rem !important;
     color: #ffffff !important;
     opacity: 0.95 !important;
     flex-shrink: 0 !important;
@@ -4880,7 +4881,8 @@ input[type="range"].input-field {
 /* Mobile responsive styles for the Header Login Button */
 @media (max-width: 768px) {
     .header-login-btn {
-        width: 60px !important;
+        width: 86px !important;
+        min-width: 86px !important;
         height: 36px !important;
         border-radius: 10px !important;
     }
@@ -4890,8 +4892,9 @@ input[type="range"].input-field {
 }
 @media (max-width: 380px) {
     .header-login-btn {
-        width: 50px !important;
-        height: 32px !important;
+        width: 78px !important;
+        min-width: 78px !important;
+        height: 34px !important;
         border-radius: 8px !important;
     }
     .header-login-btn .header-login-icon {
@@ -5080,7 +5083,11 @@ input[type="range"].input-field {
     align-items: center !important;
     justify-content: center !important;
     gap: 0.45rem !important;
-    padding: 0.45rem 1.15rem !important;
+    padding: 0.45rem 0.65rem !important;
+    width: 96px !important;
+    min-width: 96px !important;
+    height: 38px !important;
+    box-sizing: border-box !important;
     border-radius: 12px !important;
     font-family: var(--font-heading) !important;
     font-size: 0.92rem !important;
@@ -5093,6 +5100,26 @@ input[type="range"].input-field {
     -webkit-backdrop-filter: blur(10px) !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+    white-space: nowrap !important;
+}
+
+@media (max-width: 768px) {
+    .market-filter-mobile-toggle {
+        width: 86px !important;
+        min-width: 86px !important;
+        height: 36px !important;
+        padding: 0.4rem 0.5rem !important;
+        font-size: 0.88rem !important;
+    }
+}
+@media (max-width: 380px) {
+    .market-filter-mobile-toggle {
+        width: 78px !important;
+        min-width: 78px !important;
+        height: 34px !important;
+        padding: 0.35rem 0.4rem !important;
+        font-size: 0.82rem !important;
+    }
 }
 
 .market-filter-mobile-toggle:hover {
@@ -5101,10 +5128,12 @@ input[type="range"].input-field {
 }
 
 .market-filter-mobile-toggle i,
-.market-filter-mobile-toggle #mobile-filter-icon {
+.market-filter-mobile-toggle #mobile-filter-icon,
+.market-filter-mobile-toggle svg {
     color: #ffffff !important;
+    stroke: #ffffff !important;
     font-size: 0.9rem !important;
-    transition: color 0.3s ease, text-shadow 0.3s ease !important;
+    transition: color 0.3s ease, stroke 0.3s ease, text-shadow 0.3s ease !important;
 }
 
 .market-filter-mobile-toggle span {
@@ -5112,8 +5141,23 @@ input[type="range"].input-field {
     transition: color 0.3s ease !important;
 }
 
+/* When drawer is open: subtle highlight, NEVER solid white */
+.market-filter-mobile-toggle.active {
+    background: rgba(255, 255, 255, 0.28) !important;
+    border-color: rgba(255, 255, 255, 0.75) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.3) !important;
+}
+.market-filter-mobile-toggle.active i,
+.market-filter-mobile-toggle.active span,
+.market-filter-mobile-toggle.active svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
 /* When filter is active: Icon + "Filter" text MUST be green */
-.market-filter-mobile-toggle.has-active-filters {
+.market-filter-mobile-toggle.has-active-filters,
+.market-filter-mobile-toggle.has-active-filters.active {
     border-color: #22c55e !important;
     background: rgba(34, 197, 94, 0.22) !important;
     box-shadow: 0 0 14px rgba(34, 197, 94, 0.45) !important;
@@ -5121,12 +5165,18 @@ input[type="range"].input-field {
 }
 
 .market-filter-mobile-toggle.has-active-filters i,
-.market-filter-mobile-toggle.has-active-filters #mobile-filter-icon {
+.market-filter-mobile-toggle.has-active-filters #mobile-filter-icon,
+.market-filter-mobile-toggle.has-active-filters svg,
+.market-filter-mobile-toggle.has-active-filters.active i,
+.market-filter-mobile-toggle.has-active-filters.active #mobile-filter-icon,
+.market-filter-mobile-toggle.has-active-filters.active svg {
     color: #22c55e !important;
+    stroke: #22c55e !important;
     text-shadow: 0 0 10px rgba(34, 197, 94, 0.8) !important;
 }
 
-.market-filter-mobile-toggle.has-active-filters span {
+.market-filter-mobile-toggle.has-active-filters span,
+.market-filter-mobile-toggle.has-active-filters.active span {
     color: #22c55e !important;
 }
 
@@ -5194,14 +5244,18 @@ input[type="range"].input-field {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.55rem !important;
-    padding: 0.45rem 1.15rem !important;
+    gap: 0.45rem !important;
+    padding: 0.45rem 0.65rem !important;
+    width: 96px !important;
+    min-width: 96px !important;
+    height: 38px !important;
+    box-sizing: border-box !important;
     background: rgba(255, 255, 255, 0.18) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
     border-radius: 12px !important;
     color: #ffffff !important;
     font-family: var(--font-heading) !important;
-    font-size: 0.95rem !important;
+    font-size: 0.92rem !important;
     font-weight: 700 !important;
     cursor: pointer !important;
     backdrop-filter: blur(10px) !important;
@@ -5213,8 +5267,10 @@ input[type="range"].input-field {
 }
 
 .theme-musician .market-filter-mobile-toggle i,
-.theme-musician .market-filter-mobile-toggle span {
+.theme-musician .market-filter-mobile-toggle span,
+.theme-musician .market-filter-mobile-toggle svg {
     color: #ffffff !important;
+    stroke: #ffffff !important;
 }
 
 .theme-musician .market-filter-mobile-toggle:hover {
@@ -5225,16 +5281,44 @@ input[type="range"].input-field {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
+/* Never turn white when drawer is opened */
 .theme-musician .market-filter-mobile-toggle.active {
-    background: #ffffff !important;
-    border-color: #ffffff !important;
-    color: #7c3aed !important;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.45) !important;
+    background: rgba(255, 255, 255, 0.28) !important;
+    border-color: rgba(255, 255, 255, 0.75) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.3) !important;
 }
 
 .theme-musician .market-filter-mobile-toggle.active i,
-.theme-musician .market-filter-mobile-toggle.active span {
-    color: #7c3aed !important;
+.theme-musician .market-filter-mobile-toggle.active span,
+.theme-musician .market-filter-mobile-toggle.active svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+/* When filters are active in Musician theme: Must be vibrant glowing green */
+.theme-musician .market-filter-mobile-toggle.has-active-filters,
+.theme-musician .market-filter-mobile-toggle.has-active-filters.active {
+    border-color: #22c55e !important;
+    background: rgba(34, 197, 94, 0.22) !important;
+    box-shadow: 0 0 14px rgba(34, 197, 94, 0.45) !important;
+    color: #22c55e !important;
+}
+
+.theme-musician .market-filter-mobile-toggle.has-active-filters i,
+.theme-musician .market-filter-mobile-toggle.has-active-filters #mobile-filter-icon,
+.theme-musician .market-filter-mobile-toggle.has-active-filters svg,
+.theme-musician .market-filter-mobile-toggle.has-active-filters.active i,
+.theme-musician .market-filter-mobile-toggle.has-active-filters.active #mobile-filter-icon,
+.theme-musician .market-filter-mobile-toggle.has-active-filters.active svg {
+    color: #22c55e !important;
+    stroke: #22c55e !important;
+    text-shadow: 0 0 10px rgba(34, 197, 94, 0.8) !important;
+}
+
+.theme-musician .market-filter-mobile-toggle.has-active-filters span,
+.theme-musician .market-filter-mobile-toggle.has-active-filters.active span {
+    color: #22c55e !important;
 }
 
 
@@ -5276,14 +5360,18 @@ input[type="range"].input-field {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.55rem !important;
-    padding: 0.45rem 1.15rem !important;
+    gap: 0.45rem !important;
+    padding: 0.45rem 0.65rem !important;
+    width: 96px !important;
+    min-width: 96px !important;
+    height: 38px !important;
+    box-sizing: border-box !important;
     background: rgba(255, 255, 255, 0.18) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
     border-radius: 12px !important;
     color: #ffffff !important;
     font-family: var(--font-heading) !important;
-    font-size: 0.95rem !important;
+    font-size: 0.92rem !important;
     font-weight: 700 !important;
     cursor: pointer !important;
     backdrop-filter: blur(10px) !important;
@@ -5295,8 +5383,10 @@ input[type="range"].input-field {
 }
 
 .theme-organizer .market-filter-mobile-toggle i,
-.theme-organizer .market-filter-mobile-toggle span {
+.theme-organizer .market-filter-mobile-toggle span,
+.theme-organizer .market-filter-mobile-toggle svg {
     color: #ffffff !important;
+    stroke: #ffffff !important;
 }
 
 .theme-organizer .market-filter-mobile-toggle:hover {
@@ -5307,16 +5397,44 @@ input[type="range"].input-field {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
+/* Never turn white when drawer is opened */
 .theme-organizer .market-filter-mobile-toggle.active {
-    background: #ffffff !important;
-    border-color: #ffffff !important;
-    color: #2563eb !important;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.45) !important;
+    background: rgba(255, 255, 255, 0.28) !important;
+    border-color: rgba(255, 255, 255, 0.75) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.3) !important;
 }
 
 .theme-organizer .market-filter-mobile-toggle.active i,
-.theme-organizer .market-filter-mobile-toggle.active span {
-    color: #2563eb !important;
+.theme-organizer .market-filter-mobile-toggle.active span,
+.theme-organizer .market-filter-mobile-toggle.active svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+/* When filters are active in Organizer theme: Must be vibrant glowing green */
+.theme-organizer .market-filter-mobile-toggle.has-active-filters,
+.theme-organizer .market-filter-mobile-toggle.has-active-filters.active {
+    border-color: #22c55e !important;
+    background: rgba(34, 197, 94, 0.22) !important;
+    box-shadow: 0 0 14px rgba(34, 197, 94, 0.45) !important;
+    color: #22c55e !important;
+}
+
+.theme-organizer .market-filter-mobile-toggle.has-active-filters i,
+.theme-organizer .market-filter-mobile-toggle.has-active-filters #mobile-filter-icon,
+.theme-organizer .market-filter-mobile-toggle.has-active-filters svg,
+.theme-organizer .market-filter-mobile-toggle.has-active-filters.active i,
+.theme-organizer .market-filter-mobile-toggle.has-active-filters.active #mobile-filter-icon,
+.theme-organizer .market-filter-mobile-toggle.has-active-filters.active svg {
+    color: #22c55e !important;
+    stroke: #22c55e !important;
+    text-shadow: 0 0 10px rgba(34, 197, 94, 0.8) !important;
+}
+
+.theme-organizer .market-filter-mobile-toggle.has-active-filters span,
+.theme-organizer .market-filter-mobile-toggle.has-active-filters.active span {
+    color: #22c55e !important;
 }
 
 /* Fallback default market controls */
@@ -5332,20 +5450,6 @@ input[type="range"].input-field {
     font-size: 1.1rem !important;
     font-weight: 800 !important;
     letter-spacing: -0.2px !important;
-}
-.market-filter-mobile-toggle {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 0.55rem !important;
-    padding: 0.45rem 1.1rem !important;
-    border-radius: 12px !important;
-    font-family: var(--font-heading) !important;
-    font-size: 0.95rem !important;
-    font-weight: 700 !important;
-    cursor: pointer !important;
-    white-space: nowrap !important;
-    text-decoration: none !important;
 }
 
 

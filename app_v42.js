@@ -6552,20 +6552,22 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
     return `
         <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; box-sizing: border-box;">
             <!-- Button 1: Musiker -->
-            <button class="btn hero-cta-card-btn" id="btn-hero-musician" onclick="window.setHeroCtaMode('musician', 'forward')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.6rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center;">
+            <button class="btn hero-cta-card-btn" id="btn-hero-musician" onclick="window.setHeroCtaMode('musician', 'forward')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.5rem 1.2rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 175px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; line-height: 1.25;">
                     <i class="fa-solid fa-guitar" style="font-size: clamp(2rem, 4.5vw, 2.5rem); margin-bottom: 0.6rem; color: #ffffff;"></i>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.15rem, 2.5vw, 1.45rem); font-weight: 800; line-height: 1.25; text-align: center; color: #ffffff;">Ich bin Musiker</span>
-                    <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.35rem;">und suche Gigs</span>
+                    <span style="font-size: clamp(0.92rem, 2vw, 1.05rem); font-weight: 600; color: rgba(255, 255, 255, 0.9);">Ich bin</span>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.45rem, 3.4vw, 1.85rem); font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; margin: 0.15rem 0; color: #ffffff;">Musiker</span>
+                    <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.2rem;">und suche Gigs</span>
                 </div>
             </button>
 
             <!-- Button 2: Veranstalter -->
-            <button class="btn hero-cta-card-btn" id="btn-hero-organizer" onclick="window.setHeroCtaMode('organizer', 'forward')" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.6rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center;">
+            <button class="btn hero-cta-card-btn" id="btn-hero-organizer" onclick="window.setHeroCtaMode('organizer', 'forward')" style="background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(37, 99, 235, 0.96) 100%); border: 2px solid rgba(147, 197, 253, 0.55); color: #ffffff; padding: 1.5rem 1.2rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 175px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; line-height: 1.25;">
                     <i class="fa-solid fa-calendar-check" style="font-size: clamp(2rem, 4.5vw, 2.5rem); margin-bottom: 0.6rem; color: #ffffff;"></i>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.15rem, 2.5vw, 1.45rem); font-weight: 800; line-height: 1.25; text-align: center; color: #ffffff;">Ich bin Veranstalter</span>
-                    <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.35rem;">und suche Acts</span>
+                    <span style="font-size: clamp(0.92rem, 2vw, 1.05rem); font-weight: 600; color: rgba(255, 255, 255, 0.9);">Ich bin</span>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.45rem, 3.4vw, 1.85rem); font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; margin: 0.15rem 0; color: #ffffff;">Veranstalter</span>
+                    <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.2rem;">und suche Acts</span>
                 </div>
             </button>
         </div>
@@ -7334,12 +7336,17 @@ function renderMarket(container, type, onNavigate) {
                 mobileToggleBtn.style.setProperty('color', '#22c55e', 'important');
             } else {
                 mobileToggleBtn.classList.remove('has-active-filters');
-                mobileToggleBtn.style.borderColor = 'rgba(255, 255, 255, 0.45)';
-                mobileToggleBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-                mobileToggleBtn.style.background = 'rgba(255, 255, 255, 0.18)';
-                mobileToggleBtn.style.color = '#ffffff';
+                mobileToggleBtn.style.border = '';
+                mobileToggleBtn.style.boxShadow = '';
+                mobileToggleBtn.style.background = '';
+                mobileToggleBtn.style.color = '';
             }
-            mobileToggleBtn.innerHTML = `<i class="fa-solid fa-filter" id="mobile-filter-icon" style="color: ${color} !important; font-size: 0.9rem; margin-right: 0.25rem; transition: color 0.3s ease, text-shadow 0.3s ease; ${isActive ? 'text-shadow: 0 0 10px rgba(34, 197, 94, 0.8);' : ''}"></i><span style="color: ${color} !important;">Filter</span>`;
+            mobileToggleBtn.innerHTML = `
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; flex-shrink: 0; margin-right: 0.2rem; ${isActive ? 'filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.8));' : ''}">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                </svg>
+                <span style="color: ${color} !important; font-size: 0.92rem; font-weight: 700; ${isActive ? 'text-shadow: 0 0 10px rgba(34, 197, 94, 0.6);' : ''}">Filter</span>
+            `;
         }
     }
     const urlParams = new URLSearchParams(window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
@@ -7546,9 +7553,11 @@ function renderMarket(container, type, onNavigate) {
 
                     <!-- 2. Aktionen-Container: Filter-Button rechts mit Icon -->
                     <div class="market-controls-actions ${showOnlyFavorites ? 'hidden' : ''}" style="grid-column: 3; justify-self: end; margin: 0; display: ${showOnlyFavorites ? 'none !important' : 'flex'}; align-items: center; gap: 0.55rem;">
-                        <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; padding: 0.45rem 1.15rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 700; cursor: pointer; background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15);" title="Filter öffnen">
-                            <i class="fa-solid fa-filter" id="mobile-filter-icon" style="color: #ffffff; font-size: 0.9rem; margin-right: 0.25rem; transition: color 0.3s ease, text-shadow 0.3s ease;"></i>
-                            <span style="color: #ffffff;">Filter</span>
+                        <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" title="Filter öffnen">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; flex-shrink: 0; margin-right: 0.2rem;">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                            </svg>
+                            <span>Filter</span>
                         </button>
                     </div>
      
@@ -10357,48 +10366,81 @@ function renderProfilePage(container) {
                     `}
                 </div>
 
-                <div id="sub-management-options" style="margin-top: 1rem;">
+                <div id="sub-management-options" style="margin-top: 1.5rem;">
+                    <h4 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; margin-bottom: 1.6rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-credit-card"></i> Abo-Modell auswählen</h4>
                     
-                    <div class="subscription-cards" style="margin-bottom: 1.5rem;">
+                    <div class="subscription-cards" style="margin-top: 1.6rem; margin-bottom: 1.5rem;">
                         <div class="subscription-card ${activePlan === "flex" ? "active" : ""}" data-plan="flex" data-price="9.99">
+                            <div class="selected-badge">Beliebt</div>
                             <h5>Flex</h5>
                             <div class="price">9,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
-                            <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
+                            <div class="subscription-gift-box">
+                                <i class="fa-solid fa-gift"></i>
+                                <div class="gift-title">1 Monat kostenlos</div>
+                            </div>
+                            <ul class="plan-features">
                                 <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
+                            <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
+                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "flex" ? "Ausgewählt" : "Auswählen"}</button>
+                            </div>
                         </div>
                         <div class="subscription-card ${activePlan === "plus" ? "active" : ""}" data-plan="plus" data-price="7.99">
+                            <div class="selected-badge">Spare 20 %</div>
                             <h5>Plus</h5>
                             <div class="price">7,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
-                            <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
+                            <div class="subscription-gift-box">
+                                <i class="fa-solid fa-gift"></i>
+                                <div class="gift-title">1 Monat kostenlos</div>
+                            </div>
+                            <ul class="plan-features">
                                 <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
+                            <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
+                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "plus" ? "Ausgewählt" : "Auswählen"}</button>
+                            </div>
                         </div>
                         <div class="subscription-card ${activePlan === "pro" ? "active" : ""}" data-plan="pro" data-price="5.99">
+                            <div class="selected-badge">Spare 40 %</div>
                             <h5>Pro</h5>
                             <div class="price">5,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
-                            <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
+                            <div class="subscription-gift-box">
+                                <i class="fa-solid fa-gift"></i>
+                                <div class="gift-title">1 Monat kostenlos</div>
+                            </div>
+                            <ul class="plan-features">
                                 <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
+                            <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
+                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "pro" ? "Ausgewählt" : "Auswählen"}</button>
+                            </div>
                         </div>
                         <div class="subscription-card ${activePlan === "premium" ? "active" : ""}" data-plan="premium" data-price="4.99">
+                            <div class="selected-badge" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;">Spare 59 %</div>
                             <h5>Premium</h5>
                             <div class="price">4,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
-                            <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
+                            <div class="subscription-gift-box">
+                                <i class="fa-solid fa-gift"></i>
+                                <div class="gift-title">3 Monate kostenlos</div>
+                            </div>
+                            <ul class="plan-features">
                                 <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
+                            <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
+                                <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "premium" ? "Ausgewählt" : "Auswählen"}</button>
+                            </div>
                         </div>
                     </div>
 
@@ -10750,10 +10792,16 @@ function renderProfilePage(container) {
 
         subCards.forEach(card => {
             card.addEventListener('click', () => {
-                subCards.forEach(c => c.classList.remove('active'));
+                subCards.forEach(c => {
+                    c.classList.remove('active');
+                    const btn = c.querySelector('.btn-sub-select');
+                    if (btn) btn.textContent = 'Auswählen';
+                });
                 
                 card.classList.add("active");
                 selectedPlan = card.getAttribute("data-plan");
+                const activeBtn = card.querySelector('.btn-sub-select');
+                if (activeBtn) activeBtn.textContent = 'Ausgewählt';
             });
         });
 
@@ -14223,9 +14271,9 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         </div>
                     </div>
 
-                    <div id="reg-subscription-container" style="margin-top: 1.5rem;">
-                        <h4 style="font-family: var(--font-heading); font-size:1rem; margin-bottom:0.5rem; color:#000000;"><i class="fa-solid fa-credit-card"></i> Abo-Modell auswählen</h4>
-                        <div class="subscription-cards">
+                    <div id="reg-subscription-container" style="margin-top: 2rem;">
+                        <h4 style="font-family: var(--font-heading); font-size:1.05rem; margin-bottom: 1.5rem; color:#000000;"><i class="fa-solid fa-credit-card"></i> Abo-Modell auswählen</h4>
+                        <div class="subscription-cards" style="margin-top: 1.6rem;">
                             <div class="subscription-card active" data-plan="flex" data-price="9.99">
                                 <div class="selected-badge">Beliebt</div>
                                 <h5>Flex</h5>
