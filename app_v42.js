@@ -22762,17 +22762,14 @@ window.renderRecommendationPage = async function(container, mediationId) {
             };
         }
 
-        // Check if event/mediation was removed or event has already taken place
-        const evtDateStr = med.eventDate || (med.eventId ? state?.events?.find(e => e.id === med.eventId)?.date : null);
-        const eventHasPassed = evtDateStr && (new Date(evtDateStr + 'T23:59:59') < new Date());
-
-        if (med.status === 'expired' || eventHasPassed) {
+        // Check if event/mediation was removed
+        if (med.status === 'expired') {
             container.innerHTML = `
                 <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
                     <i class="fa-solid fa-ban" style="font-size: 3.5rem; color: var(--color-red); margin-bottom: 1.2rem;"></i>
-                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">${eventHasPassed ? 'Event hat bereits stattgefunden 📅' : 'Event entfernt ❌'}</h3>
+                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Event entfernt ❌</h3>
                     <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.5rem;">
-                        ${eventHasPassed ? 'Dieses Event liegt in der Vergangenheit. Die Musiker-Vorschlagsliste ist daher nicht mehr verfügbar.' : 'Dieses Event bzw. diese Vermittlungsanfrage wurde entfernt. Daher ist die Musiker-Vorschlagsliste nicht mehr verfügbar.'}
+                        Dieses Event bzw. diese Vermittlungsanfrage wurde entfernt. Daher ist die Musiker-Vorschlagsliste nicht mehr verfügbar.
                     </p>
                 </div>
             `;
