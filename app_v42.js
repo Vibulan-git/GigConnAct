@@ -6954,7 +6954,7 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; line-height: 1.3;">
                         <i class="fa-solid fa-guitar" style="font-size: clamp(1.85rem, 4.2vw, 2.3rem); margin-bottom: 0.55rem; color: #ffffff;"></i>
                         <span style="font-family: var(--font-heading); font-size: clamp(0.9rem, 2vw, 1.05rem); font-weight: 600; text-align: center; color: rgba(255, 255, 255, 0.9);">Ich möchte</span>
-                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.7rem, 4vw, 2.3rem) !important; font-weight: 900 !important; color: #ffffff; letter-spacing: 0.5px; text-transform: uppercase; margin: 0.15rem 0; line-height: 1.15;">DIREKT</span>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.7rem, 4vw, 2.3rem) !important; font-weight: 900 !important; color: #ffffff; letter-spacing: 0.5px; margin: 0.15rem 0; line-height: 1.15;">direkt</span>
                         <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">Kontakt aufnehmen</span>
                     </div>
                 </button>
@@ -6962,7 +6962,7 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; line-height: 1.3;">
                         <i class="fa-solid fa-handshake" style="font-size: clamp(1.85rem, 4.2vw, 2.3rem); margin-bottom: 0.55rem; color: #ffffff;"></i>
                         <span style="font-family: var(--font-heading); font-size: clamp(0.9rem, 2vw, 1.05rem); font-weight: 600; text-align: center; color: rgba(255, 255, 255, 0.9);">Ich möchte</span>
-                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.7rem, 4vw, 2.3rem) !important; font-weight: 900 !important; color: #ffffff; letter-spacing: 0.5px; text-transform: uppercase; margin: 0.15rem 0; line-height: 1.15;">VERMITTELT</span>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.7rem, 4vw, 2.3rem) !important; font-weight: 900 !important; color: #ffffff; letter-spacing: 0.5px; margin: 0.15rem 0; line-height: 1.15;">vermittelt</span>
                         <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">werden</span>
                     </div>
                 </button>
@@ -6982,7 +6982,7 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; line-height: 1.3;">
                         <i class="fa-solid fa-guitar" style="font-size: clamp(1.85rem, 4.2vw, 2.3rem); margin-bottom: 0.55rem; color: #ffffff;"></i>
                         <span style="font-family: var(--font-heading); font-size: clamp(0.9rem, 2vw, 1.05rem); font-weight: 600; text-align: center; color: rgba(255, 255, 255, 0.9);">Ich möchte</span>
-                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.7rem, 4vw, 2.3rem) !important; font-weight: 900 !important; color: #ffffff; letter-spacing: 0.5px; text-transform: uppercase; margin: 0.15rem 0; line-height: 1.15;">DIREKT</span>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.7rem, 4vw, 2.3rem) !important; font-weight: 900 !important; color: #ffffff; letter-spacing: 0.5px; margin: 0.15rem 0; line-height: 1.15;">direkt</span>
                         <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">Kontakt aufnehmen</span>
                     </div>
                 </button>
@@ -6990,7 +6990,7 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; line-height: 1.3;">
                         <i class="fa-solid fa-handshake" style="font-size: clamp(1.85rem, 4.2vw, 2.3rem); margin-bottom: 0.55rem; color: #ffffff;"></i>
                         <span style="font-family: var(--font-heading); font-size: clamp(0.9rem, 2vw, 1.05rem); font-weight: 600; text-align: center; color: rgba(255, 255, 255, 0.9);">Ich möchte</span>
-                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.7rem, 4vw, 2.3rem) !important; font-weight: 900 !important; color: #ffffff; letter-spacing: 0.5px; text-transform: uppercase; margin: 0.15rem 0; line-height: 1.15;">VERMITTELT</span>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.7rem, 4vw, 2.3rem) !important; font-weight: 900 !important; color: #ffffff; letter-spacing: 0.5px; margin: 0.15rem 0; line-height: 1.15;">vermittelt</span>
                         <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">werden</span>
                     </div>
                 </button>
@@ -11807,8 +11807,8 @@ function renderOrganizerEventItem(e, isActive) {
                 </span>
 
                 <!-- Fullscreen Expand Button (Unten links wie gewünscht) -->
-                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${e.id}');" style="position: absolute; bottom: 10px; left: 10px; z-index: 6; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25); color: #ffffff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.15s; box-shadow: 0 4px 12px rgba(0,0,0,0.35);" title="Vollbild öffnen">
-                    <i class="fa-solid fa-expand" style="font-size: 0.82rem;"></i>
+                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${e.id}');" style="position: absolute; bottom: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
+                    <i class="fa-solid fa-expand" style="font-size: 1.15rem; color: #ffffff; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));"></i>
                 </button>
 
                 <!-- Dots container inside the slider -->
@@ -11848,7 +11848,7 @@ function renderOrganizerEventItem(e, isActive) {
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
                         <!-- 1. Event-Typ als Tag (ohne Icon, max 1 Typ) -->
                         <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                            <span class="tile-type-flag" style="background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border: 1px solid rgba(191, 219, 254, 0.5); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);">
+                            <span class="tile-type-flag" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 1px solid rgba(147, 197, 253, 0.5); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);">
                                 <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${eventTypeDisplay}</span>
                             </span>
                         </div>
@@ -11912,27 +11912,22 @@ function renderOrganizerEventItem(e, isActive) {
             </div>
 
             <!-- Actions Grid at the Bottom (Organizer Blue theme with white text) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: flex; flex-direction: column; gap: 0.4rem; background: #2563eb;">
-                <button class="btn btn-sm btn-find-matching-acts" data-id="${e.id}" style="width: 100%; font-size: 0.8rem; font-weight: 700; padding: 0.45rem 0.6rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.4rem; color: #ffffff; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
-                    <i class="fa-solid fa-users-viewfinder" style="color: #ffffff;"></i> Passende Acts finden
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #2563eb;">
+                ${isActive ? `
+                <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                    <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
                 </button>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
-                    ${isActive ? `
-                    <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
-                        <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
-                    </button>
-                    <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
-                        <i class="fa-solid fa-pause" style="color: #ffffff;"></i> Pausieren
-                    </button>
-                    ` : `
-                    <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
-                        <i class="fa-solid fa-play" style="color: #ffffff;"></i> Aktivieren
-                    </button>
-                    <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
-                        <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
-                    </button>
-                    `}
-                </div>
+                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                    <i class="fa-solid fa-pause" style="color: #ffffff;"></i> Pausieren
+                </button>
+                ` : `
+                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                    <i class="fa-solid fa-play" style="color: #ffffff;"></i> Aktivieren
+                </button>
+                <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                    <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
+                </button>
+                `}
             </div>
         </div>
     `;
@@ -12301,8 +12296,8 @@ function renderMyMusicianItem(m, isActive) {
                 </span>
 
                 <!-- Fullscreen Expand Button (Unten links wie gewünscht) -->
-                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${m.id}');" style="position: absolute; bottom: 10px; left: 10px; z-index: 6; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25); color: #ffffff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.15s; box-shadow: 0 4px 12px rgba(0,0,0,0.35);" title="Vollbild öffnen">
-                    <i class="fa-solid fa-expand" style="font-size: 0.82rem;"></i>
+                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${m.id}');" style="position: absolute; bottom: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
+                    <i class="fa-solid fa-expand" style="font-size: 1.15rem; color: #ffffff; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));"></i>
                 </button>
 
                 <!-- Dots container inside the slider -->
@@ -14312,7 +14307,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     <div id="magic-error-msg" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
                     <div id="magic-success-container" style="display:none; margin-bottom: 1.5rem;"></div>
                     <button type="submit" class="btn btn-primary" id="btn-send-magic" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: none !important; font-weight: 700;">
-                        Jetzt anmelden
+                        Anmeldelink senden
                     </button>
                 </form>
 
@@ -14993,7 +14988,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             const btn = document.getElementById('btn-send-magic');
             if (btn) {
                 btn.disabled = false;
-                btn.innerHTML = `Jetzt anmelden`;
+                btn.innerHTML = `Anmeldelink senden`;
             }
         });
     }
@@ -15057,7 +15052,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 if (btn) {
                     btn.disabled = false;
                     btn.style.display = 'flex';
-                    btn.innerHTML = `Jetzt anmelden`;
+                    btn.innerHTML = `Anmeldelink senden`;
                 }
                 if (magicForm.elements.email) magicForm.elements.email.style.display = 'block';
                 
@@ -18436,7 +18431,7 @@ function renderPostbox(container) {
                                 ${unreadChatCount}
                             </div>
                             <span id="postbox-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                                ${unreadChatCount === 1 ? 'ungelesene Nachricht' : 'ungelesene Nachrichten'}
+                                ${unreadChatCount === 1 ? 'Nachricht' : 'Nachrichten'}
                             </span>
                         </div>
 
@@ -20075,10 +20070,10 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
         // Tags (Musiker-Typ bzw. Event-Typ + ggf. Demo)
         const tagThemeBg = isEvents 
             ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' 
-            : 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)';
+            : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)';
         const tagThemeBorder = isEvents 
             ? 'rgba(216, 180, 254, 0.45)' 
-            : 'rgba(191, 219, 254, 0.5)';
+            : 'rgba(147, 197, 253, 0.5)';
         const tagThemeShadow = isEvents 
             ? '0 4px 12px rgba(124, 58, 237, 0.45)' 
             : '0 4px 12px rgba(37, 99, 235, 0.35)';
@@ -20150,8 +20145,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                     </div>
 
                     <!-- Fullscreen Expand Button -->
-                    <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${item.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25); color: #ffffff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.15s; box-shadow: 0 4px 12px rgba(0,0,0,0.35);" title="Vollbild öffnen">
-                        <i class="fa-solid fa-expand" style="font-size: 0.82rem;"></i>
+                    <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${item.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
+                        <i class="fa-solid fa-expand" style="font-size: 1.15rem; color: #ffffff; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));"></i>
                     </button>
 
                     <div id="combo-slider-${item.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
@@ -22659,8 +22654,8 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                         ` : ''}
                                     </div>
                                     <!-- Fullscreen Expand Button -->
-                                    <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${mus.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25); color: #ffffff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.15s; box-shadow: 0 4px 12px rgba(0,0,0,0.35);" title="Vollbild öffnen">
-                                        <i class="fa-solid fa-expand" style="font-size: 0.82rem;"></i>
+                                    <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${mus.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
+                                        <i class="fa-solid fa-expand" style="font-size: 1.15rem; color: #ffffff; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));"></i>
                                     </button>
 
                                     <div id="combo-slider-${mus.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
@@ -22701,7 +22696,7 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                             <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); flex: 1;">
                                                 <!-- 1. Musiker-Typ als Tag (oben über Ort) -->
                                                 <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                                                    <span class="tile-type-flag" style="background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); border: 1px solid rgba(191, 219, 254, 0.5); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);">
+                                                    <span class="tile-type-flag" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 1px solid rgba(147, 197, 253, 0.5); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);">
                                                         <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${((Array.isArray(mus.musicianTypes) && mus.musicianTypes.length > 0) ? mus.musicianTypes[0] : String(mus.type || 'Solo / Band')).split(',')[0].split('/')[0].split(' - ')[0].trim()}</span>
                                                     </span>
                                                 </div>
@@ -23199,8 +23194,8 @@ window.renderMediationResponsePage = function(container, mediationId) {
                                     📷 1 / ${totalSlides}
                                 </span>
                                 <!-- Fullscreen Expand Button -->
-                                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${eventData.id}');" style="position: absolute; top: 10px; right: 10px; z-index: 6; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25); color: #ffffff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.15s; box-shadow: 0 4px 12px rgba(0,0,0,0.35);" title="Vollbild öffnen">
-                                    <i class="fa-solid fa-expand" style="font-size: 0.82rem;"></i>
+                                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${eventData.id}');" style="position: absolute; top: 10px; right: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
+                                    <i class="fa-solid fa-expand" style="font-size: 1.15rem; color: #ffffff; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));"></i>
                                 </button>
                                 <div id="combo-slider-${eventData.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
                                     ${photos.map((img, imgIdx) => `<div style="width: 100%; height: 100%; flex-shrink: 0;"><img src="${img}" onclick="if(!window.justDraggedSlider) window.openFullscreenFromSlider('${eventData.id}', ${imgIdx});" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;"></div>`).join('')}

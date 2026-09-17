@@ -5886,6 +5886,35 @@ input[type="range"].input-field {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
+/* Organizer Theme: Blue style for subscription tariff buttons */
+.theme-organizer .subscription-card .btn-sub-select,
+#auth-register-form.role-organizer-active .subscription-card .btn-sub-select {
+    background: rgba(37, 99, 235, 0.08) !important;
+    border-color: rgba(37, 99, 235, 0.25) !important;
+    color: #2563eb !important;
+    box-shadow: none !important;
+}
+.theme-organizer .subscription-card .btn-sub-select:hover,
+#auth-register-form.role-organizer-active .subscription-card .btn-sub-select:hover {
+    background: rgba(37, 99, 235, 0.16) !important;
+    border-color: rgba(37, 99, 235, 0.45) !important;
+    color: #1d4ed8 !important;
+    transform: translateY(-1px);
+}
+.theme-organizer .subscription-card.active .btn-sub-select,
+#auth-register-form.role-organizer-active .subscription-card.active .btn-sub-select {
+    background: #ffffff !important;
+    border-color: #ffffff !important;
+    color: #2563eb !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+}
+.theme-organizer .subscription-card.active .btn-sub-select:hover,
+#auth-register-form.role-organizer-active .subscription-card.active .btn-sub-select:hover {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
 /* Sidebar filter header alignment and spacing overrides for desktop vs mobile */
 .filter-header-title {
     flex: 0 0 auto !important;
