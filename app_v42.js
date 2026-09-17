@@ -17474,14 +17474,14 @@ function navigate(page) {
     // Full-page blocking loading spinner removed to enable instant SPA routing and rendering from cache
 
     // Dynamic routing for recommendation and mediation response pages (always accessible without subscription interception)
-    if (page.startsWith('recommendation/')) {
-        const mediationId = page.replace('recommendation/', '');
+    if (page && page.toLowerCase().startsWith('recommendation/')) {
+        const mediationId = page.replace(/^recommendation\//i, '');
         if (typeof updateNavbar === 'function') updateNavbar();
         renderRecommendationPage(mainContainer, mediationId);
         return;
     }
-    if (page.startsWith('mediation-response/')) {
-        const mediationId = page.replace('mediation-response/', '');
+    if (page && page.toLowerCase().startsWith('mediation-response/')) {
+        const mediationId = page.replace(/^mediation-response\//i, '');
         if (typeof updateNavbar === 'function') updateNavbar();
         renderMediationResponsePage(mainContainer, mediationId);
         return;
@@ -18304,10 +18304,26 @@ function handleRouting() {
 
     const hash = window.location.hash;
     let pageWithQuery = hash.replace('#/', '').replace('#', '');
-    let page = pageWithQuery.split('?')[0].toLowerCase();
-    if (page.endsWith('/')) {
-        page = page.slice(0, -1);
+    let rawPage = pageWithQuery.split('?')[0];
+    if (rawPage.endsWith('/')) {
+        rawPage = rawPage.slice(0, -1);
     }
+
+    // Dynamic routing for recommendation and mediation response pages (always accessible, preserve raw case)
+    if (rawPage.toLowerCase().startsWith('recommendation/')) {
+        const mediationId = rawPage.replace(/^recommendation\//i, '');
+        if (typeof updateNavbar === 'function') updateNavbar();
+        renderRecommendationPage(mainContainer, mediationId);
+        return;
+    }
+    if (rawPage.toLowerCase().startsWith('mediation-response/')) {
+        const mediationId = rawPage.replace(/^mediation-response\//i, '');
+        if (typeof updateNavbar === 'function') updateNavbar();
+        renderMediationResponsePage(mainContainer, mediationId);
+        return;
+    }
+
+    let page = rawPage.toLowerCase();
     if (page === 'top-matches') page = 'matches';
     
     // Parse query parameters from hash
@@ -22671,29 +22687,56 @@ window.renderRecommendationPage = async function(container, mediationId) {
             if (raw) cached = JSON.parse(raw);
         } catch (e) {}
 
-        // 2. Try Firestore: check by doc ID first, then by eventId query (supports both mediationId and eventId)
+        // 2. Try Firestore: check by doc ID first, then case-insensitive, then by eventId, then full search
         try {
             if (typeof db !== 'undefined' && db && db.collection) {
-                let doc = await db.collection('mediations').doc(mediationId).get();
-                if (!doc || !doc.exists) {
-                    // Check if mediationId was passed as an eventId (e.g. evt_agency_...)
-                    const q = await db.collection('mediations').where('eventId', '==', mediationId).limit(1).get();
-                    if (!q.empty) {
-                        doc = q.docs[0];
-                    } else {
-                        // Check if numeric part matches
-                        const cleanId = String(mediationId || '').replace(/^med_/, '').replace(/^evt_agency_/, '');
-                        if (cleanId.length >= 6) {
-                            const allMeds = await db.collection('mediations').get();
-                            const matchDoc = allMeds.docs.find(d => {
-                                const data = d.data() || {};
-                                return (data.eventId && data.eventId.includes(cleanId)) ||
-                                       (data.eventName && data.eventName.toLowerCase().includes(cleanId.toLowerCase()));
-                            });
-                            if (matchDoc) doc = matchDoc;
-                        }
-                    }
+                let doc = null;
+                const cleanMedId = String(mediationId || '').trim();
+
+                // 2a. Direct lookup by exact doc ID
+                if (cleanMedId) {
+                    try {
+                        const snap = await db.collection('mediations').doc(cleanMedId).get();
+                        if (snap && snap.exists) doc = snap;
+                    } catch (e) {}
                 }
+
+                // 2b. Case-insensitive doc ID lookup (lowercase)
+                if ((!doc || !doc.exists) && cleanMedId) {
+                    try {
+                        const snap = await db.collection('mediations').doc(cleanMedId.toLowerCase()).get();
+                        if (snap && snap.exists) doc = snap;
+                    } catch (e) {}
+                }
+
+                // 2c. Query by eventId
+                if ((!doc || !doc.exists) && cleanMedId) {
+                    try {
+                        const q = await db.collection('mediations').where('eventId', '==', cleanMedId).limit(1).get();
+                        if (!q.empty) doc = q.docs[0];
+                    } catch (e) {}
+                }
+
+                // 2d. Exhaustive search across all mediations (case-insensitive id, eventId, eventName, numeric match)
+                if ((!doc || !doc.exists) && cleanMedId) {
+                    try {
+                        const allMedsSnap = await db.collection('mediations').get();
+                        if (allMedsSnap && !allMedsSnap.empty) {
+                            const targetLow = cleanMedId.toLowerCase();
+                            const numPart = cleanMedId.replace(/[^0-9]/g, '');
+                            const match = allMedsSnap.docs.find(d => {
+                                if (d.id.toLowerCase() === targetLow) return true;
+                                const data = d.data() || {};
+                                if (data.eventId && data.eventId.toLowerCase() === targetLow) return true;
+                                if (numPart.length >= 6 && data.eventId && data.eventId.includes(numPart)) return true;
+                                if (data.eventName && data.eventName.toLowerCase().includes(targetLow)) return true;
+                                return false;
+                            });
+                            if (match) doc = match;
+                        }
+                    } catch (e) {}
+                }
+
                 if (doc && doc.exists) {
                     med = { ...(cached || {}), ...doc.data(), id: doc.id };
                 }
@@ -22706,15 +22749,17 @@ window.renderRecommendationPage = async function(container, mediationId) {
         if (!med) {
             try {
                 if (typeof db !== 'undefined' && db && db.collection) {
-                    let evtDoc = await db.collection('events').doc(mediationId).get();
+                    let evtDoc = await db.collection('events').doc(mediationId).get().catch(() => null);
                     if (!evtDoc || !evtDoc.exists) {
                         const cleanId = String(mediationId || '').replace(/^med_/, '');
-                        const allEvts = await db.collection('events').get();
-                        const matchEvtDoc = allEvts.docs.find(d => {
-                            const data = d.data() || {};
-                            return d.id.includes(cleanId) || (data.name && data.name.toLowerCase() === mediationId.toLowerCase());
-                        });
-                        if (matchEvtDoc) evtDoc = matchEvtDoc;
+                        const allEvts = await db.collection('events').get().catch(() => null);
+                        if (allEvts && !allEvts.empty) {
+                            const matchEvtDoc = allEvts.docs.find(d => {
+                                const data = d.data() || {};
+                                return d.id.includes(cleanId) || (data.name && data.name.toLowerCase() === mediationId.toLowerCase());
+                            });
+                            if (matchEvtDoc) evtDoc = matchEvtDoc;
+                        }
                     }
                     if (evtDoc && evtDoc.exists) {
                         const evtData = evtDoc.data();
@@ -22762,26 +22807,12 @@ window.renderRecommendationPage = async function(container, mediationId) {
             };
         }
 
-        // Check if event/mediation was removed
-        if (med.status === 'expired') {
-            container.innerHTML = `
-                <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
-                    <i class="fa-solid fa-ban" style="font-size: 3.5rem; color: var(--color-red); margin-bottom: 1.2rem;"></i>
-                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Event entfernt ❌</h3>
-                    <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.5rem;">
-                        Dieses Event bzw. diese Vermittlungsanfrage wurde entfernt. Daher ist die Musiker-Vorschlagsliste nicht mehr verfügbar.
-                    </p>
-                </div>
-            `;
-            return;
-        }
-
-        // Fetch the corresponding event document to get the real-time favorites list
+        // Fetch the corresponding event document to get the real-time favorites list (non-blocking)
         let mediationEvent = null;
         if (med.eventId) {
             try {
                 if (typeof db !== 'undefined' && db && db.collection) {
-                    const eventDoc = await db.collection('events').doc(med.eventId).get();
+                    const eventDoc = await db.collection('events').doc(med.eventId).get().catch(() => null);
                     if (eventDoc && eventDoc.exists) {
                         mediationEvent = { id: eventDoc.id, ...eventDoc.data() };
                     }
@@ -22792,48 +22823,6 @@ window.renderRecommendationPage = async function(container, mediationId) {
             if (!mediationEvent && typeof state !== 'undefined' && state && Array.isArray(state.events)) {
                 mediationEvent = state.events.find(e => e && e.id === med.eventId) || null;
             }
-        }
-
-        // Check if event was deleted from Firestore
-        if (med.eventId && !mediationEvent && typeof db !== 'undefined' && db && db.collection) {
-            try {
-                const checkEvtDoc = await db.collection('events').doc(med.eventId).get();
-                if (!checkEvtDoc.exists) {
-                    container.innerHTML = `
-                        <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
-                            <i class="fa-solid fa-ban" style="font-size: 3.5rem; color: var(--color-red); margin-bottom: 1.2rem;"></i>
-                            <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Event nicht mehr verfügbar ❌</h3>
-                            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.5rem;">
-                                Das zugehörige Event wurde gelöscht.
-                            </p>
-                        </div>
-                    `;
-                    return;
-                }
-            } catch (checkErr) {}
-        }
-
-        // Check if event has already taken place (Gültigkeit: bis Event stattgefunden hat)
-        const checkEventDate = med.eventDate || (mediationEvent && mediationEvent.date);
-        if (checkEventDate) {
-            try {
-                const targetDate = new Date(checkEventDate);
-                targetDate.setHours(23, 59, 59, 999);
-                if (targetDate.getTime() < Date.now()) {
-                    const dateParts = checkEventDate.split('-');
-                    const formattedGermanDate = dateParts.length === 3 ? `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}` : checkEventDate;
-                    container.innerHTML = `
-                        <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
-                            <i class="fa-solid fa-calendar-check" style="font-size: 3.5rem; color: var(--color-orange); margin-bottom: 1.2rem;"></i>
-                            <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Event hat bereits stattgefunden 📅</h3>
-                            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.5rem;">
-                                Dieses Event fand am <strong>${formattedGermanDate}</strong> statt. Die Vorschlagsliste ist daher nicht mehr aktiv.
-                            </p>
-                        </div>
-                    `;
-                    return;
-                }
-            } catch (dateErr) {}
         }
 
         // Merge musicianIds from BOTH mediation document and event favorites (real-time union)
