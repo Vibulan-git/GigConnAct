@@ -2212,7 +2212,8 @@ class StateManager {
             if (storedMusicians) {
                 this.musicians = JSON.parse(storedMusicians);
             }
-            const storedRead = localStorage.getItem('GigConnAct_read_chats');
+            const userKey = 'gyg_read_chats_' + (this.currentUser ? this.currentUser.id : 'anon');
+            const storedRead = localStorage.getItem(userKey) || localStorage.getItem('GigConnAct_read_chats');
             const parsed = storedRead ? JSON.parse(storedRead) : {};
             this.readChats = (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
         } catch (e) {
@@ -3562,7 +3563,8 @@ class StateManager {
         }
 
         try {
-            const storedRead = localStorage.getItem('GigConnAct_read_chats');
+            const userKey = 'gyg_read_chats_' + (this.currentUser ? this.currentUser.id : 'anon');
+            const storedRead = localStorage.getItem(userKey) || localStorage.getItem('GigConnAct_read_chats');
             const parsed = storedRead ? JSON.parse(storedRead) : {};
             this.readChats = (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
         } catch (e) {
@@ -3695,6 +3697,9 @@ class StateManager {
             localStorage.setItem('GigConnAct_events', JSON.stringify(this.events));
             localStorage.setItem('GigConnAct_chats', JSON.stringify(this.chats));
             localStorage.setItem('GigConnAct_read_chats', JSON.stringify(this.readChats));
+            if (this.currentUser) {
+                localStorage.setItem('gyg_read_chats_' + this.currentUser.id, JSON.stringify(this.readChats));
+            }
             localStorage.setItem('GigConnAct_interests', JSON.stringify(this.interests || []));
             localStorage.setItem('GigConnAct_favorites', JSON.stringify(this.favorites || []));
         } catch (e) {
@@ -3789,23 +3794,7 @@ class StateManager {
         try {
             if (!this.currentUser) return false;
             if (!chat || typeof chat !== 'object') return false;
-
-            // Gather all participant IDs of the current user
-            const userParticipantIds = [this.currentUser.id];
-            if (this.currentUser.role === 'musician') {
-                const profiles = (Array.isArray(this.musicians) ? this.musicians : []).filter(m => m && m.creatorId === this.currentUser.id);
-                profiles.forEach(m => { if (m && m.id) userParticipantIds.push(m.id); });
-                if (this.currentUser.profileId) {
-                    userParticipantIds.push(this.currentUser.profileId);
-                }
-            } else {
-                const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
-                const userEvents = (Array.isArray(this.events) ? this.events : []).filter(e => e && (
-                    e.creatorId === this.currentUser.id ||
-                    (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
-                ));
-                userEvents.forEach(e => { if (e && e.id) userParticipantIds.push(e.id); });
-            }
+            if (chat.deleted || chat.isDeleted) return false;
 
             // Normalize participants to array
             let participants = [];
@@ -3814,6 +3803,21 @@ class StateManager {
             } else if (chat.participants && typeof chat.participants === 'object') {
                 participants = Object.keys(chat.participants);
             }
+
+            // System notifications are not direct chat conversations in the postbox
+            if (participants.includes('system')) {
+                return false;
+            }
+
+            // Demo chat: do not count demo chat as unread unless user interacted with it
+            if (chat.id && chat.id.startsWith('chat_demo_')) {
+                return false;
+            }
+
+            // Gather all participant IDs of the current user
+            const userParticipantIds = (typeof this.getUserProfileAndEventIds === 'function')
+                ? this.getUserProfileAndEventIds()
+                : [this.currentUser.id];
 
             if (!participants || !participants.some(pid => userParticipantIds.includes(pid))) {
                 return false;
@@ -3836,22 +3840,22 @@ class StateManager {
                 return false;
             }
 
-            if (lastMsg.senderId && userParticipantIds.includes(lastMsg.senderId)) {
+            // If the last message was sent by the current user or system, chat is not unread
+            if (lastMsg.senderId && (userParticipantIds.includes(lastMsg.senderId) || lastMsg.senderId === 'system')) {
                 return false;
             }
 
             // Check if the chat is read based on the last read message timestamp
-            if (this.readChats) {
+            if (this.readChats && typeof this.readChats === 'object') {
                 if (Array.isArray(this.readChats)) {
                     return !this.readChats.includes(chat.id);
-                } else if (typeof this.readChats === 'object') {
-                    const lastReadTime = this.readChats[chat.id];
-                    if (!lastReadTime) return true; // Never read
-                    if (lastMsg.timestamp) {
-                        return new Date(lastMsg.timestamp) > new Date(lastReadTime);
-                    }
-                    return true;
                 }
+                const lastReadTime = this.readChats[chat.id];
+                if (!lastReadTime) return true; // Never read
+                if (lastMsg.timestamp) {
+                    return new Date(lastMsg.timestamp) > new Date(lastReadTime);
+                }
+                return false;
             }
             return true;
         } catch (e) {
@@ -4266,7 +4270,7 @@ class StateManager {
 
     markChatAsRead(chatId, silent = false) {
         if (!chatId) return;
-        if (!this.readChats || Array.isArray(this.readChats)) {
+        if (!this.readChats || typeof this.readChats !== 'object' || Array.isArray(this.readChats)) {
             this.readChats = {};
         }
         const chat = (this.chats || []).find(c => c && c.id === chatId);
@@ -4276,7 +4280,9 @@ class StateManager {
         if (this.readChats[chatId] !== lastMsgTimestamp) {
             this.readChats[chatId] = lastMsgTimestamp;
             try {
-                localStorage.setItem('gyg_read_chats_' + (this.currentUser ? this.currentUser.id : 'anon'), JSON.stringify(this.readChats));
+                localStorage.setItem('GigConnAct_read_chats', JSON.stringify(this.readChats));
+                const userKey = 'gyg_read_chats_' + (this.currentUser ? this.currentUser.id : 'anon');
+                localStorage.setItem(userKey, JSON.stringify(this.readChats));
             } catch(e) {}
             if (!silent) {
                 this.notify();
@@ -4581,6 +4587,12 @@ class StateManager {
         }
         if (this.readChats[newId] !== newMessage.timestamp) {
             this.readChats[newId] = newMessage.timestamp;
+            try {
+                localStorage.setItem('GigConnAct_read_chats', JSON.stringify(this.readChats));
+                if (this.currentUser) {
+                    localStorage.setItem('gyg_read_chats_' + this.currentUser.id, JSON.stringify(this.readChats));
+                }
+            } catch(e) {}
             this.notify();
         }
 
@@ -9987,6 +9999,7 @@ window.initiateMarketContact = async function(targetId, targetName, eventId) {
             await state.addMusicianApplication(state.currentUser.profileId, eventId);
         }
         window.postboxActiveChatId = result.chatId;
+        window.postboxKeepActiveChat = true;
         window.postboxActiveTab = 'all';
         window.postboxJustOpened = false;
         showToast({
@@ -11706,7 +11719,7 @@ function renderOrganizerEventItem(e, isActive) {
             <!-- Tile Body Content -->
             <div class="tile-body-content" style="padding: 1.2rem 1.1rem 1.0rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
-                    <h3 id="tile-title-${e.id}" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.6rem; line-height: 1.25;">
+                    <h3 id="tile-title-${e.id}" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.3rem; line-height: 1.25;">
                         ${e.name}
                         ${e.isCanceled ? ' <span style="background:rgba(255,75,75,0.1); color:var(--color-red); font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;"><i class="fa-solid fa-ban"></i> Abgesagt</span>' : ''}
                         ${!isActive ? ' <span style="background:rgba(249,115,22,0.1); color:var(--color-orange); font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;"><i class="fa-solid fa-pause"></i> Pausiert</span>' : ''}
@@ -12235,7 +12248,7 @@ function renderMyMusicianItem(m, isActive) {
             <!-- Tile Body Content -->
             <div class="tile-body-content" style="padding: 1.2rem 1.1rem 1.0rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
-                    <h3 id="tile-title-${m.id}" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.6rem; line-height: 1.25;">
+                    <h3 id="tile-title-${m.id}" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.3rem; line-height: 1.25;">
                         ${m.name}
                         ${!isActive ? ' <span style="background:rgba(249,115,22,0.1); color:var(--color-orange); font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;"><i class="fa-solid fa-pause"></i> Pausiert</span>' : ''}
                     </h3>
@@ -17040,6 +17053,10 @@ function navigate(page) {
     if (window.currentActivePage !== page) {
         window.scrollTo(0, 0);
         window.currentActivePage = page;
+        if (page === 'postbox' && !window.postboxKeepActiveChat) {
+            window.postboxActiveChatId = null;
+        }
+        window.postboxKeepActiveChat = false;
     }
 
     updateNavbar(page === '');
@@ -17379,12 +17396,14 @@ window.updateBottomBar = function() {
                         if (typeof showModal === 'function') showModal('auth');
                         return;
                     }
+                    window.postboxActiveChatId = null;
                     if (window.location.hash !== '#/postbox') {
                         window.location.hash = '#/postbox';
                     } else if (typeof handleRouting === 'function') {
                         handleRouting();
                     }
                 } catch (e) {
+                    window.postboxActiveChatId = null;
                     window.location.hash = '#/postbox';
                 }
             });
@@ -18173,31 +18192,6 @@ function renderPostbox(container) {
                     }
                 }
             }
-        } else if (window.postboxJustOpened) {
-            window.postboxJustOpened = false;
-            if (state.chats && state.chats.length > 0) {
-                const unreadChats = state.chats.filter(c => c && state.isChatUnread(c));
-                if (unreadChats.length > 0) {
-                    unreadChats.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-                    const targetChat = unreadChats[0];
-                    
-                    if (isMusician) {
-                        const profiles = (state.musicians || []).filter(m => m && m.creatorId === u.id);
-                        const matchingProfile = profiles.find(m => m && targetChat.participants && Array.isArray(targetChat.participants) && targetChat.participants.includes(m.id));
-                        if (matchingProfile) {
-                            state.activeMusicianId = matchingProfile.id;
-                            window.postboxActiveChatId = targetChat.id;
-                        }
-                    } else {
-                        const userEvents = (state.events || []).filter(e => e && e.creatorId === u.id);
-                        const matchingEvent = userEvents.find(e => e && targetChat.participants && Array.isArray(targetChat.participants) && targetChat.participants.includes(e.id));
-                        if (matchingEvent) {
-                            state.activeEventId = matchingEvent.id;
-                            window.postboxActiveChatId = targetChat.id;
-                        }
-                    }
-                }
-            }
         }
 
         let activeProfileId = '';
@@ -18232,7 +18226,14 @@ function renderPostbox(container) {
                 activeChatId = window.postboxActiveChatId;
             }
 
-            let chats = (state.getChatsForUser(currentUserId) || []).filter(Boolean);
+            const myUserIds = (typeof state.getUserProfileAndEventIds === 'function')
+                ? state.getUserProfileAndEventIds()
+                : [u.id];
+
+            let chats = (state.chats || []).filter(c => 
+                c && c.participants && Array.isArray(c.participants) && c.participants.some(pid => myUserIds.includes(pid))
+            ).sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+
             if (activeChatId && !chats.some(c => c && c.id === activeChatId)) {
                 const fallbackChat = (state.chats || []).find(c => c && c.id === activeChatId);
                 if (fallbackChat) {
@@ -18251,7 +18252,7 @@ function renderPostbox(container) {
             nonSystemChats.forEach(chat => {
                 const msgs = chat.messages || [];
                 const firstMsg = msgs[0];
-                const isFirstMsgFromMe = firstMsg ? (firstMsg.senderId === currentUserId) : (chat.initiatorId === currentUserId);
+                const isFirstMsgFromMe = firstMsg ? myUserIds.includes(firstMsg.senderId) : myUserIds.includes(chat.initiatorId);
 
                 if (isFirstMsgFromMe) {
                     sentChats.push(chat);
@@ -18271,21 +18272,13 @@ function renderPostbox(container) {
                     activeTab = 'all';
                     window.postboxActiveTab = 'all';
                     currentCategoryChats = nonSystemChats;
+                } else {
+                    activeChatId = null;
+                    window.postboxActiveChatId = null;
                 }
             }
 
-            if (!currentCategoryChats.some(c => c && c.id === activeChatId) && currentCategoryChats.length > 0) {
-                activeChatId = currentCategoryChats[0].id;
-            }
-
-            let activeChat = chats.find(c => c && c.id === activeChatId);
-            if (!activeChat && activeChatId) {
-                activeChat = (state.chats || []).find(c => c && c.id === activeChatId);
-            }
-
-            if (activeChat && activeChat.id) {
-                state.markChatAsRead(activeChat.id, true);
-            }
+            let activeChat = activeChatId ? (chats.find(c => c && c.id === activeChatId) || (state.chats || []).find(c => c && c.id === activeChatId)) : null;
 
             window.postboxShowFilters = window.postboxShowFilters !== undefined ? window.postboxShowFilters : false;
 
@@ -18336,7 +18329,7 @@ function renderPostbox(container) {
                             const isSelected = c.id === activeChatId;
                             const participants = Array.isArray(c.participants) ? c.participants : [];
                             const isSys = participants.includes('system');
-                            const counterpartyId = participants.find(id => id !== currentUserId) || participants[0] || '';
+                            const counterpartyId = participants.find(id => !myUserIds.includes(id)) || participants.find(id => id !== currentUserId) || participants[0] || '';
 
                             let name = "System";
                             let avatar = "https://picsum.photos/id/1025/100/100";
@@ -18366,7 +18359,7 @@ function renderPostbox(container) {
                                 itemType = 'system';
                             } else {
                                 const firstMsg = msgs[0];
-                                const isFirstMsgFromMe = firstMsg ? (firstMsg.senderId === currentUserId) : (c.initiatorId === currentUserId);
+                                const isFirstMsgFromMe = firstMsg ? myUserIds.includes(firstMsg.senderId) : myUserIds.includes(c.initiatorId);
                                 if (!isFirstMsgFromMe) {
                                     itemType = 'received';
                                 }
@@ -18483,7 +18476,7 @@ function renderPostbox(container) {
                                         <img src="${avatar}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
                                         <div style="flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
                                             <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</span>
-                                            ${isUnread ? '<span style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-cyan); display: inline-block; flex-shrink: 0;"></span>' : ''}
+                                            ${isUnread ? '<span class="unread-dot" style="width: 9px; height: 9px; border-radius: 50%; background: #2563eb; box-shadow: 0 0 6px #2563eb; display: inline-block; flex-shrink: 0;" title="Ungelesen"></span>' : ''}
                                         </div>
                                     </div>
                                     ${inlineChatHtml}
@@ -18498,13 +18491,13 @@ function renderPostbox(container) {
                     ${!activeChat ? `
                         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); padding: 2rem; text-align: center;">
                             <i class="fa-regular fa-comments" style="font-size: 3.5rem; color: var(--border-glass); margin-bottom: 1rem;"></i>
-                            <h4 style="margin: 0 0 0.5rem; color: var(--text-main);">WÄhle einen Unterhaltung aus</h4>
+                            <h4 style="margin: 0 0 0.5rem; color: var(--text-main);">Wähle eine Unterhaltung aus</h4>
                             <p style="max-width: 360px; font-size: 0.85rem;">Klicke links auf eine Nachricht, um den Verlauf zu sehen und zu antworten.</p>
                         </div>
                     ` : (() => {
                         const participants = Array.isArray(activeChat.participants) ? activeChat.participants : [];
                         const isSys = participants.includes('system');
-                        const counterpartyId = participants.find(id => id !== currentUserId) || participants[0] || '';
+                        const counterpartyId = participants.find(id => !myUserIds.includes(id)) || participants.find(id => id !== currentUserId) || participants[0] || '';
                         let name = "System";
                         let avatar = "https://picsum.photos/id/1025/100/100";
 
@@ -20091,7 +20084,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                 <div class="tile-body-content" style="padding: 1.3rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
                     
                     <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favoriten-Herz & Stern rechts -->
-                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.8rem;">
+                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.3rem;">
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; flex: 1; min-width: 0;">
                             <h3 id="tile-title-${item.id}" class="tile-card-title" style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; transition: all 0.2s ease;">${displayName}</h3>
                             ${lockIconHtml}
@@ -22083,7 +22076,7 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                 </div>
                                 
                                 <div style="padding: 1.2rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; background: var(--bg-card);">
-                                        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.45rem;">
+                                        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.3rem;">
                                             <h3 id="tile-title-${mus.id}" class="tile-card-title" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; min-width: 0;"><span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; vertical-align: middle; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.45rem; filter: none !important;" title="Name geschützt"></i></h3>
                                             ${Boolean(mus.isDemo) ? `<span class="tile-demo-text" style="color: #000000 !important; font-weight: 800; font-size: 0.92rem; vertical-align: middle; filter: none !important; -webkit-text-fill-color: #000000 !important; user-select: none; white-space: nowrap;">[Demo]</span>` : ''}
                                         </div>
