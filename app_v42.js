@@ -20403,7 +20403,13 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
         : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)';
 
     return items.map(item => {
-        const isUnlocked = state ? ((typeof state.isUnlocked === 'function') ? state.isUnlocked(item.id) : (state.unlockedContacts && state.unlockedContacts.includes(item.id))) : false;
+        const isLoggedIn = Boolean(state && state.currentUser);
+        const isUnlocked = state ? (
+            isLoggedIn && (
+                isEvents || // In logged-in state, direct contact events allow showing contact details
+                ((typeof state.isUnlocked === 'function') ? state.isUnlocked(item.id) : (state.unlockedContacts && state.unlockedContacts.includes(item.id)))
+            )
+        ) : false;
         const isAdmin = state && state.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(state.currentUser.email);
         const isMediation = Boolean(
             item.isMediation === true ||
@@ -20416,11 +20422,10 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
             (item.id && String(item.id).startsWith('evt_agency_'))
         );
 
-        const isLoggedIn = Boolean(state && state.currentUser);
         const currentMusId = isLoggedIn ? (state.activeMusicianId || state.currentUser.profileId || (state.musicians && state.musicians.find(m => m.creatorId === state.currentUser.id)?.id)) : null;
         const isAlreadyApplied = Boolean(currentMusId && Array.isArray(item.favorites) && item.favorites.includes(currentMusId));
-        const mediationBtnText = isLoggedIn ? (isAlreadyApplied ? 'Vermittlungsanfrage gesendet' : 'Vermittlungsanfrage senden') : 'Vermittlung';
-        const mediationBtnIcon = isLoggedIn ? (isAlreadyApplied ? 'fa-check' : 'fa-paper-plane') : 'fa-lock';
+        const mediationBtnText = isAlreadyApplied ? 'Vermittlungsanfrage gesendet' : 'Vermittlungsanfrage senden';
+        const mediationBtnIcon = isAlreadyApplied ? 'fa-check' : 'fa-paper-plane';
         
         // Up to 5 photos
         const photos = (item.photos && item.photos.length > 0)
@@ -20923,13 +20928,13 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                         </div>
                     </div>
                 ` : `
-                    <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem;">
+                    <div class="tile-action-container" style="padding: 0 1.3rem 1.1rem; width: 100%; box-sizing: border-box;">
                         <button class="btn btn-primary" onclick="event.stopPropagation(); ${
                             state && state.currentUser 
                                 ? `window.unlockListing('${item.id}', '${(item.name || item.title || '').replace(/'/g, "\\'")}')` 
                                 : (isEvents ? `showModal('auth', null, 'musician')` : `showModal('auth', null, 'organizer')`)
-                        }" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important;">
-                            <i class="fa-solid fa-lock"></i> ${isEvents ? 'Direktkontakt' : 'Kontaktdaten freischalten'}
+                        }" style="width: 100%; background: ${btnGradient} !important; border-color: ${btnBorderColor} !important; font-weight: 800; padding: 0.8rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.88rem; box-shadow: ${btnBoxShadow} !important; cursor: pointer;">
+                            <i class="fa-solid fa-lock"></i> <span>Kontaktdaten freischalten</span>
                         </button>
                     </div>
                 `)}
