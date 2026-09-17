@@ -941,27 +941,7 @@ exports.createStripeCheckoutSession = functions
             }
             const cleanReturnBase = `${cleanBaseUrl}/?redirect=${encodeURIComponent(targetPath)}`;
 
-            const sessionParams = {
-                mode: 'subscription',
-                line_items: [{
-                    price: priceId,
-                    quantity: 1,
-                }],
-                success_url: `${cleanReturnBase}&payment=success`,
-                cancel_url: `${cleanReturnBase}&payment=cancel`,
-                metadata: {
-                    userId: context.auth.uid,
-                    planKey: planKey
-                }
-            };
-
-            if (stripeCustomerId) {
-                sessionParams.customer = stripeCustomerId;
-            } else if (email) {
-                sessionParams.customer_email = email;
-            }
-
-            // Check if email has already had a trial by hashing the email and checking in Firestore 'used_trials'
+            // Check if email or user has already had a trial by hashing the email and checking in Firestore 'used_trials'
             let hasHadTrial = false;
             if (email) {
                 const crypto = require('crypto');
@@ -972,33 +952,63 @@ exports.createStripeCheckoutSession = functions
                 }
             }
 
-            if (hasHadTrial) {
+            if (userData.hasHadTrial || userData.subscriptionId || userData.subscriptionPlan) {
+                hasHadTrial = true;
+            }
+
+            const isTariffChange = Boolean(data.isTariffChange);
+            const hasActiveSubscription = subscriptionId && (subscriptionStatus === 'active' || subscriptionStatus === 'trialing');
+            const isPlanChange = isTariffChange || Boolean(hasActiveSubscription && currentPlan && currentPlan !== planKey);
+
+            const sessionParams = {
+                mode: 'subscription',
+                line_items: [{
+                    price: priceId,
+                    quantity: 1,
+                }],
+                success_url: `${cleanReturnBase}&payment=success`,
+                cancel_url: `${cleanReturnBase}&payment=cancel`,
+                metadata: {
+                    userId: context.auth.uid,
+                    planKey: planKey,
+                    isTariffChange: isPlanChange ? 'true' : 'false',
+                    oldSubscriptionId: subscriptionId || ''
+                }
+            };
+
+            if (stripeCustomerId) {
+                sessionParams.customer = stripeCustomerId;
+            } else if (email) {
+                sessionParams.customer_email = email;
+            }
+
+            if (hasHadTrial || isPlanChange) {
                 sessionParams.custom_text = {
                     submit: {
-                        message: "Hinweis: Da für diese E-Mail-Adresse bereits eine kostenlose Testphase genutzt wurde, entfällt der Testzeitraum für diese Buchung."
+                        message: "Hinweis: Da für dieses Konto bereits eine kostenlose Testphase genutzt wurde oder es sich um einen Tarifwechsel handelt, entfällt der Testzeitraum für diese Buchung. Die Abbuchung erfolgt direkt."
                     }
                 };
             }
 
             const disableAllTrialsForTesting = false; // Set to false when ready to re-enable trials!
 
-            // Set trial period dynamically based on the plan configuration:
-            // - If the user has never had a trial, they get one.
-            // - If the user has an active subscription, and they are changing their plan (Tarifwechsel), they get a trial for the new plan.
-            const hasActiveSubscription = subscriptionId && (subscriptionStatus === 'active' || subscriptionStatus === 'trialing');
-            const isPlanChange = hasActiveSubscription && currentPlan && currentPlan !== planKey;
+            // Free trials are strictly for first-time subscribers (never had a trial, not changing plans, no active subscription)
+            const allowTrial = !disableAllTrialsForTesting && !hasHadTrial && !isPlanChange && !hasActiveSubscription;
 
-            const allowTrial = !disableAllTrialsForTesting && (!hasHadTrial || isPlanChange);
+            sessionParams.subscription_data = {
+                metadata: {
+                    userId: context.auth.uid,
+                    planKey: planKey,
+                    isTariffChange: isPlanChange ? 'true' : 'false',
+                    oldSubscriptionId: subscriptionId || ''
+                }
+            };
 
             if (allowTrial) {
                 if (planKey === 'premium') {
-                    sessionParams.subscription_data = {
-                        trial_period_days: 90
-                    };
+                    sessionParams.subscription_data.trial_period_days = 90;
                 } else if (planKey === 'flex' || planKey === 'plus' || planKey === 'pro') {
-                    sessionParams.subscription_data = {
-                        trial_period_days: 30
-                    };
+                    sessionParams.subscription_data.trial_period_days = 30;
                 }
             }
 
@@ -1366,7 +1376,7 @@ exports.stripeWebhook = functions
                     
                     // Fetch current user data before updating to retrieve the old subscription ID
                     const userDocBefore = await userRef.get();
-                    const oldSubscriptionId = userDocBefore.exists ? (userDocBefore.data().subscriptionId || null) : null;
+                    const oldSubscriptionId = metadata.oldSubscriptionId || (userDocBefore.exists ? (userDocBefore.data().subscriptionId || null) : null);
 
                     await userRef.update(updateData);
 

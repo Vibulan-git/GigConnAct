@@ -2296,12 +2296,12 @@ body {
 
 .profile-section-header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    border-bottom: 1.5px solid #f1f5f9;
-    padding-bottom: 1.1rem;
-    margin-bottom: 1.6rem;
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 1.1rem;
     flex-wrap: wrap;
 }
 

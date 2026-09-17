@@ -10619,17 +10619,10 @@ function renderProfilePage(container) {
                 </div>
 
                 <div id="sub-management-options" style="margin-top: 1.5rem;">
-                    <h4 style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; margin-bottom: 1.6rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;"><i class="fa-solid fa-credit-card"></i> Abo-Modell auswählen</h4>
-                    
-                    <div class="subscription-cards" style="margin-top: 1.6rem; margin-bottom: 1.5rem;">
+                    <div class="subscription-cards" style="margin-top: 0.8rem; margin-bottom: 1.5rem;">
                         <div class="subscription-card ${activePlan === "flex" ? "active" : ""}" data-plan="flex" data-price="9.99">
-                            <div class="selected-badge">Beliebt</div>
                             <h5>Flex</h5>
                             <div class="price">9,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
-                            <div class="subscription-gift-box">
-                                <i class="fa-solid fa-gift"></i>
-                                <div class="gift-title">1 Monat kostenlos</div>
-                            </div>
                             <ul class="plan-features">
                                 <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
@@ -10641,13 +10634,8 @@ function renderProfilePage(container) {
                             </div>
                         </div>
                         <div class="subscription-card ${activePlan === "plus" ? "active" : ""}" data-plan="plus" data-price="7.99">
-                            <div class="selected-badge">Spare 20 %</div>
                             <h5>Plus</h5>
                             <div class="price">7,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
-                            <div class="subscription-gift-box">
-                                <i class="fa-solid fa-gift"></i>
-                                <div class="gift-title">1 Monat kostenlos</div>
-                            </div>
                             <ul class="plan-features">
                                 <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
@@ -10659,13 +10647,8 @@ function renderProfilePage(container) {
                             </div>
                         </div>
                         <div class="subscription-card ${activePlan === "pro" ? "active" : ""}" data-plan="pro" data-price="5.99">
-                            <div class="selected-badge">Spare 40 %</div>
                             <h5>Pro</h5>
                             <div class="price">5,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
-                            <div class="subscription-gift-box">
-                                <i class="fa-solid fa-gift"></i>
-                                <div class="gift-title">1 Monat kostenlos</div>
-                            </div>
                             <ul class="plan-features">
                                 <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
@@ -10677,13 +10660,8 @@ function renderProfilePage(container) {
                             </div>
                         </div>
                         <div class="subscription-card ${activePlan === "premium" ? "active" : ""}" data-plan="premium" data-price="4.99">
-                            <div class="selected-badge" style="background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;">Spare 59 %</div>
                             <h5>Premium</h5>
                             <div class="price">4,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
-                            <div class="subscription-gift-box">
-                                <i class="fa-solid fa-gift"></i>
-                                <div class="gift-title">3 Monate kostenlos</div>
-                            </div>
                             <ul class="plan-features">
                                 <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
@@ -10694,18 +10672,6 @@ function renderProfilePage(container) {
                                 <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "premium" ? "Ausgewählt" : "Auswählen"}</button>
                             </div>
                         </div>
-                    </div>
-
-                    <div id="profile-promo-code-box" style="display: ${activePlan === 'premium' ? 'block' : 'none'}; max-width: 480px; margin: 1.5rem auto 1rem; background: ${isMusician ? 'rgba(124, 58, 237, 0.05)' : 'rgba(37, 99, 235, 0.05)'}; border: 1.5px dashed ${themeColor}; padding: 1.2rem; border-radius: var(--radius-md); text-align: left;">
-                        <h5 style="margin: 0 0 0.5rem; font-size: 0.95rem; font-weight: 700; color: ${themeColor}; display: flex; align-items: center; gap: 0.5rem;"><i class="fa-brands fa-instagram"></i> Premium-Freischaltung</h5>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.4;">
-                            Um in den exklusiven Premium-Tarif (3 Monate kostenlos, danach 4,99 €/Monat) zu wechseln, gib bitte deinen Instagram- oder Aktionscode ein:
-                        </p>
-                        <div style="display: flex; gap: 0.6rem; align-items: center;">
-                            <input type="text" id="prof-promo-code" class="input-field" placeholder="z. B. GCA-XXX-XXX oder GIGINSTA59" style="margin:0; text-transform: uppercase; font-weight: 600; flex: 1;">
-                            <button type="button" class="btn btn-secondary btn-sm" id="btn-prof-apply-promo" style="margin:0; padding: 0.6rem 1.2rem; font-size:0.85rem; font-weight: 700; white-space:nowrap; background:${themeBtnBg}; border-color:${themeBtnBorder};">Code prüfen</button>
-                        </div>
-                        <div id="prof-promo-status-msg" style="font-size: 0.8rem; margin-top: 0.5rem; font-weight: 600; display: none;"></div>
                     </div>
 
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
@@ -11053,70 +11019,6 @@ function renderProfilePage(container) {
 
         const subCards = container.querySelectorAll('.subscription-card');
         selectedPlan = activePlan;
-        let isPromoApplied = (activePlan === 'premium' && u.isPremium);
-
-        const promoBox = document.getElementById('profile-promo-code-box');
-        const promoBtn = document.getElementById('btn-prof-apply-promo');
-        const promoInput = document.getElementById('prof-promo-code');
-        const promoStatus = document.getElementById('prof-promo-status-msg');
-
-        if (promoBtn && promoInput && promoStatus) {
-            const checkPromo = async () => {
-                const code = promoInput.value.trim().toUpperCase();
-                if (!code) {
-                    promoStatus.textContent = "Bitte gib einen Code ein.";
-                    promoStatus.style.color = "#ef4444";
-                    promoStatus.style.display = "block";
-                    return;
-                }
-
-                if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code) || (window.gcaPromoCodes && window.gcaPromoCodes.includes(code))) {
-                    // Check if email has already used trial/promo
-                    const currentEmail = (u.email || '').trim();
-                    if (currentEmail && typeof db !== 'undefined' && db) {
-                        try {
-                            const normEmail = currentEmail.toLowerCase();
-                            const encoder = new TextEncoder();
-                            const data = encoder.encode(normEmail);
-                            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                            const hashArray = Array.from(new Uint8Array(hashBuffer));
-                            const emailHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                            
-                            const doc = await db.collection('used_trials').doc(emailHash).get();
-                            if (doc.exists) {
-                                isPromoApplied = false;
-                                promoStatus.textContent = "❌ Dieser Gutscheincode kann für diesen Account nicht verwendet werden (Testphase bereits genutzt).";
-                                promoStatus.style.color = "#ef4444";
-                                promoStatus.style.display = "block";
-                                return;
-                            }
-                        } catch (err) {
-                            console.warn("Could not check used_trials:", err);
-                        }
-                    }
-
-                    isPromoApplied = true;
-                    promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif freigeschaltet (3 Monate kostenlos, danach 4,99 €/Monat).";
-                    promoStatus.style.color = "#10b981";
-                    promoStatus.style.display = "block";
-                    promoInput.disabled = true;
-                    promoBtn.disabled = true;
-                } else {
-                    isPromoApplied = false;
-                    promoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Story-Beitrag oder gib einen gültigen Aktionscode ein.";
-                    promoStatus.style.color = "#ef4444";
-                    promoStatus.style.display = "block";
-                }
-            };
-
-            promoBtn.addEventListener('click', checkPromo);
-            promoInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    checkPromo();
-                }
-            });
-        }
 
         subCards.forEach(card => {
             card.addEventListener('click', () => {
@@ -11130,14 +11032,6 @@ function renderProfilePage(container) {
                 selectedPlan = card.getAttribute("data-plan");
                 const activeBtn = card.querySelector('.btn-sub-select');
                 if (activeBtn) activeBtn.textContent = 'Ausgewählt';
-
-                if (promoBox) {
-                    if (selectedPlan === 'premium') {
-                        promoBox.style.display = 'block';
-                    } else {
-                        promoBox.style.display = 'none';
-                    }
-                }
             });
         });
 
@@ -11146,139 +11040,30 @@ function renderProfilePage(container) {
             saveSubBtn.addEventListener('click', async () => {
                 const originalBtnHtml = saveSubBtn.innerHTML;
 
-                const applyPlanUpdate = async (newPlan) => {
-                    u.subscriptionPlan = newPlan;
-                    u.isPremium = true;
-                    u.subscriptionCancelled = false;
-                    delete u.subscriptionEndDate;
-
-                    if (typeof db !== 'undefined' && db && u.id) {
-                        try {
-                            await db.collection('users').doc(u.id).set({
-                                subscriptionPlan: newPlan,
-                                isPremium: true,
-                                subscriptionCancelled: false,
-                                updatedAt: new Date().toISOString()
-                            }, { merge: true });
-                        } catch (dbErr) {
-                            console.warn("Could not update user subscription in Firestore:", dbErr);
-                        }
-                    }
-
-                    if (u.profileId && u.role === 'musician') {
-                        const m = state.musicians.find(mus => mus.id === u.profileId);
-                        if (m) {
-                            m.isPremium = true;
-                            m.subscriptionPlan = newPlan;
-                        }
-                        if (typeof db !== 'undefined' && db) {
-                            db.collection('musicians').doc(u.profileId).set({
-                                isPremium: true,
-                                subscriptionPlan: newPlan
-                            }, { merge: true }).catch(err => console.warn("Could not update musician doc:", err));
-                        }
-                    }
-
-                    const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-                    const idx = registeredUsers.findIndex(usr => usr.id === u.id);
-                    if (idx !== -1) {
-                        registeredUsers[idx].subscriptionPlan = newPlan;
-                        registeredUsers[idx].isPremium = true;
-                        registeredUsers[idx].subscriptionCancelled = false;
-                        delete registeredUsers[idx].subscriptionEndDate;
-                        localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
-                    }
-
-                    state.currentUser = u;
-                    state.saveState();
-                    renderProfilePage(container);
-                    updateNavbar();
-                };
-
-                // 1. Premium-Tarif: Aktions-/Instagram-Code erforderlich & sofortige 3-Monats-Freischaltung
-                if (selectedPlan === 'premium') {
-                    if (!isPromoApplied && promoInput && promoInput.value.trim() && typeof checkPromo === 'function') {
-                        await checkPromo();
-                    }
-
-                    if (!isPromoApplied) {
-                        showToast({
-                            title: "Gutscheincode erforderlich ⚠️",
-                            message: "Bitte gib einen gültigen Aktions- oder Instagram-Code ein, um den Premium-Tarif freizuschalten.",
-                            type: "warning"
-                        });
-                        if (promoInput) {
-                            promoInput.focus();
-                            promoInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
-                        return;
-                    }
-
-                    // Aktionscode gültig: Sofortige Aktivierung der kostenlosen Testphase
-                    saveSubBtn.disabled = true;
-                    saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Tarif wird freigeschaltet...`;
-                    await applyPlanUpdate('premium');
-                    showToast({
-                        title: "Tarif gewechselt! 🎉",
-                        message: "Dein Profil wurde erfolgreich für den Premium-Tarif (3 Monate kostenlos) freigeschaltet."
-                    });
-                    return;
-                }
-
-                // 2. Bereits aktiver Tarif
+                // 1. Bereits aktiver Tarif
                 if (selectedPlan === activePlan && u.isPremium && !u.subscriptionCancelled) {
                     showToast({ title: "Tarif bereits aktiv", message: "Du nutzt bereits diesen Tarif." });
                     return;
                 }
 
-                // 3. Kostenpflichtige Tarife (Flex, Plus, Pro): Weiterleitung zu Stripe Checkout / Portal
+                // 2. Bezahlvorgang: Direkte Weiterleitung zu Stripe Checkout (ohne Testphase, sofortige Bezahlung)
                 try {
                     saveSubBtn.disabled = true;
+                    saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
                     
-                    if (u.subscriptionId) {
-                        saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Tarifwechsel wird vorbereitet...`;
-                        const changePlan = firebase.app().functions('europe-west3').httpsCallable('changeStripeSubscriptionPlan');
-                        const res = await changePlan({ 
-                            planKey: selectedPlan,
-                            baseUrl: window.location.origin,
-                            returnUrl: 'profile'
-                        });
-                        if (res.data && res.data.success) {
-                            if (res.data.url) {
-                                window.location.href = res.data.url;
-                                return;
-                            } else if (res.data.updatedDirectly || res.data.mocked) {
-                                await applyPlanUpdate(selectedPlan);
-                                showToast({
-                                    title: "Tarif gewechselt! 🎉",
-                                    message: `Dein Tarif wurde erfolgreich auf "${getPlanDetails(selectedPlan).title}" umgestellt.`
-                                });
-                                return;
-                            }
-                        }
-                        throw new Error(res.data?.message || "Tarifwechsel über Stripe konnte nicht durchgeführt werden.");
-                    } else {
-                        saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
-                        const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
-                        const res = await createStripeSession({ 
-                            planKey: selectedPlan,
-                            baseUrl: window.location.origin,
-                            returnUrl: 'profile'
-                        });
+                    const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
+                    const res = await createStripeSession({ 
+                        planKey: selectedPlan,
+                        baseUrl: window.location.origin,
+                        returnUrl: 'profile',
+                        isTariffChange: true
+                    });
 
-                        if (res.data && res.data.url) {
-                            window.location.href = res.data.url;
-                            return;
-                        } else if (res.data && (res.data.mocked || res.data.success)) {
-                            await applyPlanUpdate(selectedPlan);
-                            showToast({
-                                title: "Tarif gewechselt! 🎉",
-                                message: `Dein Tarif wurde erfolgreich auf "${getPlanDetails(selectedPlan).title}" umgestellt.`
-                            });
-                            return;
-                        } else {
-                            throw new Error("Zahlungs-URL konnte nicht generiert werden.");
-                        }
+                    if (res.data && res.data.url) {
+                        window.location.href = res.data.url;
+                        return;
+                    } else {
+                        throw new Error(res.data?.message || "Zahlungs-URL konnte nicht generiert werden.");
                     }
                 } catch (err) {
                     console.error("Stripe payment redirection failed:", err);
@@ -11683,12 +11468,13 @@ function renderOrganizerEventItem(e, isActive) {
             
             <!-- 1. Combined Galerie: Photos (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
             <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 210px; background: #0f172a; overflow: hidden;">
-                <span class="tile-gallery-counter" style="position: absolute; bottom: 12px; left: 12px; z-index: 4; font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.9); padding: 0.25rem 0.5rem; border-radius: 6px; pointer-events: none; border: 1px solid rgba(255,255,255,0.15);">
+                <!-- Galerie-Zähler (unsichtbar) -->
+                <span class="tile-gallery-counter" style="display: none;">
                     📷 1 / ${photos.length}
                 </span>
 
-                <!-- Fullscreen Expand Button -->
-                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${e.id}');" style="position: absolute; top: 10px; right: 10px; z-index: 6; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25); color: #ffffff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.15s; box-shadow: 0 4px 12px rgba(0,0,0,0.35);" title="Vollbild öffnen">
+                <!-- Fullscreen Expand Button (Unten links wie gewünscht) -->
+                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${e.id}');" style="position: absolute; bottom: 10px; left: 10px; z-index: 6; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25); color: #ffffff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.15s; box-shadow: 0 4px 12px rgba(0,0,0,0.35);" title="Vollbild öffnen">
                     <i class="fa-solid fa-expand" style="font-size: 0.82rem;"></i>
                 </button>
 
@@ -11725,7 +11511,7 @@ function renderOrganizerEventItem(e, isActive) {
                         ${!isActive ? ' <span style="background:rgba(249,115,22,0.1); color:var(--color-orange); font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;"><i class="fa-solid fa-pause"></i> Pausiert</span>' : ''}
                     </h3>
 
-                    <!-- Single column list with all 10 fields fully visible -->
+                    <!-- Single column list (felder 1-4 standardmäßig sichtbar wie auf dem Markt) -->
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
                         <!-- 1. Event-Typ als Tag (ohne Icon, max 1 Typ) -->
                         <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
@@ -11743,11 +11529,21 @@ function renderOrganizerEventItem(e, isActive) {
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>${formattedDate}</span>
                         </div>
-                        <!-- 4. Gesucht (Musiker-Typen) -->
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${formatTruncatedValue((Array.isArray(e.musicianTypes) && e.musicianTypes.length > 0) ? e.musicianTypes : (typeof e.musicianTypes === 'string' && e.musicianTypes.trim() !== '' ? e.musicianTypes : (e.musicianType || 'Solo / Band')), themeColor, e.id, 'musiciantype', true)}</span>
+                        <!-- 4. Gesucht (Musiker-Typen) + Mehr Details Button -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 0.6rem; flex: 1; min-width: 0;">
+                                <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                                <span style="flex: 1; word-break: break-word;">${formatTruncatedValue((Array.isArray(e.musicianTypes) && e.musicianTypes.length > 0) ? e.musicianTypes : (typeof e.musicianTypes === 'string' && e.musicianTypes.trim() !== '' ? e.musicianTypes : (e.musicianType || 'Solo / Band')), themeColor, e.id, 'musiciantype', true)}</span>
+                            </div>
+                            <button id="toggle-details-btn-${e.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${e.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
+                                <span id="toggle-text-${e.id}">Mehr Details</span>
+                                <i class="fa-solid fa-chevron-down" id="toggle-icon-${e.id}" style="font-size: 0.75rem; transition: transform 0.25s ease;"></i>
+                            </button>
                         </div>
+                    </div>
+
+                    <!-- Collapsible details wrapper (standardmäßig eingeklappt) -->
+                    <div id="collapsible-details-${e.id}" style="display: none; flex-direction: column; gap: 0.45rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
                         <!-- 5. Genres -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
@@ -12161,7 +11957,7 @@ function renderMyMusicianItem(m, isActive) {
 
     const description = m.description || m.bio || 'Professionelle Live-Musik für unvergessliche Momente bei Hochzeiten, Geburtstagen & Firmenevents.';
 
-    const themeColor = '#2563eb';
+    const themeColor = '#7c3aed';
 
     // Availability mapping
     let availDaysStr = 'Nach Vereinbarung';
@@ -12179,19 +11975,20 @@ function renderMyMusicianItem(m, isActive) {
         }
     }
 
-    const dotActiveColor = '#2563eb';
+    const dotActiveColor = '#7c3aed';
 
     return `
         <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0);">
             
             <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
             <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 210px; background: #0f172a; overflow: hidden;">
-                <span class="tile-gallery-counter" style="position: absolute; bottom: 12px; left: 12px; z-index: 4; font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.9); padding: 0.25rem 0.5rem; border-radius: 6px; pointer-events: none; border: 1px solid rgba(255,255,255,0.15);">
+                <!-- Galerie-Zähler (unsichtbar) -->
+                <span class="tile-gallery-counter" style="display: none;">
                     📷 1 / ${photos.length}
                 </span>
 
-                <!-- Fullscreen Expand Button -->
-                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${m.id}');" style="position: absolute; top: 10px; right: 10px; z-index: 6; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25); color: #ffffff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.15s; box-shadow: 0 4px 12px rgba(0,0,0,0.35);" title="Vollbild öffnen">
+                <!-- Fullscreen Expand Button (Unten links wie gewünscht) -->
+                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${m.id}');" style="position: absolute; bottom: 10px; left: 10px; z-index: 6; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25); color: #ffffff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.15s; box-shadow: 0 4px 12px rgba(0,0,0,0.35);" title="Vollbild öffnen">
                     <i class="fa-solid fa-expand" style="font-size: 0.82rem;"></i>
                 </button>
 
@@ -12253,11 +12050,11 @@ function renderMyMusicianItem(m, isActive) {
                         ${!isActive ? ' <span style="background:rgba(249,115,22,0.1); color:var(--color-orange); font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;"><i class="fa-solid fa-pause"></i> Pausiert</span>' : ''}
                     </h3>
 
-                    <!-- Single column list matching market style -->
+                    <!-- Single column list (felder 1-4 standardmäßig sichtbar wie auf dem Markt) -->
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
-                        <!-- 1. Musiker-Typ als Tag (ohne Icon, max 1 Typ) -->
+                        <!-- 1. Musiker-Typ als Tag (ohne Icon, max 1 Typ, lila) -->
                         <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                            <span class="tile-type-flag" style="background: ${dotActiveColor}; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center;">
+                            <span class="tile-type-flag" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 1px solid rgba(196, 181, 253, 0.4); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);">
                                 <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${((Array.isArray(m.musicianTypes) && m.musicianTypes.length > 0) ? m.musicianTypes[0] : String(m.type || m.category || 'Musiker')).split(',')[0].split('/')[0].split(' - ')[0].trim()}</span>
                             </span>
                         </div>
@@ -12271,11 +12068,21 @@ function renderMyMusicianItem(m, isActive) {
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>${availDaysStr}</span>
                         </div>
-                        <!-- 4. Event-Typen (Gesucht) -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatTruncatedValue(m.eventTypes && m.eventTypes.length > 0 ? m.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, m.id, 'eventtypes')}</span>
+                        <!-- 4. Event-Typen (Gesucht) + Mehr Details Button -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 0.6rem; flex: 1; min-width: 0;">
+                                <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                                <span style="flex: 1; word-break: break-word;">${formatTruncatedValue(m.eventTypes && m.eventTypes.length > 0 ? m.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, m.id, 'eventtypes')}</span>
+                            </div>
+                            <button id="toggle-details-btn-${m.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${m.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
+                                <span id="toggle-text-${m.id}">Mehr Details</span>
+                                <i class="fa-solid fa-chevron-down" id="toggle-icon-${m.id}" style="font-size: 0.75rem; transition: transform 0.25s ease;"></i>
+                            </button>
                         </div>
+                    </div>
+
+                    <!-- Collapsible details wrapper (standardmäßig eingeklappt) -->
+                    <div id="collapsible-details-${m.id}" style="display: none; flex-direction: column; gap: 0.45rem; border-top: 1px dashed var(--border-glass); padding-top: 0.5rem; margin-top: 0.2rem; margin-bottom: 0.6rem; font-size: 0.84rem; color: var(--text-main);">
                         <!-- 5. Genres -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
                             <i class="fa-solid fa-music" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
@@ -12310,8 +12117,8 @@ function renderMyMusicianItem(m, isActive) {
                 </div>
             </div>
 
-            <!-- Actions Grid at the Bottom (Blue theme with white text) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #2563eb;">
+            <!-- Actions Grid at the Bottom (Lila theme with white text for musicians) -->
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #7c3aed;">
                 <button class="btn btn-sm btn-glass btn-edit-my-musician" data-id="${m.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                     <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
                 </button>
