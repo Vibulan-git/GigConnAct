@@ -2696,6 +2696,10 @@ class StateManager {
                     this.events.push(item);
                 }
             });
+
+            // Automatically sync real-time proposals from mediations collection into event favorites
+            await this.syncEventsWithMediations();
+
             this.eventsFetched = true;
             this.loadingEvents = false;
             this.updateVersion = (this.updateVersion || 0) + 1;
@@ -2703,6 +2707,49 @@ class StateManager {
         } catch (e) {
             console.error("Error fetching events:", e);
             this.loadingEvents = false;
+        }
+    }
+
+    async syncEventsWithMediations() {
+        if (typeof db === 'undefined' || !db || !db.collection) return;
+        try {
+            const medSnapshot = await db.collection('mediations').get();
+            if (!medSnapshot.empty) {
+                let anyChanged = false;
+                const isAdmin = this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
+                medSnapshot.forEach(mDoc => {
+                    const mData = mDoc.data();
+                    const targetId = mData.eventId || mDoc.id.replace(/^med_/, '');
+                    const mMusIds = Array.isArray(mData.musicianIds) ? mData.musicianIds : [];
+                    const matchEvt = (this.events || []).find(e => e && (
+                        e.id === targetId || 
+                        e.id === mData.eventId || 
+                        e.id === mDoc.id || 
+                        (mData.eventName && (e.name === mData.eventName || e.title === mData.eventName))
+                    ));
+                    if (matchEvt) {
+                        const prevCount = Array.isArray(matchEvt.favorites) ? matchEvt.favorites.length : 0;
+                        const combined = Array.from(new Set([...(matchEvt.favorites || []), ...mMusIds].filter(Boolean)));
+                        matchEvt.favorites = combined;
+                        if (combined.length !== prevCount) {
+                            anyChanged = true;
+                            const isOwner = this.currentUser && this.currentUser.id === matchEvt.creatorId;
+                            if (isAdmin || isOwner) {
+                                db.collection('events').doc(matchEvt.id).set({ favorites: combined }, { merge: true }).catch(() => {});
+                            }
+                        }
+                        if (combined.length > mMusIds.length) {
+                            db.collection('mediations').doc(mDoc.id).set({ musicianIds: combined }, { merge: true }).catch(() => {});
+                        }
+                    }
+                });
+                if (anyChanged) {
+                    this.saveState();
+                    this.notify();
+                }
+            }
+        } catch (e) {
+            console.warn("syncEventsWithMediations error:", e);
         }
     }
 
@@ -4736,7 +4783,15 @@ class StateManager {
                 profileId = this.activeEventId || (this.recommendationEvent ? this.recommendationEvent.id : null);
                 if (profileId) {
                     profileObj = (this.events || []).find(e => e.id === profileId);
+                    if (profileObj && Array.isArray(profileObj.favorites)) {
+                        return profileObj.favorites.includes(id);
+                    }
                 }
+                const inAnyAdminEvent = (this.events || []).some(e => 
+                    (e.creatorId === this.currentUser.id || e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.email === 'gigconnact@gmail.com') && 
+                    Array.isArray(e.favorites) && e.favorites.includes(id)
+                );
+                if (inAnyAdminEvent) return true;
             } else if (isEventId) {
                 profileId = this.activeMusicianId || this.currentUser.profileId || null;
                 if (profileId) {
@@ -7835,6 +7890,9 @@ function renderMarket(container, type, onNavigate) {
         state.fetchEvents();
     } else {
         state.fetchMusicians();
+        if (typeof state.syncEventsWithMediations === 'function') {
+            state.syncEventsWithMediations();
+        }
     }
 
     // Parse targetId from hash query parameter (for direct links from emails)
@@ -10473,12 +10531,9 @@ window.showMediationNoticeBeforeAuth = function(eventId, alreadySent = false) {
             </h3>
             
             <p style="font-size: 0.92rem; color: #475569; line-height: 1.55; margin-bottom: 1.6rem; text-align: left; font-family: var(--font-body);">
-                Mit dem Klick auf „Vermittlungsanfrage senden“ wird diesem Veranstalter Dein Profil vorgeschlagen. Der Erstkontakt erfolgt nur durch den Veranstalter. Bei Vermittlungs-Gigs bleiben die Kontaktdaten geschützt.<br><br>
-                ${isLoggedIn 
-                    ? (alreadySent 
-                        ? '<strong>Hinweis:</strong> Dein Profil wurde diesem Veranstalter bereits vorgeschlagen.' 
-                        : 'Sobald der Veranstalter Interesse an Deinem Profil hat, meldet er sich direkt bei Dir.')
-                    : 'Erstelle Dein Musiker-Profil und werde für Veranstalter sichtbar, um passende Vermittlungsanfragen zu erhalten.'}
+                Mit dem Klick auf „Vermittlungsanfrage senden“ wird diesem Veranstalter Dein Profil vorgeschlagen. Der Erstkontakt erfolgt nur durch den Veranstalter. Bei Vermittlungs-Gigs bleiben die Kontaktdaten geschützt. Sobald der Veranstalter Interesse zeigt, erhältst Du von uns eine Anfrage zur finalen Bestätigung. Nach Deiner Zusage werden Eure Kontaktdaten gegenseitig freigegeben.
+                ${alreadySent ? '<br><br><span style="color: #7c3aed; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Dein Profil wurde diesem Veranstalter bereits vorgeschlagen.</span>' : ''}
+                ${!isLoggedIn ? '<br><br><span>Erstelle Dein Musiker-Profil und werde für Veranstalter sichtbar, um passende Vermittlungsanfragen zu erhalten.</span>' : ''}
             </p>
             
             <div style="display: flex; flex-direction: column; gap: 0.65rem;">
@@ -10567,19 +10622,51 @@ window.handleMediationClick = async function(eventId) {
                 console.warn("Could not update event favorites in Firestore directly:", err);
             }
 
-            // Sync with corresponding mediation documents in Firestore
+            // Sync with corresponding mediation documents in Firestore (guaranteed write access)
             try {
+                let foundDocs = [];
                 const medSnap = await db.collection('mediations').where('eventId', '==', eventId).get();
                 if (!medSnap.empty) {
-                    for (const medDoc of medSnap.docs) {
+                    foundDocs = [...medSnap.docs];
+                }
+                const directMed = await db.collection('mediations').doc(eventId).get();
+                if (directMed && directMed.exists && !foundDocs.some(d => d.id === directMed.id)) {
+                    foundDocs.push(directMed);
+                }
+                const prefixedMed = await db.collection('mediations').doc('med_' + eventId).get();
+                if (prefixedMed && prefixedMed.exists && !foundDocs.some(d => d.id === prefixedMed.id)) {
+                    foundDocs.push(prefixedMed);
+                }
+                if (foundDocs.length === 0 && eventObj && (eventObj.name || eventObj.title)) {
+                    const nameQuery = eventObj.name || eventObj.title;
+                    const nameSnap = await db.collection('mediations').where('eventName', '==', nameQuery).get();
+                    if (!nameSnap.empty) {
+                        foundDocs = [...nameSnap.docs];
+                    }
+                }
+
+                if (foundDocs.length > 0) {
+                    for (const medDoc of foundDocs) {
                         const mData = medDoc.data();
                         let mMusIds = Array.isArray(mData.musicianIds) ? [...mData.musicianIds] : [];
                         if (!mMusIds.includes(musicianId)) {
                             mMusIds.push(musicianId);
-                            mMusIds = Array.from(new Set(mMusIds));
-                            await db.collection('mediations').doc(medDoc.id).update({ musicianIds: mMusIds });
+                            mMusIds = Array.from(new Set(mMusIds.filter(Boolean)));
+                            await db.collection('mediations').doc(medDoc.id).set({ musicianIds: mMusIds }, { merge: true });
                         }
                     }
+                } else {
+                    const newMedId = 'med_' + eventId;
+                    await db.collection('mediations').doc(newMedId).set({
+                        id: newMedId,
+                        eventId: eventId,
+                        eventName: eventObj ? (eventObj.name || eventObj.title || 'Vermittlungs-Event') : 'Vermittlungs-Event',
+                        eventDate: eventObj ? (eventObj.date || null) : null,
+                        organizerEmail: eventObj ? (eventObj.clientEmail || eventObj.email || 'info@gigconnact.de') : 'info@gigconnact.de',
+                        musicianIds: [musicianId],
+                        status: 'pending_selection',
+                        createdAt: new Date().toISOString()
+                    }, { merge: true });
                 }
             } catch (medErr) {
                 console.warn("Could not sync mediation document:", medErr);
@@ -11966,6 +12053,7 @@ function renderOrganizerEventItem(e, isActive) {
 
     const genresArr = e.genres && e.genres.length > 0 ? e.genres : (e.genre ? [e.genre] : ['Pop', 'Rock']);
     const instrumentsList = (e.instruments || (e.category ? [e.category] : ['Gesang', 'Gitarre'])).join(', ');
+    const favCount = Array.isArray(e.favorites) ? e.favorites.length : 0;
 
     let formattedDate = (typeof formatEventDateWithTime === 'function')
         ? formatEventDateWithTime(e)
@@ -12075,11 +12163,16 @@ function renderOrganizerEventItem(e, isActive) {
 
                     <!-- Single column list (felder 1-4 standardmäßig sichtbar wie auf dem Markt) -->
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
-                        <!-- 1. Event-Typ als Tag (ohne Icon, max 1 Typ) -->
-                        <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                        <!-- 1. Event-Typ als Tag & Favoriten-Badge -->
+                        <div style="margin-bottom: 0.15rem; display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; flex-wrap: wrap;">
                             <span class="tile-type-flag" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 1px solid rgba(147, 197, 253, 0.5); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);">
                                 <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${eventTypeDisplay}</span>
                             </span>
+                            ${favCount > 0 ? `
+                                <span onclick="event.stopPropagation(); state.activeEventId = '${e.id}'; window.location.hash = '#/musicians?eventId=${e.id}&fav=true';" style="cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 0.22rem 0.6rem; font-size: 0.76rem; font-weight: 700; transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" title="Favoriten / Vorschläge für dieses Event anzeigen">
+                                    <i class="fa-solid fa-heart"></i> ${favCount} ${favCount === 1 ? 'Vorschlag' : 'Vorschläge'}
+                                </span>
+                            ` : ''}
                         </div>
                         <!-- 2. Ort -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
@@ -12141,7 +12234,12 @@ function renderOrganizerEventItem(e, isActive) {
             </div>
 
             <!-- Actions Grid at the Bottom (Organizer Blue theme with white text) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #2563eb;">
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: ${favCount > 0 ? 'repeat(auto-fit, minmax(85px, 1fr))' : '1fr 1fr'}; gap: 0.4rem; background: #2563eb;">
+                ${favCount > 0 ? `
+                <button class="btn btn-sm btn-glass btn-view-event-favorites" onclick="event.stopPropagation(); state.activeEventId = '${e.id}'; window.location.hash = '#/musicians?eventId=${e.id}&fav=true';" style="font-size: 0.76rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(239, 68, 68, 0.45);" title="Favoriten / Musiker-Vorschläge anzeigen">
+                    <i class="fa-solid fa-heart" style="color: #ffffff;"></i> Vorschläge (${favCount})
+                </button>
+                ` : ''}
                 ${isActive ? `
                 <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                     <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
@@ -12168,6 +12266,9 @@ function renderMyEvents(container) {
 
 function renderMyEventsContent(container) {
     if (!state.currentUser) return;
+    if (typeof state.syncEventsWithMediations === 'function') {
+        state.syncEventsWithMediations();
+    }
     const u = state.currentUser;
     const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
     const allMyEvents = state.events.filter(e => 
@@ -22565,7 +22666,6 @@ window.renderRecommendationPage = async function(container, mediationId) {
         }
 
         // Fetch the corresponding event document to get the real-time favorites list
-        let musicianIds = Array.isArray(med.musicianIds) ? [...med.musicianIds] : [];
         let mediationEvent = null;
         if (med.eventId) {
             try {
@@ -22573,9 +22673,6 @@ window.renderRecommendationPage = async function(container, mediationId) {
                     const eventDoc = await db.collection('events').doc(med.eventId).get();
                     if (eventDoc && eventDoc.exists) {
                         mediationEvent = { id: eventDoc.id, ...eventDoc.data() };
-                        if (Array.isArray(mediationEvent.favorites) && mediationEvent.favorites.length > 0) {
-                            musicianIds = mediationEvent.favorites;
-                        }
                     }
                 }
             } catch (eventErr) {
@@ -22583,14 +22680,23 @@ window.renderRecommendationPage = async function(container, mediationId) {
             }
             if (!mediationEvent && typeof state !== 'undefined' && state && Array.isArray(state.events)) {
                 mediationEvent = state.events.find(e => e && e.id === med.eventId) || null;
-                if (mediationEvent && Array.isArray(mediationEvent.favorites) && mediationEvent.favorites.length > 0 && musicianIds.length === 0) {
-                    musicianIds = mediationEvent.favorites;
-                }
             }
         }
 
-        // Deduplicate musician IDs strictly to avoid any duplicates in proposals list
-        musicianIds = Array.from(new Set((musicianIds || []).filter(Boolean)));
+        // Merge musicianIds from BOTH mediation document and event favorites (real-time union)
+        const eventFavs = (mediationEvent && Array.isArray(mediationEvent.favorites)) ? mediationEvent.favorites : [];
+        const medMusIds = (med && Array.isArray(med.musicianIds)) ? med.musicianIds : [];
+        let musicianIds = Array.from(new Set([...medMusIds, ...eventFavs].filter(Boolean)));
+        med.musicianIds = musicianIds;
+
+        // Keep mediation doc in Firestore synchronized with any favorites from event
+        if (typeof db !== 'undefined' && db && db.collection && mediationId && musicianIds.length > medMusIds.length) {
+            try {
+                await db.collection('mediations').doc(mediationId).set({ musicianIds: musicianIds }, { merge: true });
+            } catch(syncErr) {
+                console.warn("Could not sync merged musicianIds to mediation doc:", syncErr);
+            }
+        }
 
         // Fetch musician documents with fallback to state.musicians and initialMusicians
         const musicians = [];
