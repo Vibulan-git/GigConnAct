@@ -22762,28 +22762,17 @@ window.renderRecommendationPage = async function(container, mediationId) {
             };
         }
 
-        // Check if mediation selection has already completed
-        if (med.status === 'completed') {
-            container.innerHTML = `
-                <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
-                    <i class="fa-solid fa-circle-check" style="font-size: 3.5rem; color: #10b981; margin-bottom: 1.2rem;"></i>
-                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Auswahl abgeschlossen! 🎉</h3>
-                    <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.5rem;">
-                        Die Kontaktdaten wurden an deine E-Mail-Adresse versendet.
-                    </p>
-                </div>
-            `;
-            return;
-        }
+        // Check if event/mediation was removed or event has already taken place
+        const evtDateStr = med.eventDate || (med.eventId ? state?.events?.find(e => e.id === med.eventId)?.date : null);
+        const eventHasPassed = evtDateStr && (new Date(evtDateStr + 'T23:59:59') < new Date());
 
-        // Check if event/mediation was removed
-        if (med.status === 'expired') {
+        if (med.status === 'expired' || eventHasPassed) {
             container.innerHTML = `
                 <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
                     <i class="fa-solid fa-ban" style="font-size: 3.5rem; color: var(--color-red); margin-bottom: 1.2rem;"></i>
-                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Event entfernt ❌</h3>
+                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">${eventHasPassed ? 'Event hat bereits stattgefunden 📅' : 'Event entfernt ❌'}</h3>
                     <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.5rem;">
-                        Dieses Event bzw. diese Vermittlungsanfrage wurde entfernt. Daher ist die Musiker-Vorschlagsliste nicht mehr verfügbar.
+                        ${eventHasPassed ? 'Dieses Event liegt in der Vergangenheit. Die Musiker-Vorschlagsliste ist daher nicht mehr verfügbar.' : 'Dieses Event bzw. diese Vermittlungsanfrage wurde entfernt. Daher ist die Musiker-Vorschlagsliste nicht mehr verfügbar.'}
                     </p>
                 </div>
             `;
@@ -22921,6 +22910,12 @@ window.renderRecommendationPage = async function(container, mediationId) {
                         const parts = med.eventDate.split('-');
                         return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}` : med.eventDate;
                     })()}</strong>` : ''}</p>
+                    ${med.status === 'completed' ? `
+                    <div style="margin-bottom: 1rem; display: inline-block; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.4); padding: 0.75rem 1.4rem; border-radius: 10px; font-size: 0.92rem; color: #10b981; font-weight: 700; max-width: 680px; text-align: left; line-height: 1.55;">
+                        <i class="fa-solid fa-circle-check" style="margin-right: 0.5rem; font-size: 1.1rem; vertical-align: middle;"></i>Für dieses Event wurde bereits eine Vermittlungsanfrage gestellt. Du kannst dir deine Musiker-Vorschläge weiterhin ansehen oder weitere Acts auswählen.
+                    </div>
+                    <br>
+                    ` : ''}
                     <div style="display: inline-block; background: #2563eb; border: 1px solid #2563eb; padding: 0.85rem 1.5rem; border-radius: 10px; font-size: 0.92rem; color: #ffffff; font-weight: 700; max-width: 680px; text-align: left; line-height: 1.55;">
                         <i class="fa-solid fa-circle-exclamation" style="color: #ffffff; margin-right: 0.5rem; font-size: 1.1rem; vertical-align: middle;"></i>Sobald Du auf "Anfrage senden" klickst, nehmen wir den Kontakt zu den ausgewählten Acts auf. Du kannst zu jeder Zeit weitere Musiker-Vorschläge über "Weitere Vorschläge" erhalten.
                     </div>
