@@ -10220,23 +10220,51 @@ window.toggleFavorite = function(id) {
     }
 };
 // Global success/cancel payment interceptor
-if (window.location.hash.includes('payment=success')) {
-    window.isPaymentSuccessPending = true;
-    window.showSubscriptionSuccessModal = true;
-    setTimeout(() => {
-        window.isPaymentSuccessPending = false;
-    }, 10000);
-    // Remove query parameter from hash immediately to keep URL clean and navigate to market
-    const isOrganizer = (state && state.currentUser && state.currentUser.role === 'organizer') || window.location.hash.includes('/musicians');
-    window.location.hash = isOrganizer ? '#/musicians' : '#/events';
-} else if (window.location.hash.includes('payment=cancel')) {
-    showToast({
-        title: "Zahlung abgebrochen ℹ",
-        message: "Der Zahlungsvorgang wurde abgebrochen. Du kannst es jederzeit erneut versuchen.",
-        type: "warning"
-    });
-    const isOrganizer = (state && state.currentUser && state.currentUser.role === 'organizer') || window.location.hash.includes('/musicians');
-    window.location.hash = isOrganizer ? '#/musicians' : '#/events';
+try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasPaymentSuccess = window.location.hash.includes('payment=success') || urlParams.get('payment') === 'success';
+    const hasPaymentCancel = window.location.hash.includes('payment=cancel') || urlParams.get('payment') === 'cancel';
+    const redirectToParam = urlParams.get('redirect');
+
+    if (hasPaymentSuccess) {
+        window.isPaymentSuccessPending = true;
+        window.showSubscriptionSuccessModal = true;
+        setTimeout(() => {
+            window.isPaymentSuccessPending = false;
+        }, 10000);
+        
+        // Remove query parameters from URL without reload
+        if (window.location.search) {
+            const cleanUrl = window.location.origin + window.location.pathname + window.location.hash.split('?')[0];
+            window.history.replaceState({}, document.title, cleanUrl);
+        }
+
+        if (redirectToParam === 'profile') {
+            window.location.hash = '#/profile';
+        } else {
+            const isOrganizer = (state && state.currentUser && state.currentUser.role === 'organizer') || window.location.hash.includes('/musicians');
+            window.location.hash = isOrganizer ? '#/musicians' : '#/events';
+        }
+    } else if (hasPaymentCancel) {
+        showToast({
+            title: "Zahlung abgebrochen ℹ",
+            message: "Der Zahlungsvorgang wurde abgebrochen. Du kannst es jederzeit erneut versuchen.",
+            type: "warning"
+        });
+        if (window.location.search) {
+            const cleanUrl = window.location.origin + window.location.pathname + window.location.hash.split('?')[0];
+            window.history.replaceState({}, document.title, cleanUrl);
+        }
+
+        if (redirectToParam === 'profile') {
+            window.location.hash = '#/profile';
+        } else {
+            const isOrganizer = (state && state.currentUser && state.currentUser.role === 'organizer') || window.location.hash.includes('/musicians');
+            window.location.hash = isOrganizer ? '#/musicians' : '#/events';
+        }
+    }
+} catch (e) {
+    console.warn("Payment interceptor error:", e);
 }
 
 window.handleLogoutRedirect = function() {
@@ -11103,24 +11131,6 @@ function renderProfilePage(container) {
         const saveSubBtn = document.getElementById('btn-save-subscription-change');
         if (saveSubBtn) {
             saveSubBtn.addEventListener('click', async () => {
-                if (selectedPlan === 'premium' && !isPromoApplied) {
-                    showToast({
-                        title: "Gutscheincode erforderlich ⚠️",
-                        message: "Bitte gib einen gültigen Aktions- oder Instagram-Code ein, um den Premium-Tarif freizuschalten.",
-                        type: "warning"
-                    });
-                    if (promoInput) {
-                        promoInput.focus();
-                        promoInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                    return;
-                }
-
-                if (selectedPlan === activePlan && u.isPremium && !u.subscriptionCancelled) {
-                    showToast({ title: "Tarif bereits aktiv", message: "Du nutzt bereits diesen Tarif." });
-                    return;
-                }
-
                 const originalBtnHtml = saveSubBtn.innerHTML;
 
                 const applyPlanUpdate = async (newPlan) => {
@@ -11142,6 +11152,20 @@ function renderProfilePage(container) {
                         }
                     }
 
+                    if (u.profileId && u.role === 'musician') {
+                        const m = state.musicians.find(mus => mus.id === u.profileId);
+                        if (m) {
+                            m.isPremium = true;
+                            m.subscriptionPlan = newPlan;
+                        }
+                        if (typeof db !== 'undefined' && db) {
+                            db.collection('musicians').doc(u.profileId).set({
+                                isPremium: true,
+                                subscriptionPlan: newPlan
+                            }, { merge: true }).catch(err => console.warn("Could not update musician doc:", err));
+                        }
+                    }
+
                     const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
                     const idx = registeredUsers.findIndex(usr => usr.id === u.id);
                     if (idx !== -1) {
@@ -11158,6 +11182,43 @@ function renderProfilePage(container) {
                     updateNavbar();
                 };
 
+                // 1. Premium-Tarif: Aktions-/Instagram-Code erforderlich & sofortige 3-Monats-Freischaltung
+                if (selectedPlan === 'premium') {
+                    if (!isPromoApplied && promoInput && promoInput.value.trim() && typeof checkPromo === 'function') {
+                        await checkPromo();
+                    }
+
+                    if (!isPromoApplied) {
+                        showToast({
+                            title: "Gutscheincode erforderlich ⚠️",
+                            message: "Bitte gib einen gültigen Aktions- oder Instagram-Code ein, um den Premium-Tarif freizuschalten.",
+                            type: "warning"
+                        });
+                        if (promoInput) {
+                            promoInput.focus();
+                            promoInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        return;
+                    }
+
+                    // Aktionscode gültig: Sofortige Aktivierung der kostenlosen Testphase
+                    saveSubBtn.disabled = true;
+                    saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Tarif wird freigeschaltet...`;
+                    await applyPlanUpdate('premium');
+                    showToast({
+                        title: "Tarif gewechselt! 🎉",
+                        message: "Dein Profil wurde erfolgreich für den Premium-Tarif (3 Monate kostenlos) freigeschaltet."
+                    });
+                    return;
+                }
+
+                // 2. Bereits aktiver Tarif
+                if (selectedPlan === activePlan && u.isPremium && !u.subscriptionCancelled) {
+                    showToast({ title: "Tarif bereits aktiv", message: "Du nutzt bereits diesen Tarif." });
+                    return;
+                }
+
+                // 3. Kostenpflichtige Tarife (Flex, Plus, Pro): Weiterleitung zu Stripe Checkout / Portal
                 try {
                     saveSubBtn.disabled = true;
                     
@@ -11167,13 +11228,13 @@ function renderProfilePage(container) {
                         const res = await changePlan({ 
                             planKey: selectedPlan,
                             baseUrl: window.location.origin,
-                            returnUrl: '#/profile'
+                            returnUrl: 'profile'
                         });
                         if (res.data && res.data.success) {
                             if (res.data.url) {
                                 window.location.href = res.data.url;
                                 return;
-                            } else if (res.data.updatedDirectly) {
+                            } else if (res.data.updatedDirectly || res.data.mocked) {
                                 await applyPlanUpdate(selectedPlan);
                                 showToast({
                                     title: "Tarif gewechselt! 🎉",
@@ -11189,11 +11250,18 @@ function renderProfilePage(container) {
                         const res = await createStripeSession({ 
                             planKey: selectedPlan,
                             baseUrl: window.location.origin,
-                            returnUrl: '#/profile'
+                            returnUrl: 'profile'
                         });
 
                         if (res.data && res.data.url) {
                             window.location.href = res.data.url;
+                            return;
+                        } else if (res.data && (res.data.mocked || res.data.success)) {
+                            await applyPlanUpdate(selectedPlan);
+                            showToast({
+                                title: "Tarif gewechselt! 🎉",
+                                message: `Dein Tarif wurde erfolgreich auf "${getPlanDetails(selectedPlan).title}" umgestellt.`
+                            });
                             return;
                         } else {
                             throw new Error("Zahlungs-URL konnte nicht generiert werden.");
@@ -16737,16 +16805,31 @@ function renderSubscriptionExpiredPage(container) {
     const reactivateBtn = document.getElementById('btn-reactivate-expired-sub');
     if (reactivateBtn) {
         reactivateBtn.addEventListener('click', async () => {
-            if (selectedPlan === 'premium' && !isExpiredPromoApplied) {
-                showToast({
-                    title: "Gutscheincode erforderlich ⚠️",
-                    message: "Bitte gib einen gültigen Aktions- oder Instagram-Code ein, um den Premium-Tarif freizuschalten.",
-                    type: "warning"
-                });
-                if (expiredPromoInput) {
-                    expiredPromoInput.focus();
-                    expiredPromoInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (selectedPlan === 'premium') {
+                if (!isExpiredPromoApplied && expiredPromoInput && expiredPromoInput.value.trim() && typeof checkExpiredPromo === 'function') {
+                    await checkExpiredPromo();
                 }
+
+                if (!isExpiredPromoApplied) {
+                    showToast({
+                        title: "Gutscheincode erforderlich ⚠️",
+                        message: "Bitte gib einen gültigen Aktions- oder Instagram-Code ein, um den Premium-Tarif freizuschalten.",
+                        type: "warning"
+                    });
+                    if (expiredPromoInput) {
+                        expiredPromoInput.focus();
+                        expiredPromoInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    return;
+                }
+
+                reactivateBtn.disabled = true;
+                reactivateBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Tarif wird freigeschaltet...`;
+                await applyReactivation('premium');
+                showToast({
+                    title: "Tarif reaktiviert! 🎉",
+                    message: "Dein Profil wurde erfolgreich für den Premium-Tarif (3 Monate kostenlos) reaktiviert."
+                });
                 return;
             }
 
@@ -16758,11 +16841,17 @@ function renderSubscriptionExpiredPage(container) {
                 const res = await createStripeSession({ 
                     planKey: selectedPlan,
                     baseUrl: window.location.origin,
-                    returnUrl: '#/profile'
+                    returnUrl: 'profile'
                 });
 
                 if (res.data && res.data.url) {
                     window.location.href = res.data.url;
+                } else if (res.data && (res.data.mocked || res.data.success)) {
+                    await applyReactivation(selectedPlan);
+                    showToast({
+                        title: "Abonnement reaktiviert! 🎉",
+                        message: "Dein Zugang wurde erfolgreich reaktiviert."
+                    });
                 } else {
                     throw new Error("Zahlungs-URL konnte nicht generiert werden.");
                 }
@@ -19899,12 +19988,12 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                 ? `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block; vertical-align: middle;">Privates Event</span>`
                 : `<span style="filter: blur(5.5px); user-select: none; pointer-events: none; display: inline-block; vertical-align: middle;">Band / Künstler</span>`;
         const lockIconHtml = !(state && state.currentUser)
-            ? ` <i class="fa-solid fa-lock" style="color: ${isEvents ? '#7c3aed' : '#2563eb'}; font-size: 1.15rem; margin-left: 0.35rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
+            ? `<i class="fa-solid fa-lock" style="color: ${isEvents ? '#7c3aed' : '#2563eb'}; font-size: 1.15rem; flex-shrink: 0; margin-left: 0.15rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
             : '';
         const demoTagHtml = isDemoTile
             ? `<span class="tile-demo-text" style="color: #000000 !important; font-weight: 800; font-size: 0.92rem; vertical-align: middle; filter: none !important; -webkit-text-fill-color: #000000 !important; user-select: none; white-space: nowrap;">[Demo]</span>`
             : '';
-        const displayName = `${nameContent}${lockIconHtml}`;
+        const displayName = nameContent;
 
         const companyVal = isEvents 
             ? ((!item.organizerType || item.organizerType === 'Privater Veranstalter' || item.company === 'Privatperson') ? 'Privatperson' : (item.company || 'Privatperson'))
@@ -19988,12 +20077,14 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                     </div>
                     ` : ''}
 
-                    <!-- Dots container inside the slider -->
+                    <!-- Dots container inside the slider (only visible when logged in) -->
+                    ${(state && state.currentUser) ? `
                     <div class="tile-gallery-dots" id="combo-dots-${item.id}" data-theme="${isEvents ? '#7c3aed' : '#2563eb'}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
                         ${Array.from({ length: photos.length + videos.length + audios.length + 1 }).map((_, dIdx) => `
                             <span class="tile-gallery-dot${dIdx === 0 ? ' active' : ''}" onclick="window.jumpToComboGallerySlide('${item.id}', ${dIdx})" style="width: 10px; height: 10px; border-radius: 50%; background: ${dIdx === 0 ? (isEvents ? '#7c3aed' : '#2563eb') : '#ffffff'}; opacity: ${dIdx === 0 ? '1' : '0.95'}; transition: all 0.2s ease; transform: ${dIdx === 0 ? 'scale(1.35)' : 'scale(1)'}; border: 1px solid ${dIdx === 0 ? (isEvents ? '#7c3aed' : '#2563eb') : 'rgba(0,0,0,0.15)'}; box-shadow: ${dIdx === 0 ? '0 0 6px ' + (isEvents ? '#7c3aed' : '#2563eb') : '0 1px 2px rgba(0,0,0,0.2)'}; cursor: pointer;"></span>
                         `).join('')}
                     </div>
+                    ` : ''}
                 </div>
 
                 <!-- Tile Body Content -->
@@ -20003,6 +20094,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                     <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.8rem;">
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; flex: 1; min-width: 0;">
                             <h3 id="tile-title-${item.id}" class="tile-card-title" style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; transition: all 0.2s ease;">${displayName}</h3>
+                            ${lockIconHtml}
                             ${demoTagHtml}
                         </div>
                         

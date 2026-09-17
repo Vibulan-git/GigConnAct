@@ -935,9 +935,11 @@ exports.createStripeCheckoutSession = functions
             const subscriptionStatus = userData.subscriptionStatus || null;
 
             const isOrganizer = userData.role === 'organizer';
-            const defaultMarketPath = isOrganizer ? '#/musicians' : '#/events';
-            const targetPath = data.returnUrl || defaultMarketPath;
-            const sep = targetPath.includes('?') ? '&' : '?';
+            let targetPath = (data.returnUrl || '').replace(/^#\/?/, '').replace(/^\//, '');
+            if (!targetPath) {
+                targetPath = isOrganizer ? 'musicians' : 'events';
+            }
+            const cleanReturnBase = `${cleanBaseUrl}/?redirect=${encodeURIComponent(targetPath)}`;
 
             const sessionParams = {
                 mode: 'subscription',
@@ -945,8 +947,8 @@ exports.createStripeCheckoutSession = functions
                     price: priceId,
                     quantity: 1,
                 }],
-                success_url: `${cleanBaseUrl}/${targetPath}${sep}payment=success`,
-                cancel_url: `${cleanBaseUrl}/${targetPath}${sep}payment=cancel`,
+                success_url: `${cleanReturnBase}&payment=success`,
+                cancel_url: `${cleanReturnBase}&payment=cancel`,
                 metadata: {
                     userId: context.auth.uid,
                     planKey: planKey
@@ -1152,8 +1154,11 @@ exports.changeStripeSubscriptionPlan = functions
 
             if (!subscriptionId) {
                 // User has no active Stripe subscription yet. Route them directly to Stripe Checkout!
-                const returnUrl = data.returnUrl || '#/profile';
-                const sep = returnUrl.includes('?') ? '&' : '?';
+                let targetPath = (data.returnUrl || '').replace(/^#\/?/, '').replace(/^\//, '');
+                if (!targetPath) {
+                    targetPath = 'profile';
+                }
+                const cleanReturnBase = `${cleanBaseUrl}/?redirect=${encodeURIComponent(targetPath)}`;
 
                 const checkoutParams = {
                     mode: 'subscription',
@@ -1161,8 +1166,8 @@ exports.changeStripeSubscriptionPlan = functions
                         price: priceId,
                         quantity: 1,
                     }],
-                    success_url: `${cleanBaseUrl}/${returnUrl}${sep}payment=success`,
-                    cancel_url: `${cleanBaseUrl}/${returnUrl}${sep}payment=cancel`,
+                    success_url: `${cleanReturnBase}&payment=success`,
+                    cancel_url: `${cleanReturnBase}&payment=cancel`,
                     metadata: {
                         userId: uid,
                         planKey: planKey
@@ -1209,14 +1214,17 @@ exports.changeStripeSubscriptionPlan = functions
                         subscriptionId: admin.firestore.FieldValue.delete()
                     }).catch(() => {});
                     
-                    const returnUrl = data.returnUrl || '#/profile';
-                    const sep = returnUrl.includes('?') ? '&' : '?';
+                    let targetPath = (data.returnUrl || '').replace(/^#\/?/, '').replace(/^\//, '');
+                    if (!targetPath) {
+                        targetPath = 'profile';
+                    }
+                    const cleanReturnBase = `${cleanBaseUrl}/?redirect=${encodeURIComponent(targetPath)}`;
 
                     const checkoutParams = {
                         mode: 'subscription',
                         line_items: [{ price: priceId, quantity: 1 }],
-                        success_url: `${cleanBaseUrl}/${returnUrl}${sep}payment=success`,
-                        cancel_url: `${cleanBaseUrl}/${returnUrl}${sep}payment=cancel`,
+                        success_url: `${cleanReturnBase}&payment=success`,
+                        cancel_url: `${cleanReturnBase}&payment=cancel`,
                         metadata: { userId: uid, planKey: planKey }
                     };
                     if (userData.stripeCustomerId) {
@@ -1236,7 +1244,7 @@ exports.changeStripeSubscriptionPlan = functions
             try {
                 const session = await stripe.billingPortal.sessions.create({
                     customer: userData.stripeCustomerId || subscription.customer,
-                    return_url: `${cleanBaseUrl}/#/profile?payment=success`,
+                    return_url: `${cleanBaseUrl}/?redirect=profile&payment=success`,
                     flow: {
                         type: 'subscription_update_confirm',
                         subscription_update_confirm: {
@@ -1589,9 +1597,10 @@ exports.createStripePortalSession = functions.region('europe-west3')
         }
 
         // 5. Create Billing Portal Session
+        let portalBase = (baseUrl || '').replace(/#.*$/, '').replace(/\/$/, '');
         const session = await stripe.billingPortal.sessions.create({
             customer: stripeCustomerId,
-            return_url: `${baseUrl}/#/profile`,
+            return_url: `${portalBase}/?redirect=profile`,
         });
 
         return { url: session.url };
