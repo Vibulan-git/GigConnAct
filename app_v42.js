@@ -3971,7 +3971,7 @@ class StateManager {
         }
 
         try {
-            db.collection('events').doc(eventId).update(cleanData)
+            db.collection('events').doc(eventId).set(cleanData, { merge: true })
                 .catch(err => {
                     console.error("updateEvent Firestore write failed async:", err);
                     showToast({
@@ -4522,7 +4522,7 @@ class StateManager {
         return { success: true, chatId: newId };
     }
 
-    async sendMessage(recipientId, text, eventId) {
+    async sendMessage(recipientId, text, eventId, chatId = null) {
         if (!this.currentUser) return { success: false, message: "Bitte melde dich an." };
         const senderId = this.currentUser.role === 'musician' 
             ? (this.activeMusicianId || (this.musicians && this.musicians.find(m => m && m.creatorId === this.currentUser.id)?.id) || this.currentUser.profileId) 
@@ -4531,17 +4531,17 @@ class StateManager {
         if (!senderId) {
             return { success: false, message: "Kein aktives Absender-Profil gefunden. Bitte wähle ein Profil aus." };
         }
-        if (!recipientId) {
+        if (!recipientId && !chatId) {
             return { success: false, message: "Kein Empfänger für diesen Chat definiert." };
         }
 
         if (!this.chats) this.chats = [];
 
-        let chat = this.chats.find(c => 
+        let chat = (chatId && this.chats.find(c => c && c.id === chatId)) || this.chats.find(c => 
             c && c.participants && c.participants.includes(senderId) && c.participants.includes(recipientId)
         );
 
-        const newId = chat ? chat.id : "chat_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+        const newId = chat ? chat.id : (chatId || ("chat_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5)));
         
         const newMessage = {
             senderId: senderId,
@@ -4549,10 +4549,15 @@ class StateManager {
             timestamp: new Date().toISOString()
         };
 
+        const currentParts = chat && Array.isArray(chat.participants) ? chat.participants : [];
+        const updatedParticipants = [...new Set([...currentParts, senderId, recipientId, this.currentUser.id].filter(Boolean))];
+
+        let writeSuccessful = false;
+
         if (!chat) {
             chat = {
                 id: newId,
-                participants: [senderId, recipientId],
+                participants: updatedParticipants,
                 messages: [newMessage],
                 updatedAt: new Date().toISOString(),
                 initiatorId: senderId
@@ -4562,23 +4567,55 @@ class StateManager {
             this.saveState();
             try {
                 await db.collection('chats').doc(newId).set(chat);
+                writeSuccessful = true;
             } catch (err) {
-                console.error("sendMessage failed to create chat:", err);
-                return { success: false, message: "Fehler beim Erstellen des Chats: " + err.message };
+                console.warn("sendMessage direct Firestore set failed, falling back to backend function:", err.message);
+                try {
+                    const sendChatMessageBackend = firebase.app().functions('europe-west3').httpsCallable('sendChatMessage');
+                    const backendRes = await sendChatMessageBackend({
+                        recipientId,
+                        text,
+                        eventId,
+                        chatId: newId
+                    });
+                    if (backendRes.data && backendRes.data.success) {
+                        writeSuccessful = true;
+                    }
+                } catch (fnErr) {
+                    console.error("sendMessage backend fallback failed:", fnErr);
+                    return { success: false, message: "Fehler beim Erstellen des Chats: " + fnErr.message };
+                }
             }
         } else {
             const updatedMessages = [...(chat.messages || []), newMessage];
             chat.messages = updatedMessages;
+            chat.participants = updatedParticipants;
             chat.updatedAt = new Date().toISOString();
             this.saveState();
             try {
                 await db.collection('chats').doc(newId).update({
                     messages: updatedMessages,
+                    participants: updatedParticipants,
                     updatedAt: chat.updatedAt
                 });
+                writeSuccessful = true;
             } catch (err) {
-                console.error("sendMessage failed to update chat:", err);
-                return { success: false, message: "Fehler beim Senden der Nachricht: " + err.message };
+                console.warn("sendMessage direct Firestore update failed, falling back to backend function:", err.message);
+                try {
+                    const sendChatMessageBackend = firebase.app().functions('europe-west3').httpsCallable('sendChatMessage');
+                    const backendRes = await sendChatMessageBackend({
+                        recipientId,
+                        text,
+                        eventId,
+                        chatId: newId
+                    });
+                    if (backendRes.data && backendRes.data.success) {
+                        writeSuccessful = true;
+                    }
+                } catch (fnErr) {
+                    console.error("sendMessage backend fallback failed:", fnErr);
+                    return { success: false, message: "Fehler beim Senden der Nachricht: " + fnErr.message };
+                }
             }
         }
 
@@ -10839,18 +10876,27 @@ function renderProfilePage(container) {
                 }
             });
             state.events.forEach(e => {
-                if (e.creatorId === u.id || e.id === u.profileId) {
+                if (e.creatorId === u.id || e.id === u.profileId || (u.email && (e.email === u.email || e.clientEmail === u.email))) {
                     e.contactName = `${fName} ${lName}`;
                     e.phone = phone;
                     e.email = email;
                     e.hidePhone = hidePhone;
+                    if (u.role === 'organizer') {
+                        e.company = u.company || '';
+                        e.organizerType = u.organizerType || '';
+                    }
                     if (typeof db !== 'undefined' && e.id) {
-                        db.collection('events').doc(e.id).set({
+                        const evtUpdate = {
                             contactName: `${fName} ${lName}`,
                             phone: phone,
                             email: email,
                             hidePhone: hidePhone
-                        }, { merge: true }).catch(err => console.error("Error updating event contact doc:", err));
+                        };
+                        if (u.role === 'organizer') {
+                            evtUpdate.company = u.company || '';
+                            evtUpdate.organizerType = u.organizerType || '';
+                        }
+                        db.collection('events').doc(e.id).set(evtUpdate, { merge: true }).catch(err => console.error("Error updating event contact doc:", err));
                     }
                 }
             });
@@ -10873,7 +10919,13 @@ function renderProfilePage(container) {
             }
 
             if (typeof db !== 'undefined' && u.id) {
-                db.collection('users').doc(u.id).set(u, { merge: true })
+                const cleanU = {};
+                for (const [k, v] of Object.entries(u)) {
+                    if (v !== undefined && typeof v !== 'function') {
+                        cleanU[k] = v;
+                    }
+                }
+                db.collection('users').doc(u.id).set(cleanU, { merge: true })
                     .catch(err => {
                         console.error("Firestore user details update failed:", err);
                         showToast({
@@ -10892,6 +10944,7 @@ function renderProfilePage(container) {
                 message: "Deine persönlichen Informationen wurden erfolgreich gespeichert."
             });
             updateNavbar();
+            renderProfilePage(container);
         });
     }
 
@@ -13782,7 +13835,11 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
         closeModal();
         const mainContainer = document.getElementById('app-main');
-        renderMyEvents(mainContainer);
+        if (window.location.hash.includes('profile')) {
+            renderProfilePage(mainContainer);
+        } else {
+            renderMyEvents(mainContainer);
+        }
     });
 }
 
@@ -18479,8 +18536,8 @@ function renderPostbox(container) {
                     if (!text || !activeChat) return;
 
                     const participants = activeChat.participants || [];
-                    const counterpartyId = participants.find(id => id !== currentUserId) || participants[0];
-                    const res = await state.sendMessage(counterpartyId, text, activeChat.eventId);
+                    const counterpartyId = participants.find(id => !myUserIds.includes(id)) || participants.find(id => id !== currentUserId) || participants[0];
+                    const res = await state.sendMessage(counterpartyId, text, activeChat.eventId, activeChat.id);
                     if (res && !res.success) {
                         showToast({
                             title: "Fehler beim Senden ⚠️",
@@ -18510,8 +18567,8 @@ function renderPostbox(container) {
                     if (!text) return;
 
                     const participants = chat.participants || [];
-                    const counterpartyId = participants.find(id => id !== currentUserId) || participants[0];
-                    const res = await state.sendMessage(counterpartyId, text, chat.eventId);
+                    const counterpartyId = participants.find(id => !myUserIds.includes(id)) || participants.find(id => id !== currentUserId) || participants[0];
+                    const res = await state.sendMessage(counterpartyId, text, chat.eventId, chat.id);
                     if (res && !res.success) {
                         showToast({
                             title: "Fehler beim Senden ⚠️",

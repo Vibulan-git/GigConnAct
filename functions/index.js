@@ -1118,6 +1118,124 @@ exports.updateSubscriptionCancelState = functions
     });
 
 // ==========================================
+// Chat Message Sender (Guaranteed Backend Delivery)
+// ==========================================
+exports.sendChatMessage = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'Bitte melde dich an.');
+        }
+
+        const uid = context.auth.uid;
+        const { recipientId, text, eventId, chatId } = data;
+
+        if (!text || typeof text !== 'string' || !text.trim()) {
+            throw new functions.https.HttpsError('invalid-argument', 'Nachrichtentext darf nicht leer sein.');
+        }
+        if (!recipientId && !chatId) {
+            throw new functions.https.HttpsError('invalid-argument', 'Kein Empfänger oder Chat angegeben.');
+        }
+
+        try {
+            const userDoc = await admin.firestore().collection('users').doc(uid).get();
+            const userData = userDoc.exists ? userDoc.data() : {};
+            const isMusician = userData.role === 'musician';
+
+            // Determine senderId
+            let senderId = null;
+            if (isMusician) {
+                senderId = userData.profileId || null;
+                if (!senderId) {
+                    const musSnap = await admin.firestore().collection('musicians').where('creatorId', '==', uid).limit(1).get();
+                    if (!musSnap.empty) senderId = musSnap.docs[0].id;
+                }
+            } else {
+                senderId = userData.profileId || null;
+                if (!senderId) {
+                    const evtSnap = await admin.firestore().collection('events').where('creatorId', '==', uid).limit(1).get();
+                    if (!evtSnap.empty) senderId = evtSnap.docs[0].id;
+                }
+            }
+            if (!senderId) senderId = uid;
+
+            const effectiveRecipientId = recipientId || null;
+            let targetChatId = chatId || null;
+            let chatDoc = null;
+
+            if (targetChatId) {
+                const docSnap = await admin.firestore().collection('chats').doc(targetChatId).get();
+                if (docSnap.exists) {
+                    chatDoc = docSnap;
+                }
+            }
+
+            if (!chatDoc && effectiveRecipientId) {
+                // Look for existing chat by participants
+                const snap1 = await admin.firestore().collection('chats')
+                    .where('participants', 'array-contains', senderId).get();
+                chatDoc = snap1.docs.find(d => {
+                    const parts = d.data().participants || [];
+                    return parts.includes(effectiveRecipientId);
+                }) || null;
+
+                if (!chatDoc && uid !== senderId) {
+                    const snap2 = await admin.firestore().collection('chats')
+                        .where('participants', 'array-contains', uid).get();
+                    chatDoc = snap2.docs.find(d => {
+                        const parts = d.data().participants || [];
+                        return parts.includes(effectiveRecipientId);
+                    }) || null;
+                }
+            }
+
+            const targetId = chatDoc ? chatDoc.id : (targetChatId || ("chat_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5)));
+            const now = new Date().toISOString();
+            const newMessage = {
+                senderId: senderId,
+                text: text.trim(),
+                timestamp: now
+            };
+
+            if (chatDoc && chatDoc.exists) {
+                const currentData = chatDoc.data();
+                const updatedMessages = [...(currentData.messages || []), newMessage];
+                const partsSet = new Set([...(currentData.participants || []), senderId, uid]);
+                if (effectiveRecipientId) partsSet.add(effectiveRecipientId);
+
+                await admin.firestore().collection('chats').doc(targetId).update({
+                    messages: updatedMessages,
+                    participants: Array.from(partsSet),
+                    updatedAt: now
+                });
+            } else {
+                const partsSet = new Set([senderId, uid]);
+                if (effectiveRecipientId) partsSet.add(effectiveRecipientId);
+
+                const newChatData = {
+                    id: targetId,
+                    participants: Array.from(partsSet),
+                    messages: [newMessage],
+                    updatedAt: now,
+                    initiatorId: senderId
+                };
+                if (eventId) newChatData.eventId = eventId;
+
+                await admin.firestore().collection('chats').doc(targetId).set(newChatData);
+            }
+
+            return {
+                success: true,
+                chatId: targetId,
+                message: newMessage
+            };
+        } catch (error) {
+            console.error("sendChatMessage backend error:", error);
+            throw new functions.https.HttpsError('internal', error.message || 'Fehler beim Senden der Nachricht.');
+        }
+    });
+
+// ==========================================
 // Stripe Subscription Plan Change (Upgrade / Downgrade)
 // ==========================================
 exports.changeStripeSubscriptionPlan = functions

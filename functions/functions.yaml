@@ -210,6 +210,23 @@
       "callableTrigger": {},
       "entryPoint": "updateSubscriptionCancelState"
     },
+    "sendChatMessage": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [],
+      "callableTrigger": {},
+      "entryPoint": "sendChatMessage"
+    },
     "changeStripeSubscriptionPlan": {
       "platform": "gcfv1",
       "labels": {},

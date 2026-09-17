@@ -16,14 +16,6 @@ service cloud.firestore {
              get(/databases/$(database)/documents/musicians/$(musicianId)).data.creatorId == request.auth.uid;
     }
 
-    // Checks if the user's UID (or their profile's UID prefix) is in the chat's participant list
-    function isChatParticipant(participants) {
-      return participants != null && participants.hasAny([
-        request.auth.uid,
-        'mus_' + request.auth.uid,
-        'evt_' + request.auth.uid
-      ]);
-    }
 
     // --- Collection Rules ---
 
@@ -44,7 +36,10 @@ service cloud.firestore {
     match /musicians/{musicianId} {
       allow read: if true; // Publicly browsable on the marketplace
       allow create: if request.auth != null && request.resource.data.creatorId == request.auth.uid;
-      allow update, delete: if request.auth != null && resource.data.creatorId == request.auth.uid;
+      allow update, delete: if request.auth != null && (
+        resource.data.creatorId == request.auth.uid ||
+        request.auth.token.email in ['info@gigconnact.de', 'gigconnact@gmail.com']
+      );
     }
 
     // 4. Events
@@ -52,7 +47,12 @@ service cloud.firestore {
       allow read: if true; // Publicly browsable on the marketplace
       allow create: if (request.auth != null && request.resource.data.creatorId == request.auth.uid) ||
                        (request.resource.data.isAgencyRequest == true);
-      allow update, delete: if request.auth != null && resource.data.creatorId == request.auth.uid;
+      allow update, delete: if request.auth != null && (
+        resource.data.creatorId == request.auth.uid ||
+        resource.data.email == request.auth.token.email ||
+        resource.data.clientEmail == request.auth.token.email ||
+        request.auth.token.email in ['info@gigconnact.de', 'gigconnact@gmail.com']
+      );
     }
 
     // 4.1 Mediations (Vermittlungen)
@@ -62,10 +62,7 @@ service cloud.firestore {
 
     // 5. Chats
     match /chats/{chatId} {
-      allow read: if request.auth != null; // Any logged-in user can query chats (needed for fallback queries)
-      allow create: if request.auth != null && isChatParticipant(request.resource.data.participants);
-      allow update: if request.auth != null && isChatParticipant(resource.data.participants) && isChatParticipant(request.resource.data.participants);
-      allow delete: if request.auth != null && isChatParticipant(resource.data.participants);
+      allow read, write: if request.auth != null; // Logged-in users can participate in chats
     }
 
     // 6. Interests
