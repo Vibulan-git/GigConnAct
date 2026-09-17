@@ -6556,7 +6556,7 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; text-align: center; line-height: 1.25;">
                     <i class="fa-solid fa-guitar" style="font-size: clamp(2rem, 4.5vw, 2.5rem); margin-bottom: 0.6rem; color: #ffffff;"></i>
                     <span style="font-size: clamp(0.92rem, 2vw, 1.05rem); font-weight: 600; color: rgba(255, 255, 255, 0.9);">Ich bin</span>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.45rem, 3.4vw, 1.85rem); font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; margin: 0.15rem 0; color: #ffffff;">Musiker</span>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.85rem, 4.4vw, 2.45rem); font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; margin: 0.15rem 0; color: #ffffff;">Musiker</span>
                     <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.2rem;">und suche Gigs</span>
                 </div>
             </button>
@@ -6566,7 +6566,7 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; text-align: center; line-height: 1.25;">
                     <i class="fa-solid fa-calendar-check" style="font-size: clamp(2rem, 4.5vw, 2.5rem); margin-bottom: 0.6rem; color: #ffffff;"></i>
                     <span style="font-size: clamp(0.92rem, 2vw, 1.05rem); font-weight: 600; color: rgba(255, 255, 255, 0.9);">Ich bin</span>
-                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.45rem, 3.4vw, 1.85rem); font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; margin: 0.15rem 0; color: #ffffff;">Veranstalter</span>
+                    <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.85rem, 4.4vw, 2.45rem); font-weight: 900; letter-spacing: -0.5px; line-height: 1.15; margin: 0.15rem 0; color: #ffffff;">Veranstalter</span>
                     <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.2rem;">und suche Acts</span>
                 </div>
             </button>
@@ -11470,7 +11470,7 @@ function renderMyEventsContent(container) {
 
             <!-- Deactivated / Finished Events -->
             ${deactivatedEvents.length > 0 ? `
-            <div class="profile-section-card" style="opacity:0.9; border-top: 4px solid #94a3b8 !important;">
+            <div class="profile-section-card" style="opacity:0.9; border: none !important; border-top: none !important;">
                 <div class="profile-section-header">
                     <div style="display: flex; align-items: center; gap: 0.85rem;">
                         <div class="profile-section-badge-icon" style="background: rgba(148, 163, 184, 0.15); color: #64748b;">
@@ -11983,7 +11983,7 @@ function renderMyMusiciansContent(container) {
 
             <!-- Paused / Inactive Musicians -->
             ${deactivatedMusicians.length > 0 ? `
-            <div class="profile-section-card" style="opacity:0.9; border-top: 4px solid #94a3b8 !important;">
+            <div class="profile-section-card" style="opacity:0.9; border: none !important; border-top: none !important;">
                 <div class="profile-section-header">
                     <div style="display: flex; align-items: center; gap: 0.85rem;">
                         <div class="profile-section-badge-icon" style="background: rgba(148, 163, 184, 0.15); color: #64748b;">
@@ -16947,7 +16947,7 @@ function updateNavbar(forceLanding) {
     }
 
     if (footer) {
-        footer.style.display = isLanding ? 'none' : 'flex';
+        footer.style.display = 'none';
     }
 
     if (u && u.id) {
@@ -17802,22 +17802,12 @@ function renderPostbox(container) {
                     <!-- Left Sidebar: Categories & Chat Threads List -->
                     <div class="postbox-sidebar" style="width: 340px; max-width: 100%; flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); height: 100%; box-sizing: border-box;">
                     
-                    <!-- Postbox Header & Tabs (Always visible) -->
+                    <!-- Postbox Header (Profile selector if available) -->
+                    ${profileSelectorHtml ? `
                     <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-glass); background: rgba(255,255,255,0.01);">
                         ${profileSelectorHtml}
-                        <!-- 3 Category Tabs (3 Columns) - Always expanded -->
-                        <div id="postbox-filters-container" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; ${profileSelectorHtml ? 'margin-top: 0.5rem;' : ''}">
-                            <button class="btn btn-sm ${activeTab === 'all' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="all" style="font-size: 0.72rem; padding: 0.4rem 0.1rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="Alle Nachrichten">
-                                <i class="fa-solid fa-folder-open" style="margin-right: 4px;"></i> Alle
-                            </button>
-                            <button class="btn btn-sm ${activeTab === 'received' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="received" style="font-size: 0.72rem; padding: 0.4rem 0.1rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(34, 197, 94, 0.35); color: ${activeTab === 'received' ? '#ffffff' : '#22c55e'};" title="Empfangene Anfragen">
-                                <i class="fa-solid fa-inbox" style="margin-right: 4px;"></i> Empfangen
-                            </button>
-                            <button class="btn btn-sm ${activeTab === 'sent' ? 'btn-primary' : 'btn-glass'} tab-btn-postbox" data-tab="sent" style="font-size: 0.72rem; padding: 0.4rem 0.1rem; text-align: center; margin:0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-color: rgba(239, 68, 68, 0.35); color: ${activeTab === 'sent' ? '#ffffff' : '#ef4444'};" title="Versendete Anfragen">
-                                <i class="fa-solid fa-paper-plane" style="margin-right: 4px;"></i> Versendet
-                            </button>
-                        </div>
                     </div>
+                    ` : ''}
 
                     <!-- Thread Items List -->
                     <div class="postbox-threads-list" style="flex: 1; overflow-y: auto; padding: 0.5rem;">
@@ -18151,7 +18141,7 @@ function renderPostbox(container) {
                     title: "Perfect Match entstanden! 🎉",
                     message: "Ihr habt nun gegenseitig Interesse bekundet. Du kannst jetzt direkt antworten."
                 });
-                activeTab = 'received';
+                activeTab = 'all';
                 renderView();
             });
         });

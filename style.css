@@ -1522,13 +1522,7 @@ body {
 
 /* Footer layout */
 .app-footer {
-    border-top: 1px solid var(--border-glass);
-    padding: 1.5rem 2rem;
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    background: rgba(7, 10, 19, 0.8);
-    margin-top: 5rem;
+    display: none !important;
 }
 
 .premium-badge {
@@ -2289,7 +2283,8 @@ body {
 
 .profile-section-card {
     background: #ffffff !important;
-    border: 1.5px solid #e2e8f0 !important;
+    border: none !important;
+    border-top: none !important;
     border-radius: 18px !important;
     box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.03) !important;
     padding: 2rem 2.2rem !important;
@@ -2341,20 +2336,20 @@ body {
     font-weight: 500 !important;
 }
 
-.profile-section-card.musician-profile {
-    border-top: 4px solid #7c3aed !important;
-}
-
-.profile-section-card.contact-details {
-    border-top: 4px solid #2563eb !important;
-}
-
-.profile-section-card.subscription-manage {
-    border-top: 4px solid #9333ea !important;
-}
-
-.profile-section-card.privacy-manage {
-    border-top: 4px solid #475569 !important;
+.profile-section-card,
+.profile-section-card.musician-profile,
+.profile-section-card.contact-details,
+.profile-section-card.subscription-manage,
+.profile-section-card.privacy-manage,
+.profile-page .profile-section-card,
+.profile-page .portal-card,
+.profile-page .card {
+    border: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    outline: none !important;
 }
 
 .profile-page .portal-layout {
@@ -3005,6 +3000,13 @@ body {
     align-items: center !important;
 }
 
+.hero-cta-title {
+    font-size: clamp(1.85rem, 4.4vw, 2.45rem) !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.5px !important;
+    line-height: 1.15 !important;
+}
+
 #btn-hero-musician {
     animation: pulseGlowMusician 3s infinite ease-in-out;
 }
@@ -3137,10 +3139,11 @@ body.landing-page-active .app-container {
         margin-bottom: 0.25rem !important;
     }
     
-    .hero-cta-buttons .btn .hero-cta-title {
+    .hero-cta-buttons .btn .hero-cta-title,
+    .hero-cta-title {
         font-family: var(--font-heading) !important;
-        font-size: clamp(0.95rem, 3.2vw, 1.18rem) !important;
-        line-height: 1.2 !important;
+        font-size: clamp(1.4rem, 4.4vw, 1.85rem) !important;
+        line-height: 1.15 !important;
         font-weight: 900 !important;
         text-align: center !important;
     }
