@@ -6941,16 +6941,16 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
                 <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.6rem 1.2rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; line-height: 1.3;">
                         <i class="fa-solid fa-guitar" style="font-size: clamp(1.85rem, 4.2vw, 2.3rem); margin-bottom: 0.55rem; color: #ffffff;"></i>
-                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(0.95rem, 2.2vw, 1.15rem); font-weight: 700; text-align: center; color: #ffffff;">Ich möchte</span>
-                        <span style="font-family: var(--font-heading); font-size: clamp(1.2rem, 2.8vw, 1.55rem); font-weight: 900; color: #ffffff; letter-spacing: 0.5px; text-transform: uppercase; margin: 0.15rem 0;">DIREKT</span>
+                        <span style="font-family: var(--font-heading); font-size: clamp(0.9rem, 2vw, 1.05rem); font-weight: 600; text-align: center; color: rgba(255, 255, 255, 0.9);">Ich möchte</span>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.7rem, 4vw, 2.3rem) !important; font-weight: 900 !important; color: #ffffff; letter-spacing: 0.5px; text-transform: uppercase; margin: 0.15rem 0; line-height: 1.15;">DIREKT</span>
                         <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">Kontakt aufnehmen</span>
                     </div>
                 </button>
                 <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.6rem 1.2rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; line-height: 1.3;">
                         <i class="fa-solid fa-handshake" style="font-size: clamp(1.85rem, 4.2vw, 2.3rem); margin-bottom: 0.55rem; color: #ffffff;"></i>
-                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(0.95rem, 2.2vw, 1.15rem); font-weight: 700; text-align: center; color: #ffffff;">Ich möchte</span>
-                        <span style="font-family: var(--font-heading); font-size: clamp(1.2rem, 2.8vw, 1.55rem); font-weight: 900; color: #ffffff; letter-spacing: 0.5px; text-transform: uppercase; margin: 0.15rem 0;">VERMITTELT</span>
+                        <span style="font-family: var(--font-heading); font-size: clamp(0.9rem, 2vw, 1.05rem); font-weight: 600; text-align: center; color: rgba(255, 255, 255, 0.9);">Ich möchte</span>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.7rem, 4vw, 2.3rem) !important; font-weight: 900 !important; color: #ffffff; letter-spacing: 0.5px; text-transform: uppercase; margin: 0.15rem 0; line-height: 1.15;">VERMITTELT</span>
                         <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">werden</span>
                     </div>
                 </button>
@@ -10940,15 +10940,15 @@ function renderProfilePage(container) {
                 </p>
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                     <button class="btn btn-secondary btn-sm" id="btn-cookie-settings-profile" onclick="window.showCookieSettings()" style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="fa-solid fa-cookie-bite"></i> Cookie-Einstellungen anpassen
+                        <i class="fa-solid fa-cookie-bite"></i> Cookie-Einstellungen
                     </button>
                     ${isMusician && (u.stripeCustomerId || ['flex', 'plus', 'pro'].includes(u.subscriptionPlan)) ? `
                     <button class="btn btn-secondary btn-sm" id="btn-manage-billing" style="margin: 0; display: flex; align-items: center; gap: 0.5rem; background: var(--color-purple); border-color: var(--color-purple);">
-                        <i class="fa-solid fa-credit-card"></i> Zahlungsdaten verwalten
+                        <i class="fa-solid fa-credit-card"></i> Zahlungsdaten
                     </button>
                     ` : ''}
                     <button class="btn btn-glass btn-sm" id="btn-delete-useraccount" style="margin: 0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="fa-solid fa-trash-can"></i> Konto unwiderruflich löschen
+                        <i class="fa-solid fa-trash-can"></i> Konto löschen
                     </button>
                 </div>
                 <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; margin-bottom: 0;">
@@ -11418,7 +11418,7 @@ function renderProfilePage(container) {
             } catch (err) {
                 console.error("Stripe Portal redirect failed:", err);
                 manageBillingBtn.disabled = false;
-                manageBillingBtn.innerHTML = `<i class="fa-solid fa-credit-card"></i> Zahlungsdaten verwalten`;
+                manageBillingBtn.innerHTML = `<i class="fa-solid fa-credit-card"></i> Zahlungsdaten`;
                 showToast({
                     title: "Fehler beim Portalaufruf ⚠️",
                     message: err.message || "Bitte versuche es später noch einmal.",
@@ -11902,16 +11902,22 @@ function renderOrganizerEventItem(e, isActive) {
                 <button class="btn btn-sm btn-find-matching-acts" data-id="${e.id}" style="width: 100%; font-size: 0.8rem; font-weight: 700; padding: 0.45rem 0.6rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.4rem; color: #ffffff; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; border-radius: 6px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
                     <i class="fa-solid fa-users-viewfinder" style="color: #ffffff;"></i> Passende Acts finden
                 </button>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem;">
-                    <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
+                    ${isActive ? `
+                    <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                         <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
                     </button>
-                    <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
-                        <i class="fa-solid fa-${isActive ? 'pause' : 'play'}" style="color: #ffffff;"></i> ${isActive ? 'Pausieren' : 'Aktivieren'}
+                    <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                        <i class="fa-solid fa-pause" style="color: #ffffff;"></i> Pausieren
                     </button>
-                    <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                    ` : `
+                    <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                        <i class="fa-solid fa-play" style="color: #ffffff;"></i> Aktivieren
+                    </button>
+                    <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                         <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
                     </button>
+                    `}
                 </div>
             </div>
         </div>
@@ -12411,16 +12417,22 @@ function renderMyMusicianItem(m, isActive) {
             </div>
 
             <!-- Actions Grid at the Bottom (Lila theme with white text for musicians) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem; background: #7c3aed;">
-                <button class="btn btn-sm btn-glass btn-edit-my-musician" data-id="${m.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #7c3aed;">
+                ${isActive ? `
+                <button class="btn btn-sm btn-glass btn-edit-my-musician" data-id="${m.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                     <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
                 </button>
-                <button class="btn btn-sm btn-glass btn-pause-my-musician" data-id="${m.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
-                    <i class="fa-solid fa-${isActive ? 'pause' : 'play'}" style="color: #ffffff;"></i> ${isActive ? 'Pausieren' : 'Aktivieren'}
+                <button class="btn btn-sm btn-glass btn-pause-my-musician" data-id="${m.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                    <i class="fa-solid fa-pause" style="color: #ffffff;"></i> Pausieren
                 </button>
-                <button class="btn btn-sm btn-glass btn-delete-my-musician" data-id="${m.id}" style="font-size: 0.72rem; padding: 0.35rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
+                ` : `
+                <button class="btn btn-sm btn-glass btn-pause-my-musician" data-id="${m.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                    <i class="fa-solid fa-play" style="color: #ffffff;"></i> Aktivieren
+                </button>
+                <button class="btn btn-sm btn-glass btn-delete-my-musician" data-id="${m.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
                     <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
                 </button>
+                `}
             </div>
         </div>
     `;
