@@ -6253,6 +6253,10 @@ body.has-bottom-bar .toast-container {
     display: inline-block;
     vertical-align: middle;
     letter-spacing: 0.2px;
+    white-space: nowrap !important;
+    text-overflow: clip !important;
+    user-select: none;
+    flex-shrink: 0;
 }
 
 

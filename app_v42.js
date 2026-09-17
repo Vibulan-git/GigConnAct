@@ -704,7 +704,7 @@ window.unlockListing = function(targetId, targetName) {
                 <div class="unlock-plan-card active" data-plan="flex" style="padding:0.9rem 1.1rem; background:rgba(124,58,237,0.06); border:2px solid var(--color-purple); border-radius:12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:0.2s;">
                     <div>
                         <strong style="display:block; font-size:0.95rem; color:#fff;">Flex</strong>
-                        <span style="font-size:0.7rem; color:var(--text-muted);">1 Monat Laufzeit, jederzeit kündbar.</span>
+                        <span style="font-size:0.7rem; color:var(--text-muted);">1 Monat Vertragslaufzeit, 1 Monat kostenlos.</span>
                     </div>
                     <strong style="color:var(--color-purple); font-size:1.1rem;">9,99 €</strong>
                 </div>
@@ -712,7 +712,7 @@ window.unlockListing = function(targetId, targetName) {
                 <div class="unlock-plan-card" data-plan="plus" style="padding:0.9rem 1.1rem; background:rgba(255,255,255,0.02); border:2px solid rgba(255,255,255,0.05); border-radius:12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:0.2s;">
                     <div>
                         <strong style="display:block; font-size:0.95rem; color:#fff;">Plus</strong>
-                        <span style="font-size:0.7rem; color:var(--text-muted);">6 Monate Laufzeit, 1. Monat kostenlos.</span>
+                        <span style="font-size:0.7rem; color:var(--text-muted);">6 Monate Vertragslaufzeit, 1 Monat kostenlos.</span>
                     </div>
                     <strong style="color:var(--color-purple); font-size:1.1rem;">7,99 €</strong>
                 </div>
@@ -720,9 +720,17 @@ window.unlockListing = function(targetId, targetName) {
                 <div class="unlock-plan-card" data-plan="pro" style="padding:0.9rem 1.1rem; background:rgba(255,255,255,0.02); border:2px solid rgba(255,255,255,0.05); border-radius:12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:0.2s;">
                     <div>
                         <strong style="display:block; font-size:0.95rem; color:#fff;">Pro</strong>
-                        <span style="font-size:0.7rem; color:var(--text-muted);">12 Monate Laufzeit, 1. Monat kostenlos.</span>
+                        <span style="font-size:0.7rem; color:var(--text-muted);">12 Monate Vertragslaufzeit, 1 Monat kostenlos.</span>
                     </div>
                     <strong style="color:var(--color-purple); font-size:1.1rem;">5,99 €</strong>
+                </div>
+                <!-- Premium Card -->
+                <div class="unlock-plan-card" data-plan="premium" style="padding:0.9rem 1.1rem; background:rgba(255,255,255,0.02); border:2px solid rgba(255,255,255,0.05); border-radius:12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:0.2s;">
+                    <div>
+                        <strong style="display:block; font-size:0.95rem; color:#fff;">Premium</strong>
+                        <span style="font-size:0.7rem; color:var(--text-muted);">12 Monate Vertragslaufzeit, 3 Monate kostenlos.</span>
+                    </div>
+                    <strong style="color:var(--color-purple); font-size:1.1rem;">4,99 €</strong>
                 </div>
             </div>
             
@@ -2930,7 +2938,7 @@ class StateManager {
                     db.collection('pendingRegistrations').doc(email.toLowerCase()).delete().catch(()=>{});
 
                     targetPlan = pendingReg.subscriptionPlan || 'flex';
-                    if (targetPlan === 'flex' || targetPlan === 'plus' || targetPlan === 'pro') {
+                    if (targetPlan === 'flex' || targetPlan === 'plus' || targetPlan === 'pro' || targetPlan === 'premium') {
                         redirectToStripe = true;
                     } else {
                         showToast({
@@ -10189,10 +10197,10 @@ function renderProfilePage(container) {
 
     const getPlanDetails = (planKey) => {
         switch (planKey) {
-            case 'plus': return { title: 'Plus', priceText: '7,99 € / Monat', details: '6 Monate Vertragslaufzeit, 1 Tag kostenlos' };
-            case 'pro': return { title: 'Pro', priceText: '5,99 € / Monat', details: '12 Monate Vertragslaufzeit, 1 Tag kostenlos' };
-            case 'premium': return { title: 'Premium', priceText: '4,99 € / Monat', details: '12 Monate Vertragslaufzeit, 3 Tage kostenlos' };
-            default: return { title: 'Flex', priceText: '9,99 € / Monat', details: '1 Monat Vertragslaufzeit, 1 Tag kostenlos' };
+            case 'plus': return { title: 'Plus', priceText: '7,99 € / Monat', details: '6 Monate Vertragslaufzeit, 1 Monat kostenlos' };
+            case 'pro': return { title: 'Pro', priceText: '5,99 € / Monat', details: '12 Monate Vertragslaufzeit, 1 Monat kostenlos' };
+            case 'premium': return { title: 'Premium', priceText: '4,99 € / Monat', details: '12 Monate Vertragslaufzeit, 3 Monate kostenlos' };
+            default: return { title: 'Flex', priceText: '9,99 € / Monat', details: '1 Monat Vertragslaufzeit, 1 Monat kostenlos' };
         }
     };
     
@@ -10356,7 +10364,8 @@ function renderProfilePage(container) {
                             <h5>Flex</h5>
                             <div class="price">9,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
-                                <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
@@ -10365,7 +10374,8 @@ function renderProfilePage(container) {
                             <h5>Plus</h5>
                             <div class="price">7,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
-                                <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
@@ -10374,7 +10384,8 @@ function renderProfilePage(container) {
                             <h5>Pro</h5>
                             <div class="price">5,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
-                                <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
@@ -10383,23 +10394,12 @@ function renderProfilePage(container) {
                             <h5>Premium</h5>
                             <div class="price">4,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
                             <ul class="plan-features" style="font-size: 0.7rem; margin-top: 0.6rem;">
-                                <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
                                 <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
                         </div>
-                    </div><div id="profile-promo-code-box" style="display: none; margin-bottom: 1.5rem; background: ${isMusician ? 'rgba(124, 58, 237, 0.05)' : 'rgba(37, 99, 235, 0.05)'}; border: 1px dashed ${themeColor}; padding: 1rem; border-radius: var(--radius-md);">
-                        <h5 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: ${themeColor};"><i class="fa-brands fa-instagram"></i> Premium-Freischaltung</h5>
-                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.35;">
-                            Um in den exklusiven Premium-Tarif zu wechseln, gib bitte deinen Gutscheincode ein (Instagram Story-Aktion):
-                        </p>
-                        <div style="display: flex; gap: 0.5rem;">
-                            <input type="text" id="prof-promo-code" class="input-field" placeholder="Gutscheincode" style="margin:0; text-transform: uppercase;">
-                            <button type="button" class="btn btn-secondary btn-sm" id="btn-prof-apply-promo" style="margin:0; font-size:0.75rem; white-space:nowrap; background:${themeBtnBg}; border-color:${themeBtnBorder};">Code prüfen</button>
-                        </div>
-                        <div id="prof-promo-status-msg" style="font-size: 0.7rem; margin-top: 0.4rem; display: none;"></div>
-                        
-                        <!-- Stripe-Verbindung entfernt, da Checkout direkt genutzt wird -->
                     </div>
 
                     <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
@@ -10746,9 +10746,7 @@ function renderProfilePage(container) {
         }
 
         const subCards = container.querySelectorAll('.subscription-card');
-        const promoBox = document.getElementById('profile-promo-code-box');
         selectedPlan = activePlan;
-        let isPromoApplied = activePlan === 'premium';
 
         subCards.forEach(card => {
             card.addEventListener('click', () => {
@@ -10756,46 +10754,12 @@ function renderProfilePage(container) {
                 
                 card.classList.add("active");
                 selectedPlan = card.getAttribute("data-plan");
-
-                if (selectedPlan === "premium" && !isPromoApplied) {
-                    promoBox.style.display = 'block';
-                } else {
-                    promoBox.style.display = 'none';
-                }
             });
         });
-
-        const promoBtn = document.getElementById('btn-prof-apply-promo');
-        const promoInput = document.getElementById('prof-promo-code');
-        const promoStatus = document.getElementById('prof-promo-status-msg');
-
-        if (promoBtn && promoInput && promoStatus) {
-            promoBtn.addEventListener('click', () => {
-                const code = promoInput.value.trim().toUpperCase();
-                if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code) || window.gcaPromoCodes.includes(code)) {
-                    isPromoApplied = true;
-                    promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif freigeschaltet.";
-                    promoStatus.style.color = "#10b981";
-                    promoStatus.style.display = "block";
-                    promoInput.disabled = true;
-                    promoBtn.disabled = true;
-                } else {
-                    isPromoApplied = false;
-                    promoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Story-Beitrag.";
-                    promoStatus.style.color = "#ef4444";
-                    promoStatus.style.display = "block";
-                }
-            });
-        }
 
         const saveSubBtn = document.getElementById('btn-save-subscription-change');
         if (saveSubBtn) {
             saveSubBtn.addEventListener('click', async () => {
-                if (selectedPlan === 'premium' && !isPromoApplied) {
-                    showToast({ title: "Gutscheincode erforderlich", message: "Bitte gib einen gültigen Instagram-Code ein, um den Premium-Tarif freizuschalten.", type: "error" });
-                    return;
-                }
-
                 if (selectedPlan === activePlan && u.isPremium) {
                     showToast({ title: "Tarif bereits aktiv", message: "Du nutzt bereits diesen Tarif." });
                     return;
@@ -10835,18 +10799,6 @@ function renderProfilePage(container) {
                     renderProfilePage(container);
                     updateNavbar();
                 };
-
-                // Sofortige Aktivierung bei Instagram-Gutscheincode für Premium
-                if (selectedPlan === 'premium' && isPromoApplied) {
-                    saveSubBtn.disabled = true;
-                    saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Tarif wird aktiviert...`;
-                    await applyPlanUpdate('premium');
-                    showToast({
-                        title: "Tarif gewechselt! 🎉",
-                        message: "Dein Premium-Tarif wurde über den Gutscheincode erfolgreich aktiviert!"
-                    });
-                    return;
-                }
 
                 try {
                     saveSubBtn.disabled = true;
@@ -14283,9 +14235,10 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                     <div class="gift-title">1 Monat kostenlos</div>
                                 </div>
                                 <ul class="plan-features">
-                                    <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar<br>(auch in der Testphase)</span></li>
+                                    <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                                 </ul>
                                 <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                     <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Ausgewählt</button>
@@ -14300,9 +14253,10 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                     <div class="gift-title">1 Monat kostenlos</div>
                                 </div>
                                 <ul class="plan-features">
-                                    <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar<br>(auch in der Testphase)</span></li>
+                                    <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                                 </ul>
                                 <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                     <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Auswählen</button>
@@ -14317,9 +14271,10 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                     <div class="gift-title">1 Monat kostenlos</div>
                                 </div>
                                 <ul class="plan-features">
-                                    <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar<br>(auch in der Testphase)</span></li>
+                                    <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                                 </ul>
                                 <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                     <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Auswählen</button>
@@ -14331,13 +14286,13 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 <div class="price">4,99 € <span style="font-size:0.75rem; font-weight:400; color:var(--text-muted);">/ Monat</span></div>
                                 <div class="subscription-gift-box">
                                     <i class="fa-solid fa-gift"></i>
-                                    <div class="gift-title">3 Tage kostenlos</div>
+                                    <div class="gift-title">3 Monate kostenlos</div>
                                 </div>
                                 <ul class="plan-features">
-                                    <li><i class="fa-solid fa-circle-check"></i> Kontakt zu ALLEN Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> Vermittlungsanfragen senden/erhalten</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar<br>(auch in der Testphase)</span></li>
-                                    <li><i class="fa-solid fa-circle-info"></i> Code erforderlich</li>
+                                    <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                                 </ul>
                                 <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                     <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Auswählen</button>
@@ -14345,29 +14300,6 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                             </div>
                         </div>
                         <input type="hidden" name="selectedPlan" id="input-selected-plan" value="flex">
-                        
-                        <div id="premium-promo-container" style="display: none; margin-top: 1.5rem; background: rgba(124, 58, 237, 0.05); border: 1px dashed var(--color-purple); padding: 1rem; border-radius: var(--radius-md);">
-                            <h5 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--color-purple);"><i class="fa-brands fa-instagram"></i> Premium-Zugang freischalten</h5>
-                            <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.35;">
-                                Gib deinen exklusiven Gutscheincode ein. Du erhältst ihn, wenn du <strong>@GigConnAct</strong> auf Instagram folgst und unseren aktuellen Story-Beitrag teilst und uns markierst.
-                            </p>
-                            <div style="display: flex; gap: 0.5rem;">
-                                <input type="text" id="reg-promo-code" class="input-field" placeholder="Gutscheincode" style="margin:0; text-transform: uppercase;">
-                                <button type="button" class="btn btn-secondary btn-sm" id="btn-apply-promo" style="margin:0; font-size:0.75rem; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple);">Code prüfen</button>
-                            </div>
-                            <div id="promo-status-msg" style="font-size: 0.7rem; margin-top: 0.4rem; display: none;"></div>
-                            
-                            <!-- Stripe-Verbindung (wird eingeblendet bei richtigem Code) -->
-                            <div id="reg-stripe-connect-container" style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(37, 99, 235, 0.05); border: 1px solid #2563eb; border-radius: var(--radius-md); text-align: left;">
-                                <h6 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: #2563eb; display: flex; align-items: center; gap: 0.4rem;"><i class="fa-brands fa-stripe" style="font-size: 1.2rem;"></i> Stripe Verbindung</h6>
-                                <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.35;">
-                                    Dein Gutscheincode ist gültig! Verbinde jetzt dein Konto mit Stripe, um die Premium-Buchung abzuschließen. Die Stripe-Schnittstelle wird nächste Woche aktiviert.
-                                </p>
-                                <button type="button" class="btn btn-primary btn-sm" style="background: #2563eb; border-color: #2563eb; display: flex; align-items: center; gap: 0.5rem; width: 100%; justify-content: center; cursor: not-allowed; opacity: 0.75;" disabled>
-                                    <i class="fa-brands fa-stripe"></i> Mit Stripe verbinden (Ab nächste Woche)
-                                </button>
-                            </div>
-                        </div>
                     </div>
 
 
@@ -15108,69 +15040,9 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 priceText = '4,99 €';
             }
 
-            const promoContainer = document.getElementById('premium-promo-container');
-            if (promoContainer) {
-                if (plan === 'premium') {
-                    promoContainer.style.display = 'block';
-                } else {
-                    promoContainer.style.display = 'none';
-                }
-            }
-
-
+            // No promo container needed for Premium
         });
     });
-
-    let isPromoCodeApplied = false;
-    const promoBtn = document.getElementById('btn-apply-promo');
-    const promoInput = document.getElementById('reg-promo-code');
-    const promoStatus = document.getElementById('promo-status-msg');
-
-    if (promoBtn && promoInput && promoStatus) {
-        promoBtn.addEventListener('click', async () => {
-            const code = promoInput.value.trim().toUpperCase();
-            if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code) || window.gcaPromoCodes.includes(code)) {
-                // Check if email has already used trial/promo
-                const currentEmail = (window.googleRegistrationUser?.email || registerForm?.elements?.email?.value || '').trim();
-                if (currentEmail) {
-                    try {
-                        const normEmail = currentEmail.toLowerCase();
-                        const encoder = new TextEncoder();
-                        const data = encoder.encode(normEmail);
-                        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                        const hashArray = Array.from(new Uint8Array(hashBuffer));
-                        const emailHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                        
-                        const doc = await db.collection('used_trials').doc(emailHash).get();
-                        if (doc.exists) {
-                            isPromoCodeApplied = false;
-                            promoStatus.textContent = "❌ Dieser Gutscheincode kann für diese E-Mail-Adresse nicht verwendet werden (Testphase bereits genutzt).";
-                            promoStatus.style.color = "#ef4444";
-                            promoStatus.style.display = "block";
-                            return;
-                        }
-                    } catch (err) {
-                        console.error("Error checking used_trials in promo code validation:", err);
-                    }
-                }
-
-                isPromoCodeApplied = true;
-                promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif freigeschaltet (3 Tage kostenfrei, danach 4,99 €/Monat).";
-                promoStatus.style.color = "#10b981";
-                promoStatus.style.display = "block";
-                promoInput.disabled = true;
-                promoBtn.disabled = true;
-                
-                const stripeBox = document.getElementById('reg-stripe-connect-container');
-                if (stripeBox) stripeBox.style.display = 'block';
-            } else {
-                isPromoCodeApplied = false;
-                promoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Beitrag.";
-                promoStatus.style.color = "#ef4444";
-                promoStatus.style.display = "block";
-            }
-        });
-    }
 
     // Character Counter for Musician Description
     const descTextarea = document.getElementById('textarea-mus-desc');
@@ -15227,30 +15099,6 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         const email = registerForm.elements.email.value.trim();
         
         const selectedPlan = document.getElementById('input-selected-plan')?.value || 'flex';
-        if (selectedPlan === 'premium' && !isPromoCodeApplied) {
-            showValidationError(document.getElementById('input-promo-code'), null, "Bitte gib einen gültigen Gutscheincode ein, um den Premium-Tarif freizuschalten.");
-            return;
-        }
-
-        // Check if email has already used trial/promo
-        if (selectedPlan === 'premium' && isPromoCodeApplied) {
-            try {
-                const normEmail = email.toLowerCase();
-                const encoder = new TextEncoder();
-                const data = encoder.encode(normEmail);
-                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                const emailHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                
-                const doc = await db.collection('used_trials').doc(emailHash).get();
-                if (doc.exists) {
-                    showValidationError(document.getElementById('reg-promo-code'), null, "Dieser Gutscheincode kann für diese E-Mail-Adresse nicht verwendet werden (Testphase bereits genutzt).");
-                    return;
-                }
-            } catch (err) {
-                console.error("Error checking used_trials in registration submit:", err);
-            }
-        }
 
         const emailValidation = validateEmailAddress(email);
         if (!emailValidation.isValid) {
@@ -15485,7 +15333,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             payload.audios = (window.registrationMedia.organizer.audios || []).filter(a => a && a.url !== 'loading');
         }
 
-        payload.isPromoCodeApplied = isPromoCodeApplied;
+        payload.isPromoCodeApplied = false;
 
         if (submitBtn) {
             submitBtn.disabled = true;
@@ -15496,7 +15344,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             try {
                 const user = window.googleRegistrationUser;
                 const profileId = payload.role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
-                const isPromo = payload.subscriptionPlan === 'premium' && isPromoCodeApplied;
+                const isPromo = false;
 
                 const newUser = {
                     id: user.uid,
@@ -15630,7 +15478,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     registerForm.elements.email.style.cursor = '';
                 }
 
-                const isPaidPlan = (payload.subscriptionPlan === 'flex' || payload.subscriptionPlan === 'plus' || payload.subscriptionPlan === 'pro');
+                const isPaidPlan = (payload.subscriptionPlan === 'flex' || payload.subscriptionPlan === 'plus' || payload.subscriptionPlan === 'pro' || payload.subscriptionPlan === 'premium');
 
                 if (isPaidPlan) {
                     if (submitBtn) {
@@ -16313,10 +16161,10 @@ function renderSubscriptionExpiredPage(container) {
 
     const getPlanDetails = (planKey) => {
         switch (planKey) {
-            case 'plus': return { title: 'Plus', priceText: '7,99 € / Monat', price: '7.99', details: '6 Monate Vertragslaufzeit, 1. Monat kostenlos' };
-            case 'pro': return { title: 'Pro', priceText: '5,99 € / Monat', price: '5.99', details: '12 Monate Vertragslaufzeit, 1. Monat kostenlos' };
-            case 'premium': return { title: 'Premium', priceText: '4,99 € / Monat', price: '4.99', details: '12 Monate Vertragslaufzeit, 3 Tage kostenlos' };
-            default: return { title: 'Flex', priceText: '9,99 € / Monat', price: '9.99', details: '1 Monat Vertragslaufzeit, 1 Tag kostenlos' };
+            case 'plus': return { title: 'Plus', priceText: '7,99 € / Monat', price: '7.99', details: '6 Monate Vertragslaufzeit, 1 Monat kostenlos' };
+            case 'pro': return { title: 'Pro', priceText: '5,99 € / Monat', price: '5.99', details: '12 Monate Vertragslaufzeit, 1 Monat kostenlos' };
+            case 'premium': return { title: 'Premium', priceText: '4,99 € / Monat', price: '4.99', details: '12 Monate Vertragslaufzeit, 3 Monate kostenlos' };
+            default: return { title: 'Flex', priceText: '9,99 € / Monat', price: '9.99', details: '1 Monat Vertragslaufzeit, 1 Monat kostenlos' };
         }
     };
     
@@ -16338,40 +16186,22 @@ function renderSubscriptionExpiredPage(container) {
                     <div class="subscription-card ${selectedPlan === 'flex' ? 'active' : ''}" data-plan="flex" style="cursor: pointer; padding: 1rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: 12px; transition: 0.2s; text-align: center;">
                         <h5 style="margin: 0 0 0.5rem; font-size: 0.9rem;">Flex</h5>
                         <div style="font-size: 1.1rem; font-weight: 700; color: var(--color-purple);">9,99 €</div>
-                        <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.3;">1 Monat Laufzeit, jederzeit kündbar.</p>
+                        <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.3;">1 Monat Vertragslaufzeit, 1 Monat kostenlos.</p>
                     </div>
                     <div class="subscription-card ${selectedPlan === 'plus' ? 'active' : ''}" data-plan="plus" style="cursor: pointer; padding: 1rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: 12px; transition: 0.2s; text-align: center;">
                         <h5 style="margin: 0 0 0.5rem; font-size: 0.9rem;">Plus</h5>
                         <div style="font-size: 1.1rem; font-weight: 700; color: var(--color-purple);">7,99 €</div>
-                        <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.3;">6 Monate Laufzeit, 1. Monat kostenlos.</p>
+                        <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.3;">6 Monate Vertragslaufzeit, 1 Monat kostenlos.</p>
                     </div>
                     <div class="subscription-card ${selectedPlan === 'pro' ? 'active' : ''}" data-plan="pro" style="cursor: pointer; padding: 1rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: 12px; transition: 0.2s; text-align: center;">
                         <h5 style="margin: 0 0 0.5rem; font-size: 0.9rem;">Pro</h5>
                         <div style="font-size: 1.1rem; font-weight: 700; color: var(--color-purple);">5,99 €</div>
-                        <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.3;">12 Monate Laufzeit, 1. Monat kostenlos.</p>
+                        <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.3;">12 Monate Vertragslaufzeit, 1 Monat kostenlos.</p>
                     </div>
-                </div>
-
-                <div id="expired-promo-code-box" style="display: none; margin-bottom: 1.5rem; background: rgba(124, 58, 237, 0.05); border: 1px dashed var(--color-purple); padding: 1rem; border-radius: var(--radius-md);">
-                    <h5 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: var(--color-purple);"><i class="fa-brands fa-instagram"></i> Story-Aktion Premium-Tarif</h5>
-                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem;">
-                        Gib deinen Gutscheincode ein, um den Premium-Tarif für 4,99 € freizuschalten:
-                    </p>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <input type="text" id="expired-promo-code" class="input-field" placeholder="Gutscheincode" style="margin:0; text-transform: uppercase;">
-                        <button type="button" class="btn btn-secondary btn-sm" id="btn-expired-apply-promo" style="margin:0; font-size:0.75rem; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple);">Prüfen</button>
-                    </div>
-                    <div id="expired-promo-status-msg" style="font-size: 0.7rem; margin-top: 0.4rem; display: none;"></div>
-                    
-                    <!-- Stripe-Verbindung (wird eingeblendet bei richtigem Code) -->
-                    <div id="expired-stripe-connect-container" style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(37, 99, 235, 0.05); border: 1px solid #2563eb; border-radius: var(--radius-md); text-align: left;">
-                        <h6 style="margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; color: #2563eb; display: flex; align-items: center; gap: 0.4rem;"><i class="fa-brands fa-stripe" style="font-size: 1.2rem;"></i> Stripe Verbindung</h6>
-                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.35;">
-                            Dein Gutscheincode ist gültig! Verbinde jetzt dein Konto mit Stripe, um die Premium-Buchung abzuschließen. Die Stripe-Schnittstelle wird nächste Woche aktiviert.
-                        </p>
-                        <button type="button" class="btn btn-primary btn-sm" style="background: #2563eb; border-color: #2563eb; display: flex; align-items: center; gap: 0.5rem; width: 100%; justify-content: center; cursor: not-allowed; opacity: 0.75;" disabled>
-                            <i class="fa-brands fa-stripe"></i> Mit Stripe verbinden (Ab nächste Woche)
-                        </button>
+                    <div class="subscription-card ${selectedPlan === 'premium' ? 'active' : ''}" data-plan="premium" style="cursor: pointer; padding: 1rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: 12px; transition: 0.2s; text-align: center;">
+                        <h5 style="margin: 0 0 0.5rem; font-size: 0.9rem;">Premium</h5>
+                        <div style="font-size: 1.1rem; font-weight: 700; color: var(--color-purple);">4,99 €</div>
+                        <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.3;">12 Monate Vertragslaufzeit, 3 Monate kostenlos.</p>
                     </div>
                 </div>
             </div>
@@ -16388,12 +16218,6 @@ function renderSubscriptionExpiredPage(container) {
     `;
 
     const subCards = container.querySelectorAll('.subscription-card');
-    const promoBox = document.getElementById('expired-promo-code-box');
-    let isPromoApplied = false;
-
-    const updateUIForPlan = (planKey) => {
-        const details = getPlanDetails(planKey);
-    };
 
     subCards.forEach(card => {
         card.addEventListener('click', () => {
@@ -16407,55 +16231,12 @@ function renderSubscriptionExpiredPage(container) {
             card.style.background = 'rgba(124, 58, 237, 0.05)';
             
             selectedPlan = card.getAttribute('data-plan');
-            updateUIForPlan(selectedPlan);
-
-            if (selectedPlan === 'premium' && !isPromoApplied) {
-                promoBox.style.display = 'block';
-            } else {
-                promoBox.style.display = 'none';
-            }
         });
     });
-
-    const promoBtn = document.getElementById('btn-expired-apply-promo');
-    const promoInput = document.getElementById('expired-promo-code');
-    const promoStatus = document.getElementById('expired-promo-status-msg');
-
-    if (promoBtn && promoInput && promoStatus) {
-        promoBtn.addEventListener('click', () => {
-            const code = promoInput.value.trim().toUpperCase();
-            if (['GIGINSTA59', 'INSTASTORY', 'GIGPREMIUM', 'GIGCONN59'].includes(code) || window.gcaPromoCodes.includes(code)) {
-                isPromoApplied = true;
-                promoStatus.textContent = "✔ Gutscheincode gültig! Premium-Tarif (4,99 €/Monat) freigeschaltet.";
-                promoStatus.style.color = "#10b981";
-                promoStatus.style.display = "block";
-                promoInput.disabled = true;
-                promoBtn.disabled = true;
-                
-                const stripeBox = document.getElementById('expired-stripe-connect-container');
-                if (stripeBox) stripeBox.style.display = 'block';
-                
-                selectedPlan = 'premium';
-                updateUIForPlan('premium');
-            } else {
-                isPromoApplied = false;
-                promoStatus.textContent = "❌ Ungültiger Gutscheincode.";
-                promoStatus.style.color = "#ef4444";
-                promoStatus.style.display = "block";
-            }
-        });
-    }
 
     const reactivateBtn = document.getElementById('btn-reactivate-expired-sub');
     if (reactivateBtn) {
         reactivateBtn.addEventListener('click', async () => {
-
-
-            if (selectedPlan === 'premium' && !isPromoApplied) {
-                showToast({ title: "Gutscheincode erforderlich", message: "Bitte gib einen gültigen Instagram-Code ein, um den Premium-Tarif freizuschalten.", type: "error" });
-                return;
-            }
-
             const applyReactivation = async (planToActivate) => {
                 u.subscriptionPlan = planToActivate;
                 u.isPremium = true;
@@ -16493,13 +16274,6 @@ function renderSubscriptionExpiredPage(container) {
                     window.navigate(u.role === 'musician' ? 'events' : 'musicians');
                 }
             };
-
-            if (selectedPlan === 'premium' && isPromoApplied) {
-                reactivateBtn.disabled = true;
-                reactivateBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Tarif wird freigeschaltet...`;
-                await applyReactivation('premium');
-                return;
-            }
 
             try {
                 reactivateBtn.disabled = true;
@@ -19663,9 +19437,9 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
             ? ` <i class="fa-solid fa-lock" style="color: ${isEvents ? '#7c3aed' : '#2563eb'}; font-size: 1.15rem; margin-left: 0.35rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
             : '';
         const demoTagHtml = isDemoTile
-            ? ` <span class="tile-demo-text" style="color: #000000 !important; font-weight: 800; font-size: 0.92rem; vertical-align: middle; margin-left: 0.35rem; filter: none !important; -webkit-text-fill-color: #000000 !important; user-select: none;">[Demo]</span>`
+            ? `<span class="tile-demo-text" style="color: #000000 !important; font-weight: 800; font-size: 0.92rem; vertical-align: middle; filter: none !important; -webkit-text-fill-color: #000000 !important; user-select: none; white-space: nowrap;">[Demo]</span>`
             : '';
-        const displayName = `${nameContent}${lockIconHtml}${demoTagHtml}`;
+        const displayName = `${nameContent}${lockIconHtml}`;
 
         const companyVal = isEvents 
             ? ((!item.organizerType || item.organizerType === 'Privater Veranstalter' || item.company === 'Privatperson') ? 'Privatperson' : (item.company || 'Privatperson'))
@@ -19756,8 +19530,10 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                 <div class="tile-body-content" style="padding: 1.3rem 1.3rem 0.8rem; flex: 1; display: flex; flex-direction: column;">
                     
                     <!-- Band/Event Name unter dem Bild (Fett gedruckt) + Favoriten-Herz & Stern rechts -->
-                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.45rem;">
-                        <h3 id="tile-title-${item.id}" class="tile-card-title" style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; flex: 1; min-width: 0; transition: all 0.2s ease;">${displayName}</h3>
+                        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; flex: 1; min-width: 0;">
+                            <h3 id="tile-title-${item.id}" class="tile-card-title" style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; transition: all 0.2s ease;">${displayName}</h3>
+                            ${demoTagHtml}
+                        </div>
                         
                         <!-- Spalte für Herz & Favoriten-Stern darunter -->
                         <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; min-width: 28px;">
@@ -21732,8 +21508,10 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                 </div>
                                 
                                 <div style="padding: 1.2rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; background: var(--bg-card);">
-                                    <div>
-                                        <h3 id="tile-title-${mus.id}" class="tile-card-title" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.45rem; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; min-width: 0;"><span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; vertical-align: middle; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.45rem; filter: none !important;" title="Name geschützt"></i>${(mus.isDemo || (mus.id && mus.id.startsWith('mus_'))) ? ` <span class="tile-demo-text" style="color: #000000 !important; font-weight: 800; font-size: 0.92rem; vertical-align: middle; margin-left: 0.35rem; filter: none !important; -webkit-text-fill-color: #000000 !important; user-select: none;">[Demo]</span>` : ''}</h3>
+                                        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.45rem;">
+                                            <h3 id="tile-title-${mus.id}" class="tile-card-title" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; min-width: 0;"><span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; vertical-align: middle; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.45rem; filter: none !important;" title="Name geschützt"></i></h3>
+                                            ${(mus.isDemo || (mus.id && mus.id.startsWith('mus_'))) ? `<span class="tile-demo-text" style="color: #000000 !important; font-weight: 800; font-size: 0.92rem; vertical-align: middle; filter: none !important; -webkit-text-fill-color: #000000 !important; user-select: none; white-space: nowrap;">[Demo]</span>` : ''}
+                                        </div>
                                         <div style="display: flex; gap: 0.5rem; justify-content: space-between;">
                                             <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); flex: 1;">
                                                 <!-- 1. Musiker-Typ als Tag (oben über Ort) -->

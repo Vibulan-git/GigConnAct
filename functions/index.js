@@ -989,11 +989,11 @@ exports.createStripeCheckoutSession = functions
             if (allowTrial) {
                 if (planKey === 'premium') {
                     sessionParams.subscription_data = {
-                        trial_period_days: 3
+                        trial_period_days: 90
                     };
                 } else if (planKey === 'flex' || planKey === 'plus' || planKey === 'pro') {
                     sessionParams.subscription_data = {
-                        trial_period_days: 1
+                        trial_period_days: 30
                     };
                 }
             }
