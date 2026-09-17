@@ -4193,9 +4193,9 @@ body.landing-page-active .app-container {
     filter: brightness(1.1);
 }
 
-/* Card slider height adjustments and unzoomed images (object-fit: contain) */
+/* Card slider height adjustments (reverted from contain to cover for unzoomed clean look) */
 .tile-fullwidth-photo-slider {
-    height: 200px !important;
+    height: 180px !important;
     background: #0f172a !important;
     cursor: grab;
 }
@@ -4206,14 +4206,23 @@ body.landing-page-active .app-container {
 .tile-fullwidth-photo-slider img,
 .tile-fullwidth-photo-slider video,
 .detail-hero-banner img {
-    object-fit: contain !important;
-    background: #0f172a !important;
+    object-fit: cover !important;
 }
 
 @media (max-width: 900px) {
     .tile-fullwidth-photo-slider {
-        height: 180px !important;
+        height: 155px !important;
     }
+}
+
+/* Fullscreen Gallery Lightbox Animations */
+@keyframes fadeInGallery {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeOutGallery {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(0.97); }
 }
 
 /* Prevent horizontal scroll globally on iOS and android */

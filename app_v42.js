@@ -567,6 +567,208 @@ window.jumpToComboGallerySlide = function(itemId, slideIndex) {
     }
 };
 
+window.openFullscreenGallery = function(items, startIndex = 0, title = '', relatedItemId = null) {
+    if (!items || items.length === 0) return;
+
+    let currentIndex = (startIndex >= 0 && startIndex < items.length) ? startIndex : 0;
+    const total = items.length;
+
+    // Remove existing gallery modal if already present
+    const existing = document.getElementById('app-fullscreen-gallery-modal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'app-fullscreen-gallery-modal';
+    modal.style.cssText = 'position: fixed; inset: 0; z-index: 9999999; background: rgba(3, 7, 18, 0.96); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 1rem; box-sizing: border-box; touch-action: pan-y; -webkit-user-select: none; user-select: none; animation: fadeInGallery 0.2s ease-out;';
+
+    const renderCurrentSlide = () => {
+        const item = items[currentIndex];
+        const isPhoto = item.type === 'image' || (!item.type && !/\.(mp4|webm|mov)(\?|$)/i.test(item.url));
+        const isVideo = item.type === 'video' || (!item.type && /\.(mp4|webm|mov)(\?|$)/i.test(item.url));
+
+        const counterText = `${currentIndex + 1} / ${total}`;
+        const itemTitle = item.title || title || '';
+
+        modal.innerHTML = `
+            <!-- Top Bar -->
+            <div style="width: 100%; max-width: 1200px; display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.8rem; z-index: 10; box-sizing: border-box;">
+                <div style="display: flex; align-items: center; gap: 0.8rem; min-width: 0;">
+                    <span style="font-family: var(--font-heading); font-size: 0.85rem; font-weight: 800; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.25); color: #ffffff; padding: 0.3rem 0.75rem; border-radius: 20px; white-space: nowrap;">
+                        <i class="${isPhoto ? 'fa-solid fa-camera' : 'fa-solid fa-video'}" style="margin-right: 5px;"></i> ${counterText}
+                    </span>
+                    ${itemTitle ? `<span style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: rgba(255, 255, 255, 0.9); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${itemTitle}</span>` : ''}
+                </div>
+                <button id="btn-gallery-close" style="width: 42px; height: 42px; border-radius: 50%; background: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255, 255, 255, 0.35); color: #ffffff; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.15s; flex-shrink: 0;" title="Schließen (Esc)" onmouseover="this.style.transform='scale(1.08)'; this.style.background='rgba(255,255,255,0.3)';" onmouseout="this.style.transform='scale(1)'; this.style.background='rgba(255,255,255,0.18)';">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Center Media Container -->
+            <div id="gallery-media-stage" style="flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 0.5rem; box-sizing: border-box; cursor: pointer;">
+                ${total > 1 ? `
+                <!-- Left Nav Button -->
+                <button id="btn-gallery-prev" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 50%; background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1.5px solid rgba(255, 255, 255, 0.35); color: #ffffff; font-size: 1.3rem; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; transition: all 0.15s; box-shadow: 0 4px 20px rgba(0,0,0,0.6);" title="Vorheriges Bild" onmouseover="this.style.transform='translateY(-50%) scale(1.1)';" onmouseout="this.style.transform='translateY(-50%) scale(1)';">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                ` : ''}
+
+                <!-- Active Media Display -->
+                <div id="gallery-active-media-wrapper" style="max-width: 94vw; max-height: 80vh; display: flex; align-items: center; justify-content: center;">
+                    ${isPhoto ? `
+                        <img src="${item.url}" alt="${itemTitle}" style="max-width: 94vw; max-height: 80vh; width: auto; height: auto; object-fit: contain; border-radius: 12px; box-shadow: 0 12px 45px rgba(0, 0, 0, 0.85); pointer-events: auto;">
+                    ` : `
+                        <video controls autoplay playsinline poster="${item.poster || ''}" style="max-width: 94vw; max-height: 80vh; border-radius: 12px; box-shadow: 0 12px 45px rgba(0, 0, 0, 0.85); outline: none;">
+                            <source src="${item.url}" type="video/mp4">
+                        </video>
+                    `}
+                </div>
+
+                ${total > 1 ? `
+                <!-- Right Nav Button -->
+                <button id="btn-gallery-next" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 50%; background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1.5px solid rgba(255, 255, 255, 0.35); color: #ffffff; font-size: 1.3rem; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; transition: all 0.15s; box-shadow: 0 4px 20px rgba(0,0,0,0.6);" title="Nächstes Bild" onmouseover="this.style.transform='translateY(-50%) scale(1.1)';" onmouseout="this.style.transform='translateY(-50%) scale(1)';">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                ` : ''}
+            </div>
+
+            <!-- Bottom Navigation Dots -->
+            <div style="width: 100%; max-width: 600px; display: flex; justify-content: center; align-items: center; gap: 8px; padding: 0.6rem 0; z-index: 10; box-sizing: border-box;">
+                ${total > 1 ? items.map((it, idx) => `
+                    <button class="gallery-nav-dot" data-idx="${idx}" style="width: ${idx === currentIndex ? '24px' : '10px'}; height: 10px; border-radius: 5px; background: ${idx === currentIndex ? '#7c3aed' : 'rgba(255,255,255,0.45)'}; border: none; padding: 0; cursor: pointer; transition: all 0.2s ease; box-shadow: ${idx === currentIndex ? '0 0 8px #7c3aed' : 'none'};" title="Bild ${idx + 1}"></button>
+                `).join('') : ''}
+            </div>
+        `;
+
+        // Sync with tile slider if relatedItemId is provided
+        if (relatedItemId) {
+            window.jumpToComboGallerySlide(relatedItemId, currentIndex);
+        }
+
+        // Attach event listeners
+        const closeBtn = modal.querySelector('#btn-gallery-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeGallery();
+            });
+        }
+
+        const prevBtn = modal.querySelector('#btn-gallery-prev');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                navigate(-1);
+            });
+        }
+
+        const nextBtn = modal.querySelector('#btn-gallery-next');
+        if (nextBtn) {
+            nextBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                navigate(1);
+            });
+        }
+
+        modal.querySelectorAll('.gallery-nav-dot').forEach(dot => {
+            dot.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(dot.getAttribute('data-idx') || '0');
+                currentIndex = idx;
+                renderCurrentSlide();
+            });
+        });
+
+        // Clicking on backdrop (outside image/video) closes
+        const stage = modal.querySelector('#gallery-media-stage');
+        if (stage) {
+            stage.addEventListener('click', (e) => {
+                if (e.target === stage || e.target.id === 'gallery-active-media-wrapper') {
+                    closeGallery();
+                }
+            });
+        }
+    };
+
+    const navigate = (dir) => {
+        currentIndex = (currentIndex + dir + total) % total;
+        renderCurrentSlide();
+    };
+
+    const closeGallery = () => {
+        document.removeEventListener('keydown', keyHandler);
+        modal.style.animation = 'fadeOutGallery 0.15s ease-in forwards';
+        setTimeout(() => modal.remove(), 150);
+    };
+
+    const keyHandler = (e) => {
+        if (e.key === 'Escape') {
+            closeGallery();
+        } else if (e.key === 'ArrowLeft') {
+            navigate(-1);
+        } else if (e.key === 'ArrowRight') {
+            navigate(1);
+        }
+    };
+    document.addEventListener('keydown', keyHandler);
+
+    // Touch swipe support
+    let touchStartX = 0;
+    let touchStartY = 0;
+    modal.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches[0]) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }
+    }, { passive: true });
+
+    modal.addEventListener('touchend', (e) => {
+        if (!e.changedTouches || !e.changedTouches[0]) return;
+        const diffX = touchStartX - e.changedTouches[0].clientX;
+        const diffY = touchStartY - e.changedTouches[0].clientY;
+        if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+            if (diffX > 0) {
+                navigate(1); // Swipe left -> next
+            } else {
+                navigate(-1); // Swipe right -> prev
+            }
+        }
+    }, { passive: true });
+
+    document.body.appendChild(modal);
+    renderCurrentSlide();
+};
+
+window.openFullscreenFromSlider = function(itemId, targetIndex) {
+    const slider = document.getElementById('combo-slider-' + itemId);
+    if (!slider) return;
+
+    let curIndex = (targetIndex !== undefined) ? targetIndex : parseInt(slider.getAttribute('data-idx') || '0');
+    const mediaItems = [];
+    let activeMediaIndex = 0;
+
+    const titleEl = document.getElementById('tile-title-' + itemId);
+    const title = titleEl ? titleEl.innerText.trim() : '';
+
+    const slides = Array.from(slider.children);
+    slides.forEach((slide, idx) => {
+        const img = slide.querySelector('img');
+        const vid = slide.querySelector('video');
+        if (img) {
+            if (idx === curIndex) activeMediaIndex = mediaItems.length;
+            mediaItems.push({ type: 'image', url: img.src, title: title });
+        } else if (vid) {
+            const src = vid.querySelector('source')?.src || vid.src;
+            if (src) {
+                if (idx === curIndex) activeMediaIndex = mediaItems.length;
+                mediaItems.push({ type: 'video', url: src, poster: vid.poster || '', title: title });
+            }
+        }
+    });
+
+    if (mediaItems.length === 0) return;
+    window.openFullscreenGallery(mediaItems, activeMediaIndex, title, itemId);
+};
+
 /* -------------------------------------------------------------
  * GigConnAct - Single Unified Application Script
  * Combines mockData, state management, matching logic, and UI
@@ -9571,9 +9773,9 @@ window.openItemDetailModal = function(id, isEvents) {
                 </button>
 
                 <!-- Full Hero Banner & Photo Gallery -->
-                <div class="detail-hero-banner" style="position: relative; height: 260px; width: 100%; background: #0f172a;">
-                    <img src="${photo}" style="width: 100%; height: 100%; object-fit: contain; background: #0f172a;">
-                    <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,0.9) 0%, transparent 60%);"></div>
+                <div class="detail-hero-banner" style="position: relative; height: 260px; width: 100%; background: #0f172a; cursor: pointer;" onclick="window.openFullscreenGallery([{type: 'image', url: '${photo}', title: '${(item.name || item.title || '').replace(/'/g, "\\'")}'}], 0, '${(item.name || item.title || '').replace(/'/g, "\\'")}');">
+                    <img src="${photo}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,0.9) 0%, transparent 60%); pointer-events: none;"></div>
                     <!-- Top Tags im Detailfenster oben links (ohne Icons) -->
                     <div style="position: absolute; top: 15px; left: 15px; z-index: 6; display: flex; align-items: center; gap: 6px; pointer-events: none; flex-wrap: wrap; max-width: calc(100% - 80px);">
                         <div style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)'}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid ${isEvents ? 'rgba(216, 180, 254, 0.45)' : 'rgba(191, 219, 254, 0.5)'}; border-radius: 8px; padding: 0.32rem 0.75rem; display: inline-flex; align-items: center; box-shadow: ${isEvents ? '0 4px 12px rgba(124, 58, 237, 0.45)' : '0 4px 12px rgba(37, 99, 235, 0.35)'};">
@@ -11303,6 +11505,11 @@ function renderOrganizerEventItem(e, isActive) {
                     📷 1 / ${photos.length}
                 </span>
 
+                <!-- Fullscreen Expand Button -->
+                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${e.id}');" style="position: absolute; top: 10px; right: 10px; z-index: 6; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25); color: #ffffff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.15s; box-shadow: 0 4px 12px rgba(0,0,0,0.35);" title="Vollbild öffnen">
+                    <i class="fa-solid fa-expand" style="font-size: 0.82rem;"></i>
+                </button>
+
                 <!-- Dots container inside the slider -->
                 <div class="tile-gallery-dots" id="combo-dots-${e.id}" data-theme="${dotActiveColor}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
                     ${Array.from({ length: photos.length + 1 }).map((_, dIdx) => `
@@ -11312,9 +11519,9 @@ function renderOrganizerEventItem(e, isActive) {
                 
                 <div id="combo-slider-${e.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
                     <!-- Slides 1-3: Fotos -->
-                    ${photos.map((img) => `
+                    ${photos.map((img, imgIdx) => `
                         <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative;">
-                            <img src="${img}" style="width: 100%; height: 100%; object-fit: contain; background: #0f172a;">
+                            <img src="${img}" onclick="if(!window.justDraggedSlider) window.openFullscreenFromSlider('${e.id}', ${imgIdx});" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;">
                         </div>
                     `).join('')}
 
@@ -11330,7 +11537,7 @@ function renderOrganizerEventItem(e, isActive) {
             <!-- Tile Body Content -->
             <div class="tile-body-content" style="padding: 1.2rem 1.1rem 1.0rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
-                    <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.6rem; line-height: 1.25;">
+                    <h3 id="tile-title-${e.id}" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.6rem; line-height: 1.25;">
                         ${e.name}
                         ${e.isCanceled ? ' <span style="background:rgba(255,75,75,0.1); color:var(--color-red); font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;"><i class="fa-solid fa-ban"></i> Abgesagt</span>' : ''}
                         ${!isActive ? ' <span style="background:rgba(249,115,22,0.1); color:var(--color-orange); font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;"><i class="fa-solid fa-pause"></i> Pausiert</span>' : ''}
@@ -11801,6 +12008,11 @@ function renderMyMusicianItem(m, isActive) {
                     📷 1 / ${photos.length}
                 </span>
 
+                <!-- Fullscreen Expand Button -->
+                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${m.id}');" style="position: absolute; top: 10px; right: 10px; z-index: 6; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25); color: #ffffff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.15s; box-shadow: 0 4px 12px rgba(0,0,0,0.35);" title="Vollbild öffnen">
+                    <i class="fa-solid fa-expand" style="font-size: 0.82rem;"></i>
+                </button>
+
                 <!-- Dots container inside the slider -->
                 <div class="tile-gallery-dots" id="combo-dots-${m.id}" data-theme="${dotActiveColor}" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center; margin: 0;">
                     ${Array.from({ length: photos.length + videoSources.length + audios.length + 1 }).map((_, dIdx) => `
@@ -11811,16 +12023,16 @@ function renderMyMusicianItem(m, isActive) {
                 <div id="combo-slider-${m.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
                     
                     <!-- Slides: Fotos -->
-                    ${photos.map((img) => `
+                    ${photos.map((img, imgIdx) => `
                         <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative;">
-                            <img src="${img}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: contain; background: #0f172a;">
+                            <img src="${img}" loading="lazy" decoding="async" onclick="if(!window.justDraggedSlider) window.openFullscreenFromSlider('${m.id}', ${imgIdx});" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;">
                         </div>
                     `).join('')}
 
                     <!-- Slides: Nativ abspielbare HTML5 Videos -->
                     ${videoSources.map((vid, vIdx) => `
                         <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #000; display: flex; align-items: center; justify-content: center;">
-                            <video controls preload="none" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: contain; background: #000;" onclick="event.stopPropagation();">
+                            <video controls preload="none" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
                                 <source src="${vid.url}" type="video/mp4">
                                 Dein Browser unterstützt dieses Video nicht.
                             </video>
@@ -11838,7 +12050,6 @@ function renderMyMusicianItem(m, isActive) {
                             </span>
                             <audio controls preload="none" style="width: 85%; height: 32px; outline: none; border-radius: 8px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));" onclick="event.stopPropagation();">
                                 <source src="${aud.url}" type="audio/mp3">
-                                Dein Browser unterstützt diesen Audioplayer nicht.
                             </audio>
                         </div>
                     `).join('')}
@@ -11855,7 +12066,7 @@ function renderMyMusicianItem(m, isActive) {
             <!-- Tile Body Content -->
             <div class="tile-body-content" style="padding: 1.2rem 1.1rem 1.0rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
-                    <h3 style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.6rem; line-height: 1.25;">
+                    <h3 id="tile-title-${m.id}" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.6rem; line-height: 1.25;">
                         ${m.name}
                         ${!isActive ? ' <span style="background:rgba(249,115,22,0.1); color:var(--color-orange); font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;"><i class="fa-solid fa-pause"></i> Pausiert</span>' : ''}
                     </h3>
@@ -18104,14 +18315,7 @@ function renderPostbox(container) {
     </div>
     `;
 
-        // Add Event Listeners for tabs & buttons
-        container.querySelectorAll('.tab-btn-postbox').forEach(btn => {
-            btn.addEventListener('click', () => {
-                activeTab = btn.getAttribute('data-tab');
-                window.postboxActiveChatId = null;
-                renderView();
-            });
-        });
+        // Thread items click handlers
 
         container.querySelectorAll('.thread-item').forEach(item => {
             item.addEventListener('click', (e) => {
@@ -19510,19 +19714,24 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                         </span>
                     </div>
 
+                    <!-- Fullscreen Expand Button -->
+                    <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${item.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25); color: #ffffff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.15s; box-shadow: 0 4px 12px rgba(0,0,0,0.35);" title="Vollbild öffnen">
+                        <i class="fa-solid fa-expand" style="font-size: 0.82rem;"></i>
+                    </button>
+
                     <div id="combo-slider-${item.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
                         
                         <!-- Slides: Fotos -->
-                        ${photos.map((img) => `
+                        ${photos.map((img, imgIdx) => `
                             <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative;">
-                                <img src="${img}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: contain; background: #0f172a;">
+                                <img src="${img}" loading="lazy" decoding="async" onclick="if(!window.justDraggedSlider) window.openFullscreenFromSlider('${item.id}', ${imgIdx});" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;">
                             </div>
                         `).join('')}
 
                         <!-- Slides: Nativ abspielbare HTML5 Videos -->
                         ${videos.map((vid, vIdx) => `
                             <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #000; display: flex; align-items: center; justify-content: center;">
-                                <video controls preload="none" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: contain; background: #000;" onclick="event.stopPropagation();">
+                                <video controls preload="none" poster="${photos[vIdx % photos.length]}" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
                                     <source src="${vid.url}" type="video/mp4">
                                     Dein Browser unterstützt dieses Video nicht.
                                 </video>
@@ -20989,6 +21198,10 @@ window.renderDatenschutzPage = renderDatenschutzPage;
         const diffX = startX - currentX;
         const diffY = startY - currentY;
         
+        if (Math.abs(diffX) > 10) {
+            window.justDraggedSlider = true;
+        }
+
         if (Math.abs(diffX) > Math.abs(diffY)) {
             if (e.cancelable) {
                 e.preventDefault();
@@ -21014,6 +21227,7 @@ window.renderDatenschutzPage = renderDatenschutzPage;
         }
         isSwiping = false;
         currentSlider = null;
+        setTimeout(() => { window.justDraggedSlider = false; }, 200);
     }, { passive: true });
 
     // Prevent default dragstart on slider images/elements to allow custom mouse-drag sliding
@@ -21042,6 +21256,7 @@ window.renderDatenschutzPage = renderDatenschutzPage;
         
         if (Math.abs(diffX) > 10) {
             dragDetected = true;
+            window.justDraggedSlider = true;
         }
     });
 
@@ -21063,6 +21278,7 @@ window.renderDatenschutzPage = renderDatenschutzPage;
         }
         isSwiping = false;
         currentSlider = null;
+        setTimeout(() => { window.justDraggedSlider = false; }, 200);
     });
 })();
 
@@ -21524,11 +21740,16 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                             </div>
                                         ` : ''}
                                     </div>
+                                    <!-- Fullscreen Expand Button -->
+                                    <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${mus.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25); color: #ffffff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.15s; box-shadow: 0 4px 12px rgba(0,0,0,0.35);" title="Vollbild öffnen">
+                                        <i class="fa-solid fa-expand" style="font-size: 0.82rem;"></i>
+                                    </button>
+
                                     <div id="combo-slider-${mus.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
-                                        ${photos.map(img => `<div style="width: 100%; height: 100%; flex-shrink: 0;"><img src="${img}" style="width: 100%; height: 100%; object-fit: contain; background: #0f172a;"></div>`).join('')}
+                                        ${photos.map((img, imgIdx) => `<div style="width: 100%; height: 100%; flex-shrink: 0;"><img src="${img}" onclick="if(!window.justDraggedSlider) window.openFullscreenFromSlider('${mus.id}', ${imgIdx});" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;"></div>`).join('')}
                                         ${videos.map((vid, vIdx) => `
                                             <div style="width: 100%; height: 100%; flex-shrink: 0; background: #000; display: flex; align-items: center; justify-content: center;">
-                                                <video controls preload="metadata" style="width: 100%; height: 100%; object-fit: contain; background: #000;" onclick="event.stopPropagation();">
+                                                <video controls preload="metadata" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
                                                     <source src="${vid.url}" type="video/mp4">
                                                 </video>
                                             </div>
@@ -22059,11 +22280,15 @@ window.renderMediationResponsePage = function(container, mediationId) {
                                 <span class="tile-gallery-counter" style="position: absolute; bottom: 12px; left: 12px; z-index: 4; font-size: 0.7rem; font-weight: 700; color: #fff; background: rgba(15, 23, 42, 0.9); padding: 0.25rem 0.5rem; border-radius: 6px; pointer-events: none;">
                                     📷 1 / ${totalSlides}
                                 </span>
+                                <!-- Fullscreen Expand Button -->
+                                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${eventData.id}');" style="position: absolute; top: 10px; right: 10px; z-index: 6; background: rgba(15, 23, 42, 0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.25); color: #ffffff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s, background 0.15s; box-shadow: 0 4px 12px rgba(0,0,0,0.35);" title="Vollbild öffnen">
+                                    <i class="fa-solid fa-expand" style="font-size: 0.82rem;"></i>
+                                </button>
                                 <div id="combo-slider-${eventData.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">
-                                    ${photos.map(img => `<div style="width: 100%; height: 100%; flex-shrink: 0;"><img src="${img}" style="width: 100%; height: 100%; object-fit: contain; background: #0f172a;"></div>`).join('')}
+                                    ${photos.map((img, imgIdx) => `<div style="width: 100%; height: 100%; flex-shrink: 0;"><img src="${img}" onclick="if(!window.justDraggedSlider) window.openFullscreenFromSlider('${eventData.id}', ${imgIdx});" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;"></div>`).join('')}
                                     ${videos.map((vid, vIdx) => `
                                         <div style="width: 100%; height: 100%; flex-shrink: 0; background: #000; display: flex; align-items: center; justify-content: center;">
-                                            <video controls preload="metadata" style="width: 100%; height: 100%; object-fit: contain; background: #000;" onclick="event.stopPropagation();">
+                                            <video controls preload="metadata" style="width: 100%; height: 100%; object-fit: cover;" onclick="event.stopPropagation();">
                                                 <source src="${vid.url}" type="video/mp4">
                                             </video>
                                         </div>
