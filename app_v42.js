@@ -12163,16 +12163,11 @@ function renderOrganizerEventItem(e, isActive) {
 
                     <!-- Single column list (felder 1-4 standardmäßig sichtbar wie auf dem Markt) -->
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
-                        <!-- 1. Event-Typ als Tag & Favoriten-Badge -->
+                        <!-- 1. Event-Typ als Tag -->
                         <div style="margin-bottom: 0.15rem; display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; flex-wrap: wrap;">
                             <span class="tile-type-flag" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 1px solid rgba(147, 197, 253, 0.5); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);">
                                 <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${eventTypeDisplay}</span>
                             </span>
-                            ${favCount > 0 ? `
-                                <span onclick="event.stopPropagation(); state.activeEventId = '${e.id}'; window.location.hash = '#/musicians?eventId=${e.id}&fav=true';" style="cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 0.22rem 0.6rem; font-size: 0.76rem; font-weight: 700; transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" title="Favoriten / Vorschläge für dieses Event anzeigen">
-                                    <i class="fa-solid fa-heart"></i> ${favCount} ${favCount === 1 ? 'Vorschlag' : 'Vorschläge'}
-                                </span>
-                            ` : ''}
                         </div>
                         <!-- 2. Ort -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
@@ -12234,12 +12229,7 @@ function renderOrganizerEventItem(e, isActive) {
             </div>
 
             <!-- Actions Grid at the Bottom (Organizer Blue theme with white text) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: ${favCount > 0 ? 'repeat(auto-fit, minmax(85px, 1fr))' : '1fr 1fr'}; gap: 0.4rem; background: #2563eb;">
-                ${favCount > 0 ? `
-                <button class="btn btn-sm btn-glass btn-view-event-favorites" onclick="event.stopPropagation(); state.activeEventId = '${e.id}'; window.location.hash = '#/musicians?eventId=${e.id}&fav=true';" style="font-size: 0.76rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(239, 68, 68, 0.45);" title="Favoriten / Musiker-Vorschläge anzeigen">
-                    <i class="fa-solid fa-heart" style="color: #ffffff;"></i> Vorschläge (${favCount})
-                </button>
-                ` : ''}
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #2563eb;">
                 ${isActive ? `
                 <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                     <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
@@ -17400,6 +17390,20 @@ function navigate(page) {
 
     // Full-page blocking loading spinner removed to enable instant SPA routing and rendering from cache
 
+    // Dynamic routing for recommendation and mediation response pages (always accessible without subscription interception)
+    if (page.startsWith('recommendation/')) {
+        const mediationId = page.replace('recommendation/', '');
+        if (typeof updateNavbar === 'function') updateNavbar();
+        renderRecommendationPage(mainContainer, mediationId);
+        return;
+    }
+    if (page.startsWith('mediation-response/')) {
+        const mediationId = page.replace('mediation-response/', '');
+        if (typeof updateNavbar === 'function') updateNavbar();
+        renderMediationResponsePage(mainContainer, mediationId);
+        return;
+    }
+
     // Check if subscription has expired (DSGVO Variant A)
     if (state && state.currentUser && isSubscriptionExpired(state.currentUser)) {
         if (page === 'impressum') {
@@ -17411,20 +17415,6 @@ function navigate(page) {
             return;
         }
         renderSubscriptionExpiredPage(mainContainer);
-        return;
-    }
-
-    // Dynamic routing for recommendation and mediation response pages
-    if (page.startsWith('recommendation/')) {
-        const mediationId = page.replace('recommendation/', '');
-        if (typeof updateNavbar === 'function') updateNavbar();
-        renderRecommendationPage(mainContainer, mediationId);
-        return;
-    }
-    if (page.startsWith('mediation-response/')) {
-        const mediationId = page.replace('mediation-response/', '');
-        if (typeof updateNavbar === 'function') updateNavbar();
-        renderMediationResponsePage(mainContainer, mediationId);
         return;
     }
 
@@ -22592,27 +22582,79 @@ window.renderRecommendationPage = async function(container, mediationId) {
         let med = null;
 
         // 1. Check localStorage first (instant local access for requester)
+        let cached = null;
         try {
-            const cached = localStorage.getItem('gigconnact_med_' + mediationId);
-            if (cached) med = JSON.parse(cached);
+            const raw = localStorage.getItem('gigconnact_med_' + mediationId);
+            if (raw) cached = JSON.parse(raw);
         } catch (e) {}
 
-        // 2. Try Firestore (safely caught so permission or offline errors do not break the page)
+        // 2. Try Firestore: check by doc ID first, then by eventId query (supports both mediationId and eventId)
         try {
             if (typeof db !== 'undefined' && db && db.collection) {
-                const doc = await db.collection('mediations').doc(mediationId).get();
+                let doc = await db.collection('mediations').doc(mediationId).get();
+                if (!doc || !doc.exists) {
+                    // Check if mediationId was passed as an eventId (e.g. evt_agency_...)
+                    const q = await db.collection('mediations').where('eventId', '==', mediationId).limit(1).get();
+                    if (!q.empty) {
+                        doc = q.docs[0];
+                    } else {
+                        // Check if numeric part matches
+                        const cleanId = String(mediationId || '').replace(/^med_/, '').replace(/^evt_agency_/, '');
+                        if (cleanId.length >= 6) {
+                            const allMeds = await db.collection('mediations').get();
+                            const matchDoc = allMeds.docs.find(d => {
+                                const data = d.data() || {};
+                                return (data.eventId && data.eventId.includes(cleanId)) ||
+                                       (data.eventName && data.eventName.toLowerCase().includes(cleanId.toLowerCase()));
+                            });
+                            if (matchDoc) doc = matchDoc;
+                        }
+                    }
+                }
                 if (doc && doc.exists) {
-                    med = { ...doc.data(), ...(med || {}) };
+                    med = { ...(cached || {}), ...doc.data(), id: doc.id };
                 }
             }
         } catch (dbErr) {
             console.warn("Firestore mediations get failed, using cached/fallback:", dbErr);
         }
 
-        // 3. Fallback to state.events matching this request
+        // 3. Fallback to events in Firestore (in case user opened #/recommendation/eventId directly)
+        if (!med) {
+            try {
+                if (typeof db !== 'undefined' && db && db.collection) {
+                    let evtDoc = await db.collection('events').doc(mediationId).get();
+                    if (!evtDoc || !evtDoc.exists) {
+                        const cleanId = String(mediationId || '').replace(/^med_/, '');
+                        const allEvts = await db.collection('events').get();
+                        const matchEvtDoc = allEvts.docs.find(d => {
+                            const data = d.data() || {};
+                            return d.id.includes(cleanId) || (data.name && data.name.toLowerCase() === mediationId.toLowerCase());
+                        });
+                        if (matchEvtDoc) evtDoc = matchEvtDoc;
+                    }
+                    if (evtDoc && evtDoc.exists) {
+                        const evtData = evtDoc.data();
+                        med = {
+                            id: mediationId,
+                            eventName: evtData.name || 'Mein Event',
+                            eventDate: evtData.date || null,
+                            musicianIds: Array.isArray(evtData.favorites) ? evtData.favorites : [],
+                            status: 'pending_selection',
+                            eventId: evtDoc.id,
+                            eventLocation: evtData.location || ''
+                        };
+                    }
+                }
+            } catch (evtFetchErr) {
+                console.warn("Could not find matching event in Firestore:", evtFetchErr);
+            }
+        }
+
+        // 4. Fallback to state.events matching this request
         if (!med && typeof state !== 'undefined' && state && Array.isArray(state.events)) {
             const cleanId = String(mediationId || '').replace(/^med_/, '');
-            const matchEvt = state.events.find(e => e && ((e.id && e.id.includes(cleanId)) || (e.isAgencyRequest && Array.isArray(e.favorites))));
+            const matchEvt = state.events.find(e => e && ((e.id && e.id.includes(cleanId)) || (e.name && e.name.toLowerCase().includes(cleanId.toLowerCase())) || (e.isAgencyRequest && Array.isArray(e.favorites))));
             if (matchEvt) {
                 med = {
                     id: mediationId,
@@ -22620,12 +22662,13 @@ window.renderRecommendationPage = async function(container, mediationId) {
                     eventDate: matchEvt.date || null,
                     musicianIds: Array.isArray(matchEvt.favorites) ? matchEvt.favorites : [],
                     status: 'pending_selection',
-                    eventId: matchEvt.id
+                    eventId: matchEvt.id,
+                    eventLocation: matchEvt.location || ''
                 };
             }
         }
 
-        // 4. Guaranteed fallback mediation object so the user NEVER encounters an error
+        // 5. Guaranteed fallback mediation object
         if (!med) {
             med = {
                 id: mediationId,
@@ -22636,11 +22679,12 @@ window.renderRecommendationPage = async function(container, mediationId) {
             };
         }
 
+        // Check if mediation selection has already completed
         if (med.status === 'completed') {
             container.innerHTML = `
                 <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
                     <i class="fa-solid fa-circle-check" style="font-size: 3.5rem; color: #10b981; margin-bottom: 1.2rem;"></i>
-                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Auswahl abgeschlossen!</h3>
+                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Auswahl abgeschlossen! 🎉</h3>
                     <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.5rem;">
                         Die Kontaktdaten wurden an deine E-Mail-Adresse versendet.
                     </p>
@@ -22649,13 +22693,14 @@ window.renderRecommendationPage = async function(container, mediationId) {
             return;
         }
 
+        // Check if event/mediation was removed
         if (med.status === 'expired') {
             container.innerHTML = `
                 <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
                     <i class="fa-solid fa-ban" style="font-size: 3.5rem; color: var(--color-red); margin-bottom: 1.2rem;"></i>
-                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Link abgelaufen ❌</h3>
+                    <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Event entfernt ❌</h3>
                     <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.5rem;">
-                        Diese Vorschlagsliste ist abgelaufen (Gültigkeitsdauer überschritten). Bitte kontaktiere uns, falls du eine neue Auswahl wünschst.
+                        Dieses Event bzw. diese Vermittlungsanfrage wurde entfernt. Daher ist die Musiker-Vorschlagsliste nicht mehr verfügbar.
                     </p>
                 </div>
             `;
@@ -22678,6 +22723,48 @@ window.renderRecommendationPage = async function(container, mediationId) {
             if (!mediationEvent && typeof state !== 'undefined' && state && Array.isArray(state.events)) {
                 mediationEvent = state.events.find(e => e && e.id === med.eventId) || null;
             }
+        }
+
+        // Check if event was deleted from Firestore
+        if (med.eventId && !mediationEvent && typeof db !== 'undefined' && db && db.collection) {
+            try {
+                const checkEvtDoc = await db.collection('events').doc(med.eventId).get();
+                if (!checkEvtDoc.exists) {
+                    container.innerHTML = `
+                        <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
+                            <i class="fa-solid fa-ban" style="font-size: 3.5rem; color: var(--color-red); margin-bottom: 1.2rem;"></i>
+                            <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Event nicht mehr verfügbar ❌</h3>
+                            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.5rem;">
+                                Das zugehörige Event wurde gelöscht.
+                            </p>
+                        </div>
+                    `;
+                    return;
+                }
+            } catch (checkErr) {}
+        }
+
+        // Check if event has already taken place (Gültigkeit: bis Event stattgefunden hat)
+        const checkEventDate = med.eventDate || (mediationEvent && mediationEvent.date);
+        if (checkEventDate) {
+            try {
+                const targetDate = new Date(checkEventDate);
+                targetDate.setHours(23, 59, 59, 999);
+                if (targetDate.getTime() < Date.now()) {
+                    const dateParts = checkEventDate.split('-');
+                    const formattedGermanDate = dateParts.length === 3 ? `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}` : checkEventDate;
+                    container.innerHTML = `
+                        <div style="max-width: 600px; margin: 4rem auto; padding: 2.5rem; text-align: center; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 16px;">
+                            <i class="fa-solid fa-calendar-check" style="font-size: 3.5rem; color: var(--color-orange); margin-bottom: 1.2rem;"></i>
+                            <h3 style="color: #fff; margin-bottom: 0.75rem; font-family: var(--font-heading); font-size: 1.4rem;">Event hat bereits stattgefunden 📅</h3>
+                            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 1.5rem;">
+                                Dieses Event fand am <strong>${formattedGermanDate}</strong> statt. Die Vorschlagsliste ist daher nicht mehr aktiv.
+                            </p>
+                        </div>
+                    `;
+                    return;
+                }
+            } catch (dateErr) {}
         }
 
         // Merge musicianIds from BOTH mediation document and event favorites (real-time union)
