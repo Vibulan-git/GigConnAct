@@ -1355,14 +1355,18 @@ const initialMusicians = [
         maxPublikum: 250,
         publikum: "80 - 250",
         isDemo: true,
+        isAgencyRequest: true,
+        isMediation: true,
+        contactType: "mediation",
         isActive: true,
         eventTypes: ["Bar/Kneipe/Club", "Firmenfeier", "Hochzeit – Party", "Geburtstag"],
         availability: ["Friday", "Saturday", "Sunday"],
         description: "Seit 10 Jahren als DJ auf Hochzeiten, Firmenfeiern und in Clubs unterwegs. Professionelle High-End Licht- und Tontechnik für Events bis 300 Personen bringe ich komplett selbst mit.",
-        contactName: "Andreas Richter",
-        phone: "+49 171 55566677",
+        contactName: "GigConnAct Vermittlung",
+        phone: "+49 89 9876540",
         hidePhone: true,
-        email: "dj.soundwave@web.de",
+        email: "info@gigconnact.de",
+        creatorId: "info-gigconnact-admin",
         isPremium: true,
         socialLinks: {
             spotify: "https://spotify.com/artist/djsoundwave",
@@ -2265,6 +2269,8 @@ function generateRemainingMusicians(existing) {
         const maxPublikum = minPublikum + [30, 50, 100, 200][Math.floor(Math.random() * 4)];
         const publikum = `${minPublikum} - ${maxPublikum}`;
 
+        const isMediationGen = (i % 3 === 0);
+
         musicians.push({
             id: `mus_gen_${i}`,
             name,
@@ -2282,12 +2288,16 @@ function generateRemainingMusicians(existing) {
             maxPublikum,
             publikum,
             isDemo: true,
+            isAgencyRequest: isMediationGen,
+            isMediation: isMediationGen,
+            contactType: isMediationGen ? 'mediation' : 'direct',
             eventTypes,
             availability,
             description: `Hallo, wir sind ${name}! Mit viel Herzblut und Leidenschaft spielen wir ${genres.join(" & ")} für Ihre Veranstaltung in ${location} und Umgebung. Kontaktieren Sie uns gerne!`,
-            contactName,
-            phone: `+49 176 ${Math.floor(10000000 + Math.random() * 90000000)}`,
-            email: `${name.toLowerCase().replace(/[^a-z0-9]/g, "")}@example.com`,
+            contactName: isMediationGen ? 'GigConnAct Vermittlung' : contactName,
+            phone: isMediationGen ? '+49 89 9876540' : `+49 176 ${Math.floor(10000000 + Math.random() * 90000000)}`,
+            email: isMediationGen ? 'info@gigconnact.de' : `${name.toLowerCase().replace(/[^a-z0-9]/g, "")}@example.com`,
+            creatorId: isMediationGen ? 'info-gigconnact-admin' : `mus_gen_${i}`,
             isPremium: Math.random() > 0.5,
             socialLinks: { spotify: "", youtube: "", instagram: "" },
             photos: [
@@ -4348,9 +4358,51 @@ class StateManager {
         return { success: true };
     }
 
-    deleteEvent(eventId) {
-        db.collection('events').doc(eventId).delete()
-            .catch(err => console.error("deleteEvent Firestore write failed:", err));
+    async deleteEvent(eventId) {
+        if (!eventId) return { success: false };
+        try {
+            if (typeof db !== 'undefined' && db && db.collection) {
+                const parts = String(eventId).split('_');
+                if (parts.length === 4 && parts[0] === 'evt' && parts[1] === 'agency') {
+                    const basePrefix = parts[0] + '_' + parts[1] + '_' + parts[2];
+                    await db.collection('events').doc(basePrefix + '_0').delete().catch(() => {});
+                    await db.collection('events').doc(basePrefix + '_1').delete().catch(() => {});
+                }
+                await db.collection('events').doc(eventId).delete().catch(err => console.warn("deleteEvent Firestore write failed:", err));
+
+                const medSnap = await db.collection('mediations').where('eventId', '==', eventId).get().catch(() => null);
+                if (medSnap && !medSnap.empty) {
+                    for (const d of medSnap.docs) {
+                        await db.collection('mediations').doc(d.id).update({ status: 'expired' }).catch(() => {});
+                    }
+                }
+            }
+        } catch (err) {
+            console.error("deleteEvent error:", err);
+        }
+
+        const parts = String(eventId).split('_');
+        const isAgencyDup = parts.length === 4 && parts[0] === 'evt' && parts[1] === 'agency';
+        const basePrefix = isAgencyDup ? (parts[0] + '_' + parts[1] + '_' + parts[2]) : null;
+
+        this.events = (this.events || []).filter(e => {
+            if (!e) return false;
+            if (e.id === eventId) return false;
+            if (basePrefix && e.id && e.id.startsWith(basePrefix)) return false;
+            return true;
+        });
+
+        if (this.activeEventId === eventId || (basePrefix && String(this.activeEventId).startsWith(basePrefix))) {
+            const remainingUserEvents = (this.events || []).filter(e => e && (e.creatorId === this.currentUser?.id || (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser?.email) && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))));
+            this.activeEventId = remainingUserEvents.length > 0 ? remainingUserEvents[0].id : null;
+            if (this.currentUser) {
+                this.currentUser.profileId = this.activeEventId;
+            }
+            window.lastActiveProfileId = this.activeEventId;
+        }
+
+        this.saveState();
+        this.notify();
         return { success: true };
     }
 
@@ -8416,7 +8468,20 @@ function renderMarket(container, type, onNavigate) {
                                 <input type="text" id="filter-keyword-m" placeholder="z.B. Acoustic, Sax, Pop..." class="form-input" style="width: 100% !important; max-width: 100% !important; min-width: 0 !important; box-sizing: border-box !important; display: block !important; padding: 0.55rem; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; font-size: 0.85rem;">
                             </div>
 
-
+                            <!-- Kontakt-Typ Filter -->
+                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Kontakt-Typ</label>
+                                <div class="checkbox-tag-grid" id="filter-contact-type-grid-m" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <label class="tag-pill-checkbox active">
+                                        <input type="checkbox" name="filterContactTypeM" value="direct" checked>
+                                        <span>Direktkontakt</span>
+                                    </label>
+                                    <label class="tag-pill-checkbox active">
+                                        <input type="checkbox" name="filterContactTypeM" value="mediation" checked>
+                                        <span>Vermittlung</span>
+                                    </label>
+                                </div>
+                            </div>
 
                             <!-- 2. Ort & Max. Umkreis -->
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
@@ -9138,33 +9203,31 @@ function renderMarket(container, type, onNavigate) {
                 });
             }
 
-            // 2.1. Kontakt-Typ Filter (Direkt / Vermittlung) - ONLY for events!
-            if (isEvents) {
-                const contactTypeGridId = 'filter-contact-type-grid';
-                const contactTypeGrid = container.querySelector('#' + contactTypeGridId);
-                if (contactTypeGrid) {
-                    const selContactTypes = getCheckedValues(contactTypeGridId);
-                    list = list.filter(item => {
-                        const itemIsMediation = Boolean(
-                            item.isMediation === true ||
-                            item.isAgencyRequest === true || 
-                            item.contactType === 'mediation' ||
-                            item.mediation === true ||
-                            item.email === 'info@gigconnact.de' || 
-                            item.clientEmail === 'info@gigconnact.de' || 
-                            item.creatorId === 'info-gigconnact-admin' ||
-                            (item.id && String(item.id).startsWith('evt_agency_'))
-                        );
-                        const isMediationSelected = selContactTypes.includes('mediation');
-                        const isDirectSelected = selContactTypes.includes('direct');
-                        
-                        if (itemIsMediation) {
-                            return isMediationSelected;
-                        } else {
-                            return isDirectSelected;
-                        }
-                    });
-                }
+            // 2.1. Kontakt-Typ Filter (Direkt / Vermittlung)
+            const contactTypeGridId = isEvents ? 'filter-contact-type-grid' : 'filter-contact-type-grid-m';
+            const contactTypeGrid = container.querySelector('#' + contactTypeGridId);
+            if (contactTypeGrid) {
+                const selContactTypes = getCheckedValues(contactTypeGridId);
+                list = list.filter(item => {
+                    const itemIsMediation = Boolean(
+                        item.isMediation === true ||
+                        item.isAgencyRequest === true || 
+                        item.contactType === 'mediation' ||
+                        item.mediation === true ||
+                        item.email === 'info@gigconnact.de' || 
+                        item.clientEmail === 'info@gigconnact.de' || 
+                        item.creatorId === 'info-gigconnact-admin' ||
+                        (item.id && String(item.id).startsWith('evt_agency_'))
+                    );
+                    const isMediationSelected = selContactTypes.includes('mediation');
+                    const isDirectSelected = selContactTypes.includes('direct');
+                    
+                    if (itemIsMediation) {
+                        return isMediationSelected;
+                    } else {
+                        return isDirectSelected;
+                    }
+                });
             }
 
             // 3. Genres Filter
@@ -11004,6 +11067,7 @@ function renderProfilePage(container) {
 
     const u = state.currentUser;
     const isMusician = (u.role === 'musician');
+    const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
     const themeColor = isMusician ? 'var(--color-purple)' : 'var(--color-cyan)';
     const themeClass = isMusician ? 'text-purple' : 'text-cyan';
     const themeBtnBg = isMusician ? '#7c3aed' : '#2563eb';
@@ -11120,7 +11184,7 @@ function renderProfilePage(container) {
                 </form>
             </div>
 
-            ${(u.role === 'musician' || u.role === 'organizer') ? `
+            ${((u.role === 'musician' || u.role === 'organizer') && !isAdmin) ? `
             <div class="profile-section-card subscription-manage">
                 <div class="profile-section-header">
                     <div style="display: flex; align-items: center; gap: 0.85rem;">
@@ -12229,22 +12293,16 @@ function renderOrganizerEventItem(e, isActive) {
             </div>
 
             <!-- Actions Grid at the Bottom (Organizer Blue theme with white text) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #2563eb;">
-                ${isActive ? `
-                <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem; background: #2563eb;">
+                <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                     <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
                 </button>
-                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
-                    <i class="fa-solid fa-pause" style="color: #ffffff;"></i> Pausieren
+                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                    <i class="fa-solid ${isActive ? 'fa-pause' : 'fa-play'}" style="color: #ffffff;"></i> ${isActive ? 'Pausieren' : 'Aktivieren'}
                 </button>
-                ` : `
-                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
-                    <i class="fa-solid fa-play" style="color: #ffffff;"></i> Aktivieren
-                </button>
-                <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                     <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
                 </button>
-                `}
             </div>
         </div>
     `;
@@ -12388,15 +12446,14 @@ function renderMyEventsContent(container) {
         btn.addEventListener('click', async () => {
             const id = btn.getAttribute('data-id');
             const event = state.events.find(e => e.id === id);
-            if (event) {
-                if (confirm(`Möchtest du das Event "${event.name}" wirklich unwiderruflich löschen?`)) {
-                    await state.deleteEvent(id);
-                    showToast({
-                        title: "Event gelöscht",
-                        message: "Das Event wurde erfolgreich aus der Suche entfernt."
-                    });
-                    renderMyEvents(container);
-                }
+            const eventName = event ? event.name : 'dieses Event';
+            if (confirm(`Möchtest du das Event "${eventName}" wirklich unwiderruflich löschen?`)) {
+                await state.deleteEvent(id);
+                showToast({
+                    title: "Event gelöscht",
+                    message: "Das Event wurde erfolgreich aus der Suche entfernt."
+                });
+                renderMyEvents(container);
             }
         });
     });
@@ -13978,7 +14035,12 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
 
 
-                    <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
+                    <div style="display: flex; justify-content: ${isEdit ? 'space-between' : 'center'}; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap;">
+                        ${isEdit ? `
+                        <button type="button" id="btn-delete-event-modal" class="btn btn-sm" style="margin:0; padding: 0.75rem 1.25rem; font-size: 0.92rem; font-weight: 700; color: #ef4444; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 0.45rem;">
+                            <i class="fa-solid fa-trash"></i> Event löschen
+                        </button>
+                        ` : ''}
                         <button type="submit" id="btn-submit-event" class="btn btn-primary btn-event-submit" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important; border-color: #1e40af !important; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important; color: #ffffff !important;">
                             ${isEdit ? 'Änderungen speichern' : 'Event ausschreiben'}
                         </button>
@@ -13989,6 +14051,27 @@ function showEventModal(eventObj = null, isDuplication = false) {
     `;
 
     document.getElementById('btn-close-event-modal').addEventListener('click', closeModal);
+
+    const deleteModalBtn = document.getElementById('btn-delete-event-modal');
+    if (deleteModalBtn && eventObj) {
+        deleteModalBtn.addEventListener('click', async () => {
+            const eventName = eventObj.name || 'dieses Event';
+            if (confirm(`Möchtest du das Event "${eventName}" wirklich unwiderruflich löschen?`)) {
+                await state.deleteEvent(eventObj.id);
+                showToast({
+                    title: "Event gelöscht",
+                    message: "Das Event wurde erfolgreich entfernt."
+                });
+                closeModal();
+                const mainContainer = document.getElementById('app-main');
+                if (window.location.hash.includes('profile')) {
+                    renderProfilePage(mainContainer);
+                } else {
+                    renderMyEvents(mainContainer);
+                }
+            }
+        });
+    }
 
     // Initialize Calendar Widget
     let currentCalDate = new Date();
