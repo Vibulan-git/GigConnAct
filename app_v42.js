@@ -579,7 +579,7 @@ window.openFullscreenGallery = function(items, startIndex = 0, title = '', relat
 
     const modal = document.createElement('div');
     modal.id = 'app-fullscreen-gallery-modal';
-    modal.style.cssText = 'position: fixed; inset: 0; z-index: 9999999; background: rgba(3, 7, 18, 0.96); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 1rem; box-sizing: border-box; touch-action: pan-y; -webkit-user-select: none; user-select: none; animation: fadeInGallery 0.2s ease-out;';
+    modal.style.cssText = 'position: fixed; inset: 0; z-index: 9999999; background: rgba(3, 7, 18, 0.96); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 0.8rem 0.4rem; box-sizing: border-box; touch-action: pan-y; -webkit-user-select: none; user-select: none; animation: fadeInGallery 0.2s ease-out;';
 
     const renderCurrentSlide = () => {
         const item = items[currentIndex];
@@ -604,10 +604,10 @@ window.openFullscreenGallery = function(items, startIndex = 0, title = '', relat
             </div>
 
             <!-- Center Media Container -->
-            <div id="gallery-media-stage" style="flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 0.5rem; box-sizing: border-box; cursor: pointer;">
+            <div id="gallery-media-stage" style="flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 0.2rem; box-sizing: border-box; cursor: pointer;">
                 ${total > 1 ? `
                 <!-- Left Nav Button -->
-                <button id="btn-gallery-prev" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 50%; background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1.5px solid rgba(255, 255, 255, 0.35); color: #ffffff; font-size: 1.3rem; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; transition: all 0.15s; box-shadow: 0 4px 20px rgba(0,0,0,0.6);" title="Vorheriges Bild" onmouseover="this.style.transform='translateY(-50%) scale(1.1)';" onmouseout="this.style.transform='translateY(-50%) scale(1)';">
+                <button id="btn-gallery-prev" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 50%; background: rgba(15, 23, 42, 0.82); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1.5px solid rgba(255, 255, 255, 0.35); color: #ffffff; font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; transition: all 0.15s; box-shadow: 0 4px 16px rgba(0,0,0,0.6);" title="Vorheriges Bild" onmouseover="this.style.transform='translateY(-50%) scale(1.1)';" onmouseout="this.style.transform='translateY(-50%) scale(1)';">
                     <i class="fa-solid fa-chevron-left"></i>
                 </button>
                 ` : ''}
@@ -625,7 +625,7 @@ window.openFullscreenGallery = function(items, startIndex = 0, title = '', relat
 
                 ${total > 1 ? `
                 <!-- Right Nav Button -->
-                <button id="btn-gallery-next" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 50%; background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1.5px solid rgba(255, 255, 255, 0.35); color: #ffffff; font-size: 1.3rem; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; transition: all 0.15s; box-shadow: 0 4px 20px rgba(0,0,0,0.6);" title="Nächstes Bild" onmouseover="this.style.transform='translateY(-50%) scale(1.1)';" onmouseout="this.style.transform='translateY(-50%) scale(1)';">
+                <button id="btn-gallery-next" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 50%; background: rgba(15, 23, 42, 0.82); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1.5px solid rgba(255, 255, 255, 0.35); color: #ffffff; font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 20; transition: all 0.15s; box-shadow: 0 4px 16px rgba(0,0,0,0.6);" title="Nächstes Bild" onmouseover="this.style.transform='translateY(-50%) scale(1.1)';" onmouseout="this.style.transform='translateY(-50%) scale(1)';">
                     <i class="fa-solid fa-chevron-right"></i>
                 </button>
                 ` : ''}
@@ -6701,18 +6701,20 @@ window.getHeroCtaHTML = function(mode = 'initial', animClass = '') {
     if (mode === 'musician') {
         return `
             <div class="${animClass}" style="position: relative; display: flex; gap: 1.2rem; width: 100%; justify-content: center; flex-wrap: nowrap; box-sizing: border-box;">
-                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.6rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center;">
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.6rem 1.2rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; line-height: 1.3;">
                         <i class="fa-solid fa-guitar" style="font-size: clamp(1.85rem, 4.2vw, 2.3rem); margin-bottom: 0.55rem; color: #ffffff;"></i>
-                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; line-height: 1.25; text-align: center; color: #ffffff;">Ich möchte selbst</span>
-                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.3rem;">Veranstalter kontaktieren</span>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(0.95rem, 2.2vw, 1.15rem); font-weight: 700; text-align: center; color: #ffffff;">Ich möchte</span>
+                        <span style="font-family: var(--font-heading); font-size: clamp(1.2rem, 2.8vw, 1.55rem); font-weight: 900; color: #ffffff; letter-spacing: 0.5px; text-transform: uppercase; margin: 0.15rem 0;">DIREKT</span>
+                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">Kontakt aufnehmen</span>
                     </div>
                 </button>
-                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.6rem 1.4rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center;">
+                <button class="btn hero-cta-card-btn" onclick="window.appNavigate('events')" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.92) 0%, rgba(109, 40, 217, 0.96) 100%); border: 2px solid rgba(192, 132, 252, 0.55); color: #ffffff; padding: 1.6rem 1.2rem; font-weight: 900; border-radius: 22px; box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5); display: flex; align-items: center; justify-content: center; flex: 1 1 0px; width: 0; min-width: 0; min-height: 168px; box-sizing: border-box; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='translateY(0) scale(1)';">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; line-height: 1.3;">
                         <i class="fa-solid fa-handshake" style="font-size: clamp(1.85rem, 4.2vw, 2.3rem); margin-bottom: 0.55rem; color: #ffffff;"></i>
-                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(1.05rem, 2.4vw, 1.35rem); font-weight: 800; line-height: 1.25; text-align: center; color: #ffffff;">Ich möchte Veranstalter</span>
-                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88); margin-top: 0.3rem;">vermittelt bekommen</span>
+                        <span class="hero-cta-title" style="font-family: var(--font-heading); font-size: clamp(0.95rem, 2.2vw, 1.15rem); font-weight: 700; text-align: center; color: #ffffff;">Ich möchte</span>
+                        <span style="font-family: var(--font-heading); font-size: clamp(1.2rem, 2.8vw, 1.55rem); font-weight: 900; color: #ffffff; letter-spacing: 0.5px; text-transform: uppercase; margin: 0.15rem 0;">VERMITTELT</span>
+                        <span style="font-size: clamp(0.85rem, 1.8vw, 1.02rem); font-weight: 600; color: rgba(255, 255, 255, 0.88);">werden</span>
                     </div>
                 </button>
                 <div style="position: absolute; top: calc(100% + 14px); left: 50%; transform: translateX(-50%); width: 100%; display: flex; justify-content: center; pointer-events: auto;">
@@ -9797,7 +9799,7 @@ window.openItemDetailModal = function(id, isEvents) {
                                 ? `<i class="fa-solid fa-lock" style="color: ${isEvents ? '#7c3aed' : '#2563eb'}; font-size: 1.4rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
                                 : ''
                             }
-                            ${(item.isDemo || (item.id && (item.id.startsWith('mus_') || item.id.startsWith('evt_'))))
+                            ${Boolean(item.isDemo)
                                 ? `<span class="tile-demo-text" style="color: #000000 !important; background: #ffffff; padding: 0.1rem 0.45rem; border-radius: 4px; font-weight: 800; font-size: 1.05rem; vertical-align: middle; margin-left: 0.45rem; filter: none !important; -webkit-text-fill-color: #000000 !important;">[Demo]</span>`
                                 : ''
                             }
@@ -19850,7 +19852,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
         const description = (isEvents && isMediation) ? window.cleanEventDescription(rawDesc, true) : rawDesc;
 
         const bandName = item.name || item.title || '';
-        const isDemoTile = item.isDemo || (item.id && (item.id.startsWith('mus_') || item.id.startsWith('evt_')));
+        const isDemoTile = Boolean(item.isDemo);
         // Tags (Musiker-Typ bzw. Event-Typ + ggf. Demo)
         const tagThemeBg = isEvents 
             ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' 
@@ -21991,7 +21993,7 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                 <div style="padding: 1.2rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; background: var(--bg-card);">
                                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.45rem;">
                                             <h3 id="tile-title-${mus.id}" class="tile-card-title" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; min-width: 0;"><span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; display: inline-block; vertical-align: middle; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.45rem; filter: none !important;" title="Name geschützt"></i></h3>
-                                            ${(mus.isDemo || (mus.id && mus.id.startsWith('mus_'))) ? `<span class="tile-demo-text" style="color: #000000 !important; font-weight: 800; font-size: 0.92rem; vertical-align: middle; filter: none !important; -webkit-text-fill-color: #000000 !important; user-select: none; white-space: nowrap;">[Demo]</span>` : ''}
+                                            ${Boolean(mus.isDemo) ? `<span class="tile-demo-text" style="color: #000000 !important; font-weight: 800; font-size: 0.92rem; vertical-align: middle; filter: none !important; -webkit-text-fill-color: #000000 !important; user-select: none; white-space: nowrap;">[Demo]</span>` : ''}
                                         </div>
                                         <div style="display: flex; gap: 0.5rem; justify-content: space-between;">
                                             <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); flex: 1;">
