@@ -9669,22 +9669,19 @@ function renderMarket(container, type, onNavigate) {
                 }
                 const themeColor = isEvents ? '#7c3aed' : '#2563eb';
                 
-                let buttonsHtml = '';
+                let actionButtonsHtml = '';
                 if (totalMatchesCount > displayedItemsCount) {
-                    const remaining = totalMatchesCount - displayedItemsCount;
-                    const nextBatch = Math.min(12, remaining);
-                    buttonsHtml += `
-                        <button class="btn btn-primary" id="btn-market-load-more" style="padding: 0.75rem 2rem; font-size: 0.95rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; background: ${themeColor}; color: #ffffff; border: none; box-shadow: 0 4px 14px rgba(0,0,0,0.15); margin: 0;">
-                            <i class="fa-solid fa-chevron-down"></i> Weitere ${isEvents ? 'Events' : 'Musiker'} anzeigen
+                    actionButtonsHtml += `
+                        <button class="btn btn-primary" id="btn-market-load-more" style="flex: 1 1 0; min-width: 0; padding: 0.75rem 1.1rem; font-size: 0.92rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s; background: ${themeColor}; color: #ffffff; border: none; box-shadow: 0 4px 14px rgba(0,0,0,0.15); margin: 0; white-space: nowrap;">
+                            <i class="fa-solid fa-chevron-down"></i> <span>Weitere ${isEvents ? 'Events' : 'Musiker'} anzeigen</span>
                         </button>
                     `;
                 }
 
-                let secondaryButtonsHtml = '';
                 if (!showMoreMatchesUnfiltered && !showOnlyFavorites && isFilterActiveCurrently) {
                     const hasExcluded = unfilteredList.some(item => !list.some(listItem => listItem.id === item.id));
                     if (hasExcluded) {
-                        secondaryButtonsHtml += `
+                        actionButtonsHtml += `
                             <button class="btn btn-secondary" id="btn-market-show-more-unfiltered" style="flex: 1 1 0; min-width: 0; padding: 0.75rem 0.8rem; font-size: 0.88rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s; margin: 0; white-space: nowrap; text-align: center;">
                                 <i class="fa-solid fa-plus"></i> <span>Weitere Ergebnisse</span>
                             </button>
@@ -9693,17 +9690,17 @@ function renderMarket(container, type, onNavigate) {
                 }
                 
                 if (!showOnlyFavorites && (isFilterActiveCurrently || state.currentUser !== null)) {
-                    secondaryButtonsHtml += `
+                    actionButtonsHtml += `
                         <button class="btn btn-secondary" id="btn-market-bottom-reset" style="flex: 1 1 0; min-width: 0; padding: 0.75rem 0.8rem; font-size: 0.88rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; color: ${themeColor}; border: 2px solid ${themeColor}; background: transparent; transition: all 0.2s; margin: 0; white-space: nowrap; text-align: center;">
                             <i class="fa-solid fa-rotate-right"></i> <span>Filter zurücksetzen</span>
                         </button>
                     `;
                 }
 
-                if (secondaryButtonsHtml) {
-                    buttonsHtml += `
-                        <div class="market-bottom-actions-row" style="display: flex; flex-direction: row; gap: 0.75rem; justify-content: center; align-items: center; width: 100%; max-width: 520px; margin: 0 auto; box-sizing: border-box;">
-                            ${secondaryButtonsHtml}
+                if (actionButtonsHtml) {
+                    buttonsHtml = `
+                        <div class="market-bottom-actions-row" style="display: flex; flex-direction: row; gap: 0.75rem; justify-content: center; align-items: center; width: 100%; max-width: 580px; margin: 0 auto; box-sizing: border-box;">
+                            ${actionButtonsHtml}
                         </div>
                     `;
                 }
@@ -17921,8 +17918,11 @@ function navigate(page) {
         }
     }
 
+    const currentQueryString = (window.location.hash || '').includes('?') ? (window.location.hash.split('?')[1] || '') : '';
+
     const isIdentical = page !== '' && 
         window.currentActivePage === page && 
+        window.lastQueryString === currentQueryString &&
         window.lastUserSessionId === currentUserId && 
         window.lastUserRole === currentUserRole &&
         window.lastMusiciansCount === currentMusiciansCount &&
@@ -17952,6 +17952,7 @@ function navigate(page) {
     window.lastProfilePrefillHash = currentPrefillHash;
     window.lastChatTimestamp = maxChatTimestamp;
     window.lastUpdateVersion = currentUpdateVersion;
+    window.lastQueryString = currentQueryString;
 
     if (page === '' || page === 'info-musician' || page === 'info-organizer') {
         mainContainer.classList.add('page-landing');
@@ -17960,13 +17961,14 @@ function navigate(page) {
     }
 
     // Only scroll to top if the page has actually changed, preventing viewport jumping
-    if (window.currentActivePage !== page) {
+    if (window.currentActivePage !== page || (window.lastScrolledHash !== window.location.hash)) {
         if (mainContainer && mainContainer.cleanupPostboxListener) {
             mainContainer.cleanupPostboxListener();
             mainContainer.cleanupPostboxListener = null;
         }
         window.scrollTo(0, 0);
         window.currentActivePage = page;
+        window.lastScrolledHash = window.location.hash;
         if (page === 'postbox') {
             const hashQuery = (window.location.hash || '').includes('?') ? (window.location.hash.split('?')[1] || '') : '';
             const searchParams = new URLSearchParams(hashQuery || window.location.search || '');
@@ -18241,13 +18243,13 @@ window.updateBottomBar = function() {
                         <span class="bottom-bar-label">Top-Matches</span>
                     </button>
 
-                    <!-- 4. Nachrichten -->
-                    <button class="bottom-bar-item tab-postbox ${isPostboxActive ? 'active' : ''}" id="bottom-bar-tab-postbox" aria-label="Nachrichten" title="Nachrichten">
+                    <!-- 4. Postfach -->
+                    <button class="bottom-bar-item tab-postbox ${isPostboxActive ? 'active' : ''}" id="bottom-bar-tab-postbox" aria-label="Postfach" title="Postfach">
                         <div class="bottom-bar-icon-wrapper">
                             <i class="fa-solid fa-envelope"></i>
                             ${unreadCount > 0 ? `<span class="bottom-bar-badge">${unreadCount}</span>` : ''}
                         </div>
-                        <span class="bottom-bar-label">Nachrichten</span>
+                        <span class="bottom-bar-label">Postfach</span>
                     </button>
 
                     <!-- 5. Profil / Anmelden -->
@@ -18266,17 +18268,21 @@ window.updateBottomBar = function() {
         if (btnMarket) {
             btnMarket.addEventListener('click', () => {
                 try {
-                    if (isMarketPage && isFavActive) {
-                        const favBtn = document.getElementById('btn-toggle-market-favorites');
-                        if (favBtn && favBtn.classList.contains('active')) {
-                            favBtn.click();
-                        } else {
-                            window.location.hash = marketHash;
-                        }
-                    } else if (window.location.hash !== marketHash) {
+                    window.currentMarketShowFavorites = false;
+                    const favBtn = document.getElementById('btn-toggle-market-favorites');
+                    if (favBtn && favBtn.classList.contains('active')) {
+                        favBtn.classList.remove('active');
+                        favBtn.style.color = '';
+                        favBtn.style.borderColor = '';
+                        favBtn.style.background = '';
+                    }
+                    if (window.location.hash !== marketHash) {
                         window.location.hash = marketHash;
-                    } else if (typeof handleRouting === 'function') {
-                        handleRouting();
+                    } else {
+                        window.currentActivePage = null;
+                        if (typeof handleRouting === 'function') {
+                            handleRouting();
+                        }
                     }
                 } catch (e) {
                     window.location.hash = marketHash;
@@ -18293,17 +18299,15 @@ window.updateBottomBar = function() {
                         if (typeof showModal === 'function') showModal('auth');
                         return;
                     }
-                    if (isMarketPage) {
-                        const favBtn = document.getElementById('btn-toggle-market-favorites');
-                        if (favBtn) {
-                            favBtn.click();
-                        } else {
-                            const targetBase = isMusician ? '#/events' : '#/musicians';
-                            window.location.hash = isFavActive ? targetBase : `${targetBase}?fav=true`;
-                        }
+                    const targetBase = isMusician ? '#/events' : '#/musicians';
+                    const favHash = `${targetBase}?fav=true`;
+                    if (window.location.hash !== favHash) {
+                        window.location.hash = favHash;
                     } else {
-                        const targetBase = isMusician ? '#/events' : '#/musicians';
-                        window.location.hash = `${targetBase}?fav=true`;
+                        window.currentActivePage = null;
+                        if (typeof handleRouting === 'function') {
+                            handleRouting();
+                        }
                     }
                 } catch (e) {
                     console.error("Favorites click error:", e);
