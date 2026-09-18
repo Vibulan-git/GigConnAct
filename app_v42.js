@@ -8034,6 +8034,18 @@ function renderMarket(container, type, onNavigate) {
                 <span style="color: ${color} !important; font-size: 0.92rem; font-weight: 700; ${isActive ? 'text-shadow: 0 0 10px rgba(34, 197, 94, 0.6);' : ''}">Filter</span>
             `;
         }
+
+        const floatingToggleBtn = container.querySelector('#btn-floating-market-filter');
+        const floatingDot = container.querySelector('#floating-filter-active-dot');
+        if (floatingToggleBtn) {
+            if (isActive) {
+                floatingToggleBtn.classList.add('has-active-filters');
+                if (floatingDot) floatingDot.style.display = 'inline-block';
+            } else {
+                floatingToggleBtn.classList.remove('has-active-filters');
+                if (floatingDot) floatingDot.style.display = 'none';
+            }
+        }
     }
     const urlParams = new URLSearchParams(window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
     if (urlParams.get('showOnlyFavorites') === 'true' || urlParams.get('fav') === 'true') {
@@ -8689,6 +8701,15 @@ function renderMarket(container, type, onNavigate) {
             </div>
             </div>
             <div id="market-filters-overlay" class="market-filters-overlay"></div>
+
+            <!-- Floating Filter Pill Button (Option 4 - Airbnb Style) -->
+            ${!showOnlyFavorites ? `
+            <button class="market-floating-filter-pill ${isOrganizerTheme ? 'theme-organizer' : 'theme-musician'}" id="btn-floating-market-filter" title="Filter & Suche öffnen">
+                <i class="fa-solid fa-sliders floating-filter-icon"></i>
+                <span class="floating-filter-text">Filter</span>
+                <span class="floating-filter-dot" id="floating-filter-active-dot" style="display: none;"></span>
+            </button>
+            ` : ''}
         </div>
     `;
 
@@ -8696,12 +8717,37 @@ function renderMarket(container, type, onNavigate) {
     const toggleBtn = container.querySelector('#btn-toggle-mobile-filters');
     const filterWrapper = container.querySelector('#market-filters-wrapper');
     const overlay = container.querySelector('#market-filters-overlay');
+    const floatingFilterBtn = container.querySelector('#btn-floating-market-filter');
+
+    if (floatingFilterBtn) {
+        floatingFilterBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (window.innerWidth > 900) {
+                const desktopFilter = document.getElementById('market-filters-wrapper');
+                if (desktopFilter) {
+                    desktopFilter.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    desktopFilter.style.transition = 'box-shadow 0.3s ease';
+                    desktopFilter.style.boxShadow = isOrganizerTheme ? '0 0 25px rgba(37, 99, 235, 0.5)' : '0 0 25px rgba(124, 58, 237, 0.5)';
+                    setTimeout(() => {
+                        desktopFilter.style.boxShadow = '';
+                    }, 1200);
+                } else {
+                    toggleBtn?.click();
+                }
+            } else {
+                toggleBtn?.click();
+            }
+        });
+    }
 
     toggleBtn?.addEventListener('click', function() {
         filterWrapper.classList.toggle('open');
         this.classList.toggle('active');
         const isOpen = filterWrapper.classList.contains('open');
         overlay?.classList.toggle('open', isOpen);
+        if (floatingFilterBtn) {
+            floatingFilterBtn.classList.toggle('drawer-open', isOpen);
+        }
         updateFilterIconGlow(isFilterActiveCurrently);
     });
 
@@ -8711,6 +8757,9 @@ function renderMarket(container, type, onNavigate) {
         filterWrapper.classList.remove('open');
         overlay?.classList.remove('open');
         toggleBtn?.classList.remove('active');
+        if (floatingFilterBtn) {
+            floatingFilterBtn.classList.remove('drawer-open');
+        }
         updateFilterIconGlow(isFilterActiveCurrently);
         if (window.innerWidth <= 900) {
             document.getElementById('market-results-header')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -8731,6 +8780,9 @@ function renderMarket(container, type, onNavigate) {
         filterWrapper.classList.remove('open');
         overlay.classList.remove('open');
         toggleBtn?.classList.remove('active');
+        if (floatingFilterBtn) {
+            floatingFilterBtn.classList.remove('drawer-open');
+        }
         updateFilterIconGlow(isFilterActiveCurrently);
     });
 
