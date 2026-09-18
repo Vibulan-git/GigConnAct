@@ -71,27 +71,33 @@ body {
 
 /* Header & Navigation */
 .app-header {
-    background: rgba(7, 10, 19, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border-glass);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-/* Hide top white bar in App mode (Option A: Controls row & bottom bar take over) */
-.app-header:not(.transparent-header) {
-    display: none !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+    position: sticky !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 50px !important;
+    z-index: 100 !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
 .header-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0.45rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    width: 100% !important;
+    max-width: 1520px !important;
+    margin: 0 auto !important;
+    padding: 0 1.2rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+.app-header .main-nav,
+.app-header .auth-area {
+    display: none !important;
 }
 
 .logo-area {
@@ -5005,7 +5011,7 @@ input[type="range"].input-field {
 .profile-controls-row,
 .postbox-controls-row {
     position: sticky !important;
-    top: 0 !important;
+    top: 50px !important;
     z-index: 40 !important;
     display: flex !important;
     align-items: center !important;
@@ -5429,6 +5435,103 @@ body:not(.has-bottom-bar) .market-floating-filter-pill {
         height: 42px;
         padding: 0.6rem 1.25rem;
         font-size: 0.9rem;
+    }
+}
+
+/* Floating Profile Switcher Pill (Profil-Seite, zentriert über der Bar) */
+.profile-floating-switcher-pill {
+    position: fixed;
+    bottom: calc(64px + 18px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 990;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.7rem 1.45rem;
+    min-width: 140px;
+    max-width: 90vw;
+    height: 46px;
+    box-sizing: border-box;
+    border-radius: 9999px;
+    background: #ffffff;
+    color: #0f172a;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 800;
+    border: 1.5px solid #e2e8f0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    user-select: none;
+}
+
+body:not(.has-bottom-bar) .profile-floating-switcher-pill {
+    bottom: 24px;
+}
+
+.profile-floating-switcher-pill:hover {
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22), 0 3px 10px rgba(0, 0, 0, 0.1);
+    border-color: #cbd5e1;
+}
+
+.profile-floating-switcher-pill:active {
+    transform: translateX(-50%) scale(0.96);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.profile-floating-switcher-pill .floating-profile-icon {
+    font-size: 1.05rem;
+    transition: color 0.2s ease;
+}
+
+.profile-floating-switcher-pill.theme-musician .floating-profile-icon {
+    color: #7c3aed;
+}
+
+.profile-floating-switcher-pill.theme-organizer .floating-profile-icon {
+    color: #2563eb;
+}
+
+.profile-floating-switcher-pill .floating-profile-text {
+    letter-spacing: -0.2px;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-floating-switcher-pill .floating-profile-caret {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    margin-left: 0.15rem;
+    flex-shrink: 0;
+}
+
+.profile-floating-switcher-pill select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+    border-radius: 9999px;
+}
+
+@media (max-width: 480px) {
+    .profile-floating-switcher-pill {
+        height: 42px;
+        padding: 0.6rem 1.25rem;
+        font-size: 0.9rem;
+    }
+    .profile-floating-switcher-pill .floating-profile-text {
+        max-width: 140px;
     }
 }
 

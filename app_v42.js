@@ -8234,15 +8234,10 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page ${isOrganizerTheme ? 'theme-organizer' : 'theme-musician'} ${showOnlyFavorites ? 'favorites-mode' : ''}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
-            <div class="market-controls-row ${showOnlyFavorites ? 'favorites-mode' : ''}" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+            <div class="market-controls-row ${showOnlyFavorites ? 'favorites-mode' : ''}" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 50px !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
                 <div class="market-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
-                    <!-- 0. Brand / Logo Links -->
-                    <div class="market-controls-brand" style="grid-column: 1; justify-self: start; display: flex; align-items: center;">
-                        <a href="#/" class="controls-logo-link" style="display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none;" title="GigConnAct Startseite">
-                            <img src="discoball.png" style="width: 26px; height: 26px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.25));" alt="Logo">
-                            <span class="controls-logo-text" style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 800; color: #ffffff; letter-spacing: -0.4px; white-space: nowrap; line-height: 1.1;">GigConnAct</span>
-                        </a>
-                    </div>
+                    <!-- Spacer Links -->
+                    <div class="market-controls-spacer" style="grid-column: 1;"></div>
 
                     <!-- 1. Trefferanzahl (Mittig, Weiß auf Verlauf-Leiste) -->
                     <div id="market-results-header" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px; cursor: ${showOnlyFavorites ? 'default' : 'pointer'};" onclick="if (!window.currentMarketShowFavorites) document.getElementById('btn-toggle-mobile-filters')?.click();" title="${showOnlyFavorites ? '' : 'Filter öffnen'}">
@@ -11232,13 +11227,18 @@ function renderProfilePage(container) {
         ? `<option value="profile" selected style="background: #ffffff; color: #1e293b;">${fallbackProfileTitle}</option>`
         : '';
 
-    const profileSwitcherHtml = `
-        <div class="profile-switcher-wrapper ${isMusician ? 'role-musician' : 'role-organizer'}" style="background: rgba(255, 255, 255, 0.18) !important; border: 1.5px solid rgba(255, 255, 255, 0.35) !important; border-radius: 20px !important; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15) !important; display: flex !important; align-items: center !important; gap: 0.35rem !important; padding: 0.28rem 0.75rem !important; margin: 0 !important; max-width: 175px !important; height: 35px !important; box-sizing: border-box !important; flex-shrink: 0 !important;" title="Profil wechseln">
-            <select id="profile-page-select" style="width: 100% !important; height: 26px !important; padding: 0 0.15rem !important; font-size: 0.8rem !important; margin: 0 !important; border: none !important; background: transparent !important; cursor: pointer !important; color: #ffffff !important; font-weight: 700 !important; text-overflow: ellipsis !important; white-space: nowrap !important; overflow: hidden !important; outline: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;">
+    const currentActiveProfile = userProfiles.find(p => p.id === activeProfileId);
+    const activeProfileName = currentActiveProfile ? (currentActiveProfile.name || currentActiveProfile.title || currentActiveProfile.contactName || (isMusician ? 'Mein Profil' : 'Mein Event')) : fallbackProfileTitle;
+
+    const profileFloatingSwitcherHtml = `
+        <div class="profile-floating-switcher-pill ${isMusician ? 'theme-musician' : 'theme-organizer'}" id="floating-profile-switcher-pill" title="Profil auswählen">
+            <i class="fa-solid fa-users floating-profile-icon"></i>
+            <span class="floating-profile-text">${activeProfileName}</span>
+            <i class="fa-solid fa-chevron-up floating-profile-caret"></i>
+            <select id="profile-page-select" title="Profil wechseln">
                 ${defaultProfileOption}
                 ${profileOptions}
             </select>
-            <i class="fa-solid fa-chevron-down switcher-caret" style="color: rgba(255, 255, 255, 0.85) !important; font-size: 0.68rem !important; pointer-events: none !important; flex-shrink: 0 !important;"></i>
         </div>
     `;
 
@@ -11246,15 +11246,10 @@ function renderProfilePage(container) {
         <div class="profile-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
             <!-- Profile Controls Row (Lila-Blau-Verlauf wie unten in der Leiste) -->
-            <div class="profile-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+            <div class="profile-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 50px !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
                 <div class="profile-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
-                    <!-- 0. Brand / Logo Links -->
-                    <div class="profile-controls-brand" style="grid-column: 1; justify-self: start; display: flex; align-items: center;">
-                        <a href="#/" class="controls-logo-link" style="display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none;" title="GigConnAct Startseite">
-                            <img src="discoball.png" style="width: 26px; height: 26px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.25));" alt="Logo">
-                            <span class="controls-logo-text" style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 800; color: #ffffff; letter-spacing: -0.4px; white-space: nowrap; line-height: 1.1;">GigConnAct</span>
-                        </a>
-                    </div>
+                    <!-- Spacer Links -->
+                    <div class="profile-controls-spacer" style="grid-column: 1;"></div>
 
                     <!-- Titel Mittig (ohne Icon) -->
                     <div class="profile-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -11263,9 +11258,8 @@ function renderProfilePage(container) {
                         </span>
                     </div>
 
-                    <!-- Profil-Auswahl & Abmelden Rechts -->
-                    <div class="profile-controls-actions" style="grid-column: 3; justify-self: end; display: flex; align-items: center; gap: 0.55rem;">
-                        ${profileSwitcherHtml}
+                    <!-- Abmelden Rechts -->
+                    <div class="profile-controls-actions" style="grid-column: 3; justify-self: end; display: flex; align-items: center;">
                         <button id="btn-profile-logout" class="btn btn-sm" style="background: rgba(239, 68, 68, 0.88) !important; border: 1.5px solid rgba(255, 255, 255, 0.35) !important; color: #ffffff !important; border-radius: 20px !important; height: 35px !important; padding: 0 0.85rem !important; display: inline-flex !important; align-items: center !important; gap: 0.4rem !important; font-size: 0.82rem !important; font-weight: 700 !important; cursor: pointer !important; transition: all 0.2s !important; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35) !important;" title="Abmelden">
                             <i class="fa-solid fa-right-from-bracket"></i>
                             <span class="profile-logout-text">Abmelden</span>
@@ -11508,6 +11502,10 @@ function renderProfilePage(container) {
 
             </div>
             </div>
+
+            <!-- Floating Profile Switcher Pill (zentriert über der Navigationsleiste) -->
+            ${profileFloatingSwitcherHtml}
+
         </div>
     `;
 
@@ -12068,15 +12066,10 @@ function renderMatchesPage(container) {
             <div class="market-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
                 
                 <!-- Controls Row: Center = Title & Count, Right = Profile Switcher -->
-                <div class="matches-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+                <div class="matches-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 50px !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
                     <div class="matches-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
-                        <!-- 0. Brand / Logo Links -->
-                        <div class="matches-controls-brand" style="grid-column: 1; justify-self: start; display: flex; align-items: center;">
-                            <a href="#/" class="controls-logo-link" style="display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none;" title="GigConnAct Startseite">
-                                <img src="discoball.png" style="width: 26px; height: 26px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.25));" alt="Logo">
-                                <span class="controls-logo-text" style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 800; color: #ffffff; letter-spacing: -0.4px; white-space: nowrap; line-height: 1.1;">GigConnAct</span>
-                            </a>
-                        </div>
+                        <!-- Spacer Links -->
+                        <div class="matches-controls-spacer" style="grid-column: 1;"></div>
 
                         <!-- Center: Title & Count (Mittig, ohne Icon) -->
                         <div class="matches-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px;">
@@ -18230,136 +18223,12 @@ function updateNavbar(forceLanding, activePage) {
 
     if (u && u.id) {
         nav.className = `main-nav ${u.role === 'musician' ? 'nav-purple' : 'nav-blue'}`;
-        nav.innerHTML = ''; // Hide text-based navigation links since icon buttons are used instead
-        
-        let unreadCount = 0;
-        try {
-            unreadCount = (state && typeof state.getUnreadCount === 'function') ? (state.getUnreadCount() || 0) : 0;
-        } catch (e) {
-            unreadCount = 0;
-        }
-
-        let effectivePage = (activePage || '').toLowerCase();
-        if (!effectivePage) {
-            const hash = window.location.hash || '';
-            let pageWithQuery = hash.replace(/^#\/?/, '');
-            effectivePage = pageWithQuery.split('?')[0].toLowerCase();
-            if (effectivePage.endsWith('/')) effectivePage = effectivePage.slice(0, -1);
-        }
-        if (!effectivePage && window.currentActivePage) {
-            effectivePage = String(window.currentActivePage).toLowerCase();
-        }
-        if (effectivePage === 'top-matches') effectivePage = 'matches';
-
-        const isProfileActive = (effectivePage === 'profile' || effectivePage === 'dashboard');
-
-        if (!isProfileActive) {
-            authArea.innerHTML = '';
-        } else {
-            const isMusician = u.role === 'musician';
-
-            // Fetch user profiles to generate persistent profile switcher in header
-            let userProfiles = [];
-            let activeProfileId = '';
-            const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
-            if (isMusician) {
-                userProfiles = (state.musicians || []).filter(m => m && (m.creatorId === u.id || (u.profileId && m.id === u.profileId)));
-                activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || u.profileId || '');
-                if (activeProfileId) state.activeMusicianId = activeProfileId;
-            } else {
-                userProfiles = (state.events || []).filter(e => e && (
-                    e.creatorId === u.id || 
-                    (u.profileId && e.id === u.profileId) ||
-                    (u.email && (e.email === u.email || e.clientEmail === u.email)) ||
-                    (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
-                ));
-                activeProfileId = state.activeEventId || (userProfiles[0]?.id || u.profileId || '');
-                if (activeProfileId) state.activeEventId = activeProfileId;
-            }
-
-            const profileOptions = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''} style="background: #ffffff; color: #1e293b;">${p.name || p.title || p.contactName || (isMusician ? 'Mein Profil' : 'Mein Event')}</option>`).join('');
-
-            const organizerEventFallback = u.eventName || (state.events && state.events.find(e => e && (e.creatorId === u.id || e.id === u.profileId))?.name) || 'Mein Event';
-            const fallbackProfileTitle = isMusician ? (u.bandName || u.firstName || 'Mein Profil') : organizerEventFallback;
-
-            const defaultProfileOption = (userProfiles.length === 0)
-                ? `<option value="profile" selected style="background: #ffffff; color: #1e293b;">${fallbackProfileTitle}</option>`
-                : '';
-
-            const profileSelectorHtml = `
-                <div class="profile-switcher-wrapper ${isMusician ? 'role-musician' : 'role-organizer'}" style="background: ${isMusician ? '#7c3aed' : '#2563eb'} !important; border: 1.5px solid ${isMusician ? '#6d28d9' : '#1d4ed8'} !important; border-radius: 20px !important; box-shadow: 0 2px 10px ${isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'} !important; display: flex !important; align-items: center !important; gap: 0.35rem !important; padding: 0.28rem 0.8rem !important; margin: 0 !important; max-width: 175px !important; height: 35px !important; box-sizing: border-box !important; flex-shrink: 0 !important; font-family: var(--font-heading) !important;" title="Profil wechseln oder abmelden">
-                    <select id="navbar-profile-select" style="width: 100% !important; height: 26px !important; padding: 0 0.15rem !important; font-size: 0.8rem !important; margin: 0 !important; border: none !important; background: transparent !important; cursor: pointer !important; color: #ffffff !important; font-weight: 700 !important; text-overflow: ellipsis !important; white-space: nowrap !important; overflow: hidden !important; outline: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;">
-                        ${defaultProfileOption}
-                        ${profileOptions}
-                        <option disabled style="color: #94a3b8; background: #ffffff;">──────────</option>
-                        <option value="logout" style="color: #ef4444; font-weight: 800; background: #ffffff;">Abmelden</option>
-                    </select>
-                    <i class="fa-solid fa-chevron-down switcher-caret" style="color: rgba(255, 255, 255, 0.85) !important; font-size: 0.68rem !important; pointer-events: none !important; flex-shrink: 0 !important;"></i>
-                </div>
-            `;
-
-            authArea.innerHTML = `
-                <div style="display:flex; align-items:center; gap:0.6rem;">
-                    ${profileSelectorHtml}
-                </div>
-            `;
-
-            const navbarProfileSelect = document.getElementById('navbar-profile-select');
-            if (navbarProfileSelect) {
-                navbarProfileSelect.addEventListener('change', function() {
-                    const val = this.value;
-                    if (val === 'logout') {
-                        window.handleLogoutRedirect();
-                        return;
-                    }
-                    if (val === 'profile') {
-                        navigate('profile');
-                        return;
-                    }
-                    console.log("[DEBUG] navbar-profile-select changed to:", val);
-                    if (isMusician) {
-                        state.activeMusicianId = val;
-                    } else {
-                        state.activeEventId = val;
-                    }
-                    state.saveState();
-
-                    // If currently on matches page, update matches select and trigger update directly
-                    const currentHash = window.location.hash || '';
-                    if (currentHash.startsWith('#/matches') || currentHash.startsWith('#matches') || currentHash.startsWith('#/top-matches') || currentHash.startsWith('#top-matches')) {
-                        const pageProfileSelect = document.getElementById('select-profile');
-                        if (pageProfileSelect && pageProfileSelect.value !== val) {
-                            pageProfileSelect.value = val;
-                        }
-                        if (typeof window.matchesUpdate === 'function') {
-                            window.matchesUpdate();
-                            return;
-                        }
-                    }
-                    state.notify();
-                });
-            }
-        }
+        nav.innerHTML = '';
+        authArea.innerHTML = '';
     } else {
         nav.className = 'main-nav';
         nav.innerHTML = '';
-        const currentHash = window.location.hash || '';
-        const isMatchmakingChoice = currentHash === '#/matchmaking-choice' || currentHash.startsWith('#/matchmaking-choice') || currentHash.includes('/matchmaking-choice');
-        if (isMatchmakingChoice) {
-            authArea.innerHTML = '';
-        } else {
-            authArea.innerHTML = `
-                <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger" title="Einloggen / Registrieren" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: 1.5px solid rgba(255, 255, 255, 0.3) !important; color: #ffffff !important; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3) !important;">
-                    <i class="fa-solid fa-right-to-bracket header-login-icon"></i>
-                </button>
-            `;
-            
-            document.getElementById('btn-login-trigger')?.addEventListener('click', () => {
-                showModal('auth', () => {
-                    navigateAfterLogin();
-                });
-            });
-        }
+        authArea.innerHTML = '';
     }
 
     if (typeof window.updateBottomBar === 'function') {
@@ -19170,15 +19039,10 @@ function renderPostbox(container) {
             container.innerHTML = `
             <div class="postbox-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box; overflow-x: clip;">
                 <!-- Postbox Controls Row (Lila-Blau-Verlauf wie unten in der Leiste) -->
-                <div class="postbox-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+                <div class="postbox-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 50px !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
                     <div class="postbox-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
-                        <!-- 0. Brand / Logo Links -->
-                        <div class="postbox-controls-brand" style="grid-column: 1; justify-self: start; display: flex; align-items: center;">
-                            <a href="#/" class="controls-logo-link" style="display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none;" title="GigConnAct Startseite">
-                                <img src="discoball.png" style="width: 26px; height: 26px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.25));" alt="Logo">
-                                <span class="controls-logo-text" style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 800; color: #ffffff; letter-spacing: -0.4px; white-space: nowrap; line-height: 1.1;">GigConnAct</span>
-                            </a>
-                        </div>
+                        <!-- Spacer Links -->
+                        <div class="postbox-controls-spacer" style="grid-column: 1;"></div>
 
                         <!-- Center: Title (Mittig, ohne Icon) -->
                         <div class="postbox-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px;">
