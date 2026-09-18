@@ -11230,18 +11230,6 @@ function renderProfilePage(container) {
     const currentActiveProfile = userProfiles.find(p => p.id === activeProfileId);
     const activeProfileName = currentActiveProfile ? (currentActiveProfile.name || currentActiveProfile.title || currentActiveProfile.contactName || (isMusician ? 'Mein Profil' : 'Mein Event')) : fallbackProfileTitle;
 
-    const profileFloatingSwitcherHtml = `
-        <div class="profile-floating-switcher-pill ${isMusician ? 'theme-musician' : 'theme-organizer'}" id="floating-profile-switcher-pill" title="Profil auswählen">
-            <i class="fa-solid fa-users floating-profile-icon"></i>
-            <span class="floating-profile-text">${activeProfileName}</span>
-            <i class="fa-solid fa-chevron-up floating-profile-caret"></i>
-            <select id="profile-page-select" title="Profil wechseln">
-                ${defaultProfileOption}
-                ${profileOptions}
-            </select>
-        </div>
-    `;
-
     container.innerHTML = `
         <div class="profile-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
@@ -11258,19 +11246,37 @@ function renderProfilePage(container) {
                         </span>
                     </div>
 
-                    <!-- Abmelden Rechts -->
-                    <div class="profile-controls-actions" style="grid-column: 3; justify-self: end; display: flex; align-items: center;">
-                        <button id="btn-profile-logout" class="btn btn-sm" style="background: rgba(239, 68, 68, 0.88) !important; border: 1.5px solid rgba(255, 255, 255, 0.35) !important; color: #ffffff !important; border-radius: 20px !important; height: 35px !important; padding: 0 0.85rem !important; display: inline-flex !important; align-items: center !important; gap: 0.4rem !important; font-size: 0.82rem !important; font-weight: 700 !important; cursor: pointer !important; transition: all 0.2s !important; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35) !important;" title="Abmelden">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                            <span class="profile-logout-text">Abmelden</span>
-                        </button>
-                    </div>
+                    <!-- Spacer Rechts -->
+                    <div class="profile-controls-actions" style="grid-column: 3; justify-self: end; display: flex; align-items: center;"></div>
                 </div>
             </div>
 
             <div class="profile-content-wrapper" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0 1.2rem; box-sizing: border-box;">
                 <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem; max-width: 800px; margin: 0 auto; padding: 0;">
-                <div id="profile-my-items-container"></div>
+
+                    <!-- Zeile über der Kachel 'Meine Musiker/Events': Links Auswahl der Profile, Rechts Ausloggebutton in rot -->
+                    <div class="profile-top-actions-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; width: 100%; margin: 0 0 0.5rem 0; flex-wrap: wrap; box-sizing: border-box;">
+                        <!-- Links: Auswahl der Profile -->
+                        <div class="profile-switcher-action-box" style="display: inline-flex; align-items: center; gap: 0.75rem; background: var(--bg-card); border: 1.5px solid var(--border-glass); border-radius: 14px; padding: 0.55rem 1.1rem; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05); position: relative; min-width: 220px; max-width: 100%; box-sizing: border-box;">
+                            <i class="fa-solid fa-users" style="color: ${themeColor}; font-size: 1.05rem; flex-shrink: 0;"></i>
+                            <div style="flex: 1; min-width: 0; position: relative;">
+                                <span style="font-size: 0.65rem; text-transform: uppercase; font-weight: 800; color: var(--text-muted); display: block; line-height: 1; letter-spacing: 0.5px; margin-bottom: 0.2rem;">Profil auswählen</span>
+                                <select id="profile-page-select" style="width: 100%; border: none; background: transparent; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; color: var(--text-main); cursor: pointer; outline: none; padding-right: 1.4rem; -webkit-appearance: none; -moz-appearance: none; appearance: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; margin: 0;">
+                                    ${defaultProfileOption}
+                                    ${profileOptions}
+                                </select>
+                                <i class="fa-solid fa-chevron-down" style="position: absolute; right: 0; bottom: 4px; font-size: 0.72rem; color: #94a3b8; pointer-events: none;"></i>
+                            </div>
+                        </div>
+
+                        <!-- Rechts: Ausloggebutton in rot -->
+                        <button id="btn-profile-logout" class="btn btn-sm" style="background: rgba(239, 68, 68, 0.95) !important; border: 1.5px solid rgba(239, 68, 68, 0.35) !important; color: #ffffff !important; border-radius: 12px !important; height: 42px !important; padding: 0 1.25rem !important; display: inline-flex !important; align-items: center !important; gap: 0.5rem !important; font-size: 0.88rem !important; font-weight: 700 !important; cursor: pointer !important; transition: all 0.2s !important; box-shadow: 0 3px 10px rgba(239, 68, 68, 0.25) !important; margin: 0;" title="Abmelden">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Abmelden</span>
+                        </button>
+                    </div>
+
+                    <div id="profile-my-items-container"></div>
             <div class="profile-section-card contact-details">
                 <div class="profile-section-header">
                     <div style="display: flex; align-items: center; gap: 0.85rem;">
@@ -11502,10 +11508,6 @@ function renderProfilePage(container) {
 
             </div>
             </div>
-
-            <!-- Floating Profile Switcher Pill (zentriert über der Navigationsleiste) -->
-            ${profileFloatingSwitcherHtml}
-
         </div>
     `;
 
@@ -18221,13 +18223,33 @@ function updateNavbar(forceLanding, activePage) {
         footer.style.display = 'none';
     }
 
-    if (u && u.id) {
-        nav.className = `main-nav ${u.role === 'musician' ? 'nav-purple' : 'nav-blue'}`;
-        nav.innerHTML = '';
-        authArea.innerHTML = '';
+    nav.innerHTML = '';
+
+    if (isLanding) {
+        if (!u) {
+            authArea.innerHTML = `
+                <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger" title="Einloggen / Registrieren" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: 1.5px solid rgba(255, 255, 255, 0.4) !important; color: #ffffff !important; border-radius: 20px !important; padding: 0.45rem 1.1rem !important; font-weight: 700 !important; font-size: 0.88rem !important; display: inline-flex !important; align-items: center !important; gap: 0.45rem !important; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4) !important; cursor: pointer !important;">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>Einloggen</span>
+                </button>
+            `;
+            document.getElementById('btn-login-trigger')?.addEventListener('click', () => {
+                showModal('auth', () => {
+                    navigateAfterLogin();
+                });
+            });
+        } else {
+            authArea.innerHTML = `
+                <button class="btn btn-secondary btn-sm header-dashboard-btn" id="btn-hero-dashboard" title="Zum Profil" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: 1.5px solid rgba(255, 255, 255, 0.4) !important; color: #ffffff !important; border-radius: 20px !important; padding: 0.45rem 1.1rem !important; font-weight: 700 !important; font-size: 0.88rem !important; display: inline-flex !important; align-items: center !important; gap: 0.45rem !important; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4) !important; cursor: pointer !important;">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Mein Profil</span>
+                </button>
+            `;
+            document.getElementById('btn-hero-dashboard')?.addEventListener('click', () => {
+                navigate('profile');
+            });
+        }
     } else {
-        nav.className = 'main-nav';
-        nav.innerHTML = '';
         authArea.innerHTML = '';
     }
 
