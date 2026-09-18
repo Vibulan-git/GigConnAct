@@ -11342,11 +11342,21 @@ function renderProfilePage(container) {
         if (activeProfileId) state.activeEventId = activeProfileId;
     }
 
-    const profileOptions = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''} style="background: #ffffff; color: #1e293b;">${p.name || p.title || p.contactName || (isMusician ? 'Mein Profil' : 'Mein Event')}</option>`).join('');
+    const truncateProfileLabel = (name, maxLen = 22) => {
+        if (!name) return '';
+        const trimmed = String(name).trim();
+        return trimmed.length > maxLen ? trimmed.substring(0, maxLen - 2).trim() + '...' : trimmed;
+    };
+
+    const profileOptions = userProfiles.map(p => {
+        const rawName = p.name || p.title || p.contactName || (isMusician ? 'Mein Profil' : 'Mein Event');
+        const shortName = truncateProfileLabel(rawName, 22);
+        return `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''} title="${rawName.replace(/"/g, '&quot;')}" style="background: #ffffff; color: #1e293b;">${shortName}</option>`;
+    }).join('');
     const organizerEventFallback = u.eventName || (state.events && state.events.find(e => e && (e.creatorId === u.id || e.id === u.profileId))?.name) || 'Mein Event';
     const fallbackProfileTitle = isMusician ? (u.bandName || u.firstName || 'Mein Profil') : organizerEventFallback;
     const defaultProfileOption = (userProfiles.length === 0)
-        ? `<option value="profile" selected style="background: #ffffff; color: #1e293b;">${fallbackProfileTitle}</option>`
+        ? `<option value="profile" selected title="${fallbackProfileTitle.replace(/"/g, '&quot;')}" style="background: #ffffff; color: #1e293b;">${truncateProfileLabel(fallbackProfileTitle, 22)}</option>`
         : '';
 
     const currentActiveProfile = userProfiles.find(p => p.id === activeProfileId);
@@ -11377,17 +11387,17 @@ function renderProfilePage(container) {
                 <div class="portal-layout" style="display:flex; flex-direction:column; gap: 0.75rem; max-width: 800px; margin: 0 auto; padding: 0;">
 
                     <!-- Zeile über der Kachel 'Meine Musiker/Events': Links Auswahl der Profile, Rechts Ausloggebutton in rot -->
-                    <div class="profile-top-actions-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; width: 100%; margin: 0; flex-wrap: wrap; box-sizing: border-box;">
-                        <!-- Links: Auswahl der Profile (Lila Button, kein Icon, kein 'Profil auswählen') -->
-                        <div class="profile-switcher-action-box" style="display: inline-flex; align-items: center; background: #7c3aed !important; border: 1.5px solid rgba(255, 255, 255, 0.25) !important; border-radius: 12px; height: 42px; padding: 0 0.85rem; position: relative; min-width: 170px; max-width: 100%; box-sizing: border-box; box-shadow: 0 3px 10px rgba(124, 58, 237, 0.35);">
-                            <select id="profile-page-select" style="width: 100%; border: none; background: transparent; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 800; color: #ffffff !important; cursor: pointer; outline: none; margin: 0; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; appearance: none; -webkit-appearance: none; padding-right: 1.25rem; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23ffffff'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right center; background-size: 1rem;">
+                    <div class="profile-top-actions-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; width: 100%; margin: 0 0 0.5rem 0; flex-wrap: nowrap !important; box-sizing: border-box;">
+                        <!-- Links: Auswahl der Profile (Lila/Blau Button je nach Rolle, kein Icon, kein 'Profil auswählen') -->
+                        <div class="profile-switcher-action-box" style="flex: 1 1 auto; min-width: 0; max-width: calc(100% - 135px); display: inline-flex; align-items: center; background: ${themeBtnBg} !important; border: 1.5px solid rgba(255, 255, 255, 0.25) !important; border-radius: 12px; height: 42px; padding: 0 0.85rem; position: relative; box-sizing: border-box; box-shadow: 0 3px 10px ${isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'};">
+                            <select id="profile-page-select" style="width: 100%; min-width: 0; max-width: 100%; border: none; background: transparent; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 800; color: #ffffff !important; cursor: pointer; outline: none; margin: 0; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; appearance: none; -webkit-appearance: none; padding-right: 1.25rem; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23ffffff'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right center; background-size: 1rem;">
                                 ${defaultProfileOption}
                                 ${profileOptions}
                             </select>
                         </div>
 
                         <!-- Rechts: Ausloggebutton in rot -->
-                        <button id="btn-profile-logout" class="btn btn-sm" style="background: rgba(239, 68, 68, 0.95) !important; border: 1.5px solid rgba(239, 68, 68, 0.35) !important; color: #ffffff !important; border-radius: 12px !important; height: 42px !important; padding: 0 1.25rem !important; display: inline-flex !important; align-items: center !important; gap: 0.5rem !important; font-size: 0.88rem !important; font-weight: 700 !important; cursor: pointer !important; transition: all 0.2s !important; box-shadow: 0 3px 10px rgba(239, 68, 68, 0.25) !important; margin: 0;" title="Abmelden">
+                        <button id="btn-profile-logout" class="btn btn-sm" style="flex-shrink: 0; white-space: nowrap; background: rgba(239, 68, 68, 0.95) !important; border: 1.5px solid rgba(239, 68, 68, 0.35) !important; color: #ffffff !important; border-radius: 12px !important; height: 42px !important; padding: 0 1.15rem !important; display: inline-flex !important; align-items: center !important; gap: 0.45rem !important; font-size: 0.88rem !important; font-weight: 700 !important; cursor: pointer !important; transition: all 0.2s !important; box-shadow: 0 3px 10px rgba(239, 68, 68, 0.25) !important; margin: 0;" title="Abmelden">
                             <i class="fa-solid fa-right-from-bracket"></i>
                             <span>Abmelden</span>
                         </button>
@@ -12477,7 +12487,7 @@ function renderOrganizerEventItem(e, isActive) {
     const eventTypeDisplay = singleEvtType || 'Event';
 
     return `
-        <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0);">
+        <div class="market-tile-card event-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0);">
             
             <!-- 1. Combined Galerie: Photos (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
             <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 210px; background: #0f172a; overflow: hidden;">
@@ -12974,7 +12984,7 @@ function renderMyMusicianItem(m, isActive) {
     const dotActiveColor = '#7c3aed';
 
     return `
-        <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0);">
+        <div class="market-tile-card musician-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0);">
             
             <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
             <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 210px; background: #0f172a; overflow: hidden;">
@@ -21023,7 +21033,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
         const chatEvId = isEvents ? item.id : '';
 
         return `
-            <div class="market-tile-card" ${isMediation && (!state || !state.currentUser) ? `onclick="window.showMediationNoticeBeforeAuth('${item.id}')"` : ''} style="cursor: ${isMediation && (!state || !state.currentUser) ? 'pointer' : 'default'}; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0);">
+            <div class="market-tile-card ${isEvents ? 'event-card' : 'musician-card'}" ${isMediation && (!state || !state.currentUser) ? `onclick="window.showMediationNoticeBeforeAuth('${item.id}')"` : ''} style="cursor: ${isMediation && (!state || !state.currentUser) ? 'pointer' : 'default'}; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0);">
                 
                 <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
@@ -23476,7 +23486,7 @@ window.renderRecommendationPage = async function(container, mediationId) {
                         }
 
                         return `
-                            <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0); width: 100%; box-sizing: border-box;">
+                            <div class="market-tile-card musician-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0); width: 100%; box-sizing: border-box;">
                                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
                                     <!-- Match-Faktor Badge & Favoriten/Top-Match-Stern oben rechts -->
                                     <div style="position: absolute; top: 12px; right: 12px; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 6px;">
@@ -23634,7 +23644,7 @@ window.renderRecommendationPage = async function(container, mediationId) {
                     </div>
                     <div class="market-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.5rem;">
                         ${pool.map(mus => `
-                            <div class="market-tile-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; padding: 1.2rem; box-shadow: var(--shadow-sm);">
+                            <div class="market-tile-card musician-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; padding: 1.2rem; box-shadow: var(--shadow-sm);">
                                 <img src="${mus.image || (mus.photos && mus.photos[0]) || 'discoball.png'}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 0.8rem;">
                                 <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.4rem;">${mus.name || 'Musiker'}</h3>
                                 <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.8rem;">${(mus.genres || []).join(', ')}</p>
