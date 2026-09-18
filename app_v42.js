@@ -7346,13 +7346,16 @@ function renderLandingPage(container, onNavigate) {
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 50% 40%, rgba(13, 16, 32, 0.45) 0%, rgba(10, 11, 22, 0.75) 100%), linear-gradient(180deg, rgba(7, 8, 16, 0.55) 0%, rgba(12, 10, 26, 0.25) 35%, rgba(10, 11, 24, 0.65) 70%, rgba(6, 7, 14, 0.92) 100%); z-index: 2;"></div>
 
                 <!-- 1/3: Slogan (Lowered slightly as requested) -->
-                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.2rem, 0.8vh, 0.5rem); width: 100%; max-width: 600px; margin-top: clamp(4.5rem, 11vh, 7.5rem); margin-bottom: clamp(0.6rem, 1.5vh, 1.2rem); box-sizing: border-box;">
+                <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.2rem, 0.8vh, 0.5rem); width: 100%; max-width: 680px; margin-top: clamp(4.5rem, 11vh, 7.5rem); margin-bottom: clamp(0.6rem, 1.5vh, 1.2rem); box-sizing: border-box;">
                     <span style="font-family: var(--font-heading); font-size: clamp(1.8rem, 5.8vw, 3.4rem); font-weight: 900; letter-spacing: -0.2px; color: #ffffff; line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.6);">
                         Die Vermittlungsplattform
                     </span>
                     <span style="font-family: var(--font-heading); font-size: clamp(3.2rem, 10vw, 5.8rem); font-weight: 900; letter-spacing: 0.5px; color: #ffffff; line-height: 1.1; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.6);">
                         für Live-Musik
                     </span>
+                    <p style="font-family: var(--font-body); font-size: clamp(0.92rem, 2.2vw, 1.2rem); font-weight: 500; color: rgba(255, 255, 255, 0.88); text-align: center; margin: clamp(0.35rem, 1vh, 0.75rem) 0 0 0; text-shadow: 0 2px 10px rgba(0,0,0,0.7); letter-spacing: 0.2px; line-height: 1.35;">
+                        GigConnAct bringt Musiker und Veranstalter zusammen
+                    </p>
                 </div>
 
                 <!-- 2/3: CTA Buttons (Positioned directly below slogan) -->
@@ -18259,9 +18262,8 @@ function updateNavbar(forceLanding, activePage) {
     if (isLanding) {
         if (!u) {
             authArea.innerHTML = `
-                <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger" title="Einloggen / Registrieren" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: 1.5px solid rgba(255, 255, 255, 0.4) !important; color: #ffffff !important; border-radius: 20px !important; padding: 0.45rem 1.1rem !important; font-weight: 700 !important; font-size: 0.88rem !important; display: inline-flex !important; align-items: center !important; gap: 0.45rem !important; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4) !important; cursor: pointer !important;">
+                <button class="btn btn-secondary btn-sm header-login-btn" id="btn-login-trigger" title="Einloggen / Registrieren" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: 1.5px solid rgba(255, 255, 255, 0.4) !important; color: #ffffff !important; border-radius: 50% !important; width: 42px !important; height: 42px !important; padding: 0 !important; font-size: 1.05rem !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4) !important; cursor: pointer !important; transition: transform 0.2s ease, box-shadow 0.2s ease !important;">
                     <i class="fa-solid fa-right-to-bracket"></i>
-                    <span>Einloggen</span>
                 </button>
             `;
             document.getElementById('btn-login-trigger')?.addEventListener('click', () => {
@@ -18271,9 +18273,8 @@ function updateNavbar(forceLanding, activePage) {
             });
         } else {
             authArea.innerHTML = `
-                <button class="btn btn-secondary btn-sm header-dashboard-btn" id="btn-hero-dashboard" title="Zum Profil" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: 1.5px solid rgba(255, 255, 255, 0.4) !important; color: #ffffff !important; border-radius: 20px !important; padding: 0.45rem 1.1rem !important; font-weight: 700 !important; font-size: 0.88rem !important; display: inline-flex !important; align-items: center !important; gap: 0.45rem !important; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4) !important; cursor: pointer !important;">
+                <button class="btn btn-secondary btn-sm header-dashboard-btn" id="btn-hero-dashboard" title="Zum Profil" style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important; border: 1.5px solid rgba(255, 255, 255, 0.4) !important; color: #ffffff !important; border-radius: 50% !important; width: 42px !important; height: 42px !important; padding: 0 !important; font-size: 1.05rem !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4) !important; cursor: pointer !important; transition: transform 0.2s ease, box-shadow 0.2s ease !important;">
                     <i class="fa-solid fa-user"></i>
-                    <span>Mein Profil</span>
                 </button>
             `;
             document.getElementById('btn-hero-dashboard')?.addEventListener('click', () => {
