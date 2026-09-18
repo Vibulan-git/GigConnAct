@@ -4931,7 +4931,7 @@ input[type="range"].input-field {
 }
 
 /* Header Login Button Styling */
-.header-login-btn, #btn-login-trigger {
+.header-login-btn, #btn-login-trigger, .header-dashboard-btn, #btn-hero-dashboard {
     white-space: nowrap !important;
     line-height: 1.0 !important;
     padding: 0 !important;
@@ -4948,19 +4948,20 @@ input[type="range"].input-field {
     border-radius: 12px !important;
     flex-shrink: 0 !important;
     background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
-    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35) !important;
     transition: all 0.2s ease-in-out !important;
+    cursor: pointer !important;
 }
 
-.header-login-btn:hover, #btn-login-trigger:hover {
+.header-login-btn:hover, #btn-login-trigger:hover, .header-dashboard-btn:hover, #btn-hero-dashboard:hover {
     background: linear-gradient(135deg, #6d28d9 0%, #1d4ed8 100%) !important;
-    border-color: rgba(255, 255, 255, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.55) !important;
     box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45) !important;
-    transform: scale(1.05);
+    transform: scale(1.04);
 }
 
-.header-login-btn .header-login-icon, #btn-login-trigger .header-login-icon {
+.header-login-btn .header-login-icon, #btn-login-trigger .header-login-icon, .header-dashboard-btn .header-login-icon, #btn-hero-dashboard .header-login-icon {
     font-size: 1.25rem !important;
     color: #ffffff !important;
     opacity: 0.95 !important;
@@ -4969,7 +4970,7 @@ input[type="range"].input-field {
 
 /* Mobile responsive styles for the Header Login Button */
 @media (max-width: 768px) {
-    .header-login-btn, #btn-login-trigger {
+    .header-login-btn, #btn-login-trigger, .header-dashboard-btn, #btn-hero-dashboard {
         width: 86px !important;
         min-width: 86px !important;
         max-width: 86px !important;
@@ -4979,12 +4980,12 @@ input[type="range"].input-field {
         box-sizing: border-box !important;
         border-radius: 10px !important;
     }
-    .header-login-btn .header-login-icon, #btn-login-trigger .header-login-icon {
+    .header-login-btn .header-login-icon, #btn-login-trigger .header-login-icon, .header-dashboard-btn .header-login-icon, #btn-hero-dashboard .header-login-icon {
         font-size: 1.15rem !important;
     }
 }
 @media (max-width: 380px) {
-    .header-login-btn, #btn-login-trigger {
+    .header-login-btn, #btn-login-trigger, .header-dashboard-btn, #btn-hero-dashboard {
         width: 78px !important;
         min-width: 78px !important;
         max-width: 78px !important;
@@ -4994,7 +4995,7 @@ input[type="range"].input-field {
         box-sizing: border-box !important;
         border-radius: 8px !important;
     }
-    .header-login-btn .header-login-icon, #btn-login-trigger .header-login-icon {
+    .header-login-btn .header-login-icon, #btn-login-trigger .header-login-icon, .header-dashboard-btn .header-login-icon, #btn-hero-dashboard .header-login-icon {
         font-size: 1.05rem !important;
     }
 }
@@ -6929,5 +6930,32 @@ body.has-bottom-bar .toast-container {
 .profile-controls-row {
     min-height: 58px !important;
     padding: 0 !important;
+}
+
+/* =============================================================
+ * Hero Sub-Slogan (Strictly single-line responsive)
+ * ============================================================= */
+.hero-sub-slogan {
+    white-space: nowrap !important;
+    text-align: center !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: block !important;
+}
+
+@media (max-width: 480px) {
+    .hero-sub-slogan {
+        font-size: clamp(0.68rem, 3.6vw, 0.92rem) !important;
+        letter-spacing: -0.15px !important;
+        white-space: nowrap !important;
+    }
+}
+
+@media (max-width: 360px) {
+    .hero-sub-slogan {
+        font-size: 0.65rem !important;
+        letter-spacing: -0.25px !important;
+        white-space: nowrap !important;
+    }
 }
 
