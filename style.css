@@ -6854,6 +6854,23 @@ body[data-page="musicians"] .market-tile-card:hover {
     white-space: nowrap !important;
 }
 
+/* "Meine Musiker" / "Meine Events" Section Card & Item Height */
+.profile-section-card.my-items-section-card {
+    min-height: 480px !important;
+    padding: 2.2rem 2.2rem 2.5rem !important;
+    box-sizing: border-box !important;
+}
+
+.my-events-list .market-tile-card,
+.my-musicians-list .market-tile-card {
+    min-height: 540px !important;
+}
+
+.my-events-list .tile-fullwidth-photo-slider,
+.my-musicians-list .tile-fullwidth-photo-slider {
+    height: 250px !important;
+}
+
 /* =============================================================
  * Header Profile Switcher Button: Lila (Musiker) / Blau (Veranstalter)
  * ============================================================= */

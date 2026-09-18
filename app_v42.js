@@ -7432,16 +7432,16 @@ function renderLandingPage(container, onNavigate) {
                 <!-- Atmospheric dark overlay gradient with stage lighting transparency -->
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 50% 40%, rgba(13, 16, 32, 0.45) 0%, rgba(10, 11, 22, 0.75) 100%), linear-gradient(180deg, rgba(7, 8, 16, 0.55) 0%, rgba(12, 10, 26, 0.25) 35%, rgba(10, 11, 24, 0.65) 70%, rgba(6, 7, 14, 0.92) 100%); z-index: 2;"></div>
 
-                <!-- 1/3: Slogan (Lowered slightly as requested) -->
+                <!-- 1/3: Slogan (Die Plattform für / Live-Musik & Events) -->
                 <div style="position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(0.2rem, 0.8vh, 0.5rem); width: 100%; max-width: 820px; margin-top: clamp(4.5rem, 11vh, 7.5rem); margin-bottom: clamp(0.6rem, 1.5vh, 1.2rem); box-sizing: border-box;">
                     <span style="font-family: var(--font-heading); font-size: clamp(1.8rem, 5.8vw, 3.4rem); font-weight: 900; letter-spacing: -0.2px; color: #ffffff; line-height: 1.15; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.6);">
-                        Die Vermittlungsplattform
+                        Die Plattform für
                     </span>
-                    <span style="font-family: var(--font-heading); font-size: clamp(3.2rem, 10vw, 5.8rem); font-weight: 900; letter-spacing: 0.5px; color: #ffffff; line-height: 1.1; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.6);">
-                        für Live-Musik
+                    <span style="font-family: var(--font-heading); font-size: clamp(2.4rem, 7.8vw, 5.0rem); font-weight: 900; letter-spacing: -0.3px; color: #ffffff; line-height: 1.1; display: block; width: 100%; text-align: center; white-space: nowrap; text-shadow: 0 4px 16px rgba(0,0,0,0.6);">
+                        Live-Musik & Events
                     </span>
                     <p class="hero-sub-slogan" style="font-family: var(--font-body); font-size: clamp(0.72rem, 2.9vw, 1.18rem); font-weight: 500; color: rgba(255, 255, 255, 0.88); text-align: center; margin: clamp(0.35rem, 1vh, 0.75rem) 0 0 0; text-shadow: 0 2px 10px rgba(0,0,0,0.7); letter-spacing: 0.1px; line-height: 1.35; white-space: nowrap; max-width: 100%; box-sizing: border-box;">
-                        GigConnAct bringt Musiker und Veranstalter zusammen
+                        Wir bringen Musiker und Veranstalter zusammen
                     </p>
                 </div>
 
@@ -12487,10 +12487,10 @@ function renderOrganizerEventItem(e, isActive) {
     const eventTypeDisplay = singleEvtType || 'Event';
 
     return `
-        <div class="market-tile-card event-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0);">
+        <div class="market-tile-card event-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0); min-height: 540px;">
             
             <!-- 1. Combined Galerie: Photos (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
-            <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 210px; background: #0f172a; overflow: hidden;">
+            <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 250px; background: #0f172a; overflow: hidden;">
                 <!-- Galerie-Zähler (unsichtbar) -->
                 <span class="tile-gallery-counter" style="display: none;">
                     📷 1 / ${photos.length}
@@ -12645,7 +12645,7 @@ function renderMyEventsContent(container) {
     container.innerHTML = `
         <div class="portal-layout" style="display:flex; flex-direction:column; gap:2.5rem;">
             <!-- Active Events -->
-            <div class="profile-section-card contact-details" style="padding-top: 1.6rem;">
+            <div class="profile-section-card contact-details my-items-section-card" style="padding-top: 2.2rem; min-height: 480px;">
                 <div class="profile-section-header">
                     <div style="display: flex; align-items: center; gap: 0.85rem;">
                         <div class="profile-section-badge-icon" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;">
@@ -12659,7 +12659,7 @@ function renderMyEventsContent(container) {
                 
                 <div class="my-events-list">
                     ${activeEvents.length === 0 ? `
-                        <div style="padding:2rem 1rem; text-align:center; color:var(--text-muted); margin-bottom: 1rem;">
+                        <div style="padding:4rem 1rem; text-align:center; color:var(--text-muted); margin-bottom: 1rem;">
                             <i class="fa-solid fa-calendar-days" style="font-size:2.5rem; color:var(--border-glass); margin-bottom:0.8rem;"></i>
                             <p>Keine aktiven Events vorhanden.</p>
                         </div>
@@ -12984,10 +12984,10 @@ function renderMyMusicianItem(m, isActive) {
     const dotActiveColor = '#7c3aed';
 
     return `
-        <div class="market-tile-card musician-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0);">
+        <div class="market-tile-card musician-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0); min-height: 540px;">
             
             <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
-            <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 210px; background: #0f172a; overflow: hidden;">
+            <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 250px; background: #0f172a; overflow: hidden;">
                 <!-- Galerie-Zähler (unsichtbar) -->
                 <span class="tile-gallery-counter" style="display: none;">
                     📷 1 / ${photos.length}
@@ -13158,7 +13158,7 @@ function renderMyMusiciansContent(container) {
     container.innerHTML = `
         <div class="portal-layout" style="display:flex; flex-direction:column; gap:2.5rem;">
             <!-- Active Musicians -->
-            <div class="profile-section-card musician-profile" style="padding-top: 1.6rem;">
+            <div class="profile-section-card musician-profile my-items-section-card" style="padding-top: 2.2rem; min-height: 480px;">
                 <div class="profile-section-header">
                     <div style="display: flex; align-items: center; gap: 0.85rem;">
                         <div class="profile-section-badge-icon" style="background: rgba(124, 58, 237, 0.1); color: #7c3aed;">
@@ -13172,7 +13172,7 @@ function renderMyMusiciansContent(container) {
                 
                 <div class="my-musicians-list">
                     ${activeMusicians.length === 0 ? `
-                        <div style="padding:2rem 1rem; text-align:center; color:var(--text-muted); margin-bottom: 1rem;">
+                        <div style="padding:4rem 1rem; text-align:center; color:var(--text-muted); margin-bottom: 1rem;">
                             <i class="fa-solid fa-guitar" style="font-size:2.5rem; color:var(--border-glass); margin-bottom:0.8rem;"></i>
                             <p>Keine aktiven Musiker vorhanden.</p>
                         </div>
