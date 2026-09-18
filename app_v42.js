@@ -17628,7 +17628,7 @@ function navigate(page) {
         window.postboxKeepActiveChat = false;
     }
 
-    updateNavbar(page === '');
+    updateNavbar(page === '', page);
     document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
 
     switch (page) {
@@ -18002,7 +18002,7 @@ window.updateBottomBar = function() {
     }
 };
 
-function updateNavbar(forceLanding) {
+function updateNavbar(forceLanding, activePage) {
     const nav = document.getElementById('main-nav');
     const authArea = document.getElementById('auth-area');
     if (!nav || !authArea) return;
@@ -18065,99 +18065,106 @@ function updateNavbar(forceLanding) {
             unreadCount = 0;
         }
 
-        let creditsBadgeHtml = '';
-        const isProfileActive = window.location.hash === '#/profile';
-
-        const isMusician = u.role === 'musician';
-        const marketIcon = isMusician ? 'fa-calendar-days' : 'fa-guitar';
-        const marketLink = isMusician ? '#/events' : '#/musicians';
-        const marketTitle = isMusician ? 'Event-Markt' : 'Musiker-Markt';
-        
-        const isMarketActive = isMusician 
-            ? (window.location.hash === '#/events' || window.location.hash.startsWith('#/events'))
-            : (window.location.hash === '#/musicians' || window.location.hash.startsWith('#/musicians'));
-        const isPostboxActive = window.location.hash === '#/postbox' || window.location.hash.startsWith('#/postbox');
-
-        // Fetch user profiles to generate persistent profile switcher in header
-        let userProfiles = [];
-        let activeProfileId = '';
-        const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
-        if (isMusician) {
-            userProfiles = (state.musicians || []).filter(m => m && (m.creatorId === u.id || (u.profileId && m.id === u.profileId)));
-            activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || u.profileId || '');
-            if (activeProfileId) state.activeMusicianId = activeProfileId;
-        } else {
-            userProfiles = (state.events || []).filter(e => e && (
-                e.creatorId === u.id || 
-                (u.profileId && e.id === u.profileId) ||
-                (u.email && (e.email === u.email || e.clientEmail === u.email)) ||
-                (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
-            ));
-            activeProfileId = state.activeEventId || (userProfiles[0]?.id || u.profileId || '');
-            if (activeProfileId) state.activeEventId = activeProfileId;
+        let effectivePage = (activePage || '').toLowerCase();
+        if (!effectivePage) {
+            const hash = window.location.hash || '';
+            let pageWithQuery = hash.replace(/^#\/?/, '');
+            effectivePage = pageWithQuery.split('?')[0].toLowerCase();
+            if (effectivePage.endsWith('/')) effectivePage = effectivePage.slice(0, -1);
         }
+        if (!effectivePage && window.currentActivePage) {
+            effectivePage = String(window.currentActivePage).toLowerCase();
+        }
+        if (effectivePage === 'top-matches') effectivePage = 'matches';
 
-        const profileOptions = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''} style="background: #ffffff; color: #1e293b;">${p.name || p.title || p.contactName || (isMusician ? 'Mein Profil' : 'Mein Event')}</option>`).join('');
+        const isProfileActive = (effectivePage === 'profile' || effectivePage === 'dashboard');
 
-        const organizerEventFallback = u.eventName || (state.events && state.events.find(e => e && (e.creatorId === u.id || e.id === u.profileId))?.name) || 'Mein Event';
-        const fallbackProfileTitle = isMusician ? (u.bandName || u.firstName || 'Mein Profil') : organizerEventFallback;
+        if (!isProfileActive) {
+            authArea.innerHTML = '';
+        } else {
+            const isMusician = u.role === 'musician';
 
-        const defaultProfileOption = (userProfiles.length === 0)
-            ? `<option value="profile" selected style="background: #ffffff; color: #1e293b;">${fallbackProfileTitle}</option>`
-            : '';
+            // Fetch user profiles to generate persistent profile switcher in header
+            let userProfiles = [];
+            let activeProfileId = '';
+            const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
+            if (isMusician) {
+                userProfiles = (state.musicians || []).filter(m => m && (m.creatorId === u.id || (u.profileId && m.id === u.profileId)));
+                activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || u.profileId || '');
+                if (activeProfileId) state.activeMusicianId = activeProfileId;
+            } else {
+                userProfiles = (state.events || []).filter(e => e && (
+                    e.creatorId === u.id || 
+                    (u.profileId && e.id === u.profileId) ||
+                    (u.email && (e.email === u.email || e.clientEmail === u.email)) ||
+                    (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
+                ));
+                activeProfileId = state.activeEventId || (userProfiles[0]?.id || u.profileId || '');
+                if (activeProfileId) state.activeEventId = activeProfileId;
+            }
 
-        const profileSelectorHtml = `
-            <div class="profile-switcher-wrapper ${isMusician ? 'role-musician' : 'role-organizer'}" style="background: ${isMusician ? '#7c3aed' : '#2563eb'} !important; border: 1.5px solid ${isMusician ? '#6d28d9' : '#1d4ed8'} !important; border-radius: 20px !important; box-shadow: 0 2px 10px ${isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'} !important; display: flex !important; align-items: center !important; gap: 0.35rem !important; padding: 0.28rem 0.8rem !important; margin: 0 !important; max-width: 175px !important; height: 35px !important; box-sizing: border-box !important; flex-shrink: 0 !important; font-family: var(--font-heading) !important;" title="Profil wechseln oder abmelden">
-                <select id="navbar-profile-select" style="width: 100% !important; height: 26px !important; padding: 0 0.15rem !important; font-size: 0.8rem !important; margin: 0 !important; border: none !important; background: transparent !important; cursor: pointer !important; color: #ffffff !important; font-weight: 700 !important; text-overflow: ellipsis !important; white-space: nowrap !important; overflow: hidden !important; outline: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;">
-                    ${defaultProfileOption}
-                    ${profileOptions}
-                    <option disabled style="color: #94a3b8; background: #ffffff;">──────────</option>
-                    <option value="logout" style="color: #ef4444; font-weight: 800; background: #ffffff;">Abmelden</option>
-                </select>
-                <i class="fa-solid fa-chevron-down switcher-caret" style="color: rgba(255, 255, 255, 0.85) !important; font-size: 0.68rem !important; pointer-events: none !important; flex-shrink: 0 !important;"></i>
-            </div>
-        `;
+            const profileOptions = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''} style="background: #ffffff; color: #1e293b;">${p.name || p.title || p.contactName || (isMusician ? 'Mein Profil' : 'Mein Event')}</option>`).join('');
 
-        authArea.innerHTML = `
-            <div style="display:flex; align-items:center; gap:0.6rem;">
-                ${profileSelectorHtml}
-            </div>
-        `;
+            const organizerEventFallback = u.eventName || (state.events && state.events.find(e => e && (e.creatorId === u.id || e.id === u.profileId))?.name) || 'Mein Event';
+            const fallbackProfileTitle = isMusician ? (u.bandName || u.firstName || 'Mein Profil') : organizerEventFallback;
 
-        const navbarProfileSelect = document.getElementById('navbar-profile-select');
-        if (navbarProfileSelect) {
-            navbarProfileSelect.addEventListener('change', function() {
-                const val = this.value;
-                if (val === 'logout') {
-                    window.handleLogoutRedirect();
-                    return;
-                }
-                if (val === 'profile') {
-                    navigate('profile');
-                    return;
-                }
-                console.log("[DEBUG] navbar-profile-select changed to:", val);
-                if (isMusician) {
-                    state.activeMusicianId = val;
-                } else {
-                    state.activeEventId = val;
-                }
-                state.saveState();
+            const defaultProfileOption = (userProfiles.length === 0)
+                ? `<option value="profile" selected style="background: #ffffff; color: #1e293b;">${fallbackProfileTitle}</option>`
+                : '';
 
-                // If currently on matches page, update matches select and trigger update directly
-                const currentHash = window.location.hash || '';
-                if (currentHash.startsWith('#/matches') || currentHash.startsWith('#matches') || currentHash.startsWith('#/top-matches') || currentHash.startsWith('#top-matches')) {
-                    const pageProfileSelect = document.getElementById('select-profile');
-                    if (pageProfileSelect && pageProfileSelect.value !== val) {
-                        pageProfileSelect.value = val;
-                    }
-                    if (typeof window.matchesUpdate === 'function') {
-                        window.matchesUpdate();
+            const profileSelectorHtml = `
+                <div class="profile-switcher-wrapper ${isMusician ? 'role-musician' : 'role-organizer'}" style="background: ${isMusician ? '#7c3aed' : '#2563eb'} !important; border: 1.5px solid ${isMusician ? '#6d28d9' : '#1d4ed8'} !important; border-radius: 20px !important; box-shadow: 0 2px 10px ${isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'} !important; display: flex !important; align-items: center !important; gap: 0.35rem !important; padding: 0.28rem 0.8rem !important; margin: 0 !important; max-width: 175px !important; height: 35px !important; box-sizing: border-box !important; flex-shrink: 0 !important; font-family: var(--font-heading) !important;" title="Profil wechseln oder abmelden">
+                    <select id="navbar-profile-select" style="width: 100% !important; height: 26px !important; padding: 0 0.15rem !important; font-size: 0.8rem !important; margin: 0 !important; border: none !important; background: transparent !important; cursor: pointer !important; color: #ffffff !important; font-weight: 700 !important; text-overflow: ellipsis !important; white-space: nowrap !important; overflow: hidden !important; outline: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;">
+                        ${defaultProfileOption}
+                        ${profileOptions}
+                        <option disabled style="color: #94a3b8; background: #ffffff;">──────────</option>
+                        <option value="logout" style="color: #ef4444; font-weight: 800; background: #ffffff;">Abmelden</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down switcher-caret" style="color: rgba(255, 255, 255, 0.85) !important; font-size: 0.68rem !important; pointer-events: none !important; flex-shrink: 0 !important;"></i>
+                </div>
+            `;
+
+            authArea.innerHTML = `
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                    ${profileSelectorHtml}
+                </div>
+            `;
+
+            const navbarProfileSelect = document.getElementById('navbar-profile-select');
+            if (navbarProfileSelect) {
+                navbarProfileSelect.addEventListener('change', function() {
+                    const val = this.value;
+                    if (val === 'logout') {
+                        window.handleLogoutRedirect();
                         return;
                     }
-                }
-                state.notify();
-            });
+                    if (val === 'profile') {
+                        navigate('profile');
+                        return;
+                    }
+                    console.log("[DEBUG] navbar-profile-select changed to:", val);
+                    if (isMusician) {
+                        state.activeMusicianId = val;
+                    } else {
+                        state.activeEventId = val;
+                    }
+                    state.saveState();
+
+                    // If currently on matches page, update matches select and trigger update directly
+                    const currentHash = window.location.hash || '';
+                    if (currentHash.startsWith('#/matches') || currentHash.startsWith('#matches') || currentHash.startsWith('#/top-matches') || currentHash.startsWith('#top-matches')) {
+                        const pageProfileSelect = document.getElementById('select-profile');
+                        if (pageProfileSelect && pageProfileSelect.value !== val) {
+                            pageProfileSelect.value = val;
+                        }
+                        if (typeof window.matchesUpdate === 'function') {
+                            window.matchesUpdate();
+                            return;
+                        }
+                    }
+                    state.notify();
+                });
+            }
         }
     } else {
         nav.className = 'main-nav';
