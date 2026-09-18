@@ -6885,6 +6885,14 @@ body.has-bottom-bar .toast-container {
     display: block !important;
 }
 
-
-
+/* =============================================================
+ * Top Gradient Controls Bar (Market, Matches, Postbox, Profile)
+ * ============================================================= */
+.market-controls-row,
+.matches-controls-row,
+.postbox-controls-row,
+.profile-controls-row {
+    min-height: 74px !important;
+    padding: 0.4rem 0 !important;
+}
 

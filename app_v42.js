@@ -5021,11 +5021,13 @@ class StateManager {
             chat.updatedAt = new Date().toISOString();
             this.saveState();
             try {
-                await db.collection('chats').doc(newId).update({
+                await db.collection('chats').doc(newId).set({
+                    id: newId,
+                    ...(chat || {}),
                     messages: updatedMessages,
                     participants: updatedParticipants,
                     updatedAt: chat.updatedAt
-                });
+                }, { merge: true });
                 writeSuccessful = true;
             } catch (err) {
                 console.warn("sendMessage direct Firestore update failed, falling back to backend function:", err.message);
@@ -8234,19 +8236,25 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page ${isOrganizerTheme ? 'theme-organizer' : 'theme-musician'} ${showOnlyFavorites ? 'favorites-mode' : ''}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
-            <div class="market-controls-row ${showOnlyFavorites ? 'favorites-mode' : ''}" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
-                <div class="market-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
+            <div class="market-controls-row ${showOnlyFavorites ? 'favorites-mode' : ''}" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0.4rem 0 !important; min-height: 74px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+                <div class="market-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.35rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
                     <!-- Spacer Links -->
                     <div class="market-controls-spacer" style="grid-column: 1;"></div>
 
-                    <!-- 1. Trefferanzahl (Mittig, Weiß auf Verlauf-Leiste) -->
-                    <div id="market-results-header" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px; cursor: ${showOnlyFavorites ? 'default' : 'pointer'};" onclick="if (!window.currentMarketShowFavorites) document.getElementById('btn-toggle-mobile-filters')?.click();" title="${showOnlyFavorites ? '' : 'Filter öffnen'}">
-                        <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
-                            ${getItems().length}
+                    <!-- Center: GigConnAct Logo oben, Trefferanzahl unten -->
+                    <div class="market-controls-center" style="grid-column: 2; justify-self: center; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; flex-shrink: 0;">
+                        <a href="#/" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; text-decoration: none;" title="GigConnAct Startseite">
+                            <img src="discoball.png" style="width: 22px; height: 22px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));" alt="GigConnAct Logo">
+                            <span style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #ffffff; letter-spacing: -0.3px; line-height: 1;">GigConnAct</span>
+                        </a>
+                        <div id="market-results-header" style="display: flex; align-items: center; justify-content: center; gap: 0.45rem; cursor: ${showOnlyFavorites ? 'default' : 'pointer'}; line-height: 1;" onclick="if (!window.currentMarketShowFavorites) document.getElementById('btn-toggle-mobile-filters')?.click();" title="${showOnlyFavorites ? '' : 'Filter öffnen'}">
+                            <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
+                                ${getItems().length}
+                            </div>
+                            <span id="market-title-label" style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: rgba(255, 255, 255, 0.9) !important; white-space: nowrap; letter-spacing: -0.2px; line-height: 1;">
+                                ${showOnlyFavorites ? 'Favoriten' : (isEvents ? 'Events' : 'Musiker')}
+                            </span>
                         </div>
-                        <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                            ${showOnlyFavorites ? 'Favoriten' : (isEvents ? 'Events' : 'Musiker')}
-                        </span>
                     </div>
 
                     <!-- 2. Rechter Bereich: Symmetrischer Spacer für Zentrierung, alter Button unsichtbar im DOM gehalten -->
@@ -9559,11 +9567,14 @@ function renderMarket(container, type, onNavigate) {
 
                 let secondaryButtonsHtml = '';
                 if (!showMoreMatchesUnfiltered && !showOnlyFavorites && isFilterActiveCurrently) {
-                    secondaryButtonsHtml += `
-                        <button class="btn btn-secondary" id="btn-market-show-more-unfiltered" style="flex: 1 1 0; min-width: 0; padding: 0.75rem 0.8rem; font-size: 0.88rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s; margin: 0; white-space: nowrap; text-align: center;">
-                            <i class="fa-solid fa-plus"></i> <span>Weitere Ergebnisse</span>
-                        </button>
-                    `;
+                    const hasExcluded = unfilteredList.some(item => !list.some(listItem => listItem.id === item.id));
+                    if (hasExcluded) {
+                        secondaryButtonsHtml += `
+                            <button class="btn btn-secondary" id="btn-market-show-more-unfiltered" style="flex: 1 1 0; min-width: 0; padding: 0.75rem 0.8rem; font-size: 0.88rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s; margin: 0; white-space: nowrap; text-align: center;">
+                                <i class="fa-solid fa-plus"></i> <span>Weitere Ergebnisse</span>
+                            </button>
+                        `;
+                    }
                 }
                 
                 if (!showOnlyFavorites && (isFilterActiveCurrently || state.currentUser !== null)) {
@@ -9597,7 +9608,15 @@ function renderMarket(container, type, onNavigate) {
                 if (btnShowMoreUnfiltered) {
                     btnShowMoreUnfiltered.onclick = (e) => {
                         e.preventDefault();
+                        const excludedList = unfilteredList.filter(item => !list.some(listItem => listItem.id === item.id));
+                        if (excludedList.length === 0) {
+                            if (typeof showToast === 'function') {
+                                showToast('Alle passenden und weiteren Ergebnisse werden bereits angezeigt.', 'info');
+                            }
+                            return;
+                        }
                         showMoreMatchesUnfiltered = true;
+                        displayedItemsCount = Math.max(displayedItemsCount + 12, list.length + Math.min(10, excludedList.length));
                         applyAllFiltersAndSort(false, true);
                     };
                 }
@@ -10152,7 +10171,7 @@ function renderMarket(container, type, onNavigate) {
         }
         if (marketUpdateTimer) clearTimeout(marketUpdateTimer);
         marketUpdateTimer = setTimeout(() => {
-            applyAllFiltersAndSort(false);
+            applyAllFiltersAndSort(false, showMoreMatchesUnfiltered);
         }, 40);
     });
 }
@@ -11234,16 +11253,22 @@ function renderProfilePage(container) {
         <div class="profile-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
             <!-- Profile Controls Row (Lila-Blau-Verlauf wie unten in der Leiste) -->
-            <div class="profile-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
-                <div class="profile-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
+            <div class="profile-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0.4rem 0 !important; min-height: 74px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+                <div class="profile-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.35rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
                     <!-- Spacer Links -->
                     <div class="profile-controls-spacer" style="grid-column: 1;"></div>
 
-                    <!-- Titel Mittig (ohne Icon) -->
-                    <div class="profile-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <span id="profile-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                            Profil
-                        </span>
+                    <!-- Center: GigConnAct Logo oben, Titel unten -->
+                    <div class="profile-controls-center" style="grid-column: 2; justify-self: center; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; flex-shrink: 0;">
+                        <a href="#/" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; text-decoration: none;" title="GigConnAct Startseite">
+                            <img src="discoball.png" style="width: 22px; height: 22px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));" alt="GigConnAct Logo">
+                            <span style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #ffffff; letter-spacing: -0.3px; line-height: 1;">GigConnAct</span>
+                        </a>
+                        <div class="profile-controls-title" style="display: flex; align-items: center; justify-content: center; line-height: 1;">
+                            <span id="profile-title-label" style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: rgba(255, 255, 255, 0.9) !important; white-space: nowrap; letter-spacing: -0.2px;">
+                                Profil
+                            </span>
+                        </div>
                     </div>
 
                     <!-- Spacer Rechts -->
@@ -12067,20 +12092,26 @@ function renderMatchesPage(container) {
         container.innerHTML = `
             <div class="market-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
                 
-                <!-- Controls Row: Center = Title & Count, Right = Profile Switcher -->
-                <div class="matches-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
-                    <div class="matches-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
+                <!-- Controls Row: Center = Logo + Title & Count -->
+                <div class="matches-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0.4rem 0 !important; min-height: 74px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+                    <div class="matches-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.35rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
                         <!-- Spacer Links -->
                         <div class="matches-controls-spacer" style="grid-column: 1;"></div>
 
-                        <!-- Center: Title & Count (Mittig, ohne Icon) -->
-                        <div class="matches-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px;">
-                            <div id="top-matches-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
-                                ${selectedId ? '0' : '0'}
+                        <!-- Center: GigConnAct Logo oben, Title & Count unten -->
+                        <div class="matches-controls-center" style="grid-column: 2; justify-self: center; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; flex-shrink: 0;">
+                            <a href="#/" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; text-decoration: none;" title="GigConnAct Startseite">
+                                <img src="discoball.png" style="width: 22px; height: 22px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));" alt="GigConnAct Logo">
+                                <span style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #ffffff; letter-spacing: -0.3px; line-height: 1;">GigConnAct</span>
+                            </a>
+                            <div class="matches-controls-title" style="display: flex; align-items: center; justify-content: center; gap: 0.45rem; line-height: 1;">
+                                <div id="top-matches-count" style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
+                                    ${selectedId ? '0' : '0'}
+                                </div>
+                                <span id="top-matches-label" style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: rgba(255, 255, 255, 0.9) !important; white-space: nowrap; letter-spacing: -0.2px; line-height: 1;">
+                                    Top-Matches
+                                </span>
                             </div>
-                            <span id="top-matches-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                                Top-Matches
-                            </span>
                         </div>
 
                         <!-- Right: Spacer (Kein Profil-Wechsler in der Leiste) -->
@@ -19061,19 +19092,25 @@ function renderPostbox(container) {
             container.innerHTML = `
             <div class="postbox-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box; overflow-x: clip;">
                 <!-- Postbox Controls Row (Lila-Blau-Verlauf wie unten in der Leiste) -->
-                <div class="postbox-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
-                    <div class="postbox-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
+                <div class="postbox-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0.4rem 0 !important; min-height: 74px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+                    <div class="postbox-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.35rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
                         <!-- Spacer Links -->
                         <div class="postbox-controls-spacer" style="grid-column: 1;"></div>
 
-                        <!-- Center: Title (Mittig, ohne Icon) -->
-                        <div class="postbox-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px;">
-                            <div id="postbox-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
-                                ${unreadChatCount}
+                        <!-- Center: GigConnAct Logo oben, Title & Count unten -->
+                        <div class="postbox-controls-center" style="grid-column: 2; justify-self: center; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; flex-shrink: 0;">
+                            <a href="#/" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; text-decoration: none;" title="GigConnAct Startseite">
+                                <img src="discoball.png" style="width: 22px; height: 22px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));" alt="GigConnAct Logo">
+                                <span style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #ffffff; letter-spacing: -0.3px; line-height: 1;">GigConnAct</span>
+                            </a>
+                            <div class="postbox-controls-title" style="display: flex; align-items: center; justify-content: center; gap: 0.45rem; line-height: 1;">
+                                <div id="postbox-count" style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
+                                    ${unreadChatCount}
+                                </div>
+                                <span id="postbox-title-label" style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: rgba(255, 255, 255, 0.9) !important; white-space: nowrap; letter-spacing: -0.2px; line-height: 1;">
+                                    ${unreadChatCount === 1 ? 'Nachricht' : 'Nachrichten'}
+                                </span>
                             </div>
-                            <span id="postbox-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                                ${unreadChatCount === 1 ? 'Nachricht' : 'Nachrichten'}
-                            </span>
                         </div>
 
                         <!-- Spacer right to keep title centered -->
