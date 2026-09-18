@@ -1,7 +1,7 @@
 /**
  * Template für Direktnachrichten im Chat mit optionaler Profilkachel des Absenders
  */
-module.exports = function getMessageEmailHtml({ senderName, messageText, role, senderProfile, isSenderMusician }) {
+module.exports = function getMessageEmailHtml({ senderName, messageText, role, senderProfile, isSenderMusician, chatId }) {
     const isOrganizer = role === 'organizer';
     const brandColor = isOrganizer ? '#0ea5e9' : '#7c3aed';
 
@@ -199,6 +199,10 @@ module.exports = function getMessageEmailHtml({ senderName, messageText, role, s
         `;
     }
 
+    const chatUrl = chatId 
+        ? `https://gigconnact.de/#/postbox?chatId=${encodeURIComponent(chatId)}`
+        : `https://gigconnact.de/#/postbox`;
+
     return `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
             <div style="text-align: center; margin-bottom: 20px;">
@@ -214,7 +218,7 @@ module.exports = function getMessageEmailHtml({ senderName, messageText, role, s
             ${cardHtml}
 
             <p style="margin-top: 25px; text-align: center;">
-                <a href="https://gigconnact.de" style="background: ${brandColor}; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Jetzt antworten</a>
+                <a href="${chatUrl}" style="background: ${brandColor}; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Jetzt antworten</a>
             </p>
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 15px;">
             <p style="font-size: 0.8rem; color: #a0aec0; text-align: center;">GigConnAct — Dein Live-Musik Marktplatz</p>

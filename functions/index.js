@@ -407,7 +407,8 @@ exports.onNewChatMessage = functions
             messageText: latestMessage.text,
             role: recipient.role,
             senderProfile: senderProfile,
-            isSenderMusician: isSenderMusician
+            isSenderMusician: isSenderMusician,
+            chatId: context.params.chatId || (after && after.id) || null
         });
 
         await sendEmail({ to: recipient.email, subject, html });

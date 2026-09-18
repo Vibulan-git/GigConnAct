@@ -17758,12 +17758,33 @@ function navigate(page) {
 
     // Only scroll to top if the page has actually changed, preventing viewport jumping
     if (window.currentActivePage !== page) {
+        if (mainContainer && mainContainer.cleanupPostboxListener) {
+            mainContainer.cleanupPostboxListener();
+            mainContainer.cleanupPostboxListener = null;
+        }
         window.scrollTo(0, 0);
         window.currentActivePage = page;
-        if (page === 'postbox' && !window.postboxKeepActiveChat) {
+        if (page === 'postbox') {
+            const hashQuery = (window.location.hash || '').includes('?') ? (window.location.hash.split('?')[1] || '') : '';
+            const searchParams = new URLSearchParams(hashQuery || window.location.search || '');
+            const incomingChatId = searchParams.get('chatId') || searchParams.get('chat');
+            if (incomingChatId) {
+                window.postboxActiveChatId = incomingChatId;
+                window.postboxKeepActiveChat = true;
+            } else if (!window.postboxKeepActiveChat) {
+                window.postboxActiveChatId = null;
+            }
+            window.postboxKeepActiveChat = false;
+        } else if (!window.postboxKeepActiveChat) {
             window.postboxActiveChatId = null;
         }
-        window.postboxKeepActiveChat = false;
+    } else if (page === 'postbox') {
+        const hashQuery = (window.location.hash || '').includes('?') ? (window.location.hash.split('?')[1] || '') : '';
+        const searchParams = new URLSearchParams(hashQuery || window.location.search || '');
+        const incomingChatId = searchParams.get('chatId') || searchParams.get('chat');
+        if (incomingChatId) {
+            window.postboxActiveChatId = incomingChatId;
+        }
     }
 
     updateNavbar(page === '', page);
@@ -17846,7 +17867,18 @@ function navigate(page) {
             }
             break;
         case 'postbox':
-            if (!state.currentUser) {
+            if (!state || !state.currentUser) {
+                if (!state || !state.authInitialized) {
+                    mainContainer.innerHTML = `
+                        <div style="min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem;">
+                            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem; margin-bottom: 1.5rem; border-width: 0.25em;"></div>
+                            <h3 style="color: #fff; font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Nachrichten werden geladen...</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Dein Postfach wird synchronisiert...</p>
+                        </div>
+                    `;
+                    setActiveLink('link-postbox');
+                    return;
+                }
                 navigate('');
                 showModal('auth');
             } else {
@@ -18527,9 +18559,15 @@ function handleRouting() {
         const urlParams = new URLSearchParams(hashQuery);
         const isMusicianPage = page === 'musicians';
         
-        const rawId = urlParams.get('id') || urlParams.get('profileId') || urlParams.get('eventId');
+        const rawId = urlParams.get('id') || urlParams.get('profileId') || urlParams.get('eventId') || urlParams.get('chatId') || urlParams.get('chat');
         if (rawId) {
             targetId = rawId;
+        }
+
+        const incomingChatId = urlParams.get('chatId') || urlParams.get('chat');
+        if (incomingChatId) {
+            window.postboxActiveChatId = incomingChatId;
+            window.postboxKeepActiveChat = true;
         }
 
         const eventId = urlParams.get('eventId');
@@ -18947,24 +18985,73 @@ function renderPostbox(container) {
         const isMusician = u.role === 'musician';
         let userProfiles = [];
 
-        // If an explicit chat was requested (e.g. from "Nachricht schreiben")
+        // Check if chatId is in URL if not already set on window
+        if (!window.postboxActiveChatId) {
+            const hashQuery = (window.location.hash || '').includes('?') ? (window.location.hash.split('?')[1] || '') : '';
+            const searchParams = new URLSearchParams(hashQuery || window.location.search || '');
+            const incomingChatId = searchParams.get('chatId') || searchParams.get('chat');
+            if (incomingChatId) {
+                window.postboxActiveChatId = incomingChatId;
+            }
+        }
+
+        // If an explicit chat was requested (e.g. from "Nachricht schreiben" or email link)
         if (window.postboxActiveChatId) {
             window.postboxJustOpened = false;
             const targetChat = (state.chats || []).find(c => c && c.id === window.postboxActiveChatId);
             if (targetChat && Array.isArray(targetChat.participants)) {
                 if (isMusician) {
-                    const profiles = (state.musicians || []).filter(m => m && m.creatorId === u.id);
+                    const profiles = (state.musicians || []).filter(m => m && (m.creatorId === u.id || (u.profileId && m.id === u.profileId)));
                     const matchingProfile = profiles.find(m => m && targetChat.participants.includes(m.id));
                     if (matchingProfile) {
                         state.activeMusicianId = matchingProfile.id;
                     }
                 } else {
-                    const userEvents = (state.events || []).filter(e => e && (e.creatorId === u.id || (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de'))));
+                    const userEvents = (state.events || []).filter(e => e && (
+                        e.creatorId === u.id || 
+                        (u.profileId && e.id === u.profileId) ||
+                        (u.email && (e.email === u.email || e.clientEmail === u.email)) ||
+                        (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de'))
+                    ));
                     const matchingEvent = userEvents.find(e => e && targetChat.participants.includes(e.id));
                     if (matchingEvent) {
                         state.activeEventId = matchingEvent.id;
                     }
                 }
+            } else if (typeof db !== 'undefined' && window.postboxActiveChatId) {
+                // Target chat not in cached chats list; fetch directly from Firestore
+                db.collection('chats').doc(window.postboxActiveChatId).get().then(doc => {
+                    if (doc.exists) {
+                        const fetchedChat = { id: doc.id, ...doc.data() };
+                        if (!state.chats) state.chats = [];
+                        if (!state.chats.some(c => c && c.id === fetchedChat.id)) {
+                            state.chats.unshift(fetchedChat);
+                        }
+                        if (Array.isArray(fetchedChat.participants)) {
+                            if (isMusician) {
+                                const profiles = (state.musicians || []).filter(m => m && (m.creatorId === u.id || (u.profileId && m.id === u.profileId)));
+                                const matchingProfile = profiles.find(m => m && fetchedChat.participants.includes(m.id));
+                                if (matchingProfile) {
+                                    state.activeMusicianId = matchingProfile.id;
+                                }
+                            } else {
+                                const userEvents = (state.events || []).filter(e => e && (
+                                    e.creatorId === u.id || 
+                                    (u.profileId && e.id === u.profileId) ||
+                                    (u.email && (e.email === u.email || e.clientEmail === u.email)) ||
+                                    (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de'))
+                                ));
+                                const matchingEvent = userEvents.find(e => e && fetchedChat.participants.includes(e.id));
+                                if (matchingEvent) {
+                                    state.activeEventId = matchingEvent.id;
+                                }
+                            }
+                        }
+                        if (typeof renderView === 'function') {
+                            renderView();
+                        }
+                    }
+                }).catch(err => console.warn("[Postbox] Could not fetch target chat doc:", err));
             }
         }
 
@@ -18993,9 +19080,25 @@ function renderPostbox(container) {
 
         if (container.cleanupPostboxListener) {
             container.cleanupPostboxListener();
+            container.cleanupPostboxListener = null;
         }
 
+        const unsubState = state.subscribe(() => {
+            if (window.currentActivePage === 'postbox' && typeof renderView === 'function') {
+                renderView();
+            }
+        });
+        container.cleanupPostboxListener = () => {
+            if (typeof unsubState === 'function') unsubState();
+        };
+
         const renderView = () => {
+            let savedDraft = '';
+            const activeInput = container.querySelector('#chat-message-input, .chat-message-input-mobile');
+            if (activeInput && activeInput.value) {
+                savedDraft = activeInput.value;
+            }
+
             if (window.postboxActiveChatId) {
                 activeChatId = window.postboxActiveChatId;
             }
@@ -19046,7 +19149,7 @@ function renderPostbox(container) {
                     activeTab = 'all';
                     window.postboxActiveTab = 'all';
                     currentCategoryChats = nonSystemChats;
-                } else {
+                } else if (state.chats && state.chats.length > 0) {
                     activeChatId = null;
                     window.postboxActiveChatId = null;
                 }
@@ -19528,6 +19631,18 @@ function renderPostbox(container) {
                 el.scrollTop = el.scrollHeight;
             }, 50);
         });
+
+        if (savedDraft) {
+            const restoredInput = container.querySelector('#chat-message-input, .chat-message-input-mobile');
+            if (restoredInput && !restoredInput.value) {
+                restoredInput.value = savedDraft;
+            }
+        }
+
+        const selectedThread = container.querySelector('.thread-item.selected');
+        if (selectedThread) {
+            selectedThread.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
     };
 
     renderView();
