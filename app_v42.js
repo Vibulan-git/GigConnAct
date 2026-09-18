@@ -8239,25 +8239,19 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page ${isOrganizerTheme ? 'theme-organizer' : 'theme-musician'} ${showOnlyFavorites ? 'favorites-mode' : ''}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
-            <div class="market-controls-row ${showOnlyFavorites ? 'favorites-mode' : ''}" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0.4rem 0 !important; min-height: 74px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
-                <div class="market-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.35rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
+            <div class="market-controls-row ${showOnlyFavorites ? 'favorites-mode' : ''}" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+                <div class="market-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
                     <!-- Spacer Links -->
                     <div class="market-controls-spacer" style="grid-column: 1;"></div>
 
-                    <!-- Center: GigConnAct Logo oben, Trefferanzahl unten -->
-                    <div class="market-controls-center" style="grid-column: 2; justify-self: center; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; flex-shrink: 0;">
-                        <a href="#/" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; text-decoration: none;" title="GigConnAct Startseite">
-                            <img src="discoball.png" style="width: 22px; height: 22px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));" alt="GigConnAct Logo">
-                            <span style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #ffffff; letter-spacing: -0.3px; line-height: 1;">GigConnAct</span>
-                        </a>
-                        <div id="market-results-header" style="display: flex; align-items: center; justify-content: center; gap: 0.45rem; cursor: ${showOnlyFavorites ? 'default' : 'pointer'}; line-height: 1;" onclick="if (!window.currentMarketShowFavorites) document.getElementById('btn-toggle-mobile-filters')?.click();" title="${showOnlyFavorites ? '' : 'Filter öffnen'}">
-                            <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
-                                ${getItems().length}
-                            </div>
-                            <span id="market-title-label" style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: rgba(255, 255, 255, 0.9) !important; white-space: nowrap; letter-spacing: -0.2px; line-height: 1;">
-                                ${showOnlyFavorites ? 'Favoriten' : (isEvents ? 'Events' : 'Musiker')}
-                            </span>
+                    <!-- 1. Trefferanzahl (Mittig, Weiß auf Verlauf-Leiste) -->
+                    <div id="market-results-header" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px; cursor: ${showOnlyFavorites ? 'default' : 'pointer'};" onclick="if (!window.currentMarketShowFavorites) document.getElementById('btn-toggle-mobile-filters')?.click();" title="${showOnlyFavorites ? '' : 'Filter öffnen'}">
+                        <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
+                            ${getItems().length}
                         </div>
+                        <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
+                            ${showOnlyFavorites ? 'Favoriten' : (isEvents ? 'Events' : 'Musiker')}
+                        </span>
                     </div>
 
                     <!-- 2. Rechter Bereich: Symmetrischer Spacer für Zentrierung, alter Button unsichtbar im DOM gehalten -->
@@ -11256,22 +11250,16 @@ function renderProfilePage(container) {
         <div class="profile-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
             <!-- Profile Controls Row (Lila-Blau-Verlauf wie unten in der Leiste) -->
-            <div class="profile-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0.4rem 0 !important; min-height: 74px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
-                <div class="profile-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.35rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
+            <div class="profile-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 0.5rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+                <div class="profile-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
                     <!-- Spacer Links -->
                     <div class="profile-controls-spacer" style="grid-column: 1;"></div>
 
-                    <!-- Center: GigConnAct Logo oben, Titel unten -->
-                    <div class="profile-controls-center" style="grid-column: 2; justify-self: center; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; flex-shrink: 0;">
-                        <a href="#/" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; text-decoration: none;" title="GigConnAct Startseite">
-                            <img src="discoball.png" style="width: 22px; height: 22px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));" alt="GigConnAct Logo">
-                            <span style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #ffffff; letter-spacing: -0.3px; line-height: 1;">GigConnAct</span>
-                        </a>
-                        <div class="profile-controls-title" style="display: flex; align-items: center; justify-content: center; line-height: 1;">
-                            <span id="profile-title-label" style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: rgba(255, 255, 255, 0.9) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                                Profil
-                            </span>
-                        </div>
+                    <!-- Titel Mittig (ohne Icon) -->
+                    <div class="profile-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; flex-shrink: 0; min-height: 38px;">
+                        <span id="profile-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
+                            Profil
+                        </span>
                     </div>
 
                     <!-- Spacer Rechts -->
@@ -11280,21 +11268,16 @@ function renderProfilePage(container) {
             </div>
 
             <div class="profile-content-wrapper" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0 1.2rem; box-sizing: border-box;">
-                <div class="portal-layout" style="display:flex; flex-direction:column; gap:2rem; max-width: 800px; margin: 0 auto; padding: 0;">
+                <div class="portal-layout" style="display:flex; flex-direction:column; gap: 0.75rem; max-width: 800px; margin: 0 auto; padding: 0;">
 
                     <!-- Zeile über der Kachel 'Meine Musiker/Events': Links Auswahl der Profile, Rechts Ausloggebutton in rot -->
-                    <div class="profile-top-actions-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; width: 100%; margin: 0 0 0.5rem 0; flex-wrap: wrap; box-sizing: border-box;">
-                        <!-- Links: Auswahl der Profile -->
-                        <div class="profile-switcher-action-box" style="display: inline-flex; align-items: center; gap: 0.75rem; background: var(--bg-card); border: 1.5px solid var(--border-glass); border-radius: 14px; padding: 0.55rem 1.1rem; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05); position: relative; min-width: 220px; max-width: 100%; box-sizing: border-box;">
-                            <i class="fa-solid fa-users" style="color: ${themeColor}; font-size: 1.05rem; flex-shrink: 0;"></i>
-                            <div style="flex: 1; min-width: 0; position: relative;">
-                                <span style="font-size: 0.65rem; text-transform: uppercase; font-weight: 800; color: var(--text-muted); display: block; line-height: 1; letter-spacing: 0.5px; margin-bottom: 0.2rem;">Profil auswählen</span>
-                                <select id="profile-page-select" style="width: 100%; border: none; background: transparent; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; color: var(--text-main); cursor: pointer; outline: none; padding-right: 1.4rem; -webkit-appearance: none; -moz-appearance: none; appearance: none; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; margin: 0;">
-                                    ${defaultProfileOption}
-                                    ${profileOptions}
-                                </select>
-                                <i class="fa-solid fa-chevron-down" style="position: absolute; right: 0; bottom: 4px; font-size: 0.72rem; color: #94a3b8; pointer-events: none;"></i>
-                            </div>
+                    <div class="profile-top-actions-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; width: 100%; margin: 0; flex-wrap: wrap; box-sizing: border-box;">
+                        <!-- Links: Auswahl der Profile (Lila Button, kein Icon, kein 'Profil auswählen') -->
+                        <div class="profile-switcher-action-box" style="display: inline-flex; align-items: center; background: #7c3aed !important; border: 1.5px solid rgba(255, 255, 255, 0.25) !important; border-radius: 12px; height: 42px; padding: 0 0.85rem; position: relative; min-width: 170px; max-width: 100%; box-sizing: border-box; box-shadow: 0 3px 10px rgba(124, 58, 237, 0.35);">
+                            <select id="profile-page-select" style="width: 100%; border: none; background: transparent; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 800; color: #ffffff !important; cursor: pointer; outline: none; margin: 0; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; appearance: none; -webkit-appearance: none; padding-right: 1.25rem; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23ffffff'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right center; background-size: 1rem;">
+                                ${defaultProfileOption}
+                                ${profileOptions}
+                            </select>
                         </div>
 
                         <!-- Rechts: Ausloggebutton in rot -->
@@ -12095,26 +12078,20 @@ function renderMatchesPage(container) {
         container.innerHTML = `
             <div class="market-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
                 
-                <!-- Controls Row: Center = Logo + Title & Count -->
-                <div class="matches-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0.4rem 0 !important; min-height: 74px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
-                    <div class="matches-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.35rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
+                <!-- Controls Row: Center = Title & Count, Right = Profile Switcher -->
+                <div class="matches-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+                    <div class="matches-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
                         <!-- Spacer Links -->
                         <div class="matches-controls-spacer" style="grid-column: 1;"></div>
 
-                        <!-- Center: GigConnAct Logo oben, Title & Count unten -->
-                        <div class="matches-controls-center" style="grid-column: 2; justify-self: center; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; flex-shrink: 0;">
-                            <a href="#/" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; text-decoration: none;" title="GigConnAct Startseite">
-                                <img src="discoball.png" style="width: 22px; height: 22px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));" alt="GigConnAct Logo">
-                                <span style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #ffffff; letter-spacing: -0.3px; line-height: 1;">GigConnAct</span>
-                            </a>
-                            <div class="matches-controls-title" style="display: flex; align-items: center; justify-content: center; gap: 0.45rem; line-height: 1;">
-                                <div id="top-matches-count" style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
-                                    ${selectedId ? '0' : '0'}
-                                </div>
-                                <span id="top-matches-label" style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: rgba(255, 255, 255, 0.9) !important; white-space: nowrap; letter-spacing: -0.2px; line-height: 1;">
-                                    Top-Matches
-                                </span>
+                        <!-- Center: Title & Count (Mittig, ohne Icon) -->
+                        <div class="matches-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px;">
+                            <div id="top-matches-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
+                                ${selectedId ? '0' : '0'}
                             </div>
+                            <span id="top-matches-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
+                                Top-Matches
+                            </span>
                         </div>
 
                         <!-- Right: Spacer (Kein Profil-Wechsler in der Leiste) -->
@@ -18041,47 +18018,55 @@ window.updateBottomBar = function() {
         }
 
         bar.innerHTML = `
-            <div class="bottom-bar-content">
-                <!-- 1. Gig-Markt / Act-Markt -->
-                <button class="bottom-bar-item tab-market ${themeClass} ${isMarketActive ? 'active' : ''}" id="bottom-bar-tab-market" aria-label="${marketTitle}" title="${marketTitle}">
-                    <div class="bottom-bar-icon-wrapper">
-                        <i class="fa-solid ${marketIcon}"></i>
-                    </div>
-                    <span class="bottom-bar-label">${marketTitle}</span>
-                </button>
+            <div class="bottom-bar-nav">
+                <div class="bottom-bar-content">
+                    <!-- 1. Gig-Markt / Act-Markt -->
+                    <button class="bottom-bar-item tab-market ${themeClass} ${isMarketActive ? 'active' : ''}" id="bottom-bar-tab-market" aria-label="${marketTitle}" title="${marketTitle}">
+                        <div class="bottom-bar-icon-wrapper">
+                            <i class="fa-solid ${marketIcon}"></i>
+                        </div>
+                        <span class="bottom-bar-label">${marketTitle}</span>
+                    </button>
 
-                <!-- 2. Favoriten -->
-                <button class="bottom-bar-item tab-favorites ${isFavActive ? 'active' : ''}" id="bottom-bar-tab-favorites" aria-label="Favoriten" title="Favoriten">
-                    <div class="bottom-bar-icon-wrapper">
-                        <i class="fa-solid fa-heart"></i>
-                    </div>
-                    <span class="bottom-bar-label">Favoriten</span>
-                </button>
+                    <!-- 2. Favoriten -->
+                    <button class="bottom-bar-item tab-favorites ${isFavActive ? 'active' : ''}" id="bottom-bar-tab-favorites" aria-label="Favoriten" title="Favoriten">
+                        <div class="bottom-bar-icon-wrapper">
+                            <i class="fa-solid fa-heart"></i>
+                        </div>
+                        <span class="bottom-bar-label">Favoriten</span>
+                    </button>
 
-                <!-- 3. Top-Matches -->
-                <button class="bottom-bar-item tab-matches ${isMatchesActive ? 'active' : ''}" id="bottom-bar-tab-matches" aria-label="Top-Matches" title="Top-Matches">
-                    <div class="bottom-bar-icon-wrapper">
-                        <i class="fa-solid fa-star"></i>
-                    </div>
-                    <span class="bottom-bar-label">Top-Matches</span>
-                </button>
+                    <!-- 3. Top-Matches -->
+                    <button class="bottom-bar-item tab-matches ${isMatchesActive ? 'active' : ''}" id="bottom-bar-tab-matches" aria-label="Top-Matches" title="Top-Matches">
+                        <div class="bottom-bar-icon-wrapper">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <span class="bottom-bar-label">Top-Matches</span>
+                    </button>
 
-                <!-- 4. Nachrichten -->
-                <button class="bottom-bar-item tab-postbox ${isPostboxActive ? 'active' : ''}" id="bottom-bar-tab-postbox" aria-label="Nachrichten" title="Nachrichten">
-                    <div class="bottom-bar-icon-wrapper">
-                        <i class="fa-solid fa-envelope"></i>
-                        ${unreadCount > 0 ? `<span class="bottom-bar-badge">${unreadCount}</span>` : ''}
-                    </div>
-                    <span class="bottom-bar-label">Nachrichten</span>
-                </button>
+                    <!-- 4. Nachrichten -->
+                    <button class="bottom-bar-item tab-postbox ${isPostboxActive ? 'active' : ''}" id="bottom-bar-tab-postbox" aria-label="Nachrichten" title="Nachrichten">
+                        <div class="bottom-bar-icon-wrapper">
+                            <i class="fa-solid fa-envelope"></i>
+                            ${unreadCount > 0 ? `<span class="bottom-bar-badge">${unreadCount}</span>` : ''}
+                        </div>
+                        <span class="bottom-bar-label">Nachrichten</span>
+                    </button>
 
-                <!-- 5. Profil / Anmelden -->
-                <button class="bottom-bar-item tab-profile ${isProfileActive ? 'active' : ''}" id="bottom-bar-tab-profile" aria-label="${isLoggedIn ? 'Profil' : 'Anmelden'}" title="${isLoggedIn ? 'Profil' : 'Anmelden'}">
-                    <div class="bottom-bar-icon-wrapper">
-                        <i class="${isLoggedIn ? 'fa-regular fa-circle-user' : 'fa-solid fa-right-to-bracket'}"></i>
-                    </div>
-                    <span class="bottom-bar-label">${isLoggedIn ? 'Profil' : 'Anmelden'}</span>
-                </button>
+                    <!-- 5. Profil / Anmelden -->
+                    <button class="bottom-bar-item tab-profile ${isProfileActive ? 'active' : ''}" id="bottom-bar-tab-profile" aria-label="${isLoggedIn ? 'Profil' : 'Anmelden'}" title="${isLoggedIn ? 'Profil' : 'Anmelden'}">
+                        <div class="bottom-bar-icon-wrapper">
+                            <i class="${isLoggedIn ? 'fa-regular fa-circle-user' : 'fa-solid fa-right-to-bracket'}"></i>
+                        </div>
+                        <span class="bottom-bar-label">${isLoggedIn ? 'Profil' : 'Anmelden'}</span>
+                    </button>
+                </div>
+            </div>
+            <div class="bottom-bar-logo-strip">
+                <a href="#/" class="bottom-bar-logo-link" title="GigConnAct Startseite">
+                    <img src="discoball.png" style="width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 4px rgba(124,58,237,0.25));" alt="GigConnAct Logo">
+                    <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; display: inline-flex; letter-spacing: -0.4px; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; white-space: nowrap; line-height: 1;">GigConnAct</span>
+                </a>
             </div>
         `;
 
@@ -19093,25 +19078,19 @@ function renderPostbox(container) {
             container.innerHTML = `
             <div class="postbox-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box; overflow-x: clip;">
                 <!-- Postbox Controls Row (Lila-Blau-Verlauf wie unten in der Leiste) -->
-                <div class="postbox-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0.4rem 0 !important; min-height: 74px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
-                    <div class="postbox-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.35rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
+                <div class="postbox-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+                    <div class="postbox-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
                         <!-- Spacer Links -->
                         <div class="postbox-controls-spacer" style="grid-column: 1;"></div>
 
-                        <!-- Center: GigConnAct Logo oben, Title & Count unten -->
-                        <div class="postbox-controls-center" style="grid-column: 2; justify-self: center; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.2rem; flex-shrink: 0;">
-                            <a href="#/" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; text-decoration: none;" title="GigConnAct Startseite">
-                                <img src="discoball.png" style="width: 22px; height: 22px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));" alt="GigConnAct Logo">
-                                <span style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: #ffffff; letter-spacing: -0.3px; line-height: 1;">GigConnAct</span>
-                            </a>
-                            <div class="postbox-controls-title" style="display: flex; align-items: center; justify-content: center; gap: 0.45rem; line-height: 1;">
-                                <div id="postbox-count" style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
-                                    ${unreadChatCount}
-                                </div>
-                                <span id="postbox-title-label" style="font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: rgba(255, 255, 255, 0.9) !important; white-space: nowrap; letter-spacing: -0.2px; line-height: 1;">
-                                    ${unreadChatCount === 1 ? 'Nachricht' : 'Nachrichten'}
-                                </span>
+                        <!-- Center: Title (Mittig, ohne Icon) -->
+                        <div class="postbox-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px;">
+                            <div id="postbox-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
+                                ${unreadChatCount}
                             </div>
+                            <span id="postbox-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
+                                ${unreadChatCount === 1 ? 'Nachricht' : 'Nachrichten'}
+                            </span>
                         </div>
 
                         <!-- Spacer right to keep title centered -->
