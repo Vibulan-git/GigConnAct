@@ -5423,10 +5423,19 @@ body:not(.has-bottom-bar) .market-floating-filter-pill {
     color: #22c55e !important;
 }
 
-/* Hide when drawer or overlay is open */
+/* Hide when drawer or overlay is open, or in favorites/top-matches modes */
 .market-floating-filter-pill.drawer-open,
 .market-filters-overlay.open ~ .market-floating-filter-pill,
-.market-page.filters-open .market-floating-filter-pill {
+.market-page.filters-open .market-floating-filter-pill,
+.market-page.favorites-mode .market-floating-filter-pill,
+.market-page.top-matches-mode .market-floating-filter-pill,
+.market-controls-row.favorites-mode ~ .market-floating-filter-pill,
+.market-controls-row.top-matches-mode ~ .market-floating-filter-pill,
+.market-floating-filter-pill.hidden-mode,
+.matches-page .market-floating-filter-pill,
+.postbox-page .market-floating-filter-pill,
+.profile-page .market-floating-filter-pill {
+    display: none !important;
     opacity: 0 !important;
     pointer-events: none !important;
     transform: translateX(-50%) translateY(25px) scale(0.9) !important;
@@ -6489,15 +6498,18 @@ body.landing-page-active #app-bottom-bar,
 
 .bottom-bar-logo-strip {
     width: 100%;
-    height: 34px;
+    min-height: 38px;
+    height: auto;
     background: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
     border-top: 1px solid rgba(0, 0, 0, 0.08);
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.04);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    box-sizing: content-box;
+    padding-top: 4px;
+    padding-bottom: calc(4px + env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
+    overflow: visible;
 }
 
 .bottom-bar-logo-link {
@@ -6508,6 +6520,14 @@ body.landing-page-active #app-bottom-bar,
     text-decoration: none;
     cursor: pointer;
     transition: opacity 0.2s ease, transform 0.2s ease;
+    overflow: visible;
+}
+
+.bottom-bar-logo-link span {
+    overflow: visible;
+    line-height: 1.35;
+    display: inline-flex;
+    padding-bottom: 2px;
 }
 
 .bottom-bar-logo-link:hover {
@@ -6650,16 +6670,16 @@ body.landing-page-active #app-bottom-bar,
 
 /* Page bottom padding compensation when bottom bar is active */
 body.has-bottom-bar #app-main {
-    padding-bottom: calc(106px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 body.has-bottom-bar .app-footer {
-    margin-bottom: calc(94px + env(safe-area-inset-bottom, 0px)) !important;
+    margin-bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 /* Floating Action / Chat Box offset when bottom bar is present */
 body.has-bottom-bar .toast-container {
-    bottom: calc(102px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(108px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 /* Star badge: static display only, never clickable */

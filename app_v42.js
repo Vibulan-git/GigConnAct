@@ -8703,7 +8703,7 @@ function renderMarket(container, type, onNavigate) {
             <div id="market-filters-overlay" class="market-filters-overlay"></div>
 
             <!-- Floating Filter Pill Button (Option 4 - Airbnb Style) -->
-            ${!showOnlyFavorites ? `
+            ${(!showOnlyFavorites && !showOnlyTopMatches) ? `
             <button class="market-floating-filter-pill ${isOrganizerTheme ? 'theme-organizer' : 'theme-musician'}" id="btn-floating-market-filter" title="Filter & Suche öffnen">
                 <i class="fa-solid fa-sliders floating-filter-icon"></i>
                 <span class="floating-filter-text">Filter</span>
@@ -9557,7 +9557,7 @@ function renderMarket(container, type, onNavigate) {
                     const nextBatch = Math.min(12, remaining);
                     buttonsHtml += `
                         <button class="btn btn-primary" id="btn-market-load-more" style="padding: 0.75rem 2rem; font-size: 0.95rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; background: ${themeColor}; color: #ffffff; border: none; box-shadow: 0 4px 14px rgba(0,0,0,0.15); margin: 0;">
-                            <i class="fa-solid fa-chevron-down"></i> Weitere ${isEvents ? 'Events' : 'Profile'} anzeigen (+${nextBatch} von ${remaining})
+                            <i class="fa-solid fa-chevron-down"></i> Weitere ${isEvents ? 'Events' : 'Musiker'} anzeigen
                         </button>
                     `;
                 }
@@ -9711,6 +9711,25 @@ function renderMarket(container, type, onNavigate) {
             if (actionsContainer) {
                 actionsContainer.style.setProperty('display', 'flex', 'important');
                 actionsContainer.classList.remove('hidden');
+            }
+        }
+
+        if (showOnlyTopMatches) {
+            container.querySelector('.market-page')?.classList.add('top-matches-mode');
+            container.querySelector('.market-controls-row')?.classList.add('top-matches-mode');
+        } else {
+            container.querySelector('.market-page')?.classList.remove('top-matches-mode');
+            container.querySelector('.market-controls-row')?.classList.remove('top-matches-mode');
+        }
+
+        const floatingFilterBtn = container.querySelector('#btn-floating-market-filter') || document.getElementById('btn-floating-market-filter');
+        if (floatingFilterBtn) {
+            if (showOnlyFavorites || showOnlyTopMatches) {
+                floatingFilterBtn.style.setProperty('display', 'none', 'important');
+                floatingFilterBtn.classList.add('hidden-mode');
+            } else {
+                floatingFilterBtn.style.removeProperty('display');
+                floatingFilterBtn.classList.remove('hidden-mode');
             }
         }
 
@@ -17131,16 +17150,37 @@ function renderPremiumModal(wrapper, onSuccessCallback) {
 
 function navigateAfterLogin() {
     if (state.currentUser) {
-        if (window.loginRedirectHash) {
-            const target = window.loginRedirectHash;
-            window.loginRedirectHash = null;
-            window.location.hash = target;
-        } else {
-            if (state.currentUser.role === 'musician') {
-                navigate('events');
-            } else {
-                navigate('musicians');
+        const role = state.currentUser.role;
+        let target = window.loginRedirectHash;
+        window.loginRedirectHash = null;
+
+        // If organizer was trying to go to events or unauthenticated default was events, enforce musicians
+        if (role === 'organizer') {
+            if (!target || target === '#/events' || target === '#events' || target.startsWith('#/events?') || target.startsWith('#events?')) {
+                target = '#/musicians';
             }
+        } else if (role === 'musician') {
+            if (!target || target === '#/musicians' || target === '#musicians' || target.startsWith('#/musicians?') || target.startsWith('#musicians?')) {
+                target = '#/events';
+            }
+        }
+
+        if (!target) {
+            target = (role === 'musician') ? '#/events' : '#/musicians';
+        }
+
+        if (typeof updateNavbar === 'function') updateNavbar();
+        if (typeof window.updateBottomBar === 'function') window.updateBottomBar();
+
+        if (window.location.hash === target) {
+            if (typeof handleRouting === 'function') {
+                handleRouting();
+            } else {
+                const cleanPage = target.replace(/^#\/?/, '').split('?')[0];
+                navigate(cleanPage || (role === 'musician' ? 'events' : 'musicians'));
+            }
+        } else {
+            window.location.hash = target;
         }
     } else {
         navigate('');
@@ -18063,9 +18103,9 @@ window.updateBottomBar = function() {
                 </div>
             </div>
             <div class="bottom-bar-logo-strip">
-                <a href="#/" class="bottom-bar-logo-link" title="GigConnAct Startseite">
-                    <img src="discoball.png" style="width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 4px rgba(124,58,237,0.25));" alt="GigConnAct Logo">
-                    <span style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; display: inline-flex; letter-spacing: -0.4px; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; white-space: nowrap; line-height: 1;">GigConnAct</span>
+                <a href="#/" class="bottom-bar-logo-link" title="GigConnAct Startseite" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; text-decoration: none; padding: 2px 0; overflow: visible;">
+                    <img src="discoball.png" style="width: 22px; height: 22px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 4px rgba(124,58,237,0.25));" alt="GigConnAct Logo">
+                    <span style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; display: inline-flex; letter-spacing: -0.4px; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; white-space: nowrap; line-height: 1.35; padding: 2px 0 4px 0; overflow: visible;">GigConnAct</span>
                 </a>
             </div>
         `;
@@ -18603,14 +18643,27 @@ function handleRouting() {
         return;
     }
     
+    // Clean up floating filter pill if leaving market pages
+    if (page !== 'events' && page !== 'musicians') {
+        document.querySelectorAll('.market-floating-filter-pill').forEach(el => el.remove());
+    }
+
     // Redirect logged-in users away from the opposite market pages
     if (state && state.currentUser && state.currentUser.id) {
         if (state.currentUser.role === 'organizer' && page === 'events') {
-            navigate('musicians');
+            if (window.location.hash !== '#/musicians') {
+                window.location.hash = '#/musicians';
+            } else {
+                navigate('musicians');
+            }
             return;
         }
         if (state.currentUser.role === 'musician' && page === 'musicians') {
-            navigate('events');
+            if (window.location.hash !== '#/events') {
+                window.location.hash = '#/events';
+            } else {
+                navigate('events');
+            }
             return;
         }
     }
