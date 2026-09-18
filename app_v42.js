@@ -4383,31 +4383,12 @@ class StateManager {
 
     async deleteEvent(eventId) {
         if (!eventId) return { success: false };
-        try {
-            if (typeof db !== 'undefined' && db && db.collection) {
-                const parts = String(eventId).split('_');
-                if (parts.length === 4 && parts[0] === 'evt' && parts[1] === 'agency') {
-                    const basePrefix = parts[0] + '_' + parts[1] + '_' + parts[2];
-                    await db.collection('events').doc(basePrefix + '_0').delete().catch(() => {});
-                    await db.collection('events').doc(basePrefix + '_1').delete().catch(() => {});
-                }
-                await db.collection('events').doc(eventId).delete().catch(err => console.warn("deleteEvent Firestore write failed:", err));
-
-                const medSnap = await db.collection('mediations').where('eventId', '==', eventId).get().catch(() => null);
-                if (medSnap && !medSnap.empty) {
-                    for (const d of medSnap.docs) {
-                        await db.collection('mediations').doc(d.id).update({ status: 'expired' }).catch(() => {});
-                    }
-                }
-            }
-        } catch (err) {
-            console.error("deleteEvent error:", err);
-        }
 
         const parts = String(eventId).split('_');
         const isAgencyDup = parts.length === 4 && parts[0] === 'evt' && parts[1] === 'agency';
         const basePrefix = isAgencyDup ? (parts[0] + '_' + parts[1] + '_' + parts[2]) : null;
 
+        // 1. Optimistic instant local removal
         this.events = (this.events || []).filter(e => {
             if (!e) return false;
             if (e.id === eventId) return false;
@@ -4415,6 +4396,7 @@ class StateManager {
             return true;
         });
 
+        // 2. Clean up active profile and user profileId
         if (this.activeEventId === eventId || (basePrefix && String(this.activeEventId).startsWith(basePrefix))) {
             const remainingUserEvents = (this.events || []).filter(e => e && (e.creatorId === this.currentUser?.id || (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser?.email) && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))));
             this.activeEventId = remainingUserEvents.length > 0 ? remainingUserEvents[0].id : null;
@@ -4424,8 +4406,55 @@ class StateManager {
             window.lastActiveProfileId = this.activeEventId;
         }
 
+        // 3. Clean up favorites and interests locally
+        if (this.favorites) {
+            this.favorites = this.favorites.filter(id => id !== eventId && (!basePrefix || !String(id).startsWith(basePrefix)));
+        }
+        if (this.interests) {
+            this.interests = this.interests.filter(item => item && item.eventId !== eventId && (!basePrefix || !String(item.eventId).startsWith(basePrefix)));
+        }
+
+        // 4. Save state & notify listeners immediately
         this.saveState();
         this.notify();
+
+        // 5. Fire Firestore deletions and cleanup in the background
+        if (typeof db !== 'undefined' && db && db.collection) {
+            (async () => {
+                try {
+                    if (isAgencyDup && basePrefix) {
+                        await db.collection('events').doc(basePrefix + '_0').delete().catch(() => {});
+                        await db.collection('events').doc(basePrefix + '_1').delete().catch(() => {});
+                    }
+                    await db.collection('events').doc(eventId).delete().catch(err => console.warn("deleteEvent Firestore write failed:", err));
+
+                    if (this.currentUser && this.currentUser.id) {
+                        await db.collection('users').doc(this.currentUser.id).update({
+                            profileId: this.activeEventId
+                        }).catch(() => {});
+                    }
+
+                    // Expire mediations for this event
+                    const medSnap = await db.collection('mediations').where('eventId', '==', eventId).get().catch(() => null);
+                    if (medSnap && !medSnap.empty) {
+                        for (const d of medSnap.docs) {
+                            await db.collection('mediations').doc(d.id).update({ status: 'expired' }).catch(() => {});
+                        }
+                    }
+
+                    // Delete interests for this event
+                    const intSnap = await db.collection('interests').where('eventId', '==', eventId).get().catch(() => null);
+                    if (intSnap && !intSnap.empty) {
+                        for (const d of intSnap.docs) {
+                            await db.collection('interests').doc(d.id).delete().catch(() => {});
+                        }
+                    }
+                } catch (err) {
+                    console.error("Async deleteEvent Firestore error:", err);
+                }
+            })();
+        }
+
         return { success: true };
     }
 
@@ -4603,9 +4632,67 @@ class StateManager {
         return { success: true };
     }
 
-    deleteMusician(musicianId) {
-        db.collection('musicians').doc(musicianId).delete()
-            .catch(err => console.error("deleteMusician Firestore write failed:", err));
+    async deleteMusician(musicianId) {
+        if (!musicianId) return { success: false };
+
+        // 1. Optimistic instant local removal
+        this.musicians = (this.musicians || []).filter(m => m && m.id !== musicianId);
+
+        // 2. Clean up active profile and user profileId
+        if (this.activeMusicianId === musicianId) {
+            const myRemaining = (this.musicians || []).filter(m => m && m.creatorId === this.currentUser?.id);
+            this.activeMusicianId = myRemaining.length > 0 ? myRemaining[0].id : null;
+            if (this.currentUser) {
+                this.currentUser.profileId = this.activeMusicianId;
+            }
+            window.lastActiveProfileId = this.activeMusicianId;
+        }
+
+        // 3. Clean up favorites and interests locally
+        if (this.favorites) {
+            this.favorites = this.favorites.filter(id => id !== musicianId);
+        }
+        if (this.interests) {
+            this.interests = this.interests.filter(item => item && item.musicianId !== musicianId);
+        }
+
+        // 4. Save state & notify listeners immediately
+        this.saveState();
+        this.notify();
+
+        // 5. Fire Firestore deletions and cleanup in the background
+        if (typeof db !== 'undefined' && db && db.collection) {
+            (async () => {
+                try {
+                    await db.collection('musicians').doc(musicianId).delete().catch(err => console.error("deleteMusician Firestore write failed:", err));
+
+                    if (this.currentUser && this.currentUser.id) {
+                        await db.collection('users').doc(this.currentUser.id).update({
+                            profileId: this.activeMusicianId
+                        }).catch(() => {});
+                    }
+
+                    // Expire any mediations referencing this musician
+                    const medSnap = await db.collection('mediations').where('musicianId', '==', musicianId).get().catch(() => null);
+                    if (medSnap && !medSnap.empty) {
+                        for (const d of medSnap.docs) {
+                            await db.collection('mediations').doc(d.id).update({ status: 'expired' }).catch(() => {});
+                        }
+                    }
+
+                    // Delete any interests referencing this musician
+                    const intSnap = await db.collection('interests').where('musicianId', '==', musicianId).get().catch(() => null);
+                    if (intSnap && !intSnap.empty) {
+                        for (const d of intSnap.docs) {
+                            await db.collection('interests').doc(d.id).delete().catch(() => {});
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Async Firestore cleanup for musician failed:", e);
+                }
+            })();
+        }
+
         return { success: true };
     }
 
@@ -12510,22 +12597,16 @@ function renderOrganizerEventItem(e, isActive) {
             </div>
 
             <!-- Actions Grid at the Bottom (Organizer Blue theme with white text) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #2563eb;">
-                ${isActive ? `
-                <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.55rem 0.65rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.35rem; background: #2563eb;">
+                <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.76rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                     <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
                 </button>
-                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
-                    <i class="fa-solid fa-pause" style="color: #ffffff;"></i> Pausieren
+                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.76rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
+                    <i class="fa-solid fa-${isActive ? 'pause' : 'play'}" style="color: #ffffff;"></i> ${isActive ? 'Pausieren' : 'Aktivieren'}
                 </button>
-                ` : `
-                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
-                    <i class="fa-solid fa-play" style="color: #ffffff;"></i> Aktivieren
-                </button>
-                <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.76rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
                     <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
                 </button>
-                `}
             </div>
         </div>
     `;
@@ -12671,12 +12752,19 @@ function renderMyEventsContent(container) {
             const event = state.events.find(e => e.id === id);
             const eventName = event ? event.name : 'dieses Event';
             if (confirm(`Möchtest du das Event "${eventName}" wirklich unwiderruflich löschen?`)) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Löschen...';
                 await state.deleteEvent(id);
                 showToast({
                     title: "Event gelöscht",
-                    message: "Das Event wurde erfolgreich aus der Suche entfernt."
+                    message: "Das Event wurde erfolgreich und vollständig gelöscht."
                 });
-                renderMyEvents(container);
+                const mainContainer = document.getElementById('app-main');
+                if (window.location.hash.includes('profile')) {
+                    renderProfilePage(mainContainer);
+                } else {
+                    renderMyEvents(container);
+                }
             }
         });
     });
@@ -13031,22 +13119,16 @@ function renderMyMusicianItem(m, isActive) {
             </div>
 
             <!-- Actions Grid at the Bottom (Lila theme with white text for musicians) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #7c3aed;">
-                ${isActive ? `
-                <button class="btn btn-sm btn-glass btn-edit-my-musician" data-id="${m.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.55rem 0.65rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.35rem; background: #7c3aed;">
+                <button class="btn btn-sm btn-glass btn-edit-my-musician" data-id="${m.id}" style="font-size: 0.76rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                     <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
                 </button>
-                <button class="btn btn-sm btn-glass btn-pause-my-musician" data-id="${m.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
-                    <i class="fa-solid fa-pause" style="color: #ffffff;"></i> Pausieren
+                <button class="btn btn-sm btn-glass btn-pause-my-musician" data-id="${m.id}" style="font-size: 0.76rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
+                    <i class="fa-solid fa-${isActive ? 'pause' : 'play'}" style="color: #ffffff;"></i> ${isActive ? 'Pausieren' : 'Aktivieren'}
                 </button>
-                ` : `
-                <button class="btn btn-sm btn-glass btn-pause-my-musician" data-id="${m.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
-                    <i class="fa-solid fa-play" style="color: #ffffff;"></i> Aktivieren
-                </button>
-                <button class="btn btn-sm btn-glass btn-delete-my-musician" data-id="${m.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                <button class="btn btn-sm btn-glass btn-delete-my-musician" data-id="${m.id}" style="font-size: 0.76rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
                     <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
                 </button>
-                `}
             </div>
         </div>
     `;
@@ -13161,16 +13243,24 @@ function renderMyMusiciansContent(container) {
     });
 
     container.querySelectorAll('.btn-delete-my-musician').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
             const id = btn.getAttribute('data-id');
             const musician = state.musicians.find(m => m.id === id);
-            if (musician && confirm(`Möchtest du das Musiker-Profil "${musician.name}" wirklich unwiderruflich löschen?`)) {
-                state.deleteMusician(id);
+            const musicianName = musician ? musician.name : 'dieses Musiker-Profil';
+            if (confirm(`Möchtest du das Musiker-Profil "${musicianName}" wirklich unwiderruflich löschen?`)) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Löschen...';
+                await state.deleteMusician(id);
                 showToast({
                     title: "Profil gelöscht",
-                    message: "Das Musiker-Profil wurde erfolgreich entfernt."
+                    message: "Das Musiker-Profil wurde erfolgreich und vollständig gelöscht."
                 });
-                renderMyMusicians(container);
+                const mainContainer = document.getElementById('app-main');
+                if (window.location.hash.includes('profile')) {
+                    renderProfilePage(mainContainer);
+                } else {
+                    renderMyMusicians(container);
+                }
             }
         });
     });
@@ -13497,7 +13587,12 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         <div id="modal-audios-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
 
-                    <div style="display: flex; justify-content: center; margin-top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap;">
+                        ${isEdit ? `
+                        <button type="button" id="btn-modal-delete-musician" class="btn btn-glass" style="margin: 0; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
+                            <i class="fa-solid fa-trash"></i> Profil löschen
+                        </button>
+                        ` : '<div></div>'}
                         <button type="submit" class="btn btn-primary" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: var(--color-purple); border-color: var(--color-purple);">
                             ${isEdit ? 'Änderungen speichern' : 'Profil erstellen'}
                         </button>
@@ -13508,6 +13603,28 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     `;
 
     document.getElementById('btn-close-musician-modal').addEventListener('click', closeModal);
+
+    const modalDeleteMusicianBtn = document.getElementById('btn-modal-delete-musician');
+    if (modalDeleteMusicianBtn && musicianObj) {
+        modalDeleteMusicianBtn.addEventListener('click', async () => {
+            if (confirm(`Möchtest du das Musiker-Profil "${musicianObj.name}" wirklich unwiderruflich löschen?`)) {
+                modalDeleteMusicianBtn.disabled = true;
+                modalDeleteMusicianBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Löschen...';
+                await state.deleteMusician(musicianObj.id);
+                closeModal();
+                showToast({
+                    title: "Profil gelöscht",
+                    message: "Das Musiker-Profil wurde erfolgreich und vollständig gelöscht."
+                });
+                const mainContainer = document.getElementById('app-main');
+                if (window.location.hash.includes('profile')) {
+                    renderProfilePage(mainContainer);
+                } else {
+                    renderMyMusicians(mainContainer);
+                }
+            }
+        });
+    }
     
     const locInput = modalWrapper.querySelector('input[name="location"]');
     setupLocationAutocomplete(locInput);
@@ -14258,7 +14375,12 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
 
 
-                    <div style="display: flex; justify-content: center; align-items: center; margin-top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap;">
+                        ${isEdit ? `
+                        <button type="button" id="btn-modal-delete-event" class="btn btn-glass" style="margin: 0; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
+                            <i class="fa-solid fa-trash"></i> Event löschen
+                        </button>
+                        ` : '<div></div>'}
                         <button type="submit" id="btn-submit-event" class="btn btn-primary btn-event-submit" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important; border-color: #1e40af !important; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important; color: #ffffff !important;">
                             ${isEdit ? 'Änderungen speichern' : 'Event ausschreiben'}
                         </button>
@@ -14269,6 +14391,28 @@ function showEventModal(eventObj = null, isDuplication = false) {
     `;
 
     document.getElementById('btn-close-event-modal').addEventListener('click', closeModal);
+
+    const modalDeleteEventBtn = document.getElementById('btn-modal-delete-event');
+    if (modalDeleteEventBtn && eventObj) {
+        modalDeleteEventBtn.addEventListener('click', async () => {
+            if (confirm(`Möchtest du das Event "${eventObj.name}" wirklich unwiderruflich löschen?`)) {
+                modalDeleteEventBtn.disabled = true;
+                modalDeleteEventBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Löschen...';
+                await state.deleteEvent(eventObj.id);
+                closeModal();
+                showToast({
+                    title: "Event gelöscht",
+                    message: "Das Event wurde erfolgreich und vollständig gelöscht."
+                });
+                const mainContainer = document.getElementById('app-main');
+                if (window.location.hash.includes('profile')) {
+                    renderProfilePage(mainContainer);
+                } else {
+                    renderMyEvents(mainContainer);
+                }
+            }
+        });
+    }
 
     // Initialize Calendar Widget
     let currentCalDate = new Date();
