@@ -8234,10 +8234,15 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page ${isOrganizerTheme ? 'theme-organizer' : 'theme-musician'} ${showOnlyFavorites ? 'favorites-mode' : ''}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
-            <div class="market-controls-row ${showOnlyFavorites ? 'favorites-mode' : ''}" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+            <div class="market-controls-row ${showOnlyFavorites ? 'favorites-mode' : ''}" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
                 <div class="market-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
-                    <!-- Spacer on the left to ensure dead-center alignment of header -->
-                    <div class="market-controls-spacer" style="grid-column: 1;"></div>
+                    <!-- 0. Brand / Logo Links -->
+                    <div class="market-controls-brand" style="grid-column: 1; justify-self: start; display: flex; align-items: center;">
+                        <a href="#/" class="controls-logo-link" style="display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none;" title="GigConnAct Startseite">
+                            <img src="discoball.png" style="width: 26px; height: 26px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.25));" alt="Logo">
+                            <span class="controls-logo-text" style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 800; color: #ffffff; letter-spacing: -0.4px; white-space: nowrap; line-height: 1.1;">GigConnAct</span>
+                        </a>
+                    </div>
 
                     <!-- 1. Trefferanzahl (Mittig, Weiß auf Verlauf-Leiste) -->
                     <div id="market-results-header" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px; cursor: ${showOnlyFavorites ? 'default' : 'pointer'};" onclick="if (!window.currentMarketShowFavorites) document.getElementById('btn-toggle-mobile-filters')?.click();" title="${showOnlyFavorites ? '' : 'Filter öffnen'}">
@@ -9541,7 +9546,7 @@ function renderMarket(container, type, onNavigate) {
                 if (!bottomResetContainer) {
                     bottomResetContainer = document.createElement('div');
                     bottomResetContainer.id = 'market-bottom-reset-container';
-                    bottomResetContainer.style.cssText = 'grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 1.5rem; margin-bottom: 2rem; width: 100%; gap: 1rem; flex-wrap: wrap; align-items: center;';
+                    bottomResetContainer.style.cssText = 'grid-column: 1 / -1; display: flex; flex-direction: column; justify-content: center; align-items: center; margin-top: 1.5rem; margin-bottom: 2rem; width: 100%; gap: 1rem;';
                     grid.parentNode.appendChild(bottomResetContainer);
                 }
                 const themeColor = isEvents ? '#7c3aed' : '#2563eb';
@@ -9557,19 +9562,28 @@ function renderMarket(container, type, onNavigate) {
                     `;
                 }
 
+                let secondaryButtonsHtml = '';
                 if (!showMoreMatchesUnfiltered && !showOnlyFavorites && isFilterActiveCurrently) {
-                    buttonsHtml += `
-                        <button class="btn btn-secondary" id="btn-market-show-more-unfiltered" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; margin: 0;">
-                            <i class="fa-solid fa-plus"></i> Weitere Ergebnisse
+                    secondaryButtonsHtml += `
+                        <button class="btn btn-secondary" id="btn-market-show-more-unfiltered" style="flex: 1 1 0; min-width: 0; padding: 0.75rem 0.8rem; font-size: 0.88rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s; margin: 0; white-space: nowrap; text-align: center;">
+                            <i class="fa-solid fa-plus"></i> <span>Weitere Ergebnisse</span>
                         </button>
                     `;
                 }
                 
                 if (!showOnlyFavorites && (isFilterActiveCurrently || state.currentUser !== null)) {
-                    buttonsHtml += `
-                        <button class="btn btn-secondary" id="btn-market-bottom-reset" style="padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: ${themeColor}; border: 2px solid ${themeColor}; background: transparent; transition: all 0.2s; margin: 0;">
-                            <i class="fa-solid fa-rotate-right"></i> Filter zurücksetzen
+                    secondaryButtonsHtml += `
+                        <button class="btn btn-secondary" id="btn-market-bottom-reset" style="flex: 1 1 0; min-width: 0; padding: 0.75rem 0.8rem; font-size: 0.88rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; color: ${themeColor}; border: 2px solid ${themeColor}; background: transparent; transition: all 0.2s; margin: 0; white-space: nowrap; text-align: center;">
+                            <i class="fa-solid fa-rotate-right"></i> <span>Filter zurücksetzen</span>
                         </button>
+                    `;
+                }
+
+                if (secondaryButtonsHtml) {
+                    buttonsHtml += `
+                        <div class="market-bottom-actions-row" style="display: flex; flex-direction: row; gap: 0.75rem; justify-content: center; align-items: center; width: 100%; max-width: 520px; margin: 0 auto; box-sizing: border-box;">
+                            ${secondaryButtonsHtml}
+                        </div>
                     `;
                 }
                 
@@ -11193,14 +11207,54 @@ function renderProfilePage(container) {
     const planInfo = getPlanDetails(activePlan);
     let selectedPlan = activePlan;
 
+    // Fetch user profiles to generate profile switcher directly in profile controls row
+    let userProfiles = [];
+    let activeProfileId = '';
+    if (isMusician) {
+        userProfiles = (state.musicians || []).filter(m => m && (m.creatorId === u.id || (u.profileId && m.id === u.profileId)));
+        activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || u.profileId || '');
+        if (activeProfileId) state.activeMusicianId = activeProfileId;
+    } else {
+        userProfiles = (state.events || []).filter(e => e && (
+            e.creatorId === u.id || 
+            (u.profileId && e.id === u.profileId) ||
+            (u.email && (e.email === u.email || e.clientEmail === u.email)) ||
+            (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
+        ));
+        activeProfileId = state.activeEventId || (userProfiles[0]?.id || u.profileId || '');
+        if (activeProfileId) state.activeEventId = activeProfileId;
+    }
+
+    const profileOptions = userProfiles.map(p => `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''} style="background: #ffffff; color: #1e293b;">${p.name || p.title || p.contactName || (isMusician ? 'Mein Profil' : 'Mein Event')}</option>`).join('');
+    const organizerEventFallback = u.eventName || (state.events && state.events.find(e => e && (e.creatorId === u.id || e.id === u.profileId))?.name) || 'Mein Event';
+    const fallbackProfileTitle = isMusician ? (u.bandName || u.firstName || 'Mein Profil') : organizerEventFallback;
+    const defaultProfileOption = (userProfiles.length === 0)
+        ? `<option value="profile" selected style="background: #ffffff; color: #1e293b;">${fallbackProfileTitle}</option>`
+        : '';
+
+    const profileSwitcherHtml = `
+        <div class="profile-switcher-wrapper ${isMusician ? 'role-musician' : 'role-organizer'}" style="background: rgba(255, 255, 255, 0.18) !important; border: 1.5px solid rgba(255, 255, 255, 0.35) !important; border-radius: 20px !important; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15) !important; display: flex !important; align-items: center !important; gap: 0.35rem !important; padding: 0.28rem 0.75rem !important; margin: 0 !important; max-width: 175px !important; height: 35px !important; box-sizing: border-box !important; flex-shrink: 0 !important;" title="Profil wechseln">
+            <select id="profile-page-select" style="width: 100% !important; height: 26px !important; padding: 0 0.15rem !important; font-size: 0.8rem !important; margin: 0 !important; border: none !important; background: transparent !important; cursor: pointer !important; color: #ffffff !important; font-weight: 700 !important; text-overflow: ellipsis !important; white-space: nowrap !important; overflow: hidden !important; outline: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;">
+                ${defaultProfileOption}
+                ${profileOptions}
+            </select>
+            <i class="fa-solid fa-chevron-down switcher-caret" style="color: rgba(255, 255, 255, 0.85) !important; font-size: 0.68rem !important; pointer-events: none !important; flex-shrink: 0 !important;"></i>
+        </div>
+    `;
+
     container.innerHTML = `
         <div class="profile-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
             <!-- Profile Controls Row (Lila-Blau-Verlauf wie unten in der Leiste) -->
-            <div class="profile-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+            <div class="profile-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
                 <div class="profile-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
-                    <!-- Spacer left -->
-                    <div class="profile-controls-spacer" style="grid-column: 1;"></div>
+                    <!-- 0. Brand / Logo Links -->
+                    <div class="profile-controls-brand" style="grid-column: 1; justify-self: start; display: flex; align-items: center;">
+                        <a href="#/" class="controls-logo-link" style="display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none;" title="GigConnAct Startseite">
+                            <img src="discoball.png" style="width: 26px; height: 26px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.25));" alt="Logo">
+                            <span class="controls-logo-text" style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 800; color: #ffffff; letter-spacing: -0.4px; white-space: nowrap; line-height: 1.1;">GigConnAct</span>
+                        </a>
+                    </div>
 
                     <!-- Titel Mittig (ohne Icon) -->
                     <div class="profile-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -11209,8 +11263,14 @@ function renderProfilePage(container) {
                         </span>
                     </div>
 
-                    <!-- Spacer right (symmetrische Zentrierung) -->
-                    <div class="profile-controls-actions" style="grid-column: 3; justify-self: end;"></div>
+                    <!-- Profil-Auswahl & Abmelden Rechts -->
+                    <div class="profile-controls-actions" style="grid-column: 3; justify-self: end; display: flex; align-items: center; gap: 0.55rem;">
+                        ${profileSwitcherHtml}
+                        <button id="btn-profile-logout" class="btn btn-sm" style="background: rgba(239, 68, 68, 0.88) !important; border: 1.5px solid rgba(255, 255, 255, 0.35) !important; color: #ffffff !important; border-radius: 20px !important; height: 35px !important; padding: 0 0.85rem !important; display: inline-flex !important; align-items: center !important; gap: 0.4rem !important; font-size: 0.82rem !important; font-weight: 700 !important; cursor: pointer !important; transition: all 0.2s !important; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35) !important;" title="Abmelden">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span class="profile-logout-text">Abmelden</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -11932,6 +11992,32 @@ function renderProfilePage(container) {
             renderMyEventsContent(myItemsContainer);
         }
     }
+
+    const profileSelectEl = container.querySelector('#profile-page-select');
+    if (profileSelectEl) {
+        profileSelectEl.addEventListener('change', function() {
+            const val = this.value;
+            if (val === 'logout') {
+                window.handleLogoutRedirect();
+                return;
+            }
+            if (isMusician) {
+                state.activeMusicianId = val;
+            } else {
+                state.activeEventId = val;
+            }
+            state.saveState();
+            renderProfilePage(container);
+        });
+    }
+
+    const profileLogoutBtn = container.querySelector('#btn-profile-logout');
+    if (profileLogoutBtn) {
+        profileLogoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.handleLogoutRedirect();
+        });
+    }
 }
 
 
@@ -11982,10 +12068,15 @@ function renderMatchesPage(container) {
             <div class="market-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
                 
                 <!-- Controls Row: Center = Title & Count, Right = Profile Switcher -->
-                <div class="matches-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+                <div class="matches-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
                     <div class="matches-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
-                        <!-- Spacer left -->
-                        <div class="matches-controls-spacer" style="grid-column: 1;"></div>
+                        <!-- 0. Brand / Logo Links -->
+                        <div class="matches-controls-brand" style="grid-column: 1; justify-self: start; display: flex; align-items: center;">
+                            <a href="#/" class="controls-logo-link" style="display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none;" title="GigConnAct Startseite">
+                                <img src="discoball.png" style="width: 26px; height: 26px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.25));" alt="Logo">
+                                <span class="controls-logo-text" style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 800; color: #ffffff; letter-spacing: -0.4px; white-space: nowrap; line-height: 1.1;">GigConnAct</span>
+                            </a>
+                        </div>
 
                         <!-- Center: Title & Count (Mittig, ohne Icon) -->
                         <div class="matches-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px;">
@@ -17923,12 +18014,12 @@ window.updateBottomBar = function() {
                     <span class="bottom-bar-label">Nachrichten</span>
                 </button>
 
-                <!-- 5. Profil -->
-                <button class="bottom-bar-item tab-profile ${isProfileActive ? 'active' : ''}" id="bottom-bar-tab-profile" aria-label="Profil" title="Profil">
+                <!-- 5. Profil / Anmelden -->
+                <button class="bottom-bar-item tab-profile ${isProfileActive ? 'active' : ''}" id="bottom-bar-tab-profile" aria-label="${isLoggedIn ? 'Profil' : 'Anmelden'}" title="${isLoggedIn ? 'Profil' : 'Anmelden'}">
                     <div class="bottom-bar-icon-wrapper">
-                        <i class="fa-regular fa-circle-user"></i>
+                        <i class="${isLoggedIn ? 'fa-regular fa-circle-user' : 'fa-solid fa-right-to-bracket'}"></i>
                     </div>
-                    <span class="bottom-bar-label">Profil</span>
+                    <span class="bottom-bar-label">${isLoggedIn ? 'Profil' : 'Anmelden'}</span>
                 </button>
             </div>
         `;
@@ -18025,13 +18116,17 @@ window.updateBottomBar = function() {
             });
         }
 
-        // Click handler: Profile
+        // Click handler: Profile / Anmelden
         const btnProfile = bar.querySelector('#bottom-bar-tab-profile');
         if (btnProfile) {
             btnProfile.addEventListener('click', () => {
                 try {
                     if (!isLoggedIn) {
-                        if (typeof showModal === 'function') showModal('auth');
+                        if (typeof showModal === 'function') {
+                            showModal('auth', () => {
+                                if (typeof navigateAfterLogin === 'function') navigateAfterLogin();
+                            });
+                        }
                         return;
                     }
                     if (window.location.hash !== '#/profile') {
@@ -18227,7 +18322,7 @@ function updateNavbar(forceLanding, activePage) {
                 </button>
             `;
             
-            document.getElementById('btn-login-trigger').addEventListener('click', () => {
+            document.getElementById('btn-login-trigger')?.addEventListener('click', () => {
                 showModal('auth', () => {
                     navigateAfterLogin();
                 });
@@ -18972,10 +19067,15 @@ function renderPostbox(container) {
             container.innerHTML = `
             <div class="postbox-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box; overflow-x: clip;">
                 <!-- Postbox Controls Row (Lila-Blau-Verlauf wie unten in der Leiste) -->
-                <div class="postbox-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 52px !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
+                <div class="postbox-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
                     <div class="postbox-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
-                        <!-- Spacer left -->
-                        <div class="postbox-controls-spacer" style="grid-column: 1;"></div>
+                        <!-- 0. Brand / Logo Links -->
+                        <div class="postbox-controls-brand" style="grid-column: 1; justify-self: start; display: flex; align-items: center;">
+                            <a href="#/" class="controls-logo-link" style="display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none;" title="GigConnAct Startseite">
+                                <img src="discoball.png" style="width: 26px; height: 26px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.25));" alt="Logo">
+                                <span class="controls-logo-text" style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 800; color: #ffffff; letter-spacing: -0.4px; white-space: nowrap; line-height: 1.1;">GigConnAct</span>
+                            </a>
+                        </div>
 
                         <!-- Center: Title (Mittig, ohne Icon) -->
                         <div class="postbox-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px;">

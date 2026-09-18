@@ -80,6 +80,11 @@ body {
     z-index: 100;
 }
 
+/* Hide top white bar in App mode (Option A: Controls row & bottom bar take over) */
+.app-header:not(.transparent-header) {
+    display: none !important;
+}
+
 .header-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -3963,8 +3968,8 @@ body.landing-page-active .landing-hero {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
     color: #0f172a !important;
     position: sticky;
-    top: 90px;
-    max-height: calc(100vh - 110px);
+    top: 70px;
+    max-height: calc(100vh - 85px);
     overflow-y: auto;
     transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), 
                 opacity 0.3s ease, 
@@ -5000,7 +5005,7 @@ input[type="range"].input-field {
 .profile-controls-row,
 .postbox-controls-row {
     position: sticky !important;
-    top: 52px !important;
+    top: 0 !important;
     z-index: 40 !important;
     display: flex !important;
     align-items: center !important;
@@ -5018,18 +5023,62 @@ input[type="range"].input-field {
     border-right: none !important;
     border-top: none !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important;
-    background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important;
-    box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
 }
 
-/* No icons in top navigation bars */
-.market-controls-row i,
-.matches-controls-row i,
-.profile-controls-row i,
-.postbox-controls-row i {
+/* Controls Bar Logo Branding & Responsive Typography */
+.controls-logo-link {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    user-select: none;
+}
+.controls-logo-link:hover {
+    transform: translateY(-1px);
+    opacity: 0.95;
+}
+
+@media (max-width: 540px) {
+    .controls-logo-text {
+        display: none !important;
+    }
+    .profile-logout-text {
+        display: none !important;
+    }
+    #btn-profile-logout {
+        padding: 0 0.65rem !important;
+    }
+}
+
+/* Side-by-side bottom market action buttons */
+.market-bottom-actions-row {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+@media (max-width: 420px) {
+    .market-bottom-actions-row button {
+        font-size: 0.82rem !important;
+        padding: 0.65rem 0.5rem !important;
+        gap: 4px !important;
+    }
+}
+
+/* No icons in title of top navigation bars */
+.market-controls-title i,
+.matches-controls-title i,
+.profile-controls-title i,
+.postbox-controls-title i {
     display: none !important;
+}
+
+#btn-profile-logout i,
+.switcher-caret {
+    display: inline-block !important;
 }
 
 .controls-row-inner,
