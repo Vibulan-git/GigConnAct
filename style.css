@@ -6659,6 +6659,32 @@ body.has-bottom-bar .toast-container {
     line-clamp: 2 !important;
 }
 
+/* =============================================================
+ * Market Tile Card Type Preview Row Clamping (strictly 1 line collapsed)
+ * ============================================================= */
+.tile-details-toggle-row {
+    flex-wrap: nowrap !important;
+}
+
+.tile-details-toggle-row.expanded {
+    flex-wrap: wrap !important;
+}
+
+.tile-type-preview-text {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: block !important;
+    line-height: 1.35 !important;
+}
+
+.tile-type-preview-text.expanded {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    display: block !important;
+}
+
 
 
 

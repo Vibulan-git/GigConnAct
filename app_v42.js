@@ -590,6 +590,14 @@ window.slideComboGallery = function(itemId, direction) {
         const isPhoto = activeSlide ? !!activeSlide.querySelector('img') : false;
         cropBtn.style.display = isPhoto ? 'flex' : 'none';
     }
+
+    // Toggle fullscreen button visibility (only show on photo slides, hide on videos/descriptions/audios)
+    const fsBtn = s.parentElement ? s.parentElement.querySelector('.btn-tile-fullscreen') : null;
+    if (fsBtn) {
+        const activeSlide = s.children[cur];
+        const isPhoto = activeSlide ? !!activeSlide.querySelector('img') : false;
+        fsBtn.style.display = isPhoto ? 'flex' : 'none';
+    }
 };
 
 window.sanitizeVideos = function(rawVideos) {
@@ -682,6 +690,14 @@ window.jumpToComboGallerySlide = function(itemId, slideIndex) {
         const activeSlide = s.children[slideIndex];
         const isPhoto = activeSlide ? !!activeSlide.querySelector('img') : false;
         cropBtn.style.display = isPhoto ? 'flex' : 'none';
+    }
+
+    // Toggle fullscreen button visibility (only show on photo slides, hide on videos/descriptions/audios)
+    const fsBtn = s.parentElement ? s.parentElement.querySelector('.btn-tile-fullscreen') : null;
+    if (fsBtn) {
+        const activeSlide = s.children[slideIndex];
+        const isPhoto = activeSlide ? !!activeSlide.querySelector('img') : false;
+        fsBtn.style.display = isPhoto ? 'flex' : 'none';
     }
 };
 
@@ -867,6 +883,9 @@ window.openFullscreenFromSlider = function(itemId, targetIndex) {
 
     if (slider) {
         const slides = Array.from(slider.children);
+        if (slides[curIndex] && !slides[curIndex].querySelector('img')) {
+            return;
+        }
         slides.forEach((slide, idx) => {
             const img = slide.querySelector('img');
             const vid = slide.querySelector('video');
@@ -2670,9 +2689,11 @@ class StateManager {
             list.forEach(item => {
                 const idx = this.musicians.findIndex(m => m.id === item.id);
                 if (idx > -1) {
-                    this.musicians[idx] = item;
+                    const wasDemo = Boolean(this.musicians[idx].isDemo || (this.musicians[idx].id && (this.musicians[idx].id.startsWith('mus_gen_') || (typeof initialMusicians !== 'undefined' && initialMusicians.some(init => init && init.id === this.musicians[idx].id)))));
+                    this.musicians[idx] = { ...this.musicians[idx], ...item, ...(wasDemo ? { isDemo: true } : {}) };
                 } else {
-                    this.musicians.push(item);
+                    const isGen = item.id && (item.id.startsWith('mus_gen_') || (typeof initialMusicians !== 'undefined' && initialMusicians.some(init => init && init.id === item.id)));
+                    this.musicians.push(isGen ? { ...item, isDemo: true } : item);
                 }
             });
             this.musiciansFetched = true;
@@ -2701,9 +2722,11 @@ class StateManager {
                 }
                 const idx = this.events.findIndex(e => e.id === item.id);
                 if (idx > -1) {
-                    this.events[idx] = item;
+                    const wasDemo = Boolean(this.events[idx].isDemo || (this.events[idx].id && (this.events[idx].id.startsWith('evt_gen_') || (typeof initialEvents !== 'undefined' && initialEvents.some(init => init && init.id === this.events[idx].id)))));
+                    this.events[idx] = { ...this.events[idx], ...item, ...(wasDemo ? { isDemo: true } : {}) };
                 } else {
-                    this.events.push(item);
+                    const isGen = item.id && (item.id.startsWith('evt_gen_') || (typeof initialEvents !== 'undefined' && initialEvents.some(init => init && init.id === item.id)));
+                    this.events.push(isGen ? { ...item, isDemo: true } : item);
                 }
             });
 
@@ -7916,9 +7939,9 @@ function initAllLocationAutocompletes() {
 
 function renderMarket(container, type, onNavigate) {
     const isEvents = type === 'events';
-    const title = isEvents ? 'Event-Markt für Musiker' : 'Musiker-Markt für Veranstalter';
-
-    const getItems = () => isEvents ? state.events : state.musicians;
+    const getItems = () => isEvents 
+        ? (state.events || []).filter(e => e && e.isActive !== false && e.isOnline !== false && e.status !== 'inactive' && e.status !== 'paused') 
+        : (state.musicians || []).filter(m => m && m.isActive !== false && m.status !== 'inactive' && m.status !== 'paused');
     
     let selectedFilterDates = window.selectedFilterDates;
     let currentFilterCalDate = new Date();
@@ -8825,7 +8848,7 @@ function renderMarket(container, type, onNavigate) {
         if (resetPagination) {
             displayedItemsCount = 12;
         }
-        let list = [...getItems()];
+        let list = [...getItems()].filter(item => item && item.isActive !== false && item.isOnline !== false && item.status !== 'inactive' && item.status !== 'paused');
         console.log("[DEBUG_APPLY_FILTERS_START] items count:", list.length, "isEvents:", isEvents, "showOnlyTopMatches:", showOnlyTopMatches, "showOnlyFavorites:", showOnlyFavorites);
         console.log("applyAllFiltersAndSort started. Input getItems():", list.length, "isEvents:", isEvents);
 
@@ -10272,8 +10295,18 @@ window.openItemDetailModal = function(id, isEvents) {
                                 ? `<i class="fa-solid fa-lock" style="color: ${isEvents ? '#7c3aed' : '#2563eb'}; font-size: 1.4rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
                                 : ''
                             }
-                            ${Boolean(item.isDemo)
-                                ? `<span class="tile-demo-text" style="color: #000000 !important; background: #ffffff; padding: 0.1rem 0.45rem; border-radius: 4px; font-weight: 800; font-size: 1.05rem; vertical-align: middle; margin-left: 0.45rem; filter: none !important; -webkit-text-fill-color: #000000 !important;">[Demo]</span>`
+                            ${Boolean(
+                                item.isDemo === true ||
+                                (item.id && (
+                                    String(item.id).startsWith('mus_gen_') || 
+                                    String(item.id).startsWith('evt_gen_') || 
+                                    (typeof initialMusicians !== 'undefined' && initialMusicians.some(init => init && init.id === item.id)) ||
+                                    (typeof initialEvents !== 'undefined' && initialEvents.some(init => init && init.id === item.id))
+                                )) ||
+                                (item.name && (item.name.includes('(Demo)') || item.name.includes('[Demo]'))) ||
+                                (item.title && (item.title.includes('(Demo)') || item.title.includes('[Demo]')))
+                            )
+                                ? `<span class="tile-demo-text" style="color: #000000 !important; background: #ffffff; padding: 0.1rem 0.45rem; border-radius: 4px; font-weight: 800; font-size: 1.05rem; vertical-align: middle; margin-left: 0.45rem; filter: none !important; -webkit-text-fill-color: #000000 !important;">(Demo)</span>`
                                 : ''
                             }
                         </h2>
@@ -10570,10 +10603,11 @@ window.revealMarketContact = async function(itemId, type, value, clickedBtn) {
     container.innerHTML = contentHtml;
 };
 
-window.showMediationNoticeBeforeAuth = function(eventId, alreadySent = false) {
+window.showMediationNoticeBeforeAuth = function(eventId, alreadySent = false, scrollPos = null) {
     const existing = document.getElementById('modal-mediation-notice-overlay');
     if (existing) existing.remove();
 
+    const currentScroll = (scrollPos !== null && scrollPos !== undefined) ? scrollPos : (window.scrollY || document.documentElement.scrollTop);
     const isLoggedIn = !!(state && state.currentUser);
 
     const overlay = document.createElement('div');
@@ -10614,7 +10648,15 @@ window.showMediationNoticeBeforeAuth = function(eventId, alreadySent = false) {
     `;
     document.body.appendChild(overlay);
 
-    const closeNotice = () => overlay.remove();
+    const closeNotice = () => {
+        overlay.remove();
+        if (currentScroll > 0) {
+            window.scrollTo({ top: currentScroll, behavior: 'instant' });
+            requestAnimationFrame(() => {
+                window.scrollTo({ top: currentScroll, behavior: 'instant' });
+            });
+        }
+    };
     overlay.querySelector('#btn-close-mediation-cross')?.addEventListener('click', closeNotice);
     overlay.querySelector('#btn-confirm-mediation-notice')?.addEventListener('click', closeNotice);
     overlay.addEventListener('click', (e) => {
@@ -10627,9 +10669,13 @@ window.showMediationNoticeBeforeAuth = function(eventId, alreadySent = false) {
 };
 
 window.handleMediationClick = async function(eventId) {
+    const currentScrollY = window.scrollY || document.documentElement.scrollTop;
+    window.isTogglingFavorite = true; // prevent user-state-changed from re-routing / resetting market grid
+    setTimeout(() => { window.isTogglingFavorite = false; }, 2000);
+
     // 1. If not logged in, show the notice modal
     if (!state || !state.currentUser) {
-        window.showMediationNoticeBeforeAuth(eventId);
+        window.showMediationNoticeBeforeAuth(eventId, false, currentScrollY);
         return;
     }
 
@@ -10765,7 +10811,7 @@ window.handleMediationClick = async function(eventId) {
     }
 
     // 4. Show the warning notice modal with exact requested wording
-    window.showMediationNoticeBeforeAuth(eventId, wasAlreadyInFavs);
+    window.showMediationNoticeBeforeAuth(eventId, wasAlreadyInFavs, currentScrollY);
 
     // 5. Toast notification
     if (!wasAlreadyInFavs) {
@@ -10779,6 +10825,14 @@ window.handleMediationClick = async function(eventId) {
     const btnEl = document.getElementById(`btn-mediation-action-${eventId}`);
     if (btnEl) {
         btnEl.innerHTML = `<i class="fa-solid fa-check"></i> <span>Vermittlungsanfrage gesendet</span>`;
+    }
+
+    // 7. Restore scroll position
+    if (currentScrollY > 0) {
+        window.scrollTo({ top: currentScrollY, behavior: 'instant' });
+        requestAnimationFrame(() => {
+            window.scrollTo({ top: currentScrollY, behavior: 'instant' });
+        });
     }
 };
 
@@ -12183,7 +12237,7 @@ function renderOrganizerEventItem(e, isActive) {
                 </span>
 
                 <!-- Fullscreen Expand Button (Oben links wie gewünscht) -->
-                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${e.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
+                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${e.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: ${photos.length > 0 ? 'flex' : 'none'}; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
                     <i class="fa-solid fa-expand" style="font-size: 1.15rem; color: #ffffff; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));"></i>
                 </button>
 
@@ -12244,10 +12298,10 @@ function renderOrganizerEventItem(e, isActive) {
                             <span>${formattedDate}</span>
                         </div>
                         <!-- 4. Gesucht (Musiker-Typen) + Mehr Details Button -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
-                            <div style="display: flex; align-items: center; gap: 0.6rem; flex: 1; min-width: 0;">
-                                <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                                <span style="flex: 1; word-break: break-word;">${formatTruncatedValue((Array.isArray(e.musicianTypes) && e.musicianTypes.length > 0) ? e.musicianTypes : (typeof e.musicianTypes === 'string' && e.musicianTypes.trim() !== '' ? e.musicianTypes : (e.musicianType || 'Solo / Band')), themeColor, e.id, 'musiciantype', true)}</span>
+                        <div id="tile-type-row-${e.id}" class="tile-details-toggle-row" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: nowrap; line-height: 1.35; margin-top: 0.15rem;">
+                            <div style="display: flex; align-items: center; gap: 0.6rem; flex: 1; min-width: 0; overflow: hidden;">
+                                <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; width: 16px; text-align: center; flex-shrink: 0;"></i>
+                                <span id="tile-type-preview-${e.id}" class="tile-type-preview-text" style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; line-height: 1.35;">${formatTruncatedValue((Array.isArray(e.musicianTypes) && e.musicianTypes.length > 0) ? e.musicianTypes : (typeof e.musicianTypes === 'string' && e.musicianTypes.trim() !== '' ? e.musicianTypes : (e.musicianType || 'Solo / Band')), themeColor, e.id, 'musiciantype')}</span>
                             </div>
                             <button id="toggle-details-btn-${e.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${e.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
                                 <span id="toggle-text-${e.id}">Mehr Details</span>
@@ -12293,16 +12347,22 @@ function renderOrganizerEventItem(e, isActive) {
             </div>
 
             <!-- Actions Grid at the Bottom (Organizer Blue theme with white text) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem; background: #2563eb;">
-                <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #2563eb;">
+                ${isActive ? `
+                <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                     <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
                 </button>
-                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
-                    <i class="fa-solid ${isActive ? 'fa-pause' : 'fa-play'}" style="color: #ffffff;"></i> ${isActive ? 'Pausieren' : 'Aktivieren'}
+                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                    <i class="fa-solid fa-pause" style="color: #ffffff;"></i> Pausieren
                 </button>
-                <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+                ` : `
+                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                    <i class="fa-solid fa-play" style="color: #ffffff;"></i> Aktivieren
+                </button>
+                <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
                     <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
                 </button>
+                `}
             </div>
         </div>
     `;
@@ -12673,7 +12733,7 @@ function renderMyMusicianItem(m, isActive) {
                 </span>
 
                 <!-- Fullscreen Expand Button (Oben links wie gewünscht) -->
-                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${m.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
+                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${m.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: ${photos.length > 0 ? 'flex' : 'none'}; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
                     <i class="fa-solid fa-expand" style="font-size: 1.15rem; color: #ffffff; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));"></i>
                 </button>
 
@@ -12759,10 +12819,10 @@ function renderMyMusicianItem(m, isActive) {
                             <span>${availDaysStr}</span>
                         </div>
                         <!-- 4. Event-Typen (Gesucht) + Mehr Details Button -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
-                            <div style="display: flex; align-items: center; gap: 0.6rem; flex: 1; min-width: 0;">
-                                <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                                <span style="flex: 1; word-break: break-word;">${formatTruncatedValue(m.eventTypes && m.eventTypes.length > 0 ? m.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, m.id, 'eventtypes')}</span>
+                        <div id="tile-type-row-${m.id}" class="tile-details-toggle-row" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: nowrap; line-height: 1.35; margin-top: 0.15rem;">
+                            <div style="display: flex; align-items: center; gap: 0.6rem; flex: 1; min-width: 0; overflow: hidden;">
+                                <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; width: 16px; text-align: center; flex-shrink: 0;"></i>
+                                <span id="tile-type-preview-${m.id}" class="tile-type-preview-text" style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; line-height: 1.35;">${formatTruncatedValue(m.eventTypes && m.eventTypes.length > 0 ? m.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, m.id, 'eventtypes')}</span>
                             </div>
                             <button id="toggle-details-btn-${m.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${m.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
                                 <span id="toggle-text-${m.id}">Mehr Details</span>
@@ -14035,12 +14095,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
 
 
-                    <div style="display: flex; justify-content: ${isEdit ? 'space-between' : 'center'}; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap;">
-                        ${isEdit ? `
-                        <button type="button" id="btn-delete-event-modal" class="btn btn-sm" style="margin:0; padding: 0.75rem 1.25rem; font-size: 0.92rem; font-weight: 700; color: #ef4444; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 0.45rem;">
-                            <i class="fa-solid fa-trash"></i> Event löschen
-                        </button>
-                        ` : ''}
+                    <div style="display: flex; justify-content: center; align-items: center; margin-top: 1.5rem;">
                         <button type="submit" id="btn-submit-event" class="btn btn-primary btn-event-submit" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important; border-color: #1e40af !important; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important; color: #ffffff !important;">
                             ${isEdit ? 'Änderungen speichern' : 'Event ausschreiben'}
                         </button>
@@ -14051,27 +14106,6 @@ function showEventModal(eventObj = null, isDuplication = false) {
     `;
 
     document.getElementById('btn-close-event-modal').addEventListener('click', closeModal);
-
-    const deleteModalBtn = document.getElementById('btn-delete-event-modal');
-    if (deleteModalBtn && eventObj) {
-        deleteModalBtn.addEventListener('click', async () => {
-            const eventName = eventObj.name || 'dieses Event';
-            if (confirm(`Möchtest du das Event "${eventName}" wirklich unwiderruflich löschen?`)) {
-                await state.deleteEvent(eventObj.id);
-                showToast({
-                    title: "Event gelöscht",
-                    message: "Das Event wurde erfolgreich entfernt."
-                });
-                closeModal();
-                const mainContainer = document.getElementById('app-main');
-                if (window.location.hash.includes('profile')) {
-                    renderProfilePage(mainContainer);
-                } else {
-                    renderMyEvents(mainContainer);
-                }
-            }
-        });
-    }
 
     // Initialize Calendar Widget
     let currentCalDate = new Date();
@@ -18303,7 +18337,18 @@ function handleRouting() {
     if (!mainContainer) return;
 
     const hash = window.location.hash;
-    let pageWithQuery = hash.replace('#/', '').replace('#', '');
+    let pageWithQuery = hash ? hash.replace('#/', '').replace('#', '') : '';
+
+    // Support clean URL pathnames from Google Search / Sitelinks (e.g. /events or /musicians)
+    if (!pageWithQuery && window.location.pathname && window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
+        const cleanPath = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
+        if (cleanPath) {
+            pageWithQuery = cleanPath + (window.location.search || '');
+            window.location.hash = `#/${pageWithQuery}`;
+            return;
+        }
+    }
+
     let rawPage = pageWithQuery.split('?')[0];
     if (rawPage.endsWith('/')) {
         rawPage = rawPage.slice(0, -1);
@@ -18489,7 +18534,11 @@ window.toggleTileDetails = function(itemId) {
     const el = document.getElementById(`collapsible-details-${itemId}`);
     const icon = document.getElementById(`toggle-icon-${itemId}`);
     const textSpan = document.getElementById(`toggle-text-${itemId}`);
-    const titleEl = document.getElementById(`tile-title-${itemId}`) || el?.closest('.market-tile-card')?.querySelector('.tile-card-title');
+    const container = el?.closest('.market-tile-card');
+    const titleEl = document.getElementById(`tile-title-${itemId}`) || container?.querySelector('.tile-card-title');
+    const previewEl = document.getElementById(`tile-type-preview-${itemId}`) || container?.querySelector('.tile-type-preview-text');
+    const rowEl = document.getElementById(`tile-type-row-${itemId}`) || previewEl?.closest('.tile-details-toggle-row');
+
     if (el) {
         const isCollapsed = (el.style.display === 'none' || el.style.display === '');
         if (isCollapsed) {
@@ -18504,8 +18553,20 @@ window.toggleTileDetails = function(itemId) {
                 titleEl.style.setProperty('line-clamp', '2', 'important');
             }
             
+            // Expand preview row to wrap and show full text if needed
+            if (rowEl) {
+                rowEl.classList.add('expanded');
+                rowEl.style.setProperty('flex-wrap', 'wrap', 'important');
+            }
+            if (previewEl) {
+                previewEl.classList.add('expanded');
+                previewEl.style.setProperty('-webkit-line-clamp', 'unset', 'important');
+                previewEl.style.setProperty('line-clamp', 'unset', 'important');
+                previewEl.style.setProperty('white-space', 'normal', 'important');
+                previewEl.style.setProperty('overflow', 'visible', 'important');
+            }
+
             // Expand all truncated text fields for this card
-            const container = el.closest('.market-tile-card');
             if (container) {
                 const moreSpans = container.querySelectorAll('[id^="more-"]');
                 moreSpans.forEach(span => span.style.display = 'inline');
@@ -18524,8 +18585,21 @@ window.toggleTileDetails = function(itemId) {
                 titleEl.style.setProperty('line-clamp', '1', 'important');
             }
             
+            // Collapse preview row back to strictly 1 line
+            if (rowEl) {
+                rowEl.classList.remove('expanded');
+                rowEl.style.setProperty('flex-wrap', 'nowrap', 'important');
+            }
+            if (previewEl) {
+                previewEl.classList.remove('expanded');
+                previewEl.style.setProperty('-webkit-line-clamp', '1', 'important');
+                previewEl.style.setProperty('line-clamp', '1', 'important');
+                previewEl.style.setProperty('white-space', 'nowrap', 'important');
+                previewEl.style.setProperty('overflow', 'hidden', 'important');
+                previewEl.style.setProperty('text-overflow', 'ellipsis', 'important');
+            }
+
             // Collapse all truncated text fields for this card
-            const container = el.closest('.market-tile-card');
             if (container) {
                 const moreSpans = container.querySelectorAll('[id^="more-"]');
                 moreSpans.forEach(span => span.style.display = 'none');
@@ -19344,21 +19418,24 @@ function formatTruncatedValue(val, themeColor, itemId, uniqueType, forceExpand) 
     if (fullText.length === 0) return 'Keine Angabe';
     if (forceExpand) return fullText;
     
-    // Max one line: truncate if content exceeds 26 characters (keeps content compact)
-    if (fullText.length <= 26) {
+    // Max one line: truncate if content exceeds maxLen (tighter for shared rows with buttons)
+    const isSharedRow = (uniqueType === 'musiciantype' || uniqueType === 'eventtypes');
+    const maxLen = isSharedRow ? 14 : 26;
+    if (fullText.length <= maxLen) {
         return fullText;
     }
     
-    // Find a clean split point near index 15-22 (prefer comma, then space, then fallback to 18)
-    let splitIdx = 18;
-    const searchArea = fullText.slice(12, 24);
+    // Find a clean split point (prefer comma, then space)
+    let splitIdx = isSharedRow ? 10 : 18;
+    const searchArea = isSharedRow ? fullText.slice(6, 16) : fullText.slice(12, 24);
+    const searchOffset = isSharedRow ? 6 : 12;
     const lastCommaIdx = searchArea.lastIndexOf(',');
     if (lastCommaIdx !== -1) {
-        splitIdx = 12 + lastCommaIdx + 1; // split right after comma
+        splitIdx = searchOffset + lastCommaIdx + 1; // split right after comma
     } else {
         const lastSpaceIdx = searchArea.lastIndexOf(' ');
         if (lastSpaceIdx !== -1) {
-            splitIdx = 12 + lastSpaceIdx; // split at space
+            splitIdx = searchOffset + lastSpaceIdx; // split at space
         }
     }
     
@@ -20501,7 +20578,17 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
         const description = (isEvents && isMediation) ? window.cleanEventDescription(rawDesc, true) : rawDesc;
 
         const bandName = item.name || item.title || '';
-        const isDemoTile = Boolean(item.isDemo);
+        const isDemoTile = Boolean(
+            item.isDemo === true ||
+            (item.id && (
+                String(item.id).startsWith('mus_gen_') || 
+                String(item.id).startsWith('evt_gen_') || 
+                (typeof initialMusicians !== 'undefined' && initialMusicians.some(init => init && init.id === item.id)) ||
+                (typeof initialEvents !== 'undefined' && initialEvents.some(init => init && init.id === item.id))
+            )) ||
+            (item.name && (item.name.includes('(Demo)') || item.name.includes('[Demo]'))) ||
+            (item.title && (item.title.includes('(Demo)') || item.title.includes('[Demo]')))
+        );
         // Tags (Musiker-Typ bzw. Event-Typ + ggf. Demo)
         const tagThemeBg = isEvents 
             ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' 
@@ -20551,7 +20638,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
             ? `<i class="fa-solid fa-lock" style="color: ${isEvents ? '#7c3aed' : '#2563eb'}; font-size: 1.15rem; flex-shrink: 0; margin-left: 0.15rem; filter: none !important; vertical-align: middle;" title="Name geschützt"></i>`
             : '';
         const demoTagHtml = isDemoTile
-            ? `<span class="tile-demo-text" style="color: #000000 !important; font-weight: 800; font-size: 0.92rem; vertical-align: middle; filter: none !important; -webkit-text-fill-color: #000000 !important; user-select: none; white-space: nowrap;">[Demo]</span>`
+            ? `<span class="tile-demo-text" style="color: #000000 !important; font-weight: 800; font-size: 0.92rem; vertical-align: middle; filter: none !important; -webkit-text-fill-color: #000000 !important; user-select: none; white-space: nowrap;">(Demo)</span>`
             : '';
         const displayName = nameContent;
 
@@ -20580,7 +20667,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                     </div>
 
                     <!-- Fullscreen Expand Button -->
-                    <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${item.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
+                    <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${item.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: ${photos.length > 0 ? 'flex' : 'none'}; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
                         <i class="fa-solid fa-expand" style="font-size: 1.15rem; color: #ffffff; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));"></i>
                     </button>
 
@@ -20705,10 +20792,10 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                         </div>
 
                         <!-- 4. Gesuchte Musiker-Typen + 'Mehr Details' Button -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35; margin-top: 0.15rem;">
-                            <div style="display: flex; align-items: flex-start; gap: 0.75rem; flex: 1; min-width: 0;">
-                                <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                                <span style="flex: 1; word-break: break-word;">${formatTruncatedValue((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band')), themeColor, item.id, 'musiciantype')}</span>
+                        <div id="tile-type-row-${item.id}" class="tile-details-toggle-row" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: nowrap; line-height: 1.35; margin-top: 0.15rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0; overflow: hidden;">
+                                <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
+                                <span id="tile-type-preview-${item.id}" class="tile-type-preview-text" style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; line-height: 1.35;">${formatTruncatedValue((Array.isArray(item.musicianTypes) && item.musicianTypes.length > 0) ? item.musicianTypes : (typeof item.musicianTypes === 'string' && item.musicianTypes.trim() !== '' ? item.musicianTypes : (item.musicianType || 'Solo / Band')), themeColor, item.id, 'musiciantype')}</span>
                             </div>
                             <button id="toggle-details-btn-${item.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
                                 <span id="toggle-text-${item.id}">Mehr Details</span>
@@ -20785,10 +20872,10 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                         </div>
 
                         <!-- 4. Event-Typen + 'Mehr Details' Button -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35; margin-top: 0.15rem;">
-                            <div style="display: flex; align-items: flex-start; gap: 0.75rem; flex: 1; min-width: 0;">
-                                <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                                <span style="flex: 1; word-break: break-word;">${formatTruncatedValue(item.eventTypes && item.eventTypes.length > 0 ? item.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, item.id, 'eventtypes')}</span>
+                        <div id="tile-type-row-${item.id}" class="tile-details-toggle-row" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: nowrap; line-height: 1.35; margin-top: 0.15rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0; overflow: hidden;">
+                                <i class="fa-solid fa-magnifying-glass" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
+                                <span id="tile-type-preview-${item.id}" class="tile-type-preview-text" style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; line-height: 1.35;">${formatTruncatedValue(item.eventTypes && item.eventTypes.length > 0 ? item.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], themeColor, item.id, 'eventtypes')}</span>
                             </div>
                             <button id="toggle-details-btn-${item.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${item.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: ${themeColor}; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
                                 <span id="toggle-text-${item.id}">Mehr Details</span>
@@ -23036,7 +23123,7 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                         ` : ''}
                                     </div>
                                     <!-- Fullscreen Expand Button -->
-                                    <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${mus.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
+                                    <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${mus.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: ${photos.length > 0 ? 'flex' : 'none'}; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
                                         <i class="fa-solid fa-expand" style="font-size: 1.15rem; color: #ffffff; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));"></i>
                                     </button>
 
@@ -23073,7 +23160,7 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                     <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.3rem;">
                                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; flex: 1; min-width: 0;">
                                             <h3 id="tile-title-${mus.id}" class="tile-card-title" style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;"><span style="filter: blur(5.5px); color: #000000 !important; font-weight: 800; user-select: none; pointer-events: none; -webkit-user-select: none; display: inline-block; vertical-align: middle; margin-right: 0.35rem;">${mus.name || mus.bandName || 'Künstler'}</span> <i class="fa-solid fa-lock" style="color: #2563eb !important; font-size: 1rem; vertical-align: middle; margin-right: 0.45rem; filter: none !important;" title="Name geschützt"></i></h3>
-                                            ${Boolean(mus.isDemo) ? `<span class="tile-demo-text" style="color: #000000 !important; font-weight: 800; font-size: 0.92rem; vertical-align: middle; filter: none !important; -webkit-text-fill-color: #000000 !important; user-select: none; white-space: nowrap;">[Demo]</span>` : ''}
+                                            ${Boolean(mus.isDemo === true || (mus.id && (String(mus.id).startsWith('mus_gen_') || (typeof initialMusicians !== 'undefined' && initialMusicians.some(init => init && init.id === mus.id)))) || (mus.name && (mus.name.includes('(Demo)') || mus.name.includes('[Demo]')))) ? `<span class="tile-demo-text" style="color: #000000 !important; font-weight: 800; font-size: 0.92rem; vertical-align: middle; filter: none !important; -webkit-text-fill-color: #000000 !important; user-select: none; white-space: nowrap;">(Demo)</span>` : ''}
                                         </div>
                                     </div>
 
@@ -23098,10 +23185,10 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                         </div>
 
                                         <!-- 4. Event-Typen + 'Mehr Details' Button -->
-                                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; line-height: 1.35; margin-top: 0.15rem;">
-                                            <div style="display: flex; align-items: flex-start; gap: 0.75rem; flex: 1; min-width: 0;">
-                                                <i class="fa-solid fa-magnifying-glass" style="color: #2563eb; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                                                <span style="flex: 1; word-break: break-word;">${(mus.eventTypes && mus.eventTypes.length > 0 ? mus.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier']).slice(0, 3).join(', ')}</span>
+                                        <div id="tile-type-row-${mus.id}" class="tile-details-toggle-row" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: nowrap; line-height: 1.35; margin-top: 0.15rem;">
+                                            <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0; overflow: hidden;">
+                                                <i class="fa-solid fa-magnifying-glass" style="color: #2563eb; width: 18px; text-align: center; font-size: 0.95rem; flex-shrink: 0;"></i>
+                                                <span id="tile-type-preview-${mus.id}" class="tile-type-preview-text" style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; line-height: 1.35;">${formatTruncatedValue(mus.eventTypes && mus.eventTypes.length > 0 ? mus.eventTypes : ['Hochzeit', 'Geburtstag', 'Firmenfeier'], '#2563eb', mus.id, 'eventtypes')}</span>
                                             </div>
                                             <button id="toggle-details-btn-${mus.id}" onclick="event.stopPropagation(); window.toggleTileDetails('${mus.id}')" style="background: none; border: none; padding: 0.1rem 0.25rem; cursor: pointer; color: #2563eb; font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.75';" onmouseout="this.style.opacity='1';">
                                                 <span id="toggle-text-${mus.id}">Mehr Details</span>
@@ -23264,6 +23351,18 @@ window.sendMediationReminder = function(event, mediationId, musicianId) {
             btn.innerHTML = oldText;
         }
     });
+};
+
+window.triggerMediationOrganizerReminders = async function(options = {}) {
+    try {
+        const fn = firebase.app().functions('europe-west3').httpsCallable('triggerMediationOrganizerReminders');
+        const res = await fn(options);
+        console.log("triggerMediationOrganizerReminders result:", res.data);
+        return res.data;
+    } catch (err) {
+        console.error("triggerMediationOrganizerReminders error:", err);
+        throw err;
+    }
 };
 
 window.requestMoreRecommendations = function(event, mediationId) {
@@ -23578,7 +23677,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
                                     📷 1 / ${totalSlides}
                                 </span>
                                 <!-- Fullscreen Expand Button -->
-                                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${eventData.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
+                                <button class="btn-tile-fullscreen" onclick="event.stopPropagation(); window.openFullscreenFromSlider('${eventData.id}');" style="position: absolute; top: 10px; left: 10px; z-index: 6; background: transparent !important; border: none !important; color: #ffffff; width: 32px; height: 32px; display: ${photos.length > 0 ? 'flex' : 'none'}; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; padding: 0; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;" onmouseover="this.style.transform='scale(1.15)';" onmouseout="this.style.transform='scale(1)';" title="Vollbild öffnen">
                                     <i class="fa-solid fa-expand" style="font-size: 1.15rem; color: #ffffff; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.85)) drop-shadow(0 2px 6px rgba(0,0,0,0.7));"></i>
                                 </button>
                                 <div id="combo-slider-${eventData.id}" data-idx="0" style="display: flex; width: 100%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);">

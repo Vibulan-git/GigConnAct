@@ -537,6 +537,58 @@
       ],
       "callableTrigger": {},
       "entryPoint": "sendMediationReminder"
+    },
+    "dailyMediationOrganizerReminderCheck": {
+      "platform": "gcfv1",
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "scheduleTrigger": {
+        "schedule": "0 10 * * *",
+        "retryConfig": {
+          "retryCount": null,
+          "maxDoublings": null,
+          "maxRetryDuration": null,
+          "maxBackoffDuration": null,
+          "minBackoffDuration": null
+        },
+        "timeZone": "Europe/Berlin"
+      },
+      "labels": {},
+      "entryPoint": "dailyMediationOrganizerReminderCheck"
+    },
+    "triggerMediationOrganizerReminders": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "triggerMediationOrganizerReminders"
     }
   },
   "specVersion": "v1alpha1",

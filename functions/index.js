@@ -9,6 +9,7 @@ const getRadiusEventEmailHtml = require('./templates/radiusEventTemplate');
 const getVerificationEmailHtml = require('./templates/verificationTemplate');
 const getPasswordResetEmailHtml = require('./templates/passwordResetTemplate');
 const getSignInEmailHtml = require('./templates/signInTemplate');
+const getMediationOrganizerReminderEmailHtml = require('./templates/mediationReminderOrganizerTemplate');
 
 admin.initializeApp();
 
@@ -2693,5 +2694,227 @@ exports.sendMediationReminder = functions
             throw new functions.https.HttpsError('internal', error.message);
         }
     });
+
+// ==========================================
+// 4-Wöchige Erinnerung an Veranstalter für Vermittlungs-Events
+// "In … Monaten ist Dein Event XY. Hast Du schon Deinen passenden Act gefunden?"
+// ==========================================
+
+function getTimeRemainingText(eventDateStr) {
+    if (!eventDateStr) return 'einigen Monaten';
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const target = new Date(eventDateStr);
+    target.setHours(0, 0, 0, 0);
+
+    const diffMs = target.getTime() - now.getTime();
+    if (diffMs <= 0) return 'Kürze';
+
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays >= 60) {
+        const months = Math.round(diffDays / 30.4375);
+        return `${months} Monaten`;
+    } else if (diffDays >= 30) {
+        return '1 Monat';
+    } else if (diffDays >= 14) {
+        const weeks = Math.round(diffDays / 7);
+        return `${weeks} Wochen`;
+    } else if (diffDays >= 7) {
+        return '1 Woche';
+    } else {
+        return 'wenigen Tagen';
+    }
+}
+
+function formatEventDateGerman(dateStr) {
+    if (!dateStr) return '';
+    const parts = String(dateStr).split('-');
+    if (parts.length === 3) {
+        return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    }
+    return dateStr;
+}
+
+async function sendMediationOrganizerRemindersInternal(options = {}) {
+    const { force = false, targetMediationId = null } = options;
+    const now = new Date();
+    const FOUR_WEEKS_MS = 28 * 24 * 60 * 60 * 1000; // 28 Tage
+
+    const results = {
+        checked: 0,
+        sent: 0,
+        skipped: 0,
+        details: [],
+        errors: []
+    };
+
+    try {
+        let query = admin.firestore().collection('mediations');
+        if (targetMediationId) {
+            query = query.where(admin.firestore.FieldPath.documentId(), '==', targetMediationId);
+        }
+
+        const snapshot = await query.get();
+        if (snapshot.empty) {
+            console.log("Keine Vermittlungen in der Datenbank gefunden.");
+            return results;
+        }
+
+        for (const doc of snapshot.docs) {
+            results.checked++;
+            const med = doc.data();
+            const medId = doc.id;
+
+            try {
+                // 1. Bereits abgeschlossene, bezahlte oder stornierte Vermittlungen überspringen
+                const closedStatuses = ['completed', 'paid', 'expired', 'canceled', 'declined'];
+                if (closedStatuses.includes(med.status)) {
+                    results.skipped++;
+                    continue;
+                }
+                if (med.paymentStatus === 'paid' || med.contactsReleased === true) {
+                    results.skipped++;
+                    continue;
+                }
+
+                // 2. Event-Details auflösen
+                let eventDate = med.eventDate || null;
+                let eventName = med.eventName || 'Dein Event';
+                let clientName = med.clientName || med.contactName || null;
+                let organizerEmail = med.organizerEmail || med.clientEmail || med.email || null;
+
+                // Fallback: Event-Dokument laden, falls Felder in der Vermittlung fehlen
+                if (med.eventId && (!eventDate || !organizerEmail || !clientName)) {
+                    try {
+                        const evtDoc = await admin.firestore().collection('events').doc(med.eventId).get();
+                        if (evtDoc.exists) {
+                            const evtData = evtDoc.data();
+                            eventDate = eventDate || evtData.date || null;
+                            eventName = eventName || evtData.name || evtData.title || 'Dein Event';
+                            clientName = clientName || evtData.clientName || evtData.contactName || null;
+                            organizerEmail = organizerEmail || evtData.clientEmail || evtData.email || null;
+                        }
+                    } catch (evtErr) {
+                        console.warn(`Could not load event ${med.eventId} for mediation ${medId}:`, evtErr);
+                    }
+                }
+
+                // Liegt das Event-Datum bereits in der Vergangenheit?
+                if (eventDate) {
+                    const evtDateTime = new Date(eventDate);
+                    evtDateTime.setHours(23, 59, 59, 999);
+                    if (evtDateTime < now) {
+                        results.skipped++;
+                        continue;
+                    }
+                }
+
+                if (!organizerEmail || !organizerEmail.includes('@')) {
+                    results.skipped++;
+                    continue;
+                }
+
+                // 3. 4-Wochen-Intervall prüfen (28 Tage)
+                const createdAtTime = med.createdAt ? new Date(med.createdAt).getTime() : 0;
+                const lastReminderTime = med.lastOrganizerReminderAt ? new Date(med.lastOrganizerReminderAt).getTime() : 0;
+
+                let isDue = false;
+                if (force) {
+                    isDue = true;
+                } else if (lastReminderTime > 0) {
+                    isDue = (now.getTime() - lastReminderTime) >= FOUR_WEEKS_MS;
+                } else if (createdAtTime > 0) {
+                    isDue = (now.getTime() - createdAtTime) >= FOUR_WEEKS_MS;
+                }
+
+                if (!isDue) {
+                    results.skipped++;
+                    continue;
+                }
+
+                // 4. E-Mail Inhalt generieren
+                const timeRemainingText = getTimeRemainingText(eventDate);
+                const eventDateFormatted = formatEventDateGerman(eventDate);
+                const baseUrl = med.baseUrl || 'https://gigconnact.de';
+                const recommendationLink = `${baseUrl}/#/recommendation/${medId}`;
+                const subject = `In ${timeRemainingText} ist Dein Event "${eventName}". Hast Du schon Deinen passenden Act gefunden? 🎵`;
+
+                const html = getMediationOrganizerReminderEmailHtml({
+                    clientName: clientName,
+                    eventName: eventName,
+                    eventDateFormatted: eventDateFormatted,
+                    timeRemainingText: timeRemainingText,
+                    recommendationLink: recommendationLink
+                });
+
+                // 5. E-Mail versenden
+                await sendEmail({
+                    to: organizerEmail,
+                    subject: subject,
+                    html: html,
+                    headers: { 'Reply-To': 'info@gigconnact.de' }
+                });
+
+                // 6. Vermittlungs-Dokument aktualisieren
+                await admin.firestore().collection('mediations').doc(medId).update({
+                    lastOrganizerReminderAt: now.toISOString(),
+                    organizerRemindersCount: admin.firestore.FieldValue.increment(1)
+                });
+
+                console.log(`Erinnerungsmail erfolgreich gesendet an ${organizerEmail} für Vermittlung ${medId} ("${eventName}")`);
+                results.sent++;
+                results.details.push({
+                    mediationId: medId,
+                    email: organizerEmail,
+                    eventName: eventName,
+                    timeRemainingText: timeRemainingText
+                });
+
+            } catch (itemErr) {
+                console.error(`Fehler bei Vermittlung ${medId}:`, itemErr);
+                results.errors.push({ mediationId: medId, error: itemErr.message });
+            }
+        }
+    } catch (err) {
+        console.error("sendMediationOrganizerRemindersInternal Fehler:", err);
+        results.errors.push({ general: err.message });
+    }
+
+    return results;
+}
+
+// Täglicher automatischer Check um 10:00 Uhr Berliner Zeit
+exports.dailyMediationOrganizerReminderCheck = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['RESEND_API_KEY'] })
+    .pubsub.schedule('0 10 * * *')
+    .timeZone('Europe/Berlin')
+    .onRun(async (context) => {
+        console.log("Starte täglichen Check für 4-wöchige Veranstalter-Erinnerungsmails...");
+        const res = await sendMediationOrganizerRemindersInternal();
+        console.log("Check abgeschlossen:", JSON.stringify(res));
+        return null;
+    });
+
+// Callable Funktion für manuellen Trigger / Testen
+exports.triggerMediationOrganizerReminders = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['RESEND_API_KEY'] })
+    .https.onCall(async (data, context) => {
+        let isAdmin = false;
+        if (context.auth && context.auth.token && context.auth.token.email) {
+            const adminEmails = ['info@gigconnact.de', 'gigconnact@gmail.com'];
+            if (adminEmails.includes(context.auth.token.email)) {
+                isAdmin = true;
+            }
+        }
+        const force = Boolean(data && data.force && isAdmin);
+        const targetMediationId = data && data.mediationId ? String(data.mediationId).trim() : null;
+
+        const res = await sendMediationOrganizerRemindersInternal({ force, targetMediationId });
+        return res;
+    });
+
 
 

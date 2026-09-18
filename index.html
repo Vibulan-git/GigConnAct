@@ -43,6 +43,77 @@
     <meta name="description" content="Die Vermittlungsplattform für Musiker und Veranstalter. Finde passende Live-Musik für Dein Event oder neue Auftritte als Musiker.">
     <meta property="og:title" content="GigConnAct - Die Vermittlungsplattform für Musiker und Veranstalter">
     <meta property="og:description" content="Die Vermittlungsplattform für Musiker und Veranstalter. Finde passende Live-Musik für Dein Event oder neue Auftritte als Musiker.">
+    <link rel="canonical" href="https://www.gigconnact.de/">
+
+    <!-- Structured Data (JSON-LD) for Google Search & Sitelinks -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://www.gigconnact.de/#website",
+          "url": "https://www.gigconnact.de/",
+          "name": "GigConnAct",
+          "description": "Die Vermittlungsplattform für Musiker und Veranstalter.",
+          "inLanguage": "de-DE",
+          "publisher": {
+            "@id": "https://www.gigconnact.de/#organization"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://www.gigconnact.de/#organization",
+          "name": "GigConnAct",
+          "url": "https://www.gigconnact.de/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://www.gigconnact.de/discoball.png"
+          }
+        },
+        {
+          "@type": "ItemList",
+          "itemListElement": [
+            {
+              "@type": "SiteNavigationElement",
+              "position": 1,
+              "name": "Event-Markt",
+              "description": "Gigs und Auftritte für Musiker und Bands finden",
+              "url": "https://www.gigconnact.de/events"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 2,
+              "name": "Musiker-Markt",
+              "description": "Live-Musiker, Bands, DJs und Solokünstler für Events buchen",
+              "url": "https://www.gigconnact.de/musicians"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 3,
+              "name": "Preise & Tarife",
+              "description": "Mitgliedschaften und Vermittlungskonditionen für Musiker und Veranstalter",
+              "url": "https://www.gigconnact.de/pricing"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 4,
+              "name": "Einloggen",
+              "description": "In den Musiker- oder Veranstalter-Account einloggen",
+              "url": "https://www.gigconnact.de/login"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 5,
+              "name": "Über uns",
+              "description": "Über GigConnAct und unsere Vision für Live-Musik",
+              "url": "https://www.gigconnact.de/about"
+            }
+          ]
+        }
+      ]
+    }
+    </script>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,7 +121,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=20260917_1810">
+    <link rel="stylesheet" href="style.css?v=20260918_1320">
     
     <!-- Firebase CDN SDKs (Compat Version) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -82,7 +153,19 @@
         <nav id="app-bottom-bar" class="app-bottom-bar hidden" aria-label="Hauptnavigation"></nav>
     </div>
 
-    <script src="app_v42.js?v=20260917_2200"></script>
+    <!-- Search Engine Crawler Navigation -->
+    <nav aria-label="Sitemap-Links für Suchmaschinen" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">
+        <a href="/events">Event-Markt - Gigs und Auftritte finden</a>
+        <a href="/musicians">Musiker-Markt - Live-Acts für Events buchen</a>
+        <a href="/pricing">Preise & Mitgliedschaften</a>
+        <a href="/login">Einloggen</a>
+        <a href="/about">Über uns</a>
+        <a href="/impressum">Impressum</a>
+        <a href="/datenschutz">Datenschutz</a>
+        <a href="/agb">AGB</a>
+    </nav>
+
+    <script src="app_v42.js?v=20260918_1405"></script>
 
 </body>
 </html>
