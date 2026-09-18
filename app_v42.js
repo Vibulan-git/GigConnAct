@@ -8249,14 +8249,9 @@ function renderMarket(container, type, onNavigate) {
                         </span>
                     </div>
 
-                    <!-- 2. Aktionen-Container: Filter-Button rechts mit Icon -->
-                    <div class="market-controls-actions ${showOnlyFavorites ? 'hidden' : ''}" style="grid-column: 3; justify-self: end; margin: 0; display: ${showOnlyFavorites ? 'none !important' : 'flex'}; align-items: center; gap: 0.55rem;">
-                        <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" title="Filter öffnen">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; flex-shrink: 0; margin-right: 0.2rem;">
-                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                            </svg>
-                            <span>Filter</span>
-                        </button>
+                    <!-- 2. Rechter Bereich: Symmetrischer Spacer für Zentrierung, alter Button unsichtbar im DOM gehalten -->
+                    <div class="market-controls-actions" style="grid-column: 3; justify-self: end; margin: 0; display: flex; align-items: center;">
+                        <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" title="Filter öffnen" style="display: none !important;" aria-hidden="true"></button>
                     </div>
      
                     <!-- Versteckte Steuerungsbuttons für Top-Matches und Favoriten (für programmatische Aufrufe der Bottom-Bar) -->
