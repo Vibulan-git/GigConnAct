@@ -69,9 +69,21 @@ body {
     z-index: 1;
 }
 
-/* Header & Navigation: Only shown in Hero/Landing section, hidden on all app pages */
-.app-header:not(.transparent-header) {
-    display: none !important;
+/* Header & Navigation: Sticky white header bar with GigConnAct logo across all app pages */
+.app-header {
+    position: sticky !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 60px !important;
+    z-index: 1000 !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05) !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .transparent-header {
@@ -80,7 +92,7 @@ body {
     left: 0 !important;
     width: 100% !important;
     height: 64px !important;
-    z-index: 100 !important;
+    z-index: 1000 !important;
     background: transparent !important;
     border-bottom: none !important;
     box-shadow: none !important;
@@ -5011,30 +5023,120 @@ input[type="range"].input-field {
     color: var(--text-muted);
 }
 
-/* Market controls toolbar / bar (Trefferanzahl + Filter) */
+/* Market controls toolbar / bar - legacy gradient bars hidden */
 .market-controls-row,
 .matches-controls-row,
 .profile-controls-row,
 .postbox-controls-row {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 40 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0 !important;
-    min-height: 58px !important;
-    margin: 0 0 1.2rem 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    left: 0 !important;
-    right: 0 !important;
-    box-sizing: border-box !important;
-    border-radius: 0 !important;
-    border-left: none !important;
-    border-right: none !important;
-    border-top: none !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important;
+    display: none !important;
+}
+
+/* Sub-header bars between white sticky header and cards */
+.market-sub-header-bar,
+.matches-sub-header-bar,
+.postbox-sub-header-bar {
+    width: 100%;
+    max-width: 1520px;
+    margin: 1.25rem auto 1rem;
+    padding: 0 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+.market-sub-header-title,
+.matches-sub-header-title,
+.postbox-sub-header-title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.45rem, 4vw, 1.95rem);
+    font-weight: 900;
+    color: #0f172a;
+    margin: 0;
+    line-height: 1.2;
+    letter-spacing: -0.4px;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    text-align: left;
+}
+
+.market-inline-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 1.15rem;
+    border-radius: 12px;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+    white-space: nowrap;
+    user-select: none;
+}
+
+.theme-musician .market-inline-filter-btn {
+    border: 1.5px solid #7c3aed;
+    color: #7c3aed;
+}
+.theme-musician .market-inline-filter-btn:hover {
+    background: #7c3aed;
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.25);
+    transform: translateY(-1px);
+}
+.theme-musician .market-inline-filter-btn:hover i {
+    color: #ffffff !important;
+}
+
+.theme-organizer .market-inline-filter-btn {
+    border: 1.5px solid #2563eb;
+    color: #2563eb;
+}
+.theme-organizer .market-inline-filter-btn:hover {
+    background: #2563eb;
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+    transform: translateY(-1px);
+}
+.theme-organizer .market-inline-filter-btn:hover i {
+    color: #ffffff !important;
+}
+
+.market-inline-filter-btn.has-active-filters {
+    border-color: #22c55e !important;
+    background: rgba(34, 197, 94, 0.08) !important;
+    color: #15803d !important;
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.25) !important;
+}
+.market-inline-filter-btn.has-active-filters i {
+    color: #22c55e !important;
+}
+
+.filter-active-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 6px #22c55e;
+    display: inline-block;
+}
+
+@media (max-width: 600px) {
+    .market-sub-header-bar,
+    .matches-sub-header-bar,
+    .postbox-sub-header-bar {
+        padding: 0 0.8rem;
+        margin: 1rem auto 0.75rem;
+    }
+    .market-inline-filter-btn {
+        padding: 0.45rem 0.95rem;
+        font-size: 0.88rem;
+        border-radius: 10px;
+    }
 }
 
 /* Controls Bar Logo Branding & Responsive Typography */
@@ -6477,7 +6579,9 @@ body.landing-page-active #app-bottom-bar,
 
 .bottom-bar-nav {
     width: 100%;
-    height: 58px;
+    min-height: 58px;
+    height: calc(58px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     background: linear-gradient(90deg, rgba(124, 58, 237, 0.98) 0%, rgba(79, 70, 229, 0.98) 50%, rgba(37, 99, 235, 0.98) 100%);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -6501,19 +6605,7 @@ body.landing-page-active #app-bottom-bar,
 }
 
 .bottom-bar-logo-strip {
-    width: 100%;
-    min-height: 38px;
-    height: auto;
-    background: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.04);
-    padding-top: 4px;
-    padding-bottom: calc(4px + env(safe-area-inset-bottom, 0px));
-    box-sizing: border-box;
-    overflow: visible;
+    display: none !important;
 }
 
 .bottom-bar-logo-link {
@@ -6674,16 +6766,16 @@ body.landing-page-active #app-bottom-bar,
 
 /* Page bottom padding compensation when bottom bar is active */
 body.has-bottom-bar #app-main {
-    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: calc(75px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 body.has-bottom-bar .app-footer {
-    margin-bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important;
+    margin-bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 /* Floating Action / Chat Box offset when bottom bar is present */
 body.has-bottom-bar .toast-container {
-    bottom: calc(108px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 /* Star badge: static display only, never clickable */

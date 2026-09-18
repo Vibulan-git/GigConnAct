@@ -8138,6 +8138,18 @@ function renderMarket(container, type, onNavigate) {
                 if (floatingDot) floatingDot.style.display = 'none';
             }
         }
+
+        const inlineFilterBtn = container.querySelector('#btn-market-inline-filter');
+        const inlineFilterDot = container.querySelector('#market-filter-active-dot');
+        if (inlineFilterBtn) {
+            if (isActive) {
+                inlineFilterBtn.classList.add('has-active-filters');
+                if (inlineFilterDot) inlineFilterDot.style.display = 'inline-block';
+            } else {
+                inlineFilterBtn.classList.remove('has-active-filters');
+                if (inlineFilterDot) inlineFilterDot.style.display = 'none';
+            }
+        }
     }
     const urlParams = new URLSearchParams(window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
     if (urlParams.get('showOnlyFavorites') === 'true' || urlParams.get('fav') === 'true') {
@@ -8326,30 +8338,29 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page ${isOrganizerTheme ? 'theme-organizer' : 'theme-musician'} ${showOnlyFavorites ? 'favorites-mode' : ''}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
-            <div class="market-controls-row ${showOnlyFavorites ? 'favorites-mode' : ''}" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
-                <div class="market-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
-                    <!-- Spacer Links -->
-                    <div class="market-controls-spacer" style="grid-column: 1;"></div>
-
-                    <!-- 1. Trefferanzahl (Mittig, Weiß auf Verlauf-Leiste) -->
-                    <div id="market-results-header" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px; cursor: ${showOnlyFavorites ? 'default' : 'pointer'};" onclick="if (!window.currentMarketShowFavorites) document.getElementById('btn-toggle-mobile-filters')?.click();" title="${showOnlyFavorites ? '' : 'Filter öffnen'}">
-                        <div id="market-results-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
-                            ${getItems().length}
-                        </div>
-                        <span id="market-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                            ${showOnlyFavorites ? 'Favoriten' : (isEvents ? 'Events' : 'Musiker')}
-                        </span>
-                    </div>
-
-                    <!-- 2. Rechter Bereich: Symmetrischer Spacer für Zentrierung, alter Button unsichtbar im DOM gehalten -->
-                    <div class="market-controls-actions" style="grid-column: 3; justify-self: end; margin: 0; display: flex; align-items: center;">
-                        <button class="market-filter-mobile-toggle" id="btn-toggle-mobile-filters" title="Filter öffnen" style="display: none !important;" aria-hidden="true"></button>
-                    </div>
-     
-                    <!-- Versteckte Steuerungsbuttons für Top-Matches und Favoriten (für programmatische Aufrufe der Bottom-Bar) -->
-                    <button id="btn-toggle-market-top-matches" style="display: none !important;" aria-hidden="true"></button>
-                    <button id="btn-toggle-market-favorites" style="display: none !important;" aria-hidden="true"></button>
+            <!-- Market Sub-Header: Left = Count & Label, Right = Filter Button -->
+            <div class="market-sub-header-bar">
+                <div id="market-results-header" style="display: flex; align-items: baseline; gap: 0.5rem; text-align: left;">
+                    <h1 id="market-results-title" class="market-sub-header-title">
+                        <span id="market-results-count">${getItems().length}</span>
+                        <span id="market-title-label">${showOnlyFavorites ? 'Favoriten' : (isEvents ? 'Events' : 'Musiker')}</span>
+                    </h1>
                 </div>
+
+                ${!showOnlyFavorites ? `
+                <div class="market-filter-action-area" style="display: flex; align-items: center; gap: 0.75rem;">
+                    <button id="btn-market-inline-filter" class="market-inline-filter-btn" title="Filter öffnen">
+                        <i class="fa-solid fa-sliders" style="font-size: 0.95rem;"></i>
+                        <span>Filter</span>
+                        <span class="filter-active-indicator" id="market-filter-active-dot" style="display: none;"></span>
+                    </button>
+                </div>
+                ` : ''}
+
+                <!-- Hidden trigger buttons kept for programmatic compatibility -->
+                <button id="btn-toggle-mobile-filters" style="display: none !important;" aria-hidden="true"></button>
+                <button id="btn-toggle-market-top-matches" style="display: none !important;" aria-hidden="true"></button>
+                <button id="btn-toggle-market-favorites" style="display: none !important;" aria-hidden="true"></button>
             </div>
 
             <!-- Main Layout: Left Sticky Sidebar Filters + Center Content -->
@@ -8806,6 +8817,28 @@ function renderMarket(container, type, onNavigate) {
     const overlay = container.querySelector('#market-filters-overlay');
     const floatingFilterBtn = container.querySelector('#btn-floating-market-filter');
 
+    const inlineFilterBtn = container.querySelector('#btn-market-inline-filter');
+    if (inlineFilterBtn) {
+        inlineFilterBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (window.innerWidth > 900) {
+                const desktopFilter = document.getElementById('market-filters-wrapper');
+                if (desktopFilter) {
+                    desktopFilter.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    desktopFilter.style.transition = 'box-shadow 0.3s ease';
+                    desktopFilter.style.boxShadow = isOrganizerTheme ? '0 0 25px rgba(37, 99, 235, 0.5)' : '0 0 25px rgba(124, 58, 237, 0.5)';
+                    setTimeout(() => {
+                        desktopFilter.style.boxShadow = '';
+                    }, 1200);
+                } else {
+                    toggleBtn?.click();
+                }
+            } else {
+                toggleBtn?.click();
+            }
+        });
+    }
+
     if (floatingFilterBtn) {
         floatingFilterBtn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -8835,6 +8868,9 @@ function renderMarket(container, type, onNavigate) {
         if (floatingFilterBtn) {
             floatingFilterBtn.classList.toggle('drawer-open', isOpen);
         }
+        if (inlineFilterBtn) {
+            inlineFilterBtn.classList.toggle('drawer-open', isOpen);
+        }
         updateFilterIconGlow(isFilterActiveCurrently);
     });
 
@@ -8847,6 +8883,9 @@ function renderMarket(container, type, onNavigate) {
         if (floatingFilterBtn) {
             floatingFilterBtn.classList.remove('drawer-open');
         }
+        if (inlineFilterBtn) {
+            inlineFilterBtn.classList.remove('drawer-open');
+        }
         updateFilterIconGlow(isFilterActiveCurrently);
         if (window.innerWidth <= 900) {
             document.getElementById('market-results-header')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -8854,14 +8893,6 @@ function renderMarket(container, type, onNavigate) {
     };
     closeBtnBottom?.addEventListener('click', closeFilterDrawerHandler);
     closeBtnTop?.addEventListener('click', closeFilterDrawerHandler);
-
-    const resultsCountEl = container.querySelector('#market-results-count');
-    resultsCountEl?.addEventListener('click', () => {
-        const toggleBtn = container.querySelector('#btn-toggle-mobile-filters');
-        if (toggleBtn) {
-            toggleBtn.click();
-        }
-    });
 
     overlay?.addEventListener('click', function() {
         filterWrapper.classList.remove('open');
@@ -9777,9 +9808,9 @@ function renderMarket(container, type, onNavigate) {
         const filterSidebar = container.querySelector('#market-filters-wrapper');
         const actionsContainer = container.querySelector('.market-controls-actions');
 
+        const filterActionArea = container.querySelector('.market-filter-action-area');
         if (showOnlyFavorites) {
             container.querySelector('.market-page')?.classList.add('favorites-mode');
-            container.querySelector('.market-controls-row')?.classList.add('favorites-mode');
             if (layoutContainer) layoutContainer.classList.add('no-filters');
             if (filterSidebar) {
                 filterSidebar.style.setProperty('display', 'none', 'important');
@@ -9789,15 +9820,20 @@ function renderMarket(container, type, onNavigate) {
                 actionsContainer.style.setProperty('display', 'none', 'important');
                 actionsContainer.classList.add('hidden');
             }
+            if (filterActionArea) {
+                filterActionArea.style.setProperty('display', 'none', 'important');
+            }
             container.querySelector('.market-filter-overlay')?.classList.remove('open');
         } else {
             container.querySelector('.market-page')?.classList.remove('favorites-mode');
-            container.querySelector('.market-controls-row')?.classList.remove('favorites-mode');
             if (layoutContainer) layoutContainer.classList.remove('no-filters');
             if (filterSidebar) filterSidebar.style.display = '';
             if (actionsContainer) {
                 actionsContainer.style.setProperty('display', 'flex', 'important');
                 actionsContainer.classList.remove('hidden');
+            }
+            if (filterActionArea) {
+                filterActionArea.style.removeProperty('display');
             }
         }
 
@@ -11364,26 +11400,7 @@ function renderProfilePage(container) {
 
     container.innerHTML = `
         <div class="profile-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
-            
-            <!-- Profile Controls Row (Lila-Blau-Verlauf wie unten in der Leiste) -->
-            <div class="profile-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 0.5rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
-                <div class="profile-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
-                    <!-- Spacer Links -->
-                    <div class="profile-controls-spacer" style="grid-column: 1;"></div>
-
-                    <!-- Titel Mittig (ohne Icon) -->
-                    <div class="profile-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; flex-shrink: 0; min-height: 38px;">
-                        <span id="profile-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                            Profil
-                        </span>
-                    </div>
-
-                    <!-- Spacer Rechts -->
-                    <div class="profile-controls-actions" style="grid-column: 3; justify-self: end; display: flex; align-items: center;"></div>
-                </div>
-            </div>
-
-            <div class="profile-content-wrapper" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0 1.2rem; box-sizing: border-box;">
+            <div class="profile-content-wrapper" style="width: 100%; max-width: 1520px; margin: 1.25rem auto 0; padding: 0 1.2rem; box-sizing: border-box;">
                 <div class="portal-layout" style="display:flex; flex-direction:column; gap: 0.75rem; max-width: 800px; margin: 0 auto; padding: 0;">
 
                     <!-- Zeile über der Kachel 'Meine Musiker/Events': Links Auswahl der Profile, Rechts Ausloggebutton in rot -->
@@ -12194,27 +12211,13 @@ function renderMatchesPage(container) {
         container.innerHTML = `
             <div class="market-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
                 
-                <!-- Controls Row: Center = Title & Count, Right = Profile Switcher -->
-                <div class="matches-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
-                    <div class="matches-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
-                        <!-- Spacer Links -->
-                        <div class="matches-controls-spacer" style="grid-column: 1;"></div>
-
-                        <!-- Center: Title & Count (Mittig, ohne Icon) -->
-                        <div class="matches-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px;">
-                            <div id="top-matches-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
-                                ${selectedId ? '0' : '0'}
-                            </div>
-                            <span id="top-matches-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                                Top-Matches
-                            </span>
-                        </div>
-
-                        <!-- Right: Spacer (Kein Profil-Wechsler in der Leiste) -->
-                        <div class="matches-controls-actions" style="grid-column: 3; justify-self: end; display: flex; align-items: center; margin: 0;">
-                            <input type="hidden" id="select-profile" value="${selectedId || ''}">
-                        </div>
-                    </div>
+                <!-- Sub-Header Bar: Left = Count & Label -->
+                <div class="matches-sub-header-bar">
+                    <h1 class="matches-sub-header-title">
+                        <span id="top-matches-count">${selectedId ? '0' : '0'}</span>
+                        <span id="top-matches-label">Top-Matches</span>
+                    </h1>
+                    <input type="hidden" id="select-profile" value="${selectedId || ''}">
                 </div>
 
                 <!-- Matches Content Wrapper -->
@@ -18256,12 +18259,6 @@ window.updateBottomBar = function() {
                     </button>
                 </div>
             </div>
-            <div class="bottom-bar-logo-strip">
-                <a href="#/" class="bottom-bar-logo-link" title="GigConnAct Startseite" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; text-decoration: none; padding: 2px 0; overflow: visible;">
-                    <img src="discoball.png" style="width: 22px; height: 22px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 4px rgba(124,58,237,0.25));" alt="GigConnAct Logo">
-                    <span style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; display: inline-flex; letter-spacing: -0.4px; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; white-space: nowrap; line-height: 1.35; padding: 2px 0 4px 0; overflow: visible;">GigConnAct</span>
-                </a>
-            </div>
         `;
 
         // Click handler: Market
@@ -19284,25 +19281,12 @@ function renderPostbox(container) {
 
             container.innerHTML = `
             <div class="postbox-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box; overflow-x: clip;">
-                <!-- Postbox Controls Row (Lila-Blau-Verlauf wie unten in der Leiste) -->
-                <div class="postbox-controls-row" style="background: linear-gradient(90deg, rgba(124, 58, 237, 0.96) 0%, rgba(79, 70, 229, 0.96) 50%, rgba(37, 99, 235, 0.96) 100%) !important; border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important; border-top: none !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 6px 28px rgba(79, 70, 229, 0.35) !important; display: flex; align-items: center; justify-content: center; margin: 0 0 1.2rem 0; padding: 0; min-height: 58px !important; width: 100%; box-sizing: border-box; position: sticky !important; top: 0 !important; z-index: 40 !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important;">
-                    <div class="postbox-controls-inner" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0.65rem 1.2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; box-sizing: border-box;">
-                        <!-- Spacer Links -->
-                        <div class="postbox-controls-spacer" style="grid-column: 1;"></div>
-
-                        <!-- Center: Title (Mittig, ohne Icon) -->
-                        <div class="postbox-controls-title" style="grid-column: 2; justify-self: center; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.55rem; flex-shrink: 0; min-height: 38px;">
-                            <div id="postbox-count" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 900; color: #ffffff !important; text-align: center; white-space: nowrap; margin: 0; line-height: 1;">
-                                ${unreadChatCount}
-                            </div>
-                            <span id="postbox-title-label" style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: rgba(255, 255, 255, 0.92) !important; white-space: nowrap; letter-spacing: -0.2px;">
-                                ${unreadChatCount === 1 ? 'Nachricht' : 'Nachrichten'}
-                            </span>
-                        </div>
-
-                        <!-- Spacer right to keep title centered -->
-                        <div class="postbox-controls-actions" style="grid-column: 3; justify-self: end; margin: 0;"></div>
-                    </div>
+                <!-- Postbox Sub-Header: Left = Count & Label -->
+                <div class="postbox-sub-header-bar">
+                    <h1 class="postbox-sub-header-title">
+                        <span id="postbox-count">${unreadChatCount}</span>
+                        <span id="postbox-title-label">${unreadChatCount === 1 ? 'Nachricht' : 'Nachrichten'}</span>
+                    </h1>
                 </div>
 
                 <div class="postbox-content-wrapper" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0 1.2rem; box-sizing: border-box;">
