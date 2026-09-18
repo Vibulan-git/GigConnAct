@@ -8603,7 +8603,7 @@ function renderMarket(container, type, onNavigate) {
 
                             <!-- Kontakt-Typ Filter -->
                             <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0.8rem;">
-                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Kontakt-Typ</label>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Kontakt-Typ</label>
                                 <div class="checkbox-tag-grid" id="filter-contact-type-grid-m" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                     <label class="tag-pill-checkbox active">
                                         <input type="checkbox" name="filterContactTypeM" value="direct" checked>
@@ -8624,10 +8624,10 @@ function renderMarket(container, type, onNavigate) {
 
                             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.8rem;">
                                 <div class="slider-value-display">
-                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #7c3aed; margin-bottom: 0.35rem;">Max. Umkreis</label>
-                                    <span id="val-filter-radius-m" style="font-size: 0.85rem; font-weight: 700; color: #7c3aed !important;">500+ km</span>
+                                    <label style="display: block; font-size: 0.85rem; font-weight: 900; color: #2563eb; margin-bottom: 0.35rem;">Max. Umkreis</label>
+                                    <span id="val-filter-radius-m" style="font-size: 0.85rem; font-weight: 700; color: #2563eb !important;">500+ km</span>
                                 </div>
-                                <input type="range" class="form-input" id="input-filter-radius-m" min="0" max="500" step="50" value="500" style="width: 100%; accent-color: #7c3aed !important;">
+                                <input type="range" class="form-input" id="input-filter-radius-m" min="0" max="500" step="50" value="500" style="width: 100%; accent-color: #2563eb !important;">
                             </div>
 
                             <!-- 3. Datum / Kalender -->
@@ -8652,7 +8652,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Musiker-Typ</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">${prefillMusicianTypes.length === ALL_FILTER_MUSICIAN_TYPES.length ? 'alle abwählen' : 'alle auswählen'}</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">${prefillMusicianTypes.length === ALL_FILTER_MUSICIAN_TYPES.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-musician-type-grid">
@@ -8670,7 +8670,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Event-Typen</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">${prefillEventTypes.length === ALL_FILTER_EVENT_TYPES.length ? 'alle abwählen' : 'alle auswählen'}</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">${prefillEventTypes.length === ALL_FILTER_EVENT_TYPES.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-event-types-grid-m">
@@ -8688,7 +8688,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Genres</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">${prefillGenres.length === ALL_FILTER_GENRES.length ? 'alle abwählen' : 'alle auswählen'}</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">${prefillGenres.length === ALL_FILTER_GENRES.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-genres-grid-m">
@@ -8706,7 +8706,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Instrumente</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">${prefillInstruments.length === ALL_FILTER_INSTRUMENTS.length ? 'alle abwählen' : 'alle auswählen'}</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">${prefillInstruments.length === ALL_FILTER_INSTRUMENTS.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
@@ -8752,7 +8752,7 @@ function renderMarket(container, type, onNavigate) {
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                                     <label style="font-size: 0.85rem; font-weight: 900; color: #2563eb; margin: 0;">Technik</label>
                                     <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; font-weight: 700;">
-                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #7c3aed; cursor: pointer; text-decoration: underline;">${prefillTechnik.length === ALL_FILTER_TECHNIK.length ? 'alle abwählen' : 'alle auswählen'}</span>
+                                        <span onclick="window.toggleAllFilterCheckboxes(this, true)" style="color: #2563eb; cursor: pointer; text-decoration: underline;">${prefillTechnik.length === ALL_FILTER_TECHNIK.length ? 'alle abwählen' : 'alle auswählen'}</span>
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-technik-grid-m">
@@ -10341,7 +10341,7 @@ function formatEventDateWithTime(item) {
 
 function formatMusicianAvailabilityHelper(item) {
     const avail = item.availability;
-    if (!avail) return 'Auf Anfrage verfügbar';
+    if (!avail) return 'Nicht angegeben';
     if (typeof avail === 'string') return avail;
 
     const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -10381,7 +10381,7 @@ function formatMusicianAvailabilityHelper(item) {
     }
 
     if (activeIndices.length === 0) {
-        return 'Auf Anfrage verfügbar';
+        return 'Nicht angegeben';
     }
     if (activeIndices.length === 7) {
         return 'Jeden Tag (Mo-So)';
@@ -12966,20 +12966,9 @@ function renderMyMusicianItem(m, isActive) {
     const themeColor = '#7c3aed';
 
     // Availability mapping
-    let availDaysStr = 'Nach Vereinbarung';
-    if (m.availability) {
-        const activeDays = [];
-        if (m.availability.monday?.available) activeDays.push('Mo');
-        if (m.availability.tuesday?.available) activeDays.push('Di');
-        if (m.availability.wednesday?.available) activeDays.push('Mi');
-        if (m.availability.thursday?.available) activeDays.push('Do');
-        if (m.availability.Friday?.available || m.availability.friday?.available) activeDays.push('Fr');
-        if (m.availability.Saturday?.available || m.availability.saturday?.available) activeDays.push('Sa');
-        if (m.availability.Sunday?.available || m.availability.sunday?.available) activeDays.push('So');
-        if (activeDays.length > 0) {
-            availDaysStr = activeDays.join(', ');
-        }
-    }
+    let availDaysStr = (typeof formatMusicianAvailabilityHelper === 'function') 
+        ? formatMusicianAvailabilityHelper(m) 
+        : 'Nicht angegeben';
 
     const dotActiveColor = '#7c3aed';
 
@@ -14006,6 +13995,13 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
         if (checkedTechnik.length === 0) {
             showToast({ title: "Validierungsfehler ⚠️", message: "Bitte wähle mindestens eine Technik-Option aus." });
             markInvalid(form.querySelector('input[name="musTechnik"]'), '.checkbox-tag-grid');
+            return;
+        }
+
+        const checkedAvailDays = form.querySelectorAll('input[name="availDays"]:checked');
+        if (checkedAvailDays.length === 0) {
+            showToast({ title: "Validierungsfehler ⚠️", message: "Bitte wähle mindestens einen Wochentag für deine Verfügbarkeit aus." });
+            markInvalid(form.querySelector('.availability-week-grid') || form.querySelector('input[name="availDays"]'));
             return;
         }
 
@@ -16569,6 +16565,11 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             }
             if (bandName.length > 2 && musDescVal.toLowerCase().includes(bandName.toLowerCase())) {
                 showValidationError(document.getElementById('textarea-mus-desc'), null, 'Aus Datenschutzgründen darf deine Beschreibung nicht deinen Künstlernamen/Bandnamen enthalten, da dieser für Gäste unsichtbar sein soll. Bitte formuliere den Beschreibungstext neutral.');
+                return;
+            }
+            const checkedAvailDays = registerForm.querySelectorAll('input[name="availDays"]:checked');
+            if (checkedAvailDays.length === 0) {
+                showValidationError(registerForm.querySelector('.availability-week-grid') || registerForm.querySelector('input[name="availDays"]'), null, 'Bitte wähle mindestens einen Wochentag für deine Verfügbarkeit aus.');
                 return;
             }
         } else if (selectedRole === 'organizer') {
@@ -19783,7 +19784,7 @@ function formatTruncatedValue(val, themeColor, itemId, uniqueType, forceExpand) 
     }
     
     if (fullText.length === 0) return 'Keine Angabe';
-    if (forceExpand) return fullText;
+    if (forceExpand || uniqueType === 'date' || uniqueType === 'avail') return fullText;
     
     // Max one line: truncate if content exceeds maxLen (tighter for shared rows with buttons)
     const isSharedRow = (uniqueType === 'musiciantype' || uniqueType === 'eventtypes');
@@ -21155,7 +21156,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                         <!-- 3. Datum -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem; flex-shrink: 0;"></i>
-                            <span style="word-break: break-word; line-height: 1.35; flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'date')}</span>
+                            <span style="word-break: break-word; line-height: 1.35; flex: 1;">${dateDisplay}</span>
                         </div>
 
                         <!-- 4. Gesuchte Musiker-Typen + 'Mehr Details' Button -->
@@ -21235,7 +21236,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                         <!-- 3. Datum/Verfügbarkeit -->
                         <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35;">
                             <i class="fa-solid fa-calendar-days" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="word-break: break-word; line-height: 1.35; flex: 1;">${formatTruncatedValue(dateDisplay, themeColor, item.id, 'avail')}</span>
+                            <span style="word-break: break-word; line-height: 1.35; flex: 1;">${dateDisplay}</span>
                         </div>
 
                         <!-- 4. Event-Typen + 'Mehr Details' Button -->
