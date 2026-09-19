@@ -4086,10 +4086,14 @@ body.landing-page-active .landing-hero {
 .market-filter-card [onclick*="toggleAllFilterCheckboxes"] {
     color: #7c3aed !important;
 }
+.theme-organizer .market-filter-card [onclick*="toggleAllFilterCheckboxes"],
+body.theme-organizer .market-filter-card [onclick*="toggleAllFilterCheckboxes"] {
+    color: #2563eb !important;
+}
 
 /* Keep tag pills looking great on white background globally (White inactive background) */
 .market-filter-card .tag-pill-checkbox {
-    background: #ffffff !important; /* Reverted from grey to solid white */
+    background: #ffffff !important;
     border: 1px solid #cbd5e1 !important;
     color: #334155 !important;
 }
@@ -4100,12 +4104,22 @@ body.landing-page-active .landing-hero {
     background: #f8fafc !important;
 }
 .market-filter-card .tag-pill-checkbox.active {
-    background: rgba(var(--market-primary-rgb), 0.15) !important;
-    border-color: var(--market-primary) !important;
-    color: var(--market-primary) !important;
+    background: rgba(124, 58, 237, 0.15) !important;
+    border-color: #7c3aed !important;
+    color: #7c3aed !important;
 }
 .market-filter-card .tag-pill-checkbox.active span {
-    color: var(--market-primary) !important;
+    color: #7c3aed !important;
+}
+.theme-organizer .market-filter-card .tag-pill-checkbox.active,
+body.theme-organizer .market-filter-card .tag-pill-checkbox.active {
+    background: rgba(37, 99, 235, 0.15) !important;
+    border-color: #2563eb !important;
+    color: #2563eb !important;
+}
+.theme-organizer .market-filter-card .tag-pill-checkbox.active span,
+body.theme-organizer .market-filter-card .tag-pill-checkbox.active span {
+    color: #2563eb !important;
 }
 
 /* Style dual range slider tracks globally to stand out on white bg */
@@ -7286,7 +7300,7 @@ body[data-page="musicians"] .market-tile-card:hover {
 
 /* =============================================================
  * Tile Type Flag: Musiker-Typ / Event-Typ Tag on cards
- * Lila Rahmen, weiße Fläche, lila Schrift
+ * Lila für Musiker-Account, Blau für Veranstalter-Account
  * ============================================================= */
 .tile-type-flag {
     background: #ffffff !important;
@@ -7306,6 +7320,23 @@ body[data-page="musicians"] .market-tile-card:hover {
     letter-spacing: 0.4px !important;
     text-transform: uppercase !important;
     font-family: var(--font-heading) !important;
+}
+
+/* Theme Organizer overrides: Musiker-Typ / Event-Typ Tag in Blau (#2563eb) */
+.theme-organizer .tile-type-flag,
+body.theme-organizer .tile-type-flag,
+.theme-organizer .tag-pill-checkbox.tile-type-flag {
+    background: #ffffff !important;
+    border: 1.5px solid #2563eb !important;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15) !important;
+}
+
+.theme-organizer .tile-type-flag span,
+.theme-organizer .tile-type-flag span[style*="color"],
+body.theme-organizer .tile-type-flag span,
+body.theme-organizer .tile-type-flag span[style*="color"],
+.theme-organizer .tag-pill-checkbox.tile-type-flag span {
+    color: #2563eb !important;
 }
 
 /* =============================================================

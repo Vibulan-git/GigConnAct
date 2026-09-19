@@ -871,7 +871,8 @@ exports.deleteUserAccountPermanently = functions
                 } catch (authErr) {
                     console.log("[deleteUserAccountPermanently] Auth user delete info:", authErr.message);
                 }
-            } else if (emailLower) {
+            }
+            if (emailLower) {
                 try {
                     const authUser = await admin.auth().getUserByEmail(emailLower);
                     if (authUser) {

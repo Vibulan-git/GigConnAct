@@ -3168,6 +3168,34 @@ class StateManager {
                         this.notify();
                     } else {
                         console.warn("Logged in user has no document in Firestore 'users' collection.");
+                        const emailLower = (firebaseUser.email || '').toLowerCase().trim();
+                        let existingUserDoc = null;
+                        if (emailLower) {
+                            try {
+                                const snap = await db.collection('users').where('email', '==', emailLower).limit(1).get();
+                                if (!snap.empty) {
+                                    existingUserDoc = snap.docs[0];
+                                }
+                            } catch (e) {
+                                console.warn("Error querying user by email in setupAuthListener:", e);
+                            }
+                        }
+
+                        if (existingUserDoc) {
+                            console.log("Found existing user document by email:", existingUserDoc.id);
+                            this.currentUser = { id: existingUserDoc.id, ...existingUserDoc.data() };
+                            if (this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
+                                this.currentUser.role = 'organizer';
+                            }
+                            localStorage.setItem('GigConnAct_current_user', JSON.stringify(this.currentUser));
+                            this.saveState();
+                            await this.fetchUserOwnData();
+                            this.authInitialized = true;
+                            this.notify();
+                            closeModal();
+                            return;
+                        }
+
                         if (firebaseUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(firebaseUser.email)) {
                             console.log("[DEBUG] Auto-creating Firestore user document for admin/organizer:", firebaseUser.email);
                             const newAdminUser = {
@@ -3181,29 +3209,59 @@ class StateManager {
                             this.notify();
                         } else {
                             window.googleRegistrationUser = firebaseUser;
-                            setTimeout(() => {
-                                if (typeof auth !== 'undefined' && !auth.currentUser) return;
-                                const currentHash = window.location.hash || '';
-                                if (currentHash.includes('datenschutz') || currentHash.includes('impressum')) {
-                                    console.log("Skipping auth modal popup on legal pages.");
-                                    return;
-                                }
-                                showModal('auth');
-                                const registerForm = document.getElementById('auth-register-form');
-                                if (registerForm) {
-                                    if (registerForm.elements.email) {
-                                        registerForm.elements.email.value = firebaseUser.email || '';
-                                        registerForm.elements.email.disabled = true;
-                                        registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
-                                        registerForm.elements.email.style.cursor = 'not-allowed';
-                                    }
-                                    if (registerForm.elements.fullName && firebaseUser.displayName) {
-                                        registerForm.elements.fullName.value = firebaseUser.displayName;
-                                    }
-                                }
+                            const registerForm = document.getElementById('auth-register-form');
+                            const modalWrapper = document.getElementById('modal-container');
+                            const isModalOpen = modalWrapper && !modalWrapper.classList.contains('hidden') && registerForm;
+
+                            if (isModalOpen) {
                                 const registerTabBtn = document.getElementById('tab-register-btn');
                                 if (registerTabBtn) registerTabBtn.click();
-                            }, 500);
+                                if (registerForm.elements.email) {
+                                    registerForm.elements.email.value = firebaseUser.email || '';
+                                    registerForm.elements.email.disabled = true;
+                                    registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
+                                    registerForm.elements.email.style.cursor = 'not-allowed';
+                                }
+                                if (registerForm.elements.fullName && firebaseUser.displayName && !registerForm.elements.fullName.value) {
+                                    registerForm.elements.fullName.value = firebaseUser.displayName;
+                                }
+                                const linkedBanner = document.getElementById('google-linked-banner');
+                                const linkedEmail = document.getElementById('google-linked-email');
+                                if (linkedBanner && linkedEmail) {
+                                    linkedEmail.textContent = firebaseUser.email || '';
+                                    linkedBanner.style.display = 'flex';
+                                }
+                            } else {
+                                setTimeout(() => {
+                                    if (typeof auth !== 'undefined' && !auth.currentUser) return;
+                                    const currentHash = window.location.hash || '';
+                                    if (currentHash.includes('datenschutz') || currentHash.includes('impressum')) {
+                                        console.log("Skipping auth modal popup on legal pages.");
+                                        return;
+                                    }
+                                    showModal('auth');
+                                    const regForm = document.getElementById('auth-register-form');
+                                    if (regForm) {
+                                        if (regForm.elements.email) {
+                                            regForm.elements.email.value = firebaseUser.email || '';
+                                            regForm.elements.email.disabled = true;
+                                            regForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
+                                            regForm.elements.email.style.cursor = 'not-allowed';
+                                        }
+                                        if (regForm.elements.fullName && firebaseUser.displayName) {
+                                            regForm.elements.fullName.value = firebaseUser.displayName;
+                                        }
+                                    }
+                                    const registerTabBtn = document.getElementById('tab-register-btn');
+                                    if (registerTabBtn) registerTabBtn.click();
+                                    const linkedBanner = document.getElementById('google-linked-banner');
+                                    const linkedEmail = document.getElementById('google-linked-email');
+                                    if (linkedBanner && linkedEmail) {
+                                        linkedEmail.textContent = firebaseUser.email || '';
+                                        linkedBanner.style.display = 'flex';
+                                    }
+                                }, 300);
+                            }
                             this.authInitialized = true;
                             this.notify();
                         }
@@ -3235,6 +3293,34 @@ class StateManager {
                             this.notify();
                         } else {
                             console.warn("Logged in user has no document in Firestore 'users' collection (HTTP fallback).");
+                            const fallbackEmailLower = (firebaseUser.email || '').toLowerCase().trim();
+                            let fallbackExistingDoc = null;
+                            if (fallbackEmailLower) {
+                                try {
+                                    const snap = await db.collection('users').where('email', '==', fallbackEmailLower).limit(1).get();
+                                    if (!snap.empty) {
+                                        fallbackExistingDoc = snap.docs[0];
+                                    }
+                                } catch (e) {
+                                    console.warn("Error querying user by email in setupAuthListener fallback:", e);
+                                }
+                            }
+
+                            if (fallbackExistingDoc) {
+                                console.log("Found existing user document by email (fallback):", fallbackExistingDoc.id);
+                                this.currentUser = { id: fallbackExistingDoc.id, ...fallbackExistingDoc.data() };
+                                if (this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
+                                    this.currentUser.role = 'organizer';
+                                }
+                                localStorage.setItem('GigConnAct_current_user', JSON.stringify(this.currentUser));
+                                this.saveState();
+                                await this.fetchUserOwnData();
+                                this.authInitialized = true;
+                                this.notify();
+                                closeModal();
+                                return;
+                            }
+
                             if (firebaseUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(firebaseUser.email)) {
                                 console.log("[DEBUG] Auto-creating Firestore user document for admin/organizer (HTTP fallback):", firebaseUser.email);
                                 const newAdminUser = {
@@ -3248,21 +3334,51 @@ class StateManager {
                                 this.notify();
                             } else {
                                 window.googleRegistrationUser = firebaseUser;
-                                showModal('auth');
                                 const registerForm = document.getElementById('auth-register-form');
-                                if (registerForm) {
+                                const modalWrapper = document.getElementById('modal-container');
+                                const isModalOpen = modalWrapper && !modalWrapper.classList.contains('hidden') && registerForm;
+
+                                if (isModalOpen) {
+                                    const registerTabBtn = document.getElementById('tab-register-btn');
+                                    if (registerTabBtn) registerTabBtn.click();
                                     if (registerForm.elements.email) {
                                         registerForm.elements.email.value = firebaseUser.email || '';
                                         registerForm.elements.email.disabled = true;
                                         registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
                                         registerForm.elements.email.style.cursor = 'not-allowed';
                                     }
-                                    if (registerForm.elements.fullName && firebaseUser.displayName) {
+                                    if (registerForm.elements.fullName && firebaseUser.displayName && !registerForm.elements.fullName.value) {
                                         registerForm.elements.fullName.value = firebaseUser.displayName;
                                     }
+                                    const linkedBanner = document.getElementById('google-linked-banner');
+                                    const linkedEmail = document.getElementById('google-linked-email');
+                                    if (linkedBanner && linkedEmail) {
+                                        linkedEmail.textContent = firebaseUser.email || '';
+                                        linkedBanner.style.display = 'flex';
+                                    }
+                                } else {
+                                    showModal('auth');
+                                    const regForm = document.getElementById('auth-register-form');
+                                    if (regForm) {
+                                        if (regForm.elements.email) {
+                                            regForm.elements.email.value = firebaseUser.email || '';
+                                            regForm.elements.email.disabled = true;
+                                            regForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
+                                            regForm.elements.email.style.cursor = 'not-allowed';
+                                        }
+                                        if (regForm.elements.fullName && firebaseUser.displayName) {
+                                            regForm.elements.fullName.value = firebaseUser.displayName;
+                                        }
+                                    }
+                                    const registerTabBtn = document.getElementById('tab-register-btn');
+                                    if (registerTabBtn) registerTabBtn.click();
+                                    const linkedBanner = document.getElementById('google-linked-banner');
+                                    const linkedEmail = document.getElementById('google-linked-email');
+                                    if (linkedBanner && linkedEmail) {
+                                        linkedEmail.textContent = firebaseUser.email || '';
+                                        linkedBanner.style.display = 'flex';
+                                    }
                                 }
-                                const registerTabBtn = document.getElementById('tab-register-btn');
-                                if (registerTabBtn) registerTabBtn.click();
                                 this.authInitialized = true;
                                 this.notify();
                             }
@@ -3699,43 +3815,85 @@ class StateManager {
                 const user = result.user;
                 console.log("Google redirect sign-in successful:", user.email);
                 
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                if (!userDoc.exists) {
+                let userDoc = await db.collection('users').doc(user.uid).get();
+                let foundUserData = null;
+                if (userDoc.exists) {
+                    foundUserData = { id: userDoc.id, ...userDoc.data() };
+                } else {
+                    const emailLower = (user.email || '').toLowerCase().trim();
+                    if (emailLower) {
+                        try {
+                            const snap = await db.collection('users').where('email', '==', emailLower).limit(1).get();
+                            if (!snap.empty) {
+                                foundUserData = { id: snap.docs[0].id, ...snap.docs[0].data() };
+                            }
+                        } catch (e) {
+                            console.warn("Error checking email in handleGoogleRedirectResult:", e);
+                        }
+                    }
+                }
+
+                if (!foundUserData) {
                     // NEW USER: Redirect to register page!
                     window.googleRegistrationUser = user;
                     
-                    // Switch to register tab and prefill
-                    setTimeout(() => {
-                        showModal('auth');
-                        const registerForm = document.getElementById('auth-register-form');
-                        if (registerForm) {
-                            if (registerForm.elements.email) {
-                                registerForm.elements.email.value = user.email || '';
-                                registerForm.elements.email.disabled = true;
-                                registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
-                                registerForm.elements.email.style.cursor = 'not-allowed';
-                            }
-                            if (registerForm.elements.fullName && user.displayName) {
-                                registerForm.elements.fullName.value = user.displayName;
-                            }
-                        }
+                    const registerForm = document.getElementById('auth-register-form');
+                    const modalWrapper = document.getElementById('modal-container');
+                    const isModalOpen = modalWrapper && !modalWrapper.classList.contains('hidden') && registerForm;
+
+                    if (isModalOpen) {
                         const registerTabBtn = document.getElementById('tab-register-btn');
                         if (registerTabBtn) registerTabBtn.click();
-                        
-                        /*
-                        showToast({
-                            title: "Google-Konto verknüpft!",
-                            message: "Bitte vervollständige deine Angaben, um die Registrierung abzuschließen."
-                        });
-                        */
-                    }, 500);
+                        if (registerForm.elements.email) {
+                            registerForm.elements.email.value = user.email || '';
+                            registerForm.elements.email.disabled = true;
+                            registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
+                            registerForm.elements.email.style.cursor = 'not-allowed';
+                        }
+                        if (registerForm.elements.fullName && user.displayName && !registerForm.elements.fullName.value) {
+                            registerForm.elements.fullName.value = user.displayName;
+                        }
+                        const linkedBanner = document.getElementById('google-linked-banner');
+                        const linkedEmail = document.getElementById('google-linked-email');
+                        if (linkedBanner && linkedEmail) {
+                            linkedEmail.textContent = user.email || '';
+                            linkedBanner.style.display = 'flex';
+                        }
+                    } else {
+                        // Switch to register tab and prefill
+                        setTimeout(() => {
+                            showModal('auth');
+                            const regForm = document.getElementById('auth-register-form');
+                            if (regForm) {
+                                if (regForm.elements.email) {
+                                    regForm.elements.email.value = user.email || '';
+                                    regForm.elements.email.disabled = true;
+                                    regForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
+                                    regForm.elements.email.style.cursor = 'not-allowed';
+                                }
+                                if (regForm.elements.fullName && user.displayName) {
+                                    regForm.elements.fullName.value = user.displayName;
+                                }
+                            }
+                            const registerTabBtn = document.getElementById('tab-register-btn');
+                            if (registerTabBtn) registerTabBtn.click();
+                            const linkedBanner = document.getElementById('google-linked-banner');
+                            const linkedEmail = document.getElementById('google-linked-email');
+                            if (linkedBanner && linkedEmail) {
+                                linkedEmail.textContent = user.email || '';
+                                linkedBanner.style.display = 'flex';
+                            }
+                        }, 300);
+                    }
                 } else {
                     // EXISTING USER: Logged in!
                     // Populate state immediately to avoid race condition/automatic logout in handleRouting
-                    this.currentUser = { id: userDoc.id, ...userDoc.data() };
+                    this.currentUser = foundUserData;
                     if (this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email)) {
                         this.currentUser.role = 'organizer';
                     }
+                    localStorage.setItem('GigConnAct_current_user', JSON.stringify(this.currentUser));
+                    this.saveState();
                     await this.fetchUserOwnData();
                     this.authInitialized = true;
                     this.notify();
@@ -5492,48 +5650,32 @@ class StateManager {
                 const doc = snapshot.docs[0];
                 matchedUser = { id: doc.id, ...doc.data() };
             } else {
-                // 3. Fallback: check events and musicians collections for creator
-                const evtMatch = (this.events || []).find(e => e && ((e.email && e.email.toLowerCase().trim() === emailLower) || (e.clientEmail && e.clientEmail.toLowerCase().trim() === emailLower)));
-                const musMatch = (this.musicians || []).find(m => m && m.email && m.email.toLowerCase().trim() === emailLower);
+                // 3. Fallback: Query Firestore directly for musicians or events (verifying real existence in database, never stale local cache)
+                try {
+                    const [musSnap, evtSnap] = await Promise.all([
+                        db.collection('musicians').where('email', '==', emailLower).limit(1).get().catch(() => ({ empty: true })),
+                        db.collection('events').where('email', '==', emailLower).limit(1).get().catch(() => ({ empty: true }))
+                    ]);
 
-                if (evtMatch) {
-                    if (evtMatch.creatorId) {
-                        try {
-                            const uDoc = await db.collection('users').doc(evtMatch.creatorId).get();
-                            if (uDoc.exists) {
+                    if (!musSnap.empty && musSnap.docs && musSnap.docs.length > 0) {
+                        const musDoc = musSnap.docs[0].data();
+                        if (musDoc.creatorId) {
+                            const uDoc = await db.collection('users').doc(musDoc.creatorId).get().catch(() => null);
+                            if (uDoc && uDoc.exists) {
                                 matchedUser = { id: uDoc.id, ...uDoc.data() };
                             }
-                        } catch (e) {}
-                    }
-                    if (!matchedUser) {
-                        matchedUser = {
-                            id: evtMatch.creatorId || 'user_' + Date.now(),
-                            email: emailLower,
-                            role: 'organizer',
-                            firstName: evtMatch.contactName || evtMatch.name || 'Veranstalter',
-                            lastName: '',
-                            profileId: evtMatch.id
-                        };
-                    }
-                } else if (musMatch) {
-                    if (musMatch.creatorId) {
-                        try {
-                            const uDoc = await db.collection('users').doc(musMatch.creatorId).get();
-                            if (uDoc.exists) {
+                        }
+                    } else if (!evtSnap.empty && evtSnap.docs && evtSnap.docs.length > 0) {
+                        const evtDoc = evtSnap.docs[0].data();
+                        if (evtDoc.creatorId) {
+                            const uDoc = await db.collection('users').doc(evtDoc.creatorId).get().catch(() => null);
+                            if (uDoc && uDoc.exists) {
                                 matchedUser = { id: uDoc.id, ...uDoc.data() };
                             }
-                        } catch (e) {}
+                        }
                     }
-                    if (!matchedUser) {
-                        matchedUser = {
-                            id: musMatch.creatorId || 'user_' + Date.now(),
-                            email: emailLower,
-                            role: 'musician',
-                            firstName: musMatch.contactName || musMatch.name || 'Musiker',
-                            lastName: '',
-                            profileId: musMatch.id
-                        };
-                    }
+                } catch (dbErr) {
+                    console.warn("loginPasswordless fallback check error:", dbErr);
                 }
             }
             
@@ -11180,19 +11322,18 @@ window.deleteCurrentUserAccount = async function() {
 
         // 4. Clean local fallback storage
         const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
-        const idx = registeredUsers.findIndex(usr => usr.id === userId || (userEmail && usr.email && usr.email.toLowerCase() === userEmail));
-        if (idx !== -1) {
-            registeredUsers.splice(idx, 1);
-            localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
-        }
+        const filteredUsers = registeredUsers.filter(usr => usr && usr.id !== userId && (!userEmail || !usr.email || usr.email.toLowerCase() !== userEmail));
+        localStorage.setItem('GigConnAct_registered_users', JSON.stringify(filteredUsers));
 
         state.currentUser = null;
         state.activeMusicianId = null;
         state.activeEventId = null;
         state.saveState();
+        localStorage.removeItem('GigConnAct_current_user');
         localStorage.removeItem('GigConnAct_read_chats');
         localStorage.removeItem('emailForSignIn');
         localStorage.removeItem('GigConnAct_pending_registration');
+        try { sessionStorage.clear(); } catch (e) {}
 
         showToast({
             title: "Konto gelöscht ℹ",
@@ -12467,8 +12608,8 @@ function renderOrganizerEventItem(e, isActive) {
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
                         <!-- 1. Event-Typ als Tag -->
                         <div style="margin-bottom: 0.15rem; display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; flex-wrap: wrap;">
-                            <span class="tile-type-flag" style="background: #ffffff; border: 1.5px solid #7c3aed; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 2px 6px rgba(124, 58, 237, 0.12);">
-                                <span style="color: #7c3aed; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${eventTypeDisplay}</span>
+                            <span class="tile-type-flag" style="background: #ffffff; border: 1.5px solid #2563eb; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);">
+                                <span style="color: #2563eb; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${eventTypeDisplay}</span>
                             </span>
                         </div>
                         <!-- 2. Ort -->
@@ -14979,7 +15120,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                             <path d="M3.94 10.71c-.18-.54-.28-1.12-.28-1.71s.1-1.17.28-1.71V4.99H.96A8.99 8.99 0 000 9c0 1.49.36 2.92.96 4.2l2.98-2.3a5.35 5.35 0 01-.29-1.19z" fill="#FBBC05"/>
                             <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.05C13.47.62 11.43 0 9 0 5.48 0 2.44 2.02.96 4.99l2.98 2.3C4.65 5.17 6.65 3.58 9 3.58z" fill="#EA4335"/>
                         </svg>
-                        Mit Google anmelden
+                        <span id="btn-google-login-text">Mit Google anmelden</span>
                     </button>
                     
                     <div style="display: flex; align-items: center; text-align: center; margin: 1rem 0 0.5rem; color: var(--text-muted); font-size: 0.8rem;">
@@ -15003,6 +15144,10 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 </form>
 
                 <form id="auth-register-form" class="hidden">
+                    <div id="google-linked-banner" style="display:none; margin-bottom: 1.25rem; padding: 0.75rem 1rem; border-radius: 8px; background: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.25); color: #1e3a8a; font-size: 0.85rem; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-circle-check" style="color: #2563eb; font-size: 1.1rem;"></i>
+                        <span>Mit Google verknüpft: <strong id="google-linked-email"></strong></span>
+                    </div>
                     <div class="role-picker-container" style="margin-bottom: 1.5rem; ${defaultRole === 'organizer_only' ? 'display: none !important;' : ''}">
                         <div class="role-picker">
                             <div class="role-card active musician-role" id="role-picker-mus">
@@ -15638,12 +15783,23 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         if (activeForm) activeForm.classList.remove('hidden');
 
         const googleContainer = document.getElementById('google-login-container');
+        const googleBtnText = document.getElementById('btn-google-login-text');
         if (googleContainer) {
-            if (activeForm === magicForm) {
-                googleContainer.style.display = 'block';
-            } else {
-                googleContainer.style.display = 'none';
+            googleContainer.style.display = 'block';
+            if (googleBtnText) {
+                if (activeForm === magicForm) {
+                    googleBtnText.textContent = 'Mit Google anmelden';
+                } else {
+                    googleBtnText.textContent = 'Mit Google registrieren';
+                }
             }
+        }
+        const currentGoogle = window.googleRegistrationUser || (typeof auth !== 'undefined' && auth.currentUser && auth.currentUser.providerData.some(p => p.providerId === 'google.com') ? auth.currentUser : null);
+        const linkedBanner = document.getElementById('google-linked-banner');
+        const linkedEmail = document.getElementById('google-linked-email');
+        if (currentGoogle && linkedBanner && linkedEmail) {
+            linkedEmail.textContent = currentGoogle.email || '';
+            linkedBanner.style.display = 'flex';
         }
     }
 
@@ -15651,23 +15807,15 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         magicTab.addEventListener('click', () => {
             setActiveTab(magicTab);
             showForm(magicForm);
-            window.googleRegistrationUser = null;
-            if (registerForm && registerForm.elements.email) {
-                registerForm.elements.email.value = '';
-                registerForm.elements.email.disabled = false;
-                registerForm.elements.email.style.background = '';
-                registerForm.elements.email.style.cursor = '';
-            }
-            if (registerForm && registerForm.elements.fullName) {
-                registerForm.elements.fullName.value = '';
-            }
             document.getElementById('magic-success-container').style.display = 'none';
             document.getElementById('magic-success-container').innerHTML = '';
             document.getElementById('magic-error-msg').style.display = 'none';
             document.getElementById('btn-send-magic').style.display = 'flex';
             if (magicForm.elements.email) {
                 magicForm.elements.email.style.display = 'block';
-                magicForm.elements.email.value = '';
+                if (!window.googleRegistrationUser && !magicForm.elements.email.value) {
+                    magicForm.elements.email.value = '';
+                }
             }
             const grp = magicForm.querySelector('.form-group');
             if (grp) {
@@ -16685,9 +16833,16 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Registrierung läuft...`;
         }
 
-        if (window.googleRegistrationUser) {
+        const googleUser = window.googleRegistrationUser || (
+            typeof auth !== 'undefined' && auth.currentUser && (
+                auth.currentUser.providerData.some(p => p.providerId === 'google.com') ||
+                (auth.currentUser.email && payload.email && auth.currentUser.email.toLowerCase() === payload.email.toLowerCase())
+            ) ? auth.currentUser : null
+        );
+
+        if (googleUser) {
             try {
-                const user = window.googleRegistrationUser;
+                const user = googleUser;
                 const profileId = payload.role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
                 const isPromo = payload.subscriptionPlan === 'premium' && isPromoCodeApplied;
 
@@ -16700,7 +16855,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     organizerType: payload.organizerType || "",
                     phone: payload.phone,
                     hidePhone: payload.hidePhone || false,
-                    email: user.email,
+                    email: user.email || payload.email,
                     profileId: profileId,
                     eventName: payload.eventName || 'Mein Event',
                     isPremium: isPromo,
@@ -16942,10 +17097,10 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         }
 
                         if (!foundUserData) {
-                            // NEW USER: Redirect to register page!
+                            // NEW USER: Switch smoothly to register form without closing modal
                             window.googleRegistrationUser = user;
-                            closeModal();
-                            showModal('auth');
+                            const registerTabBtn = document.getElementById('tab-register-btn');
+                            if (registerTabBtn) registerTabBtn.click();
                             const registerForm = document.getElementById('auth-register-form');
                             if (registerForm) {
                                 if (registerForm.elements.email) {
@@ -16954,12 +17109,16 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                     registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
                                     registerForm.elements.email.style.cursor = 'not-allowed';
                                 }
-                                if (registerForm.elements.fullName && user.displayName) {
+                                if (registerForm.elements.fullName && user.displayName && !registerForm.elements.fullName.value) {
                                     registerForm.elements.fullName.value = user.displayName;
                                 }
                             }
-                            const registerTabBtn = document.getElementById('tab-register-btn');
-                            if (registerTabBtn) registerTabBtn.click();
+                            const linkedBanner = document.getElementById('google-linked-banner');
+                            const linkedEmail = document.getElementById('google-linked-email');
+                            if (linkedBanner && linkedEmail) {
+                                linkedEmail.textContent = user.email || '';
+                                linkedBanner.style.display = 'flex';
+                            }
                         } else {
                             // EXISTING USER: Logged in!
                             state.currentUser = foundUserData;
@@ -16988,10 +17147,16 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 })
                 .catch((err) => {
                     console.error("Google Popup Error:", err);
-                    // Fallback to redirect if popup is blocked, cancelled, or not supported in this environment
+                    if (
+                        err.code === 'auth/popup-closed-by-user' || 
+                        err.code === 'auth/cancelled-popup-request'
+                    ) {
+                        googleBtn.disabled = false;
+                        googleBtn.innerHTML = originalHtml;
+                        return;
+                    }
                     if (
                         err.code === 'auth/popup-blocked' || 
-                        err.code === 'auth/cancelled-popup-request' || 
                         err.code === 'auth/operation-not-supported-in-this-environment'
                     ) {
                         console.log("Falling back to signInWithRedirect...");
@@ -20913,10 +21078,11 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
             (item.name && (item.name.includes('(Demo)') || item.name.includes('[Demo]'))) ||
             (item.title && (item.title.includes('(Demo)') || item.title.includes('[Demo]')))
         );
-        // Tags (Musiker-Typ bzw. Event-Typ) - Lila Rahmen, weiße Fläche, lila Schrift
+        // Tags (Musiker-Typ bzw. Event-Typ) - Lila Rahmen für Musiker, Blauer Rahmen für Veranstalter
         const tagThemeBg = '#ffffff';
-        const tagThemeBorder = '#7c3aed';
-        const tagThemeShadow = '0 2px 6px rgba(124, 58, 237, 0.12)';
+        const tagThemeBorder = isEvents ? '#7c3aed' : '#2563eb';
+        const tagThemeShadow = isEvents ? '0 2px 6px rgba(124, 58, 237, 0.12)' : '0 2px 6px rgba(37, 99, 235, 0.15)';
+        const tagThemeColor = isEvents ? '#7c3aed' : '#2563eb';
 
         let singleType = '';
         if (isEvents) {
@@ -21093,7 +21259,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                         <!-- 1. Event-Typ als Tag (oben über Ort) -->
                         <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
                             <span class="tile-type-flag" style="background: ${tagThemeBg}; border: 1.5px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: ${tagThemeShadow};">
-                                <span style="color: #7c3aed; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${typeTagText}</span>
+                                <span style="color: ${tagThemeColor}; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${typeTagText}</span>
                             </span>
                         </div>
 
@@ -21173,7 +21339,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                         <!-- 1. Musiker-Typ als Tag (oben über Ort) -->
                         <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
                             <span class="tile-type-flag" style="background: ${tagThemeBg}; border: 1.5px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: ${tagThemeShadow};">
-                                <span style="color: #7c3aed; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${typeTagText}</span>
+                                <span style="color: ${tagThemeColor}; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${typeTagText}</span>
                             </span>
                         </div>
 
@@ -23485,8 +23651,8 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.6rem;">
                                         <!-- 1. Musiker-Typ als Tag (oben über Ort) -->
                                         <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                                            <span class="tile-type-flag" style="background: #ffffff; border: 1.5px solid #7c3aed; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 2px 6px rgba(124, 58, 237, 0.12);">
-                                                <span style="color: #7c3aed; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${singleType}</span>
+                                            <span class="tile-type-flag" style="background: #ffffff; border: 1.5px solid #2563eb; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);">
+                                                <span style="color: #2563eb; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${singleType}</span>
                                             </span>
                                         </div>
 
