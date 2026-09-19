@@ -12163,7 +12163,7 @@ function renderMatchesPage(container) {
                             </button>
                         </div>
                     ` : `
-                        <div id="top-matches-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; width: 100%;">
+                        <div id="top-matches-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 388px)); gap: 2rem; width: 100%;">
                         </div>
                     `}
                 </div>
@@ -21034,7 +21034,7 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
 
                     <!-- Match-Faktor Badge oben rechts - Only if user is logged in -->
                     ${state.currentUser ? `
-                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; display: flex; flex-direction: column; align-items: center;">
+                    <div class="tile-match-score-badge" style="position: absolute; top: 12px; right: 12px; z-index: 25; pointer-events: none; transform: translateZ(10px); will-change: transform; display: flex; flex-direction: column; align-items: center;">
                         <div style="background: ${isEvents ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)'}; color: #fff; padding: 0.35rem 0.45rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 48px;">
                             <span style="font-size: 0.95rem; font-weight: 900;">${item.matchScore !== undefined ? item.matchScore : '96'}%</span>
                             <span style="font-size: 0.45rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>
@@ -23428,7 +23428,7 @@ window.renderRecommendationPage = async function(container, mediationId) {
                             <div class="market-tile-card musician-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); will-change: transform; transform: translateZ(0); width: 100%; box-sizing: border-box;">
                                 <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 235px; background: #0f172a; overflow: hidden;">
                                     <!-- Match-Faktor Badge & Favoriten/Top-Match-Stern oben rechts -->
-                                    <div style="position: absolute; top: 12px; right: 12px; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                                    <div class="tile-match-score-badge" style="position: absolute; top: 12px; right: 12px; z-index: 25; pointer-events: none; transform: translateZ(10px); will-change: transform; display: flex; flex-direction: column; align-items: center; gap: 6px;">
                                         <div style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); color: #fff; padding: 0.35rem 0.45rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-width: 48px;">
                                             <span style="font-size: 0.95rem; font-weight: 900;">${mus.matchScore}%</span>
                                             <span style="font-size: 0.45rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; opacity: 0.95; margin-top: 1px;">Match</span>

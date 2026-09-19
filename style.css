@@ -7261,4 +7261,44 @@ body[data-page="musicians"] .market-tile-card:hover {
     font-family: var(--font-heading) !important;
 }
 
+/* =============================================================
+ * Persistent Match Score Badge on Cards
+ * ============================================================= */
+.tile-match-score-badge {
+    position: absolute !important;
+    top: 12px !important;
+    right: 12px !important;
+    z-index: 25 !important;
+    pointer-events: none !important;
+    transform: translateZ(10px) !important;
+    will-change: transform !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+}
+
+/* =============================================================
+ * Top-Matches Grid: Harmonized with Favorites and Market
+ * ============================================================= */
+#top-matches-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 388px)) !important;
+    gap: 2rem !important;
+    width: 100% !important;
+}
+
+#top-matches-grid .market-tile-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+@media (max-width: 900px) {
+    #top-matches-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem !important;
+    }
+}
+
+
 
