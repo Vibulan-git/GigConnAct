@@ -8137,7 +8137,7 @@ function renderMarket(container, type, onNavigate) {
         }
     }
     const urlParams = new URLSearchParams(window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
-    if (urlParams.get('showOnlyFavorites') === 'true' || urlParams.get('fav') === 'true') {
+    if (urlParams.get('showOnlyFavorites') === 'true' || urlParams.get('fav') === 'true' || window.location.hash.includes('fav=true') || window.location.hash.includes('favorites')) {
         showOnlyFavorites = true;
     }
     window.currentMarketShowFavorites = showOnlyFavorites;
@@ -9615,27 +9615,20 @@ function renderMarket(container, type, onNavigate) {
                 }
                 const themeColor = isEvents ? '#7c3aed' : '#2563eb';
                 
+                const isFavoritesView = Boolean(showOnlyFavorites || window.currentMarketShowFavorites || (window.location.hash && (window.location.hash.includes('fav') || window.location.hash.includes('favorites'))) || container.querySelector('.market-page')?.classList.contains('favorites-mode'));
+                const hasMoreMatchesToPaginate = totalMatchesCount > displayedItemsCount;
+                const hasExcludedToReveal = !showMoreMatchesUnfiltered && !isFavoritesView && isFilterActiveCurrently && unfilteredList.some(item => !list.some(listItem => listItem.id === item.id));
+
                 let actionButtonsHtml = '';
-                if (totalMatchesCount > displayedItemsCount) {
+                if (hasMoreMatchesToPaginate || hasExcludedToReveal) {
                     actionButtonsHtml += `
-                        <button class="market-bottom-pill-btn" id="btn-market-load-more">
-                            <i class="fa-solid fa-chevron-down"></i> <span>Weitere ${isEvents ? 'Events' : 'Musiker'}</span>
+                        <button class="market-bottom-pill-btn" id="btn-market-show-more-unfiltered">
+                            <i class="fa-solid fa-plus"></i> <span>Weitere Ergebnisse</span>
                         </button>
                     `;
                 }
 
-                if (!showMoreMatchesUnfiltered && !showOnlyFavorites && isFilterActiveCurrently) {
-                    const hasExcluded = unfilteredList.some(item => !list.some(listItem => listItem.id === item.id));
-                    if (hasExcluded) {
-                        actionButtonsHtml += `
-                            <button class="market-bottom-pill-btn" id="btn-market-show-more-unfiltered">
-                                <i class="fa-solid fa-plus"></i> <span>Weitere Ergebnisse</span>
-                            </button>
-                        `;
-                    }
-                }
-                
-                if (!showOnlyFavorites && (isFilterActiveCurrently || state.currentUser !== null)) {
+                if (!isFavoritesView && isFilterActiveCurrently) {
                     actionButtonsHtml += `
                         <button class="market-bottom-pill-btn" id="btn-market-bottom-reset">
                             <i class="fa-solid fa-rotate-right"></i> <span>Filter zurücksetzen</span>
@@ -9652,30 +9645,26 @@ function renderMarket(container, type, onNavigate) {
                 }
                 
                 bottomResetContainer.innerHTML = buttonsHtml;
-                
-                const btnLoadMore = bottomResetContainer.querySelector('#btn-market-load-more');
-                if (btnLoadMore) {
-                    btnLoadMore.onclick = (e) => {
-                        e.preventDefault();
-                        displayedItemsCount += 12;
-                        applyAllFiltersAndSort(false, true);
-                    };
-                }
 
                 const btnShowMoreUnfiltered = bottomResetContainer.querySelector('#btn-market-show-more-unfiltered');
                 if (btnShowMoreUnfiltered) {
                     btnShowMoreUnfiltered.onclick = (e) => {
                         e.preventDefault();
-                        const excludedList = unfilteredList.filter(item => !list.some(listItem => listItem.id === item.id));
-                        if (excludedList.length === 0) {
-                            if (typeof showToast === 'function') {
-                                showToast('Alle passenden und weiteren Ergebnisse werden bereits angezeigt.', 'info');
+                        if (totalMatchesCount > displayedItemsCount) {
+                            displayedItemsCount += 12;
+                            applyAllFiltersAndSort(false, true);
+                        } else if (hasExcludedToReveal) {
+                            const excludedList = unfilteredList.filter(item => !list.some(listItem => listItem.id === item.id));
+                            if (excludedList.length === 0) {
+                                if (typeof showToast === 'function') {
+                                    showToast('Alle passenden und weiteren Ergebnisse werden bereits angezeigt.', 'info');
+                                }
+                                return;
                             }
-                            return;
+                            showMoreMatchesUnfiltered = true;
+                            displayedItemsCount = Math.max(displayedItemsCount + 12, list.length + Math.min(10, excludedList.length));
+                            applyAllFiltersAndSort(false, true);
                         }
-                        showMoreMatchesUnfiltered = true;
-                        displayedItemsCount = Math.max(displayedItemsCount + 12, list.length + Math.min(10, excludedList.length));
-                        applyAllFiltersAndSort(false, true);
                     };
                 }
                 
@@ -17962,6 +17951,15 @@ function navigate(page) {
             window.renderInfoPage(mainContainer, 'organizer');
             if (!window.location.hash.startsWith('#/info-organizer')) {
                 window.location.hash = '#/info-organizer';
+            }
+            break;
+        case 'favorites':
+            if (!state.currentUser) {
+                navigate('');
+                showModal('auth');
+            } else {
+                const isMus = state.currentUser.role === 'musician';
+                window.location.hash = isMus ? '#/events?fav=true' : '#/musicians?fav=true';
             }
             break;
         case 'events':

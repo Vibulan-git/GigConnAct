@@ -5642,6 +5642,15 @@ body:not(.has-bottom-bar) .market-floating-filter-pill {
     transform: translateX(-50%) translateY(25px) scale(0.9) !important;
 }
 
+/* Favorites mode: Guarantee no reset filters button anywhere in favorites */
+.favorites-mode #btn-market-bottom-reset,
+.market-page.favorites-mode #btn-market-bottom-reset,
+.market-page.favorites-mode #btn-reset-filters,
+.market-page.favorites-mode .btn-reset-round,
+body[data-page="favorites"] #btn-market-bottom-reset {
+    display: none !important;
+}
+
 @media (max-width: 480px) {
     .market-floating-filter-pill {
         height: 42px;
