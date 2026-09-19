@@ -15830,6 +15830,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
     document.getElementById('btn-close-modal').addEventListener('click', () => {
         closeModal();
         window.googleRegistrationUser = null;
+        sessionStorage.removeItem('gigconnact_google_user');
         if (typeof auth !== 'undefined' && auth.currentUser && (!state.currentUser || !state.currentUser.id)) {
             auth.signOut();
         }
@@ -15879,6 +15880,9 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     googleBtnText.textContent = 'Mit Google registrieren';
                 }
             }
+        }
+        if (typeof updateRegSubmitBtnText === 'function') {
+            updateRegSubmitBtnText();
         }
     }
 
@@ -16118,6 +16122,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         
         toggleRequired(fieldsMus, true);
         toggleRequired(fieldsOrg, false);
+        updateRegSubmitBtnText();
     });
 
     pickerOrg.addEventListener('click', () => {
@@ -16157,6 +16162,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
 
         // Render widgets on active state
         renderOrganizerCalendar();
+        updateRegSubmitBtnText();
     });
 
     function toggleRequired(container, isRequired) {
@@ -16562,11 +16568,13 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 regPromoStatus.style.display = "block";
                 regPromoInput.disabled = true;
                 regPromoBtn.disabled = true;
+                updateRegSubmitBtnText();
             } else {
                 isPromoCodeApplied = false;
                 regPromoStatus.textContent = "❌ Ungültiger Gutscheincode. Bitte folge uns auf Instagram und teile den Story-Beitrag oder gib einen gültigen Aktionscode ein.";
                 regPromoStatus.style.color = "#ef4444";
                 regPromoStatus.style.display = "block";
+                updateRegSubmitBtnText();
             }
         };
 
@@ -16577,6 +16585,24 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 checkRegPromo();
             }
         });
+    }
+
+    function updateRegSubmitBtnText() {
+        const submitBtn = registerForm ? registerForm.querySelector('button[type="submit"]') : null;
+        if (!submitBtn) return;
+        const planInput = document.getElementById('input-selected-plan');
+        const plan = planInput ? planInput.value : 'flex';
+        const isGoogle = !!(window.googleRegistrationUser || (typeof auth !== 'undefined' && auth.currentUser && auth.currentUser.providerData.some(p => p.providerId === 'google.com')));
+        
+        if (selectedRole === 'organizer') {
+            submitBtn.innerHTML = isGoogle ? '<i class="fa-brands fa-google"></i> Mit Google kostenlos abschließen' : 'Kostenlos registrieren';
+        } else {
+            if (plan === 'premium' && isPromoCodeApplied) {
+                submitBtn.innerHTML = isGoogle ? '<i class="fa-brands fa-google"></i> Mit Google abschließen (3 Monate kostenlos)' : 'Registrierung abschließen (3 Monate kostenlos)';
+            } else {
+                submitBtn.innerHTML = isGoogle ? '<i class="fa-brands fa-google"></i> Mit Google abschließen &amp; zur Bezahlung' : '<i class="fa-solid fa-lock"></i> Registrierung abschließen &amp; zur Bezahlung';
+            }
+        }
     }
 
     subCards.forEach(card => {
@@ -16601,6 +16627,8 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     regPromoBox.style.display = 'none';
                 }
             }
+
+            updateRegSubmitBtnText();
         });
     });
 
@@ -16950,12 +16978,62 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Registrierung läuft...`;
         }
 
-        const googleUser = window.googleRegistrationUser || (
+        let googleUser = window.googleRegistrationUser || (
             typeof auth !== 'undefined' && auth.currentUser && (
                 auth.currentUser.providerData.some(p => p.providerId === 'google.com') ||
                 (auth.currentUser.email && payload.email && auth.currentUser.email.toLowerCase() === payload.email.toLowerCase())
             ) ? auth.currentUser : null
         );
+
+        if (!googleUser) {
+            const savedGoogle = sessionStorage.getItem('gigconnact_google_user');
+            if (savedGoogle) {
+                try {
+                    const parsed = JSON.parse(savedGoogle);
+                    if (parsed && parsed.email && parsed.email.toLowerCase() === (payload.email || '').toLowerCase().trim()) {
+                        googleUser = (typeof auth !== 'undefined' && auth.currentUser && auth.currentUser.uid === parsed.uid) ? auth.currentUser : parsed;
+                    }
+                } catch (e) {}
+            }
+        }
+
+        const emailLower = (payload.email || '').toLowerCase().trim();
+        const isGoogleEmail = emailLower.endsWith('@gmail.com') || emailLower.endsWith('@googlemail.com');
+
+        // Auto-connect with Google if user entered a Google email address and isn't authenticated yet
+        if (!googleUser && isGoogleEmail) {
+            try {
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Google-Konto verbinden...`;
+                }
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: 'select_account', login_hint: emailLower });
+                const popupRes = await auth.signInWithPopup(provider);
+                if (popupRes && popupRes.user) {
+                    googleUser = popupRes.user;
+                    window.googleRegistrationUser = popupRes.user;
+                    sessionStorage.setItem('gigconnact_google_user', JSON.stringify({
+                        uid: popupRes.user.uid,
+                        email: popupRes.user.email,
+                        displayName: popupRes.user.displayName
+                    }));
+                }
+            } catch (googlePopupErr) {
+                console.warn("Direct Google sign-in on submit cancelled or failed:", googlePopupErr);
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                }
+                if (googlePopupErr.code === 'auth/popup-closed-by-user' || googlePopupErr.code === 'auth/cancelled-popup-request') {
+                    showToast({
+                        title: "Google-Anmeldung abgebrochen",
+                        message: "Bitte bestätige dein Google-Konto im Popup, um die Registrierung direkt abzuschließen."
+                    });
+                    return;
+                }
+            }
+        }
 
         if (googleUser) {
             try {
@@ -16964,7 +17042,10 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     activeAuthUser = googleUser;
                 }
                 if (!activeAuthUser || !activeAuthUser.uid) {
-                    throw new Error("Deine Google-Sitzung ist nicht aktiv. Bitte melde dich erneut mit Google an.");
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    provider.setCustomParameters({ prompt: 'select_account', login_hint: payload.email });
+                    const freshResult = await auth.signInWithPopup(provider);
+                    activeAuthUser = freshResult.user;
                 }
                 const user = activeAuthUser;
                 const profileId = payload.role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
@@ -17091,6 +17172,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 state.notify();
 
                 window.googleRegistrationUser = null;
+                sessionStorage.removeItem('gigconnact_google_user');
                 
                 // Set registration redirecting flag to prevent early paywall blocker
                 window.isRegisteringRedirecting = true;
@@ -17223,6 +17305,11 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         if (!foundUserData) {
                             // NEW USER: Switch smoothly to register form without closing modal
                             window.googleRegistrationUser = user;
+                            sessionStorage.setItem('gigconnact_google_user', JSON.stringify({
+                                uid: user.uid,
+                                email: user.email,
+                                displayName: user.displayName
+                            }));
                             const registerTabBtn = document.getElementById('tab-register-btn');
                             if (registerTabBtn) registerTabBtn.click();
                             const registerForm = document.getElementById('auth-register-form');
@@ -17237,6 +17324,9 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 if (registerForm.elements.fullName && cleanPopupName && !registerForm.elements.fullName.value) {
                                     registerForm.elements.fullName.value = cleanPopupName;
                                 }
+                            }
+                            if (typeof updateRegSubmitBtnText === 'function') {
+                                updateRegSubmitBtnText();
                             }
                         } else {
                             // EXISTING USER: Logged in!
