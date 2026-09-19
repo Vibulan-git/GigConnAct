@@ -4389,15 +4389,15 @@ html {
 
 .btn-reset-round {
     padding: 0 !important;
-    font-size: 0.95rem;
+    font-size: 1.15rem !important;
     font-weight: 700;
     border-radius: 50% !important;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 42px !important;
+    height: 42px !important;
     background: rgba(255, 255, 255, 0.15) !important;
     border: 1px solid rgba(255, 255, 255, 0.25) !important;
     color: #ffffff !important;
@@ -4422,13 +4422,13 @@ html {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 34px !important;
-    height: 34px !important;
+    width: 42px !important;
+    height: 42px !important;
     border-radius: 50% !important;
-    background: rgba(255, 255, 255, 0.2) !important;
-    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    background: rgba(255, 255, 255, 0.22) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
     color: #ffffff !important;
-    font-size: 1.05rem !important;
+    font-size: 1.35rem !important;
     cursor: pointer !important;
     line-height: 1 !important;
     transition: background 0.2s, transform 0.1s !important;
@@ -4436,6 +4436,17 @@ html {
     flex-shrink: 0 !important;
     padding: 0 !important;
     margin: 0 !important;
+}
+
+.btn-close-filters-m i,
+#btn-close-filters-m i,
+#btn-close-filters-top i {
+    font-size: 1.35rem !important;
+    font-weight: 900 !important;
+    color: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .btn-close-filters-m:hover,

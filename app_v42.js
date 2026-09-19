@@ -8626,7 +8626,7 @@ function renderMarket(container, type, onNavigate) {
                         <div class="filter-header-controls" style="display: flex; align-items: center; gap: 1.2rem; justify-content: center; flex: 1;">
                             <!-- 2. Sortierung inside Filter Sidebar Header -->
                             <div class="market-sort-container-round" style="width: 42px !important; height: 42px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 50% !important; flex-shrink: 0; position: relative; margin: 0; cursor: pointer; transition: all 0.2s;">
-                                <i class="fa-solid fa-arrow-down-wide-short" style="color: #ffffff; font-size: 1.05rem; pointer-events: none;"></i>
+                                <i class="fa-solid fa-arrow-down-wide-short" style="color: #ffffff; font-size: 1.15rem; pointer-events: none;"></i>
                                 <select id="sort-select" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; -webkit-appearance: none; -moz-appearance: none; appearance: none; margin: 0; z-index: 5;">
                                     <option value="match">Match-Faktor absteigend</option>
                                     <option value="newest">Neueste zuerst</option>
@@ -8637,14 +8637,14 @@ function renderMarket(container, type, onNavigate) {
                             </div>
                             
                             <button id="btn-reset-filters" class="btn-reset-round" title="Filter zurücksetzen" style="margin: 0; width: 42px; height: 42px;">
-                                <i class="fa-solid fa-rotate-left"></i>
+                                <i class="fa-solid fa-rotate-left" style="font-size: 1.15rem; color: #ffffff;"></i>
                             </button>
                         </div>
                         
                         <!-- Right: Close Button (Haken) -->
                         <div class="filter-header-close-wrapper" style="flex: 1; display: flex; justify-content: flex-end;">
-                            <button id="btn-close-filters-top" class="btn-close-filters-m" title="Filter anwenden & schließen" type="button" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; border: 1.5px solid rgba(255, 255, 255, 0.45); background: rgba(255, 255, 255, 0.22); color: #ffffff; backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);">
-                                <i class="fa-solid fa-check" style="font-size: 1.1rem; color: #ffffff;"></i>
+                            <button id="btn-close-filters-top" class="btn-close-filters-m" title="Filter anwenden & schließen" type="button" style="width: 42px !important; height: 42px !important; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; border: 1.5px solid rgba(255, 255, 255, 0.45); background: rgba(255, 255, 255, 0.22); color: #ffffff; backdrop-filter: blur(10px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);">
+                                <i class="fa-solid fa-check" style="font-size: 1.35rem !important; font-weight: 900; color: #ffffff;"></i>
                             </button>
                         </div>
                     </div>
