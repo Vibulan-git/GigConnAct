@@ -7706,7 +7706,7 @@ function renderLandingPage(container, onNavigate) {
                         Live-Musik & Events
                     </span>
                     <p class="hero-sub-slogan" style="font-family: var(--font-body); font-size: clamp(0.72rem, 2.9vw, 1.18rem); font-weight: 500; color: rgba(255, 255, 255, 0.88); text-align: center; margin: clamp(0.35rem, 1vh, 0.75rem) 0 0 0; text-shadow: 0 2px 10px rgba(0,0,0,0.7); letter-spacing: 0.1px; line-height: 1.35; white-space: nowrap; max-width: 100%; box-sizing: border-box;">
-                        GigConnAct bringt Musiker und Veranstalter zusammen.
+                        GigConnAct verbindet Musiker und Veranstalter.
                     </p>
                 </div>
 
@@ -9035,7 +9035,7 @@ function renderMarket(container, type, onNavigate) {
 
                     <!-- Bottom Close Action for Filter Drawer -->
                     <div class="market-filter-bottom-actions">
-                        <button type="button" class="btn btn-close-filters-bottom" id="btn-close-filters-bottom" title="Filter anwenden" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 0.85rem 1.5rem; border-radius: 12px; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; letter-spacing: -0.2px; color: #ffffff !important; border: 1px solid ${isOrganizerTheme ? '#2563eb' : '#7c3aed'} !important; cursor: pointer; transition: all 0.2s ease; background: ${isOrganizerTheme ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'} !important; box-shadow: ${isOrganizerTheme ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'} !important;">
+                        <button type="button" class="btn btn-close-filters-bottom" id="btn-close-filters-bottom" title="Filter anwenden" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 0.95rem 1.5rem; border-radius: 12px; font-family: var(--font-heading); font-size: 1rem; font-weight: 800; letter-spacing: -0.2px; color: #ffffff !important; border: 1px solid ${isOrganizerTheme ? '#2563eb' : '#7c3aed'} !important; cursor: pointer; transition: all 0.2s ease; background: ${isOrganizerTheme ? 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)'} !important; box-shadow: ${isOrganizerTheme ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 4px 14px rgba(124, 58, 237, 0.35)'} !important;">
                             <span>Filter anwenden</span>
                         </button>
                     </div>

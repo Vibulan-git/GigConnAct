@@ -4491,7 +4491,8 @@ html {
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
-    padding: 1.5rem 1.2rem 3rem !important;
+    padding: 0.4rem 1.2rem 0.8rem !important;
+    margin-top: -0.4rem !important;
     background: transparent !important;
     border: none !important;
     box-sizing: border-box !important;
@@ -4506,10 +4507,11 @@ html {
     justify-content: center !important;
     gap: 0.6rem !important;
     width: 100% !important;
-    padding: 0.85rem 1.5rem !important;
+    min-height: 50px !important;
+    padding: 0.95rem 1.5rem !important;
     border-radius: 12px !important;
     font-family: var(--font-heading) !important;
-    font-size: 0.95rem !important;
+    font-size: 1rem !important;
     font-weight: 800 !important;
     letter-spacing: -0.2px !important;
     color: #ffffff !important;
