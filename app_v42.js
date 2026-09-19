@@ -7441,7 +7441,7 @@ function renderLandingPage(container, onNavigate) {
                         Live-Musik & Events
                     </span>
                     <p class="hero-sub-slogan" style="font-family: var(--font-body); font-size: clamp(0.72rem, 2.9vw, 1.18rem); font-weight: 500; color: rgba(255, 255, 255, 0.88); text-align: center; margin: clamp(0.35rem, 1vh, 0.75rem) 0 0 0; text-shadow: 0 2px 10px rgba(0,0,0,0.7); letter-spacing: 0.1px; line-height: 1.35; white-space: nowrap; max-width: 100%; box-sizing: border-box;">
-                        Wir bringen Musiker und Veranstalter zusammen
+                        Wir bringen Musiker und Veranstalter zusammen.
                     </p>
                 </div>
 
