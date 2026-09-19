@@ -51,18 +51,14 @@ window.regMediaActiveUploads = window.regMediaActiveUploads || [];
 window.registrationMedia = window.registrationMedia || {
     musician: {
         photos: [
-            'https://picsum.photos/id/453/400/300',
-            'https://picsum.photos/id/280/400/300',
-            'https://picsum.photos/id/1025/400/300'
+            'https://picsum.photos/id/453/400/300'
         ],
         videos: [],
         audios: []
     },
     organizer: {
         photos: [
-            'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80'
+            'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'
         ],
         videos: [],
         audios: []
@@ -13772,7 +13768,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 50 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></label>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 100 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></label>
                             <button type="button" id="btn-modal-add-video" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -15272,9 +15268,12 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 </form>
 
                 <form id="auth-register-form" class="hidden">
-                    <div id="google-linked-banner" style="display:none; margin-bottom: 1.25rem; padding: 0.75rem 1rem; border-radius: 8px; background: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.25); color: #1e3a8a; font-size: 0.85rem; align-items: center; gap: 0.5rem;">
-                        <i class="fa-solid fa-circle-check" style="color: #2563eb; font-size: 1.1rem;"></i>
-                        <span>Mit Google verknüpft: <strong id="google-linked-email"></strong></span>
+                    <div id="google-linked-banner" style="display:none; margin-bottom: 1.25rem; padding: 0.75rem 1rem; border-radius: 8px; background: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.25); color: #1e3a8a; font-size: 0.85rem; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            <i class="fa-solid fa-circle-check" style="color: #2563eb; font-size: 1.1rem; flex-shrink: 0;"></i>
+                            <span style="overflow: hidden; text-overflow: ellipsis;">Mit Google verknüpft: <strong id="google-linked-email"></strong></span>
+                        </div>
+                        <button type="button" id="btn-unlink-google" style="background: transparent; border: none; color: #ef4444; font-size: 0.75rem; font-weight: 600; cursor: pointer; text-decoration: underline; flex-shrink: 0; padding: 0 0.25rem;">Trennen</button>
                     </div>
                     <div class="role-picker-container" style="margin-bottom: 1.5rem; ${defaultRole === 'organizer_only' ? 'display: none !important;' : ''}">
                         <div class="role-picker">
@@ -15489,7 +15488,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         </div>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 50 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></label>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 100 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></label>
                                 <button type="button" onclick="window.addRegMedia('musician', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
@@ -15913,22 +15912,29 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
 
         const googleContainer = document.getElementById('google-login-container');
         const googleBtnText = document.getElementById('btn-google-login-text');
-        if (googleContainer) {
-            googleContainer.style.display = 'block';
-            if (googleBtnText) {
-                if (activeForm === magicForm) {
-                    googleBtnText.textContent = 'Mit Google anmelden';
-                } else {
-                    googleBtnText.textContent = 'Mit Google registrieren';
-                }
-            }
-        }
         const currentGoogle = window.googleRegistrationUser || (typeof auth !== 'undefined' && auth.currentUser && auth.currentUser.providerData.some(p => p.providerId === 'google.com') ? auth.currentUser : null);
         const linkedBanner = document.getElementById('google-linked-banner');
         const linkedEmail = document.getElementById('google-linked-email');
-        if (currentGoogle && linkedBanner && linkedEmail) {
-            linkedEmail.textContent = currentGoogle.email || '';
-            linkedBanner.style.display = 'flex';
+
+        if (activeForm === magicForm) {
+            if (googleContainer) googleContainer.style.display = 'block';
+            if (googleBtnText) googleBtnText.textContent = 'Mit Google anmelden';
+            if (linkedBanner) linkedBanner.style.display = 'none';
+        } else {
+            // Register form: mutually exclusive Google button vs linked banner
+            if (currentGoogle) {
+                if (googleContainer) googleContainer.style.display = 'none';
+                if (linkedBanner && linkedEmail) {
+                    linkedEmail.textContent = currentGoogle.email || '';
+                    linkedBanner.style.display = 'flex';
+                }
+            } else {
+                if (googleContainer) {
+                    googleContainer.style.display = 'block';
+                    if (googleBtnText) googleBtnText.textContent = 'Mit Google registrieren';
+                }
+                if (linkedBanner) linkedBanner.style.display = 'none';
+            }
         }
     }
 
@@ -15981,6 +15987,28 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             }
             window.updateRegMediaPreview('musician');
             window.updateRegMediaPreview('organizer');
+        });
+    }
+
+    const unlinkBtn = document.getElementById('btn-unlink-google');
+    if (unlinkBtn) {
+        unlinkBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.googleRegistrationUser = null;
+            if (typeof auth !== 'undefined' && auth.currentUser && (!state.currentUser || !state.currentUser.id)) {
+                auth.signOut().catch(() => {});
+            }
+            if (registerForm && registerForm.elements.email) {
+                registerForm.elements.email.disabled = false;
+                registerForm.elements.email.value = '';
+                registerForm.elements.email.style.background = '';
+                registerForm.elements.email.style.cursor = '';
+            }
+            showForm(registerForm);
+            showToast({
+                title: "Google getrennt",
+                message: "Du kannst dich jetzt mit einer beliebigen E-Mail-Adresse registrieren."
+            });
         });
     }
 
@@ -16941,9 +16969,20 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             payload.minPublikum = registerForm.querySelector('#input-publikum-min')?.value || 0;
             payload.maxPublikum = registerForm.querySelector('#input-publikum-max')?.value || 500;
             payload.availability = availability;
-            payload.photos = (window.registrationMedia.musician.photos || []).filter(p => p !== 'loading');
-            payload.videos = (window.registrationMedia.musician.videos || []).filter(v => v && v.url !== 'loading');
-            payload.audios = (window.registrationMedia.musician.audios || []).filter(a => a && a.url !== 'loading');
+            payload.photos = (window.registrationMedia.musician.photos || [])
+                .filter(p => typeof p === 'string' && p !== 'loading' && p.trim().length > 0);
+            payload.videos = (window.registrationMedia.musician.videos || [])
+                .filter(v => v && v.url && v.url !== 'loading')
+                .map(v => ({
+                    url: typeof v === 'string' ? v : String(v.url || ''),
+                    title: typeof v === 'string' ? '' : String(v.title || '')
+                }));
+            payload.audios = (window.registrationMedia.musician.audios || [])
+                .filter(a => a && a.url && a.url !== 'loading')
+                .map(a => ({
+                    url: typeof a === 'string' ? a : String(a.url || ''),
+                    title: typeof a === 'string' ? '' : String(a.title || '')
+                }));
         } else {
             payload.eventName = registerForm.elements.eventName.value.trim();
             payload.orgEventTypes = Array.from(registerForm.querySelectorAll('input[name="orgEventTypes"]:checked')).map(el => el.value);
@@ -16964,9 +17003,21 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             payload.orgMinBudget = registerForm.querySelector('input[name="orgMinBudget"]').value;
             payload.orgMaxBudget = registerForm.querySelector('input[name="orgMaxBudget"]').value;
             payload.orgDescription = registerForm.querySelector('textarea[name="orgDescription"]').value.trim();
-            payload.photos = (window.registrationMedia.organizer.photos || []).filter(p => p !== 'loading');
-            payload.videos = (window.registrationMedia.organizer.videos || []).filter(v => v && v.url !== 'loading');
-            payload.audios = (window.registrationMedia.organizer.audios || []).filter(a => a && a.url !== 'loading');
+            payload.photos = (window.registrationMedia.organizer.photos || [])
+                .filter(p => typeof p === 'string' && p !== 'loading' && p.trim().length > 0);
+            payload.videos = (window.registrationMedia.organizer.videos || [])
+                .filter(v => v && v.url && v.url !== 'loading')
+                .map(v => ({
+                    url: typeof v === 'string' ? v : String(v.url || ''),
+                    title: typeof v === 'string' ? '' : String(v.title || '')
+                }));
+            payload.audios = (window.registrationMedia.organizer.audios || [])
+                .filter(a => a && a.url && a.url !== 'loading')
+                .map(a => ({
+                    url: typeof a === 'string' ? a : String(a.url || ''),
+                    title: typeof a === 'string' ? '' : String(a.title || '')
+                }));
+            payload.subscriptionPlan = "flex";
         }
 
         payload.isPromoCodeApplied = (payload.subscriptionPlan === 'premium' && isPromoCodeApplied);
@@ -16985,28 +17036,27 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
 
         if (googleUser) {
             try {
-                let activeAuthUser = (typeof auth !== 'undefined') ? auth.currentUser : null;
-                if (!activeAuthUser || activeAuthUser.uid !== googleUser.uid) {
-                    console.warn("auth.currentUser missing or mismatched during Google registration, re-acquiring token...");
-                    const provider = new firebase.auth.GoogleAuthProvider();
-                    provider.setCustomParameters({ prompt: 'select_account' });
-                    const freshResult = await auth.signInWithPopup(provider);
-                    activeAuthUser = freshResult.user;
+                let activeAuthUser = (typeof auth !== 'undefined' && auth.currentUser) ? auth.currentUser : null;
+                if (!activeAuthUser && googleUser && googleUser.uid) {
+                    activeAuthUser = googleUser;
+                }
+                if (!activeAuthUser || !activeAuthUser.uid) {
+                    throw new Error("Deine Google-Sitzung ist nicht aktiv. Bitte melde dich erneut mit Google an.");
                 }
                 const user = activeAuthUser;
                 const profileId = payload.role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
-                const isPromo = payload.subscriptionPlan === 'premium' && isPromoCodeApplied;
+                const isPromo = (payload.subscriptionPlan === 'premium' && isPromoCodeApplied === true);
 
                 const newUser = {
                     id: user.uid,
-                    role: payload.role,
-                    firstName: firstName,
-                    lastName: lastName,
+                    role: payload.role || 'musician',
+                    firstName: firstName || '',
+                    lastName: lastName || '',
                     company: payload.company || "Privatperson",
                     organizerType: payload.organizerType || "",
-                    phone: payload.phone,
-                    hidePhone: payload.hidePhone || false,
-                    email: user.email || payload.email,
+                    phone: payload.phone || '',
+                    hidePhone: !!payload.hidePhone,
+                    email: user.email || payload.email || '',
                     profileId: profileId,
                     eventName: payload.eventName || 'Mein Event',
                     isPremium: isPromo,
@@ -17023,29 +17073,29 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     const newMusician = {
                         id: profileId,
                         creatorId: user.uid,
-                        name: payload.bandName,
-                        bluffName: `Anonyme/r ${payload.musicianType} (${payload.genres[0] || 'Musik'})`,
-                        type: payload.musicianType,
-                        location: payload.locations ? payload.locations.join(', ') : 'München',
-                        locations: payload.locations || ['München'],
-                        radius: parseInt(payload.radius) || 50,
-                        genres: payload.genres,
-                        instruments: payload.instruments,
+                        name: payload.bandName || 'Musiker',
+                        bluffName: `Anonyme/r ${payload.musicianType || 'Künstler'} (${(payload.genres && payload.genres[0]) || 'Musik'})`,
+                        type: payload.musicianType || 'Band',
+                        location: (payload.locations && payload.locations.length > 0) ? payload.locations.join(', ') : 'München',
+                        locations: (payload.locations && payload.locations.length > 0) ? payload.locations : ['München'],
+                        radius: parseInt(payload.radius, 10) || 50,
+                        genres: payload.genres || [],
+                        instruments: payload.instruments || [],
                         minDuration: parseFloat(payload.minDuration) || 1,
                         maxDuration: parseFloat(payload.maxDuration) || 3,
                         minBudget: parseFloat(payload.minBudget) || 150,
                         maxBudget: parseFloat(payload.maxBudget) || 1000,
-                        eventTypes: payload.eventTypes,
-                        availability: payload.availability,
-                        minPublikum: parseInt(payload.minPublikum) || 0,
-                        maxPublikum: parseInt(payload.maxPublikum) || 500,
-                        description: payload.description,
-                        technik: payload.technik || ["Technik ist noch unklar"],
+                        eventTypes: payload.eventTypes || [],
+                        availability: payload.availability || {},
+                        minPublikum: parseInt(payload.minPublikum, 10) || 0,
+                        maxPublikum: parseInt(payload.maxPublikum, 10) || 500,
+                        description: payload.description || '',
+                        technik: (payload.technik && payload.technik.length > 0) ? payload.technik : ["Technik ist noch unklar"],
                         company: newUser.company || "Privatperson",
-                        contactName: `${newUser.firstName} ${newUser.lastName}`,
-                        phone: newUser.phone,
-                        hidePhone: payload.hidePhone || false,
-                        email: newUser.email,
+                        contactName: `${newUser.firstName} ${newUser.lastName}`.trim() || 'Musiker',
+                        phone: newUser.phone || '',
+                        hidePhone: !!payload.hidePhone,
+                        email: newUser.email || '',
                         isPremium: newUser.isPremium,
                         subscriptionPlan: payload.subscriptionPlan || "flex",
                         credits: 0,
@@ -17067,34 +17117,34 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         id: profileId,
                         creatorId: user.uid,
                         name: payload.eventName || 'Mein Event',
-                        type: payload.orgEventTypes ? payload.orgEventTypes[0] : "",
+                        type: (payload.orgEventTypes && payload.orgEventTypes[0]) ? payload.orgEventTypes[0] : "",
                         eventTypes: payload.orgEventTypes || [],
                         musicianTypes: payload.orgMusicianTypes || [],
-                        date: payload.eventDates ? payload.eventDates[0] : "",
+                        date: (payload.eventDates && payload.eventDates[0]) ? payload.eventDates[0] : "",
                         dates: payload.eventDates || [],
                         eventStartTime: payload.eventStartTime || "18:00",
                         eventEndTime: payload.eventEndTime || "22:00",
-                        location: payload.orgLocations ? payload.orgLocations.join(', ') : "",
+                        location: (payload.orgLocations && payload.orgLocations.length > 0) ? payload.orgLocations.join(', ') : "",
                         locations: payload.orgLocations || [],
                         genres: payload.orgGenres || [],
                         instruments: payload.orgInstruments || [],
                         minDuration: parseFloat(payload.orgMinDuration) || 2.0,
                         maxDuration: parseFloat(payload.orgMaxDuration) || 4.0,
                         duration: parseFloat(payload.orgMinDuration) || 2.0,
-                        minPublikum: parseInt(payload.orgMinPublikum) || 50,
-                        maxPublikum: parseInt(payload.orgMaxPublikum) || 150,
+                        minPublikum: parseInt(payload.orgMinPublikum, 10) || 50,
+                        maxPublikum: parseInt(payload.orgMaxPublikum, 10) || 150,
                         publikum: `${payload.orgMinPublikum || 50} - ${payload.orgMaxPublikum || 150}`,
                         minBudget: parseFloat(payload.orgMinBudget) || 300,
                         maxBudget: parseFloat(payload.orgMaxBudget) || 800,
                         budget: parseFloat(payload.orgMinBudget) || 300,
                         description: payload.orgDescription || "",
-                        technik: payload.technik || ["Technik ist noch unklar"],
+                        technik: (payload.technik && payload.technik.length > 0) ? payload.technik : ["Technik ist noch unklar"],
                         company: newUser.company || "Privatperson",
                         organizerType: newUser.organizerType || "Privater Veranstalter",
-                        contactName: `${newUser.firstName} ${newUser.lastName}`,
-                        phone: newUser.phone,
-                        hidePhone: payload.hidePhone || false,
-                        email: newUser.email,
+                        contactName: `${newUser.firstName} ${newUser.lastName}`.trim() || 'Veranstalter',
+                        phone: newUser.phone || '',
+                        hidePhone: !!payload.hidePhone,
+                        email: newUser.email || '',
                         isOnline: true,
                         isActive: true,
                         createdAt: new Date().toISOString(),
@@ -19269,6 +19319,18 @@ function initGigConnActApp() {
             } else {
                 window.location.hash = targetHash;
             }
+
+            // Always scroll to the very top of the page and content container
+            window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+            document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+            document.body.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+            const mainApp = document.getElementById('app-main');
+            if (mainApp) mainApp.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+            setTimeout(() => {
+                window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                const mainAppAsync = document.getElementById('app-main');
+                if (mainAppAsync) mainAppAsync.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+            }, 60);
         });
     }
 
@@ -22503,7 +22565,7 @@ function validateAndProcessVideo(file, callback, errorCallback, onProgress) {
     const fileExt = file.name.split('.').pop().toLowerCase();
     const isAllowedExt = allowedExtensions.includes(fileExt);
     const isAllowedMime = file.type && file.type.startsWith('video/');
-    const maxSize = 50 * 1024 * 1024; // 50 MB max
+    const maxSize = 100 * 1024 * 1024; // 100 MB max
 
     if (!isAllowedMime && !isAllowedExt) {
         showToast({
@@ -22517,7 +22579,7 @@ function validateAndProcessVideo(file, callback, errorCallback, onProgress) {
     if (file.size > maxSize) {
         showToast({
             title: "Video zu groß ⚠️",
-            message: "Die Datei ist zu groß (max. 50 MB, deine Datei: " + (file.size / (1024 * 1024)).toFixed(1) + " MB). Tipp: Kurze Clips oder komprimierte MP4-Dateien unter 30 MB laden blitzschnell hoch."
+            message: "Die Datei ist zu groß (max. 100 MB, deine Datei: " + (file.size / (1024 * 1024)).toFixed(1) + " MB). Tipp: Kurze Clips oder komprimierte MP4-Dateien unter 50 MB laden blitzschnell hoch."
         });
         if (errorCallback) errorCallback();
         return null;
@@ -22669,7 +22731,7 @@ window.showMediaModal = function(itemId, isEvents) {
                 <!-- Section: Videos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Videos (${videos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 50 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></span>
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Videos (${videos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 100 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></span>
                         ${videos.length < 3 ? `
                             <button id="btn-add-mock-video" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: ${isEvents ? 'rgba(37, 99, 235, 0.3)' : 'rgba(124, 58, 237, 0.3)'}; color: ${isEvents ? '#2563eb' : '#7c3aed'}; display: flex; align-items: center; gap: 0.25rem;">
                                 <i class="fa-solid fa-plus"></i>
