@@ -2517,6 +2517,7 @@ class StateManager {
         this.musicians = [];
         this.events = [];
         this.chats = [];
+        this.mediations = [];
         
         // Hydrate state synchronously from localStorage cache to enable instant rendering without spinners
         try {
@@ -2750,8 +2751,12 @@ class StateManager {
             if (!medSnapshot.empty) {
                 let anyChanged = false;
                 const isAdmin = this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
+                this.mediations = [];
                 medSnapshot.forEach(mDoc => {
                     const mData = mDoc.data();
+                    const medObj = { id: mDoc.id, ...mData };
+                    this.mediations.push(medObj);
+
                     const targetId = mData.eventId || mDoc.id.replace(/^med_/, '');
                     const mMusIds = Array.isArray(mData.musicianIds) ? mData.musicianIds : [];
                     const matchEvt = (this.events || []).find(e => e && (
@@ -2774,6 +2779,26 @@ class StateManager {
                         if (combined.length > mMusIds.length) {
                             db.collection('mediations').doc(mDoc.id).set({ musicianIds: combined }, { merge: true }).catch(() => {});
                         }
+                    } else if (isAdmin && mData.eventName) {
+                        const newAdminEvt = {
+                            id: targetId || ('evt_' + mDoc.id),
+                            creatorId: this.currentUser ? this.currentUser.id : 'info-gigconnact-admin',
+                            name: mData.eventName,
+                            title: mData.eventName,
+                            date: mData.eventDate || '',
+                            dates: mData.eventDate ? [mData.eventDate] : [],
+                            location: mData.eventLocation || 'München',
+                            locations: [mData.eventLocation || 'München'],
+                            favorites: mMusIds,
+                            isOnline: true,
+                            isAgencyRequest: true,
+                            email: 'info@gigconnact.de',
+                            clientEmail: mData.organizerEmail || '',
+                            clientName: mData.clientName || '',
+                            clientPhone: mData.clientPhone || ''
+                        };
+                        this.events.push(newAdminEvt);
+                        anyChanged = true;
                     }
                 });
                 if (anyChanged) {
@@ -5103,8 +5128,8 @@ class StateManager {
                 profileId = this.activeEventId || (this.recommendationEvent ? this.recommendationEvent.id : null);
                 if (profileId) {
                     profileObj = (this.events || []).find(e => e.id === profileId);
-                    if (profileObj && Array.isArray(profileObj.favorites)) {
-                        return profileObj.favorites.includes(id);
+                    if (profileObj && Array.isArray(profileObj.favorites) && profileObj.favorites.includes(id)) {
+                        return true;
                     }
                 }
                 const inAnyAdminEvent = (this.events || []).some(e => 
@@ -5112,11 +5137,27 @@ class StateManager {
                     Array.isArray(e.favorites) && e.favorites.includes(id)
                 );
                 if (inAnyAdminEvent) return true;
+
+                if (Array.isArray(this.mediations) && this.mediations.some(m => Array.isArray(m.musicianIds) && m.musicianIds.includes(id))) {
+                    return true;
+                }
+
+                if (Array.isArray(this.currentUser.favorites) && this.currentUser.favorites.includes(id)) {
+                    return true;
+                }
+                return false;
             } else if (isEventId) {
                 profileId = this.activeMusicianId || this.currentUser.profileId || null;
                 if (profileId) {
                     profileObj = (this.musicians || []).find(m => m.id === profileId);
+                    if (profileObj && Array.isArray(profileObj.favorites) && profileObj.favorites.includes(id)) {
+                        return true;
+                    }
                 }
+                if (Array.isArray(this.currentUser.favorites) && this.currentUser.favorites.includes(id)) {
+                    return true;
+                }
+                return false;
             }
         } else {
             if (this.currentUser.role === 'musician') {
@@ -7583,7 +7624,7 @@ function renderLandingPage(container, onNavigate) {
                         Live-Musik & Events
                     </span>
                     <p class="hero-sub-slogan" style="font-family: var(--font-body); font-size: clamp(0.72rem, 2.9vw, 1.18rem); font-weight: 500; color: rgba(255, 255, 255, 0.88); text-align: center; margin: clamp(0.35rem, 1vh, 0.75rem) 0 0 0; text-shadow: 0 2px 10px rgba(0,0,0,0.7); letter-spacing: 0.1px; line-height: 1.35; white-space: nowrap; max-width: 100%; box-sizing: border-box;">
-                        Wir bringen Musiker und Veranstalter zusammen.
+                        GigConnAct bringt Musiker und Veranstalter zusammen.
                     </p>
                 </div>
 
@@ -8465,7 +8506,7 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page ${isOrganizerTheme ? 'theme-organizer' : 'theme-musician'} ${showOnlyFavorites ? 'favorites-mode' : ''}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
-            <!-- Market Sub-Header: Center = Count & Label with Filter Button directly to the right -->
+            <!-- Market Sub-Header: Center = Count & Label with Filter Button on right edge aligned with tiles -->
             <div class="market-sub-header-bar">
                 <div class="market-sub-header-group">
                     <div id="market-results-header" style="display: flex; align-items: baseline; justify-content: center; gap: 0.65rem; text-align: center;">
@@ -8474,16 +8515,16 @@ function renderMarket(container, type, onNavigate) {
                             <span id="market-title-label">${showOnlyFavorites ? 'Favoriten' : (isEvents ? 'Events' : 'Musiker')}</span>
                         </h1>
                     </div>
-
-                    ${!showOnlyFavorites ? `
-                    <div class="market-filter-action-area">
-                        <button id="btn-market-inline-filter" class="market-inline-filter-btn" title="Filter öffnen">
-                            <i class="fa-solid fa-sliders" style="font-size: 0.95rem;"></i>
-                            <span>Filter</span>
-                        </button>
-                    </div>
-                    ` : ''}
                 </div>
+
+                ${!showOnlyFavorites ? `
+                <div class="market-filter-action-area">
+                    <button id="btn-market-inline-filter" class="market-inline-filter-btn" title="Filter öffnen">
+                        <i class="fa-solid fa-sliders" style="font-size: 0.95rem;"></i>
+                        <span>Filter</span>
+                    </button>
+                </div>
+                ` : ''}
 
                 <!-- Hidden trigger buttons kept for programmatic compatibility -->
                 <button id="btn-toggle-mobile-filters" style="display: none !important;" aria-hidden="true"></button>
@@ -8939,6 +8980,7 @@ function renderMarket(container, type, onNavigate) {
     if (inlineFilterBtn) {
         inlineFilterBtn.addEventListener('click', function(e) {
             e.preventDefault();
+            window.lastMarketScrollBeforeFilter = window.scrollY || document.documentElement.scrollTop;
             if (window.innerWidth > 900) {
                 const desktopFilter = document.getElementById('market-filters-wrapper');
                 if (desktopFilter) {
@@ -8958,6 +9000,9 @@ function renderMarket(container, type, onNavigate) {
     }
 
     toggleBtn?.addEventListener('click', function() {
+        if (!filterWrapper.classList.contains('open')) {
+            window.lastMarketScrollBeforeFilter = window.scrollY || document.documentElement.scrollTop;
+        }
         filterWrapper.classList.toggle('open');
         this.classList.toggle('active');
         const isOpen = filterWrapper.classList.contains('open');
@@ -8979,18 +9024,17 @@ function renderMarket(container, type, onNavigate) {
         }
         updateFilterIconGlow(isFilterActiveCurrently);
         if (window.innerWidth <= 900) {
-            document.getElementById('market-results-header')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (typeof window.lastMarketScrollBeforeFilter === 'number') {
+                window.scrollTo({ top: window.lastMarketScrollBeforeFilter, behavior: 'smooth' });
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
     };
     closeBtnBottom?.addEventListener('click', closeFilterDrawerHandler);
     closeBtnTop?.addEventListener('click', closeFilterDrawerHandler);
 
-    overlay?.addEventListener('click', function() {
-        filterWrapper.classList.remove('open');
-        overlay.classList.remove('open');
-        toggleBtn?.classList.remove('active');
-        updateFilterIconGlow(isFilterActiveCurrently);
-    });
+    overlay?.addEventListener('click', closeFilterDrawerHandler);
 
     const sortSelects = container.querySelectorAll('#sort-select, #sort-select-m');
     const sortSelect = sortSelects[0] || null;
@@ -9695,8 +9739,9 @@ function renderMarket(container, type, onNavigate) {
                     const top10Excluded = excludedList.slice(0, 10);
                     displayList = [...displayList, ...top10Excluded];
                 }
+                const isFavoritesView = Boolean(showOnlyFavorites || window.currentMarketShowFavorites || (window.location.hash && (window.location.hash.includes('fav') || window.location.hash.includes('favorites'))) || container.querySelector('.market-page')?.classList.contains('favorites-mode'));
                 const totalMatchesCount = displayList.length;
-                const visibleList = displayList.slice(0, displayedItemsCount);
+                const visibleList = isFavoritesView ? displayList : displayList.slice(0, displayedItemsCount);
                 const prevGridHeight = grid.offsetHeight;
                 const prevWindowScroll = window.scrollY || document.documentElement.scrollTop;
                 if (prevGridHeight > 0) {
@@ -9757,12 +9802,11 @@ function renderMarket(container, type, onNavigate) {
                 }
                 const themeColor = isEvents ? '#7c3aed' : '#2563eb';
                 
-                const isFavoritesView = Boolean(showOnlyFavorites || window.currentMarketShowFavorites || (window.location.hash && (window.location.hash.includes('fav') || window.location.hash.includes('favorites'))) || container.querySelector('.market-page')?.classList.contains('favorites-mode'));
                 const hasMoreMatchesToPaginate = totalMatchesCount > displayedItemsCount;
                 const hasExcludedToReveal = !showMoreMatchesUnfiltered && !isFavoritesView && isFilterActiveCurrently && unfilteredList.some(item => !list.some(listItem => listItem.id === item.id));
 
                 let actionButtonsHtml = '';
-                if (hasMoreMatchesToPaginate || hasExcludedToReveal) {
+                if (!isFavoritesView && (hasMoreMatchesToPaginate || hasExcludedToReveal)) {
                     actionButtonsHtml += `
                         <button class="market-bottom-pill-btn" id="btn-market-show-more-unfiltered">
                             <i class="fa-solid fa-plus"></i> <span>Weitere Ergebnisse</span>
