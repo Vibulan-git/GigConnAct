@@ -3325,12 +3325,6 @@ class StateManager {
                                 if (registerForm.elements.fullName && cleanGoogleName && !registerForm.elements.fullName.value) {
                                     registerForm.elements.fullName.value = cleanGoogleName;
                                 }
-                                const linkedBanner = document.getElementById('google-linked-banner');
-                                const linkedEmail = document.getElementById('google-linked-email');
-                                if (linkedBanner && linkedEmail) {
-                                    linkedEmail.textContent = firebaseUser.email || '';
-                                    linkedBanner.style.display = 'flex';
-                                }
                             } else {
                                 setTimeout(() => {
                                     if (typeof auth !== 'undefined' && !auth.currentUser) return;
@@ -3355,12 +3349,6 @@ class StateManager {
                                     }
                                     const registerTabBtn = document.getElementById('tab-register-btn');
                                     if (registerTabBtn) registerTabBtn.click();
-                                    const linkedBanner = document.getElementById('google-linked-banner');
-                                    const linkedEmail = document.getElementById('google-linked-email');
-                                    if (linkedBanner && linkedEmail) {
-                                        linkedEmail.textContent = firebaseUser.email || '';
-                                        linkedBanner.style.display = 'flex';
-                                    }
                                 }, 300);
                             }
                             this.authInitialized = true;
@@ -3451,12 +3439,6 @@ class StateManager {
                                     if (registerForm.elements.fullName && firebaseUser.displayName && !registerForm.elements.fullName.value) {
                                         registerForm.elements.fullName.value = firebaseUser.displayName;
                                     }
-                                    const linkedBanner = document.getElementById('google-linked-banner');
-                                    const linkedEmail = document.getElementById('google-linked-email');
-                                    if (linkedBanner && linkedEmail) {
-                                        linkedEmail.textContent = firebaseUser.email || '';
-                                        linkedBanner.style.display = 'flex';
-                                    }
                                 } else {
                                     showModal('auth');
                                     const regForm = document.getElementById('auth-register-form');
@@ -3473,12 +3455,6 @@ class StateManager {
                                     }
                                     const registerTabBtn = document.getElementById('tab-register-btn');
                                     if (registerTabBtn) registerTabBtn.click();
-                                    const linkedBanner = document.getElementById('google-linked-banner');
-                                    const linkedEmail = document.getElementById('google-linked-email');
-                                    if (linkedBanner && linkedEmail) {
-                                        linkedEmail.textContent = firebaseUser.email || '';
-                                        linkedBanner.style.display = 'flex';
-                                    }
                                 }
                                 this.authInitialized = true;
                                 this.notify();
@@ -3955,12 +3931,6 @@ class StateManager {
                         if (registerForm.elements.fullName && cleanRedirectName && !registerForm.elements.fullName.value) {
                             registerForm.elements.fullName.value = cleanRedirectName;
                         }
-                        const linkedBanner = document.getElementById('google-linked-banner');
-                        const linkedEmail = document.getElementById('google-linked-email');
-                        if (linkedBanner && linkedEmail) {
-                            linkedEmail.textContent = user.email || '';
-                            linkedBanner.style.display = 'flex';
-                        }
                     } else {
                         // Switch to register tab and prefill
                         setTimeout(() => {
@@ -3980,12 +3950,6 @@ class StateManager {
                             }
                             const registerTabBtn = document.getElementById('tab-register-btn');
                             if (registerTabBtn) registerTabBtn.click();
-                            const linkedBanner = document.getElementById('google-linked-banner');
-                            const linkedEmail = document.getElementById('google-linked-email');
-                            if (linkedBanner && linkedEmail) {
-                                linkedEmail.textContent = user.email || '';
-                                linkedBanner.style.display = 'flex';
-                            }
                         }, 300);
                     }
                 } else {
@@ -15268,13 +15232,6 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 </form>
 
                 <form id="auth-register-form" class="hidden">
-                    <div id="google-linked-banner" style="display:none; margin-bottom: 1.25rem; padding: 0.75rem 1rem; border-radius: 8px; background: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.25); color: #1e3a8a; font-size: 0.85rem; align-items: center; justify-content: space-between; gap: 0.5rem;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                            <i class="fa-solid fa-circle-check" style="color: #2563eb; font-size: 1.1rem; flex-shrink: 0;"></i>
-                            <span style="overflow: hidden; text-overflow: ellipsis;">Mit Google verknüpft: <strong id="google-linked-email"></strong></span>
-                        </div>
-                        <button type="button" id="btn-unlink-google" style="background: transparent; border: none; color: #ef4444; font-size: 0.75rem; font-weight: 600; cursor: pointer; text-decoration: underline; flex-shrink: 0; padding: 0 0.25rem;">Trennen</button>
-                    </div>
                     <div class="role-picker-container" style="margin-bottom: 1.5rem; ${defaultRole === 'organizer_only' ? 'display: none !important;' : ''}">
                         <div class="role-picker">
                             <div class="role-card active musician-role" id="role-picker-mus">
@@ -15912,28 +15869,15 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
 
         const googleContainer = document.getElementById('google-login-container');
         const googleBtnText = document.getElementById('btn-google-login-text');
-        const currentGoogle = window.googleRegistrationUser || (typeof auth !== 'undefined' && auth.currentUser && auth.currentUser.providerData.some(p => p.providerId === 'google.com') ? auth.currentUser : null);
-        const linkedBanner = document.getElementById('google-linked-banner');
-        const linkedEmail = document.getElementById('google-linked-email');
 
-        if (activeForm === magicForm) {
-            if (googleContainer) googleContainer.style.display = 'block';
-            if (googleBtnText) googleBtnText.textContent = 'Mit Google anmelden';
-            if (linkedBanner) linkedBanner.style.display = 'none';
-        } else {
-            // Register form: mutually exclusive Google button vs linked banner
-            if (currentGoogle) {
-                if (googleContainer) googleContainer.style.display = 'none';
-                if (linkedBanner && linkedEmail) {
-                    linkedEmail.textContent = currentGoogle.email || '';
-                    linkedBanner.style.display = 'flex';
+        if (googleContainer) {
+            googleContainer.style.display = 'block';
+            if (googleBtnText) {
+                if (activeForm === magicForm) {
+                    googleBtnText.textContent = 'Mit Google anmelden';
+                } else {
+                    googleBtnText.textContent = 'Mit Google registrieren';
                 }
-            } else {
-                if (googleContainer) {
-                    googleContainer.style.display = 'block';
-                    if (googleBtnText) googleBtnText.textContent = 'Mit Google registrieren';
-                }
-                if (linkedBanner) linkedBanner.style.display = 'none';
             }
         }
     }
@@ -15990,27 +15934,6 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         });
     }
 
-    const unlinkBtn = document.getElementById('btn-unlink-google');
-    if (unlinkBtn) {
-        unlinkBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.googleRegistrationUser = null;
-            if (typeof auth !== 'undefined' && auth.currentUser && (!state.currentUser || !state.currentUser.id)) {
-                auth.signOut().catch(() => {});
-            }
-            if (registerForm && registerForm.elements.email) {
-                registerForm.elements.email.disabled = false;
-                registerForm.elements.email.value = '';
-                registerForm.elements.email.style.background = '';
-                registerForm.elements.email.style.cursor = '';
-            }
-            showForm(registerForm);
-            showToast({
-                title: "Google getrennt",
-                message: "Du kannst dich jetzt mit einer beliebigen E-Mail-Adresse registrieren."
-            });
-        });
-    }
 
     if (magicForm) {
         magicForm.addEventListener('submit', async (e) => {
@@ -17314,12 +17237,6 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 if (registerForm.elements.fullName && cleanPopupName && !registerForm.elements.fullName.value) {
                                     registerForm.elements.fullName.value = cleanPopupName;
                                 }
-                            }
-                            const linkedBanner = document.getElementById('google-linked-banner');
-                            const linkedEmail = document.getElementById('google-linked-email');
-                            if (linkedBanner && linkedEmail) {
-                                linkedEmail.textContent = user.email || '';
-                                linkedBanner.style.display = 'flex';
                             }
                         } else {
                             // EXISTING USER: Logged in!
