@@ -8323,23 +8323,25 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page ${isOrganizerTheme ? 'theme-organizer' : 'theme-musician'} ${showOnlyFavorites ? 'favorites-mode' : ''}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
-            <!-- Market Sub-Header: Center = Count & Label, Right = Filter Button -->
+            <!-- Market Sub-Header: Center = Count & Label with Filter Button directly to the right -->
             <div class="market-sub-header-bar">
-                <div id="market-results-header" style="display: flex; align-items: baseline; justify-content: center; gap: 0.65rem; text-align: center;">
-                    <h1 id="market-results-title" class="market-sub-header-title">
-                        <span id="market-results-count">${getItems().length}</span>
-                        <span id="market-title-label">${showOnlyFavorites ? 'Favoriten' : (isEvents ? 'Events' : 'Musiker')}</span>
-                    </h1>
-                </div>
+                <div class="market-sub-header-group">
+                    <div id="market-results-header" style="display: flex; align-items: baseline; justify-content: center; gap: 0.65rem; text-align: center;">
+                        <h1 id="market-results-title" class="market-sub-header-title">
+                            <span id="market-results-count">${getItems().length}</span>
+                            <span id="market-title-label">${showOnlyFavorites ? 'Favoriten' : (isEvents ? 'Events' : 'Musiker')}</span>
+                        </h1>
+                    </div>
 
-                ${!showOnlyFavorites ? `
-                <div class="market-filter-action-area">
-                    <button id="btn-market-inline-filter" class="market-inline-filter-btn" title="Filter öffnen">
-                        <i class="fa-solid fa-sliders" style="font-size: 0.95rem;"></i>
-                        <span>Filter</span>
-                    </button>
+                    ${!showOnlyFavorites ? `
+                    <div class="market-filter-action-area">
+                        <button id="btn-market-inline-filter" class="market-inline-filter-btn" title="Filter öffnen">
+                            <i class="fa-solid fa-sliders" style="font-size: 0.95rem;"></i>
+                            <span>Filter</span>
+                        </button>
+                    </div>
+                    ` : ''}
                 </div>
-                ` : ''}
 
                 <!-- Hidden trigger buttons kept for programmatic compatibility -->
                 <button id="btn-toggle-mobile-filters" style="display: none !important;" aria-hidden="true"></button>
@@ -11330,11 +11332,11 @@ function renderProfilePage(container) {
 
     container.innerHTML = `
         <div class="profile-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
-            <div class="profile-content-wrapper" style="width: 100%; max-width: 1520px; margin: 1.25rem auto 0; padding: 0 1.2rem; box-sizing: border-box;">
-                <div class="portal-layout" style="display:flex; flex-direction:column; gap: 0.75rem; max-width: 800px; margin: 0 auto; padding: 0;">
+            <div class="profile-content-wrapper" style="width: 100%; max-width: 1520px; margin: 0.35rem auto 0; padding: 0 1.2rem; box-sizing: border-box;">
+                <div class="portal-layout" style="display:flex; flex-direction:column; gap: 0.85rem; max-width: 800px; margin: 0 auto; padding: 0;">
 
                     <!-- Zeile über der Kachel 'Meine Musiker/Events': Links Auswahl der Profile, Rechts Ausloggebutton in rot -->
-                    <div class="profile-top-actions-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; width: 100%; margin: 0 0 0.5rem 0; flex-wrap: nowrap !important; box-sizing: border-box;">
+                    <div class="profile-top-actions-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; width: 100%; margin: 0 0 0.25rem 0; flex-wrap: nowrap !important; box-sizing: border-box;">
                         <!-- Links: Auswahl der Profile (Lila/Blau Button je nach Rolle, kein Icon, kein 'Profil auswählen') -->
                         <div class="profile-switcher-action-box" style="flex: 1 1 auto; min-width: 0; max-width: calc(100% - 135px); display: inline-flex; align-items: center; background: ${themeBtnBg} !important; border: 1.5px solid rgba(255, 255, 255, 0.25) !important; border-radius: 12px; height: 42px; padding: 0 0.85rem; position: relative; box-sizing: border-box; box-shadow: 0 3px 10px ${isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'};">
                             <select id="profile-page-select" style="width: 100%; min-width: 0; max-width: 100%; border: none; background: transparent; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 800; color: #ffffff !important; cursor: pointer; outline: none; margin: 0; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; appearance: none; -webkit-appearance: none; padding-right: 1.25rem; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23ffffff'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right center; background-size: 1rem;">
@@ -12582,7 +12584,7 @@ function renderMyEventsContent(container) {
 
 
     container.innerHTML = `
-        <div class="portal-layout" style="display:flex; flex-direction:column; gap:2.5rem;">
+        <div class="portal-layout" style="display:flex; flex-direction:column; gap: 1.5rem; margin-top: 0;">
             <!-- Active Events -->
             <div class="profile-section-card contact-details">
                 <div class="profile-section-header">
@@ -13090,7 +13092,7 @@ function renderMyMusiciansContent(container) {
     const isLimitReached = allMyMusicians.length >= 5;
 
     container.innerHTML = `
-        <div class="portal-layout" style="display:flex; flex-direction:column; gap:2.5rem;">
+        <div class="portal-layout" style="display:flex; flex-direction:column; gap: 1.5rem; margin-top: 0;">
             <!-- Active Musicians -->
             <div class="profile-section-card musician-profile">
                 <div class="profile-section-header">

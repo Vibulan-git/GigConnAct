@@ -3917,14 +3917,14 @@ body.landing-page-active .landing-hero {
 }
 
 
-#market-title-label {
+.market-controls-row #market-title-label {
     color: rgba(255, 255, 255, 0.75) !important;
     font-size: 1.1rem !important;
     font-weight: 800 !important;
 }
 
 @media (max-width: 600px) {
-    #market-title-label {
+    .market-controls-row #market-title-label {
         display: inline-block !important;
         font-size: 1.05rem !important;
     }
@@ -5070,20 +5070,43 @@ input[type="range"].input-field {
     text-align: center;
 }
 
+.market-sub-header-group {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.15rem;
+    position: relative;
+    flex-wrap: wrap;
+}
+
 .market-sub-header-title,
 .matches-sub-header-title,
 .postbox-sub-header-title {
     font-family: var(--font-heading);
     font-size: clamp(2.1rem, 5.5vw, 2.85rem) !important;
     font-weight: 900;
-    margin: 0 auto;
+    margin: 0;
     line-height: 1.15;
     letter-spacing: -0.5px;
-    display: flex;
+    display: inline-flex;
     align-items: baseline;
     justify-content: center;
     gap: 0.65rem;
     text-align: center;
+}
+
+.market-sub-header-title #market-results-count,
+.market-sub-header-title #market-title-label,
+.market-sub-header-title span,
+.matches-sub-header-title span,
+.postbox-sub-header-title span {
+    font-family: inherit !important;
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    line-height: inherit !important;
+    letter-spacing: inherit !important;
+    color: inherit !important;
+    display: inline !important;
 }
 
 /* Theme colors for sub-header titles: Purple for musician mode / Blue for organizer mode */
@@ -5106,13 +5129,11 @@ input[type="range"].input-field {
 }
 
 .market-filter-action-area {
-    position: absolute;
-    right: 1.2rem;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+    position: static !important;
+    transform: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    margin: 0 !important;
 }
 
 /* Filter Button and matching Action Buttons (Weitere Ergebnisse, Filter zurücksetzen) */
@@ -5936,15 +5957,15 @@ body:not(.has-bottom-bar) .market-floating-filter-pill {
     color: #22c55e !important;
 }
 
-/* Fallback default market controls */
-#market-results-count {
+/* Fallback default market controls (scoped to controls row) */
+.market-controls-row #market-results-count {
     font-family: var(--font-heading) !important;
     font-size: 1.5rem !important;
     font-weight: 900 !important;
     letter-spacing: -0.5px !important;
     line-height: 1 !important;
 }
-#market-title-label {
+.market-controls-row #market-title-label {
     font-family: var(--font-heading) !important;
     font-size: 1.1rem !important;
     font-weight: 800 !important;
@@ -7299,6 +7320,43 @@ body[data-page="musicians"] .market-tile-card:hover {
         gap: 1.25rem !important;
     }
 }
+
+/* =============================================================
+ * Profile Page: Position 'Meine Musiker/Events' Higher Up
+ * ============================================================= */
+.profile-page .profile-content-wrapper {
+    margin: 0.35rem auto 0 !important;
+    padding-top: 0 !important;
+}
+
+.profile-page > .profile-content-wrapper > .portal-layout {
+    gap: 0.85rem !important;
+}
+
+.profile-page .profile-top-actions-bar {
+    margin: 0 0 0.25rem 0 !important;
+}
+
+#profile-my-items-container {
+    margin-top: 0 !important;
+}
+
+#profile-my-items-container > .portal-layout {
+    gap: 1.5rem !important;
+}
+
+#profile-my-items-container .profile-section-card {
+    margin-top: 0 !important;
+}
+
+@media (max-width: 600px) {
+    .profile-page .profile-content-wrapper {
+        margin: 0.2rem auto 0 !important;
+        padding-left: 0.8rem !important;
+        padding-right: 0.8rem !important;
+    }
+}
+
 
 
 
