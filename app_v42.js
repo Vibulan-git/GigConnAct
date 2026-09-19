@@ -46,7 +46,9 @@ const mockVideoSources = [
     { title: 'Unplugged Live Session', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' }
 ];
 
-window.registrationMedia = {
+window.regMediaActiveUploads = window.regMediaActiveUploads || [];
+
+window.registrationMedia = window.registrationMedia || {
     musician: {
         photos: [
             'https://picsum.photos/id/453/400/300',
@@ -72,9 +74,9 @@ window.updateRegMediaPreview = function(role) {
     const videosContainer = document.getElementById(`reg-${role}-videos-preview`);
     const audiosContainer = document.getElementById(`reg-${role}-audios-preview`);
 
-    const photos = window.registrationMedia[role].photos;
-    const videos = window.registrationMedia[role].videos;
-    const audios = window.registrationMedia[role].audios || [];
+    const photos = (window.registrationMedia && window.registrationMedia[role]) ? window.registrationMedia[role].photos : [];
+    const videos = (window.registrationMedia && window.registrationMedia[role]) ? window.registrationMedia[role].videos : [];
+    const audios = (window.registrationMedia && window.registrationMedia[role]) ? (window.registrationMedia[role].audios || []) : [];
 
     if (photosContainer) {
         photosContainer.innerHTML = photos.length === 0 
@@ -82,16 +84,16 @@ window.updateRegMediaPreview = function(role) {
             : photos.map((p, idx) => {
                 if (p === 'loading') {
                     return `
-                        <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;">
+                        <div style="position: relative; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;">
                             <i class="fa-solid fa-circle-notch fa-spin" style="color: #a855f7; font-size: 1.2rem;"></i>
                         </div>
                     `;
                 }
                 return `
-                    <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="position: relative; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
                         <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
-                        <button type="button" onclick="window.cropRegPhoto('${role}', ${idx})" title="Foto-Ausschnitt anpassen" style="position: absolute; top: 1px; left: 1px; background: rgba(124, 58, 237, 0.9); border: none; color: #fff; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.55rem; z-index: 2;"><i class="fa-solid fa-crop-simple"></i></button>
-                        <button type="button" onclick="window.deleteRegMedia('${role}', 'photo', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                        <button type="button" onclick="window.cropRegPhoto('${role}', ${idx})" title="Foto-Ausschnitt anpassen" style="position: absolute; top: 2px; left: 2px; background: rgba(124, 58, 237, 0.9); border: none; color: #fff; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.6rem; z-index: 2;"><i class="fa-solid fa-crop-simple"></i></button>
+                        <button type="button" onclick="window.deleteRegMedia('${role}', 'photo', ${idx})" title="Foto entfernen" style="position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.6rem;"><i class="fa-solid fa-times"></i></button>
                     </div>
                 `;
             }).join('');
@@ -101,17 +103,22 @@ window.updateRegMediaPreview = function(role) {
         videosContainer.innerHTML = videos.length === 0
             ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Videos hinzugefügt</span>`
             : videos.map((v, idx) => {
-                if (v.url === 'loading') {
+                if (v.url === 'loading' || v.status === 'uploading') {
+                    const pct = typeof v.progress === 'number' ? v.progress : 0;
                     return `
-                        <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;" title="${v.title}">
-                            <i class="fa-solid fa-circle-notch fa-spin" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        <div id="reg-media-video-${idx}" style="position: relative; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; border: 1.5px solid #a855f7; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3px; box-sizing: border-box;" title="${v.title || 'Video wird hochgeladen...'}">
+                            <span class="reg-media-pct" style="font-size: 0.72rem; font-weight: 800; color: #c084fc; margin-bottom: 4px;">${pct}%</span>
+                            <div style="width: 82%; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden;">
+                                <div class="reg-media-bar" style="width: ${pct}%; height: 100%; background: #a855f7; transition: width 0.2s ease;"></div>
+                            </div>
+                            <button type="button" onclick="window.cancelRegMedia('${role}', 'video', ${idx})" title="Upload abbrechen" style="position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.9); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.52rem;"><i class="fa-solid fa-times"></i></button>
                         </div>
                     `;
                 }
                 return `
-                    <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;" title="${v.title}">
-                        <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.1rem;"></i>
-                        <button type="button" onclick="window.deleteRegMedia('${role}', 'video', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                    <div style="position: relative; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;" title="${v.title}">
+                        <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.2rem;"></i>
+                        <button type="button" onclick="window.deleteRegMedia('${role}', 'video', ${idx})" title="Video entfernen" style="position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 17px; height: 17px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.55rem;"><i class="fa-solid fa-times"></i></button>
                     </div>
                 `;
             }).join('');
@@ -121,26 +128,57 @@ window.updateRegMediaPreview = function(role) {
         audiosContainer.innerHTML = audios.length === 0
             ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Audios hinzugefügt</span>`
             : audios.map((a, idx) => {
-                if (a.url === 'loading') {
+                if (a.url === 'loading' || a.status === 'uploading') {
+                    const pct = typeof a.progress === 'number' ? a.progress : 0;
                     return `
-                        <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;" title="${a.title}">
-                            <i class="fa-solid fa-circle-notch fa-spin" style="color: #06b6d4; font-size: 1.2rem;"></i>
+                        <div id="reg-media-audio-${idx}" style="position: relative; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; border: 1.5px solid #06b6d4; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3px; box-sizing: border-box;" title="${a.title || 'Audio wird hochgeladen...'}">
+                            <span class="reg-media-pct" style="font-size: 0.72rem; font-weight: 800; color: #22d3ee; margin-bottom: 4px;">${pct}%</span>
+                            <div style="width: 82%; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden;">
+                                <div class="reg-media-bar" style="width: ${pct}%; height: 100%; background: #06b6d4; transition: width 0.2s ease;"></div>
+                            </div>
+                            <button type="button" onclick="window.cancelRegMedia('${role}', 'audio', ${idx})" title="Upload abbrechen" style="position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.9); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.52rem;"><i class="fa-solid fa-times"></i></button>
                         </div>
                     `;
                 }
                 return `
-                    <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #1e1b4b; display:flex; align-items:center; justify-content:center;" title="${a.title || 'Audio'}">
-                        <i class="fa-solid fa-music" style="color: #06b6d4; font-size: 1.1rem;"></i>
-                        <button type="button" onclick="window.deleteRegMedia('${role}', 'audio', ${idx})" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                    <div style="position: relative; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #1e1b4b; display:flex; align-items:center; justify-content:center;" title="${a.title || 'Audio'}">
+                        <i class="fa-solid fa-music" style="color: #06b6d4; font-size: 1.2rem;"></i>
+                        <button type="button" onclick="window.deleteRegMedia('${role}', 'audio', ${idx})" title="Audio entfernen" style="position: absolute; top: 2px; right: 2px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 17px; height: 17px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.55rem;"><i class="fa-solid fa-times"></i></button>
                     </div>
                 `;
             }).join('');
     }
 };
 
-function validateAndProcessAudio(file, callback, errorCallback) {
+window.updateRegMediaProgress = function(role, type, mediaItem, pct) {
+    const list = window.registrationMedia && window.registrationMedia[role] ? window.registrationMedia[role][type === 'video' ? 'videos' : 'audios'] : null;
+    if (!list) return;
+    const idx = list.indexOf(mediaItem);
+    if (idx === -1) return;
+    const el = document.getElementById(`reg-media-${type}-${idx}`);
+    if (el) {
+        const pctEl = el.querySelector('.reg-media-pct');
+        const barEl = el.querySelector('.reg-media-bar');
+        if (pctEl) pctEl.textContent = `${pct}%`;
+        if (barEl) barEl.style.width = `${pct}%`;
+    }
+};
+
+window.cancelRegMedia = function(role, type, idx) {
+    const listKey = type === 'photo' ? 'photos' : type === 'video' ? 'videos' : 'audios';
+    const list = window.registrationMedia && window.registrationMedia[role] ? window.registrationMedia[role][listKey] : null;
+    if (!list || !list[idx]) return;
+    const item = list[idx];
+    if (item && item.task && typeof item.task.cancel === 'function') {
+        try { item.task.cancel(); } catch (e) {}
+    }
+    list.splice(idx, 1);
+    window.updateRegMediaPreview(role);
+};
+
+function validateAndProcessAudio(file, callback, errorCallback, onProgress) {
     const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav', 'audio/m4a', 'audio/x-m4a', 'audio/mp4', 'audio/aac', 'audio/ogg'];
-    const maxSize = 100 * 1024 * 1024; // 100 MB
+    const maxSize = 25 * 1024 * 1024; // 25 MB max
 
     if (!allowedTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|m4a|aac|ogg)$/i)) {
         showToast({
@@ -148,77 +186,22 @@ function validateAndProcessAudio(file, callback, errorCallback) {
             message: "Ungültiges Dateiformat. Erlaubt sind MP3, WAV und M4A."
         });
         if (errorCallback) errorCallback();
-        return;
+        return null;
     }
 
     if (file.size > maxSize) {
         showToast({
-            title: "Fehler beim Audioupload ❌",
-            message: "Die Datei ist zu groß. Maximale Größe ist 100 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+            title: "Hörprobe zu groß ⚠️",
+            message: "Die Datei ist zu groß (max. 25 MB, deine Datei: " + (file.size / (1024 * 1024)).toFixed(1) + " MB). Tipp: MP3-Dateien unter 10 MB laden in wenigen Sekunden hoch."
         });
         if (errorCallback) errorCallback();
-        return;
+        return null;
     }
 
     const titleWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
     
-    // Quick start upload helper
-    let uploadStarted = false;
-    const startUpload = () => {
-        if (uploadStarted) return;
-        uploadStarted = true;
-
-        showToast({
-            title: "Hörprobe wird hochgeladen...",
-            message: `${file.name} (0%)`
-        });
-
-        if (typeof firebase !== 'undefined' && firebase.storage) {
-            try {
-                const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anonymous';
-                const storageRef = firebase.storage().ref();
-                const fileRef = storageRef.child(`audios/${userId}/${Date.now()}_${file.name}`);
-                const metadata = { contentType: file.type || 'audio/mpeg' };
-                const uploadTask = fileRef.put(file, metadata);
-
-                let lastReportedPercent = 0;
-                uploadTask.on('state_changed', 
-                    (snapshot) => {
-                        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-                        if (progress - lastReportedPercent >= 15 || progress === 100) {
-                            lastReportedPercent = progress;
-                            showToast({
-                                title: `Audio-Upload: ${progress}% 🎵`,
-                                message: `${file.name} (${(snapshot.bytesTransferred / (1024*1024)).toFixed(1)} / ${(snapshot.totalBytes / (1024*1024)).toFixed(1)} MB)`
-                            });
-                        }
-                    },
-                    (storageError) => {
-                        console.warn("Firebase Storage upload error, falling back:", storageError);
-                        fallbackLocalUrl(storageError.message || storageError);
-                    },
-                    async () => {
-                        try {
-                            const url = await uploadTask.snapshot.ref.getDownloadURL();
-                            showToast({
-                                title: "Audio hochgeladen ✅",
-                                message: "Die Audio-Datei wurde erfolgreich gespeichert."
-                            });
-                            callback({ title: titleWithoutExt, url: url });
-                        } catch (urlErr) {
-                            fallbackLocalUrl(urlErr.message || urlErr);
-                        }
-                    }
-                );
-                return;
-            } catch (storageError) {
-                console.warn("Firebase Storage failed synchronously:", storageError);
-                fallbackLocalUrl(storageError.message || storageError);
-                return;
-            }
-        }
-        fallbackLocalUrl("Kein aktiver Storage-Dienst");
-    };
+    let uploadTask = null;
+    let uploadCancelled = false;
 
     const fallbackLocalUrl = (errDetail) => {
         if (file.size < 1.5 * 1024 * 1024) {
@@ -241,36 +224,101 @@ function validateAndProcessAudio(file, callback, errorCallback) {
         }
     };
 
-    // Fast duration validation with 800ms safety timeout
-    const audioElement = document.createElement('audio');
-    const objectUrl = URL.createObjectURL(file);
-    audioElement.src = objectUrl;
-    
-    const timer = setTimeout(() => {
-        URL.revokeObjectURL(objectUrl);
-        startUpload();
-    }, 800);
+    const uploadPromise = new Promise((resolve, reject) => {
+        showToast({
+            title: "Audio-Upload gestartet 🎵",
+            message: `${file.name} (0%)`
+        });
 
-    audioElement.onloadedmetadata = function() {
-        clearTimeout(timer);
-        URL.revokeObjectURL(objectUrl);
-        const duration = audioElement.duration;
-        if (duration && duration > 600) {
-            showToast({
-                title: "Audio zu lang 🎵",
-                message: "Die Audio-Datei darf maximal 10 Minuten lang sein (deine Datei: " + Math.floor(duration / 60) + " Min. " + Math.round(duration % 60) + " Sek.)."
-            });
-            if (errorCallback) errorCallback();
-            return;
+        if (typeof firebase !== 'undefined' && firebase.storage) {
+            try {
+                const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anonymous';
+                const storageRef = firebase.storage().ref();
+                const fileRef = storageRef.child(`audios/${userId}/${Date.now()}_${file.name}`);
+                const metadata = { contentType: file.type || 'audio/mpeg' };
+                uploadTask = fileRef.put(file, metadata);
+
+                let lastReportedPercent = 0;
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        if (uploadCancelled) return;
+                        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                        if (typeof onProgress === 'function') {
+                            onProgress(progress, snapshot.bytesTransferred, snapshot.totalBytes);
+                        }
+                        if (progress - lastReportedPercent >= 25 || progress === 100) {
+                            lastReportedPercent = progress;
+                            showToast({
+                                title: `Audio-Upload: ${progress}% 🎵`,
+                                message: `${file.name} (${(snapshot.bytesTransferred / (1024*1024)).toFixed(1)} / ${(snapshot.totalBytes / (1024*1024)).toFixed(1)} MB)`
+                            });
+                        }
+                    },
+                    (storageError) => {
+                        if (uploadCancelled) {
+                            reject(new Error("Cancelled"));
+                            return;
+                        }
+                        console.warn("Firebase Storage upload error, falling back:", storageError);
+                        fallbackLocalUrl(storageError.message || storageError);
+                        resolve();
+                    },
+                    async () => {
+                        if (uploadCancelled) {
+                            reject(new Error("Cancelled"));
+                            return;
+                        }
+                        try {
+                            const url = await uploadTask.snapshot.ref.getDownloadURL();
+                            showToast({
+                                title: "Audio hochgeladen ✅",
+                                message: "Die Audio-Datei wurde erfolgreich gespeichert."
+                            });
+                            callback({ title: titleWithoutExt, url: url });
+                            resolve(url);
+                        } catch (urlErr) {
+                            fallbackLocalUrl(urlErr.message || urlErr);
+                            resolve();
+                        }
+                    }
+                );
+            } catch (storageError) {
+                console.warn("Firebase Storage failed synchronously:", storageError);
+                fallbackLocalUrl(storageError.message || storageError);
+                resolve();
+            }
+        } else {
+            fallbackLocalUrl("Kein aktiver Storage-Dienst");
+            resolve();
         }
-        startUpload();
-    };
+    });
 
-    audioElement.onerror = function() {
-        clearTimeout(timer);
-        URL.revokeObjectURL(objectUrl);
-        startUpload();
-    };
+    // Parallel duration validation (doesn't delay upload start)
+    try {
+        const audioElement = document.createElement('audio');
+        const objectUrl = URL.createObjectURL(file);
+        audioElement.src = objectUrl;
+        audioElement.onloadedmetadata = function() {
+            URL.revokeObjectURL(objectUrl);
+            const duration = audioElement.duration;
+            if (duration && duration > 600) {
+                uploadCancelled = true;
+                if (uploadTask && typeof uploadTask.cancel === 'function') {
+                    try { uploadTask.cancel(); } catch (e) {}
+                }
+                showToast({
+                    title: "Audio zu lang 🎵",
+                    message: "Die Audio-Datei darf maximal 10 Minuten lang sein (deine Datei: " + Math.floor(duration / 60) + " Min. " + Math.round(duration % 60) + " Sek.)."
+                });
+                if (errorCallback) errorCallback();
+            }
+        };
+        audioElement.onerror = function() {
+            URL.revokeObjectURL(objectUrl);
+        };
+    } catch (e) {}
+
+    return { task: uploadTask, promise: uploadPromise };
 }
 
 window.addRegMedia = function(role, type) {
@@ -351,17 +399,33 @@ window.addRegMedia = function(role, type) {
                 });
             }
             toProcess.forEach(file => {
-                const placeholderIdx = list.length;
-                list.push({ url: 'loading', title: file.name });
+                const mediaItem = { url: 'loading', title: file.name, progress: 0, task: null };
+                list.push(mediaItem);
                 window.updateRegMediaPreview(role);
-                validateAndProcessVideo(file, (videoUrl) => {
-                    list[placeholderIdx] = { url: videoUrl, title: file.name };
+
+                const uploadHandle = validateAndProcessVideo(file, (videoUrl) => {
+                    mediaItem.url = videoUrl;
+                    mediaItem.progress = 100;
                     window.updateRegMediaPreview(role);
                 }, () => {
-                    const idx = list.findIndex(v => v.url === 'loading');
+                    const idx = list.indexOf(mediaItem);
                     if (idx !== -1) list.splice(idx, 1);
                     window.updateRegMediaPreview(role);
+                }, (pct) => {
+                    mediaItem.progress = pct;
+                    window.updateRegMediaProgress(role, 'video', mediaItem, pct);
                 });
+
+                if (uploadHandle && uploadHandle.task) {
+                    mediaItem.task = uploadHandle.task;
+                }
+                if (uploadHandle && uploadHandle.promise) {
+                    window.regMediaActiveUploads.push(uploadHandle.promise);
+                    uploadHandle.promise.finally(() => {
+                        const pIdx = window.regMediaActiveUploads.indexOf(uploadHandle.promise);
+                        if (pIdx > -1) window.regMediaActiveUploads.splice(pIdx, 1);
+                    });
+                }
             });
         });
     } else {
@@ -379,17 +443,34 @@ window.addRegMedia = function(role, type) {
                 });
             }
             toProcess.forEach(file => {
-                const placeholderIdx = list.length;
-                list.push({ url: 'loading', title: file.name });
+                const mediaItem = { url: 'loading', title: file.name, progress: 0, task: null };
+                list.push(mediaItem);
                 window.updateRegMediaPreview(role);
-                validateAndProcessAudio(file, (audioObj) => {
-                    list[placeholderIdx] = audioObj;
+
+                const uploadHandle = validateAndProcessAudio(file, (audioObj) => {
+                    mediaItem.url = audioObj.url;
+                    mediaItem.title = audioObj.title;
+                    mediaItem.progress = 100;
                     window.updateRegMediaPreview(role);
                 }, () => {
-                    const idx = list.findIndex(a => a.url === 'loading');
+                    const idx = list.indexOf(mediaItem);
                     if (idx !== -1) list.splice(idx, 1);
                     window.updateRegMediaPreview(role);
+                }, (pct) => {
+                    mediaItem.progress = pct;
+                    window.updateRegMediaProgress(role, 'audio', mediaItem, pct);
                 });
+
+                if (uploadHandle && uploadHandle.task) {
+                    mediaItem.task = uploadHandle.task;
+                }
+                if (uploadHandle && uploadHandle.promise) {
+                    window.regMediaActiveUploads.push(uploadHandle.promise);
+                    uploadHandle.promise.finally(() => {
+                        const pIdx = window.regMediaActiveUploads.indexOf(uploadHandle.promise);
+                        if (pIdx > -1) window.regMediaActiveUploads.splice(pIdx, 1);
+                    });
+                }
             });
         });
     }
@@ -398,10 +479,7 @@ window.addRegMedia = function(role, type) {
 };
 
 window.deleteRegMedia = function(role, type, idx) {
-    const listKey = type === 'photo' ? 'photos' : type === 'video' ? 'videos' : 'audios';
-    const list = window.registrationMedia[role][listKey];
-    list.splice(idx, 1);
-    window.updateRegMediaPreview(role);
+    window.cancelRegMedia(role, type, idx);
 };
 
 window.cropRegPhoto = function(role, idx) {
@@ -3247,8 +3325,9 @@ class StateManager {
                                     registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
                                     registerForm.elements.email.style.cursor = 'not-allowed';
                                 }
-                                if (registerForm.elements.fullName && firebaseUser.displayName && !registerForm.elements.fullName.value) {
-                                    registerForm.elements.fullName.value = firebaseUser.displayName;
+                                const cleanGoogleName = (firebaseUser.displayName || '').replace(/[^a-zA-ZäöüÄÖÜß\s\-\.‘'’]/gu, '').trim();
+                                if (registerForm.elements.fullName && cleanGoogleName && !registerForm.elements.fullName.value) {
+                                    registerForm.elements.fullName.value = cleanGoogleName;
                                 }
                                 const linkedBanner = document.getElementById('google-linked-banner');
                                 const linkedEmail = document.getElementById('google-linked-email');
@@ -3273,8 +3352,9 @@ class StateManager {
                                             regForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
                                             regForm.elements.email.style.cursor = 'not-allowed';
                                         }
-                                        if (regForm.elements.fullName && firebaseUser.displayName) {
-                                            regForm.elements.fullName.value = firebaseUser.displayName;
+                                        const cleanGoogleName2 = (firebaseUser.displayName || '').replace(/[^a-zA-ZäöüÄÖÜß\s\-\.‘'’]/gu, '').trim();
+                                        if (regForm.elements.fullName && cleanGoogleName2) {
+                                            regForm.elements.fullName.value = cleanGoogleName2;
                                         }
                                     }
                                     const registerTabBtn = document.getElementById('tab-register-btn');
@@ -3875,8 +3955,9 @@ class StateManager {
                             registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
                             registerForm.elements.email.style.cursor = 'not-allowed';
                         }
-                        if (registerForm.elements.fullName && user.displayName && !registerForm.elements.fullName.value) {
-                            registerForm.elements.fullName.value = user.displayName;
+                        const cleanRedirectName = (user.displayName || '').replace(/[^a-zA-ZäöüÄÖÜß\s\-\.‘'’]/gu, '').trim();
+                        if (registerForm.elements.fullName && cleanRedirectName && !registerForm.elements.fullName.value) {
+                            registerForm.elements.fullName.value = cleanRedirectName;
                         }
                         const linkedBanner = document.getElementById('google-linked-banner');
                         const linkedEmail = document.getElementById('google-linked-email');
@@ -3896,8 +3977,9 @@ class StateManager {
                                     regForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
                                     regForm.elements.email.style.cursor = 'not-allowed';
                                 }
-                                if (regForm.elements.fullName && user.displayName) {
-                                    regForm.elements.fullName.value = user.displayName;
+                                const cleanRedirectName2 = (user.displayName || '').replace(/[^a-zA-ZäöüÄÖÜß\s\-\.‘'’]/gu, '').trim();
+                                if (regForm.elements.fullName && cleanRedirectName2) {
+                                    regForm.elements.fullName.value = cleanRedirectName2;
                                 }
                             }
                             const registerTabBtn = document.getElementById('tab-register-btn');
@@ -13690,7 +13772,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 500 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></label>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 50 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></label>
                             <button type="button" id="btn-modal-add-video" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -13699,7 +13781,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV&#10;Maximale Größe: 20 MB&#10;Maximale Länge: 10 Minuten"></i></label>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 25 MB&#10;Maximale Länge: 10 Minuten"></i></label>
                             <button type="button" id="btn-modal-add-audio" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -15128,18 +15210,20 @@ function closeModal() {
 }
 
 function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
-    window.registrationMedia = {
-        musician: {
-            photos: ['https://picsum.photos/id/453/400/300'],
-            videos: [],
-            audios: []
-        },
-        organizer: {
-            photos: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'],
-            videos: [],
-            audios: []
-        }
-    };
+    if (!window.registrationMedia) {
+        window.registrationMedia = {
+            musician: {
+                photos: ['https://picsum.photos/id/453/400/300'],
+                videos: [],
+                audios: []
+            },
+            organizer: {
+                photos: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'],
+                videos: [],
+                audios: []
+            }
+        };
+    }
     wrapper.innerHTML = `
         <div class="modal-content">
             <div class="modal-header" style="flex-direction: column; padding: 1.5rem 2rem 1.2rem;">
@@ -15405,7 +15489,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         </div>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 500 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></label>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Videos (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 50 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></label>
                                 <button type="button" onclick="window.addRegMedia('musician', 'video')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
@@ -15414,7 +15498,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         </div>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 100 MB&#10;Maximale Länge: 10 Minuten"></i></label>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 25 MB&#10;Maximale Länge: 10 Minuten"></i></label>
                                 <button type="button" onclick="window.addRegMedia('musician', 'audio')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
@@ -15789,6 +15873,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
 
     document.getElementById('btn-close-modal').addEventListener('click', () => {
         closeModal();
+        window.googleRegistrationUser = null;
         if (typeof auth !== 'undefined' && auth.currentUser && (!state.currentUser || !state.currentUser.id)) {
             auth.signOut();
         }
@@ -15880,18 +15965,20 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         registerTab.addEventListener('click', () => {
             setActiveTab(registerTab);
             showForm(registerForm);
-            window.registrationMedia = {
-                musician: {
-                    photos: ['https://picsum.photos/id/453/400/300'],
-                    videos: [],
-                    audios: []
-                },
-                organizer: {
-                    photos: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'],
-                    videos: [],
-                    audios: []
-                }
-            };
+            if (!window.registrationMedia) {
+                window.registrationMedia = {
+                    musician: {
+                        photos: ['https://picsum.photos/id/453/400/300'],
+                        videos: [],
+                        audios: []
+                    },
+                    organizer: {
+                        photos: ['https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'],
+                        videos: [],
+                        audios: []
+                    }
+                };
+            }
             window.updateRegMediaPreview('musician');
             window.updateRegMediaPreview('organizer');
         });
@@ -16776,6 +16863,18 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             password: ""
         };
 
+        if (window.regMediaActiveUploads && window.regMediaActiveUploads.length > 0) {
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Medien werden übertragen...`;
+            }
+            showToast({
+                title: "Upload läuft noch ⏳",
+                message: "Deine Medien werden noch fertig übertragen. Die Registrierung wird gleich automatisch abgeschlossen..."
+            });
+            await Promise.all(window.regMediaActiveUploads.map(p => Promise.resolve(p).catch(() => {})));
+        }
+
         if (selectedRole === 'musician') {
             payload.bandName = registerForm.elements.bandName.value;
             payload.musicianType = Array.from(registerForm.querySelectorAll('input[name="musicianTypes"]:checked')).map(el => el.value).join(', ');
@@ -16886,7 +16985,15 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
 
         if (googleUser) {
             try {
-                const user = googleUser;
+                let activeAuthUser = (typeof auth !== 'undefined') ? auth.currentUser : null;
+                if (!activeAuthUser || activeAuthUser.uid !== googleUser.uid) {
+                    console.warn("auth.currentUser missing or mismatched during Google registration, re-acquiring token...");
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    provider.setCustomParameters({ prompt: 'select_account' });
+                    const freshResult = await auth.signInWithPopup(provider);
+                    activeAuthUser = freshResult.user;
+                }
+                const user = activeAuthUser;
                 const profileId = payload.role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
                 const isPromo = payload.subscriptionPlan === 'premium' && isPromoCodeApplied;
 
@@ -17022,7 +17129,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     registerForm.elements.email.style.cursor = '';
                 }
 
-                const isPaidPlan = (payload.subscriptionPlan === 'flex' || payload.subscriptionPlan === 'plus' || payload.subscriptionPlan === 'pro' || payload.subscriptionPlan === 'premium');
+                const isPaidPlan = payload.role === 'musician' && !newUser.isPremium && ['flex', 'plus', 'pro'].includes(payload.subscriptionPlan);
 
                 if (isPaidPlan) {
                     if (submitBtn) {
@@ -17153,8 +17260,9 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                     registerForm.elements.email.style.background = 'rgba(255,255,255,0.05)';
                                     registerForm.elements.email.style.cursor = 'not-allowed';
                                 }
-                                if (registerForm.elements.fullName && user.displayName && !registerForm.elements.fullName.value) {
-                                    registerForm.elements.fullName.value = user.displayName;
+                                const cleanPopupName = (user.displayName || '').replace(/[^a-zA-ZäöüÄÖÜß\s\-\.‘'’]/gu, '').trim();
+                                if (registerForm.elements.fullName && cleanPopupName && !registerForm.elements.fullName.value) {
+                                    registerForm.elements.fullName.value = cleanPopupName;
                                 }
                             }
                             const linkedBanner = document.getElementById('google-linked-banner');
@@ -18927,7 +19035,12 @@ function handleRouting() {
     
     // Check if user is half-logged-in (Firebase Auth exists but no Firestore profile)
     if (typeof auth !== 'undefined' && auth.currentUser && (!state || !state.currentUser || !state.currentUser.id)) {
-        if (page === '' || page === '/') {
+        const modalContainer = document.getElementById('modal-container');
+        const isAuthModalOpen = modalContainer && !modalContainer.classList.contains('hidden');
+        const isGoogleReg = !!(window.googleRegistrationUser || (auth.currentUser && auth.currentUser.providerData && auth.currentUser.providerData.some(p => p.providerId === 'google.com')));
+        const isRegistering = window.isRegisteringRedirecting || isGoogleReg || isAuthModalOpen;
+
+        if (!isRegistering && (page === '' || page === '/')) {
             console.log("Half-logged-in user on landing page. Signing out to prevent auth loop.");
             auth.signOut();
             return;
@@ -22286,7 +22399,7 @@ window.openImageCropperModal = function(imageSrc, onCrop, onCancel) {
         // Apply Crop
         modalOverlay.querySelector('#cropper-btn-apply').addEventListener('click', () => {
             const outCanvas = document.createElement('canvas');
-            const outW = currentAspect === 1.0 ? 1000 : 1200;
+            const outW = currentAspect === 1.0 ? 800 : 900;
             const outH = Math.round(outW / currentAspect);
             outCanvas.width = outW;
             outCanvas.height = outH;
@@ -22309,7 +22422,7 @@ window.openImageCropperModal = function(imageSrc, onCrop, onCancel) {
             outCtx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
             outCtx.restore();
 
-            const croppedDataUrl = outCanvas.toDataURL('image/jpeg', 0.82);
+            const croppedDataUrl = outCanvas.toDataURL('image/jpeg', 0.78);
             cleanup();
             onCrop(croppedDataUrl);
         });
@@ -22385,12 +22498,12 @@ function validateAndProcessPhoto(file, callback, errorCallback) {
     reader.readAsDataURL(file);
 }
 
-function validateAndProcessVideo(file, callback, errorCallback) {
+function validateAndProcessVideo(file, callback, errorCallback, onProgress) {
     const allowedExtensions = ['mp4', 'mov', 'webm', 'ogg', 'mkv', 'avi', '3gp', 'm4v'];
     const fileExt = file.name.split('.').pop().toLowerCase();
     const isAllowedExt = allowedExtensions.includes(fileExt);
     const isAllowedMime = file.type && file.type.startsWith('video/');
-    const maxSize = 500 * 1024 * 1024; // 500 MB
+    const maxSize = 50 * 1024 * 1024; // 50 MB max
 
     if (!isAllowedMime && !isAllowedExt) {
         showToast({
@@ -22398,22 +22511,20 @@ function validateAndProcessVideo(file, callback, errorCallback) {
             message: "Ungültiges Dateiformat. Erlaubt sind gängige Videoformate wie MP4, MOV, WebM."
         });
         if (errorCallback) errorCallback();
-        return;
+        return null;
     }
 
     if (file.size > maxSize) {
         showToast({
-            title: "Fehler beim Videoupload ❌",
-            message: "Die Datei ist zu groß. Maximale Größe ist 500 MB (deine Datei: " + (file.size / (1024 * 1024)).toFixed(2) + " MB)."
+            title: "Video zu groß ⚠️",
+            message: "Die Datei ist zu groß (max. 50 MB, deine Datei: " + (file.size / (1024 * 1024)).toFixed(1) + " MB). Tipp: Kurze Clips oder komprimierte MP4-Dateien unter 30 MB laden blitzschnell hoch."
         });
         if (errorCallback) errorCallback();
-        return;
+        return null;
     }
 
-    showToast({
-        title: "Video-Upload gestartet 🎬",
-        message: `${file.name} (0%)`
-    });
+    let uploadTask = null;
+    let uploadCancelled = false;
 
     const fallbackLocalUrl = (errDetail) => {
         const url = URL.createObjectURL(file);
@@ -22424,51 +22535,76 @@ function validateAndProcessVideo(file, callback, errorCallback) {
         callback(url);
     };
 
-    if (typeof firebase !== 'undefined' && firebase.storage) {
-        try {
-            const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anonymous';
-            const storageRef = firebase.storage().ref();
-            const fileRef = storageRef.child(`videos/${userId}/${Date.now()}_${file.name}`);
-            const metadata = { contentType: file.type || 'video/mp4' };
-            const uploadTask = fileRef.put(file, metadata);
+    const uploadPromise = new Promise((resolve, reject) => {
+        showToast({
+            title: "Video-Upload gestartet 🎬",
+            message: `${file.name} (0%)`
+        });
 
-            let lastReportedPercent = 0;
-            uploadTask.on('state_changed', 
-                (snapshot) => {
-                    const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-                    if (progress - lastReportedPercent >= 15 || progress === 100) {
-                        lastReportedPercent = progress;
-                        showToast({
-                            title: `Video-Upload: ${progress}% 🎬`,
-                            message: `${file.name} (${(snapshot.bytesTransferred / (1024*1024)).toFixed(1)} / ${(snapshot.totalBytes / (1024*1024)).toFixed(1)} MB)`
-                        });
+        if (typeof firebase !== 'undefined' && firebase.storage) {
+            try {
+                const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anonymous';
+                const storageRef = firebase.storage().ref();
+                const fileRef = storageRef.child(`videos/${userId}/${Date.now()}_${file.name}`);
+                const metadata = { contentType: file.type || 'video/mp4' };
+                uploadTask = fileRef.put(file, metadata);
+
+                let lastReportedPercent = 0;
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        if (uploadCancelled) return;
+                        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                        if (typeof onProgress === 'function') {
+                            onProgress(progress, snapshot.bytesTransferred, snapshot.totalBytes);
+                        }
+                        if (progress - lastReportedPercent >= 20 || progress === 100) {
+                            lastReportedPercent = progress;
+                            showToast({
+                                title: `Video-Upload: ${progress}% 🎬`,
+                                message: `${file.name} (${(snapshot.bytesTransferred / (1024*1024)).toFixed(1)} / ${(snapshot.totalBytes / (1024*1024)).toFixed(1)} MB)`
+                            });
+                        }
+                    },
+                    (storageError) => {
+                        if (uploadCancelled) {
+                            reject(new Error("Cancelled"));
+                            return;
+                        }
+                        console.warn("Firebase Storage upload error, falling back:", storageError);
+                        fallbackLocalUrl(storageError.message || storageError);
+                        resolve();
+                    },
+                    async () => {
+                        if (uploadCancelled) {
+                            reject(new Error("Cancelled"));
+                            return;
+                        }
+                        try {
+                            const url = await uploadTask.snapshot.ref.getDownloadURL();
+                            showToast({
+                                title: "Video hochgeladen ✅",
+                                message: "Das Video wurde erfolgreich gespeichert."
+                            });
+                            callback(url);
+                            resolve(url);
+                        } catch (urlErr) {
+                            fallbackLocalUrl(urlErr.message || urlErr);
+                            resolve();
+                        }
                     }
-                },
-                (storageError) => {
-                    console.warn("Firebase Storage upload error, falling back:", storageError);
-                    fallbackLocalUrl(storageError.message || storageError);
-                },
-                async () => {
-                    try {
-                        const url = await uploadTask.snapshot.ref.getDownloadURL();
-                        showToast({
-                            title: "Video hochgeladen ✅",
-                            message: "Das Video wurde erfolgreich gespeichert."
-                        });
-                        callback(url);
-                    } catch (urlErr) {
-                        fallbackLocalUrl(urlErr.message || urlErr);
-                    }
-                }
-            );
-            return;
-        } catch (storageError) {
-            console.warn("Firebase Storage failed synchronously:", storageError);
-            fallbackLocalUrl(storageError.message || storageError);
-            return;
+                );
+            } catch (storageError) {
+                console.warn("Firebase Storage failed synchronously:", storageError);
+                fallbackLocalUrl(storageError.message || storageError);
+                resolve();
+            }
+        } else {
+            fallbackLocalUrl("Kein aktiver Storage-Dienst");
+            resolve();
         }
-    }
-    fallbackLocalUrl("Kein aktiver Storage-Dienst");
+    });
+
+    return { task: uploadTask, promise: uploadPromise };
 }
 
 window.showMediaModal = function(itemId, isEvents) {
@@ -22533,7 +22669,7 @@ window.showMediaModal = function(itemId, isEvents) {
                 <!-- Section: Videos -->
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Videos (${videos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 500 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></span>
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎬 Videos (${videos.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP4, MOV, WebM&#10;Maximale Größe: 50 MB&#10;Maximale Länge: 5 Minuten&#10;Auflösung: 720p - 1080p"></i></span>
                         ${videos.length < 3 ? `
                             <button id="btn-add-mock-video" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: ${isEvents ? 'rgba(37, 99, 235, 0.3)' : 'rgba(124, 58, 237, 0.3)'}; color: ${isEvents ? '#2563eb' : '#7c3aed'}; display: flex; align-items: center; gap: 0.25rem;">
                                 <i class="fa-solid fa-plus"></i>
@@ -22557,7 +22693,7 @@ window.showMediaModal = function(itemId, isEvents) {
                 ${!isEvents ? `
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎵 Hörproben (${audios.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 100 MB&#10;Maximale Länge: 10 Minuten"></i></span>
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎵 Hörproben (${audios.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 25 MB&#10;Maximale Länge: 10 Minuten"></i></span>
                         ${audios.length < 3 ? `
                             <button id="btn-add-mock-audio" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: rgba(124, 58, 237, 0.3); color: #7c3aed; display: flex; align-items: center; gap: 0.25rem;">
                                 <i class="fa-solid fa-plus"></i>
