@@ -8127,27 +8127,12 @@ function renderMarket(container, type, onNavigate) {
             `;
         }
 
-        const floatingToggleBtn = container.querySelector('#btn-floating-market-filter');
-        const floatingDot = container.querySelector('#floating-filter-active-dot');
-        if (floatingToggleBtn) {
-            if (isActive) {
-                floatingToggleBtn.classList.add('has-active-filters');
-                if (floatingDot) floatingDot.style.display = 'inline-block';
-            } else {
-                floatingToggleBtn.classList.remove('has-active-filters');
-                if (floatingDot) floatingDot.style.display = 'none';
-            }
-        }
-
         const inlineFilterBtn = container.querySelector('#btn-market-inline-filter');
-        const inlineFilterDot = container.querySelector('#market-filter-active-dot');
         if (inlineFilterBtn) {
             if (isActive) {
                 inlineFilterBtn.classList.add('has-active-filters');
-                if (inlineFilterDot) inlineFilterDot.style.display = 'inline-block';
             } else {
                 inlineFilterBtn.classList.remove('has-active-filters');
-                if (inlineFilterDot) inlineFilterDot.style.display = 'none';
             }
         }
     }
@@ -8338,9 +8323,9 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page ${isOrganizerTheme ? 'theme-organizer' : 'theme-musician'} ${showOnlyFavorites ? 'favorites-mode' : ''}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
-            <!-- Market Sub-Header: Left = Count & Label, Right = Filter Button -->
+            <!-- Market Sub-Header: Center = Count & Label, Right = Filter Button -->
             <div class="market-sub-header-bar">
-                <div id="market-results-header" style="display: flex; align-items: baseline; gap: 0.5rem; text-align: left;">
+                <div id="market-results-header" style="display: flex; align-items: baseline; justify-content: center; gap: 0.65rem; text-align: center;">
                     <h1 id="market-results-title" class="market-sub-header-title">
                         <span id="market-results-count">${getItems().length}</span>
                         <span id="market-title-label">${showOnlyFavorites ? 'Favoriten' : (isEvents ? 'Events' : 'Musiker')}</span>
@@ -8348,11 +8333,10 @@ function renderMarket(container, type, onNavigate) {
                 </div>
 
                 ${!showOnlyFavorites ? `
-                <div class="market-filter-action-area" style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="market-filter-action-area">
                     <button id="btn-market-inline-filter" class="market-inline-filter-btn" title="Filter öffnen">
                         <i class="fa-solid fa-sliders" style="font-size: 0.95rem;"></i>
                         <span>Filter</span>
-                        <span class="filter-active-indicator" id="market-filter-active-dot" style="display: none;"></span>
                     </button>
                 </div>
                 ` : ''}
@@ -8799,15 +8783,6 @@ function renderMarket(container, type, onNavigate) {
             </div>
             </div>
             <div id="market-filters-overlay" class="market-filters-overlay"></div>
-
-            <!-- Floating Filter Pill Button (Option 4 - Airbnb Style) -->
-            ${(!showOnlyFavorites && !showOnlyTopMatches) ? `
-            <button class="market-floating-filter-pill ${isOrganizerTheme ? 'theme-organizer' : 'theme-musician'}" id="btn-floating-market-filter" title="Filter & Suche öffnen">
-                <i class="fa-solid fa-sliders floating-filter-icon"></i>
-                <span class="floating-filter-text">Filter</span>
-                <span class="floating-filter-dot" id="floating-filter-active-dot" style="display: none;"></span>
-            </button>
-            ` : ''}
         </div>
     `;
 
@@ -8815,7 +8790,6 @@ function renderMarket(container, type, onNavigate) {
     const toggleBtn = container.querySelector('#btn-toggle-mobile-filters');
     const filterWrapper = container.querySelector('#market-filters-wrapper');
     const overlay = container.querySelector('#market-filters-overlay');
-    const floatingFilterBtn = container.querySelector('#btn-floating-market-filter');
 
     const inlineFilterBtn = container.querySelector('#btn-market-inline-filter');
     if (inlineFilterBtn) {
@@ -8839,35 +8813,11 @@ function renderMarket(container, type, onNavigate) {
         });
     }
 
-    if (floatingFilterBtn) {
-        floatingFilterBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (window.innerWidth > 900) {
-                const desktopFilter = document.getElementById('market-filters-wrapper');
-                if (desktopFilter) {
-                    desktopFilter.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    desktopFilter.style.transition = 'box-shadow 0.3s ease';
-                    desktopFilter.style.boxShadow = isOrganizerTheme ? '0 0 25px rgba(37, 99, 235, 0.5)' : '0 0 25px rgba(124, 58, 237, 0.5)';
-                    setTimeout(() => {
-                        desktopFilter.style.boxShadow = '';
-                    }, 1200);
-                } else {
-                    toggleBtn?.click();
-                }
-            } else {
-                toggleBtn?.click();
-            }
-        });
-    }
-
     toggleBtn?.addEventListener('click', function() {
         filterWrapper.classList.toggle('open');
         this.classList.toggle('active');
         const isOpen = filterWrapper.classList.contains('open');
         overlay?.classList.toggle('open', isOpen);
-        if (floatingFilterBtn) {
-            floatingFilterBtn.classList.toggle('drawer-open', isOpen);
-        }
         if (inlineFilterBtn) {
             inlineFilterBtn.classList.toggle('drawer-open', isOpen);
         }
@@ -8880,9 +8830,6 @@ function renderMarket(container, type, onNavigate) {
         filterWrapper.classList.remove('open');
         overlay?.classList.remove('open');
         toggleBtn?.classList.remove('active');
-        if (floatingFilterBtn) {
-            floatingFilterBtn.classList.remove('drawer-open');
-        }
         if (inlineFilterBtn) {
             inlineFilterBtn.classList.remove('drawer-open');
         }
@@ -8898,9 +8845,6 @@ function renderMarket(container, type, onNavigate) {
         filterWrapper.classList.remove('open');
         overlay.classList.remove('open');
         toggleBtn?.classList.remove('active');
-        if (floatingFilterBtn) {
-            floatingFilterBtn.classList.remove('drawer-open');
-        }
         updateFilterIconGlow(isFilterActiveCurrently);
     });
 
@@ -9672,8 +9616,8 @@ function renderMarket(container, type, onNavigate) {
                 let actionButtonsHtml = '';
                 if (totalMatchesCount > displayedItemsCount) {
                     actionButtonsHtml += `
-                        <button class="btn btn-primary" id="btn-market-load-more" style="flex: 1 1 0; min-width: 0; padding: 0.75rem 1.1rem; font-size: 0.92rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s; background: ${themeColor}; color: #ffffff; border: none; box-shadow: 0 4px 14px rgba(0,0,0,0.15); margin: 0; white-space: nowrap;">
-                            <i class="fa-solid fa-chevron-down"></i> <span>Weitere ${isEvents ? 'Events' : 'Musiker'} anzeigen</span>
+                        <button class="market-bottom-pill-btn" id="btn-market-load-more">
+                            <i class="fa-solid fa-chevron-down"></i> <span>Weitere ${isEvents ? 'Events' : 'Musiker'}</span>
                         </button>
                     `;
                 }
@@ -9682,7 +9626,7 @@ function renderMarket(container, type, onNavigate) {
                     const hasExcluded = unfilteredList.some(item => !list.some(listItem => listItem.id === item.id));
                     if (hasExcluded) {
                         actionButtonsHtml += `
-                            <button class="btn btn-secondary" id="btn-market-show-more-unfiltered" style="flex: 1 1 0; min-width: 0; padding: 0.75rem 0.8rem; font-size: 0.88rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s; margin: 0; white-space: nowrap; text-align: center;">
+                            <button class="market-bottom-pill-btn" id="btn-market-show-more-unfiltered">
                                 <i class="fa-solid fa-plus"></i> <span>Weitere Ergebnisse</span>
                             </button>
                         `;
@@ -9691,7 +9635,7 @@ function renderMarket(container, type, onNavigate) {
                 
                 if (!showOnlyFavorites && (isFilterActiveCurrently || state.currentUser !== null)) {
                     actionButtonsHtml += `
-                        <button class="btn btn-secondary" id="btn-market-bottom-reset" style="flex: 1 1 0; min-width: 0; padding: 0.75rem 0.8rem; font-size: 0.88rem; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; color: ${themeColor}; border: 2px solid ${themeColor}; background: transparent; transition: all 0.2s; margin: 0; white-space: nowrap; text-align: center;">
+                        <button class="market-bottom-pill-btn" id="btn-market-bottom-reset">
                             <i class="fa-solid fa-rotate-right"></i> <span>Filter zurücksetzen</span>
                         </button>
                     `;
@@ -9699,7 +9643,7 @@ function renderMarket(container, type, onNavigate) {
 
                 if (actionButtonsHtml) {
                     buttonsHtml = `
-                        <div class="market-bottom-actions-row" style="display: flex; flex-direction: row; gap: 0.75rem; justify-content: center; align-items: center; width: 100%; max-width: 580px; margin: 0 auto; box-sizing: border-box;">
+                        <div class="market-bottom-actions-row" style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 0.75rem; justify-content: center; align-items: center; width: 100%; max-width: 620px; margin: 0 auto; box-sizing: border-box;">
                             ${actionButtonsHtml}
                         </div>
                     `;
@@ -9840,17 +9784,6 @@ function renderMarket(container, type, onNavigate) {
         } else {
             container.querySelector('.market-page')?.classList.remove('top-matches-mode');
             container.querySelector('.market-controls-row')?.classList.remove('top-matches-mode');
-        }
-
-        const floatingFilterBtn = container.querySelector('#btn-floating-market-filter') || document.getElementById('btn-floating-market-filter');
-        if (floatingFilterBtn) {
-            if (showOnlyFavorites || showOnlyTopMatches) {
-                floatingFilterBtn.style.setProperty('display', 'none', 'important');
-                floatingFilterBtn.classList.add('hidden-mode');
-            } else {
-                floatingFilterBtn.style.removeProperty('display');
-                floatingFilterBtn.classList.remove('hidden-mode');
-            }
         }
 
         isFilterActiveCurrently = isFilterActive;
@@ -12487,10 +12420,10 @@ function renderOrganizerEventItem(e, isActive) {
     const eventTypeDisplay = singleEvtType || 'Event';
 
     return `
-        <div class="market-tile-card event-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0); min-height: 540px;">
+        <div class="market-tile-card event-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0);">
             
             <!-- 1. Combined Galerie: Photos (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
-            <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 250px; background: #0f172a; overflow: hidden;">
+            <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 210px; background: #0f172a; overflow: hidden;">
                 <!-- Galerie-Zähler (unsichtbar) -->
                 <span class="tile-gallery-counter" style="display: none;">
                     📷 1 / ${photos.length}
@@ -12607,16 +12540,22 @@ function renderOrganizerEventItem(e, isActive) {
             </div>
 
             <!-- Actions Grid at the Bottom (Organizer Blue theme with white text) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.55rem 0.65rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.35rem; background: #2563eb;">
-                <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.76rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #2563eb;">
+                ${isActive ? `
+                <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                     <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
                 </button>
-                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.76rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
-                    <i class="fa-solid fa-${isActive ? 'pause' : 'play'}" style="color: #ffffff;"></i> ${isActive ? 'Pausieren' : 'Aktivieren'}
+                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                    <i class="fa-solid fa-pause" style="color: #ffffff;"></i> Pausieren
                 </button>
-                <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.76rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
+                ` : `
+                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                    <i class="fa-solid fa-play" style="color: #ffffff;"></i> Aktivieren
+                </button>
+                <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
                     <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
                 </button>
+                `}
             </div>
         </div>
     `;
@@ -12645,7 +12584,7 @@ function renderMyEventsContent(container) {
     container.innerHTML = `
         <div class="portal-layout" style="display:flex; flex-direction:column; gap:2.5rem;">
             <!-- Active Events -->
-            <div class="profile-section-card contact-details my-items-section-card" style="padding-top: 2.2rem; min-height: 480px;">
+            <div class="profile-section-card contact-details">
                 <div class="profile-section-header">
                     <div style="display: flex; align-items: center; gap: 0.85rem;">
                         <div class="profile-section-badge-icon" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;">
@@ -12973,10 +12912,10 @@ function renderMyMusicianItem(m, isActive) {
     const dotActiveColor = '#7c3aed';
 
     return `
-        <div class="market-tile-card musician-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0); min-height: 540px;">
+        <div class="market-tile-card musician-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0);">
             
             <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
-            <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 250px; background: #0f172a; overflow: hidden;">
+            <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 210px; background: #0f172a; overflow: hidden;">
                 <!-- Galerie-Zähler (unsichtbar) -->
                 <span class="tile-gallery-counter" style="display: none;">
                     📷 1 / ${photos.length}
@@ -13118,16 +13057,22 @@ function renderMyMusicianItem(m, isActive) {
             </div>
 
             <!-- Actions Grid at the Bottom (Lila theme with white text for musicians) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.55rem 0.65rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.35rem; background: #7c3aed;">
-                <button class="btn btn-sm btn-glass btn-edit-my-musician" data-id="${m.id}" style="font-size: 0.76rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #7c3aed;">
+                ${isActive ? `
+                <button class="btn btn-sm btn-glass btn-edit-my-musician" data-id="${m.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                     <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
                 </button>
-                <button class="btn btn-sm btn-glass btn-pause-my-musician" data-id="${m.id}" style="font-size: 0.76rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
-                    <i class="fa-solid fa-${isActive ? 'pause' : 'play'}" style="color: #ffffff;"></i> ${isActive ? 'Pausieren' : 'Aktivieren'}
+                <button class="btn btn-sm btn-glass btn-pause-my-musician" data-id="${m.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                    <i class="fa-solid fa-pause" style="color: #ffffff;"></i> Pausieren
                 </button>
-                <button class="btn btn-sm btn-glass btn-delete-my-musician" data-id="${m.id}" style="font-size: 0.76rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
+                ` : `
+                <button class="btn btn-sm btn-glass btn-pause-my-musician" data-id="${m.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                    <i class="fa-solid fa-play" style="color: #ffffff;"></i> Aktivieren
+                </button>
+                <button class="btn btn-sm btn-glass btn-delete-my-musician" data-id="${m.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
                     <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
                 </button>
+                `}
             </div>
         </div>
     `;
@@ -13147,7 +13092,7 @@ function renderMyMusiciansContent(container) {
     container.innerHTML = `
         <div class="portal-layout" style="display:flex; flex-direction:column; gap:2.5rem;">
             <!-- Active Musicians -->
-            <div class="profile-section-card musician-profile my-items-section-card" style="padding-top: 2.2rem; min-height: 480px;">
+            <div class="profile-section-card musician-profile">
                 <div class="profile-section-header">
                     <div style="display: flex; align-items: center; gap: 0.85rem;">
                         <div class="profile-section-badge-icon" style="background: rgba(124, 58, 237, 0.1); color: #7c3aed;">

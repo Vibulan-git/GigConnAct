@@ -113,6 +113,19 @@ body {
     box-sizing: border-box !important;
 }
 
+/* Internal pages: Centered GigConnAct Logo */
+.app-header:not(.transparent-header) .header-container {
+    justify-content: center !important;
+    position: relative !important;
+}
+.app-header:not(.transparent-header) .logo-area {
+    margin: 0 auto !important;
+}
+.app-header:not(.transparent-header) .main-nav,
+.app-header:not(.transparent-header) .auth-area {
+    display: none !important;
+}
+
 .logo-area {
     display: flex;
     align-items: center;
@@ -3610,13 +3623,23 @@ body.landing-page-active .landing-hero {
     box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4) !important;
     color: #ffffff !important;
 }
-.theme-organizer .subscription-card .price {
+.theme-organizer .subscription-card:not(.active) .price {
     color: #2563eb !important;
 }
-.theme-organizer .subscription-card .plan-features li i,
+.theme-organizer .subscription-card.active .price,
+.theme-organizer .subscription-card.active .price span,
+.subscription-card.active .price,
+.subscription-card.active .price span,
+#auth-register-form.role-organizer-active .subscription-card.active .price,
+#auth-register-form.role-organizer-active .subscription-card.active .price span {
+    color: #ffffff !important;
+}
+.theme-organizer .subscription-card:not(.active) .plan-features li i,
 .theme-organizer .plan-features li i {
     color: #2563eb !important;
 }
+.theme-organizer .subscription-card.active .plan-features li,
+.theme-organizer .subscription-card.active .plan-features li span,
 .theme-organizer .subscription-card.active .plan-features li i {
     color: #ffffff !important;
 }
@@ -5041,29 +5064,63 @@ input[type="range"].input-field {
     padding: 0 1.2rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    position: relative;
     box-sizing: border-box;
+    text-align: center;
 }
 
 .market-sub-header-title,
 .matches-sub-header-title,
 .postbox-sub-header-title {
     font-family: var(--font-heading);
-    font-size: clamp(1.45rem, 4vw, 1.95rem);
+    font-size: clamp(2.1rem, 5.5vw, 2.85rem) !important;
     font-weight: 900;
-    color: #0f172a;
-    margin: 0;
-    line-height: 1.2;
-    letter-spacing: -0.4px;
+    margin: 0 auto;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
     display: flex;
     align-items: baseline;
-    gap: 0.5rem;
-    text-align: left;
+    justify-content: center;
+    gap: 0.65rem;
+    text-align: center;
 }
 
-.market-inline-filter-btn {
+/* Theme colors for sub-header titles: Purple for musician mode / Blue for organizer mode */
+.theme-musician .market-sub-header-title,
+.theme-musician .matches-sub-header-title,
+.theme-musician .postbox-sub-header-title,
+.market-page.theme-musician .market-sub-header-title,
+.matches-page.theme-musician .matches-sub-header-title,
+.postbox-page.theme-musician .postbox-sub-header-title {
+    color: #7c3aed !important;
+}
+
+.theme-organizer .market-sub-header-title,
+.theme-organizer .matches-sub-header-title,
+.theme-organizer .postbox-sub-header-title,
+.market-page.theme-organizer .market-sub-header-title,
+.matches-page.theme-organizer .matches-sub-header-title,
+.postbox-page.theme-organizer .postbox-sub-header-title {
+    color: #2563eb !important;
+}
+
+.market-filter-action-area {
+    position: absolute;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Filter Button and matching Action Buttons (Weitere Ergebnisse, Filter zurücksetzen) */
+.market-inline-filter-btn,
+.market-bottom-pill-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.55rem;
     padding: 0.55rem 1.15rem;
     border-radius: 12px;
@@ -5076,33 +5133,40 @@ input[type="range"].input-field {
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
     white-space: nowrap;
     user-select: none;
+    text-align: center;
 }
 
-.theme-musician .market-inline-filter-btn {
+.theme-musician .market-inline-filter-btn,
+.theme-musician .market-bottom-pill-btn {
     border: 1.5px solid #7c3aed;
     color: #7c3aed;
 }
-.theme-musician .market-inline-filter-btn:hover {
+.theme-musician .market-inline-filter-btn:hover,
+.theme-musician .market-bottom-pill-btn:hover {
     background: #7c3aed;
     color: #ffffff;
     box-shadow: 0 4px 14px rgba(124, 58, 237, 0.25);
     transform: translateY(-1px);
 }
-.theme-musician .market-inline-filter-btn:hover i {
+.theme-musician .market-inline-filter-btn:hover i,
+.theme-musician .market-bottom-pill-btn:hover i {
     color: #ffffff !important;
 }
 
-.theme-organizer .market-inline-filter-btn {
+.theme-organizer .market-inline-filter-btn,
+.theme-organizer .market-bottom-pill-btn {
     border: 1.5px solid #2563eb;
     color: #2563eb;
 }
-.theme-organizer .market-inline-filter-btn:hover {
+.theme-organizer .market-inline-filter-btn:hover,
+.theme-organizer .market-bottom-pill-btn:hover {
     background: #2563eb;
     color: #ffffff;
     box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
     transform: translateY(-1px);
 }
-.theme-organizer .market-inline-filter-btn:hover i {
+.theme-organizer .market-inline-filter-btn:hover i,
+.theme-organizer .market-bottom-pill-btn:hover i {
     color: #ffffff !important;
 }
 
@@ -5116,23 +5180,33 @@ input[type="range"].input-field {
     color: #22c55e !important;
 }
 
-.filter-active-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #22c55e;
-    box-shadow: 0 0 6px #22c55e;
-    display: inline-block;
+/* Green dot indicator is removed */
+.filter-active-indicator,
+#market-filter-active-dot,
+#floating-filter-active-dot {
+    display: none !important;
 }
 
-@media (max-width: 600px) {
-    .market-sub-header-bar,
-    .matches-sub-header-bar,
-    .postbox-sub-header-bar {
+@media (max-width: 650px) {
+    .market-sub-header-bar {
+        position: static;
+        flex-direction: column;
+        gap: 0.65rem;
         padding: 0 0.8rem;
         margin: 1rem auto 0.75rem;
     }
-    .market-inline-filter-btn {
+    .market-filter-action-area {
+        position: static;
+        transform: none;
+        margin: 0 auto;
+    }
+    .market-sub-header-title,
+    .matches-sub-header-title,
+    .postbox-sub-header-title {
+        font-size: clamp(1.75rem, 6.5vw, 2.3rem) !important;
+    }
+    .market-inline-filter-btn,
+    .market-bottom-pill-btn {
         padding: 0.45rem 0.95rem;
         font-size: 0.88rem;
         border-radius: 10px;
@@ -6946,21 +7020,21 @@ body[data-page="musicians"] .market-tile-card:hover {
     white-space: nowrap !important;
 }
 
-/* "Meine Musiker" / "Meine Events" Section Card & Item Height */
+/* "Meine Musiker" / "Meine Events" Section Card & Item Styling */
 .profile-section-card.my-items-section-card {
-    min-height: 480px !important;
-    padding: 2.2rem 2.2rem 2.5rem !important;
+    min-height: auto !important;
+    padding: 2rem 2.2rem !important;
     box-sizing: border-box !important;
 }
 
 .my-events-list .market-tile-card,
 .my-musicians-list .market-tile-card {
-    min-height: 540px !important;
+    min-height: auto !important;
 }
 
 .my-events-list .tile-fullwidth-photo-slider,
 .my-musicians-list .tile-fullwidth-photo-slider {
-    height: 250px !important;
+    height: 210px !important;
 }
 
 /* =============================================================
