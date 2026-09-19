@@ -7236,4 +7236,29 @@ body[data-page="musicians"] .market-tile-card:hover {
         white-space: nowrap !important;
     }
 }
+
+/* =============================================================
+ * Tile Type Flag: Musiker-Typ / Event-Typ Tag on cards
+ * Lila Rahmen, weiße Fläche, lila Schrift
+ * ============================================================= */
+.tile-type-flag {
+    background: #ffffff !important;
+    border: 1.5px solid #7c3aed !important;
+    border-radius: 8px !important;
+    padding: 0.22rem 0.62rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    box-shadow: 0 2px 6px rgba(124, 58, 237, 0.12) !important;
+}
+
+.tile-type-flag span,
+.tile-type-flag span[style*="color"] {
+    color: #7c3aed !important;
+    font-size: 0.74rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.4px !important;
+    text-transform: uppercase !important;
+    font-family: var(--font-heading) !important;
+}
+
 

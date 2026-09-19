@@ -12476,8 +12476,8 @@ function renderOrganizerEventItem(e, isActive) {
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
                         <!-- 1. Event-Typ als Tag -->
                         <div style="margin-bottom: 0.15rem; display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; flex-wrap: wrap;">
-                            <span class="tile-type-flag" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 1px solid rgba(147, 197, 253, 0.5); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);">
-                                <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${eventTypeDisplay}</span>
+                            <span class="tile-type-flag" style="background: #ffffff; border: 1.5px solid #7c3aed; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 2px 6px rgba(124, 58, 237, 0.12);">
+                                <span style="color: #7c3aed; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${eventTypeDisplay}</span>
                             </span>
                         </div>
                         <!-- 2. Ort -->
@@ -12523,7 +12523,7 @@ function renderOrganizerEventItem(e, isActive) {
                         <!-- 8. Publikum -->
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${e.minPublikum !== undefined && e.maxPublikum !== undefined ? `${e.minPublikum} - ${e.maxPublikum}+` : '50 - 150'} Personen</span>
+                            <span>${formatPublikumHelper(e.minPublikum, e.maxPublikum, '50 - 150')} Personen</span>
                         </div>
                         <!-- 9. Technik -->
                         <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
@@ -12993,8 +12993,8 @@ function renderMyMusicianItem(m, isActive) {
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
                         <!-- 1. Musiker-Typ als Tag (ohne Icon, max 1 Typ, lila) -->
                         <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                            <span class="tile-type-flag" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border: 1px solid rgba(196, 181, 253, 0.4); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);">
-                                <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${((Array.isArray(m.musicianTypes) && m.musicianTypes.length > 0) ? m.musicianTypes[0] : String(m.type || m.category || 'Musiker')).split(',')[0].split('/')[0].split(' - ')[0].trim()}</span>
+                            <span class="tile-type-flag" style="background: #ffffff; border: 1.5px solid #7c3aed; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 2px 6px rgba(124, 58, 237, 0.12);">
+                                <span style="color: #7c3aed; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${((Array.isArray(m.musicianTypes) && m.musicianTypes.length > 0) ? m.musicianTypes[0] : String(m.type || m.category || 'Musiker')).split(',')[0].split('/')[0].split(' - ')[0].trim()}</span>
                             </span>
                         </div>
                         <!-- 2. Ort -->
@@ -13446,7 +13446,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     <div class="form-group">
                         <div class="slider-value-display">
                             <label>Publikum (Anzahl)</label>
-                            <span id="edit-val-publikum">${musicianObj?.minPublikum || 0} - ${musicianObj?.maxPublikum || 500}+</span>
+                            <span id="edit-val-publikum">${musicianObj?.minPublikum || 0} - ${(musicianObj?.maxPublikum !== undefined && musicianObj?.maxPublikum !== null) ? (parseInt(musicianObj.maxPublikum, 10) >= 500 ? '500+' : musicianObj.maxPublikum) : '500+'}</span>
                         </div>
                         <div class="dual-range-slider" id="edit-slider-publikum-container">
                             <div class="dual-range-track"></div>
@@ -14257,7 +14257,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     <div class="form-group">
                         <div class="slider-value-display">
                             <label>Gäste (Anzahl)</label>
-                            <span id="edit-val-org-publikum">${eventObj?.minPublikum || 0} - ${eventObj?.maxPublikum || 500}+</span>
+                            <span id="edit-val-org-publikum">${eventObj?.minPublikum || 0} - ${(eventObj?.maxPublikum !== undefined && eventObj?.maxPublikum !== null) ? (parseInt(eventObj.maxPublikum, 10) >= 500 ? '500+' : eventObj.maxPublikum) : '500+'}</span>
                         </div>
                         <div class="dual-range-slider" id="edit-slider-org-publikum-container">
                             <div class="dual-range-track"></div>
@@ -19706,7 +19706,18 @@ function renderPostbox(container) {
 function formatPublikumHelper(min, max, fallback) {
     const cleanMin = (min !== undefined && min !== null) ? String(min).replace(/[^\d]/g, '').trim() : '';
     const cleanMax = (max !== undefined && max !== null) ? String(max).replace(/[^\d]/g, '').trim() : '';
-    return (cleanMin !== '' && cleanMax !== '') ? `${cleanMin} - ${cleanMax}+` : fallback;
+    if (cleanMin !== '' && cleanMax !== '') {
+        const numMax = parseInt(cleanMax, 10);
+        return numMax >= 500 ? `${cleanMin} - 500+` : `${cleanMin} - ${cleanMax}`;
+    }
+    if (cleanMax !== '') {
+        const numMax = parseInt(cleanMax, 10);
+        return numMax >= 500 ? `Bis zu 500+` : `Bis zu ${cleanMax}`;
+    }
+    if (cleanMin !== '') {
+        return `Ab ${cleanMin}`;
+    }
+    return fallback;
 }
 
 function formatTruncatedValue(val, themeColor, itemId, uniqueType, forceExpand) {
@@ -20902,16 +20913,10 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
             (item.name && (item.name.includes('(Demo)') || item.name.includes('[Demo]'))) ||
             (item.title && (item.title.includes('(Demo)') || item.title.includes('[Demo]')))
         );
-        // Tags (Musiker-Typ bzw. Event-Typ + ggf. Demo)
-        const tagThemeBg = isEvents 
-            ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' 
-            : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)';
-        const tagThemeBorder = isEvents 
-            ? 'rgba(216, 180, 254, 0.45)' 
-            : 'rgba(147, 197, 253, 0.5)';
-        const tagThemeShadow = isEvents 
-            ? '0 4px 12px rgba(124, 58, 237, 0.45)' 
-            : '0 4px 12px rgba(37, 99, 235, 0.35)';
+        // Tags (Musiker-Typ bzw. Event-Typ) - Lila Rahmen, weiße Fläche, lila Schrift
+        const tagThemeBg = '#ffffff';
+        const tagThemeBorder = '#7c3aed';
+        const tagThemeShadow = '0 2px 6px rgba(124, 58, 237, 0.12)';
 
         let singleType = '';
         if (isEvents) {
@@ -21087,8 +21092,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.6rem;">
                         <!-- 1. Event-Typ als Tag (oben über Ort) -->
                         <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                            <span class="tile-type-flag" style="background: ${tagThemeBg}; border: 1px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: ${tagThemeShadow};">
-                                <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${typeTagText}</span>
+                            <span class="tile-type-flag" style="background: ${tagThemeBg}; border: 1.5px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: ${tagThemeShadow};">
+                                <span style="color: #7c3aed; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${typeTagText}</span>
                             </span>
                         </div>
 
@@ -21167,8 +21172,8 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.6rem;">
                         <!-- 1. Musiker-Typ als Tag (oben über Ort) -->
                         <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                            <span class="tile-type-flag" style="background: ${tagThemeBg}; border: 1px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: ${tagThemeShadow};">
-                                <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${typeTagText}</span>
+                            <span class="tile-type-flag" style="background: ${tagThemeBg}; border: 1.5px solid ${tagThemeBorder}; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: ${tagThemeShadow};">
+                                <span style="color: #7c3aed; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${typeTagText}</span>
                             </span>
                         </div>
 
@@ -23480,8 +23485,8 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: var(--text-main); margin-bottom: 0.6rem;">
                                         <!-- 1. Musiker-Typ als Tag (oben über Ort) -->
                                         <div style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
-                                            <span class="tile-type-flag" style="background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border: 1px solid rgba(147, 197, 253, 0.5); border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);">
-                                                <span style="color: #ffffff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${singleType}</span>
+                                            <span class="tile-type-flag" style="background: #ffffff; border: 1.5px solid #7c3aed; border-radius: 8px; padding: 0.22rem 0.62rem; display: inline-flex; align-items: center; box-shadow: 0 2px 6px rgba(124, 58, 237, 0.12);">
+                                                <span style="color: #7c3aed; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; font-family: var(--font-heading);">${singleType}</span>
                                             </span>
                                         </div>
 
