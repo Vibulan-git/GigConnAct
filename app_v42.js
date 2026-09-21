@@ -9488,6 +9488,9 @@ function renderMarket(container, type, onNavigate) {
             return false;
         })();
 
+        isFilterActiveCurrently = isFilterActive;
+        updateFilterIconGlow(isFilterActiveCurrently);
+
         const unfilteredList = [...list];
 
         if (!showOnlyFavorites && isFilterActive) {
@@ -9856,7 +9859,7 @@ function renderMarket(container, type, onNavigate) {
                     `;
                 }
 
-                if (!isFavoritesView && isFilterActiveCurrently) {
+                if (!isFavoritesView && (isFilterActiveCurrently || showMoreMatchesUnfiltered)) {
                     actionButtonsHtml += `
                         <button class="market-bottom-pill-btn" id="btn-market-bottom-reset">
                             <i class="fa-solid fa-rotate-right"></i> <span>Filter zurücksetzen</span>
@@ -9864,6 +9867,7 @@ function renderMarket(container, type, onNavigate) {
                     `;
                 }
 
+                let buttonsHtml = '';
                 if (actionButtonsHtml) {
                     buttonsHtml = `
                         <div class="market-bottom-actions-row" style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 0.75rem; justify-content: center; align-items: center; width: 100%; max-width: 620px; margin: 0 auto; box-sizing: border-box;">
@@ -9882,15 +9886,11 @@ function renderMarket(container, type, onNavigate) {
                             displayedItemsCount += 12;
                             applyAllFiltersAndSort(false, true);
                         } else if (hasExcludedToReveal) {
-                            const excludedList = unfilteredList.filter(item => !list.some(listItem => listItem.id === item.id));
-                            if (excludedList.length === 0) {
-                                if (typeof showToast === 'function') {
-                                    showToast('Alle passenden und weiteren Ergebnisse werden bereits angezeigt.', 'info');
-                                }
-                                return;
-                            }
                             showMoreMatchesUnfiltered = true;
-                            displayedItemsCount = Math.max(displayedItemsCount + 12, list.length + Math.min(10, excludedList.length));
+                            displayedItemsCount += 12;
+                            applyAllFiltersAndSort(false, true);
+                        } else {
+                            displayedItemsCount += 12;
                             applyAllFiltersAndSort(false, true);
                         }
                     };
@@ -18935,6 +18935,9 @@ function handleRouting() {
 
     let page = rawPage.toLowerCase();
     if (page === 'top-matches') page = 'matches';
+    if (typeof window.updateBodyBackground === 'function') {
+        window.updateBodyBackground(page);
+    }
     
     // Parse query parameters from hash
     const hashQuery = hash.includes('?') ? hash.split('?')[1] : '';
@@ -19041,14 +19044,6 @@ function handleRouting() {
         if (!noRedirectPages.includes(page)) {
             window.loginRedirectHash = hash;
         }
-    }
-
-    // Force login if target ID (deep link) is present but user is unauthenticated
-    if (state && state.authInitialized && targetId && !state.currentUser) {
-        console.log("[DEBUG] Target ID present but user unauthenticated. Redirecting to landing and opening auth modal.");
-        navigate('');
-        showModal('auth');
-        return;
     }
     
     // Check if user is half-logged-in (Firebase Auth exists but no Firestore profile)
