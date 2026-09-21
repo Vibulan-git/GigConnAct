@@ -357,10 +357,25 @@ window.addRegMedia = function(role, type) {
         fileInput.addEventListener('change', () => {
             const files = Array.from(fileInput.files);
             if (files.length === 0) return;
+            const validFiles = [];
+            for (const file of files) {
+                if (file.size > 10 * 1024 * 1024) {
+                    showToast({
+                        title: "Foto zu groß ⚠️",
+                        message: `Das Foto "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 10 MB.`
+                    });
+                } else {
+                    validFiles.push(file);
+                }
+            }
+            if (validFiles.length === 0) {
+                fileInput.value = '';
+                return;
+            }
             const remaining = limit - list.length;
             if (remaining <= 0) return;
-            const toProcess = files.slice(0, remaining);
-            if (files.length > remaining) {
+            const toProcess = validFiles.slice(0, remaining);
+            if (validFiles.length > remaining) {
                 showToast({
                     title: "Limit-Hinweis ⚠️",
                     message: `Es wurden nur die ersten ${remaining} Fotos ausgewählt, um das Limit nicht zu überschreiten.`
@@ -385,10 +400,25 @@ window.addRegMedia = function(role, type) {
         fileInput.addEventListener('change', () => {
             const files = Array.from(fileInput.files);
             if (files.length === 0) return;
+            const validFiles = [];
+            for (const file of files) {
+                if (file.size > 100 * 1024 * 1024) {
+                    showToast({
+                        title: "Video zu groß ⚠️",
+                        message: `Das Video "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 100 MB.`
+                    });
+                } else {
+                    validFiles.push(file);
+                }
+            }
+            if (validFiles.length === 0) {
+                fileInput.value = '';
+                return;
+            }
             const remaining = limit - list.length;
             if (remaining <= 0) return;
-            const toProcess = files.slice(0, remaining);
-            if (files.length > remaining) {
+            const toProcess = validFiles.slice(0, remaining);
+            if (validFiles.length > remaining) {
                 showToast({
                     title: "Limit-Hinweis ⚠️",
                     message: `Es wurden nur die ersten ${remaining} Videos ausgewählt, um das Limit nicht zu überschreiten.`
@@ -429,10 +459,25 @@ window.addRegMedia = function(role, type) {
         fileInput.addEventListener('change', () => {
             const files = Array.from(fileInput.files);
             if (files.length === 0) return;
+            const validFiles = [];
+            for (const file of files) {
+                if (file.size > 25 * 1024 * 1024) {
+                    showToast({
+                        title: "Hörprobe zu groß ⚠️",
+                        message: `Die Audiodatei "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 25 MB.`
+                    });
+                } else {
+                    validFiles.push(file);
+                }
+            }
+            if (validFiles.length === 0) {
+                fileInput.value = '';
+                return;
+            }
             const remaining = limit - list.length;
             if (remaining <= 0) return;
-            const toProcess = files.slice(0, remaining);
-            if (files.length > remaining) {
+            const toProcess = validFiles.slice(0, remaining);
+            if (validFiles.length > remaining) {
                 showToast({
                     title: "Limit-Hinweis ⚠️",
                     message: `Es wurden nur die ersten ${remaining} Audios ausgewählt, um das Limit nicht zu überschreiten.`
@@ -6960,7 +7005,7 @@ window.renderInfoPage = function(container, type) {
             </div>
             <div style="display: flex; align-items: center; gap: 0.65rem; font-size: 0.86rem;">
                 <i class="fa-solid fa-building" style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; width: 18px; text-align: center;"></i>
-                <span style="font-weight: 600;">${isMusician ? 'Privater Veranstalter' : 'Privatperson'}</span>
+                <span style="font-weight: 600;">Privatperson</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.65rem; font-size: 0.86rem;">
                 <i class="fa-solid fa-user" style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; width: 18px; text-align: center;"></i>
@@ -6990,7 +7035,7 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '1.',
                     icon: 'fa-magnifying-glass',
-                    title: `<span style="color: ${themeColor};">Events</span> entdecken – ohne Account & kostenlos`,
+                    title: `<span style="color: ${themeColor};">Events</span> entdecken`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem 0.8rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 1rem;">
@@ -7005,7 +7050,7 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '2.',
                     icon: 'fa-lock-open',
-                    title: `<span style="color: ${themeColor};">Kontaktdaten</span> freischalten – mit Account & Abo-Modell`,
+                    title: `<span style="color: ${themeColor};">Kontaktdaten</span> freischalten`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.75rem;">
@@ -7021,7 +7066,7 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '3.',
                     icon: 'fa-comments',
-                    title: `<span style="color: ${themeColor};">Veranstalter</span> direkt kontaktieren – ohne Provisionskosten`,
+                    title: `<span style="color: ${themeColor};">Veranstalter</span> direkt kontaktieren`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
@@ -7051,7 +7096,7 @@ window.renderInfoPage = function(container, type) {
 
                                     <!-- Organizer Response (Blue) -->
                                     <div style="align-self: flex-start; max-width: 86%; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #ffffff; border-radius: 14px 14px 14px 2px; padding: 0.65rem 0.85rem; font-family: var(--font-body); font-size: 0.84rem; line-height: 1.35; box-shadow: 0 3px 10px rgba(37,99,235,0.25);">
-                                        Klasse, Gage 1.200 € & Technik steht. Wir freuen uns riesig auf euren Auftritt! 🤝✨
+                                        Klasse, das klingt hervorragend! Lasst uns die Gage und den Aufbau kurz telefonisch fixieren. 📞
                                         <div style="font-size: 0.65rem; color: rgba(255,255,255,0.7); text-align: left; margin-top: 0.2rem;">14:35 Uhr</div>
                                     </div>
                                 </div>
@@ -7075,7 +7120,7 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '1.',
                     icon: 'fa-magnifying-glass',
-                    title: `<span style="color: ${themeColor};">Gigs</span> entdecken – ohne Account & kostenlos`,
+                    title: `<span style="color: ${themeColor};">Gigs</span> entdecken`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem 0.8rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 1rem;">
@@ -7090,7 +7135,7 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '2.',
                     icon: 'fa-envelope-open-text',
-                    title: `<span style="color: ${themeColor};">Vermittlungsanfragen</span> erhalten und senden – mit Account & Abo-Modell`,
+                    title: `<span style="color: ${themeColor};">Vermittlungsanfragen</span> erhalten und senden`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
@@ -7139,7 +7184,7 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '3.',
                     icon: 'fa-id-card',
-                    title: `<span style="color: ${themeColor};">Kontaktdaten</span> erhalten – mit Provisionskosten`,
+                    title: `<span style="color: ${themeColor};">Kontaktdaten</span> erhalten`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
@@ -7152,7 +7197,7 @@ window.renderInfoPage = function(container, type) {
                                     Kontaktdaten des Veranstalters:
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 0.45rem; font-family: var(--font-body); font-size: 0.92rem; color: #334155; line-height: 1.4;">
-                                    <div><strong style="color: #1e293b;">Veranstalter-Typ:</strong> Privater Veranstalter</div>
+                                    <div><strong style="color: #1e293b;">Veranstalter-Typ:</strong> Privatperson</div>
                                     <div><strong style="color: #1e293b;">Name:</strong> Max Mustermann</div>
                                     <div><strong style="color: #1e293b;">Telefon:</strong> 0123456789</div>
                                     <div><strong style="color: #1e293b;">E-Mail:</strong> <span style="color: #7c3aed; font-weight: 600;">max.muster@gmail.com</span></div>
@@ -7375,6 +7420,55 @@ window.renderInfoPage = function(container, type) {
         `;
     });
 
+    let benefitsData = [];
+    if (isMusician) {
+        if (isDirektkontakt) {
+            benefitsData = [
+                { icon: 'fa-comments', text: 'Direkter Kontakt zu Veranstaltern' },
+                { icon: 'fa-percent', text: 'Keine Provisionskosten' },
+                { icon: 'fa-tags', text: 'Preiswertes Abo-Modell' }
+            ];
+        } else {
+            benefitsData = [
+                { icon: 'fa-handshake-angle', text: 'Komfortabler Vermittlungsservice' },
+                { icon: 'fa-coins', text: 'Geringe Provisionskosten' },
+                { icon: 'fa-tags', text: 'Preiswertes Abo-Modell' }
+            ];
+        }
+    } else {
+        if (isDirektkontakt) {
+            benefitsData = [
+                { icon: 'fa-guitar', text: 'Direkter Kontakt zu Musikern' },
+                { icon: 'fa-sliders', text: 'Freie & individualisierte Auswahl' },
+                { icon: 'fa-gift', text: 'Kostenlos' }
+            ];
+        } else {
+            benefitsData = [
+                { icon: 'fa-handshake-angle', text: 'Komfortabler Vermittlungsservice' },
+                { icon: 'fa-bullseye', text: 'Passende Vorschläge' },
+                { icon: 'fa-gift', text: 'Kostenlos' }
+            ];
+        }
+    }
+
+    let benefitsHTML = `
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.65rem; width: 100%; max-width: 500px; margin-top: 1.25rem; box-sizing: border-box;">
+            ${benefitsData.map((b, idx) => {
+                const bDelay = (3.5 + idx * 0.25).toFixed(2);
+                return `
+                    <div class="flow-anim-card" style="animation-delay: ${bDelay}s; aspect-ratio: 1 / 1; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 18px; box-shadow: 0 4px 16px rgba(0,0,0,0.02); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0.65rem 0.45rem; box-sizing: border-box; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
+                        <div style="width: 38px; height: 38px; border-radius: 50%; background: ${themeBadgeBg}; border: 1.5px solid ${themeBadgeBorder}; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem; flex-shrink: 0;">
+                            <i class="fa-solid ${b.icon}" style="color: ${themeColor}; font-size: 1rem;"></i>
+                        </div>
+                        <span style="font-family: var(--font-heading); font-size: clamp(0.72rem, 2.1vw, 0.82rem); font-weight: 800; color: #0f172a; line-height: 1.25; display: block;">
+                            ${b.text}
+                        </span>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+
     container.innerHTML = `
         <div class="info-page-container ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 1.5rem 1rem 3.5rem; font-family: var(--font-heading); box-sizing: border-box; width: 100%; min-height: 100vh; position: relative; background: ${pageBgGradient};">
             
@@ -7430,6 +7524,9 @@ window.renderInfoPage = function(container, type) {
             <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; box-sizing: border-box;">
                 ${stepsCardsHTML}
             </div>
+
+            <!-- Vorteils-Kacheln -->
+            ${benefitsHTML}
 
             <!-- 3. Bottom CTA Button -->
             <div class="flow-anim-card" style="animation-delay: 4.5s; width: 100%; max-width: 500px; margin-top: 1.6rem; box-sizing: border-box;">
@@ -12645,7 +12742,7 @@ function renderOrganizerEventItem(e, isActive) {
         <div class="market-tile-card event-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0);">
             
             <!-- 1. Combined Galerie: Photos (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
-            <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 210px; background: #0f172a; overflow: hidden;">
+            <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 180px; background: #0f172a; overflow: hidden;">
                 <!-- Galerie-Zähler (unsichtbar) -->
                 <span class="tile-gallery-counter" style="display: none;">
                     📷 1 / ${photos.length}
@@ -13137,7 +13234,7 @@ function renderMyMusicianItem(m, isActive) {
         <div class="market-tile-card musician-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0);">
             
             <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
-            <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 210px; background: #0f172a; overflow: hidden;">
+            <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 180px; background: #0f172a; overflow: hidden;">
                 <!-- Galerie-Zähler (unsichtbar) -->
                 <span class="tile-gallery-counter" style="display: none;">
                     📷 1 / ${photos.length}
@@ -13753,12 +13850,12 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         <div id="modal-audios-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
 
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap;">
+                    <div style="display: flex; justify-content: ${isEdit ? 'space-between' : 'center'}; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap; width: 100%;">
                         ${isEdit ? `
                         <button type="button" id="btn-modal-delete-musician" class="btn btn-glass" style="margin: 0; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
                             <i class="fa-solid fa-trash"></i> Profil löschen
                         </button>
-                        ` : '<div></div>'}
+                        ` : ''}
                         <button type="submit" class="btn btn-primary" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: var(--color-purple); border-color: var(--color-purple);">
                             ${isEdit ? 'Änderungen speichern' : 'Profil erstellen'}
                         </button>
@@ -13951,8 +14048,23 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    const filesToProcess = Array.from(fileInput.files).slice(0, remainingSlots);
-                    if (fileInput.files.length > remainingSlots) {
+                    const validFiles = [];
+                    for (const file of Array.from(fileInput.files)) {
+                        if (file.size > 10 * 1024 * 1024) {
+                            showToast({
+                                title: "Foto zu groß ⚠️",
+                                message: `Das Foto "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 10 MB.`
+                            });
+                        } else {
+                            validFiles.push(file);
+                        }
+                    }
+                    if (validFiles.length === 0) {
+                        fileInput.value = '';
+                        return;
+                    }
+                    const filesToProcess = validFiles.slice(0, remainingSlots);
+                    if (validFiles.length > remainingSlots) {
                         showToast({
                             title: "Bilder-Limit 📷",
                             message: `Es wurden nur die ersten ${remainingSlots} Bilder ausgewählt (maximal 5 erlaubt).`
@@ -14015,8 +14127,23 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    const filesToProcess = Array.from(fileInput.files).slice(0, remainingSlots);
-                    if (fileInput.files.length > remainingSlots) {
+                    const validFiles = [];
+                    for (const file of Array.from(fileInput.files)) {
+                        if (file.size > 100 * 1024 * 1024) {
+                            showToast({
+                                title: "Video zu groß ⚠️",
+                                message: `Das Video "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 100 MB.`
+                            });
+                        } else {
+                            validFiles.push(file);
+                        }
+                    }
+                    if (validFiles.length === 0) {
+                        fileInput.value = '';
+                        return;
+                    }
+                    const filesToProcess = validFiles.slice(0, remainingSlots);
+                    if (validFiles.length > remainingSlots) {
                         showToast({
                             title: "Video-Limit 🎬",
                             message: `Es wurden nur die ersten ${remainingSlots} Videos ausgewählt (maximal 3 erlaubt).`
@@ -14074,8 +14201,23 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    const filesToProcess = Array.from(fileInput.files).slice(0, remainingSlots);
-                    if (fileInput.files.length > remainingSlots) {
+                    const validFiles = [];
+                    for (const file of Array.from(fileInput.files)) {
+                        if (file.size > 25 * 1024 * 1024) {
+                            showToast({
+                                title: "Hörprobe zu groß ⚠️",
+                                message: `Die Audiodatei "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 25 MB.`
+                            });
+                        } else {
+                            validFiles.push(file);
+                        }
+                    }
+                    if (validFiles.length === 0) {
+                        fileInput.value = '';
+                        return;
+                    }
+                    const filesToProcess = validFiles.slice(0, remainingSlots);
+                    if (validFiles.length > remainingSlots) {
                         showToast({
                             title: "Audio-Limit 🎵",
                             message: `Es wurden nur die ersten ${remainingSlots} Audio-Dateien ausgewählt (maximal 3 erlaubt).`
@@ -14548,12 +14690,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
 
 
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap;">
-                        ${isEdit ? `
-                        <button type="button" id="btn-modal-delete-event" class="btn btn-glass" style="margin: 0; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
-                            <i class="fa-solid fa-trash"></i> Event löschen
-                        </button>
-                        ` : '<div></div>'}
+                    <div style="display: flex; justify-content: center; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap; width: 100%;">
                         <button type="submit" id="btn-submit-event" class="btn btn-primary btn-event-submit" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important; border-color: #1e40af !important; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important; color: #ffffff !important;">
                             ${isEdit ? 'Änderungen speichern' : 'Event ausschreiben'}
                         </button>
@@ -14825,7 +14962,16 @@ function showEventModal(eventObj = null, isDuplication = false) {
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    validateAndProcessPhoto(fileInput.files[0], (dataUrl) => {
+                    const file = fileInput.files[0];
+                    if (file.size > 10 * 1024 * 1024) {
+                        showToast({
+                            title: "Foto zu groß ⚠️",
+                            message: `Das Foto "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 10 MB.`
+                        });
+                        fileInput.value = '';
+                        return;
+                    }
+                    validateAndProcessPhoto(file, (dataUrl) => {
                         localMedia.photos.push(dataUrl);
                         updateLocalEventMediaPreview();
                     });
@@ -14852,7 +14998,16 @@ function showEventModal(eventObj = null, isDuplication = false) {
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    validateAndProcessVideo(fileInput.files[0], (videoUrl) => {
+                    const file = fileInput.files[0];
+                    if (file.size > 100 * 1024 * 1024) {
+                        showToast({
+                            title: "Video zu groß ⚠️",
+                            message: `Das Video "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 100 MB.`
+                        });
+                        fileInput.value = '';
+                        return;
+                    }
+                    validateAndProcessVideo(file, (videoUrl) => {
                         localMedia.videos.push(videoUrl);
                         updateLocalEventMediaPreview();
                     });
@@ -14879,7 +15034,16 @@ function showEventModal(eventObj = null, isDuplication = false) {
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    validateAndProcessAudio(fileInput.files[0], (audioObj) => {
+                    const file = fileInput.files[0];
+                    if (file.size > 25 * 1024 * 1024) {
+                        showToast({
+                            title: "Hörprobe zu groß ⚠️",
+                            message: `Die Audiodatei "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 25 MB.`
+                        });
+                        fileInput.value = '';
+                        return;
+                    }
+                    validateAndProcessAudio(file, (audioObj) => {
                         if (!localMedia.audios) localMedia.audios = [];
                         localMedia.audios.push(audioObj);
                         updateLocalEventMediaPreview();
@@ -15243,10 +15407,14 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 <h4>Musiker</h4>
                                 <p>Ich suche Gigs</p>
                             </div>
-                            <div class="role-card organizer-role" id="role-picker-org">
+                            <div class="role-card organizer-role" id="role-picker-org" style="position: relative;">
                                 <i class="fa-solid fa-calendar-days"></i>
                                 <h4>Veranstalter</h4>
                                 <p>ich suche Acts</p>
+                                <div class="role-card-badge-free">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                                    <span>Kostenlos</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -15962,11 +16130,6 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             const res = await state.loginPasswordless(email);
             
             if (res.success && res.instantLogin) {
-                closeModal();
-                showToast({
-                    title: "Erfolgreich angemeldet!",
-                    message: `Willkommen zurück, ${state.currentUser.firstName || state.currentUser.name || 'Nutzer'}!`
-                });
                 if (typeof onSuccessCallback === 'function') {
                     onSuccessCallback();
                 } else if (typeof navigateAfterLogin === 'function') {
@@ -15974,6 +16137,11 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 } else {
                     handleRouting();
                 }
+                closeModal();
+                showToast({
+                    title: "Erfolgreich angemeldet!",
+                    message: `Willkommen zurück, ${state.currentUser.firstName || state.currentUser.name || 'Nutzer'}!`
+                });
                 return;
             }
 
@@ -17182,13 +17350,6 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 }
 
                 window.isRegisteringRedirecting = false;
-                closeModal();
-
-                showToast({
-                    title: "Registrierung abgeschlossen!",
-                    message: `Willkommen bei GigConnAct, ${newUser.firstName}!`
-                });
-                
                 if (typeof onSuccessCallback === 'function') {
                     onSuccessCallback();
                 } else if (typeof navigateAfterLogin === 'function') {
@@ -17196,6 +17357,12 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 } else {
                     handleRouting();
                 }
+                closeModal();
+
+                showToast({
+                    title: "Registrierung abgeschlossen!",
+                    message: `Willkommen bei GigConnAct, ${newUser.firstName}!`
+                });
             } catch (err) {
                 console.error("Google user profile setup failed:", err);
                 errDiv.textContent = "Google-Registrierung fehlgeschlagen: " + err.message;
@@ -17308,14 +17475,13 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                             state.saveState();
                             await state.fetchUserOwnData();
                             state.authInitialized = true;
-                            state.notify();
-
+                            // Synchronously update page and colors before closing modal to prevent visual flash
+                            navigateAfterLogin();
                             closeModal();
                             showToast({
                                 title: "Erfolgreich angemeldet!",
                                 message: `Willkommen zurück, ${state.currentUser.firstName || user.displayName || user.email}!`
                             });
-                            navigateAfterLogin();
                         }
                     }
                 })
@@ -17599,6 +17765,13 @@ function navigateAfterLogin() {
             target = (role === 'musician') ? '#/events' : '#/musicians';
         }
 
+        const cleanPage = target.replace(/^#\/?/, '').split('?')[0];
+
+        // Immediately update background color synchronously to prevent flash of wrong colors
+        if (typeof window.updateBodyBackground === 'function') {
+            window.updateBodyBackground(cleanPage);
+        }
+
         if (typeof updateNavbar === 'function') updateNavbar();
         if (typeof window.updateBottomBar === 'function') window.updateBottomBar();
 
@@ -17606,11 +17779,13 @@ function navigateAfterLogin() {
             if (typeof handleRouting === 'function') {
                 handleRouting();
             } else {
-                const cleanPage = target.replace(/^#\/?/, '').split('?')[0];
                 navigate(cleanPage || (role === 'musician' ? 'events' : 'musicians'));
             }
         } else {
             window.location.hash = target;
+            if (typeof handleRouting === 'function') {
+                handleRouting();
+            }
         }
     } else {
         navigate('');
@@ -18134,6 +18309,13 @@ function navigate(page) {
         renderMediationResponsePage(mainContainer, mediationId);
         return;
     }
+    if (page && (page.toLowerCase() === 'feedback' || page.toLowerCase().startsWith('feedback?'))) {
+        if (typeof updateNavbar === 'function') updateNavbar();
+        if (typeof window.renderFeedbackPage === 'function') {
+            window.renderFeedbackPage(mainContainer);
+        }
+        return;
+    }
 
     // Check if subscription has expired (DSGVO Variant A)
     if (state && state.currentUser && isSubscriptionExpired(state.currentUser)) {
@@ -18444,7 +18626,7 @@ window.updateBottomBar = function() {
         if (page === 'top-matches') page = 'matches';
 
         const isLanding = !page || page === '' || page === '/';
-        const isExternalPage = page.startsWith('recommendation/') || page.startsWith('mediation-response/');
+        const isExternalPage = page.startsWith('recommendation/') || page.startsWith('mediation-response/') || page === 'feedback';
         const isMarketPage = page === 'events' || page === 'musicians';
         const u = (state && state.currentUser && state.currentUser.id) ? state.currentUser : null;
         const isLoggedIn = !!u;
@@ -18679,7 +18861,7 @@ function updateNavbar(forceLanding, activePage) {
     const main = document.getElementById('app-main');
 
     const footer = document.querySelector('.app-footer');
-    if (window.location.hash.includes('recommendation/') || window.location.hash.includes('mediation-response/')) {
+    if (window.location.hash.includes('recommendation/') || window.location.hash.includes('mediation-response/') || window.location.hash.includes('feedback')) {
         nav.innerHTML = '';
         authArea.innerHTML = '';
         if (header) header.classList.remove('transparent-header');
@@ -18936,6 +19118,13 @@ function handleRouting() {
         renderMediationResponsePage(mainContainer, mediationId);
         return;
     }
+    if (rawPage.toLowerCase() === 'feedback') {
+        if (typeof updateNavbar === 'function') updateNavbar();
+        if (typeof window.renderFeedbackPage === 'function') {
+            window.renderFeedbackPage(mainContainer);
+        }
+        return;
+    }
 
     let page = rawPage.toLowerCase();
     if (page === 'top-matches') page = 'matches';
@@ -19044,7 +19233,7 @@ function handleRouting() {
 
     // Save target hash for redirect after login for all routes if unauthenticated (excluding landing/auth pages)
     if (!state || !state.currentUser) {
-        const noRedirectPages = ['', '/', 'login', 'register', 'auth', 'signout'];
+        const noRedirectPages = ['', '/', 'login', 'register', 'auth', 'signout', 'feedback'];
         if (!noRedirectPages.includes(page)) {
             window.loginRedirectHash = hash;
         }
@@ -22529,7 +22718,7 @@ function validateAndProcessPhoto(file, callback, errorCallback) {
 
 function validateAndProcessVideo(file, callback, errorCallback, onProgress) {
     const allowedExtensions = ['mp4', 'mov', 'webm', 'ogg', 'mkv', 'avi', '3gp', 'm4v'];
-    const fileExt = file.name.split('.').pop().toLowerCase();
+    const fileExt = (file.name || '').split('.').pop().toLowerCase();
     const isAllowedExt = allowedExtensions.includes(fileExt);
     const isAllowedMime = file.type && file.type.startsWith('video/');
     const maxSize = 100 * 1024 * 1024; // 100 MB max
@@ -22546,94 +22735,158 @@ function validateAndProcessVideo(file, callback, errorCallback, onProgress) {
     if (file.size > maxSize) {
         showToast({
             title: "Video zu groß ⚠️",
-            message: "Die Datei ist zu groß (max. 100 MB, deine Datei: " + (file.size / (1024 * 1024)).toFixed(1) + " MB). Tipp: Kurze Clips oder komprimierte MP4-Dateien unter 50 MB laden blitzschnell hoch."
+            message: "Die Datei ist zu groß (max. 100 MB, deine Datei: " + (file.size / (1024 * 1024)).toFixed(1) + " MB)."
         });
         if (errorCallback) errorCallback();
         return null;
     }
 
-    let uploadTask = null;
     let uploadCancelled = false;
+    let xhr = null;
 
-    const fallbackLocalUrl = (errDetail) => {
-        const url = URL.createObjectURL(file);
-        showToast({
-            title: "Video geladen ⚠️",
-            message: "Nur in dieser Sitzung abspielbar: " + (errDetail || "Kein aktiver Storage-Dienst.")
-        });
-        callback(url);
-    };
-
-    const uploadPromise = new Promise((resolve, reject) => {
+    const uploadPromise = new Promise(async (resolve, reject) => {
         showToast({
             title: "Video-Upload gestartet 🎬",
             message: `${file.name} (0%)`
         });
 
-        if (typeof firebase !== 'undefined' && firebase.storage) {
-            try {
-                const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anonymous';
-                const storageRef = firebase.storage().ref();
-                const fileRef = storageRef.child(`videos/${userId}/${Date.now()}_${file.name}`);
-                const metadata = { contentType: file.type || 'video/mp4' };
-                uploadTask = fileRef.put(file, metadata);
+        try {
+            const userId = (auth && auth.currentUser) ? auth.currentUser.uid : 'anonymous';
+            const cleanFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            const filePath = `videos/${userId}/${Date.now()}_${cleanFileName}`;
+            const bucket = "gigconnact.firebasestorage.app";
 
-                let lastReportedPercent = 0;
-                uploadTask.on('state_changed', 
-                    (snapshot) => {
-                        if (uploadCancelled) return;
-                        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-                        if (typeof onProgress === 'function') {
-                            onProgress(progress, snapshot.bytesTransferred, snapshot.totalBytes);
-                        }
-                        if (progress - lastReportedPercent >= 20 || progress === 100) {
-                            lastReportedPercent = progress;
-                            showToast({
-                                title: `Video-Upload: ${progress}% 🎬`,
-                                message: `${file.name} (${(snapshot.bytesTransferred / (1024*1024)).toFixed(1)} / ${(snapshot.totalBytes / (1024*1024)).toFixed(1)} MB)`
+            let idToken = null;
+            if (auth && auth.currentUser) {
+                try { idToken = await auth.currentUser.getIdToken(); } catch (_) {}
+            }
+
+            const uploadUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o?uploadType=media&name=${encodeURIComponent(filePath)}`;
+            xhr = new XMLHttpRequest();
+            xhr.open('POST', uploadUrl, true);
+            xhr.setRequestHeader('Content-Type', file.type || 'video/mp4');
+            if (idToken) {
+                xhr.setRequestHeader('Authorization', `Firebase ${idToken}`);
+            }
+
+            let lastReportedPercent = 0;
+            xhr.upload.onprogress = (e) => {
+                if (uploadCancelled) return;
+                if (e.lengthComputable) {
+                    const progress = Math.round((e.loaded / e.total) * 100);
+                    if (typeof onProgress === 'function') {
+                        onProgress(progress, e.loaded, e.total);
+                    }
+                    if (progress - lastReportedPercent >= 20 || progress === 100) {
+                        lastReportedPercent = progress;
+                        showToast({
+                            title: `Video-Upload: ${progress}% 🎬`,
+                            message: `${file.name} (${(e.loaded / (1024 * 1024)).toFixed(1)} / ${(e.total / (1024 * 1024)).toFixed(1)} MB)`
+                        });
+                    }
+                }
+            };
+
+            xhr.onload = () => {
+                if (uploadCancelled) {
+                    reject(new Error("Cancelled"));
+                    return;
+                }
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        const token = data.downloadTokens ? `&token=${data.downloadTokens}` : '';
+                        const downloadUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodeURIComponent(filePath)}?alt=media${token}`;
+                        showToast({
+                            title: "Video hochgeladen ✅",
+                            message: "Das Video wurde erfolgreich und schnell gespeichert."
+                        });
+                        if (callback) callback(downloadUrl);
+                        resolve(downloadUrl);
+                    } catch (parseErr) {
+                        if (typeof firebase !== 'undefined' && firebase.storage) {
+                            firebase.storage().ref(filePath).getDownloadURL().then(url => {
+                                if (callback) callback(url);
+                                resolve(url);
+                            }).catch(() => {
+                                if (errorCallback) errorCallback();
+                                reject(parseErr);
                             });
+                        } else {
+                            if (errorCallback) errorCallback();
+                            reject(parseErr);
                         }
-                    },
-                    (storageError) => {
-                        if (uploadCancelled) {
-                            reject(new Error("Cancelled"));
-                            return;
-                        }
-                        console.warn("Firebase Storage upload error, falling back:", storageError);
-                        fallbackLocalUrl(storageError.message || storageError);
-                        resolve();
-                    },
-                    async () => {
-                        if (uploadCancelled) {
-                            reject(new Error("Cancelled"));
-                            return;
-                        }
-                        try {
-                            const url = await uploadTask.snapshot.ref.getDownloadURL();
+                    }
+                } else {
+                    console.warn("Direct upload returned HTTP status:", xhr.status, "- attempting SDK put fallback");
+                    fallbackToSdkUpload();
+                }
+            };
+
+            xhr.onerror = () => {
+                if (uploadCancelled) {
+                    reject(new Error("Cancelled"));
+                    return;
+                }
+                console.warn("Direct upload network error - attempting SDK put fallback");
+                fallbackToSdkUpload();
+            };
+
+            const fallbackToSdkUpload = () => {
+                if (typeof firebase !== 'undefined' && firebase.storage) {
+                    const storageRef = firebase.storage().ref();
+                    const fileRef = storageRef.child(filePath);
+                    const task = fileRef.put(file, { contentType: file.type || 'video/mp4' });
+                    task.on('state_changed', 
+                        (snap) => {
+                            const p = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+                            if (typeof onProgress === 'function') onProgress(p, snap.bytesTransferred, snap.totalBytes);
+                        },
+                        (err) => {
+                            showToast({
+                                title: "Upload fehlgeschlagen ❌",
+                                message: "Das Video konnte nicht hochgeladen werden."
+                            });
+                            if (errorCallback) errorCallback();
+                            reject(err);
+                        },
+                        async () => {
+                            const url = await task.snapshot.ref.getDownloadURL();
                             showToast({
                                 title: "Video hochgeladen ✅",
                                 message: "Das Video wurde erfolgreich gespeichert."
                             });
-                            callback(url);
+                            if (callback) callback(url);
                             resolve(url);
-                        } catch (urlErr) {
-                            fallbackLocalUrl(urlErr.message || urlErr);
-                            resolve();
                         }
-                    }
-                );
-            } catch (storageError) {
-                console.warn("Firebase Storage failed synchronously:", storageError);
-                fallbackLocalUrl(storageError.message || storageError);
-                resolve();
-            }
-        } else {
-            fallbackLocalUrl("Kein aktiver Storage-Dienst");
-            resolve();
+                    );
+                } else {
+                    showToast({
+                        title: "Upload fehlgeschlagen ❌",
+                        message: "Video-Upload nicht verfügbar."
+                    });
+                    if (errorCallback) errorCallback();
+                    reject(new Error("No storage service"));
+                }
+            };
+
+            xhr.send(file);
+        } catch (err) {
+            console.error("Fast video upload init error:", err);
+            if (errorCallback) errorCallback();
+            reject(err);
         }
     });
 
-    return { task: uploadTask, promise: uploadPromise };
+    return {
+        task: {
+            cancel: () => {
+                uploadCancelled = true;
+                if (xhr) xhr.abort();
+            }
+        },
+        promise: uploadPromise
+    };
 }
 
 window.showMediaModal = function(itemId, isEvents) {
@@ -22773,7 +23026,16 @@ window.showMediaModal = function(itemId, isEvents) {
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    validateAndProcessPhoto(fileInput.files[0], (dataUrl) => {
+                    const file = fileInput.files[0];
+                    if (file.size > 10 * 1024 * 1024) {
+                        showToast({
+                            title: "Foto zu groß ⚠️",
+                            message: `Das Foto "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 10 MB.`
+                        });
+                        fileInput.value = '';
+                        return;
+                    }
+                    validateAndProcessPhoto(file, (dataUrl) => {
                         photos.push(dataUrl);
                         close();
                         window.showMediaModal(itemId, isEvents);
@@ -22801,7 +23063,16 @@ window.showMediaModal = function(itemId, isEvents) {
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    validateAndProcessVideo(fileInput.files[0], (videoUrl) => {
+                    const file = fileInput.files[0];
+                    if (file.size > 100 * 1024 * 1024) {
+                        showToast({
+                            title: "Video zu groß ⚠️",
+                            message: `Das Video "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 100 MB.`
+                        });
+                        fileInput.value = '';
+                        return;
+                    }
+                    validateAndProcessVideo(file, (videoUrl) => {
                         videos.push(videoUrl);
                         close();
                         window.showMediaModal(itemId, isEvents);
@@ -22828,7 +23099,16 @@ window.showMediaModal = function(itemId, isEvents) {
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    validateAndProcessAudio(fileInput.files[0], (audioObj) => {
+                    const file = fileInput.files[0];
+                    if (file.size > 25 * 1024 * 1024) {
+                        showToast({
+                            title: "Hörprobe zu groß ⚠️",
+                            message: `Die Audiodatei "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 25 MB.`
+                        });
+                        fileInput.value = '';
+                        return;
+                    }
+                    validateAndProcessAudio(file, (audioObj) => {
                         audios.push(audioObj);
                         close();
                         window.showMediaModal(itemId, isEvents);
@@ -24585,4 +24865,282 @@ window.renderMediationResponsePage = function(container, mediationId) {
         console.error("Error loading response page:", err);
         container.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--color-red);">Fehler beim Laden der Seite.</div>`;
     });
+};
+
+window.renderFeedbackPage = async function(container) {
+    if (!container) return;
+
+    // Set background
+    if (typeof window.updateBodyBackground === 'function') {
+        window.updateBodyBackground('feedback');
+    }
+
+    // Parse URL parameters
+    const hash = window.location.hash || '';
+    const queryStr = hash.includes('?') ? hash.split('?')[1] : (window.location.search ? window.location.search.replace(/^\?/, '') : '');
+    const urlParams = new URLSearchParams(queryStr);
+    const type = urlParams.get('type') || 'platform'; // 'mediation' or 'platform'
+    const medId = urlParams.get('medId') || '';
+    const role = urlParams.get('role') || (state && state.currentUser ? state.currentUser.role : '');
+    const userId = urlParams.get('userId') || (state && state.currentUser ? state.currentUser.id : '');
+    let initialStars = parseInt(urlParams.get('stars'), 10);
+    if (isNaN(initialStars) || initialStars < 1 || initialStars > 5) {
+        initialStars = 0;
+    }
+    let currentRating = initialStars;
+
+    let partnerName = '';
+    let eventName = '';
+
+    // If mediation feedback, optionally load mediation details for personalization
+    if (type === 'mediation' && medId && typeof db !== 'undefined' && db && db.collection) {
+        try {
+            const medDoc = await db.collection('mediations').doc(medId).get();
+            if (medDoc.exists) {
+                const data = medDoc.data();
+                eventName = data.eventName || '';
+                if (role === 'organizer') {
+                    partnerName = data.selectedMusicianName || 'dem Musiker / Act';
+                } else {
+                    partnerName = data.organizerName || data.clientName || 'dem Veranstalter';
+                }
+            }
+        } catch (e) {
+            console.warn("Could not load mediation doc:", e);
+        }
+    }
+
+    const isMediation = type === 'mediation';
+    const badgeText = isMediation ? 'Vermittlungs-Feedback' : 'Plattform-Feedback';
+    const mainTitle = isMediation 
+        ? (partnerName ? `Wie lief der Kontakt mit ${partnerName}? ⭐` : 'Wie lief der Kontakt nach der Vermittlung? ⭐')
+        : 'Wie gefällt dir GigConnAct? ⭐';
+    const subtitleText = isMediation
+        ? (eventName 
+            ? `Vor etwa einer Woche wurden die Kontaktdaten für „${eventName}“ freigegeben. Wie zufrieden warst du mit der Kommunikation und Absprache?`
+            : 'Vor etwa einer Woche wurde eure Vermittlung erfolgreich abgeschlossen. Wie zufrieden warst du mit der Kommunikation und Absprache?')
+        : 'Du bist Teil unserer Musik-Community. Wir möchten GigConnAct stetig verbessern – wie zufrieden bist du mit deiner bisherigen Erfahrung?';
+
+    const starDescriptions = {
+        0: 'Bitte wähle deine Bewertung (1 bis 5 Sterne)',
+        1: '1 von 5 Sternen — Nicht zufrieden',
+        2: '2 von 5 Sternen — Eher unzufrieden',
+        3: '3 von 5 Sternen — In Ordnung',
+        4: '4 von 5 Sternen — Sehr zufrieden',
+        5: '5 von 5 Sternen — Absolut begeistert! 🎉'
+    };
+
+    function renderStarSvg(fillColor, size = 38) {
+        return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="${fillColor}" stroke="${fillColor === '#cbd5e1' ? '#94a3b8' : '#d97706'}" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.2s, fill 0.2s; pointer-events: none;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
+    }
+
+    function generateStarsHtml(selected) {
+        return [1, 2, 3, 4, 5].map(starNum => {
+            const isFilled = starNum <= selected;
+            const fill = isFilled ? '#f59e0b' : '#cbd5e1';
+            return `
+                <button type="button" class="feedback-star-btn" data-star="${starNum}" style="background: none; border: none; padding: 6px; cursor: pointer; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; outline: none; transition: transform 0.15s ease;" title="${starNum} Sterne">
+                    ${renderStarSvg(fill)}
+                </button>
+            `;
+        }).join('');
+    }
+
+    container.innerHTML = `
+        <div style="max-width: 620px; margin: 3rem auto; padding: 0 1rem; box-sizing: border-box; font-family: var(--font-body, system-ui, -apple-system, sans-serif);">
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 2.5rem 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.06); text-align: center;">
+                <div style="margin-bottom: 1.5rem;">
+                    <img src="discoball.png" alt="GigConnAct" style="width: 64px; height: 64px; object-fit: contain;">
+                </div>
+
+                <div style="display: inline-block; padding: 4px 14px; background: ${isMediation ? '#eff6ff' : '#f5f3ff'}; color: ${isMediation ? '#2563eb' : '#7c3aed'}; border-radius: 9999px; font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem;">
+                    ${badgeText}
+                </div>
+
+                <h1 style="font-family: var(--font-heading, inherit); font-size: 1.55rem; font-weight: 800; color: #1e293b; margin: 0 0 0.75rem 0; line-height: 1.3;">
+                    ${mainTitle}
+                </h1>
+
+                <p style="color: #64748b; font-size: 0.98rem; line-height: 1.6; margin: 0 auto 1.75rem auto; max-width: 480px;">
+                    ${subtitleText}
+                </p>
+
+                <!-- Interactive Star Rating Container -->
+                <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 16px; padding: 1.5rem 1rem; margin-bottom: 1.75rem;">
+                    <div style="font-weight: 700; font-size: 0.92rem; color: #334155; margin-bottom: 0.75rem;">
+                        Deine Bewertung
+                    </div>
+                    <div id="feedback-stars-wrapper" style="display: flex; justify-content: center; align-items: center; gap: 4px; flex-wrap: wrap;">
+                        ${generateStarsHtml(currentRating)}
+                    </div>
+                    <div id="feedback-star-desc" style="font-size: 0.9rem; font-weight: 600; color: ${currentRating > 0 ? '#b45309' : '#64748b'}; margin-top: 0.85rem; min-height: 1.3rem;">
+                        ${starDescriptions[currentRating]}
+                    </div>
+                </div>
+
+                <!-- Text Comment Input -->
+                <div style="text-align: left; margin-bottom: 1.75rem;">
+                    <label for="feedback-comment-input" style="display: block; font-weight: 600; font-size: 0.92rem; color: #334155; margin-bottom: 0.5rem;">
+                        Möchtest du uns noch etwas dazu sagen? (Optional)
+                    </label>
+                    <textarea id="feedback-comment-input" rows="4" placeholder="Dein Feedback, Lob oder Verbesserungswünsche..." style="width: 100%; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 0.85rem 1rem; font-family: inherit; font-size: 0.95rem; color: #1e293b; outline: none; box-sizing: border-box; resize: vertical; transition: border-color 0.2s;" onfocus="this.style.borderColor='#7c3aed';" onblur="this.style.borderColor='#cbd5e1';"></textarea>
+                </div>
+
+                <!-- Action Button -->
+                <button type="button" id="feedback-submit-btn" style="width: 100%; padding: 0.95rem 1.5rem; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); color: #ffffff; border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(124,58,237,0.25); transition: opacity 0.2s, transform 0.1s;">
+                    Feedback absenden
+                </button>
+            </div>
+        </div>
+    `;
+
+    // Hook up star interactions
+    const starsWrapper = container.querySelector('#feedback-stars-wrapper');
+    const descEl = container.querySelector('#feedback-star-desc');
+
+    function updateStarsDisplay(hoveredOrSelected) {
+        if (!starsWrapper) return;
+        const buttons = starsWrapper.querySelectorAll('.feedback-star-btn');
+        buttons.forEach(btn => {
+            const star = parseInt(btn.getAttribute('data-star'), 10);
+            const isFilled = star <= hoveredOrSelected;
+            const fill = isFilled ? '#f59e0b' : '#cbd5e1';
+            btn.innerHTML = renderStarSvg(fill);
+            if (isFilled) {
+                btn.style.transform = 'scale(1.1)';
+            } else {
+                btn.style.transform = 'scale(1.0)';
+            }
+        });
+        if (descEl) {
+            descEl.textContent = starDescriptions[hoveredOrSelected] || starDescriptions[0];
+            descEl.style.color = hoveredOrSelected > 0 ? '#b45309' : '#64748b';
+        }
+    }
+
+    if (starsWrapper) {
+        starsWrapper.addEventListener('click', (e) => {
+            const btn = e.target.closest('.feedback-star-btn');
+            if (!btn) return;
+            currentRating = parseInt(btn.getAttribute('data-star'), 10);
+            updateStarsDisplay(currentRating);
+        });
+
+        starsWrapper.querySelectorAll('.feedback-star-btn').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                const star = parseInt(btn.getAttribute('data-star'), 10);
+                updateStarsDisplay(star);
+            });
+        });
+
+        starsWrapper.addEventListener('mouseleave', () => {
+            updateStarsDisplay(currentRating);
+        });
+    }
+
+    // Submit handler
+    const submitBtn = container.querySelector('#feedback-submit-btn');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', async () => {
+            if (currentRating < 1 || currentRating > 5) {
+                if (typeof showToast === 'function') {
+                    showToast({
+                        title: "Bewertung fehlt ⭐",
+                        message: "Bitte wähle mindestens 1 Stern aus, bevor du dein Feedback abschickst."
+                    });
+                } else {
+                    alert("Bitte wähle mindestens 1 Stern aus.");
+                }
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right: 8px;"></i> Wird gespeichert...';
+
+            const comment = container.querySelector('#feedback-comment-input')?.value?.trim() || '';
+
+            const feedbackData = {
+                type: type,
+                stars: currentRating,
+                comment: comment,
+                mediationId: medId || null,
+                targetUserId: userId || null,
+                role: role || (state && state.currentUser ? state.currentUser.role : null),
+                authorUid: (state && state.currentUser ? state.currentUser.id : null),
+                authorEmail: (state && state.currentUser ? state.currentUser.email : null),
+                source: 'email_feedback_link',
+                createdAt: (typeof firebase !== 'undefined' && firebase.firestore) 
+                    ? firebase.firestore.FieldValue.serverTimestamp() 
+                    : new Date().toISOString()
+            };
+
+            try {
+                if (typeof db !== 'undefined' && db && db.collection) {
+                    await db.collection('feedbacks').add(feedbackData);
+
+                    // Update mediation document if applicable
+                    if (type === 'mediation' && medId) {
+                        try {
+                            const updateObj = {};
+                            if (role === 'organizer') {
+                                updateObj.organizerFeedbackRating = currentRating;
+                                updateObj.organizerFeedbackComment = comment;
+                                updateObj.organizerFeedbackReceivedAt = firebase.firestore.FieldValue.serverTimestamp();
+                            } else if (role === 'musician') {
+                                updateObj.musicianFeedbackRating = currentRating;
+                                updateObj.musicianFeedbackComment = comment;
+                                updateObj.musicianFeedbackReceivedAt = firebase.firestore.FieldValue.serverTimestamp();
+                            }
+                            if (Object.keys(updateObj).length > 0) {
+                                await db.collection('mediations').doc(medId).set(updateObj, { merge: true });
+                            }
+                        } catch (medErr) {
+                            console.warn("Could not merge feedback into mediation doc:", medErr);
+                        }
+                    }
+
+                    // Update user document if platform feedback
+                    if (type === 'platform' && userId) {
+                        try {
+                            await db.collection('users').doc(userId).set({
+                                platformFeedbackRating: currentRating,
+                                platformFeedbackComment: comment,
+                                platformFeedbackReceivedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            }, { merge: true });
+                        } catch (userErr) {
+                            console.warn("Could not merge feedback into user doc:", userErr);
+                        }
+                    }
+                }
+
+                // Show success view
+                container.innerHTML = `
+                    <div style="max-width: 620px; margin: 3rem auto; padding: 0 1rem; box-sizing: border-box; font-family: var(--font-body, system-ui, -apple-system, sans-serif);">
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 3rem 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.06); text-align: center;">
+                            <div style="width: 72px; height: 72px; margin: 0 auto 1.5rem auto; background: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #16a34a; font-size: 2.2rem; border: 2px solid #bbf7d0;">
+                                <i class="fa-solid fa-check"></i>
+                            </div>
+
+                            <h2 style="font-family: var(--font-heading, inherit); font-size: 1.6rem; font-weight: 800; color: #1e293b; margin: 0 0 0.75rem 0;">
+                                Vielen Dank für dein Feedback! ❤️
+                            </h2>
+
+                            <p style="color: #64748b; font-size: 1.02rem; line-height: 1.6; margin: 0 auto 2rem auto; max-width: 480px;">
+                                Deine Bewertung (${currentRating} von 5 Sternen) wurde erfolgreich übermittelt. Sie hilft uns enorm dabei, GigConnAct noch besser für dich und die gesamte Community zu machen.
+                            </p>
+
+                            <a href="#/" style="display: inline-block; padding: 0.85rem 2rem; background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 14px rgba(124,58,237,0.25);">
+                                Zurück zu GigConnAct
+                            </a>
+                        </div>
+                    </div>
+                `;
+            } catch (submitErr) {
+                console.error("Error submitting feedback:", submitErr);
+                alert("Fehler beim Speichern des Feedbacks: " + submitErr.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Feedback absenden';
+            }
+        });
+    }
 };

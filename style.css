@@ -930,6 +930,7 @@ body {
 }
 
 .role-card {
+    position: relative !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
@@ -944,6 +945,28 @@ body {
     box-sizing: border-box !important;
     width: 100% !important;
     transform: none !important;
+}
+
+.role-card-badge-free {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: #10b981;
+    color: #ffffff;
+    font-family: var(--font-heading);
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 0.22rem 0.55rem;
+    border-radius: 9999px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    z-index: 2;
+    pointer-events: none;
+    line-height: 1;
 }
 
 .role-card i {
@@ -7107,11 +7130,6 @@ body[data-page="musicians"] .market-tile-card:hover {
 .my-events-list .market-tile-card,
 .my-musicians-list .market-tile-card {
     min-height: auto !important;
-}
-
-.my-events-list .tile-fullwidth-photo-slider,
-.my-musicians-list .tile-fullwidth-photo-slider {
-    height: 210px !important;
 }
 
 /* =============================================================

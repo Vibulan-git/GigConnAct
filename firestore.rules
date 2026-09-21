@@ -77,5 +77,11 @@ service cloud.firestore {
     match /used_trials/{trialHash} {
       allow read, write: if true;
     }
+
+    // 8. Feedbacks (Mediation & Platform reviews)
+    match /feedbacks/{feedbackId} {
+      allow create: if true;
+      allow read: if request.auth != null && request.auth.token.email in ['info@gigconnact.de', 'gigconnact@gmail.com'];
+    }
   }
 }

@@ -10,6 +10,8 @@ const getVerificationEmailHtml = require('./templates/verificationTemplate');
 const getPasswordResetEmailHtml = require('./templates/passwordResetTemplate');
 const getSignInEmailHtml = require('./templates/signInTemplate');
 const getMediationOrganizerReminderEmailHtml = require('./templates/mediationReminderOrganizerTemplate');
+const getMediationFeedbackEmailHtml = require('./templates/mediationFeedbackTemplate');
+const getPlatformFeedbackEmailHtml = require('./templates/platformFeedbackTemplate');
 
 admin.initializeApp();
 
@@ -2917,6 +2919,277 @@ exports.triggerMediationOrganizerReminders = functions
         const res = await sendMediationOrganizerRemindersInternal({ force, targetMediationId });
         return res;
     });
+
+// ============================================================================
+// AUTOMATED FEEDBACK SYSTEM: 1-WEEK MEDIATION & 3-MONTH PLATFORM
+// ============================================================================
+
+const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const THREE_MONTHS_MS = 90 * 24 * 60 * 60 * 1000;
+
+async function sendMediationFeedbackEmailsInternal({ force = false, targetMediationId = null } = {}) {
+    const results = { sent: 0, skipped: 0, errors: [], details: [] };
+    const now = new Date();
+
+    try {
+        let query = admin.firestore().collection('mediations');
+        if (targetMediationId) {
+            query = query.where(admin.firestore.FieldPath.documentId(), '==', targetMediationId);
+        } else {
+            query = query.where('status', '==', 'completed');
+        }
+
+        const snapshot = await query.get();
+        for (const doc of snapshot.docs) {
+            const med = doc.data();
+            const medId = doc.id;
+
+            try {
+                if (med.contactsReleased !== true) {
+                    results.skipped++;
+                    continue;
+                }
+
+                const completedAt = med.completedAt ? new Date(med.completedAt).getTime() : null;
+                if (!completedAt && !force) {
+                    results.skipped++;
+                    continue;
+                }
+
+                const isDue = force || (completedAt && (now.getTime() - completedAt) >= ONE_WEEK_MS);
+                if (!isDue) {
+                    results.skipped++;
+                    continue;
+                }
+
+                // Resolve Musician details
+                let musName = 'Musiker';
+                let musEmail = null;
+                const musicianId = med.selectedMusicianId;
+                if (musicianId) {
+                    const musDoc = await admin.firestore().collection('musicians').doc(musicianId).get();
+                    if (musDoc.exists) {
+                        const musData = musDoc.data();
+                        musName = musData.name || musName;
+                        musEmail = musData.email || null;
+                        if (musData.creatorId) {
+                            const musUserDoc = await admin.firestore().collection('users').doc(musData.creatorId).get();
+                            if (musUserDoc.exists) {
+                                musEmail = musUserDoc.data().email || musEmail;
+                            }
+                        }
+                    }
+                }
+
+                const orgEmail = med.clientEmail || med.email;
+                const orgName = med.clientName || 'Veranstalter';
+                const eventName = med.eventName || med.name || 'Dein Event';
+                const baseUrl = med.baseUrl || 'https://gigconnact.de';
+
+                let updatedDocFields = {};
+
+                // 1. Send feedback mail to organizer (if not yet sent or forced)
+                if (orgEmail && (!med.organizerFeedbackSentAt || force)) {
+                    const orgHtml = getMediationFeedbackEmailHtml({
+                        recipientName: orgName,
+                        partnerName: musName,
+                        eventName: eventName,
+                        role: 'organizer',
+                        mediationId: medId,
+                        baseUrl: baseUrl
+                    });
+
+                    await sendEmail({
+                        to: orgEmail,
+                        subject: `Wie war der Kontakt mit ${musName}? Dein Feedback zu GigConnAct ⭐`,
+                        html: orgHtml,
+                        headers: { 'Reply-To': 'info@gigconnact.de' }
+                    });
+
+                    updatedDocFields.organizerFeedbackSentAt = now.toISOString();
+                    results.sent++;
+                    results.details.push({ mediationId: medId, role: 'organizer', to: orgEmail });
+                }
+
+                // 2. Send feedback mail to musician (if not yet sent or forced)
+                if (musEmail && (!med.musicianFeedbackSentAt || force)) {
+                    const musHtml = getMediationFeedbackEmailHtml({
+                        recipientName: musName,
+                        partnerName: orgName,
+                        eventName: eventName,
+                        role: 'musician',
+                        mediationId: medId,
+                        baseUrl: baseUrl
+                    });
+
+                    await sendEmail({
+                        to: musEmail,
+                        subject: `Wie war der Kontakt mit ${orgName}? Dein Feedback zu GigConnAct ⭐`,
+                        html: musHtml,
+                        headers: { 'Reply-To': 'info@gigconnact.de' }
+                    });
+
+                    updatedDocFields.musicianFeedbackSentAt = now.toISOString();
+                    results.sent++;
+                    results.details.push({ mediationId: medId, role: 'musician', to: musEmail });
+                }
+
+                if (Object.keys(updatedDocFields).length > 0) {
+                    await doc.ref.update(updatedDocFields);
+                }
+
+            } catch (itemErr) {
+                console.error(`Error processing mediation feedback for ${medId}:`, itemErr);
+                results.errors.push({ mediationId: medId, error: itemErr.message });
+            }
+        }
+    } catch (err) {
+        console.error("sendMediationFeedbackEmailsInternal error:", err);
+        results.errors.push({ general: err.message });
+    }
+
+    return results;
+}
+
+async function sendPlatformFeedbackEmailsInternal({ force = false, targetUserId = null } = {}) {
+    const results = { sent: 0, skipped: 0, errors: [], details: [] };
+    const now = new Date();
+
+    try {
+        let query = admin.firestore().collection('users');
+        if (targetUserId) {
+            query = query.where(admin.firestore.FieldPath.documentId(), '==', targetUserId);
+        }
+
+        const snapshot = await query.get();
+        for (const doc of snapshot.docs) {
+            const u = doc.data();
+            const userId = doc.id;
+
+            try {
+                if (!u.email) {
+                    results.skipped++;
+                    continue;
+                }
+
+                // Parse createdAt
+                let createdAtMs = null;
+                if (u.createdAt) {
+                    if (typeof u.createdAt.toDate === 'function') {
+                        createdAtMs = u.createdAt.toDate().getTime();
+                    } else if (typeof u.createdAt === 'string') {
+                        createdAtMs = new Date(u.createdAt).getTime();
+                    } else if (typeof u.createdAt === 'number') {
+                        createdAtMs = u.createdAt;
+                    }
+                }
+
+                if (!createdAtMs && !force) {
+                    results.skipped++;
+                    continue;
+                }
+
+                const isDue = force || (createdAtMs && (now.getTime() - createdAtMs) >= THREE_MONTHS_MS);
+                if (!isDue) {
+                    results.skipped++;
+                    continue;
+                }
+
+                if (u.platformFeedbackSentAt && !force) {
+                    results.skipped++;
+                    continue;
+                }
+
+                const recipientName = u.firstName || u.name || (u.role === 'organizer' ? 'Veranstalter' : 'Musiker');
+                const html = getPlatformFeedbackEmailHtml({
+                    recipientName: recipientName,
+                    role: u.role || 'musician',
+                    userId: userId,
+                    baseUrl: 'https://gigconnact.de'
+                });
+
+                await sendEmail({
+                    to: u.email,
+                    subject: "3 Monate GigConnAct – Wie gefällt es Dir? Dein Feedback ⭐",
+                    html: html,
+                    headers: { 'Reply-To': 'info@gigconnact.de' }
+                });
+
+                await doc.ref.update({
+                    platformFeedbackSentAt: now.toISOString()
+                });
+
+                results.sent++;
+                results.details.push({ userId: userId, email: u.email });
+
+            } catch (userErr) {
+                console.error(`Error processing platform feedback for user ${userId}:`, userErr);
+                results.errors.push({ userId: userId, error: userErr.message });
+            }
+        }
+    } catch (err) {
+        console.error("sendPlatformFeedbackEmailsInternal error:", err);
+        results.errors.push({ general: err.message });
+    }
+
+    return results;
+}
+
+// 1. Täglicher Check für 1-wöchige Vermittlungs-Feedbacks (11:00 Uhr Berliner Zeit)
+exports.dailyMediationFeedbackCheck = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['RESEND_API_KEY'] })
+    .pubsub.schedule('0 11 * * *')
+    .timeZone('Europe/Berlin')
+    .onRun(async (context) => {
+        console.log("Starte täglichen Check für 1-wöchige Vermittlungs-Feedback-Mails...");
+        const res = await sendMediationFeedbackEmailsInternal();
+        console.log("Mediation Feedback Check abgeschlossen:", JSON.stringify(res));
+        return null;
+    });
+
+// 2. Täglicher Check für 3-Monate Plattform-Feedbacks (12:00 Uhr Berliner Zeit)
+exports.dailyPlatformFeedbackCheck = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['RESEND_API_KEY'] })
+    .pubsub.schedule('0 12 * * *')
+    .timeZone('Europe/Berlin')
+    .onRun(async (context) => {
+        console.log("Starte täglichen Check für 3-monatige Plattform-Feedback-Mails...");
+        const res = await sendPlatformFeedbackEmailsInternal();
+        console.log("Platform Feedback Check abgeschlossen:", JSON.stringify(res));
+        return null;
+    });
+
+// Callables für manuelle Aufrufe / Tests
+exports.triggerMediationFeedback = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['RESEND_API_KEY'] })
+    .https.onCall(async (data, context) => {
+        let isAdmin = false;
+        if (context.auth && context.auth.token && context.auth.token.email) {
+            const adminEmails = ['info@gigconnact.de', 'gigconnact@gmail.com'];
+            if (adminEmails.includes(context.auth.token.email)) isAdmin = true;
+        }
+        const force = Boolean(data && data.force && isAdmin);
+        const targetMediationId = data && data.mediationId ? String(data.mediationId).trim() : null;
+        return await sendMediationFeedbackEmailsInternal({ force, targetMediationId });
+    });
+
+exports.triggerPlatformFeedback = functions
+    .region('europe-west3')
+    .runWith({ secrets: ['RESEND_API_KEY'] })
+    .https.onCall(async (data, context) => {
+        let isAdmin = false;
+        if (context.auth && context.auth.token && context.auth.token.email) {
+            const adminEmails = ['info@gigconnact.de', 'gigconnact@gmail.com'];
+            if (adminEmails.includes(context.auth.token.email)) isAdmin = true;
+        }
+        const force = Boolean(data && data.force && isAdmin);
+        const targetUserId = data && data.userId ? String(data.userId).trim() : null;
+        return await sendPlatformFeedbackEmailsInternal({ force, targetUserId });
+    });
+
 
 
 

@@ -589,6 +589,110 @@
       ],
       "callableTrigger": {},
       "entryPoint": "triggerMediationOrganizerReminders"
+    },
+    "dailyMediationFeedbackCheck": {
+      "platform": "gcfv1",
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "scheduleTrigger": {
+        "schedule": "0 11 * * *",
+        "retryConfig": {
+          "retryCount": null,
+          "maxDoublings": null,
+          "maxRetryDuration": null,
+          "maxBackoffDuration": null,
+          "minBackoffDuration": null
+        },
+        "timeZone": "Europe/Berlin"
+      },
+      "labels": {},
+      "entryPoint": "dailyMediationFeedbackCheck"
+    },
+    "dailyPlatformFeedbackCheck": {
+      "platform": "gcfv1",
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "scheduleTrigger": {
+        "schedule": "0 12 * * *",
+        "retryConfig": {
+          "retryCount": null,
+          "maxDoublings": null,
+          "maxRetryDuration": null,
+          "maxBackoffDuration": null,
+          "minBackoffDuration": null
+        },
+        "timeZone": "Europe/Berlin"
+      },
+      "labels": {},
+      "entryPoint": "dailyPlatformFeedbackCheck"
+    },
+    "triggerMediationFeedback": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "triggerMediationFeedback"
+    },
+    "triggerPlatformFeedback": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
+      "callableTrigger": {},
+      "entryPoint": "triggerPlatformFeedback"
     }
   },
   "specVersion": "v1alpha1",
