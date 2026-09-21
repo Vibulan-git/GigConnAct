@@ -3849,7 +3849,7 @@ class StateManager {
                 if (redirectToStripe) {
                     window.isRegisteringRedirecting = true;
                     showToast({
-                        title: "Registrierung abgeschlossen! 💳",
+                        title: "Weiterleitung zur Zahlung... 💳",
                         message: "Du wirst jetzt zur sicheren Zahlungsseite weitergeleitet..."
                     });
                     try {
@@ -15820,7 +15820,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
 
                     <div id="register-error-msg" class="text-red" style="font-size:0.8rem; margin-bottom: 1rem; display:none;"></div>
                     <button type="submit" class="btn btn-secondary" style="width: 100%;">
-                        Registrierung abschließen
+                        <i class="fa-solid fa-lock"></i> Weiter zur Bezahlung
                     </button>
                 </form>
             </div>
@@ -15872,13 +15872,13 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         const googleBtnText = document.getElementById('btn-google-login-text');
 
         if (googleContainer) {
-            googleContainer.style.display = 'block';
-            if (googleBtnText) {
-                if (activeForm === magicForm) {
+            if (activeForm === magicForm) {
+                googleContainer.style.display = 'block';
+                if (googleBtnText) {
                     googleBtnText.textContent = 'Mit Google anmelden';
-                } else {
-                    googleBtnText.textContent = 'Mit Google registrieren';
                 }
+            } else {
+                googleContainer.style.display = 'none';
             }
         }
         if (typeof updateRegSubmitBtnText === 'function') {
@@ -16592,15 +16592,14 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         if (!submitBtn) return;
         const planInput = document.getElementById('input-selected-plan');
         const plan = planInput ? planInput.value : 'flex';
-        const isGoogle = !!(window.googleRegistrationUser || (typeof auth !== 'undefined' && auth.currentUser && auth.currentUser.providerData.some(p => p.providerId === 'google.com')));
         
         if (selectedRole === 'organizer') {
-            submitBtn.innerHTML = isGoogle ? '<i class="fa-brands fa-google"></i> Mit Google kostenlos abschließen' : 'Kostenlos registrieren';
+            submitBtn.innerHTML = 'Kostenlos registrieren';
         } else {
             if (plan === 'premium' && isPromoCodeApplied) {
-                submitBtn.innerHTML = isGoogle ? '<i class="fa-brands fa-google"></i> Mit Google abschließen (3 Monate kostenlos)' : 'Registrierung abschließen (3 Monate kostenlos)';
+                submitBtn.innerHTML = 'Registrierung abschließen (3 Monate kostenlos)';
             } else {
-                submitBtn.innerHTML = isGoogle ? '<i class="fa-brands fa-google"></i> Mit Google abschließen &amp; zur Bezahlung' : '<i class="fa-solid fa-lock"></i> Registrierung abschließen &amp; zur Bezahlung';
+                submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Weiter zur Bezahlung';
             }
         }
     }
@@ -16997,44 +16996,6 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             }
         }
 
-        const emailLower = (payload.email || '').toLowerCase().trim();
-        const isGoogleEmail = emailLower.endsWith('@gmail.com') || emailLower.endsWith('@googlemail.com');
-
-        // Auto-connect with Google if user entered a Google email address and isn't authenticated yet
-        if (!googleUser && isGoogleEmail) {
-            try {
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Google-Konto verbinden...`;
-                }
-                const provider = new firebase.auth.GoogleAuthProvider();
-                provider.setCustomParameters({ prompt: 'select_account', login_hint: emailLower });
-                const popupRes = await auth.signInWithPopup(provider);
-                if (popupRes && popupRes.user) {
-                    googleUser = popupRes.user;
-                    window.googleRegistrationUser = popupRes.user;
-                    sessionStorage.setItem('gigconnact_google_user', JSON.stringify({
-                        uid: popupRes.user.uid,
-                        email: popupRes.user.email,
-                        displayName: popupRes.user.displayName
-                    }));
-                }
-            } catch (googlePopupErr) {
-                console.warn("Direct Google sign-in on submit cancelled or failed:", googlePopupErr);
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnHtml;
-                }
-                if (googlePopupErr.code === 'auth/popup-closed-by-user' || googlePopupErr.code === 'auth/cancelled-popup-request') {
-                    showToast({
-                        title: "Google-Anmeldung abgebrochen",
-                        message: "Bitte bestätige dein Google-Konto im Popup, um die Registrierung direkt abzuschließen."
-                    });
-                    return;
-                }
-            }
-        }
-
         if (googleUser) {
             try {
                 let activeAuthUser = (typeof auth !== 'undefined' && auth.currentUser) ? auth.currentUser : null;
@@ -17192,7 +17153,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
                     }
                     showToast({
-                        title: "Registrierung abgeschlossen! 💳",
+                        title: "Weiterleitung zur Zahlung... 💳",
                         message: "Du wirst jetzt zur sicheren Zahlungsseite weitergeleitet..."
                     });
                     try {
