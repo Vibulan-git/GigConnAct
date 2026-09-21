@@ -6637,7 +6637,7 @@ function renderHowItWorksContentHTML(type) {
                             <i class="fa-solid fa-envelope-open-text" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #7c3aed;">Vermittlungsanfragen</span> erhalten & bei Interesse Gebühr zahlen
+                            <span style="color: #7c3aed;">Vermittlungsanfragen</span> erhalten und senden
                         </h4>
                     </div>
 
@@ -6964,7 +6964,7 @@ window.renderInfoPage = function(container, type) {
             </div>
             <div style="display: flex; align-items: center; gap: 0.65rem; font-size: 0.86rem;">
                 <i class="fa-solid fa-user" style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; width: 18px; text-align: center;"></i>
-                <span style="font-weight: 600;">${isMusician ? 'Markus Weber' : 'The Sound Experience'}</span>
+                <span style="font-weight: 600;">${isMusician ? 'Max Mustermann' : 'The Sound Experience'}</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.65rem; font-size: 0.86rem;">
                 <i class="fa-solid fa-phone" style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; width: 18px; text-align: center;"></i>
@@ -6972,7 +6972,7 @@ window.renderInfoPage = function(container, type) {
             </div>
             <div style="display: flex; align-items: center; gap: 0.65rem; font-size: 0.86rem;">
                 <i class="fa-solid fa-envelope" style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; width: 18px; text-align: center;"></i>
-                <span style="font-weight: 600;">kontakt@gigconnact.de</span>
+                <span style="font-weight: 600;">${isMusician ? 'max.muster@gmail.com' : 'kontakt@gigconnact.de'}</span>
             </div>
         </div>
     `;
@@ -6994,7 +6994,7 @@ window.renderInfoPage = function(container, type) {
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem 0.8rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 1rem;">
-                                Gig-Markt: Suche und filtere kostenlos nach Events und Veranstaltern, die zu Dir passen – ganz ohne Account. Die Kontaktdaten der Veranstalter bleiben zunächst verborgen und werden erst mit einem Musiker-Account sichtbar.
+                                Gig-Markt: Suche und filtere nach Events und Veranstaltern, die zu Dir passen – komplett <span style="color: #7c3aed; font-weight: 700;">ohne Account & kostenlos</span>. Die Kontaktdaten der Veranstalter bleiben zunächst verborgen und werden erst mit einem Musiker-Account sichtbar.
                             </p>
                         </div>
                         <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto;">
@@ -7009,7 +7009,7 @@ window.renderInfoPage = function(container, type) {
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.75rem;">
-                                Erstelle in wenigen Minuten Dein Musiker-Profil und wähle zwischen Flex, Plus, Pro oder Premium. Damit erhältst Du Zugriff auf Name, E-Mail-Adresse und Telefonnummer der Veranstalter und kannst sie direkt über GigConnAct kontaktieren.
+                                Erstelle in wenigen Minuten Dein Musiker-Profil – <span style="color: #7c3aed; font-weight: 700;">mit Account & Abo-Modell</span> (wähle zwischen Flex, Plus, Pro oder Premium). Damit erhältst Du Zugriff auf Name, E-Mail-Adresse und Telefonnummer der Veranstalter und kannst sie direkt über GigConnAct kontaktieren.
                             </p>
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 1.1rem;">
                                 <strong>Wichtig:</strong> Der Direktkontakt ist nur bei Events möglich, die nicht über unsere Vermittlung eingestellt wurden.
@@ -7021,11 +7021,11 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '3.',
                     icon: 'fa-comments',
-                    title: `<span style="color: ${themeColor};">Veranstalter</span> direkt kontaktieren - ohne Provisionskosten`,
+                    title: `<span style="color: ${themeColor};">Veranstalter</span> direkt kontaktieren – ohne Provisionskosten`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
-                                Nimm direkt Kontakt mit dem Veranstalter auf und kläre Verfügbarkeit, Gage, Spielzeiten und alle weiteren Details persönlich. Ohne Umwege und ohne Provisionskosten entscheidest Du selbst, welche Events interessant für Dich sind – und erhöhst Deine Chancen auf mehr Gigs.
+                                Nimm direkt Kontakt mit dem Veranstalter auf und kläre Verfügbarkeit, Gage, Spielzeiten und alle weiteren Details persönlich. Ohne Umwege und <span style="color: #7c3aed; font-weight: 700;">ohne Provisionskosten</span> entscheidest Du selbst, welche Events interessant für Dich sind – und erhöhst Deine Chancen auf mehr Gigs.
                             </p>
                             
                             <!-- Authentic GigConnAct Chat Mockup (Purple & Blue) -->
@@ -7079,7 +7079,7 @@ window.renderInfoPage = function(container, type) {
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem 0.8rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 1rem;">
-                                Gig-Markt: Suche und filtere kostenlos nach Gigs, die zu Dir passen – ganz ohne Account. Bei Vermittlungs-Gigs bleiben die Kontaktdaten des Veranstalters geschützt und sind nicht einsehbar.
+                                Gig-Markt: Suche und filtere nach Gigs, die zu Dir passen – komplett <span style="color: #7c3aed; font-weight: 700;">ohne Account & kostenlos</span>. Bei Vermittlungs-Gigs bleiben die Kontaktdaten des Veranstalters geschützt und sind nicht einsehbar.
                             </p>
                         </div>
                         <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto;">
@@ -7090,11 +7090,11 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '2.',
                     icon: 'fa-envelope-open-text',
-                    title: `<span style="color: ${themeColor};">Vermittlungsanfragen</span> erhalten – mit Account & Abo-Modell`,
+                    title: `<span style="color: ${themeColor};">Vermittlungsanfragen</span> erhalten und senden – mit Account & Abo-Modell`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
-                                Erstelle Dein Musiker-Profil und werde für Veranstalter sichtbar. Mit Flex, Plus, Pro oder Premium kannst Du Vermittlungsanfragen von Veranstaltern erhalten, die Interesse an Dir haben. Der Erstkontakt geht dabei immer vom Veranstalter aus – Du selbst kannst keine Vermittlungsanfrage senden.
+                                Erstelle Dein Musiker-Profil und werde für Veranstalter sichtbar – <span style="color: #7c3aed; font-weight: 700;">mit Account & Abo-Modell</span> (Flex, Plus, Pro oder Premium). Du kannst Vermittlungsanfragen von interessierten Veranstaltern erhalten. Du selbst kannst auch Vermittlungsanfragen senden. Ein möglicher Erstkontakt geht aber immer vom Veranstalter aus.
                             </p>
 
                             <!-- Authentic GigConnAct Vermittlungsanfrage Card -->
@@ -7122,9 +7122,12 @@ window.renderInfoPage = function(container, type) {
                                             mehr Details
                                         </span>
                                     </div>
-                                    <div style="padding-top: 0.2rem;">
+                                    <div style="padding-top: 0.2rem; display: flex; flex-direction: column; gap: 0.5rem;">
                                         <button style="width: 100%; border: none; cursor: pointer; font-family: var(--font-heading); font-size: 0.88rem; font-weight: 800; color: #ffffff; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); padding: 0.6rem 1rem; border-radius: 10px; box-shadow: 0 3px 10px rgba(124,58,237,0.25); display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                                             <i class="fa-solid fa-check"></i> Anfrage annehmen
+                                        </button>
+                                        <button style="width: 100%; border: 1.5px solid #7c3aed; cursor: pointer; font-family: var(--font-heading); font-size: 0.88rem; font-weight: 800; color: #7c3aed; background: rgba(124, 58, 237, 0.06); padding: 0.6rem 1rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                            <i class="fa-solid fa-paper-plane"></i> Anfrage senden
                                         </button>
                                     </div>
                                 </div>
@@ -7140,7 +7143,7 @@ window.renderInfoPage = function(container, type) {
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
-                                Passt der Gig für Dich, kannst Du die Vermittlungsanfrage verbindlich annehmen. Bei erfolgreicher Vermittlung werden die Kontaktdaten zwischen Dir und dem Veranstalter freigegeben, sodass Ihr alle weiteren Details direkt klären könnt. Je nach Abo-Modell fällt dafür eine Vermittlungsgebühr an – bei Premium entfällt sie.
+                                Passt der Gig für Dich, kannst Du die Vermittlungsanfrage verbindlich annehmen. Bei erfolgreicher Vermittlung werden die Kontaktdaten zwischen Dir und dem Veranstalter freigegeben, sodass Ihr alle weiteren Details direkt klären könnt – je nach Abo-Modell <span style="color: #7c3aed; font-weight: 700;">mit Provisionskosten</span> (bei Premium entfällt diese Vermittlungsgebühr komplett).
                             </p>
 
                             <!-- Authentic Kontaktdaten Box Visual -->
@@ -7149,9 +7152,10 @@ window.renderInfoPage = function(container, type) {
                                     Kontaktdaten des Veranstalters:
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 0.45rem; font-family: var(--font-body); font-size: 0.92rem; color: #334155; line-height: 1.4;">
+                                    <div><strong style="color: #1e293b;">Veranstalter-Typ:</strong> Privater Veranstalter</div>
                                     <div><strong style="color: #1e293b;">Name:</strong> Max Mustermann</div>
                                     <div><strong style="color: #1e293b;">Telefon:</strong> 0123456789</div>
-                                    <div><strong style="color: #1e293b;">E-Mail:</strong> <span style="color: #7c3aed; font-weight: 600;">Max.Mustermann@gmail.com</span></div>
+                                    <div><strong style="color: #1e293b;">E-Mail:</strong> <span style="color: #7c3aed; font-weight: 600;">max.muster@gmail.com</span></div>
                                 </div>
                             </div>
 
