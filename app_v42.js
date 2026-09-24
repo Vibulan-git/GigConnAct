@@ -7066,7 +7066,7 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '3.',
                     icon: 'fa-comments',
-                    title: `<span style="color: ${themeColor};">Veranstalter</span> direkt kontaktieren`,
+                    title: `<span style="color: ${themeColor};">Veranstalter</span> kontaktieren`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
@@ -7218,8 +7218,13 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '1.',
                     icon: 'fa-guitar',
-                    title: `<span style="color: ${themeColor};">Musiker</span> entdecken - ohne Account & kostenlos`,
+                    title: `<span style="color: ${themeColor};">Musiker</span> entdecken`,
                     content: `
+                        <div style="text-align: left; padding: 0.2rem 0.2rem 0.8rem;">
+                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 1rem;">
+                                Finde und filtere passende Acts für dein Event – komplett <span style="color: #2563eb; font-weight: 700;">ohne Account & kostenlos</span>.
+                            </p>
+                        </div>
                         <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto;">
                             ${showcaseCardHTML}
                         </div>
@@ -7228,11 +7233,11 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '2.',
                     icon: 'fa-lock-open',
-                    title: `<span style="color: ${themeColor};">Kontaktdaten</span> freischalten - mit Account & kostenlos`,
+                    title: `<span style="color: ${themeColor};">Kontaktdaten</span> freischalten`,
                     content: `
-                        <div style="text-align: center; padding: 0.5rem 0.2rem;">
-                            <p style="font-family: var(--font-body); font-size: 0.95rem; color: #475569; line-height: 1.55; margin: 0 0 1rem; text-align: center;">
-                                Schalte einmalig die Kontaktdaten frei, um den Künstler direkt und unverbindlich zu kontaktieren.
+                        <div style="text-align: left; padding: 0.2rem 0.2rem;">
+                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 1rem;">
+                                Schalte die Kontaktdaten frei – <span style="color: #2563eb; font-weight: 700;">mit Account & kostenlos</span>, um den Künstler direkt und unverbindlich zu kontaktieren.
                             </p>
                             ${contactBarStripHTML}
                         </div>
@@ -7241,11 +7246,11 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '3.',
                     icon: 'fa-comments',
-                    title: `<span style="color: ${themeColor};">Musiker</span> direkt kontaktieren - ohne Provisionskosten`,
+                    title: `<span style="color: ${themeColor};">Musiker</span> kontaktieren`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
-                                Erreiche passende Musiker direkt per Mail, Telefon oder Chat und vereinbare alle Konditionen auf direktem Weg.
+                                Erreiche passende Musiker direkt per Mail, Telefon oder Chat und vereinbare alle Konditionen auf direktem Weg – komplett <span style="color: #2563eb; font-weight: 700;">ohne Provisionskosten</span>.
                             </p>
 
                             <!-- Authentic GigConnAct Chat Mockup Organizer (Blue & Purple) -->
@@ -7295,8 +7300,13 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '1.',
                     icon: 'fa-file-lines',
-                    title: `<span style="color: ${themeColor};">Vermittlungsanfrage</span> ausfüllen - ohne Account & kostenlos`,
+                    title: `<span style="color: ${themeColor};">Vermittlungsanfrage</span> ausfüllen`,
                     content: `
+                        <div style="text-align: left; padding: 0.2rem 0.2rem 0.8rem;">
+                            <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 1rem;">
+                                Beschreibe dein Event und erstelle eine Vermittlungsanfrage – komplett <span style="color: #2563eb; font-weight: 700;">ohne Account & kostenlos</span>.
+                            </p>
+                        </div>
                         <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto;">
                             ${showcaseCardHTML}
                         </div>
@@ -7305,7 +7315,7 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '2.',
                     icon: 'fa-paper-plane',
-                    title: `<span style="color: ${themeColor};">Bewerbungen</span> & Vorschläge erhalten`,
+                    title: `<span style="color: ${themeColor};">Vorschläge</span> erhalten`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
@@ -7348,7 +7358,7 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '3.',
                     icon: 'fa-handshake',
-                    title: `<span style="color: ${themeColor};">Auftritt</span> fixieren & Wunsch-Act buchen`,
+                    title: `<span style="color: ${themeColor};">Kontaktdaten</span> erhalten`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
@@ -7424,43 +7434,53 @@ window.renderInfoPage = function(container, type) {
     if (isMusician) {
         if (isDirektkontakt) {
             benefitsData = [
-                { icon: 'fa-comments', text: 'Direkter Kontakt zu Veranstaltern' },
-                { icon: 'fa-percent', text: 'Keine Provisionskosten' },
-                { icon: 'fa-tags', text: 'Preiswertes Abo-Modell' }
+                { icon: 'fa-comments', text: 'Direkter<br>Kontakt' },
+                { icon: 'fa-percent', text: 'Keine<br>Provisionskosten' },
+                { icon: 'fa-tags', text: 'Preiswertes<br>Abo-Modell' }
             ];
         } else {
             benefitsData = [
-                { icon: 'fa-handshake-angle', text: 'Komfortabler Vermittlungsservice' },
-                { icon: 'fa-coins', text: 'Geringe Provisionskosten' },
-                { icon: 'fa-tags', text: 'Preiswertes Abo-Modell' }
+                { icon: 'fa-handshake-angle', text: 'Komfortable<br>Vermittlung' },
+                { icon: 'fa-coins', text: 'Geringe<br>Provision' },
+                { icon: 'fa-tags', text: 'Preiswertes<br>Abo-Modell' }
             ];
         }
     } else {
         if (isDirektkontakt) {
             benefitsData = [
-                { icon: 'fa-guitar', text: 'Direkter Kontakt zu Musikern' },
-                { icon: 'fa-sliders', text: 'Freie & individualisierte Auswahl' },
-                { icon: 'fa-gift', text: 'Kostenlos' }
+                { icon: 'fa-guitar', text: 'Direkter<br>Kontakt' },
+                { icon: 'fa-sliders', text: 'Freie<br>Auswahl' },
+                { icon: 'fa-gift', text: '100 %<br>kostenlos' }
             ];
         } else {
             benefitsData = [
-                { icon: 'fa-handshake-angle', text: 'Komfortabler Vermittlungsservice' },
-                { icon: 'fa-bullseye', text: 'Passende Vorschläge' },
-                { icon: 'fa-gift', text: 'Kostenlos' }
+                { icon: 'fa-handshake-angle', text: 'Komfortable<br>Vermittlung' },
+                { icon: 'fa-bullseye', text: 'Passende<br>Vorschläge' },
+                { icon: 'fa-gift', text: '100 %<br>kostenlos' }
             ];
         }
     }
 
+    const benefitCardBg = isMusician
+        ? 'linear-gradient(145deg, #ffffff 0%, #f4edff 100%)'
+        : 'linear-gradient(145deg, #ffffff 0%, #eaf2ff 100%)';
+    const benefitCardBorder = isMusician
+        ? '1.5px solid rgba(124, 58, 237, 0.22)'
+        : '1.5px solid rgba(37, 99, 235, 0.22)';
+    const benefitCardShadow = isMusician
+        ? '0 4px 16px rgba(124, 58, 237, 0.08)'
+        : '0 4px 16px rgba(37, 99, 235, 0.08)';
+
     let benefitsHTML = `
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.65rem; width: 100%; max-width: 500px; margin-top: 1.25rem; box-sizing: border-box;">
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(0.35rem, 1.8vw, 0.65rem); width: 100%; max-width: 500px; margin-top: 1.25rem; box-sizing: border-box;">
             ${benefitsData.map((b, idx) => {
-                const bDelay = (3.5 + idx * 0.25).toFixed(2);
+                const bDelay = (4.0 + idx * 0.6).toFixed(2);
                 return `
-                    <div class="flow-anim-card" style="animation-delay: ${bDelay}s; aspect-ratio: 1 / 1; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 18px; box-shadow: 0 4px 16px rgba(0,0,0,0.02); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0.65rem 0.45rem; box-sizing: border-box; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
-                        <div style="width: 38px; height: 38px; border-radius: 50%; background: ${themeBadgeBg}; border: 1.5px solid ${themeBadgeBorder}; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem; flex-shrink: 0;">
-                            <i class="fa-solid ${b.icon}" style="color: ${themeColor}; font-size: 1rem;"></i>
+                    <div class="flow-anim-card" style="animation-delay: ${bDelay}s; aspect-ratio: 1 / 1; min-width: 0; overflow: hidden; background: ${benefitCardBg}; border: ${benefitCardBorder}; border-radius: 18px; box-shadow: ${benefitCardShadow}; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0.55rem clamp(0.15rem, 1vw, 0.45rem); box-sizing: border-box; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px ${isMusician ? 'rgba(124, 58, 237, 0.16)' : 'rgba(37, 99, 235, 0.16)'}';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='${benefitCardShadow}';">
+                        <div style="width: clamp(28px, 8vw, 38px); height: clamp(28px, 8vw, 38px); border-radius: 50%; background: #ffffff; border: 1.5px solid ${themeBadgeBorder}; display: flex; align-items: center; justify-content: center; margin-bottom: 0.45rem; flex-shrink: 0; box-shadow: 0 2px 6px ${isMusician ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)'};">
+                            <i class="fa-solid ${b.icon}" style="color: ${themeColor}; font-size: clamp(0.8rem, 2.4vw, 1rem);"></i>
                         </div>
-                        <span style="font-family: var(--font-heading); font-size: clamp(0.72rem, 2.1vw, 0.82rem); font-weight: 800; color: #0f172a; line-height: 1.25; display: block;">
+                        <span style="font-family: var(--font-heading); font-size: clamp(0.66rem, 2vw, 0.82rem); font-weight: 800; color: #0f172a; line-height: 1.25; display: block; word-break: break-word; overflow-wrap: break-word; hyphens: auto; -webkit-hyphens: auto; width: 100%;">
                             ${b.text}
                         </span>
                     </div>
@@ -7529,7 +7549,7 @@ window.renderInfoPage = function(container, type) {
             ${benefitsHTML}
 
             <!-- 3. Bottom CTA Button -->
-            <div class="flow-anim-card" style="animation-delay: 4.5s; width: 100%; max-width: 500px; margin-top: 1.6rem; box-sizing: border-box;">
+            <div class="flow-anim-card" style="animation-delay: 5.8s; width: 100%; max-width: 500px; margin-top: 1.6rem; box-sizing: border-box;">
                 <div class="glow-card-pulse" onclick="${bottomCtaAction}" style="cursor: pointer; width: 100%; background: ${themeColor}; border: 1.5px solid transparent; border-radius: 20px; padding: 1.15rem clamp(1rem, 4vw, 2rem); text-align: center; box-sizing: border-box; display: flex; flex-direction: row; align-items: center; justify-content: center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                     <h4 style="font-family: var(--font-heading); font-size: clamp(1.15rem, 3.3vw, 1.6rem); font-weight: 900; color: #ffffff; margin: 0; line-height: 1.3; letter-spacing: -0.5px; white-space: nowrap; text-align: center; flex: 1;">
                         ${bottomCtaText}
@@ -12774,10 +12794,15 @@ function renderOrganizerEventItem(e, isActive) {
                     `).join('')}
 
                     <!-- Last Slide: Beschreibung -->
-                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.3rem 3.2rem 0.5rem; box-sizing: border-box; text-align: center;">
-                        <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 145px; overflow-y: auto;">
-                            ${description}
-                        </p>
+                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 12px 28px 12px; box-sizing: border-box;">
+                        <div class="tile-desc-scroll-box" style="width: 100%; height: 100%; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 10px; padding: 0.45rem 0.7rem; box-sizing: border-box; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain; text-align: left;" onclick="event.stopPropagation();">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 800; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; padding-bottom: 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); user-select: none;">
+                                <i class="fa-solid fa-align-left" style="font-size: 0.65rem; color: #60a5fa;"></i> Beschreibung
+                            </div>
+                            <p style="font-size: 0.8rem; font-weight: 400; color: #f1f5f9; line-height: 1.48; margin: 0; text-shadow: 0 1px 2px rgba(0,0,0,0.4); word-break: break-word;">
+                                ${description}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -13292,10 +13317,15 @@ function renderMyMusicianItem(m, isActive) {
                     `).join('')}
 
                     <!-- Last Slide: Beschreibung -->
-                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.3rem 3.2rem 0.5rem; box-sizing: border-box; text-align: center;">
-                        <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 145px; overflow-y: auto;">
-                            ${description}
-                        </p>
+                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 12px 28px 12px; box-sizing: border-box;">
+                        <div class="tile-desc-scroll-box" style="width: 100%; height: 100%; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 10px; padding: 0.45rem 0.7rem; box-sizing: border-box; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain; text-align: left;" onclick="event.stopPropagation();">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 800; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; padding-bottom: 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); user-select: none;">
+                                <i class="fa-solid fa-align-left" style="font-size: 0.65rem; color: #a78bfa;"></i> Beschreibung
+                            </div>
+                            <p style="font-size: 0.8rem; font-weight: 400; color: #f1f5f9; line-height: 1.48; margin: 0; text-shadow: 0 1px 2px rgba(0,0,0,0.4); word-break: break-word;">
+                                ${description}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -21566,10 +21596,15 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                         `).join('')}
 
                         <!-- Last Slide: Beschreibung (schwarz mit weisser Schrift) -->
-                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.3rem 4.2rem 0.5rem; box-sizing: border-box; text-align: center;">
-                            <p style="font-size: 0.84rem; font-weight: 500; color: #f8fafc; line-height: 1.5; margin: 0; max-height: 145px; overflow-y: auto; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
-                                ${description}
-                            </p>
+                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 12px 28px 12px; box-sizing: border-box;">
+                            <div class="tile-desc-scroll-box" style="width: 100%; height: 100%; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 10px; padding: 0.45rem 0.7rem; box-sizing: border-box; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain; text-align: left;" onclick="event.stopPropagation();">
+                                <div style="display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 800; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; padding-bottom: 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); user-select: none;">
+                                    <i class="fa-solid fa-align-left" style="font-size: 0.65rem; color: ${isEvents ? '#a78bfa' : '#60a5fa'};"></i> Beschreibung
+                                </div>
+                                <p style="font-size: 0.8rem; font-weight: 400; color: #f1f5f9; line-height: 1.48; margin: 0; text-shadow: 0 1px 2px rgba(0,0,0,0.4); word-break: break-word;">
+                                    ${description}
+                                </p>
+                            </div>
                         </div>
                     </div>
 
@@ -23528,6 +23563,7 @@ window.renderDatenschutzPage = renderDatenschutzPage;
     document.addEventListener('mousedown', (e) => {
         const sliderContainer = e.target.closest('.tile-fullwidth-photo-slider');
         if (!sliderContainer) return;
+        if (e.target.closest('.tile-desc-scroll-box')) return;
         startX = e.clientX;
         startY = e.clientY;
         isSwiping = true;
@@ -24118,8 +24154,13 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                                 </audio>
                                             </div>
                                         `).join('')}
-                                        <div style="width: 100%; height: 100%; flex-shrink: 0; background: #0f172a; padding: 1rem 2.5rem; box-sizing: border-box; text-align: center; display: flex; align-items: center; justify-content: center;">
-                                            <p style="font-size: 0.82rem; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 140px; overflow-y: auto;">${mus.bio || mus.description || ''}</p>
+                                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 12px 28px 12px; box-sizing: border-box;">
+                                            <div class="tile-desc-scroll-box" style="width: 100%; height: 100%; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 10px; padding: 0.45rem 0.7rem; box-sizing: border-box; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain; text-align: left;" onclick="event.stopPropagation();">
+                                                <div style="display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 800; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; padding-bottom: 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); user-select: none;">
+                                                    <i class="fa-solid fa-align-left" style="font-size: 0.65rem; color: #60a5fa;"></i> Beschreibung
+                                                </div>
+                                                <p style="font-size: 0.8rem; font-weight: 400; color: #f1f5f9; line-height: 1.48; margin: 0; text-shadow: 0 1px 2px rgba(0,0,0,0.4); word-break: break-word;">${mus.bio || mus.description || ''}</p>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="tile-gallery-dots" id="combo-dots-${mus.id}" data-theme="#2563eb" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center;">
@@ -24662,8 +24703,13 @@ window.renderMediationResponsePage = function(container, mediationId) {
                                             </video>
                                         </div>
                                     `).join('')}
-                                    <div style="width: 100%; height: 100%; flex-shrink: 0; background: #0f172a; padding: 1rem 2.5rem; box-sizing: border-box; text-align: center; display: flex; align-items: center; justify-content: center;">
-                                        <p style="font-size: 0.82rem; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 140px; overflow-y: auto;">${window.cleanEventDescription(eventData.description, true) || 'Keine Beschreibung vorhanden.'}</p>
+                                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 12px 28px 12px; box-sizing: border-box;">
+                                        <div class="tile-desc-scroll-box" style="width: 100%; height: 100%; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 10px; padding: 0.45rem 0.7rem; box-sizing: border-box; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain; text-align: left;" onclick="event.stopPropagation();">
+                                            <div style="display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 800; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; padding-bottom: 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); user-select: none;">
+                                                <i class="fa-solid fa-align-left" style="font-size: 0.65rem; color: #a78bfa;"></i> Beschreibung
+                                            </div>
+                                            <p style="font-size: 0.8rem; font-weight: 400; color: #f1f5f9; line-height: 1.48; margin: 0; text-shadow: 0 1px 2px rgba(0,0,0,0.4); word-break: break-word;">${window.cleanEventDescription(eventData.description, true) || 'Keine Beschreibung vorhanden.'}</p>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="tile-gallery-dots" id="combo-dots-${eventData.id}" data-theme="#7c3aed" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center;">

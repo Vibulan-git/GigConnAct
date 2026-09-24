@@ -4343,6 +4343,25 @@ body.theme-organizer .market-filter-card .tag-pill-checkbox.active span {
     }
 }
 
+/* Delimited scrollable description window inside slider */
+.tile-desc-scroll-box {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
+}
+.tile-desc-scroll-box::-webkit-scrollbar {
+    width: 4px;
+}
+.tile-desc-scroll-box::-webkit-scrollbar-track {
+    background: transparent;
+}
+.tile-desc-scroll-box::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 4px;
+}
+.tile-desc-scroll-box::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.7);
+}
+
 /* Fullscreen Gallery Lightbox Animations */
 @keyframes fadeInGallery {
     from { opacity: 0; transform: scale(0.97); }
