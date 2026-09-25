@@ -2327,7 +2327,7 @@ const initialEvents = [
     }
 ];
 
-const genresList = ["Pop", "Rock", "Electro", "Jazz", "Klassik", "Folk", "HipHop", "Metal", "Schlager", "Karneval", "Country", "Blues"];
+const genresList = ["Pop", "Rock", "Electro", "Techno", "House", "Jazz", "Klassik", "Folk", "HipHop", "Metal", "Schlager", "Karneval", "Country", "Blues"];
 const instrumentsList = ["Gesang", "Klavier", "Keyboard", "Synthesizer", "Turntables", "Akustikgitarre", "E-Gitarre", "Bass", "Schlagzeug", "Cajon", "Saxophon", "Violine", "Flöte"];
 const eventTypesList = ['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
 const musicianTypesList = ["Band", "Solo", "DJ", "Duo", "Orchestre", "Trio"];
@@ -2345,7 +2345,7 @@ function generateRemainingMusicians(existing) {
     const lastNames = ["Müller", "Schmidt", "Weber", "Fischer", "Meyer", "Wagner", "Schulz", "Becker", "Hoffmann", "Schäfer", "Koch", "Bauer", "Richter", "Klein", "Wolf", "Neumann", "Lange"];
     const adjectives = ["Neon", "Cosmic", "Velvet", "Rusty", "Silent", "Golden", "Electric", "Midnight", "Crimson", "Royal", "Sweet", "Acoustic", "Vintage", "Sonic"];
     const nouns = ["Beats", "Rebels", "Strings", "Keys", "Vibers", "Dials", "Waves", "Project", "Trio", "Collective", "Horizon", "Sound", "Groove", "Melody"];
-    const genresPool = ["Pop", "Rock", "Electro", "Jazz", "Klassik", "Schlager", "Karneval", "HipHop", "Blues", "Metal"];
+    const genresPool = ["Pop", "Rock", "Electro", "Techno", "House", "Jazz", "Klassik", "Schlager", "Karneval", "HipHop", "Blues", "Metal"];
     const instrumentsPool = ["E-Gitarre", "Akustikgitarre", "Klavier", "Keyboard", "Schlagzeug", "Gesang", "Bass", "Saxophon"];
     const locationsPool = ["München", "Augsburg", "Nürnberg", "Stuttgart", "Hamburg", "Köln", "Frankfurt", "Düsseldorf", "Berlin"];
     const typesPool = ["Band", "Solo", "DJ", "Duo"];
@@ -2463,7 +2463,7 @@ function generateRemainingEvents(existing) {
     const locationsPool = ["München", "Augsburg", "Nürnberg", "Stuttgart", "Hamburg", "Köln", "Frankfurt", "Düsseldorf", "Berlin"];
     const eventTypesPool = ['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
     const eventAdjectives = ["Große", "Gemütliche", "Exklusive", "Traditionelle", "Stimmungsvolle", "Moderne"];
-    const genresPool = ["Pop", "Rock", "Electro", "Jazz", "Klassik", "Schlager", "Karneval"];
+    const genresPool = ["Pop", "Rock", "Electro", "Techno", "House", "Jazz", "Klassik", "Schlager", "Karneval"];
     const instrumentsPool = ["E-Gitarre", "Akustikgitarre", "Klavier", "Keyboard", "Schlagzeug", "Gesang"];
     const musicianTypesPool = ["Band", "DJ", "Solo", "Duo"];
     const orgTypesPool = ["Privater Veranstalter", "Firma", "Künstlermanager", "Verein", "Event-Agentur", "Festivalveranstalter"];
@@ -2637,6 +2637,18 @@ class StateManager {
         this.events = [];
         this.chats = [];
         this.mediations = [];
+        this.deletedEventIds = new Set();
+        this.deletedMusicianIds = new Set();
+        try {
+            const storedDelEvt = localStorage.getItem('GigConnAct_deleted_event_ids');
+            if (storedDelEvt) {
+                JSON.parse(storedDelEvt).forEach(id => this.deletedEventIds.add(String(id)));
+            }
+            const storedDelMus = localStorage.getItem('GigConnAct_deleted_musician_ids');
+            if (storedDelMus) {
+                JSON.parse(storedDelMus).forEach(id => this.deletedMusicianIds.add(String(id)));
+            }
+        } catch (e) {}
         
         // Hydrate state synchronously from localStorage cache to enable instant rendering without spinners
         try {
@@ -2653,11 +2665,13 @@ class StateManager {
             }
             const storedEvents = localStorage.getItem('GigConnAct_events');
             if (storedEvents) {
-                this.events = JSON.parse(storedEvents);
+                const parsedEvts = JSON.parse(storedEvents);
+                this.events = (Array.isArray(parsedEvts) ? parsedEvts : []).filter(e => e && (!this.deletedEventIds || !this.deletedEventIds.has(e.id)));
             }
             const storedMusicians = localStorage.getItem('GigConnAct_musicians');
             if (storedMusicians) {
-                this.musicians = JSON.parse(storedMusicians);
+                const parsedMus = JSON.parse(storedMusicians);
+                this.musicians = (Array.isArray(parsedMus) ? parsedMus : []).filter(m => m && (!this.deletedMusicianIds || !this.deletedMusicianIds.has(m.id)));
             }
             const userKey = 'gyg_read_chats_' + (this.currentUser ? this.currentUser.id : 'anon');
             const storedRead = localStorage.getItem(userKey) || localStorage.getItem('GigConnAct_read_chats');
@@ -2709,8 +2723,8 @@ class StateManager {
         if (!isAdmin) return;
         try {
             console.log("[GigConnAct] Admin logged in: Syncing demo cards to Firestore...");
-            const demoMus = this.musicians.filter(m => m.isDemo || m.id.startsWith('mus_1') || m.id.startsWith('mus_2') || m.id.startsWith('mus_gen_') || initialMusicians.some(init => init.id === m.id));
-            const demoEvt = this.events.filter(e => e.isDemo || e.id.startsWith('evt_1') || e.id.startsWith('evt_2') || e.id.startsWith('evt_gen_') || initialEvents.some(init => init.id === e.id));
+            const demoMus = this.musicians.filter(m => (!this.deletedMusicianIds || !this.deletedMusicianIds.has(m.id)) && (m.isDemo || m.id.startsWith('mus_1') || m.id.startsWith('mus_2') || m.id.startsWith('mus_gen_') || initialMusicians.some(init => init.id === m.id)));
+            const demoEvt = this.events.filter(e => (!this.deletedEventIds || !this.deletedEventIds.has(e.id)) && (e.isDemo || e.id.startsWith('evt_1') || e.id.startsWith('evt_2') || e.id.startsWith('evt_gen_') || initialEvents.some(init => init.id === e.id)));
             const promises = [];
             demoMus.forEach(m => promises.push(db.collection('musicians').doc(m.id).set(m, { merge: true })));
             demoEvt.forEach(e => promises.push(db.collection('events').doc(e.id).set(e, { merge: true })));
@@ -2740,12 +2754,12 @@ class StateManager {
                         this.loadState();
                         
                         if (checkMus.empty) {
-                            const seedMus = this.musicians.map(m => db.collection('musicians').doc(m.id).set(m));
+                            const seedMus = this.musicians.filter(m => !this.deletedMusicianIds || !this.deletedMusicianIds.has(m.id)).map(m => db.collection('musicians').doc(m.id).set(m));
                             await Promise.all(seedMus);
                         }
                         
                         if (checkEvt.empty) {
-                            const seedEvt = this.events.map(e => db.collection('events').doc(e.id).set(e));
+                            const seedEvt = this.events.filter(e => !this.deletedEventIds || !this.deletedEventIds.has(e.id)).map(e => db.collection('events').doc(e.id).set(e));
                             await Promise.all(seedEvt);
                         }
 
@@ -2764,7 +2778,12 @@ class StateManager {
             }
 
             const musList = [];
-            musSnap.forEach(doc => musList.push({ id: doc.id, ...doc.data() }));
+            musSnap.forEach(doc => {
+                if (this.deletedMusicianIds && this.deletedMusicianIds.has(doc.id)) return;
+                const d = doc.data();
+                if (d.isDeleted || d.deleted || d.status === 'deleted') return;
+                musList.push({ id: doc.id, ...d });
+            });
             musList.forEach(item => {
                 const idx = this.musicians.findIndex(m => m.id === item.id);
                 if (idx > -1) {
@@ -2773,9 +2792,15 @@ class StateManager {
                     this.musicians.push(item);
                 }
             });
+            this.musicians = this.musicians.filter(m => m && (!this.deletedMusicianIds || !this.deletedMusicianIds.has(m.id)));
 
             const evtList = [];
-            evtSnap.forEach(doc => evtList.push({ id: doc.id, ...doc.data() }));
+            evtSnap.forEach(doc => {
+                if (this.deletedEventIds && this.deletedEventIds.has(doc.id)) return;
+                const d = doc.data();
+                if (d.isDeleted || d.deleted || d.status === 'deleted') return;
+                evtList.push({ id: doc.id, ...d });
+            });
             evtList.forEach(item => {
                 const idx = this.events.findIndex(e => e.id === item.id);
                 if (idx > -1) {
@@ -2784,6 +2809,7 @@ class StateManager {
                     this.events.push(item);
                 }
             });
+            this.events = this.events.filter(e => e && (!this.deletedEventIds || !this.deletedEventIds.has(e.id)));
 
             console.log("[DEBUG] Firestore initial load completed!");
             this.initialLoadDone = true;
@@ -2804,7 +2830,12 @@ class StateManager {
             console.log("[DEBUG] StateManager.fetchMusicians() called");
             const snapshot = await db.collection('musicians').where('isActive', '==', true).limit(150).get();
             const list = [];
-            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+            snapshot.forEach(doc => {
+                if (this.deletedMusicianIds && this.deletedMusicianIds.has(doc.id)) return;
+                const d = doc.data();
+                if (d.isDeleted || d.deleted || d.status === 'deleted') return;
+                list.push({ id: doc.id, ...d });
+            });
             
             list.forEach(item => {
                 const idx = this.musicians.findIndex(m => m.id === item.id);
@@ -2816,6 +2847,7 @@ class StateManager {
                     this.musicians.push(isGen ? { ...item, isDemo: true } : item);
                 }
             });
+            this.musicians = this.musicians.filter(m => m && (!this.deletedMusicianIds || !this.deletedMusicianIds.has(m.id)));
             this.musiciansFetched = true;
             this.loadingMusicians = false;
             this.updateVersion = (this.updateVersion || 0) + 1;
@@ -2833,7 +2865,12 @@ class StateManager {
             console.log("[DEBUG] StateManager.fetchEvents() called");
             const snapshot = await db.collection('events').where('isOnline', '==', true).limit(150).get();
             const list = [];
-            snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+            snapshot.forEach(doc => {
+                if (this.deletedEventIds && this.deletedEventIds.has(doc.id)) return;
+                const d = doc.data();
+                if (d.isDeleted || d.deleted || d.status === 'deleted') return;
+                list.push({ id: doc.id, ...d });
+            });
             
             list.forEach(item => {
                 const isMed = (item.isAgencyRequest === true || item.email === 'info@gigconnact.de' || item.clientEmail === 'info@gigconnact.de' || item.creatorId === 'info-gigconnact-admin');
@@ -2849,6 +2886,7 @@ class StateManager {
                     this.events.push(isGen ? { ...item, isDemo: true } : item);
                 }
             });
+            this.events = this.events.filter(e => e && (!this.deletedEventIds || !this.deletedEventIds.has(e.id)));
 
             // Automatically sync real-time proposals from mediations collection into event favorites
             await this.syncEventsWithMediations();
@@ -2877,6 +2915,17 @@ class StateManager {
                     this.mediations.push(medObj);
 
                     const targetId = mData.eventId || mDoc.id.replace(/^med_/, '');
+                    const isMedExpiredOrDeleted = mData.status === 'expired' || mData.status === 'deleted' || mData.isDeleted === true || mData.deleted === true;
+                    const isMedDeletedInSession = this.deletedEventIds && (
+                        this.deletedEventIds.has(mDoc.id) ||
+                        this.deletedEventIds.has(targetId) ||
+                        (mData.eventId && this.deletedEventIds.has(mData.eventId))
+                    );
+
+                    if (isMedExpiredOrDeleted || isMedDeletedInSession) {
+                        return;
+                    }
+
                     const mMusIds = Array.isArray(mData.musicianIds) ? mData.musicianIds : [];
                     const matchEvt = (this.events || []).find(e => e && (
                         e.id === targetId || 
@@ -2898,9 +2947,13 @@ class StateManager {
                         if (combined.length > mMusIds.length) {
                             db.collection('mediations').doc(mDoc.id).set({ musicianIds: combined }, { merge: true }).catch(() => {});
                         }
-                    } else if (isAdmin && mData.eventName) {
+                    } else if (isAdmin && mData.eventName && !isMedExpiredOrDeleted && !isMedDeletedInSession) {
+                        const newEvtId = targetId || ('evt_' + mDoc.id);
+                        if (this.deletedEventIds && (this.deletedEventIds.has(newEvtId) || this.deletedEventIds.has(mDoc.id) || this.deletedEventIds.has(targetId))) {
+                            return;
+                        }
                         const newAdminEvt = {
-                            id: targetId || ('evt_' + mDoc.id),
+                            id: newEvtId,
                             creatorId: this.currentUser ? this.currentUser.id : 'info-gigconnact-admin',
                             name: mData.eventName,
                             title: mData.eventName,
@@ -2964,7 +3017,9 @@ class StateManager {
             console.log("[DEBUG] StateManager.fetchUserOwnData() called for uid:", uid);
             const musSnapshot = await db.collection('musicians').where('creatorId', '==', uid).get();
             musSnapshot.forEach(doc => {
+                if (this.deletedMusicianIds && this.deletedMusicianIds.has(doc.id)) return;
                 const data = { id: doc.id, ...doc.data() };
+                if (data.isDeleted || data.deleted || data.status === 'deleted') return;
                 const idx = this.musicians.findIndex(m => m.id === data.id);
                 if (idx > -1) {
                     this.musicians[idx] = data;
@@ -2975,19 +3030,25 @@ class StateManager {
 
             // If musician profileId exists directly, ensure it's loaded
             if (this.currentUser.profileId && this.currentUser.profileId.startsWith('mus_')) {
-                try {
-                    const mDoc = await db.collection('musicians').doc(this.currentUser.profileId).get();
-                    if (mDoc.exists) {
-                        const mData = { id: mDoc.id, ...mDoc.data() };
-                        const idx = this.musicians.findIndex(m => m.id === mData.id);
-                        if (idx > -1) this.musicians[idx] = mData; else this.musicians.push(mData);
-                    }
-                } catch (e) {}
+                if (!this.deletedMusicianIds || !this.deletedMusicianIds.has(this.currentUser.profileId)) {
+                    try {
+                        const mDoc = await db.collection('musicians').doc(this.currentUser.profileId).get();
+                        if (mDoc.exists) {
+                            const mData = { id: mDoc.id, ...mDoc.data() };
+                            if (!mData.isDeleted && !mData.deleted && mData.status !== 'deleted') {
+                                const idx = this.musicians.findIndex(m => m.id === mData.id);
+                                if (idx > -1) this.musicians[idx] = mData; else this.musicians.push(mData);
+                            }
+                        }
+                    } catch (e) {}
+                }
             }
 
             const evtSnapshot = await db.collection('events').where('creatorId', '==', uid).get();
             evtSnapshot.forEach(doc => {
+                if (this.deletedEventIds && this.deletedEventIds.has(doc.id)) return;
                 const data = { id: doc.id, ...doc.data() };
+                if (data.isDeleted || data.deleted || data.status === 'deleted') return;
                 const idx = this.events.findIndex(e => e.id === data.id);
                 if (idx > -1) {
                     this.events[idx] = data;
@@ -2998,14 +3059,18 @@ class StateManager {
 
             // If event profileId exists directly, ensure it's loaded
             if (this.currentUser.profileId && this.currentUser.profileId.startsWith('evt_')) {
-                try {
-                    const eDoc = await db.collection('events').doc(this.currentUser.profileId).get();
-                    if (eDoc.exists) {
-                        const eData = { id: eDoc.id, ...eDoc.data() };
-                        const idx = this.events.findIndex(e => e.id === eData.id);
-                        if (idx > -1) this.events[idx] = eData; else this.events.push(eData);
-                    }
-                } catch (e) {}
+                if (!this.deletedEventIds || !this.deletedEventIds.has(this.currentUser.profileId)) {
+                    try {
+                        const eDoc = await db.collection('events').doc(this.currentUser.profileId).get();
+                        if (eDoc.exists) {
+                            const eData = { id: eDoc.id, ...eDoc.data() };
+                            if (!eData.isDeleted && !eData.deleted && eData.status !== 'deleted') {
+                                const idx = this.events.findIndex(e => e.id === eData.id);
+                                if (idx > -1) this.events[idx] = eData; else this.events.push(eData);
+                            }
+                        }
+                    } catch (e) {}
+                }
             }
 
             // Fallback for organizer: check by user email in events
@@ -3013,7 +3078,9 @@ class StateManager {
                 try {
                     const emailEvtSnap = await db.collection('events').where('email', '==', this.currentUser.email).get();
                     emailEvtSnap.forEach(doc => {
+                        if (this.deletedEventIds && this.deletedEventIds.has(doc.id)) return;
                         const data = { id: doc.id, ...doc.data() };
+                        if (data.isDeleted || data.deleted || data.status === 'deleted') return;
                         const idx = this.events.findIndex(e => e.id === data.id);
                         if (idx > -1) this.events[idx] = data; else this.events.push(data);
                     });
@@ -3022,15 +3089,16 @@ class StateManager {
 
             // AUTO-RECOVERY FOR ORGANIZER: If organizer has no events, check pendingRegistrations or auto-create initial event
             if (this.currentUser.role === 'organizer') {
-                let userEvts = this.events.filter(e => e && (e.creatorId === uid || (this.currentUser.profileId && e.id === this.currentUser.profileId) || (this.currentUser.email && e.email === this.currentUser.email)));
-                if (userEvts.length === 0 && this.currentUser.email) {
-                    const emailKey = this.currentUser.email.toLowerCase().trim();
+                let userEvts = this.events.filter(e => e && (!this.deletedEventIds || !this.deletedEventIds.has(e.id)) && (e.creatorId === uid || (this.currentUser.profileId && e.id === this.currentUser.profileId) || (this.currentUser.email && e.email === this.currentUser.email)));
+                const newProfileId = 'evt_' + uid;
+                const emailKey = this.currentUser.email ? this.currentUser.email.toLowerCase().trim() : '';
+                const isDeletedEvent = this.deletedEventIds && (this.deletedEventIds.has(newProfileId) || (emailKey && this.deletedEventIds.has(emailKey)));
+                if (userEvts.length === 0 && emailKey && !isDeletedEvent) {
                     try {
                         const pendingDoc = await db.collection('pendingRegistrations').doc(emailKey).get();
                         if (pendingDoc.exists) {
                             const pData = pendingDoc.data();
                             console.log("[GigConnAct] Auto-converting pending registration into active event for organizer:", emailKey);
-                            const newProfileId = 'evt_' + uid;
                             const restoredEvent = {
                                 id: newProfileId,
                                 creatorId: uid,
@@ -3075,53 +3143,6 @@ class StateManager {
                             this.currentUser.eventName = restoredEvent.name;
                             this.activeEventId = newProfileId;
                             await db.collection('users').doc(uid).set({ profileId: newProfileId, eventName: restoredEvent.name }, { merge: true });
-                            this.saveState();
-                        } else if (!isAdmin) {
-                            // If no pending registration and not admin, auto-create a default initial event so the organizer always has an event
-                            const newProfileId = 'evt_' + uid;
-                            const defaultEvent = {
-                                id: newProfileId,
-                                creatorId: uid,
-                                name: this.currentUser.eventName || 'Mein Event',
-                                type: 'Privates Event',
-                                eventTypes: ['Sonstiges'],
-                                musicianTypes: ['Solokünstler', 'Band'],
-                                date: '',
-                                dates: [],
-                                eventStartTime: '18:00',
-                                eventEndTime: '22:00',
-                                location: 'München',
-                                locations: ['München'],
-                                genres: ['Pop', 'Rock'],
-                                instruments: ['Gesang', 'Akustikgitarre'],
-                                minDuration: 2.0,
-                                maxDuration: 4.0,
-                                duration: 2.0,
-                                minPublikum: 50,
-                                maxPublikum: 150,
-                                publikum: '50 - 150',
-                                minBudget: 300,
-                                maxBudget: 800,
-                                budget: 300,
-                                description: 'Event-Ausschreibung',
-                                technik: ['Technik ist noch unklar'],
-                                company: this.currentUser.company || 'Privatperson',
-                                organizerType: this.currentUser.organizerType || 'Privater Veranstalter',
-                                contactName: `${this.currentUser.firstName || ''} ${this.currentUser.lastName || ''}`.trim() || 'Veranstalter',
-                                phone: this.currentUser.phone || '',
-                                hidePhone: this.currentUser.hidePhone || false,
-                                email: this.currentUser.email,
-                                isOnline: true,
-                                isActive: true,
-                                createdAt: new Date().toISOString()
-                            };
-                            await db.collection('events').doc(newProfileId).set(defaultEvent, { merge: true });
-                            const idx = this.events.findIndex(e => e.id === newProfileId);
-                            if (idx > -1) this.events[idx] = defaultEvent; else this.events.push(defaultEvent);
-                            this.currentUser.profileId = newProfileId;
-                            this.currentUser.eventName = defaultEvent.name;
-                            this.activeEventId = newProfileId;
-                            await db.collection('users').doc(uid).set({ profileId: newProfileId, eventName: defaultEvent.name }, { merge: true });
                             this.saveState();
                         }
                     } catch (recErr) {
@@ -4058,9 +4079,10 @@ class StateManager {
             const storedMusicians = localStorage.getItem('GigConnAct_musicians');
             const parsed = storedMusicians ? JSON.parse(storedMusicians) : [];
             // Preserve only genuine user-created musician profiles, never stale demo items
-            const userCreated = Array.isArray(parsed) ? parsed.filter(m => m.id && !m.id.startsWith('mus_gen_') && !initialMusicians.some(init => init.id === m.id) && !m.isDemo) : [];
-            let base = [...initialMusicians, ...userCreated];
-            this.musicians = generateRemainingMusicians(base).map(m => {
+            const userCreated = Array.isArray(parsed) ? parsed.filter(m => m && m.id && !m.id.startsWith('mus_gen_') && !initialMusicians.some(init => init.id === m.id) && !m.isDemo && (!this.deletedMusicianIds || !this.deletedMusicianIds.has(m.id))) : [];
+            const activeInitialMusicians = initialMusicians.filter(m => m && (!this.deletedMusicianIds || !this.deletedMusicianIds.has(m.id)));
+            let base = [...activeInitialMusicians, ...userCreated];
+            this.musicians = generateRemainingMusicians(base).filter(m => m && (!this.deletedMusicianIds || !this.deletedMusicianIds.has(m.id))).map(m => {
                 if (m.isActive === undefined) {
                     m.isActive = true;
                 }
@@ -4101,16 +4123,18 @@ class StateManager {
                 return m;
             });
         } catch (e) {
-            this.musicians = generateRemainingMusicians(initialMusicians);
+            const activeInitialMusicians = initialMusicians.filter(m => m && (!this.deletedMusicianIds || !this.deletedMusicianIds.has(m.id)));
+            this.musicians = generateRemainingMusicians(activeInitialMusicians).filter(m => m && (!this.deletedMusicianIds || !this.deletedMusicianIds.has(m.id)));
         }
 
         try {
             const storedEvents = localStorage.getItem('GigConnAct_events');
             const parsed = storedEvents ? JSON.parse(storedEvents) : [];
             // Preserve only genuine user-created events, never stale demo events
-            const userEvents = Array.isArray(parsed) ? parsed.filter(e => e.id && !e.id.startsWith('evt_gen_') && !initialEvents.some(init => init.id === e.id) && !e.isDemo) : [];
-            let base = [...initialEvents, ...userEvents];
-            this.events = generateRemainingEvents(base).map(e => {
+            const userEvents = Array.isArray(parsed) ? parsed.filter(e => e && e.id && !e.id.startsWith('evt_gen_') && !initialEvents.some(init => init.id === e.id) && !e.isDemo && (!this.deletedEventIds || !this.deletedEventIds.has(e.id))) : [];
+            const activeInitialEvents = initialEvents.filter(e => e && (!this.deletedEventIds || !this.deletedEventIds.has(e.id)));
+            let base = [...activeInitialEvents, ...userEvents];
+            this.events = generateRemainingEvents(base).filter(e => e && (!this.deletedEventIds || !this.deletedEventIds.has(e.id))).map(e => {
                 // Ensure minPublikum and maxPublikum exist on all events
                 if (e.minPublikum === undefined || e.minPublikum === null) {
                     e.minPublikum = [20, 50, 100, 150, 200, 300][(e.id.charCodeAt(e.id.length - 1) || 0) % 6];
@@ -4172,7 +4196,8 @@ class StateManager {
                 return e;
             });
         } catch (err) {
-            this.events = generateRemainingEvents(initialEvents).map(e => {
+            const activeInitialEvents = initialEvents.filter(e => e && (!this.deletedEventIds || !this.deletedEventIds.has(e.id)));
+            this.events = generateRemainingEvents(activeInitialEvents).filter(e => e && (!this.deletedEventIds || !this.deletedEventIds.has(e.id))).map(e => {
                 if (!e.eventStartTime) {
                     const hoursPool = [
                         { start: "14:00", end: "17:00" },
@@ -4261,8 +4286,14 @@ class StateManager {
                 isCanceled: false,
                 musicianFound: false
             };
-            this.events.push(second, third);
-            juliaEvents.push(second, third);
+            if (!this.deletedEventIds || !this.deletedEventIds.has("evt_julia_canceled")) {
+                this.events.push(second);
+                juliaEvents.push(second);
+            }
+            if (!this.deletedEventIds || !this.deletedEventIds.has("evt_julia_active")) {
+                this.events.push(third);
+                juliaEvents.push(third);
+            }
         }
 
         if (juliaEvents.length >= 3) {
@@ -4270,7 +4301,7 @@ class StateManager {
         }
 
         const contactMusicians = this.musicians.filter(m => m.creatorId === "mus_1");
-        if (contactMusicians.length === 1) {
+        if (contactMusicians.length === 1 && (!this.deletedMusicianIds || !this.deletedMusicianIds.has("mus_1_dup"))) {
             const first = contactMusicians[0];
             const second = {
                 ...JSON.parse(JSON.stringify(first)),
@@ -4350,6 +4381,12 @@ class StateManager {
             }
             localStorage.setItem('GigConnAct_interests', JSON.stringify(this.interests || []));
             localStorage.setItem('GigConnAct_favorites', JSON.stringify(this.favorites || []));
+            if (this.deletedEventIds && this.deletedEventIds.size > 0) {
+                localStorage.setItem('GigConnAct_deleted_event_ids', JSON.stringify(Array.from(this.deletedEventIds)));
+            }
+            if (this.deletedMusicianIds && this.deletedMusicianIds.size > 0) {
+                localStorage.setItem('GigConnAct_deleted_musician_ids', JSON.stringify(Array.from(this.deletedMusicianIds)));
+            }
         } catch (e) {
             console.warn("Storage write failed or blocked:", e);
         }
@@ -4365,13 +4402,13 @@ class StateManager {
             console.log("Running daily match check for", this.currentUser.id);
             let myProfiles = [];
             if (this.currentUser.role === 'musician') {
-                myProfiles = this.musicians.filter(m => m.creatorId === this.currentUser.id);
+                myProfiles = this.musicians.filter(m => m.creatorId === this.currentUser.id && m.isActive !== false && !m.isDeleted && m.status !== 'inactive');
             } else {
-                myProfiles = this.events.filter(e => e.creatorId === this.currentUser.id);
+                myProfiles = this.events.filter(e => (e.creatorId === this.currentUser.id || (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email) && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))) && (typeof isEventActive === 'function' ? isEventActive(e) : (e.isActive !== false && !e.isCanceled)));
             }
             const candidates = this.currentUser.role === 'musician' 
-                ? this.events.filter(e => e.isCanceled !== true && e.musicianFound !== true)
-                : this.musicians.filter(m => m.isActive !== false);
+                ? this.events.filter(e => typeof isEventActive === 'function' ? isEventActive(e) : (e.isActive !== false && !e.isCanceled))
+                : this.musicians.filter(m => m.isActive !== false && !m.isDeleted && m.status !== 'inactive');
                 
             const matchesKey = `GigConnAct_matches_list_${this.currentUser.id}`;
             const unreadKey = `GigConnAct_unread_matches_${this.currentUser.id}`;
@@ -4658,6 +4695,18 @@ class StateManager {
         const isAgencyDup = parts.length === 4 && parts[0] === 'evt' && parts[1] === 'agency';
         const basePrefix = isAgencyDup ? (parts[0] + '_' + parts[1] + '_' + parts[2]) : null;
 
+        // Track deleted event IDs in current session and localStorage to prevent restore
+        if (!this.deletedEventIds) this.deletedEventIds = new Set();
+        this.deletedEventIds.add(String(eventId));
+        if (basePrefix) {
+            this.deletedEventIds.add(basePrefix);
+            this.deletedEventIds.add(basePrefix + '_0');
+            this.deletedEventIds.add(basePrefix + '_1');
+        }
+        try {
+            localStorage.setItem('GigConnAct_deleted_event_ids', JSON.stringify(Array.from(this.deletedEventIds)));
+        } catch (e) {}
+
         // 1. Optimistic instant local removal
         this.events = (this.events || []).filter(e => {
             if (!e) return false;
@@ -4676,39 +4725,79 @@ class StateManager {
             window.lastActiveProfileId = this.activeEventId;
         }
 
-        // 3. Clean up favorites and interests locally
+        // 3. Clean up favorites, interests and mediations locally
         if (this.favorites) {
             this.favorites = this.favorites.filter(id => id !== eventId && (!basePrefix || !String(id).startsWith(basePrefix)));
         }
         if (this.interests) {
             this.interests = this.interests.filter(item => item && item.eventId !== eventId && (!basePrefix || !String(item.eventId).startsWith(basePrefix)));
         }
+        if (this.mediations) {
+            this.mediations = this.mediations.filter(m => {
+                if (!m) return false;
+                if (m.id === eventId || m.id === 'med_' + eventId || m.eventId === eventId) return false;
+                if (basePrefix && (m.eventId === basePrefix || m.id.includes(basePrefix))) return false;
+                return true;
+            });
+        }
 
         // 4. Save state & notify listeners immediately
         this.saveState();
         this.notify();
 
-        // 5. Fire Firestore deletions and cleanup in the background
+        // 5. Fire Firestore deletions and cleanup with safe timeout
         if (typeof db !== 'undefined' && db && db.collection) {
-            (async () => {
-                try {
+            try {
+                const fsOperations = async () => {
+                    const deletePromises = [];
+                    // Soft-delete mark first as a safeguard
+                    deletePromises.push(db.collection('events').doc(eventId).update({
+                        isDeleted: true,
+                        status: 'deleted',
+                        deleted: true,
+                        isOnline: false,
+                        isActive: false
+                    }).catch(() => {}));
+
+                    // Permanently delete event document from Firestore
+                    deletePromises.push(db.collection('events').doc(eventId).delete().catch(err => console.warn("deleteEvent Firestore write failed:", err)));
+
                     if (isAgencyDup && basePrefix) {
-                        await db.collection('events').doc(basePrefix + '_0').delete().catch(() => {});
-                        await db.collection('events').doc(basePrefix + '_1').delete().catch(() => {});
+                        deletePromises.push(db.collection('events').doc(basePrefix + '_0').delete().catch(() => {}));
+                        deletePromises.push(db.collection('events').doc(basePrefix + '_1').delete().catch(() => {}));
                     }
-                    await db.collection('events').doc(eventId).delete().catch(err => console.warn("deleteEvent Firestore write failed:", err));
 
                     if (this.currentUser && this.currentUser.id) {
-                        await db.collection('users').doc(this.currentUser.id).update({
+                        deletePromises.push(db.collection('users').doc(this.currentUser.id).update({
                             profileId: this.activeEventId
-                        }).catch(() => {});
+                        }).catch(() => {}));
+                    }
+
+                    if (this.currentUser && this.currentUser.email) {
+                        deletePromises.push(db.collection('pendingRegistrations').doc(this.currentUser.email.toLowerCase().trim()).delete().catch(() => {}));
                     }
 
                     // Expire mediations for this event
+                    deletePromises.push(db.collection('mediations').doc(eventId).update({ status: 'expired', isDeleted: true }).catch(() => {}));
+                    deletePromises.push(db.collection('mediations').doc('med_' + eventId).update({ status: 'expired', isDeleted: true }).catch(() => {}));
+                    const cleanMedId = String(eventId).replace(/^med_/, '').replace(/^evt_/, '');
+                    if (cleanMedId !== eventId) {
+                        deletePromises.push(db.collection('mediations').doc(cleanMedId).update({ status: 'expired', isDeleted: true }).catch(() => {}));
+                        deletePromises.push(db.collection('mediations').doc('med_' + cleanMedId).update({ status: 'expired', isDeleted: true }).catch(() => {}));
+                    }
+
                     const medSnap = await db.collection('mediations').where('eventId', '==', eventId).get().catch(() => null);
                     if (medSnap && !medSnap.empty) {
                         for (const d of medSnap.docs) {
-                            await db.collection('mediations').doc(d.id).update({ status: 'expired' }).catch(() => {});
+                            deletePromises.push(db.collection('mediations').doc(d.id).update({ status: 'expired', isDeleted: true }).catch(() => {}));
+                        }
+                    }
+                    if (basePrefix) {
+                        const baseMedSnap = await db.collection('mediations').where('eventId', '==', basePrefix).get().catch(() => null);
+                        if (baseMedSnap && !baseMedSnap.empty) {
+                            for (const d of baseMedSnap.docs) {
+                                deletePromises.push(db.collection('mediations').doc(d.id).update({ status: 'expired', isDeleted: true }).catch(() => {}));
+                            }
                         }
                     }
 
@@ -4716,13 +4805,21 @@ class StateManager {
                     const intSnap = await db.collection('interests').where('eventId', '==', eventId).get().catch(() => null);
                     if (intSnap && !intSnap.empty) {
                         for (const d of intSnap.docs) {
-                            await db.collection('interests').doc(d.id).delete().catch(() => {});
+                            deletePromises.push(db.collection('interests').doc(d.id).delete().catch(() => {}));
                         }
                     }
-                } catch (err) {
-                    console.error("Async deleteEvent Firestore error:", err);
-                }
-            })();
+
+                    await Promise.all(deletePromises);
+                };
+
+                // Wait up to 1500ms for network, then proceed without blocking the user
+                await Promise.race([
+                    fsOperations(),
+                    new Promise(resolve => setTimeout(resolve, 1500))
+                ]);
+            } catch (err) {
+                console.error("Async deleteEvent Firestore error:", err);
+            }
         }
 
         return { success: true };
@@ -4905,6 +5002,13 @@ class StateManager {
     async deleteMusician(musicianId) {
         if (!musicianId) return { success: false };
 
+        // Track deleted musician IDs in current session and localStorage to prevent restore
+        if (!this.deletedMusicianIds) this.deletedMusicianIds = new Set();
+        this.deletedMusicianIds.add(String(musicianId));
+        try {
+            localStorage.setItem('GigConnAct_deleted_musician_ids', JSON.stringify(Array.from(this.deletedMusicianIds)));
+        } catch (e) {}
+
         // 1. Optimistic instant local removal
         this.musicians = (this.musicians || []).filter(m => m && m.id !== musicianId);
 
@@ -4930,23 +5034,34 @@ class StateManager {
         this.saveState();
         this.notify();
 
-        // 5. Fire Firestore deletions and cleanup in the background
+        // 5. Fire Firestore deletions and cleanup with safe timeout
         if (typeof db !== 'undefined' && db && db.collection) {
-            (async () => {
-                try {
-                    await db.collection('musicians').doc(musicianId).delete().catch(err => console.error("deleteMusician Firestore write failed:", err));
+            try {
+                const fsOperations = async () => {
+                    const deletePromises = [];
+
+                    // Soft-delete mark first as a safeguard
+                    deletePromises.push(db.collection('musicians').doc(musicianId).update({
+                        isDeleted: true,
+                        status: 'deleted',
+                        deleted: true,
+                        isActive: false
+                    }).catch(() => {}));
+
+                    // Permanently delete musician document from Firestore
+                    deletePromises.push(db.collection('musicians').doc(musicianId).delete().catch(err => console.error("deleteMusician Firestore write failed:", err)));
 
                     if (this.currentUser && this.currentUser.id) {
-                        await db.collection('users').doc(this.currentUser.id).update({
+                        deletePromises.push(db.collection('users').doc(this.currentUser.id).update({
                             profileId: this.activeMusicianId
-                        }).catch(() => {});
+                        }).catch(() => {}));
                     }
 
                     // Expire any mediations referencing this musician
                     const medSnap = await db.collection('mediations').where('musicianId', '==', musicianId).get().catch(() => null);
                     if (medSnap && !medSnap.empty) {
                         for (const d of medSnap.docs) {
-                            await db.collection('mediations').doc(d.id).update({ status: 'expired' }).catch(() => {});
+                            deletePromises.push(db.collection('mediations').doc(d.id).update({ status: 'expired', isDeleted: true }).catch(() => {}));
                         }
                     }
 
@@ -4954,13 +5069,21 @@ class StateManager {
                     const intSnap = await db.collection('interests').where('musicianId', '==', musicianId).get().catch(() => null);
                     if (intSnap && !intSnap.empty) {
                         for (const d of intSnap.docs) {
-                            await db.collection('interests').doc(d.id).delete().catch(() => {});
+                            deletePromises.push(db.collection('interests').doc(d.id).delete().catch(() => {}));
                         }
                     }
-                } catch (e) {
-                    console.warn("Async Firestore cleanup for musician failed:", e);
-                }
-            })();
+
+                    await Promise.all(deletePromises);
+                };
+
+                // Wait up to 1500ms for network, then proceed without blocking the user
+                await Promise.race([
+                    fsOperations(),
+                    new Promise(resolve => setTimeout(resolve, 1500))
+                ]);
+            } catch (err) {
+                console.error("Async deleteMusician Firestore error:", err);
+            }
         }
 
         return { success: true };
@@ -6086,6 +6209,12 @@ function expandList(arr) {
         } else if (sLower === 'r&b/soul') {
             result.push('r&b');
             result.push('soul');
+        } else if (sLower === 'electro') {
+            result.push('electro');
+            result.push('elektronisch');
+        } else if (sLower === 'elektronisch') {
+            result.push('elektronisch');
+            result.push('electro');
         } else {
             result.push(sLower);
         }
@@ -6318,9 +6447,10 @@ function checkAndNotifyMatches(stateManager, showToastCallback) {
 
     if (userRole === "musician") {
         const musician = stateManager.musicians.find(m => m.id === userProfileId);
-        if (!musician) return;
+        if (!musician || musician.isActive === false || musician.isDeleted) return;
 
-        stateManager.events.forEach(event => {
+        const activeEvents = stateManager.events.filter(e => typeof isEventActive === 'function' ? isEventActive(e) : (e.isActive !== false && !e.isCanceled));
+        activeEvents.forEach(event => {
             const match = calculateMatch(musician, event, 'musician');
             if (match.score > 49) {
                 const chats = stateManager.getChatsForUser(userId);
@@ -6335,23 +6465,14 @@ function checkAndNotifyMatches(stateManager, showToastCallback) {
                 if (!alreadyNotified) {
                     const messageText = `🚨 GIG-MATCH ALERT (${match.score}% Übereinstimmung): Das Event '${event.name}' in ${event.location} am ${event.date} passt hervorragend zu Ihrem Profil! (ID: ${event.id})`;
                     stateManager.addSystemNotification(musician.id, messageText);
-                    
-                    /*
-                    if (showToastCallback) {
-                        showToastCallback({
-                            title: `Neues passendes Event! (${match.score}%)`,
-                            message: `'${event.name}' entspricht Ihren Filtern.`,
-                            actionTab: "postbox"
-                        });
-                    }
-                    */
                 }
             }
         });
     } else if (userRole === "organizer") {
-        const myEvents = stateManager.events.filter(e => e.creatorId === userId);
+        const myEvents = stateManager.events.filter(e => (e.creatorId === userId || (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(stateManager.currentUser?.email) && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))) && (typeof isEventActive === 'function' ? isEventActive(e) : (e.isActive !== false && !e.isCanceled)));
+        const activeMusicians = stateManager.musicians.filter(m => m.isActive !== false && !m.isDeleted && m.status !== 'inactive');
         myEvents.forEach(event => {
-            stateManager.musicians.forEach(musician => {
+            activeMusicians.forEach(musician => {
                 const match = calculateMatch(musician, event, 'organizer');
                 if (match.score > 49) {
                     const chats = stateManager.getChatsForUser(event.id);
@@ -6366,16 +6487,6 @@ function checkAndNotifyMatches(stateManager, showToastCallback) {
                     if (!alreadyNotified) {
                         const messageText = `🚨 MUSIKER-MATCH ALERT (${match.score}% Übereinstimmung): Der Musiker/die Band '${musician.name}' passt optimal zu Ihrem Event '${event.name}'. (ID: ${musician.id})`;
                         stateManager.addSystemNotification(event.id, messageText);
-
-                        /*
-                        if (showToastCallback) {
-                            showToastCallback({
-                                title: `Passender Musiker gefunden! (${match.score}%)`,
-                                message: `'${musician.name}' passt zu Ihrer Veranstaltung.`,
-                                actionTab: "postbox"
-                            });
-                        }
-                        */
                     }
                 }
             });
@@ -6779,13 +6890,13 @@ function renderHowItWorksContentHTML(type) {
             contentHTML = `
                 <div style="display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 0; font-family: var(--font-heading);">
                     
-                    <!-- 1. Card: Kostenlose Vermittlungsanfrage ausfüllen - OHNE ACCOUNT -->
+                    <!-- 1. Card: Kostenlose Vermittlung anfragen - OHNE ACCOUNT -->
                     <div class="flow-anim-card" onclick="window.onNavigate('musicians')" style="animation-delay: 0.3s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                         <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                             <i class="fa-solid fa-file-lines" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #2563eb;">Vermittlungsanfrage</span> ausfüllen - ohne Account & kostenlos
+                            <span style="color: #2563eb;">Vermittlung</span> anfragen - ohne Account & kostenlos
                         </h4>
                     </div>
 
@@ -6796,13 +6907,13 @@ function renderHowItWorksContentHTML(type) {
                         </div>
                     </div>
 
-                    <!-- 2. Card: Vorschläge sofort erhalten & Wunsch-Acts kontaktieren lassen -->
+                    <!-- 2. Card: Vorschläge sofort erhalten & Wunsch-Act kontaktieren lassen -->
                     <div class="flow-anim-card" onclick="window.onNavigate('musicians')" style="animation-delay: 1.8s; cursor: pointer; width: 100%; max-width: 100%; background: #ffffff; border: 1.5px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 1.1rem clamp(1rem, 4vw, 2.5rem); display: flex; align-items: center; justify-content: flex-start; gap: clamp(0.6rem, 2vw, 1.2rem); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.02); text-align: left; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.005)';" onmouseout="this.style.transform='scale(1)';">
                         <div style="width: 36px; height: 36px; border-radius: 50%; background: ${themeBadgeBg}; display: flex; align-items: center; justify-content: center; border: 1.5px solid ${themeBadgeBorder}; flex-shrink: 0; background-color: #ffffff;">
                             <i class="fa-solid fa-paper-plane" style="color: ${themeColor}; font-size: 1rem;"></i>
                         </div>
                         <h4 style="font-family: var(--font-heading); font-size: clamp(0.95rem, 3vw, 1.3rem); font-weight: 900; color: #0f172a; margin: 0; letter-spacing: 0.5px; text-align: left; flex: 1; line-height: 1.3;">
-                            <span style="color: #2563eb;">Vorschläge</span> sofort erhalten & Musiker kontaktieren lassen
+                            <span style="color: #2563eb;">Vorschläge</span> sofort erhalten & Wunsch-Act kontaktieren lassen
                         </h4>
                     </div>
 
@@ -6966,8 +7077,8 @@ window.renderInfoPage = function(container, type) {
         if (isDirektkontakt) {
             const directMusician = (state.musicians && state.musicians[0]) || {
                 id: 'info_demo_mus_direct',
-                title: 'The Sound Experience',
-                name: 'The Sound Experience',
+                title: 'Band XY',
+                name: 'Band XY',
                 category: 'Band',
                 genres: ['Pop', 'Rock', 'Charts'],
                 instruments: ['Gesang', 'Gitarre', 'Drums'],
@@ -7009,7 +7120,7 @@ window.renderInfoPage = function(container, type) {
             </div>
             <div style="display: flex; align-items: center; gap: 0.65rem; font-size: 0.86rem;">
                 <i class="fa-solid fa-user" style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; width: 18px; text-align: center;"></i>
-                <span style="font-weight: 600;">${isMusician ? 'Max Mustermann' : 'The Sound Experience'}</span>
+                <span style="font-weight: 600;">${isMusician ? 'Max Mustermann' : 'Band XY'}</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.65rem; font-size: 0.86rem;">
                 <i class="fa-solid fa-phone" style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; width: 18px; text-align: center;"></i>
@@ -7017,7 +7128,7 @@ window.renderInfoPage = function(container, type) {
             </div>
             <div style="display: flex; align-items: center; gap: 0.65rem; font-size: 0.86rem;">
                 <i class="fa-solid fa-envelope" style="color: ${isMusician ? '#7c3aed' : '#2563eb'}; width: 18px; text-align: center;"></i>
-                <span style="font-weight: 600;">${isMusician ? 'max.muster@gmail.com' : 'kontakt@gigconnact.de'}</span>
+                <span style="font-weight: 600;">${isMusician ? 'max.muster@gmx.de' : 'kontakt@gigconnact.de'}</span>
             </div>
         </div>
     `;
@@ -7054,7 +7165,7 @@ window.renderInfoPage = function(container, type) {
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.75rem;">
-                                Erstelle in wenigen Minuten Dein Musiker-Profil – <span style="color: #7c3aed; font-weight: 700;">mit Account & Abo-Modell</span> (wähle zwischen Flex, Plus, Pro oder Premium). Damit erhältst Du Zugriff auf Name, E-Mail-Adresse und Telefonnummer der Veranstalter und kannst sie direkt über GigConnAct kontaktieren.
+                                Erstelle in wenigen Minuten Dein Musiker-Profil – <span style="color: #7c3aed; font-weight: 700;">mit Account & Abo-Modell</span> (wähle zwischen Flex, Plus, Pro oder Premium). Damit erhältst Du Zugriff auf Name, E-Mail-Adresse und Telefonnummer der Veranstalter und kannst sie zudem direkt über GigConnAct kontaktieren.
                             </p>
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 1.1rem;">
                                 <strong>Wichtig:</strong> Der Direktkontakt ist nur bei Events möglich, die nicht über unsere Vermittlung eingestellt wurden.
@@ -7200,7 +7311,7 @@ window.renderInfoPage = function(container, type) {
                                     <div><strong style="color: #1e293b;">Veranstalter-Typ:</strong> Privatperson</div>
                                     <div><strong style="color: #1e293b;">Name:</strong> Max Mustermann</div>
                                     <div><strong style="color: #1e293b;">Telefon:</strong> 0123456789</div>
-                                    <div><strong style="color: #1e293b;">E-Mail:</strong> <span style="color: #7c3aed; font-weight: 600;">max.muster@gmail.com</span></div>
+                                    <div><strong style="color: #1e293b;">E-Mail:</strong> <span style="color: #7c3aed; font-weight: 600;">max.muster@gmx.de</span></div>
                                 </div>
                             </div>
 
@@ -7222,7 +7333,7 @@ window.renderInfoPage = function(container, type) {
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem 0.8rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 1rem;">
-                                Finde und filtere passende Acts für dein Event – komplett <span style="color: #2563eb; font-weight: 700;">ohne Account & kostenlos</span>.
+                                Act-Markt: Suche und filtere passende Acts für dein Event – komplett <span style="color: #2563eb; font-weight: 700;">ohne Account & kostenlos</span>.
                             </p>
                         </div>
                         <div style="position: relative; width: 100%; max-width: 440px; margin: 0 auto;">
@@ -7246,7 +7357,7 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '3.',
                     icon: 'fa-comments',
-                    title: `<span style="color: ${themeColor};">Musiker</span> kontaktieren`,
+                    title: `<span style="color: ${themeColor};">Wunsch-Act</span> kontaktieren`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
@@ -7300,7 +7411,7 @@ window.renderInfoPage = function(container, type) {
                 {
                     num: '1.',
                     icon: 'fa-file-lines',
-                    title: `<span style="color: ${themeColor};">Vermittlungsanfrage</span> ausfüllen`,
+                    title: `<span style="color: ${themeColor};">Vermittlung</span> anfragen`,
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem 0.8rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 1rem;">
@@ -7319,7 +7430,7 @@ window.renderInfoPage = function(container, type) {
                     content: `
                         <div style="text-align: left; padding: 0.2rem 0.2rem;">
                             <p style="font-family: var(--font-body); font-size: 0.92rem; color: #475569; line-height: 1.55; margin: 0 0 0.9rem;">
-                                Passende Acts bewerben sich auf dein Event. Du entscheidest in Ruhe, wer am besten zu deinem Event passt.
+                                Mithilfe der smarten Match Score Logik von GigConnAct erhältst du automatisch mit dem Einreichen der Vermittlungsanfrage 5 passende Musiker-Vorschläge. Darüber hinaus bewerben sich auch weitere Musiker auf Dein Event. Du entscheidest in Ruhe, wer am besten zu deinem Event passt.
                             </p>
 
                             <!-- Authentic GigConnAct Bewerbungen Card -->
@@ -7336,7 +7447,7 @@ window.renderInfoPage = function(container, type) {
                                                 <i class="fa-solid fa-music"></i>
                                             </div>
                                             <div>
-                                                <div style="font-family: var(--font-heading); font-size: 0.9rem; font-weight: 800; color: #0f172a;">The Sound Experience</div>
+                                                <div style="font-family: var(--font-heading); font-size: 0.9rem; font-weight: 800; color: #0f172a;">Band XY</div>
                                                 <div style="font-family: var(--font-body); font-size: 0.74rem; color: #64748b;">Band &bull; Pop / Rock &bull; Gage: 1.200 €</div>
                                             </div>
                                         </div>
@@ -7368,12 +7479,12 @@ window.renderInfoPage = function(container, type) {
                             <!-- Authentic Kontaktdaten Box Visual Organizer -->
                             <div style="background: #ffffff; border: 1.5px solid rgba(0,0,0,0.08); border-radius: 16px; padding: 1.1rem 1.25rem; box-sizing: border-box; box-shadow: 0 4px 16px rgba(0,0,0,0.03); text-align: left; margin-top: 0.85rem;">
                                 <div style="font-family: var(--font-heading); font-size: 1.05rem; font-weight: 800; color: #2563eb; margin-bottom: 0.75rem;">
-                                    Kontaktdaten des Künstlers:
+                                    Kontaktdaten des Musiker:
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 0.45rem; font-family: var(--font-body); font-size: 0.92rem; color: #334155; line-height: 1.4;">
-                                    <div><strong style="color: #1e293b;">Name:</strong> Max Mustermann</div>
+                                    <div><strong style="color: #1e293b;">Name der Band:</strong> Band XY</div>
                                     <div><strong style="color: #1e293b;">Telefon:</strong> 0123456789</div>
-                                    <div><strong style="color: #1e293b;">E-Mail:</strong> <span style="color: #2563eb; font-weight: 600;">Max.Mustermann@gmail.com</span></div>
+                                    <div><strong style="color: #1e293b;">E-Mail:</strong> <span style="color: #2563eb; font-weight: 600;">max.muster@gmx.de</span></div>
                                 </div>
                             </div>
 
@@ -7476,11 +7587,11 @@ window.renderInfoPage = function(container, type) {
             ${benefitsData.map((b, idx) => {
                 const bDelay = (4.0 + idx * 0.6).toFixed(2);
                 return `
-                    <div class="flow-anim-card" style="animation-delay: ${bDelay}s; aspect-ratio: 1 / 1; min-width: 0; overflow: hidden; background: ${benefitCardBg}; border: ${benefitCardBorder}; border-radius: 18px; box-shadow: ${benefitCardShadow}; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0.55rem clamp(0.15rem, 1vw, 0.45rem); box-sizing: border-box; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px ${isMusician ? 'rgba(124, 58, 237, 0.16)' : 'rgba(37, 99, 235, 0.16)'}';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='${benefitCardShadow}';">
-                        <div style="width: clamp(28px, 8vw, 38px); height: clamp(28px, 8vw, 38px); border-radius: 50%; background: #ffffff; border: 1.5px solid ${themeBadgeBorder}; display: flex; align-items: center; justify-content: center; margin-bottom: 0.45rem; flex-shrink: 0; box-shadow: 0 2px 6px ${isMusician ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)'};">
-                            <i class="fa-solid ${b.icon}" style="color: ${themeColor}; font-size: clamp(0.8rem, 2.4vw, 1rem);"></i>
+                    <div class="flow-anim-card" style="animation-delay: ${bDelay}s; aspect-ratio: 1 / 1; min-width: 0; overflow: hidden; background: ${benefitCardBg}; border: ${benefitCardBorder}; border-radius: 18px; box-shadow: ${benefitCardShadow}; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0.5rem clamp(0.08rem, 0.8vw, 0.35rem); box-sizing: border-box; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 24px ${isMusician ? 'rgba(124, 58, 237, 0.16)' : 'rgba(37, 99, 235, 0.16)'}';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='${benefitCardShadow}';">
+                        <div style="width: clamp(26px, 7vw, 36px); height: clamp(26px, 7vw, 36px); border-radius: 50%; background: #ffffff; border: 1.5px solid ${themeBadgeBorder}; display: flex; align-items: center; justify-content: center; margin-bottom: 0.35rem; flex-shrink: 0; box-shadow: 0 2px 6px ${isMusician ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.08)'};">
+                            <i class="fa-solid ${b.icon}" style="color: ${themeColor}; font-size: clamp(0.8rem, 2.3vw, 0.98rem);"></i>
                         </div>
-                        <span style="font-family: var(--font-heading); font-size: clamp(0.66rem, 2vw, 0.82rem); font-weight: 800; color: #0f172a; line-height: 1.25; display: block; word-break: break-word; overflow-wrap: break-word; hyphens: auto; -webkit-hyphens: auto; width: 100%;">
+                        <span style="font-family: var(--font-heading); font-size: clamp(0.72rem, 2.15vw, 0.88rem); font-weight: 800; color: #0f172a; line-height: 1.2; display: block; white-space: nowrap; width: 100%;">
                             ${b.text}
                         </span>
                     </div>
@@ -8388,6 +8499,7 @@ function renderMarket(container, type, onNavigate) {
     let isFilterActiveCurrently = false;
     let displayedItemsCount = 12;
     let showMoreMatchesUnfiltered = false;
+    let unfilteredAddedCount = 0;
 
     if (window.showSubscriptionSuccessModal) {
         window.showSubscriptionSuccessModal = false;
@@ -8501,7 +8613,7 @@ function renderMarket(container, type, onNavigate) {
         'Tänzer', 'Sonstige'
     ];
     const ALL_FILTER_GENRES = [
-        'Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 
+        'Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Techno', 'House', 
         'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 
         'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 
         'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'
@@ -9309,6 +9421,7 @@ function renderMarket(container, type, onNavigate) {
         }
         if (!keepUnfilteredState) {
             showMoreMatchesUnfiltered = false;
+            unfilteredAddedCount = 0;
         }
         if (resetPagination) {
             displayedItemsCount = 12;
@@ -9887,10 +10000,26 @@ function renderMarket(container, type, onNavigate) {
             list.unshift(targetItem);
         }
 
+        let displayList = [...list];
+        const excludedList = isFilterActiveCurrently 
+            ? unfilteredList.filter(item => !list.some(listItem => listItem.id === item.id))
+            : [];
+        if (excludedList.length > 0) {
+            excludedList.sort((a, b) => (b.matchScore !== undefined ? b.matchScore : 95) - (a.matchScore !== undefined ? a.matchScore : 95));
+        }
+
+        if (unfilteredAddedCount > 0 && isFilterActiveCurrently) {
+            const topExcluded = excludedList.slice(0, unfilteredAddedCount);
+            displayList = [...displayList, ...topExcluded];
+        }
+        const isFavoritesView = Boolean(showOnlyFavorites || window.currentMarketShowFavorites || (window.location.hash && (window.location.hash.includes('fav') || window.location.hash.includes('favorites'))) || container.querySelector('.market-page')?.classList.contains('favorites-mode'));
+        const totalMatchesCount = displayList.length;
+        const visibleList = (isFavoritesView || unfilteredAddedCount > 0) ? displayList : displayList.slice(0, displayedItemsCount);
+
         const grid = container.querySelector('#market-items-grid');
         const isLoading = isEvents ? state.loadingEvents : state.loadingMusicians;
         if (grid) {
-            if (list.length === 0 && isLoading) {
+            if (displayList.length === 0 && isLoading) {
                 grid.innerHTML = `
                     <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem;">
                         <img src="discoball.png" style="width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(124,58,237,0.25)); animation: spin 5s linear infinite;" alt="Laden...">
@@ -9898,16 +10027,6 @@ function renderMarket(container, type, onNavigate) {
                     </div>
                 `;
             } else {
-                let displayList = [...list];
-                if (showMoreMatchesUnfiltered && isFilterActiveCurrently) {
-                    const excludedList = unfilteredList.filter(item => !list.some(listItem => listItem.id === item.id));
-                    excludedList.sort((a, b) => (b.matchScore !== undefined ? b.matchScore : 95) - (a.matchScore !== undefined ? a.matchScore : 95));
-                    const top10Excluded = excludedList.slice(0, 10);
-                    displayList = [...displayList, ...top10Excluded];
-                }
-                const isFavoritesView = Boolean(showOnlyFavorites || window.currentMarketShowFavorites || (window.location.hash && (window.location.hash.includes('fav') || window.location.hash.includes('favorites'))) || container.querySelector('.market-page')?.classList.contains('favorites-mode'));
-                const totalMatchesCount = displayList.length;
-                const visibleList = isFavoritesView ? displayList : displayList.slice(0, displayedItemsCount);
                 const prevGridHeight = grid.offsetHeight;
                 const prevWindowScroll = window.scrollY || document.documentElement.scrollTop;
                 if (prevGridHeight > 0) {
@@ -9968,8 +10087,8 @@ function renderMarket(container, type, onNavigate) {
                 }
                 const themeColor = isEvents ? '#7c3aed' : '#2563eb';
                 
-                const hasMoreMatchesToPaginate = totalMatchesCount > displayedItemsCount;
-                const hasExcludedToReveal = !showMoreMatchesUnfiltered && !isFavoritesView && isFilterActiveCurrently && unfilteredList.some(item => !list.some(listItem => listItem.id === item.id));
+                const hasMoreMatchesToPaginate = (unfilteredAddedCount === 0) && (totalMatchesCount > displayedItemsCount);
+                const hasExcludedToReveal = !isFavoritesView && isFilterActiveCurrently && (excludedList.length > unfilteredAddedCount);
 
                 let actionButtonsHtml = '';
                 if (!isFavoritesView && (hasMoreMatchesToPaginate || hasExcludedToReveal)) {
@@ -9980,7 +10099,7 @@ function renderMarket(container, type, onNavigate) {
                     `;
                 }
 
-                if (!isFavoritesView && (isFilterActiveCurrently || showMoreMatchesUnfiltered)) {
+                if (!isFavoritesView && (isFilterActiveCurrently || unfilteredAddedCount > 0 || showMoreMatchesUnfiltered)) {
                     actionButtonsHtml += `
                         <button class="market-bottom-pill-btn" id="btn-market-bottom-reset">
                             <i class="fa-solid fa-rotate-right"></i> <span>Filter zurücksetzen</span>
@@ -10003,12 +10122,12 @@ function renderMarket(container, type, onNavigate) {
                 if (btnShowMoreUnfiltered) {
                     btnShowMoreUnfiltered.onclick = (e) => {
                         e.preventDefault();
-                        if (totalMatchesCount > displayedItemsCount) {
+                        if (hasMoreMatchesToPaginate) {
                             displayedItemsCount += 12;
                             applyAllFiltersAndSort(false, true);
                         } else if (hasExcludedToReveal) {
                             showMoreMatchesUnfiltered = true;
-                            displayedItemsCount += 12;
+                            unfilteredAddedCount += 10;
                             applyAllFiltersAndSort(false, true);
                         } else {
                             displayedItemsCount += 12;
@@ -10022,6 +10141,7 @@ function renderMarket(container, type, onNavigate) {
                     btnBottomReset.onclick = (e) => {
                         e.preventDefault();
                         showMoreMatchesUnfiltered = false;
+                        unfilteredAddedCount = 0;
                         const resetBtn = container.querySelector('#btn-reset-filters');
                         if (resetBtn) {
                             resetBtn.click();
@@ -10063,7 +10183,7 @@ function renderMarket(container, type, onNavigate) {
         }
         
         const countEl = container.querySelector('#market-results-count');
-        if (countEl) countEl.textContent = list.length;
+        if (countEl) countEl.textContent = displayList.length;
         
         const labelEl = container.querySelector('#market-title-label');
         if (labelEl) {
@@ -10458,6 +10578,7 @@ function renderMarket(container, type, onNavigate) {
         sortSelects.forEach(sel => sel.value = 'match');
         updateFilterIconGlow(false);
         showMoreMatchesUnfiltered = false;
+        unfilteredAddedCount = 0;
         applyAllFiltersAndSort();
     });
 
@@ -11633,16 +11754,24 @@ function renderProfilePage(container) {
     let userProfiles = [];
     let activeProfileId = '';
     if (isMusician) {
-        userProfiles = (state.musicians || []).filter(m => m && (m.creatorId === u.id || (u.profileId && m.id === u.profileId)));
+        userProfiles = (state.musicians || []).filter(m => m && 
+            !m.isDeleted && !m.deleted && m.status !== 'deleted' &&
+            (!state.deletedMusicianIds || !state.deletedMusicianIds.has(m.id)) &&
+            (m.creatorId === u.id || (u.profileId && m.id === u.profileId))
+        );
         activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || u.profileId || '');
         if (activeProfileId) state.activeMusicianId = activeProfileId;
     } else {
-        userProfiles = (state.events || []).filter(e => e && (
-            e.creatorId === u.id || 
-            (u.profileId && e.id === u.profileId) ||
-            (u.email && (e.email === u.email || e.clientEmail === u.email)) ||
-            (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
-        ));
+        userProfiles = (state.events || []).filter(e => e && 
+            !e.isDeleted && !e.deleted && e.status !== 'deleted' &&
+            (!state.deletedEventIds || !state.deletedEventIds.has(e.id)) &&
+            (
+                e.creatorId === u.id || 
+                (u.profileId && e.id === u.profileId) ||
+                (u.email && (e.email === u.email || e.clientEmail === u.email)) ||
+                (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
+            )
+        );
         activeProfileId = state.activeEventId || (userProfiles[0]?.id || u.profileId || '');
         if (activeProfileId) state.activeEventId = activeProfileId;
     }
@@ -11669,11 +11798,11 @@ function renderProfilePage(container) {
 
     container.innerHTML = `
         <div class="profile-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
-            <div class="profile-content-wrapper" style="width: 100%; max-width: 1520px; margin: 0.35rem auto 0; padding: 0 1.2rem; box-sizing: border-box;">
+            <div class="profile-content-wrapper" style="width: 100%; max-width: 1520px; margin: 2.75rem auto 0; padding: 0 1.2rem; box-sizing: border-box;">
                 <div class="portal-layout" style="display:flex; flex-direction:column; gap: 0.85rem; max-width: 800px; margin: 0 auto; padding: 0;">
 
                     <!-- Zeile über der Kachel 'Meine Musiker/Events': Links Auswahl der Profile, Rechts Ausloggebutton in rot -->
-                    <div class="profile-top-actions-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; width: 100%; margin: 0 0 0.25rem 0; flex-wrap: nowrap !important; box-sizing: border-box;">
+                    <div class="profile-top-actions-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; width: 100%; margin: 0.75rem 0 1rem 0; flex-wrap: nowrap !important; box-sizing: border-box;">
                         <!-- Links: Auswahl der Profile (Lila/Blau Button je nach Rolle, kein Icon, kein 'Profil auswählen') -->
                         <div class="profile-switcher-action-box" style="flex: 1 1 auto; min-width: 0; max-width: calc(100% - 135px); display: inline-flex; align-items: center; background: ${themeBtnBg} !important; border: 1.5px solid rgba(255, 255, 255, 0.25) !important; border-radius: 12px; height: 42px; padding: 0 0.85rem; position: relative; box-sizing: border-box; box-shadow: 0 3px 10px ${isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'};">
                             <select id="profile-page-select" style="width: 100%; min-width: 0; max-width: 100%; border: none; background: transparent; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 800; color: #ffffff !important; cursor: pointer; outline: none; margin: 0; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; appearance: none; -webkit-appearance: none; padding-right: 1.25rem; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23ffffff'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right center; background-size: 1rem;">
@@ -12480,31 +12609,39 @@ function renderMatchesPage(container) {
         container.innerHTML = `
             <div class="market-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
                 
-                <!-- Sub-Header Bar: Left = Count & Label -->
-                <div class="matches-sub-header-bar">
-                    <h1 class="matches-sub-header-title">
-                        <span id="top-matches-count">${selectedId ? '0' : '0'}</span>
-                        <span id="top-matches-label">Top-Matches</span>
-                    </h1>
+                <!-- Sub-Header Bar: Center = Count & Label matching Market/Favorites -->
+                <div class="market-sub-header-bar matches-sub-header-bar">
+                    <div class="market-sub-header-group">
+                        <div id="matches-results-header" style="display: flex; align-items: baseline; justify-content: center; gap: 0.65rem; text-align: center;">
+                            <h1 id="matches-results-title" class="market-sub-header-title matches-sub-header-title">
+                                <span id="top-matches-count">${selectedId ? '0' : '0'}</span>
+                                <span id="top-matches-label">Top-Matches</span>
+                            </h1>
+                        </div>
+                    </div>
                     <input type="hidden" id="select-profile" value="${selectedId || ''}">
                 </div>
 
                 <!-- Matches Content Wrapper -->
-                <div class="matches-content-wrapper" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0 1.2rem; box-sizing: border-box;">
-                    <!-- Matches Grid or Empty State -->
-                    ${!selectedId ? `
-                        <div class="profile-section-card" style="text-align: center; padding: 3rem 1.5rem; margin-top: 1rem;">
-                            <i class="fa-solid fa-guitar" style="font-size: 3rem; color: var(--border-glass); margin-bottom: 1rem;"></i>
-                            <h4>Erstelle zuerst ein Profil</h4>
-                            <p style="color: var(--text-muted); max-width: 400px; margin: 0.5rem auto 1.5rem;">Um Matches und passende Partner zu sehen, musst du mindestens eine Ausschreibung oder ein Musiker-Profil aktiv haben.</p>
-                            <button class="btn btn-primary" id="btn-create-profile-matches" style="margin: 0;">
-                                <i class="fa-solid fa-plus"></i> Profil erstellen
-                            </button>
+                <div class="market-content-wrapper matches-content-wrapper" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0 1.2rem; box-sizing: border-box;">
+                    <div class="market-layout-container no-filters">
+                        <div>
+                            <!-- Matches Grid or Empty State -->
+                            ${!selectedId ? `
+                                <div class="profile-section-card" style="text-align: center; padding: 3rem 1.5rem; margin-top: 0;">
+                                    <i class="fa-solid fa-guitar" style="font-size: 3rem; color: var(--border-glass); margin-bottom: 1rem;"></i>
+                                    <h4>Erstelle zuerst ein Profil</h4>
+                                    <p style="color: var(--text-muted); max-width: 400px; margin: 0.5rem auto 1.5rem;">Um Matches und passende Partner zu sehen, musst du mindestens eine Ausschreibung oder ein Musiker-Profil aktiv haben.</p>
+                                    <button class="btn btn-primary" id="btn-create-profile-matches" style="margin: 0;">
+                                        <i class="fa-solid fa-plus"></i> Profil erstellen
+                                    </button>
+                                </div>
+                            ` : `
+                                <div id="top-matches-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 388px)); gap: 2rem; width: 100%; margin-top: 0;">
+                                </div>
+                            `}
                         </div>
-                    ` : `
-                        <div id="top-matches-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 388px)); gap: 2rem; width: 100%;">
-                        </div>
-                    `}
+                    </div>
                 </div>
             </div>
         `;
@@ -12584,8 +12721,7 @@ function renderMatchesPage(container) {
                         topGrid.innerHTML = `
                             <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-glass); width: 100%;">
                                 <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
-                                <h3 style="margin-bottom: 0.5rem; color: var(--text-main);">Keine Ergebnisse gefunden</h3>
-                                <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0 auto; max-width: 400px;">Keine passenden Top-Matches gefunden (Matching-Faktor >= 70 %).</p>
+                                <h3 style="margin: 0; color: var(--text-main);">Keine Ergebnisse gefunden</h3>
                             </div>
                         `;
                     } else {
@@ -12674,13 +12810,14 @@ function renderMatchesPage(container) {
 
 function isEventActive(e) {
     if (!e) return false;
-    if (e.musicianFound || e.isCanceled) return false;
-    if (e.isActive === false) return false;
+    if (e.musicianFound || e.isCanceled || e.isDeleted || e.deleted) return false;
+    if (e.isActive === false || e.isActive === 'false' || e.status === 'inactive' || e.status === 'canceled' || e.status === 'expired' || e.status === 'deleted') return false;
     if (!e.date) return false;
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
     const eventDate = new Date(e.date);
-    eventDate.setHours(0,0,0,0);
+    eventDate.setHours(0, 0, 0, 0);
+    if (isNaN(eventDate.getTime())) return false;
     const limitDate = new Date(eventDate);
     limitDate.setDate(limitDate.getDate() + 1);
     return today <= limitDate;
@@ -12794,15 +12931,10 @@ function renderOrganizerEventItem(e, isActive) {
                     `).join('')}
 
                     <!-- Last Slide: Beschreibung -->
-                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 12px 28px 12px; box-sizing: border-box;">
-                        <div class="tile-desc-scroll-box" style="width: 100%; height: 100%; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 10px; padding: 0.45rem 0.7rem; box-sizing: border-box; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain; text-align: left;" onclick="event.stopPropagation();">
-                            <div style="display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 800; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; padding-bottom: 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); user-select: none;">
-                                <i class="fa-solid fa-align-left" style="font-size: 0.65rem; color: #60a5fa;"></i> Beschreibung
-                            </div>
-                            <p style="font-size: 0.8rem; font-weight: 400; color: #f1f5f9; line-height: 1.48; margin: 0; text-shadow: 0 1px 2px rgba(0,0,0,0.4); word-break: break-word;">
-                                ${description}
-                            </p>
-                        </div>
+                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.3rem 3.2rem 0.5rem; box-sizing: border-box; text-align: center;">
+                        <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 145px; overflow-y: auto;">
+                            ${description}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -12884,22 +13016,22 @@ function renderOrganizerEventItem(e, isActive) {
             </div>
 
             <!-- Actions Grid at the Bottom (Organizer Blue theme with white text) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #2563eb;">
-                ${isActive ? `
-                <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.6rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.35rem; background: #2563eb;">
+                <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.75rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                     <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
                 </button>
-                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                ${isActive ? `
+                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.75rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
                     <i class="fa-solid fa-pause" style="color: #ffffff;"></i> Pausieren
                 </button>
                 ` : `
-                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.75rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
                     <i class="fa-solid fa-play" style="color: #ffffff;"></i> Aktivieren
                 </button>
-                <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                `}
+                <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.75rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
                     <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
                 </button>
-                `}
             </div>
         </div>
     `;
@@ -12916,12 +13048,18 @@ function renderMyEventsContent(container) {
     }
     const u = state.currentUser;
     const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
-    const allMyEvents = state.events.filter(e => 
-        e.creatorId === u.id || 
-        (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
+    const allMyEvents = (state.events || []).filter(e => 
+        e && 
+        !e.isDeleted && !e.deleted && e.status !== 'deleted' &&
+        (!state.deletedEventIds || !state.deletedEventIds.has(e.id)) &&
+        (
+            e.creatorId === u.id || 
+            (u.email && (e.email === u.email || e.clientEmail === u.email)) ||
+            (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
+        )
     );
     const activeEvents = allMyEvents.filter(e => isEventActive(e));
-    const deactivatedEvents = allMyEvents.filter(e => !isEventActive(e));
+    const deactivatedEvents = allMyEvents.filter(e => !isEventActive(e) && !e.isDeleted && !e.deleted && e.status !== 'deleted' && (!state.deletedEventIds || !state.deletedEventIds.has(e.id)));
     const isLimitReached = allMyEvents.length >= 200;
 
 
@@ -13040,11 +13178,19 @@ function renderMyEventsContent(container) {
     });
 
     container.querySelectorAll('.btn-delete-my-event').forEach(btn => {
-        btn.addEventListener('click', async () => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            e.preventDefault();
             const id = btn.getAttribute('data-id');
             const event = state.events.find(e => e.id === id);
             const eventName = event ? event.name : 'dieses Event';
-            if (confirm(`Möchtest du das Event "${eventName}" wirklich unwiderruflich löschen?`)) {
+            let confirmed = false;
+            try {
+                confirmed = confirm(`Möchtest du das Event "${eventName}" wirklich unwiderruflich löschen?`);
+            } catch (err) {
+                confirmed = true;
+            }
+            if (confirmed) {
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Löschen...';
                 await state.deleteEvent(id);
@@ -13055,8 +13201,11 @@ function renderMyEventsContent(container) {
                 const mainContainer = document.getElementById('app-main');
                 if (window.location.hash.includes('profile')) {
                     renderProfilePage(mainContainer);
+                } else if (window.location.hash.includes('matches')) {
+                    if (typeof window.matchesUpdate === 'function') window.matchesUpdate();
+                    else if (typeof handleRouting === 'function') handleRouting();
                 } else {
-                    renderMyEvents(container);
+                    renderMyEvents(mainContainer || container);
                 }
             }
         });
@@ -13317,15 +13466,10 @@ function renderMyMusicianItem(m, isActive) {
                     `).join('')}
 
                     <!-- Last Slide: Beschreibung -->
-                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 12px 28px 12px; box-sizing: border-box;">
-                        <div class="tile-desc-scroll-box" style="width: 100%; height: 100%; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 10px; padding: 0.45rem 0.7rem; box-sizing: border-box; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain; text-align: left;" onclick="event.stopPropagation();">
-                            <div style="display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 800; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; padding-bottom: 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); user-select: none;">
-                                <i class="fa-solid fa-align-left" style="font-size: 0.65rem; color: #a78bfa;"></i> Beschreibung
-                            </div>
-                            <p style="font-size: 0.8rem; font-weight: 400; color: #f1f5f9; line-height: 1.48; margin: 0; text-shadow: 0 1px 2px rgba(0,0,0,0.4); word-break: break-word;">
-                                ${description}
-                            </p>
-                        </div>
+                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.3rem 3.2rem 0.5rem; box-sizing: border-box; text-align: center;">
+                        <p style="font-size: 0.82rem; font-weight: 500; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 145px; overflow-y: auto;">
+                            ${description}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -13406,22 +13550,22 @@ function renderMyMusicianItem(m, isActive) {
             </div>
 
             <!-- Actions Grid at the Bottom (Lila theme with white text for musicians) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; background: #7c3aed;">
-                ${isActive ? `
-                <button class="btn btn-sm btn-glass btn-edit-my-musician" data-id="${m.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.6rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.35rem; background: #7c3aed;">
+                <button class="btn btn-sm btn-glass btn-edit-my-musician" data-id="${m.id}" style="font-size: 0.75rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                     <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
                 </button>
-                <button class="btn btn-sm btn-glass btn-pause-my-musician" data-id="${m.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                ${isActive ? `
+                <button class="btn btn-sm btn-glass btn-pause-my-musician" data-id="${m.id}" style="font-size: 0.75rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
                     <i class="fa-solid fa-pause" style="color: #ffffff;"></i> Pausieren
                 </button>
                 ` : `
-                <button class="btn btn-sm btn-glass btn-pause-my-musician" data-id="${m.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                <button class="btn btn-sm btn-glass btn-pause-my-musician" data-id="${m.id}" style="font-size: 0.75rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
                     <i class="fa-solid fa-play" style="color: #ffffff;"></i> Aktivieren
                 </button>
-                <button class="btn btn-sm btn-glass btn-delete-my-musician" data-id="${m.id}" style="font-size: 0.78rem; font-weight: 700; padding: 0.45rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+                `}
+                <button class="btn btn-sm btn-glass btn-delete-my-musician" data-id="${m.id}" style="font-size: 0.75rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
                     <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
                 </button>
-                `}
             </div>
         </div>
     `;
@@ -13433,9 +13577,14 @@ function renderMyMusicians(container) {
 function renderMyMusiciansContent(container) {
     if (!state.currentUser) return;
     const u = state.currentUser;
-    const allMyMusicians = state.musicians.filter(m => m.creatorId === u.id);
-    const activeMusicians = allMyMusicians.filter(m => m.isActive !== false);
-    const deactivatedMusicians = allMyMusicians.filter(m => m.isActive === false);
+    const allMyMusicians = (state.musicians || []).filter(m => 
+        m && 
+        !m.isDeleted && !m.deleted && m.status !== 'deleted' &&
+        (!state.deletedMusicianIds || !state.deletedMusicianIds.has(m.id)) &&
+        (m.creatorId === u.id || (u.profileId && m.id === u.profileId))
+    );
+    const activeMusicians = allMyMusicians.filter(m => m.isActive !== false && !m.isDeleted && !m.deleted && m.status !== 'inactive' && m.status !== 'deleted');
+    const deactivatedMusicians = allMyMusicians.filter(m => (m.isActive === false || m.status === 'inactive') && !m.isDeleted && !m.deleted && m.status !== 'deleted' && (!state.deletedMusicianIds || !state.deletedMusicianIds.has(m.id)));
     const isLimitReached = allMyMusicians.length >= 5;
 
     container.innerHTML = `
@@ -13536,11 +13685,19 @@ function renderMyMusiciansContent(container) {
     });
 
     container.querySelectorAll('.btn-delete-my-musician').forEach(btn => {
-        btn.addEventListener('click', async () => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            e.preventDefault();
             const id = btn.getAttribute('data-id');
             const musician = state.musicians.find(m => m.id === id);
             const musicianName = musician ? musician.name : 'dieses Musiker-Profil';
-            if (confirm(`Möchtest du das Musiker-Profil "${musicianName}" wirklich unwiderruflich löschen?`)) {
+            let confirmed = false;
+            try {
+                confirmed = confirm(`Möchtest du das Musiker-Profil "${musicianName}" wirklich unwiderruflich löschen?`);
+            } catch (err) {
+                confirmed = true;
+            }
+            if (confirmed) {
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Löschen...';
                 await state.deleteMusician(id);
@@ -13551,8 +13708,11 @@ function renderMyMusiciansContent(container) {
                 const mainContainer = document.getElementById('app-main');
                 if (window.location.hash.includes('profile')) {
                     renderProfilePage(mainContainer);
+                } else if (window.location.hash.includes('matches')) {
+                    if (typeof window.matchesUpdate === 'function') window.matchesUpdate();
+                    else if (typeof handleRouting === 'function') handleRouting();
                 } else {
-                    renderMyMusicians(container);
+                    renderMyMusicians(mainContainer || container);
                 }
             }
         });
@@ -13746,7 +13906,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                             <span onclick="window.toggleSelectAll('grid-genres', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-genres">
-                            ${['Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
+                            ${['Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Techno', 'House', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
                                 const isChecked = musicianObj?.genres?.includes(g);
                                 return `
                                     <label class="tag-pill-checkbox">
@@ -13899,8 +14059,16 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
     const modalDeleteMusicianBtn = document.getElementById('btn-modal-delete-musician');
     if (modalDeleteMusicianBtn && musicianObj) {
-        modalDeleteMusicianBtn.addEventListener('click', async () => {
-            if (confirm(`Möchtest du das Musiker-Profil "${musicianObj.name}" wirklich unwiderruflich löschen?`)) {
+        modalDeleteMusicianBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            let confirmed = false;
+            try {
+                confirmed = confirm(`Möchtest du das Musiker-Profil "${musicianObj.name}" wirklich unwiderruflich löschen?`);
+            } catch (err) {
+                confirmed = true;
+            }
+            if (confirmed) {
                 modalDeleteMusicianBtn.disabled = true;
                 modalDeleteMusicianBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Löschen...';
                 await state.deleteMusician(musicianObj.id);
@@ -13912,6 +14080,9 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                 const mainContainer = document.getElementById('app-main');
                 if (window.location.hash.includes('profile')) {
                     renderProfilePage(mainContainer);
+                } else if (window.location.hash.includes('matches')) {
+                    if (typeof window.matchesUpdate === 'function') window.matchesUpdate();
+                    else if (typeof handleRouting === 'function') handleRouting();
                 } else {
                     renderMyMusicians(mainContainer);
                 }
@@ -14602,7 +14773,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                             <span onclick="window.toggleSelectAll('grid-org-genres', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-genres">
-                            ${['Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
+                            ${['Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Techno', 'House', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
                                 const isChecked = eventObj?.genres?.includes(g);
                                 return `
                                     <label class="tag-pill-checkbox">
@@ -14720,7 +14891,12 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
 
 
-                    <div style="display: flex; justify-content: center; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap; width: 100%;">
+                    <div style="display: flex; justify-content: ${isEdit ? 'space-between' : 'center'}; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap; width: 100%;">
+                        ${isEdit ? `
+                        <button type="button" id="btn-modal-delete-event" class="btn btn-glass" style="margin: 0; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
+                            <i class="fa-solid fa-trash"></i> Event löschen
+                        </button>
+                        ` : ''}
                         <button type="submit" id="btn-submit-event" class="btn btn-primary btn-event-submit" style="margin:0; padding: 0.85rem 2.5rem; font-size: 1.05rem; font-weight: 800; background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%) !important; border-color: #1e40af !important; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important; color: #ffffff !important;">
                             ${isEdit ? 'Änderungen speichern' : 'Event ausschreiben'}
                         </button>
@@ -14734,8 +14910,16 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
     const modalDeleteEventBtn = document.getElementById('btn-modal-delete-event');
     if (modalDeleteEventBtn && eventObj) {
-        modalDeleteEventBtn.addEventListener('click', async () => {
-            if (confirm(`Möchtest du das Event "${eventObj.name}" wirklich unwiderruflich löschen?`)) {
+        modalDeleteEventBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            let confirmed = false;
+            try {
+                confirmed = confirm(`Möchtest du das Event "${eventObj.name}" wirklich unwiderruflich löschen?`);
+            } catch (err) {
+                confirmed = true;
+            }
+            if (confirmed) {
                 modalDeleteEventBtn.disabled = true;
                 modalDeleteEventBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Löschen...';
                 await state.deleteEvent(eventObj.id);
@@ -14747,6 +14931,9 @@ function showEventModal(eventObj = null, isDuplication = false) {
                 const mainContainer = document.getElementById('app-main');
                 if (window.location.hash.includes('profile')) {
                     renderProfilePage(mainContainer);
+                } else if (window.location.hash.includes('matches')) {
+                    if (typeof window.matchesUpdate === 'function') window.matchesUpdate();
+                    else if (typeof handleRouting === 'function') handleRouting();
                 } else {
                     renderMyEvents(mainContainer);
                 }
@@ -15538,7 +15725,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 <span onclick="window.toggleSelectAll('grid-genres', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                             </div>
                             <div class="checkbox-tag-grid" id="grid-genres">
-                                ${['Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
+                                ${['Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Techno', 'House', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="genres" value="${g}">
                                         <span>${g}</span>
@@ -15758,7 +15945,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 <span onclick="window.toggleSelectAll('grid-org-genres', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                             </div>
                             <div class="checkbox-tag-grid" id="grid-org-genres">
-                                ${['Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
+                                ${['Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Techno', 'House', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgGenres" value="${g}">
                                         <span>${g}</span>
@@ -17813,9 +18000,6 @@ function navigateAfterLogin() {
             }
         } else {
             window.location.hash = target;
-            if (typeof handleRouting === 'function') {
-                handleRouting();
-            }
         }
     } else {
         navigate('');
@@ -19537,58 +19721,67 @@ function initGigConnActApp() {
         });
     }
 
+    let userStateDebounceTimer = null;
     document.addEventListener('user-state-changed', () => {
         if (window.isTogglingFavorite) {
             console.log('[DEBUG] user-state-changed ignored because isTogglingFavorite is true');
             return;
         }
-        console.log('[DEBUG] user-state-changed event received. activeMusicianId:', state.activeMusicianId, 'activeEventId:', state.activeEventId);
-        if (typeof updateNavbar === 'function') updateNavbar();
-        if (typeof window.updateBottomBar === 'function') window.updateBottomBar();
-        if (typeof window.updateBodyBackground === 'function') {
-            window.updateBodyBackground(window.location.hash.replace('#', '').split('?')[0]);
+
+        if (userStateDebounceTimer) {
+            clearTimeout(userStateDebounceTimer);
         }
-        
-        const currentHash = window.location.hash;
-        const isUserSame = window.lastUserSessionId === (state && state.currentUser ? state.currentUser.id : null);
-        console.log('[DEBUG] user-state-changed info - currentHash:', currentHash, 'isUserSame:', isUserSame, 'lastUserSessionId:', window.lastUserSessionId);
-        
-        const activeMusicianIdChanged = window.lastActiveMusicianId !== (state ? state.activeMusicianId : null);
-        const activeEventIdChanged = window.lastActiveEventId !== (state ? state.activeEventId : null);
-        const activeProfileChanged = activeMusicianIdChanged || activeEventIdChanged;
-        console.log('[DEBUG] user-state-changed: activeProfileChanged =', activeProfileChanged);
 
-        const isMarketPage = document.getElementById('market-items-grid') !== null;
+        userStateDebounceTimer = setTimeout(() => {
+            userStateDebounceTimer = null;
+            console.log('[DEBUG] user-state-changed event received. activeMusicianId:', state.activeMusicianId, 'activeEventId:', state.activeEventId);
+            if (typeof updateNavbar === 'function') updateNavbar();
+            if (typeof window.updateBottomBar === 'function') window.updateBottomBar();
+            if (typeof window.updateBodyBackground === 'function') {
+                window.updateBodyBackground(window.location.hash.replace('#', '').split('?')[0]);
+            }
+            
+            const currentHash = window.location.hash;
+            const isUserSame = window.lastUserSessionId === (state && state.currentUser ? state.currentUser.id : null);
+            console.log('[DEBUG] user-state-changed info - currentHash:', currentHash, 'isUserSame:', isUserSame, 'lastUserSessionId:', window.lastUserSessionId);
+            
+            const activeMusicianIdChanged = window.lastActiveMusicianId !== (state ? state.activeMusicianId : null);
+            const activeEventIdChanged = window.lastActiveEventId !== (state ? state.activeEventId : null);
+            const activeProfileChanged = activeMusicianIdChanged || activeEventIdChanged;
+            console.log('[DEBUG] user-state-changed: activeProfileChanged =', activeProfileChanged);
 
-        if (currentHash.includes('matches')) {
-            if (isUserSame) {
-                if (activeProfileChanged && typeof window.matchesUpdate === 'function') {
-                    console.log('[DEBUG] user-state-changed on matches: calling window.matchesUpdate()');
-                    window.matchesUpdate();
+            const isMarketPage = document.getElementById('market-items-grid') !== null;
+
+            if (currentHash.includes('matches')) {
+                if (isUserSame) {
+                    if (activeProfileChanged && typeof window.matchesUpdate === 'function') {
+                        console.log('[DEBUG] user-state-changed on matches: calling window.matchesUpdate()');
+                        window.matchesUpdate();
+                    }
+                    runMatchingMonitor();
+                    return;
                 }
-                runMatchingMonitor();
-                return;
             }
-        }
 
-        if (currentHash.includes('postbox')) {
-            if (isUserSame) {
-                console.log('[DEBUG] user-state-changed on postbox: user is same, skipping handleRouting()');
-                runMatchingMonitor();
-                return;
+            if (currentHash.includes('postbox')) {
+                if (isUserSame) {
+                    console.log('[DEBUG] user-state-changed on postbox: user is same, skipping handleRouting()');
+                    runMatchingMonitor();
+                    return;
+                }
             }
-        }
 
-        if (!activeProfileChanged && isUserSame && isMarketPage) {
-            if (typeof window.marketApplyFilters === 'function') {
-                console.log('[DEBUG] user-state-changed: calling window.marketApplyFilters()');
-                window.marketApplyFilters();
+            if (!activeProfileChanged && isUserSame && isMarketPage) {
+                if (typeof window.marketApplyFilters === 'function') {
+                    console.log('[DEBUG] user-state-changed: calling window.marketApplyFilters()');
+                    window.marketApplyFilters();
+                }
+            } else {
+                console.log('[DEBUG] user-state-changed: calling handleRouting()');
+                if (typeof handleRouting === 'function') handleRouting();
             }
-        } else {
-            console.log('[DEBUG] user-state-changed: calling handleRouting()');
-            if (typeof handleRouting === 'function') handleRouting();
-        }
-        runMatchingMonitor();
+            runMatchingMonitor();
+        }, 50);
     });
 
     function runMatchingMonitor() {
@@ -19800,17 +19993,21 @@ function renderPostbox(container) {
             window.postboxShowFilters = window.postboxShowFilters !== undefined ? window.postboxShowFilters : false;
 
             container.innerHTML = `
-            <div class="postbox-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box; overflow-x: clip;">
-                <!-- Postbox Sub-Header: Left = Count & Label -->
-                <div class="postbox-sub-header-bar">
-                    <h1 class="postbox-sub-header-title">
-                        <span id="postbox-count">${unreadChatCount}</span>
-                        <span id="postbox-title-label">${unreadChatCount === 1 ? 'Nachricht' : 'Nachrichten'}</span>
-                    </h1>
+            <div class="market-page postbox-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
+                <!-- Postbox Sub-Header: Center = Count & Label matching Market/Favorites -->
+                <div class="market-sub-header-bar postbox-sub-header-bar">
+                    <div class="market-sub-header-group">
+                        <div id="postbox-results-header" style="display: flex; align-items: baseline; justify-content: center; gap: 0.65rem; text-align: center;">
+                            <h1 id="postbox-results-title" class="market-sub-header-title postbox-sub-header-title">
+                                <span id="postbox-count">${unreadChatCount}</span>
+                                <span id="postbox-title-label">${unreadChatCount === 1 ? 'Nachricht' : 'Nachrichten'}</span>
+                            </h1>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="postbox-content-wrapper" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0 1.2rem; box-sizing: border-box;">
-                    <div class="portal-layout ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="display: flex !important; flex-direction: row !important; gap: 1.5rem; height: calc(100vh - 220px); min-height: 600px; width: 100%; max-width: 100%; box-sizing: border-box;">
+                <div class="market-content-wrapper postbox-content-wrapper" style="width: 100%; max-width: 1520px; margin: 0 auto; padding: 0 1.2rem; box-sizing: border-box;">
+                    <div class="portal-layout ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="display: flex !important; flex-direction: row !important; gap: 1.5rem; height: calc(100vh - 220px); min-height: 600px; width: 100%; max-width: 100%; box-sizing: border-box; margin-top: 0 !important;">
                     
                     <!-- Left Sidebar: Categories & Chat Threads List -->
                     <div class="postbox-sidebar" style="width: 340px; max-width: 100%; flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-sm); height: 100%; box-sizing: border-box;">
@@ -20676,7 +20873,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                             <span onclick="window.toggleSelectAll('grid-org-genres', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-genres">
-                            ${['Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
+                            ${['Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Techno', 'House', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                 <label class="tag-pill-checkbox">
                                     <input type="checkbox" name="orgGenres" value="${g}" ${filterGenres.includes(g) ? 'checked' : ''}>
                                     <span>${g}</span>
@@ -21596,15 +21793,10 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                         `).join('')}
 
                         <!-- Last Slide: Beschreibung (schwarz mit weisser Schrift) -->
-                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 12px 28px 12px; box-sizing: border-box;">
-                            <div class="tile-desc-scroll-box" style="width: 100%; height: 100%; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 10px; padding: 0.45rem 0.7rem; box-sizing: border-box; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain; text-align: left;" onclick="event.stopPropagation();">
-                                <div style="display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 800; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; padding-bottom: 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); user-select: none;">
-                                    <i class="fa-solid fa-align-left" style="font-size: 0.65rem; color: ${isEvents ? '#a78bfa' : '#60a5fa'};"></i> Beschreibung
-                                </div>
-                                <p style="font-size: 0.8rem; font-weight: 400; color: #f1f5f9; line-height: 1.48; margin: 0; text-shadow: 0 1px 2px rgba(0,0,0,0.4); word-break: break-word;">
-                                    ${description}
-                                </p>
-                            </div>
+                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.3rem 4.2rem 0.5rem; box-sizing: border-box; text-align: center;">
+                            <p style="font-size: 0.84rem; font-weight: 500; color: #f8fafc; line-height: 1.5; margin: 0; max-height: 145px; overflow-y: auto; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
+                                ${description}
+                            </p>
                         </div>
                     </div>
 
@@ -23563,7 +23755,6 @@ window.renderDatenschutzPage = renderDatenschutzPage;
     document.addEventListener('mousedown', (e) => {
         const sliderContainer = e.target.closest('.tile-fullwidth-photo-slider');
         if (!sliderContainer) return;
-        if (e.target.closest('.tile-desc-scroll-box')) return;
         startX = e.clientX;
         startY = e.clientY;
         isSwiping = true;
@@ -24154,13 +24345,8 @@ window.renderRecommendationPage = async function(container, mediationId) {
                                                 </audio>
                                             </div>
                                         `).join('')}
-                                        <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 12px 28px 12px; box-sizing: border-box;">
-                                            <div class="tile-desc-scroll-box" style="width: 100%; height: 100%; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 10px; padding: 0.45rem 0.7rem; box-sizing: border-box; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain; text-align: left;" onclick="event.stopPropagation();">
-                                                <div style="display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 800; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; padding-bottom: 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); user-select: none;">
-                                                    <i class="fa-solid fa-align-left" style="font-size: 0.65rem; color: #60a5fa;"></i> Beschreibung
-                                                </div>
-                                                <p style="font-size: 0.8rem; font-weight: 400; color: #f1f5f9; line-height: 1.48; margin: 0; text-shadow: 0 1px 2px rgba(0,0,0,0.4); word-break: break-word;">${mus.bio || mus.description || ''}</p>
-                                            </div>
+                                        <div style="width: 100%; height: 100%; flex-shrink: 0; background: #0f172a; padding: 1rem 2.5rem; box-sizing: border-box; text-align: center; display: flex; align-items: center; justify-content: center;">
+                                            <p style="font-size: 0.82rem; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 140px; overflow-y: auto;">${mus.bio || mus.description || ''}</p>
                                         </div>
                                     </div>
                                     <div class="tile-gallery-dots" id="combo-dots-${mus.id}" data-theme="#2563eb" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center;">
@@ -24703,13 +24889,8 @@ window.renderMediationResponsePage = function(container, mediationId) {
                                             </video>
                                         </div>
                                     `).join('')}
-                                    <div style="width: 100%; height: 100%; flex-shrink: 0; position: relative; background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 8px 12px 28px 12px; box-sizing: border-box;">
-                                        <div class="tile-desc-scroll-box" style="width: 100%; height: 100%; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 10px; padding: 0.45rem 0.7rem; box-sizing: border-box; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; overscroll-behavior: contain; text-align: left;" onclick="event.stopPropagation();">
-                                            <div style="display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-size: 0.68rem; font-weight: 800; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; padding-bottom: 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.1); user-select: none;">
-                                                <i class="fa-solid fa-align-left" style="font-size: 0.65rem; color: #a78bfa;"></i> Beschreibung
-                                            </div>
-                                            <p style="font-size: 0.8rem; font-weight: 400; color: #f1f5f9; line-height: 1.48; margin: 0; text-shadow: 0 1px 2px rgba(0,0,0,0.4); word-break: break-word;">${window.cleanEventDescription(eventData.description, true) || 'Keine Beschreibung vorhanden.'}</p>
-                                        </div>
+                                    <div style="width: 100%; height: 100%; flex-shrink: 0; background: #0f172a; padding: 1rem 2.5rem; box-sizing: border-box; text-align: center; display: flex; align-items: center; justify-content: center;">
+                                        <p style="font-size: 0.82rem; color: #f8fafc; line-height: 1.45; margin: 0; max-height: 140px; overflow-y: auto;">${window.cleanEventDescription(eventData.description, true) || 'Keine Beschreibung vorhanden.'}</p>
                                     </div>
                                 </div>
                                 <div class="tile-gallery-dots" id="combo-dots-${eventData.id}" data-theme="#7c3aed" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; justify-content: center; gap: 6px; align-items: center;">

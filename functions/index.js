@@ -213,6 +213,33 @@ function getEstimatedDistance(city1, city2) {
     return minDistance;
 }
 
+function isEventActive(e) {
+    if (!e) return false;
+    if (e.isActive === false || e.isActive === 'false') return false;
+    if (e.isCanceled || e.musicianFound || e.isDeleted || e.deleted) return false;
+    if (e.status === 'inactive' || e.status === 'canceled' || e.status === 'expired' || e.status === 'deleted') return false;
+    if (e.date) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const eventDate = new Date(e.date);
+        eventDate.setHours(0, 0, 0, 0);
+        if (!isNaN(eventDate.getTime())) {
+            const limitDate = new Date(eventDate);
+            limitDate.setDate(limitDate.getDate() + 1);
+            if (today > limitDate) return false;
+        }
+    }
+    return true;
+}
+
+function isMusicianActive(m) {
+    if (!m) return false;
+    if (m.isActive === false || m.isActive === 'false') return false;
+    if (m.isDeleted || m.deleted) return false;
+    if (m.status === 'inactive' || m.status === 'deleted') return false;
+    return true;
+}
+
 // Helper to calculate match score matching frontend calculateMatch logic
 function calculateMatch(musician, event, searcherRole = 'musician') {
     if (!musician || !event) return 0;
@@ -252,7 +279,13 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
     const evGenres = event.genres || [];
     const musGenres = musician.genres || [];
     if (evGenres.length > 0) {
-        const commonGenres = evGenres.filter(g => musGenres.some(mg => String(mg).toLowerCase() === String(g).toLowerCase()));
+        const commonGenres = evGenres.filter(g => musGenres.some(mg => {
+            const mgL = String(mg).trim().toLowerCase();
+            const gL = String(g).trim().toLowerCase();
+            if (mgL === gL) return true;
+            if ((mgL === 'electro' && gL === 'elektronisch') || (mgL === 'elektronisch' && gL === 'electro')) return true;
+            return false;
+        }));
         genresScore = (commonGenres.length / evGenres.length) * 20;
     }
 
@@ -435,18 +468,18 @@ exports.dailyRadiusAlertsCheck = functions
 
         const musicians = [];
         musiciansSnapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.isActive !== false) musicians.push(data);
+            const data = { id: doc.id, ...doc.data() };
+            if (isMusicianActive(data)) musicians.push(data);
         });
 
         const events = [];
         eventsSnapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.isActive !== false) events.push(data);
+            const data = { id: doc.id, ...doc.data() };
+            if (isEventActive(data)) events.push(data);
         });
 
-        // Neue Gigs (in den letzten 24 Stunden erstellt)
-        const newEvents = events.filter(e => e.createdAt && new Date(e.createdAt) >= oneDayAgo);
+        // Neue Gigs (in den letzten 24 Stunden erstellt und aktiv)
+        const newEvents = events.filter(e => isEventActive(e) && e.createdAt && new Date(e.createdAt) >= oneDayAgo);
         
         if (newEvents.length === 0) {
             console.log("Keine neuen Events in den letzten 24 Stunden.");
@@ -456,9 +489,11 @@ exports.dailyRadiusAlertsCheck = functions
         console.log(`Starte täglichen Umkreis-Check um 17:00 Uhr. Neue Events: ${newEvents.length}`);
 
         const mailPromises = musicians.map(async (musician) => {
+            if (!isMusicianActive(musician)) return null;
             const matchedEvents = [];
             
             newEvents.forEach(event => {
+                if (!isEventActive(event)) return;
                 const distance = getEstimatedDistance(musician.location, event.location);
                 const travelRadius = musician.radius || 100; // Default 100km
                 if (distance <= travelRadius) {
@@ -502,28 +537,30 @@ exports.dailyTopMatchesCheck = functions
 
         const musicians = [];
         musiciansSnapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.isActive !== false) musicians.push(data);
+            const data = { id: doc.id, ...doc.data() };
+            if (isMusicianActive(data)) musicians.push(data);
         });
 
         const events = [];
         eventsSnapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.isActive !== false) events.push(data);
+            const data = { id: doc.id, ...doc.data() };
+            if (isEventActive(data)) events.push(data);
         });
 
-        // Neue Gigs (in den letzten 24 Stunden erstellt)
-        const newEvents = events.filter(e => e.createdAt && new Date(e.createdAt) >= oneDayAgo);
+        // Neue Gigs (in den letzten 24 Stunden erstellt und aktiv)
+        const newEvents = events.filter(e => isEventActive(e) && e.createdAt && new Date(e.createdAt) >= oneDayAgo);
         
-        // Neue Musiker (in den letzten 24 Stunden erstellt)
-        const newMusicians = musicians.filter(m => m.createdAt && new Date(m.createdAt) >= oneDayAgo);
+        // Neue Musiker (in den letzten 24 Stunden erstellt und aktiv)
+        const newMusicians = musicians.filter(m => isMusicianActive(m) && m.createdAt && new Date(m.createdAt) >= oneDayAgo);
 
         console.log(`Starte täglichen Match-Check. Neue Events: ${newEvents.length}, Neue Musiker: ${newMusicians.length}`);
 
         // A. Neue Top-Matches für Musiker ermitteln (neue Events der letzten 24h mit Score >= 70)
         const musicianPromises = musicians.map(async (musician) => {
+            if (!isMusicianActive(musician)) return;
             const topMatches = [];
             newEvents.forEach(event => {
+                if (!isEventActive(event)) return;
                 const score = calculateMatch(musician, event, 'musician');
                 if (score >= 70) {
                     topMatches.push({ ...event, matchScore: score });
@@ -533,7 +570,7 @@ exports.dailyTopMatchesCheck = functions
             if (topMatches.length > 0) {
                 const userDetails = await getUserDetails(musician.id);
                 if (userDetails && userDetails.email) {
-                    const subject = `Neue passende Gigs auf GigConnAct (${topMatches.length} Vorschlag${topMatches.length > 1 ? 'e' : ''})`;
+                    const subject = `Neue Top-Matches auf GigConnAct (${topMatches.length} Vorschlag${topMatches.length > 1 ? 'e' : ''})`;
                     const html = getTopMatchEmailHtml({
                         userName: userDetails.name,
                         role: 'musician',
@@ -555,8 +592,10 @@ exports.dailyTopMatchesCheck = functions
 
         // B. Neue Top-Matches für Veranstalter ermitteln (neue Musiker der letzten 24h mit Score >= 70)
         const organizerPromises = events.map(async (event) => {
+            if (!isEventActive(event)) return;
             const topMatches = [];
             newMusicians.forEach(musician => {
+                if (!isMusicianActive(musician)) return;
                 const score = calculateMatch(musician, event, 'organizer');
                 if (score >= 70) {
                     topMatches.push({ ...musician, matchScore: score });
@@ -569,7 +608,7 @@ exports.dailyTopMatchesCheck = functions
                 if (creatorId) {
                     const userDetails = await getUserDetails(creatorId);
                     if (userDetails && userDetails.email) {
-                        const subject = `Neue passende Musiker für dein Event (${topMatches.length} Profil${topMatches.length > 1 ? 'e' : ''})`;
+                        const subject = `Neue Top-Matches für dein Event (${topMatches.length} Profil${topMatches.length > 1 ? 'e' : ''})`;
                         const html = getTopMatchEmailHtml({
                             userName: userDetails.name,
                             role: 'organizer',

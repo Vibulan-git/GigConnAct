@@ -4343,25 +4343,6 @@ body.theme-organizer .market-filter-card .tag-pill-checkbox.active span {
     }
 }
 
-/* Delimited scrollable description window inside slider */
-.tile-desc-scroll-box {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
-}
-.tile-desc-scroll-box::-webkit-scrollbar {
-    width: 4px;
-}
-.tile-desc-scroll-box::-webkit-scrollbar-track {
-    background: transparent;
-}
-.tile-desc-scroll-box::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.4);
-    border-radius: 4px;
-}
-.tile-desc-scroll-box::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.7);
-}
-
 /* Fullscreen Gallery Lightbox Animations */
 @keyframes fadeInGallery {
     from { opacity: 0; transform: scale(0.97); }
@@ -5213,7 +5194,9 @@ input[type="range"].input-field {
 }
 
 @media (max-width: 480px) {
-    .market-sub-header-title {
+    .market-sub-header-title,
+    .matches-sub-header-title,
+    .postbox-sub-header-title {
         font-size: clamp(1.4rem, 5.2vw, 1.85rem) !important;
     }
     .market-inline-filter-btn {
@@ -5296,11 +5279,13 @@ input[type="range"].input-field {
 }
 
 @media (max-width: 650px) {
-    .market-sub-header-bar {
+    .market-sub-header-bar,
+    .matches-sub-header-bar,
+    .postbox-sub-header-bar {
         position: relative !important;
         flex-direction: row !important;
         padding: 0 0.8rem !important;
-        margin: 1rem auto 0.75rem;
+        margin: 1rem auto 0.75rem !important;
     }
     .market-filter-action-area {
         position: absolute !important;
@@ -7416,6 +7401,7 @@ body.theme-organizer .tile-type-flag span[style*="color"],
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 388px)) !important;
     gap: 2rem !important;
     width: 100% !important;
+    margin-top: 0 !important;
 }
 
 #top-matches-grid .market-tile-card {
@@ -7427,15 +7413,19 @@ body.theme-organizer .tile-type-flag span[style*="color"],
 @media (max-width: 900px) {
     #top-matches-grid {
         grid-template-columns: 1fr !important;
-        gap: 1.25rem !important;
+        gap: 1rem !important;
     }
+}
+
+.postbox-page .portal-layout {
+    margin-top: 0 !important;
 }
 
 /* =============================================================
  * Profile Page: Position 'Meine Musiker/Events' Higher Up
  * ============================================================= */
 .profile-page .profile-content-wrapper {
-    margin: 0.35rem auto 0 !important;
+    margin: 2.75rem auto 0 !important;
     padding-top: 0 !important;
 }
 
@@ -7444,7 +7434,7 @@ body.theme-organizer .tile-type-flag span[style*="color"],
 }
 
 .profile-page .profile-top-actions-bar {
-    margin: 0 0 0.25rem 0 !important;
+    margin: 0.75rem 0 1rem 0 !important;
 }
 
 #profile-my-items-container {
@@ -7461,9 +7451,12 @@ body.theme-organizer .tile-type-flag span[style*="color"],
 
 @media (max-width: 600px) {
     .profile-page .profile-content-wrapper {
-        margin: 0.2rem auto 0 !important;
+        margin: 2.25rem auto 0 !important;
         padding-left: 0.8rem !important;
         padding-right: 0.8rem !important;
+    }
+    .profile-page .profile-top-actions-bar {
+        margin: 0.6rem 0 0.85rem 0 !important;
     }
 }
 

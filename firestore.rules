@@ -38,6 +38,7 @@ service cloud.firestore {
       allow create: if request.auth != null && request.resource.data.creatorId == request.auth.uid;
       allow update, delete: if request.auth != null && (
         resource.data.creatorId == request.auth.uid ||
+        resource.data.email == request.auth.token.email ||
         request.auth.token.email in ['info@gigconnact.de', 'gigconnact@gmail.com']
       );
     }

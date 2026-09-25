@@ -220,10 +220,10 @@ module.exports = function getTopMatchEmailHtml({ userName, role, profileName, ma
  
     const pName = profileName || (isOrganizer ? 'dein Event' : 'dein Profil');
     const headingText = isOrganizer 
-        ? `Neue passende Musiker für dein Event "${pName}"! 🌟` 
+        ? `Neue Top-Matches für dein Event "${pName}"! 🌟` 
         : `Deine neuen Top-Matches für "${pName}"! 🌟`;
     const subHeadingText = isOrganizer 
-        ? `wir haben neue passende Musiker-Profile der letzten 24 Stunden auf dem Markt für dein Event <strong>"${pName}"</strong> gefunden:`
+        ? `wir haben neue Top-Matches der letzten 24 Stunden auf dem Markt für dein Event <strong>"${pName}"</strong> gefunden:`
         : `wir haben neue Top-Matches der letzten 24 Stunden auf dem Markt für <strong>"${pName}"</strong> gefunden:`;
  
     return `
