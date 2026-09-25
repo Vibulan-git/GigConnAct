@@ -3327,72 +3327,42 @@ exports.deleteMarketItemPermanently = functions
         return { success: true, id, type };
     });
 
-// Helper cleanup logic for market items
+// Helper cleanup logic for market items (only strictly deleted items)
 async function executeMarketItemsCleanupInternal() {
-    const targetIds = [
-        'evt_wfHYMznaD1bfcNEqUpuLLD7oxsE2',
-        'evt_agency_1789803826555_0',
-        'evt_1787224717872_538',
-        'evt_agency_1790010880569_0',
-        'mus_1790014503357_43',
-        'mus_xXg9iF4oHpOrQnuJzHX3kk7F1Yg1'
-    ];
-
     let deletedCount = 0;
     const db = admin.firestore();
 
-    // 1. Delete specific known ghost test items
-    for (const tid of targetIds) {
-        if (tid.startsWith('evt_')) {
-            await db.collection('events').doc(tid).delete().catch(() => {});
-            await db.collection('mediations').doc(tid).delete().catch(() => {});
-            deletedCount++;
-        } else if (tid.startsWith('mus_')) {
-            await db.collection('musicians').doc(tid).delete().catch(() => {});
-            deletedCount++;
-        }
-    }
-
-    // 2. Query any events marked deleted or with test titles
+    // 1. Query any events marked deleted
     const evtSnap = await db.collection('events').get();
     for (const doc of evtSnap.docs) {
         const d = doc.data();
-        const isTestTitle = Boolean(d.name && (d.name.includes('(Test)') || d.name.includes('Test')));
         const isDeleted = d.isDeleted === true || d.deleted === true || d.status === 'deleted';
-        const isTestUser = d.email === 'vibu.music22@gmail.com' || d.clientEmail === 'vibu.music22@gmail.com' || d.creatorId === 'wfHYMznaD1bfcNEqUpuLLD7oxsE2';
-
-        if (isDeleted || (isTestTitle && isTestUser)) {
-            console.log(`[cleanup] Deleting event ${doc.id}: ${d.name}`);
+        if (isDeleted) {
+            console.log(`[cleanup] Deleting soft-deleted event ${doc.id}: ${d.name}`);
             await doc.ref.delete().catch(() => {});
             deletedCount++;
         }
     }
 
-    // 3. Query any musicians marked deleted or with test titles
+    // 2. Query any musicians marked deleted
     const musSnap = await db.collection('musicians').get();
     for (const doc of musSnap.docs) {
         const d = doc.data();
-        const isTestTitle = Boolean(d.name && (d.name.includes('(Test)') || d.name.includes('Test')));
         const isDeleted = d.isDeleted === true || d.deleted === true || d.status === 'deleted';
-        const isTestUser = d.email === 'vibu.music22@gmail.com' || d.creatorId === 'xXg9iF4oHpOrQnuJzHX3kk7F1Yg1';
-
-        if (isDeleted || (isTestTitle && isTestUser)) {
-            console.log(`[cleanup] Deleting musician ${doc.id}: ${d.name}`);
+        if (isDeleted) {
+            console.log(`[cleanup] Deleting soft-deleted musician ${doc.id}: ${d.name}`);
             await doc.ref.delete().catch(() => {});
             deletedCount++;
         }
     }
 
-    // 4. Query mediations for test events
+    // 3. Query mediations marked deleted or expired
     const medSnap = await db.collection('mediations').get();
     for (const doc of medSnap.docs) {
         const d = doc.data();
-        const isTestName = Boolean(d.eventName && (d.eventName.includes('(Test)') || d.eventName.includes('Test')));
         const isDeleted = d.isDeleted === true || d.deleted === true || d.status === 'deleted' || d.status === 'expired';
-        const isTestEmail = d.organizerEmail === 'vibu.music22@gmail.com';
-
-        if (isDeleted || (isTestName && isTestEmail)) {
-            console.log(`[cleanup] Deleting mediation ${doc.id}: ${d.eventName}`);
+        if (isDeleted) {
+            console.log(`[cleanup] Deleting expired/deleted mediation ${doc.id}: ${d.eventName}`);
             await doc.ref.delete().catch(() => {});
             deletedCount++;
         }
@@ -3419,6 +3389,82 @@ exports.cleanupMarketItemsHttp = functions
         }
         const result = await executeMarketItemsCleanupInternal();
         res.json(result);
+    });
+
+// RESTORE: Restore user musician profiles
+exports.restoreMusicianProfilesHttp = functions
+    .region('europe-west3')
+    .https.onRequest(async (req, res) => {
+        const key = req.query.key || (req.body && req.body.key);
+        if (key !== 'gigconnact_clean_2026') {
+            res.status(403).send('Forbidden');
+            return;
+        }
+
+        const db = admin.firestore();
+        const p1 = {
+            id: 'mus_xXg9iF4oHpOrQnuJzHX3kk7F1Yg1',
+            creatorId: 'xXg9iF4oHpOrQnuJzHX3kk7F1Yg1',
+            email: 'vibulan22@gmail.com',
+            name: 'MIAMI PINK',
+            contactName: 'Vibulan',
+            type: 'Band',
+            genres: ['Pop', 'Rock', 'Charts', 'Party'],
+            instruments: ['Gesang', 'Gitarre', 'Bass', 'Schlagzeug', 'Keyboard'],
+            location: 'Köln',
+            locations: ['Köln (50667)'],
+            radius: 100,
+            minBudget: 500,
+            maxBudget: 2500,
+            minPublikum: 50,
+            maxPublikum: 500,
+            minDuration: 1,
+            maxDuration: 5,
+            description: 'MIAMI PINK - Die energiegeladene Live-Band für unvergessliche Events und Partys.',
+            photos: [],
+            videos: [],
+            audio: [],
+            socialLinks: { spotify: '', youtube: '', instagram: '' },
+            isActive: true,
+            favorites: [],
+            createdAt: new Date().toISOString()
+        };
+
+        const p2 = {
+            id: 'mus_1790014503357_43',
+            creatorId: 'xXg9iF4oHpOrQnuJzHX3kk7F1Yg1',
+            email: 'vibulan22@gmail.com',
+            name: 'Schlechte Band',
+            contactName: 'Vibulan',
+            type: 'Band',
+            genres: ['Rock', 'Punk', 'Alternative'],
+            instruments: ['Gesang', 'E-Gitarre', 'Bass', 'Schlagzeug'],
+            location: 'Köln',
+            locations: ['Köln (50667)'],
+            radius: 100,
+            minBudget: 300,
+            maxBudget: 1500,
+            minPublikum: 20,
+            maxPublikum: 300,
+            minDuration: 1,
+            maxDuration: 4,
+            description: 'Schlechte Band - Ehrlicher, lauter und mitreißender Punk & Rock.',
+            photos: [],
+            videos: [],
+            audio: [],
+            socialLinks: { spotify: '', youtube: '', instagram: '' },
+            isActive: true,
+            favorites: [],
+            createdAt: new Date().toISOString()
+        };
+
+        await db.collection('musicians').doc(p1.id).set(p1, { merge: true });
+        await db.collection('musicians').doc(p2.id).set(p2, { merge: true });
+        await db.collection('users').doc('xXg9iF4oHpOrQnuJzHX3kk7F1Yg1').update({
+            profileId: p1.id
+        }).catch(() => {});
+
+        res.json({ success: true, message: 'Musician profiles restored successfully', profiles: [p1.id, p2.id] });
     });
 
 

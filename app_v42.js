@@ -2649,6 +2649,10 @@ class StateManager {
                 JSON.parse(storedDelMus).forEach(id => this.deletedMusicianIds.add(String(id)));
             }
         } catch (e) {}
+        if (this.deletedMusicianIds) {
+            this.deletedMusicianIds.delete('mus_xXg9iF4oHpOrQnuJzHX3kk7F1Yg1');
+            this.deletedMusicianIds.delete('mus_1790014503357_43');
+        }
         
         // Hydrate state synchronously from localStorage cache to enable instant rendering without spinners
         try {
@@ -11783,8 +11787,7 @@ function renderProfilePage(container) {
     if (isMusician) {
         userProfiles = (state.musicians || []).filter(m => m && 
             !m.isDeleted && !m.deleted && m.status !== 'deleted' &&
-            (!state.deletedMusicianIds || !state.deletedMusicianIds.has(m.id)) &&
-            (m.creatorId === u.id || (u.profileId && m.id === u.profileId))
+            (m.creatorId === u.id || (u.profileId && m.id === u.profileId) || (u.email && m.email === u.email))
         );
         activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || u.profileId || '');
         if (activeProfileId) state.activeMusicianId = activeProfileId;
@@ -11794,7 +11797,7 @@ function renderProfilePage(container) {
             (!state.deletedEventIds || !state.deletedEventIds.has(e.id)) &&
             (
                 e.creatorId === u.id || 
-                (u.profileId && e.id === u.profileId) ||
+                (u.profileId && e.id === u.profileId) || 
                 (u.email && (e.email === u.email || e.clientEmail === u.email)) ||
                 (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de'))
             )
@@ -11814,10 +11817,10 @@ function renderProfilePage(container) {
         const shortName = truncateProfileLabel(rawName, 22);
         return `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''} title="${rawName.replace(/"/g, '&quot;')}" style="background: #ffffff; color: #1e293b;">${shortName}</option>`;
     }).join('');
-    const organizerEventFallback = u.eventName || (state.events && state.events.find(e => e && (e.creatorId === u.id || e.id === u.profileId))?.name) || 'Mein Event';
-    const fallbackProfileTitle = isMusician ? (u.bandName || u.firstName || 'Mein Profil') : organizerEventFallback;
+    const organizerEventFallback = u.eventName || (state.events && state.events.find(e => e && (e.creatorId === u.id || e.id === u.profileId))?.name) || 'Kein Event vorhanden';
+    const fallbackProfileTitle = isMusician ? (u.bandName || 'Kein Musiker-Profil') : organizerEventFallback;
     const defaultProfileOption = (userProfiles.length === 0)
-        ? `<option value="profile" selected title="${fallbackProfileTitle.replace(/"/g, '&quot;')}" style="background: #ffffff; color: #1e293b;">${truncateProfileLabel(fallbackProfileTitle, 22)}</option>`
+        ? `<option value="none" selected title="${fallbackProfileTitle.replace(/"/g, '&quot;')}" style="background: #ffffff; color: #1e293b;">${fallbackProfileTitle}</option>`
         : '';
 
     const currentActiveProfile = userProfiles.find(p => p.id === activeProfileId);
@@ -13607,11 +13610,10 @@ function renderMyMusiciansContent(container) {
     const allMyMusicians = (state.musicians || []).filter(m => 
         m && 
         !m.isDeleted && !m.deleted && m.status !== 'deleted' &&
-        (!state.deletedMusicianIds || !state.deletedMusicianIds.has(m.id)) &&
-        (m.creatorId === u.id || (u.profileId && m.id === u.profileId))
+        (m.creatorId === u.id || (u.profileId && m.id === u.profileId) || (u.email && m.email === u.email))
     );
     const activeMusicians = allMyMusicians.filter(m => m.isActive !== false && !m.isDeleted && !m.deleted && m.status !== 'inactive' && m.status !== 'deleted');
-    const deactivatedMusicians = allMyMusicians.filter(m => (m.isActive === false || m.status === 'inactive') && !m.isDeleted && !m.deleted && m.status !== 'deleted' && (!state.deletedMusicianIds || !state.deletedMusicianIds.has(m.id)));
+    const deactivatedMusicians = allMyMusicians.filter(m => (m.isActive === false || m.status === 'inactive') && !m.isDeleted && !m.deleted && m.status !== 'deleted');
     const isLimitReached = allMyMusicians.length >= 5;
 
     container.innerHTML = `

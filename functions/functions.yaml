@@ -740,6 +740,21 @@
       ],
       "httpsTrigger": {},
       "entryPoint": "cleanupMarketItemsHttp"
+    },
+    "restoreMusicianProfilesHttp": {
+      "platform": "gcfv1",
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "httpsTrigger": {},
+      "entryPoint": "restoreMusicianProfilesHttp"
     }
   },
   "specVersion": "v1alpha1",
