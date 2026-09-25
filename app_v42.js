@@ -1387,7 +1387,7 @@ window.normalizeCityName = function(city) {
 // 1. MOCK DATA & CONSTANTS
 // ==========================================
 
-const GIGCONNACT_DEMO_VERSION = '20260917_flag_v10';
+const GIGCONNACT_DEMO_VERSION = '20260925_cleanup_v1';
 
 const initialMusicians = [
     {
@@ -2851,7 +2851,20 @@ class StateManager {
                     this.musicians.push(isGen ? { ...item, isDemo: true } : item);
                 }
             });
-            this.musicians = this.musicians.filter(m => m && (!this.deletedMusicianIds || !this.deletedMusicianIds.has(m.id)));
+            const liveDocIds = new Set(list.map(x => x.id));
+            this.musicians = this.musicians.filter(m => {
+                if (!m) return false;
+                if (this.deletedMusicianIds && this.deletedMusicianIds.has(m.id)) return false;
+                if (m.isDeleted || m.deleted || m.status === 'deleted') return false;
+                const isDemo = Boolean(m.isDemo || (m.id && (m.id.startsWith('mus_gen_') || (typeof initialMusicians !== 'undefined' && initialMusicians.some(init => init && init.id === m.id)))));
+                if (!isDemo && !liveDocIds.has(m.id)) {
+                    if (this.currentUser && m.creatorId === this.currentUser.id) {
+                        return true;
+                    }
+                    return false;
+                }
+                return true;
+            });
             this.musiciansFetched = true;
             this.loadingMusicians = false;
             this.updateVersion = (this.updateVersion || 0) + 1;
@@ -2890,7 +2903,20 @@ class StateManager {
                     this.events.push(isGen ? { ...item, isDemo: true } : item);
                 }
             });
-            this.events = this.events.filter(e => e && (!this.deletedEventIds || !this.deletedEventIds.has(e.id)));
+            const liveDocIds = new Set(list.map(x => x.id));
+            this.events = this.events.filter(e => {
+                if (!e) return false;
+                if (this.deletedEventIds && this.deletedEventIds.has(e.id)) return false;
+                if (e.isDeleted || e.deleted || e.status === 'deleted') return false;
+                const isDemo = Boolean(e.isDemo || (e.id && (e.id.startsWith('evt_gen_') || (typeof initialEvents !== 'undefined' && initialEvents.some(init => init && init.id === e.id)))));
+                if (!isDemo && !liveDocIds.has(e.id)) {
+                    if (this.currentUser && (e.creatorId === this.currentUser.id || (this.currentUser.profileId && e.id === this.currentUser.profileId)) && e.isOnline === false) {
+                        return true;
+                    }
+                    return false;
+                }
+                return true;
+            });
 
             // Automatically sync real-time proposals from mediations collection into event favorites
             await this.syncEventsWithMediations();
@@ -2951,30 +2977,6 @@ class StateManager {
                         if (combined.length > mMusIds.length) {
                             db.collection('mediations').doc(mDoc.id).set({ musicianIds: combined }, { merge: true }).catch(() => {});
                         }
-                    } else if (isAdmin && mData.eventName && !isMedExpiredOrDeleted && !isMedDeletedInSession) {
-                        const newEvtId = targetId || ('evt_' + mDoc.id);
-                        if (this.deletedEventIds && (this.deletedEventIds.has(String(newEvtId)) || this.deletedEventIds.has(String(mDoc.id)) || this.deletedEventIds.has(String(targetId)))) {
-                            return;
-                        }
-                        const newAdminEvt = {
-                            id: newEvtId,
-                            creatorId: this.currentUser ? this.currentUser.id : 'info-gigconnact-admin',
-                            name: mData.eventName,
-                            title: mData.eventName,
-                            date: mData.eventDate || '',
-                            dates: mData.eventDate ? [mData.eventDate] : [],
-                            location: mData.eventLocation || 'München',
-                            locations: [mData.eventLocation || 'München'],
-                            favorites: mMusIds,
-                            isOnline: true,
-                            isAgencyRequest: true,
-                            email: 'info@gigconnact.de',
-                            clientEmail: mData.organizerEmail || '',
-                            clientName: mData.clientName || '',
-                            clientPhone: mData.clientPhone || ''
-                        };
-                        this.events.push(newAdminEvt);
-                        anyChanged = true;
                     }
                 });
                 if (anyChanged) {
@@ -3019,11 +3021,13 @@ class StateManager {
         const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
         try {
             console.log("[DEBUG] StateManager.fetchUserOwnData() called for uid:", uid);
+            const liveUserMusIds = new Set();
             const musSnapshot = await db.collection('musicians').where('creatorId', '==', uid).get();
             musSnapshot.forEach(doc => {
                 if (this.deletedMusicianIds && this.deletedMusicianIds.has(doc.id)) return;
                 const data = { id: doc.id, ...doc.data() };
                 if (data.isDeleted || data.deleted || data.status === 'deleted') return;
+                liveUserMusIds.add(doc.id);
                 const idx = this.musicians.findIndex(m => m.id === data.id);
                 if (idx > -1) {
                     this.musicians[idx] = data;
@@ -3040,6 +3044,7 @@ class StateManager {
                         if (mDoc.exists) {
                             const mData = { id: mDoc.id, ...mDoc.data() };
                             if (!mData.isDeleted && !mData.deleted && mData.status !== 'deleted') {
+                                liveUserMusIds.add(mData.id);
                                 const idx = this.musicians.findIndex(m => m.id === mData.id);
                                 if (idx > -1) this.musicians[idx] = mData; else this.musicians.push(mData);
                             }
@@ -3048,11 +3053,20 @@ class StateManager {
                 }
             }
 
+            // Prune cached musicians belonging to this user that no longer exist in Firestore
+            this.musicians = this.musicians.filter(m => {
+                if (!m) return false;
+                if (m.creatorId === uid && !liveUserMusIds.has(m.id)) return false;
+                return true;
+            });
+
+            const liveUserEvtIds = new Set();
             const evtSnapshot = await db.collection('events').where('creatorId', '==', uid).get();
             evtSnapshot.forEach(doc => {
                 if (this.deletedEventIds && this.deletedEventIds.has(doc.id)) return;
                 const data = { id: doc.id, ...doc.data() };
                 if (data.isDeleted || data.deleted || data.status === 'deleted') return;
+                liveUserEvtIds.add(doc.id);
                 const idx = this.events.findIndex(e => e.id === data.id);
                 if (idx > -1) {
                     this.events[idx] = data;
@@ -3069,6 +3083,7 @@ class StateManager {
                         if (eDoc.exists) {
                             const eData = { id: eDoc.id, ...eDoc.data() };
                             if (!eData.isDeleted && !eData.deleted && eData.status !== 'deleted') {
+                                liveUserEvtIds.add(eData.id);
                                 const idx = this.events.findIndex(e => e.id === eData.id);
                                 if (idx > -1) this.events[idx] = eData; else this.events.push(eData);
                             }
@@ -3085,11 +3100,19 @@ class StateManager {
                         if (this.deletedEventIds && this.deletedEventIds.has(doc.id)) return;
                         const data = { id: doc.id, ...doc.data() };
                         if (data.isDeleted || data.deleted || data.status === 'deleted') return;
+                        liveUserEvtIds.add(doc.id);
                         const idx = this.events.findIndex(e => e.id === data.id);
                         if (idx > -1) this.events[idx] = data; else this.events.push(data);
                     });
                 } catch (e) {}
             }
+
+            // Prune cached events belonging to this user that no longer exist in Firestore
+            this.events = this.events.filter(e => {
+                if (!e) return false;
+                if (e.creatorId === uid && !liveUserEvtIds.has(e.id)) return false;
+                return true;
+            });
 
             // AUTO-RECOVERY FOR ORGANIZER: If organizer has no events, check pendingRegistrations or auto-create initial event
             if (this.currentUser.role === 'organizer') {

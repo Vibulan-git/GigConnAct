@@ -3356,15 +3356,30 @@ async function executeMarketItemsCleanupInternal() {
         }
     }
 
-    // 3. Query mediations marked deleted or expired
+    // 3. Query mediations: delete expired or stale mediations whose events are deleted
     const medSnap = await db.collection('mediations').get();
+    const staleMedIds = ['T8lis9eFEdiia3FXpYCu', 'med_1789803827253_310', 'med_1790010881269_868', 'med_1788530568793_639'];
     for (const doc of medSnap.docs) {
         const d = doc.data();
         const isDeleted = d.isDeleted === true || d.deleted === true || d.status === 'deleted' || d.status === 'expired';
-        if (isDeleted) {
-            console.log(`[cleanup] Deleting expired/deleted mediation ${doc.id}: ${d.eventName}`);
+        const isStale = staleMedIds.includes(doc.id) || (d.eventId && staleMedIds.includes(d.eventId));
+        if (isDeleted || isStale) {
+            console.log(`[cleanup] Deleting expired/stale mediation ${doc.id}: ${d.eventName}`);
             await doc.ref.delete().catch(() => {});
             deletedCount++;
+            continue;
+        }
+
+        // Also check if eventId points to a non-existent event
+        if (d.eventId) {
+            try {
+                const evDoc = await db.collection('events').doc(d.eventId).get();
+                if (!evDoc.exists) {
+                    console.log(`[cleanup] Deleting orphaned mediation ${doc.id} (event ${d.eventId} not found): ${d.eventName}`);
+                    await doc.ref.delete().catch(() => {});
+                    deletedCount++;
+                }
+            } catch (err) {}
         }
     }
 
