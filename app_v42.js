@@ -11798,11 +11798,11 @@ function renderProfilePage(container) {
 
     container.innerHTML = `
         <div class="profile-page ${isMusician ? 'theme-musician' : 'theme-organizer'}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
-            <div class="profile-content-wrapper" style="width: 100%; max-width: 1520px; margin: 2.75rem auto 0; padding: 0 1.2rem; box-sizing: border-box;">
+            <div class="profile-content-wrapper" style="width: 100%; max-width: 1520px; margin: 1.0rem auto 0; padding: 0 1.2rem; box-sizing: border-box;">
                 <div class="portal-layout" style="display:flex; flex-direction:column; gap: 0.85rem; max-width: 800px; margin: 0 auto; padding: 0;">
 
                     <!-- Zeile über der Kachel 'Meine Musiker/Events': Links Auswahl der Profile, Rechts Ausloggebutton in rot -->
-                    <div class="profile-top-actions-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; width: 100%; margin: 0.75rem 0 1rem 0; flex-wrap: nowrap !important; box-sizing: border-box;">
+                    <div class="profile-top-actions-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; width: 100%; margin: 0.25rem 0 1rem 0; flex-wrap: nowrap !important; box-sizing: border-box;">
                         <!-- Links: Auswahl der Profile (Lila/Blau Button je nach Rolle, kein Icon, kein 'Profil auswählen') -->
                         <div class="profile-switcher-action-box" style="flex: 1 1 auto; min-width: 0; max-width: calc(100% - 135px); display: inline-flex; align-items: center; background: ${themeBtnBg} !important; border: 1.5px solid rgba(255, 255, 255, 0.25) !important; border-radius: 12px; height: 42px; padding: 0 0.85rem; position: relative; box-sizing: border-box; box-shadow: 0 3px 10px ${isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'};">
                             <select id="profile-page-select" style="width: 100%; min-width: 0; max-width: 100%; border: none; background: transparent; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 800; color: #ffffff !important; cursor: pointer; outline: none; margin: 0; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; appearance: none; -webkit-appearance: none; padding-right: 1.25rem; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23ffffff'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right center; background-size: 1rem;">
@@ -13016,7 +13016,7 @@ function renderOrganizerEventItem(e, isActive) {
             </div>
 
             <!-- Actions Grid at the Bottom (Organizer Blue theme with white text) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.6rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.35rem; background: #2563eb;">
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.6rem; display: grid; grid-template-columns: ${isActive ? '1fr 1fr' : '1fr 1fr 1fr'}; gap: 0.35rem; background: #2563eb;">
                 <button class="btn btn-sm btn-glass btn-edit-my-event" data-id="${e.id}" style="font-size: 0.75rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                     <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
                 </button>
@@ -13028,10 +13028,10 @@ function renderOrganizerEventItem(e, isActive) {
                 <button class="btn btn-sm btn-glass btn-pause-my-event" data-id="${e.id}" style="font-size: 0.75rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
                     <i class="fa-solid fa-play" style="color: #ffffff;"></i> Aktivieren
                 </button>
-                `}
                 <button class="btn btn-sm btn-glass btn-delete-my-event" data-id="${e.id}" style="font-size: 0.75rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
                     <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
                 </button>
+                `}
             </div>
         </div>
     `;
@@ -13550,7 +13550,7 @@ function renderMyMusicianItem(m, isActive) {
             </div>
 
             <!-- Actions Grid at the Bottom (Lila theme with white text for musicians) -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.6rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.35rem; background: #7c3aed;">
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 0.6rem 0.6rem; display: grid; grid-template-columns: ${isActive ? '1fr 1fr' : '1fr 1fr 1fr'}; gap: 0.35rem; background: #7c3aed;">
                 <button class="btn btn-sm btn-glass btn-edit-my-musician" data-id="${m.id}" style="font-size: 0.75rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.3rem; color: #ffffff; border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.1);">
                     <i class="fa-solid fa-pen" style="color: #ffffff;"></i> Bearbeiten
                 </button>
@@ -13562,10 +13562,10 @@ function renderMyMusicianItem(m, isActive) {
                 <button class="btn btn-sm btn-glass btn-pause-my-musician" data-id="${m.id}" style="font-size: 0.75rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
                     <i class="fa-solid fa-play" style="color: #ffffff;"></i> Aktivieren
                 </button>
-                `}
                 <button class="btn btn-sm btn-glass btn-delete-my-musician" data-id="${m.id}" style="font-size: 0.75rem; font-weight: 700; padding: 0.45rem 0.2rem; margin: 0; color: #ffffff; border-color: rgba(255, 255, 255, 0.4); background: rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
                     <i class="fa-solid fa-trash" style="color: #ffffff;"></i> Löschen
                 </button>
+                `}
             </div>
         </div>
     `;
@@ -13741,6 +13741,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
     modalWrapper.classList.remove('hidden');
     
     const isEdit = !!musicianObj && !isDuplication;
+    const isInactiveMusician = isEdit && (musicianObj.isActive === false || musicianObj.status === 'inactive');
     const title = isEdit ? 'Musiker-Profil bearbeiten' : (isDuplication ? 'Musiker-Profil duplizieren' : 'Neues Musiker-Profil anlegen');
     
     let profilePicUrl = musicianObj?.profilePic || (
@@ -14040,8 +14041,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         <div id="modal-audios-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
                     </div>
 
-                    <div style="display: flex; justify-content: ${isEdit ? 'space-between' : 'center'}; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap; width: 100%;">
-                        ${isEdit ? `
+                    <div style="display: flex; justify-content: ${isInactiveMusician ? 'space-between' : 'center'}; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap; width: 100%;">
+                        ${isInactiveMusician ? `
                         <button type="button" id="btn-modal-delete-musician" class="btn btn-glass" style="margin: 0; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
                             <i class="fa-solid fa-trash"></i> Profil löschen
                         </button>
@@ -14640,6 +14641,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
     modalWrapper.classList.remove('hidden');
     
     const isEdit = !!eventObj && !isDuplication;
+    const isInactiveEvent = isEdit && !isEventActive(eventObj);
     const title = isEdit ? 'Event bearbeiten' : (isDuplication ? 'Event duplizieren' : 'Neues Event erstellen');
     const localMedia = {
         photos: eventObj?.photos ? [...eventObj.photos] : [],
@@ -14891,8 +14893,8 @@ function showEventModal(eventObj = null, isDuplication = false) {
 
 
 
-                    <div style="display: flex; justify-content: ${isEdit ? 'space-between' : 'center'}; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap; width: 100%;">
-                        ${isEdit ? `
+                    <div style="display: flex; justify-content: ${isInactiveEvent ? 'space-between' : 'center'}; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap; width: 100%;">
+                        ${isInactiveEvent ? `
                         <button type="button" id="btn-modal-delete-event" class="btn btn-glass" style="margin: 0; color: #ef4444; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
                             <i class="fa-solid fa-trash"></i> Event löschen
                         </button>
