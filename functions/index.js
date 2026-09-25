@@ -3215,19 +3215,212 @@ exports.triggerMediationFeedback = functions
         return await sendMediationFeedbackEmailsInternal({ force, targetMediationId });
     });
 
-exports.triggerPlatformFeedback = functions
+    exports.triggerPlatformFeedback = functions
     .region('europe-west3')
     .runWith({ secrets: ['RESEND_API_KEY'] })
     .https.onCall(async (data, context) => {
         let isAdmin = false;
         if (context.auth && context.auth.token && context.auth.token.email) {
-            const adminEmails = ['info@gigconnact.de', 'gigconnact@gmail.com'];
+            const adminEmails = ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'];
             if (adminEmails.includes(context.auth.token.email)) isAdmin = true;
         }
         const force = Boolean(data && data.force && isAdmin);
         const targetUserId = data && data.userId ? String(data.userId).trim() : null;
         return await sendPlatformFeedbackEmailsInternal({ force, targetUserId });
     });
+
+// Permanent deletion of market item (event or musician) with full Admin SDK privileges
+exports.deleteMarketItemPermanently = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'Nutzer muss angemeldet sein.');
+        }
+
+        const type = data && data.type; // 'events' or 'musicians'
+        const id = data && data.id ? String(data.id).trim() : null;
+
+        if (!type || !id || (type !== 'events' && type !== 'musicians')) {
+            throw new functions.https.HttpsError('invalid-argument', 'Gültiger Typ (events/musicians) und ID sind erforderlich.');
+        }
+
+        const adminEmails = ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'];
+        const userEmail = (context.auth.token?.email || '').toLowerCase();
+        const userId = context.auth.uid;
+        const isAdmin = adminEmails.includes(userEmail);
+
+        const collectionRef = admin.firestore().collection(type);
+        const docRef = collectionRef.doc(id);
+        const docSnap = await docRef.get();
+
+        if (docSnap.exists) {
+            const docData = docSnap.data();
+            const creatorId = docData.creatorId;
+            const email = (docData.email || docData.clientEmail || '').toLowerCase();
+            const isOwner = (creatorId && creatorId === userId) || (email && email === userEmail);
+
+            if (!isAdmin && !isOwner) {
+                throw new functions.https.HttpsError('permission-denied', 'Keine Berechtigung zum Löschen dieses Eintrags.');
+            }
+
+            // Permanently delete main document
+            await docRef.delete();
+            console.log(`[deleteMarketItemPermanently] Gelöscht: ${type}/${id}`);
+        } else {
+            // Even if document not found in direct doc lookup, try deleting by id
+            await docRef.delete().catch(() => {});
+        }
+
+        const batch = admin.firestore().batch();
+        let batchCount = 0;
+
+        if (type === 'events') {
+            // Also delete duplicate suffixes if agency event
+            const parts = id.split('_');
+            const isAgencyDup = parts.length === 4 && parts[0] === 'evt' && parts[1] === 'agency';
+            const basePrefix = isAgencyDup ? (parts[0] + '_' + parts[1] + '_' + parts[2]) : null;
+
+            if (basePrefix) {
+                const subDoc0 = collectionRef.doc(basePrefix + '_0');
+                const subDoc1 = collectionRef.doc(basePrefix + '_1');
+                batch.delete(subDoc0);
+                batch.delete(subDoc1);
+                batchCount += 2;
+            }
+
+            // Clean up mediations pointing to this event
+            const medSnap = await admin.firestore().collection('mediations').where('eventId', '==', id).get().catch(() => null);
+            if (medSnap && !medSnap.empty) {
+                medSnap.forEach(d => {
+                    batch.delete(d.ref);
+                    batchCount++;
+                });
+            }
+            // Direct mediations doc by id if exists
+            const directMed = admin.firestore().collection('mediations').doc(id);
+            batch.delete(directMed);
+            batchCount++;
+
+            // Clean up interests pointing to this event
+            const intSnap = await admin.firestore().collection('interests').where('eventId', '==', id).get().catch(() => null);
+            if (intSnap && !intSnap.empty) {
+                intSnap.forEach(d => {
+                    batch.delete(d.ref);
+                    batchCount++;
+                });
+            }
+        } else if (type === 'musicians') {
+            // Clean up interests pointing to this musician
+            const intSnap = await admin.firestore().collection('interests').where('musicianId', '==', id).get().catch(() => null);
+            if (intSnap && !intSnap.empty) {
+                intSnap.forEach(d => {
+                    batch.delete(d.ref);
+                    batchCount++;
+                });
+            }
+        }
+
+        if (batchCount > 0) {
+            await batch.commit().catch(e => console.warn("[deleteMarketItemPermanently] Batch cleanup error:", e));
+        }
+
+        return { success: true, id, type };
+    });
+
+// Helper cleanup logic for market items
+async function executeMarketItemsCleanupInternal() {
+    const targetIds = [
+        'evt_wfHYMznaD1bfcNEqUpuLLD7oxsE2',
+        'evt_agency_1789803826555_0',
+        'evt_1787224717872_538',
+        'evt_agency_1790010880569_0',
+        'mus_1790014503357_43',
+        'mus_xXg9iF4oHpOrQnuJzHX3kk7F1Yg1'
+    ];
+
+    let deletedCount = 0;
+    const db = admin.firestore();
+
+    // 1. Delete specific known ghost test items
+    for (const tid of targetIds) {
+        if (tid.startsWith('evt_')) {
+            await db.collection('events').doc(tid).delete().catch(() => {});
+            await db.collection('mediations').doc(tid).delete().catch(() => {});
+            deletedCount++;
+        } else if (tid.startsWith('mus_')) {
+            await db.collection('musicians').doc(tid).delete().catch(() => {});
+            deletedCount++;
+        }
+    }
+
+    // 2. Query any events marked deleted or with test titles
+    const evtSnap = await db.collection('events').get();
+    for (const doc of evtSnap.docs) {
+        const d = doc.data();
+        const isTestTitle = Boolean(d.name && (d.name.includes('(Test)') || d.name.includes('Test')));
+        const isDeleted = d.isDeleted === true || d.deleted === true || d.status === 'deleted';
+        const isTestUser = d.email === 'vibu.music22@gmail.com' || d.clientEmail === 'vibu.music22@gmail.com' || d.creatorId === 'wfHYMznaD1bfcNEqUpuLLD7oxsE2';
+
+        if (isDeleted || (isTestTitle && isTestUser)) {
+            console.log(`[cleanup] Deleting event ${doc.id}: ${d.name}`);
+            await doc.ref.delete().catch(() => {});
+            deletedCount++;
+        }
+    }
+
+    // 3. Query any musicians marked deleted or with test titles
+    const musSnap = await db.collection('musicians').get();
+    for (const doc of musSnap.docs) {
+        const d = doc.data();
+        const isTestTitle = Boolean(d.name && (d.name.includes('(Test)') || d.name.includes('Test')));
+        const isDeleted = d.isDeleted === true || d.deleted === true || d.status === 'deleted';
+        const isTestUser = d.email === 'vibu.music22@gmail.com' || d.creatorId === 'xXg9iF4oHpOrQnuJzHX3kk7F1Yg1';
+
+        if (isDeleted || (isTestTitle && isTestUser)) {
+            console.log(`[cleanup] Deleting musician ${doc.id}: ${d.name}`);
+            await doc.ref.delete().catch(() => {});
+            deletedCount++;
+        }
+    }
+
+    // 4. Query mediations for test events
+    const medSnap = await db.collection('mediations').get();
+    for (const doc of medSnap.docs) {
+        const d = doc.data();
+        const isTestName = Boolean(d.eventName && (d.eventName.includes('(Test)') || d.eventName.includes('Test')));
+        const isDeleted = d.isDeleted === true || d.deleted === true || d.status === 'deleted' || d.status === 'expired';
+        const isTestEmail = d.organizerEmail === 'vibu.music22@gmail.com';
+
+        if (isDeleted || (isTestName && isTestEmail)) {
+            console.log(`[cleanup] Deleting mediation ${doc.id}: ${d.eventName}`);
+            await doc.ref.delete().catch(() => {});
+            deletedCount++;
+        }
+    }
+
+    return { success: true, deletedCount };
+}
+
+// Callable cleanup
+exports.cleanupTestAndDeletedMarketItems = functions
+    .region('europe-west3')
+    .https.onCall(async (data, context) => {
+        return await executeMarketItemsCleanupInternal();
+    });
+
+// HTTP trigger for direct execution
+exports.cleanupMarketItemsHttp = functions
+    .region('europe-west3')
+    .https.onRequest(async (req, res) => {
+        const key = req.query.key || (req.body && req.body.key);
+        if (key !== 'gigconnact_clean_2026') {
+            res.status(403).send('Forbidden');
+            return;
+        }
+        const result = await executeMarketItemsCleanupInternal();
+        res.json(result);
+    });
+
 
 
 

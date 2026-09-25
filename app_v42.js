@@ -2907,7 +2907,7 @@ class StateManager {
             const medSnapshot = await db.collection('mediations').get();
             if (!medSnapshot.empty) {
                 let anyChanged = false;
-                const isAdmin = this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
+                const isAdmin = this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'].includes(this.currentUser.email);
                 this.mediations = [];
                 medSnapshot.forEach(mDoc => {
                     const mData = mDoc.data();
@@ -2917,9 +2917,9 @@ class StateManager {
                     const targetId = mData.eventId || mDoc.id.replace(/^med_/, '');
                     const isMedExpiredOrDeleted = mData.status === 'expired' || mData.status === 'deleted' || mData.isDeleted === true || mData.deleted === true;
                     const isMedDeletedInSession = this.deletedEventIds && (
-                        this.deletedEventIds.has(mDoc.id) ||
-                        this.deletedEventIds.has(targetId) ||
-                        (mData.eventId && this.deletedEventIds.has(mData.eventId))
+                        this.deletedEventIds.has(String(mDoc.id)) ||
+                        this.deletedEventIds.has(String(targetId)) ||
+                        (mData.eventId && this.deletedEventIds.has(String(mData.eventId)))
                     );
 
                     if (isMedExpiredOrDeleted || isMedDeletedInSession) {
@@ -2927,7 +2927,7 @@ class StateManager {
                     }
 
                     const mMusIds = Array.isArray(mData.musicianIds) ? mData.musicianIds : [];
-                    const matchEvt = (this.events || []).find(e => e && (
+                    const matchEvt = (this.events || []).find(e => e && !e.isDeleted && !e.deleted && e.status !== 'deleted' && (!this.deletedEventIds || !this.deletedEventIds.has(String(e.id))) && (
                         e.id === targetId || 
                         e.id === mData.eventId || 
                         e.id === mDoc.id || 
@@ -2949,7 +2949,7 @@ class StateManager {
                         }
                     } else if (isAdmin && mData.eventName && !isMedExpiredOrDeleted && !isMedDeletedInSession) {
                         const newEvtId = targetId || ('evt_' + mDoc.id);
-                        if (this.deletedEventIds && (this.deletedEventIds.has(newEvtId) || this.deletedEventIds.has(mDoc.id) || this.deletedEventIds.has(targetId))) {
+                        if (this.deletedEventIds && (this.deletedEventIds.has(String(newEvtId)) || this.deletedEventIds.has(String(mDoc.id)) || this.deletedEventIds.has(String(targetId)))) {
                             return;
                         }
                         const newAdminEvt = {
@@ -4750,6 +4750,16 @@ class StateManager {
             try {
                 const fsOperations = async () => {
                     const deletePromises = [];
+                    // 1. Backend Admin Deletion via Cloud Function
+                    if (typeof firebase !== 'undefined' && firebase.functions) {
+                        try {
+                            const deletePermanentFn = firebase.app().functions('europe-west3').httpsCallable('deleteMarketItemPermanently');
+                            deletePromises.push(deletePermanentFn({ type: 'events', id: eventId }).catch(cfErr => console.warn("deleteMarketItemPermanently CF error:", cfErr)));
+                        } catch (cfInitErr) {
+                            console.warn("Could not init deleteMarketItemPermanently CF:", cfInitErr);
+                        }
+                    }
+
                     // Soft-delete mark first as a safeguard
                     deletePromises.push(db.collection('events').doc(eventId).update({
                         isDeleted: true,
@@ -5039,6 +5049,15 @@ class StateManager {
             try {
                 const fsOperations = async () => {
                     const deletePromises = [];
+                    // 1. Backend Admin Deletion via Cloud Function
+                    if (typeof firebase !== 'undefined' && firebase.functions) {
+                        try {
+                            const deletePermanentFn = firebase.app().functions('europe-west3').httpsCallable('deleteMarketItemPermanently');
+                            deletePromises.push(deletePermanentFn({ type: 'musicians', id: musicianId }).catch(cfErr => console.warn("deleteMarketItemPermanently CF error:", cfErr)));
+                        } catch (cfInitErr) {
+                            console.warn("Could not init deleteMarketItemPermanently CF:", cfInitErr);
+                        }
+                    }
 
                     // Soft-delete mark first as a safeguard
                     deletePromises.push(db.collection('musicians').doc(musicianId).update({
@@ -8489,8 +8508,8 @@ function initAllLocationAutocompletes() {
 function renderMarket(container, type, onNavigate) {
     const isEvents = type === 'events';
     const getItems = () => isEvents 
-        ? (state.events || []).filter(e => e && e.isActive !== false && e.isOnline !== false && e.status !== 'inactive' && e.status !== 'paused') 
-        : (state.musicians || []).filter(m => m && m.isActive !== false && m.status !== 'inactive' && m.status !== 'paused');
+        ? (state.events || []).filter(e => e && e.isActive !== false && e.isOnline !== false && e.status !== 'inactive' && e.status !== 'paused' && !e.isDeleted && !e.deleted && e.status !== 'deleted' && (!state.deletedEventIds || !state.deletedEventIds.has(String(e.id)))) 
+        : (state.musicians || []).filter(m => m && m.isActive !== false && m.status !== 'inactive' && m.status !== 'paused' && !m.isDeleted && !m.deleted && m.status !== 'deleted' && (!state.deletedMusicianIds || !state.deletedMusicianIds.has(String(m.id))));
     
     let selectedFilterDates = window.selectedFilterDates;
     let currentFilterCalDate = new Date();
@@ -9426,7 +9445,15 @@ function renderMarket(container, type, onNavigate) {
         if (resetPagination) {
             displayedItemsCount = 12;
         }
-        let list = [...getItems()].filter(item => item && item.isActive !== false && item.isOnline !== false && item.status !== 'inactive' && item.status !== 'paused');
+        let list = [...getItems()].filter(item => {
+            if (!item) return false;
+            if (item.isActive === false || item.status === 'inactive' || item.status === 'paused') return false;
+            if (isEvents && item.isOnline === false) return false;
+            if (item.isDeleted || item.deleted || item.status === 'deleted') return false;
+            if (isEvents && state.deletedEventIds && state.deletedEventIds.has(String(item.id))) return false;
+            if (!isEvents && state.deletedMusicianIds && state.deletedMusicianIds.has(String(item.id))) return false;
+            return true;
+        });
         console.log("[DEBUG_APPLY_FILTERS_START] items count:", list.length, "isEvents:", isEvents, "showOnlyTopMatches:", showOnlyTopMatches, "showOnlyFavorites:", showOnlyFavorites);
         console.log("applyAllFiltersAndSort started. Input getItems():", list.length, "isEvents:", isEvents);
 
@@ -12684,8 +12711,8 @@ function renderMatchesPage(container) {
                 }
 
                 const candidates = isMusician 
-                    ? (state.events || []).filter(e => isEventActive(e))
-                    : (state.musicians || []).filter(m => m && m.isActive !== false);
+                    ? (state.events || []).filter(e => isEventActive(e) && (!state.deletedEventIds || !state.deletedEventIds.has(String(e.id))))
+                    : (state.musicians || []).filter(m => m && m.isActive !== false && !m.isDeleted && !m.deleted && m.status !== 'deleted' && (!state.deletedMusicianIds || !state.deletedMusicianIds.has(String(m.id))));
 
                 const candidatesWithMatches = candidates.map(item => {
                     let match = { score: 0 };

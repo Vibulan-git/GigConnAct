@@ -39,7 +39,7 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && (
         resource.data.creatorId == request.auth.uid ||
         resource.data.email == request.auth.token.email ||
-        request.auth.token.email in ['info@gigconnact.de', 'gigconnact@gmail.com']
+        request.auth.token.email in ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com']
       );
     }
 
@@ -52,7 +52,7 @@ service cloud.firestore {
         resource.data.creatorId == request.auth.uid ||
         resource.data.email == request.auth.token.email ||
         resource.data.clientEmail == request.auth.token.email ||
-        request.auth.token.email in ['info@gigconnact.de', 'gigconnact@gmail.com']
+        request.auth.token.email in ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com']
       );
     }
 
@@ -82,7 +82,7 @@ service cloud.firestore {
     // 8. Feedbacks (Mediation & Platform reviews)
     match /feedbacks/{feedbackId} {
       allow create: if true;
-      allow read: if request.auth != null && request.auth.token.email in ['info@gigconnact.de', 'gigconnact@gmail.com'];
+      allow read: if request.auth != null && request.auth.token.email in ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'];
     }
   }
 }

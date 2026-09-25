@@ -693,6 +693,53 @@
       ],
       "callableTrigger": {},
       "entryPoint": "triggerPlatformFeedback"
+    },
+    "deleteMarketItemPermanently": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "callableTrigger": {},
+      "entryPoint": "deleteMarketItemPermanently"
+    },
+    "cleanupTestAndDeletedMarketItems": {
+      "platform": "gcfv1",
+      "labels": {},
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "callableTrigger": {},
+      "entryPoint": "cleanupTestAndDeletedMarketItems"
+    },
+    "cleanupMarketItemsHttp": {
+      "platform": "gcfv1",
+      "availableMemoryMb": null,
+      "timeoutSeconds": null,
+      "minInstances": null,
+      "maxInstances": null,
+      "ingressSettings": null,
+      "serviceAccountEmail": null,
+      "vpc": null,
+      "region": [
+        "europe-west3"
+      ],
+      "httpsTrigger": {},
+      "entryPoint": "cleanupMarketItemsHttp"
     }
   },
   "specVersion": "v1alpha1",
