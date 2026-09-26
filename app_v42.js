@@ -613,6 +613,13 @@ window.toggleSelectAll = function(gridId, linkEl) {
         cb.dispatchEvent(new Event('change', { bubbles: true }));
     });
     linkEl.textContent = allSelected ? 'Alle auswählen' : 'Alle abwählen';
+    if (!allSelected) {
+        const fg = grid.closest('.form-group') || grid.parentElement;
+        if (fg) {
+            fg.querySelectorAll('.field-error-message').forEach(el => el.remove());
+            grid.classList.remove('checkbox-group-error');
+        }
+    }
 };
 
 window.slideComboGallery = function(itemId, direction) {
@@ -6253,6 +6260,9 @@ function expandList(arr) {
             result.push('dj-controller');
             result.push('turntables');
             result.push('mischpult');
+        } else if (sLower === 'sonstige' || sLower === 'sonstiges') {
+            result.push('sonstige');
+            result.push('sonstiges');
         } else {
             result.push(sLower);
         }
@@ -8658,7 +8668,7 @@ function renderMarket(container, type, onNavigate) {
     ];
     const ALL_FILTER_INSTRUMENTS = [
         'Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 
-        'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstige'
+        'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstiges'
     ];
     const ALL_FILTER_TECHNIK = [
         'Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'
@@ -9003,12 +9013,14 @@ function renderMarket(container, type, onNavigate) {
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid">
-                                    ${ALL_FILTER_INSTRUMENTS.map(ins => `
-                                        <label class="tag-pill-checkbox ${prefillInstruments.includes(ins) ? 'active' : ''}">
-                                            <input type="checkbox" name="filterInstruments" value="${ins}" ${prefillInstruments.includes(ins) ? 'checked' : ''}>
+                                    ${ALL_FILTER_INSTRUMENTS.map(ins => {
+                                        const isChecked = prefillInstruments.some(pi => pi === ins || (ins === 'Sonstiges' && (pi === 'Sonstige' || pi === 'Sonstiges')) || (ins === 'Sonstige' && (pi === 'Sonstige' || pi === 'Sonstiges')));
+                                        return `
+                                        <label class="tag-pill-checkbox ${isChecked ? 'active' : ''}">
+                                            <input type="checkbox" name="filterInstruments" value="${ins}" ${isChecked ? 'checked' : ''}>
                                             <span>${ins}</span>
                                         </label>
-                                    `).join('')}
+                                    `}).join('')}
                                 </div>
                             </div>
 
@@ -9192,12 +9204,14 @@ function renderMarket(container, type, onNavigate) {
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
-                                    ${ALL_FILTER_INSTRUMENTS.map(ins => `
-                                        <label class="tag-pill-checkbox ${prefillInstruments.includes(ins) ? 'active' : ''}">
-                                            <input type="checkbox" name="filterInstrumentsM" value="${ins}" ${prefillInstruments.includes(ins) ? 'checked' : ''}>
+                                    ${ALL_FILTER_INSTRUMENTS.map(ins => {
+                                        const isChecked = prefillInstruments.some(pi => pi === ins || (ins === 'Sonstiges' && (pi === 'Sonstige' || pi === 'Sonstiges')) || (ins === 'Sonstige' && (pi === 'Sonstige' || pi === 'Sonstiges')));
+                                        return `
+                                        <label class="tag-pill-checkbox ${isChecked ? 'active' : ''}">
+                                            <input type="checkbox" name="filterInstrumentsM" value="${ins}" ${isChecked ? 'checked' : ''}>
                                             <span>${ins}</span>
                                         </label>
-                                    `).join('')}
+                                    `}).join('')}
                                 </div>
                             </div>
 
@@ -9903,7 +9917,13 @@ function renderMarket(container, type, onNavigate) {
                 } else {
                     list = list.filter(item => {
                         const itemI = item.instruments || [];
-                        return selInst.some(inst => itemI.some(i => i.toLowerCase().includes(inst.toLowerCase())));
+                        return selInst.some(inst => itemI.some(i => {
+                            const s1 = i.toLowerCase();
+                            const s2 = inst.toLowerCase();
+                            if (s1.includes(s2) || s2.includes(s1)) return true;
+                            if ((s1 === 'sonstige' || s1 === 'sonstiges') && (s2 === 'sonstige' || s2 === 'sonstiges')) return true;
+                            return false;
+                        }));
                     });
                 }
             }
@@ -13971,10 +13991,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                             <span onclick="window.toggleSelectAll('grid-instruments', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-instruments">
-                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstige'].map(ins => {
-                                const isChecked = musicianObj?.instruments?.includes(ins);
+                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstiges'].map(ins => {
+                                const isChecked = (musicianObj?.instruments || []).some(i => i === ins || (ins === 'Sonstiges' && (i === 'Sonstige' || i === 'Sonstiges')) || (ins === 'Sonstige' && (i === 'Sonstige' || i === 'Sonstiges')));
                                 return `
-                                    <label class="tag-pill-checkbox">
+                                    <label class="tag-pill-checkbox ${isChecked ? 'active' : ''}">
                                         <input type="checkbox" name="instruments" value="${ins}" ${isChecked ? 'checked' : ''}>
                                         <span>${ins}</span>
                                     </label>
@@ -14179,6 +14199,11 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                 e.target.parentElement.classList.add('active');
             } else {
                 e.target.parentElement.classList.remove('active');
+            }
+            const fg = e.target.closest('.form-group');
+            if (fg) {
+                fg.querySelectorAll('.field-error-message').forEach(el => el.remove());
+                fg.querySelectorAll('.checkbox-group-error').forEach(el => el.classList.remove('checkbox-group-error'));
             }
         });
     });
@@ -14839,10 +14864,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
                             <span onclick="window.toggleSelectAll('grid-org-instruments', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-instruments">
-                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstige'].map(ins => {
-                                const isChecked = eventObj?.instruments?.includes(ins);
+                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstiges'].map(ins => {
+                                const isChecked = (eventObj?.instruments || []).some(i => i === ins || (ins === 'Sonstiges' && (i === 'Sonstige' || i === 'Sonstiges')) || (ins === 'Sonstige' && (i === 'Sonstige' || i === 'Sonstiges')));
                                 return `
-                                    <label class="tag-pill-checkbox">
+                                    <label class="tag-pill-checkbox ${isChecked ? 'active' : ''}">
                                         <input type="checkbox" name="orgInstruments" value="${ins}" ${isChecked ? 'checked' : ''}>
                                         <span>${ins}</span>
                                     </label>
@@ -15124,6 +15149,11 @@ function showEventModal(eventObj = null, isDuplication = false) {
                 e.target.parentElement.classList.add('active');
             } else {
                 e.target.parentElement.classList.remove('active');
+            }
+            const fg = e.target.closest('.form-group');
+            if (fg) {
+                fg.querySelectorAll('.field-error-message').forEach(el => el.remove());
+                fg.querySelectorAll('.checkbox-group-error').forEach(el => el.classList.remove('checkbox-group-error'));
             }
         });
     });
@@ -15788,7 +15818,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 <span onclick="window.toggleSelectAll('grid-instruments', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                             </div>
                             <div class="checkbox-tag-grid" id="grid-instruments">
-                                ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstige'].map(ins => `
+                                ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstiges'].map(ins => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="instruments" value="${ins}">
                                         <span>${ins}</span>
@@ -16008,7 +16038,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 <span onclick="window.toggleSelectAll('grid-org-instruments', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                             </div>
                             <div class="checkbox-tag-grid" id="grid-org-instruments">
-                                ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstige'].map(ins => `
+                                ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstiges'].map(ins => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgInstruments" value="${ins}">
                                         <span>${ins}</span>
@@ -16656,6 +16686,11 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         input.addEventListener('change', (e) => {
             if (e.target.type === 'checkbox') {
                 e.target.parentElement.classList.toggle('active', e.target.checked);
+            }
+            const fg = e.target.closest('.form-group');
+            if (fg) {
+                fg.querySelectorAll('.field-error-message').forEach(el => el.remove());
+                fg.querySelectorAll('.checkbox-group-error').forEach(el => el.classList.remove('checkbox-group-error'));
             }
         });
     });
@@ -19236,6 +19271,10 @@ function markInvalid(el, parentSelector = null) {
         target.classList.add('checkbox-group-error');
         const cleanErr = () => {
             target.classList.remove('checkbox-group-error');
+            const parent = target.closest('.form-group') || target.parentElement;
+            if (parent) {
+                parent.querySelectorAll('.field-error-message').forEach(err => err.remove());
+            }
             target.removeEventListener('change', cleanErr);
             target.removeEventListener('click', cleanErr);
         };
@@ -19245,6 +19284,10 @@ function markInvalid(el, parentSelector = null) {
         target.classList.add('input-error');
         const cleanErr = () => {
             target.classList.remove('input-error');
+            const parent = target.closest('.form-group') || target.parentElement;
+            if (parent) {
+                parent.querySelectorAll('.field-error-message').forEach(err => err.remove());
+            }
             target.removeEventListener('input', cleanErr);
             target.removeEventListener('change', cleanErr);
         };
@@ -20997,12 +21040,14 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                             <span onclick="window.toggleSelectAll('grid-org-instruments', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-instruments">
-                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstige'].map(ins => `
-                                <label class="tag-pill-checkbox">
-                                    <input type="checkbox" name="orgInstruments" value="${ins}" ${filterInstruments.includes(ins) ? 'checked' : ''}>
+                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstiges'].map(ins => {
+                                const isChecked = (filterInstruments || []).some(fi => fi === ins || (ins === 'Sonstiges' && (fi === 'Sonstige' || fi === 'Sonstiges')) || (ins === 'Sonstige' && (fi === 'Sonstige' || fi === 'Sonstiges')));
+                                return `
+                                <label class="tag-pill-checkbox ${isChecked ? 'active' : ''}">
+                                    <input type="checkbox" name="orgInstruments" value="${ins}" ${isChecked ? 'checked' : ''}>
                                     <span>${ins}</span>
                                 </label>
-                            `).join('')}
+                            `}).join('')}
                         </div>
                     </div>
 
@@ -21293,6 +21338,11 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                 this.parentElement.classList.add('active');
             } else {
                 this.parentElement.classList.remove('active');
+            }
+            const fg = this.closest('.form-group');
+            if (fg) {
+                fg.querySelectorAll('.field-error-message').forEach(el => el.remove());
+                fg.querySelectorAll('.checkbox-group-error').forEach(el => el.classList.remove('checkbox-group-error'));
             }
         });
     });
