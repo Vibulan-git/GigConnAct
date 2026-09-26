@@ -3186,6 +3186,34 @@ body.landing-page-active .landing-hero {
     }
 }
 
+/* Ensure recommendation and mediation pages always scroll and have proper light background */
+body.page-recommendation,
+html.page-recommendation,
+body.page-recommendation.landing-page-active,
+html.page-recommendation.landing-page-active {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    background-color: #f8fafc !important;
+    background-image: linear-gradient(to right, #eff6ff 0%, #e0f2fe 50%, #bae6fd 100%) !important;
+}
+
+body.page-recommendation .app-container,
+body.page-recommendation #app-main,
+body.page-recommendation.landing-page-active .app-container,
+body.page-recommendation.landing-page-active #app-main {
+    background-color: transparent !important;
+    background-image: none !important;
+    background: transparent !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+}
+
 .transparent-header {
     position: absolute !important;
     top: 0 !important;

@@ -96,11 +96,11 @@ module.exports = function getTopMatchEmailHtml({ userName, role, profileName, ma
             ? m.instruments.join(', ') 
             : (isOrganizer ? 'Nach Vereinbarung' : 'Gesang, Gitarre');
 
-        // Description snippet (limit raised to 350 for more information)
+        // Description snippet (limit raised to 500 for full description)
         const desc = m.description || m.bio || (isOrganizer 
             ? 'Professionelle Live-Musik für unvergessliche Momente.' 
             : 'Wir suchen eine musikalische Begleitung für unser Event.');
-        const shortDesc = desc.length > 350 ? desc.substring(0, 350) + '...' : desc;
+        const shortDesc = desc.length > 500 ? desc.substring(0, 500) + '...' : desc;
  
         const musicianTypes = (Array.isArray(m.musicianTypes) && m.musicianTypes.length > 0) 
             ? m.musicianTypes.join(', ') 

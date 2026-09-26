@@ -174,7 +174,7 @@ window.cancelRegMedia = function(role, type, idx) {
 
 function validateAndProcessAudio(file, callback, errorCallback, onProgress) {
     const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav', 'audio/m4a', 'audio/x-m4a', 'audio/mp4', 'audio/aac', 'audio/ogg'];
-    const maxSize = 25 * 1024 * 1024; // 25 MB max
+    const maxSize = 100 * 1024 * 1024; // 100 MB max
 
     if (!allowedTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|m4a|aac|ogg)$/i)) {
         showToast({
@@ -188,7 +188,7 @@ function validateAndProcessAudio(file, callback, errorCallback, onProgress) {
     if (file.size > maxSize) {
         showToast({
             title: "Hörprobe zu groß ⚠️",
-            message: "Die Datei ist zu groß (max. 25 MB, deine Datei: " + (file.size / (1024 * 1024)).toFixed(1) + " MB). Tipp: MP3-Dateien unter 10 MB laden in wenigen Sekunden hoch."
+            message: "Die Datei ist zu groß (max. 100 MB, deine Datei: " + (file.size / (1024 * 1024)).toFixed(1) + " MB)."
         });
         if (errorCallback) errorCallback();
         return null;
@@ -221,11 +221,6 @@ function validateAndProcessAudio(file, callback, errorCallback, onProgress) {
     };
 
     const uploadPromise = new Promise((resolve, reject) => {
-        showToast({
-            title: "Audio-Upload gestartet 🎵",
-            message: `${file.name} (0%)`
-        });
-
         if (typeof firebase !== 'undefined' && firebase.storage) {
             try {
                 const userId = firebase.auth().currentUser ? firebase.auth().currentUser.uid : 'anonymous';
@@ -234,20 +229,12 @@ function validateAndProcessAudio(file, callback, errorCallback, onProgress) {
                 const metadata = { contentType: file.type || 'audio/mpeg' };
                 uploadTask = fileRef.put(file, metadata);
 
-                let lastReportedPercent = 0;
                 uploadTask.on('state_changed', 
                     (snapshot) => {
                         if (uploadCancelled) return;
                         const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
                         if (typeof onProgress === 'function') {
                             onProgress(progress, snapshot.bytesTransferred, snapshot.totalBytes);
-                        }
-                        if (progress - lastReportedPercent >= 25 || progress === 100) {
-                            lastReportedPercent = progress;
-                            showToast({
-                                title: `Audio-Upload: ${progress}% 🎵`,
-                                message: `${file.name} (${(snapshot.bytesTransferred / (1024*1024)).toFixed(1)} / ${(snapshot.totalBytes / (1024*1024)).toFixed(1)} MB)`
-                            });
                         }
                     },
                     (storageError) => {
@@ -461,10 +448,10 @@ window.addRegMedia = function(role, type) {
             if (files.length === 0) return;
             const validFiles = [];
             for (const file of files) {
-                if (file.size > 25 * 1024 * 1024) {
+                if (file.size > 100 * 1024 * 1024) {
                     showToast({
                         title: "Hörprobe zu groß ⚠️",
-                        message: `Die Audiodatei "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 25 MB.`
+                        message: `Die Audiodatei "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 100 MB.`
                     });
                 } else {
                     validFiles.push(file);
@@ -1327,7 +1314,7 @@ window.unlockListing = function(targetId, targetName) {
         subBtn.disabled = true;
         subBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
         try {
-            const isTariffChange = Boolean(state.currentUser?.subscriptionId || state.currentUser?.subscriptionPlan);
+            const isTariffChange = Boolean(state.currentUser?.isPremium && state.currentUser?.subscriptionId);
             const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
             const res = await createStripeSession({ 
                 planKey: selectedPlan,
@@ -12515,17 +12502,18 @@ function renderProfilePage(container) {
                     return;
                 }
 
-                // 2. Bezahlvorgang: Direkte Weiterleitung zu Stripe Checkout (ohne Testphase, sofortige Bezahlung)
+                // 2. Bezahlvorgang: Weiterleitung zu Stripe Checkout
                 try {
                     saveSubBtn.disabled = true;
                     saveSubBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
                     
+                    const isTariffChange = Boolean(u.isPremium && u.subscriptionId);
                     const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
                     const res = await createStripeSession({ 
                         planKey: selectedPlan,
                         baseUrl: window.location.origin,
                         returnUrl: 'profile',
-                        isTariffChange: true
+                        isTariffChange: isTariffChange
                     });
 
                     if (res.data && res.data.url) {
@@ -14061,7 +14049,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     <!-- 12. Beschreibung -->
                     <div class="form-group">
                         <label>Erzähle kurz etwas über dich</label>
-                        <textarea name="description" class="input-field" rows="3" style="resize:vertical;" maxlength="200" required>${musicianObj?.description || ''}</textarea>
+                        <textarea name="description" class="input-field" rows="3" style="resize:vertical;" maxlength="500" required>${musicianObj?.description || ''}</textarea>
                     </div>
 
                     <!-- Media Section -->
@@ -14090,7 +14078,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                     </div>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 25 MB&#10;Maximale Länge: 10 Minuten"></i></label>
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 100 MB&#10;Maximale Länge: 10 Minuten"></i></label>
                             <button type="button" id="btn-modal-add-audio" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -14462,10 +14450,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                 if (fileInput.files.length > 0) {
                     const validFiles = [];
                     for (const file of Array.from(fileInput.files)) {
-                        if (file.size > 25 * 1024 * 1024) {
+                        if (file.size > 100 * 1024 * 1024) {
                             showToast({
                                 title: "Hörprobe zu groß ⚠️",
-                                message: `Die Audiodatei "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 25 MB.`
+                                message: `Die Audiodatei "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 100 MB.`
                             });
                         } else {
                             validFiles.push(file);
@@ -14929,7 +14917,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                     <!-- 12. Beschreibung -->
                     <div class="form-group">
                         <label>Erzähle kurz etwas über das Event</label>
-                        <textarea name="orgDescription" class="input-field" rows="3" style="resize:vertical;" maxlength="200" required>${eventObj?.description || ''}</textarea>
+                        <textarea name="orgDescription" class="input-field" rows="3" style="resize:vertical;" maxlength="500" required>${eventObj?.description || ''}</textarea>
                     </div>
 
                     <!-- Media Section -->
@@ -15311,10 +15299,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
                     const file = fileInput.files[0];
-                    if (file.size > 25 * 1024 * 1024) {
+                    if (file.size > 100 * 1024 * 1024) {
                         showToast({
                             title: "Hörprobe zu groß ⚠️",
-                            message: `Die Audiodatei "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 25 MB.`
+                            message: `Die Audiodatei "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 100 MB.`
                         });
                         fileInput.value = '';
                         return;
@@ -15871,9 +15859,9 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         <div class="form-group">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <label>Erzähle kurz etwas über dich</label>
-                                <span id="desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 200</span>
+                                <span id="desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 500</span>
                             </div>
-                            <textarea name="musDescription" id="textarea-mus-desc" class="input-field" rows="3" maxlength="200" placeholder="Erzähle kurz etwas über dich/eure Band..."></textarea>
+                            <textarea name="musDescription" id="textarea-mus-desc" class="input-field" rows="3" maxlength="500" placeholder="Erzähle kurz etwas über dich/eure Band..."></textarea>
                         </div>
 
                         <!-- Media Section -->
@@ -15902,7 +15890,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         </div>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
-                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 25 MB&#10;Maximale Länge: 10 Minuten"></i></label>
+                                <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">Hörproben (max. 3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.75rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 100 MB&#10;Maximale Länge: 10 Minuten"></i></label>
                                 <button type="button" onclick="window.addRegMedia('musician', 'audio')" class="btn btn-sm btn-glass" style="margin:0; padding:0.2rem 0.6rem; font-size:0.7rem; border-color: rgba(124, 58, 237, 0.3); color:#7c3aed;">
                                     <i class="fa-solid fa-plus"></i>
                                 </button>
@@ -16092,9 +16080,9 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         <div class="form-group">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <label>Erzähle kurz etwas über das Event</label>
-                                <span id="org-desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 200</span>
+                                <span id="org-desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 500</span>
                             </div>
-                            <textarea name="orgDescription" id="textarea-org-desc" class="input-field" rows="3" maxlength="200" placeholder="Erzähle kurz etwas über das Event..."></textarea>
+                            <textarea name="orgDescription" id="textarea-org-desc" class="input-field" rows="3" maxlength="500" placeholder="Erzähle kurz etwas über das Event..."></textarea>
                         </div>
 
                         <!-- Media Section -->
@@ -16745,8 +16733,8 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
     if (orgDescTextarea && orgDescCounter) {
         orgDescTextarea.addEventListener('input', (e) => {
             const len = e.target.value.length;
-            orgDescCounter.textContent = `${len} / 200`;
-            if (len >= 200) {
+            orgDescCounter.textContent = `${len} / 500`;
+            if (len >= 500) {
                 orgDescCounter.style.color = 'var(--color-red)';
             } else {
                 orgDescCounter.style.color = 'var(--text-muted)';
@@ -17085,8 +17073,8 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
     if (descTextarea && charCounter) {
         descTextarea.addEventListener('input', (e) => {
             const len = e.target.value.length;
-            charCounter.textContent = `${len} / 200`;
-            if (len >= 200) {
+            charCounter.textContent = `${len} / 500`;
+            if (len >= 500) {
                 charCounter.style.color = 'var(--color-red)';
             } else {
                 charCounter.style.color = 'var(--text-muted)';
@@ -18524,8 +18512,11 @@ window.renderSubscriptionExpiredPage = renderSubscriptionExpiredPage;
 window.updateBodyBackground = function(page) {
     let gradient = 'linear-gradient(to right, #eddffd 0%, #e0e7ff 50%, #bae6fd 100%)'; // default combined
     const role = (state && state.currentUser) ? state.currentUser.role : null;
+    const pageStr = String(page || '').toLowerCase();
     
-    if (role === 'organizer') {
+    if (pageStr.startsWith('recommendation') || pageStr.startsWith('mediation') || pageStr.startsWith('feedback')) {
+        gradient = 'linear-gradient(to right, #eff6ff 0%, #e0f2fe 50%, #bae6fd 100%)'; // blue for recommendation / mediation
+    } else if (role === 'organizer') {
         gradient = 'linear-gradient(to right, #eff6ff 0%, #e0f2fe 50%, #bae6fd 100%)'; // blue
     } else if (role === 'musician') {
         gradient = 'linear-gradient(to right, #f5f3ff 0%, #eddffd 50%, #ebd8ff 100%)'; // purple
@@ -18558,6 +18549,20 @@ function navigate(page) {
     if (!isLanding) {
         document.body.classList.remove('landing-page-active');
         document.documentElement.classList.remove('landing-page-active');
+    }
+
+    const isStandalonePage = page && (page.toLowerCase().startsWith('recommendation/') || page.toLowerCase().startsWith('mediation-response/') || page.toLowerCase() === 'feedback' || page.toLowerCase().startsWith('feedback?'));
+    if (isStandalonePage) {
+        document.body.classList.remove('landing-page-active');
+        document.documentElement.classList.remove('landing-page-active');
+        document.body.classList.add('page-recommendation');
+        document.documentElement.classList.add('page-recommendation');
+        mainContainer.classList.remove('landing-active-main');
+        mainContainer.style.backgroundColor = 'transparent';
+        mainContainer.style.overflow = 'auto';
+    } else {
+        document.body.classList.remove('page-recommendation');
+        document.documentElement.classList.remove('page-recommendation');
     }
 
     if (typeof window.updateBodyBackground === 'function') {
@@ -19134,11 +19139,23 @@ function updateNavbar(forceLanding, activePage) {
     const main = document.getElementById('app-main');
 
     const footer = document.querySelector('.app-footer');
-    if (window.location.hash.includes('recommendation/') || window.location.hash.includes('mediation-response/') || window.location.hash.includes('feedback')) {
+    const isStandalonePage = window.location.hash.includes('recommendation/') || 
+                             window.location.hash.includes('mediation-response/') || 
+                             window.location.hash.includes('feedback') ||
+                             (window.location.pathname && (window.location.pathname.includes('/recommendation/') || window.location.pathname.includes('/mediation-response/')));
+    if (isStandalonePage) {
+        document.body.classList.remove('landing-page-active');
+        document.documentElement.classList.remove('landing-page-active');
+        document.body.classList.add('page-recommendation');
+        document.documentElement.classList.add('page-recommendation');
         nav.innerHTML = '';
         authArea.innerHTML = '';
         if (header) header.classList.remove('transparent-header');
-        if (main) main.classList.remove('landing-active-main');
+        if (main) {
+            main.classList.remove('landing-active-main');
+            main.style.backgroundColor = 'transparent';
+            main.style.overflow = 'auto';
+        }
         if (footer) footer.style.display = 'none';
         if (typeof window.updateBottomBar === 'function') window.updateBottomBar();
         return;
@@ -19367,6 +19384,18 @@ function handleRouting() {
     if (!pageWithQuery && window.location.pathname && window.location.pathname !== '/' && window.location.pathname !== '/index.html') {
         const cleanPath = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
         if (cleanPath) {
+            const isCleanPathStandalone = cleanPath.toLowerCase().startsWith('recommendation/') ||
+                                          cleanPath.toLowerCase().startsWith('mediation-response/') ||
+                                          cleanPath.toLowerCase() === 'feedback';
+            if (isCleanPathStandalone) {
+                document.body.classList.remove('landing-page-active');
+                document.documentElement.classList.remove('landing-page-active');
+                document.body.classList.add('page-recommendation');
+                document.documentElement.classList.add('page-recommendation');
+                if (typeof window.updateBodyBackground === 'function') {
+                    window.updateBodyBackground('musicians');
+                }
+            }
             pageWithQuery = cleanPath + (window.location.search || '');
             window.location.hash = `#/${pageWithQuery}`;
             return;
@@ -19376,6 +19405,26 @@ function handleRouting() {
     let rawPage = pageWithQuery.split('?')[0];
     if (rawPage.endsWith('/')) {
         rawPage = rawPage.slice(0, -1);
+    }
+
+    const isStandalone = rawPage.toLowerCase().startsWith('recommendation/') ||
+                         rawPage.toLowerCase().startsWith('mediation-response/') ||
+                         rawPage.toLowerCase() === 'feedback';
+
+    if (isStandalone) {
+        document.body.classList.remove('landing-page-active');
+        document.documentElement.classList.remove('landing-page-active');
+        document.body.classList.add('page-recommendation');
+        document.documentElement.classList.add('page-recommendation');
+        mainContainer.classList.remove('landing-active-main');
+        mainContainer.style.backgroundColor = 'transparent';
+        mainContainer.style.overflow = 'auto';
+        if (typeof window.updateBodyBackground === 'function') {
+            window.updateBodyBackground('musicians');
+        }
+    } else {
+        document.body.classList.remove('page-recommendation');
+        document.documentElement.classList.remove('page-recommendation');
     }
 
     // Dynamic routing for recommendation and mediation response pages (always accessible, preserve raw case)
@@ -21019,9 +21068,9 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                     <div class="form-group">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <label>Erzähle kurz etwas über das Event</label>
-                            <span id="org-desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 200</span>
+                            <span id="org-desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 500</span>
                         </div>
-                        <textarea name="orgDescription" id="textarea-org-desc" class="input-field" rows="3" maxlength="200" placeholder="Erzähle kurz etwas über das Event..." required></textarea>
+                        <textarea name="orgDescription" id="textarea-org-desc" class="input-field" rows="3" maxlength="500" placeholder="Erzähle kurz etwas über das Event..." required></textarea>
                     </div>
 
                     <!-- Media Section -->
@@ -21253,7 +21302,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
     const orgCharCounter = modalWrapper.querySelector('#org-desc-char-counter');
     if (orgDescTextarea && orgCharCounter) {
         orgDescTextarea.addEventListener('input', (e) => {
-            orgCharCounter.textContent = `${e.target.value.length} / 200`;
+            orgCharCounter.textContent = `${e.target.value.length} / 500`;
         });
     }
 
@@ -23031,11 +23080,6 @@ function validateAndProcessVideo(file, callback, errorCallback, onProgress) {
     let xhr = null;
 
     const uploadPromise = new Promise(async (resolve, reject) => {
-        showToast({
-            title: "Video-Upload gestartet 🎬",
-            message: `${file.name} (0%)`
-        });
-
         try {
             const userId = (auth && auth.currentUser) ? auth.currentUser.uid : 'anonymous';
             const cleanFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -23055,20 +23099,12 @@ function validateAndProcessVideo(file, callback, errorCallback, onProgress) {
                 xhr.setRequestHeader('Authorization', `Firebase ${idToken}`);
             }
 
-            let lastReportedPercent = 0;
             xhr.upload.onprogress = (e) => {
                 if (uploadCancelled) return;
                 if (e.lengthComputable) {
                     const progress = Math.round((e.loaded / e.total) * 100);
                     if (typeof onProgress === 'function') {
                         onProgress(progress, e.loaded, e.total);
-                    }
-                    if (progress - lastReportedPercent >= 20 || progress === 100) {
-                        lastReportedPercent = progress;
-                        showToast({
-                            title: `Video-Upload: ${progress}% 🎬`,
-                            message: `${file.name} (${(e.loaded / (1024 * 1024)).toFixed(1)} / ${(e.total / (1024 * 1024)).toFixed(1)} MB)`
-                        });
                     }
                 }
             };
@@ -23261,7 +23297,7 @@ window.showMediaModal = function(itemId, isEvents) {
                 ${!isEvents ? `
                 <div>
                     <h4 style="margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
-                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎵 Hörproben (${audios.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 25 MB&#10;Maximale Länge: 10 Minuten"></i></span>
+                        <span style="display: inline-flex; align-items: center; gap: 0.3rem;">🎵 Hörproben (${audios.length}/3) <i class="fa-solid fa-circle-info" style="cursor: pointer; color: var(--text-muted); font-size: 0.8rem;" title="Erlaubte Formate: MP3, WAV, M4A&#10;Maximale Größe: 100 MB&#10;Maximale Länge: 10 Minuten"></i></span>
                         ${audios.length < 3 ? `
                             <button id="btn-add-mock-audio" class="btn btn-sm btn-glass" style="margin:0; padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: rgba(124, 58, 237, 0.3); color: #7c3aed; display: flex; align-items: center; gap: 0.25rem;">
                                 <i class="fa-solid fa-plus"></i>
@@ -23386,10 +23422,10 @@ window.showMediaModal = function(itemId, isEvents) {
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
                     const file = fileInput.files[0];
-                    if (file.size > 25 * 1024 * 1024) {
+                    if (file.size > 100 * 1024 * 1024) {
                         showToast({
                             title: "Hörprobe zu groß ⚠️",
-                            message: `Die Audiodatei "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 25 MB.`
+                            message: `Die Audiodatei "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 100 MB.`
                         });
                         fileInput.value = '';
                         return;
@@ -24021,12 +24057,28 @@ window.showAdminRecommendationDialog = function(musicianIds) {
 // Recommendation page for Organizer
 // ==========================================
 window.renderRecommendationPage = async function(container, mediationId) {
-    container.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
-            <img src="discoball.png" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
-            <span>Lade Vorschläge...</span>
-        </div>
-    `;
+    document.body.classList.remove('landing-page-active');
+    document.documentElement.classList.remove('landing-page-active');
+    document.body.classList.add('page-recommendation');
+    document.documentElement.classList.add('page-recommendation');
+    
+    if (typeof window.updateBodyBackground === 'function') {
+        window.updateBodyBackground('musicians');
+    }
+    
+    if (container) {
+        container.classList.remove('landing-active-main');
+        container.style.backgroundColor = 'transparent';
+        container.style.overflow = 'auto';
+        container.style.height = 'auto';
+        container.style.minHeight = '100vh';
+        container.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
+                <img src="discoball.png" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
+                <span>Lade Vorschläge...</span>
+            </div>
+        `;
+    }
 
     try {
         let med = null;
@@ -24777,12 +24829,28 @@ window.removeMediationEvent = function(mediationId) {
 // Mediation response page for selected Musician
 // ==========================================
 window.renderMediationResponsePage = function(container, mediationId) {
-    container.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
-            <img src="discoball.png" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
-            <span>Lade Anfrage...</span>
-        </div>
-    `;
+    document.body.classList.remove('landing-page-active');
+    document.documentElement.classList.remove('landing-page-active');
+    document.body.classList.add('page-recommendation');
+    document.documentElement.classList.add('page-recommendation');
+    
+    if (typeof window.updateBodyBackground === 'function') {
+        window.updateBodyBackground('musicians');
+    }
+    
+    if (container) {
+        container.classList.remove('landing-active-main');
+        container.style.backgroundColor = 'transparent';
+        container.style.overflow = 'auto';
+        container.style.height = 'auto';
+        container.style.minHeight = '100vh';
+        container.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40vh; gap: 1.2rem; color: var(--text-muted); font-family: var(--font-body);">
+                <img src="discoball.png" style="width: 60px; height: 60px; object-fit: contain; animation: spin 5s linear infinite;">
+                <span>Lade Anfrage...</span>
+            </div>
+        `;
+    }
 
     db.collection('mediations').doc(mediationId).get().then(async (doc) => {
         if (!doc.exists) {
@@ -25155,6 +25223,16 @@ window.renderMediationResponsePage = function(container, mediationId) {
 
 window.renderFeedbackPage = async function(container) {
     if (!container) return;
+
+    document.body.classList.remove('landing-page-active');
+    document.documentElement.classList.remove('landing-page-active');
+    document.body.classList.add('page-recommendation');
+    document.documentElement.classList.add('page-recommendation');
+    container.classList.remove('landing-active-main');
+    container.style.backgroundColor = 'transparent';
+    container.style.overflow = 'auto';
+    container.style.height = 'auto';
+    container.style.minHeight = '100vh';
 
     // Set background
     if (typeof window.updateBodyBackground === 'function') {

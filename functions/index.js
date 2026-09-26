@@ -996,12 +996,12 @@ exports.createStripeCheckoutSession = functions
                 }
             }
 
-            if (userData.hasHadTrial || userData.subscriptionId || (userData.subscriptionPlan && userData.subscriptionPlan !== 'free')) {
+            if (userData.hasHadTrial === true || userData.subscriptionTrialStart || userData.subscriptionTrialEnd) {
                 hasHadTrial = true;
             }
 
-            const isTariffChange = Boolean(data.isTariffChange);
-            const hasActiveSubscription = subscriptionId && (subscriptionStatus === 'active' || subscriptionStatus === 'trialing');
+            const hasActiveSubscription = Boolean(subscriptionId && (subscriptionStatus === 'active' || subscriptionStatus === 'trialing') && userData.isPremium === true);
+            const isTariffChange = Boolean(data.isTariffChange && hasActiveSubscription);
             const isPlanChange = isTariffChange || Boolean(hasActiveSubscription && currentPlan && currentPlan !== planKey);
 
             const sessionParams = {
@@ -1026,18 +1026,16 @@ exports.createStripeCheckoutSession = functions
                 sessionParams.customer_email = email;
             }
 
-            if (hasHadTrial || isPlanChange) {
+            // Free trials are strictly for first-time subscribers (never had a trial, not changing plans, no active subscription)
+            const allowTrial = !hasHadTrial && !isPlanChange && !hasActiveSubscription;
+
+            if (!allowTrial) {
                 sessionParams.custom_text = {
                     submit: {
                         message: "Hinweis: Da für dieses Konto bereits eine kostenlose Testphase genutzt wurde oder es sich um einen Tarifwechsel handelt, entfällt der Testzeitraum für diese Buchung. Die Abbuchung erfolgt direkt."
                     }
                 };
             }
-
-            const disableAllTrialsForTesting = false; // Set to false when ready to re-enable trials!
-
-            // Free trials are strictly for first-time subscribers (never had a trial, not changing plans, no active subscription)
-            const allowTrial = !disableAllTrialsForTesting && !hasHadTrial && !isPlanChange && !hasActiveSubscription;
 
             sessionParams.subscription_data = {
                 metadata: {
