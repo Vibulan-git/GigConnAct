@@ -6372,7 +6372,7 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
         return _matchScoreCache.get(matchCacheKey);
     }
 
-    // 1. Musiker-Typ (25 %)
+    // 1. Musiker-Typ (35 %)
     let typeScore = 0;
     const eventTypesRaw = event.musicianTypes || [];
     const eventTypes = Array.isArray(eventTypesRaw) 
@@ -6385,7 +6385,7 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
         : (typeof musTypesRaw === 'string' ? musTypesRaw.split(',').map(t => t.trim().toLowerCase()) : []);
 
     if (eventTypes.some(t => musTypes.includes(t))) {
-        typeScore = 25;
+        typeScore = 35;
     }
 
     // 2. Ort (5 %)
@@ -6409,22 +6409,22 @@ function calculateMatch(musician, event, searcherRole = 'musician') {
         }
     }
 
-    // 3. Genres (20 %)
+    // 3. Genres (15 %)
     let genresScore = 0;
     const evGenres = expandList(event.genres);
     const musGenres = expandList(musician.genres);
     if (evGenres.length > 0) {
         const commonGenres = evGenres.filter(g => musGenres.includes(g));
-        genresScore = (commonGenres.length / evGenres.length) * 20;
+        genresScore = (commonGenres.length / evGenres.length) * 15;
     }
 
-    // 4. Instrumente (10 %)
+    // 4. Instrumente (5 %)
     let instScore = 0;
     const evInst = expandList(event.instruments);
     const musInst = expandList(musician.instruments);
     if (evInst.length > 0) {
         const commonInst = evInst.filter(i => musInst.includes(i));
-        instScore = (commonInst.length / evInst.length) * 10;
+        instScore = (commonInst.length / evInst.length) * 5;
     }
 
     // 5. Spielzeit (5 %)
