@@ -1218,9 +1218,14 @@ window.unlockListing = function(targetId, targetName) {
             <!-- Promo Code Box for Premium in Unlock Modal -->
             <div id="unlock-promo-code-box" style="display: none; margin-top: 1rem; margin-bottom: 0.8rem; background: rgba(124, 58, 237, 0.05); border: 1.5px dashed var(--color-purple); padding: 0.9rem; border-radius: 12px; text-align: left;">
                 <h5 style="margin: 0 0 0.4rem; font-size: 0.85rem; font-weight: 700; color: var(--color-purple); display: flex; align-items: center; gap: 0.4rem;"><i class="fa-brands fa-instagram"></i> Premium-Aktionscode</h5>
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.6rem; line-height: 1.35;">
-                    Gib deinen Instagram- oder Aktionscode ein, um den Premium-Tarif freizuschalten:
+                <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.7rem; line-height: 1.4;">
+                    Der Premium-Tarif ist nur mit einem gültigen Code aktivierbar. Den Code erhältst Du, wenn Du den auf der Instagram-Seite von GigConnAct angepinnten Beitrag in Deiner Story teilst und GigConnAct markierst.
                 </p>
+                <div style="margin-bottom: 0.7rem;">
+                    <a href="https://www.instagram.com/gigconnact/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm btn-instagram-link" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.9rem; font-size: 0.8rem; font-weight: 700; text-decoration: none; border-radius: 8px; background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); color: #ffffff; border: none; box-shadow: 0 2px 8px rgba(225, 48, 108, 0.25);">
+                        <i class="fa-brands fa-instagram" style="font-size: 0.95rem;"></i> Instagram
+                    </a>
+                </div>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
                     <input type="text" id="unlock-promo-code" class="input-field" placeholder="z. B. GIGINSTA59" style="margin:0; padding:0.45rem 0.65rem; font-size:0.8rem; text-transform: uppercase; font-weight: 600; flex: 1;">
                     <button type="button" class="btn btn-secondary btn-sm" id="btn-unlock-apply-promo" style="margin:0; padding: 0.45rem 0.8rem; font-size:0.8rem; font-weight: 700; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple); color: #fff;">Code prüfen</button>
@@ -12070,9 +12075,14 @@ function renderProfilePage(container) {
 
                     <div id="profile-promo-code-box" style="display: ${activePlan === 'premium' ? 'block' : 'none'}; margin-top: 1.2rem; margin-bottom: 1.2rem; background: ${isMusician ? 'rgba(124, 58, 237, 0.05)' : 'rgba(37, 99, 235, 0.05)'}; border: 1.5px dashed ${themeColor}; padding: 1.1rem; border-radius: var(--radius-md); text-align: left;">
                         <h5 style="margin: 0 0 0.5rem; font-size: 0.95rem; font-weight: 700; color: ${themeColor}; display: flex; align-items: center; gap: 0.5rem;"><i class="fa-brands fa-instagram"></i> Premium-Aktionscode</h5>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.4;">
-                            Um in den exklusiven Premium-Tarif (4,99 €/Monat) zu wechseln, gib bitte deinen Instagram- oder Aktionscode ein:
+                        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.45;">
+                            Der Premium-Tarif ist nur mit einem gültigen Code aktivierbar. Den Code erhältst Du, wenn Du den auf der Instagram-Seite von GigConnAct angepinnten Beitrag in Deiner Story teilst und GigConnAct markierst.
                         </p>
+                        <div style="margin-bottom: 0.8rem;">
+                            <a href="https://www.instagram.com/gigconnact/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm btn-instagram-link" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: 700; text-decoration: none; border-radius: 8px; background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); color: #ffffff; border: none; box-shadow: 0 2px 8px rgba(225, 48, 108, 0.25);">
+                                <i class="fa-brands fa-instagram" style="font-size: 1rem;"></i> Instagram
+                            </a>
+                        </div>
                         <div style="display: flex; gap: 0.6rem; align-items: center;">
                             <input type="text" id="prof-promo-code" class="input-field" placeholder="z. B. GCA-XXX-XXX oder GIGINSTA59" style="margin:0; text-transform: uppercase; font-weight: 600; flex: 1;">
                             <button type="button" class="btn btn-secondary btn-sm" id="btn-prof-apply-promo" style="margin:0; padding: 0.6rem 1.2rem; font-size:0.85rem; font-weight: 700; white-space:nowrap; background:${themeBtnBg}; border-color:${themeBtnBorder}; color: #ffffff;">Code prüfen</button>
@@ -14077,7 +14087,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
 
                     <!-- 12. Beschreibung -->
                     <div class="form-group">
-                        <label>Erzähle kurz etwas über dich</label>
+                        <label>Erzähle etwas über dich</label>
                         <textarea name="description" class="input-field" rows="3" style="resize:vertical;" maxlength="500" required>${musicianObj?.description || ''}</textarea>
                     </div>
 
@@ -14577,7 +14587,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
         }
         const descVal = formData.get('description')?.trim();
         if (!descVal) {
-            showToast({ title: "Validierungsfehler ⚠️", message: "Bitte erzähle kurz etwas über dich." });
+            showToast({ title: "Validierungsfehler ⚠️", message: "Bitte erzähle etwas über dich." });
             markInvalid(form.querySelector('textarea[name="description"]'));
             return;
         }
@@ -15897,10 +15907,10 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         <!-- 12. Beschreibung -->
                         <div class="form-group">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <label>Erzähle kurz etwas über dich</label>
+                                <label>Erzähle etwas über dich</label>
                                 <span id="desc-char-counter" style="font-size:0.75rem; color:var(--text-muted);">0 / 500</span>
                             </div>
-                            <textarea name="musDescription" id="textarea-mus-desc" class="input-field" rows="3" maxlength="500" placeholder="Erzähle kurz etwas über dich/eure Band..."></textarea>
+                            <textarea name="musDescription" id="textarea-mus-desc" class="input-field" rows="3" maxlength="500" placeholder="Erzähle etwas über dich/eure Band..."></textarea>
                         </div>
 
                         <!-- Media Section -->
@@ -16274,9 +16284,14 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
 
                     <div id="reg-promo-code-container" style="display: none; margin-top: 1.2rem; margin-bottom: 1.2rem; background: rgba(124, 58, 237, 0.05); border: 1.5px dashed var(--color-purple); padding: 1.1rem; border-radius: var(--radius-md); text-align: left;">
                         <h5 style="margin: 0 0 0.5rem; font-size: 0.95rem; font-weight: 700; color: var(--color-purple); display: flex; align-items: center; gap: 0.5rem;"><i class="fa-brands fa-instagram"></i> Premium-Aktionscode</h5>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.4;">
-                            Um den Premium-Tarif (3 Monate kostenlos, danach 4,99 €/Monat) zu wählen, gib bitte deinen Instagram- oder Aktionscode ein:
+                        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.45;">
+                            Der Premium-Tarif ist nur mit einem gültigen Code aktivierbar. Den Code erhältst Du, wenn Du den auf der Instagram-Seite von GigConnAct angepinnten Beitrag in Deiner Story teilst und GigConnAct markierst.
                         </p>
+                        <div style="margin-bottom: 0.8rem;">
+                            <a href="https://www.instagram.com/gigconnact/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm btn-instagram-link" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: 700; text-decoration: none; border-radius: 8px; background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); color: #ffffff; border: none; box-shadow: 0 2px 8px rgba(225, 48, 108, 0.25);">
+                                <i class="fa-brands fa-instagram" style="font-size: 1rem;"></i> Instagram
+                            </a>
+                        </div>
                         <div style="display: flex; gap: 0.6rem; align-items: center;">
                             <input type="text" id="reg-promo-code" class="input-field" placeholder="z. B. GCA-XXX-XXX oder GIGINSTA59" style="margin:0; text-transform: uppercase; font-weight: 600; flex: 1;">
                             <button type="button" class="btn btn-secondary btn-sm" id="btn-apply-promo" style="margin:0; padding: 0.6rem 1.2rem; font-size:0.85rem; font-weight: 700; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple); color: #fff;">Code prüfen</button>
@@ -17233,7 +17248,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             }
             musDescVal = registerForm.querySelector('textarea[name="musDescription"]')?.value.trim();
             if (!musDescVal) {
-                showValidationError(document.getElementById('textarea-mus-desc'), null, 'Bitte erzähle kurz etwas über dich.');
+                showValidationError(document.getElementById('textarea-mus-desc'), null, 'Bitte erzähle etwas über dich.');
                 return;
             }
             if (bandName.length > 2 && musDescVal.toLowerCase().includes(bandName.toLowerCase())) {
@@ -18393,9 +18408,14 @@ function renderSubscriptionExpiredPage(container) {
 
                 <div id="expired-promo-code-box" style="display: ${selectedPlan === 'premium' ? 'block' : 'none'}; max-width: 480px; margin: 1.5rem auto 1rem; background: rgba(124, 58, 237, 0.05); border: 1.5px dashed var(--color-purple); padding: 1.2rem; border-radius: var(--radius-md); text-align: left;">
                     <h5 style="margin: 0 0 0.5rem; font-size: 0.95rem; font-weight: 700; color: var(--color-purple); display: flex; align-items: center; gap: 0.5rem;"><i class="fa-brands fa-instagram"></i> Premium-Freischaltung</h5>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.4;">
-                        Um in den exklusiven Premium-Tarif (3 Monate kostenlos, danach 4,99 €/Monat) zu wechseln, gib bitte deinen Instagram- oder Aktionscode ein:
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.45;">
+                        Der Premium-Tarif ist nur mit einem gültigen Code aktivierbar. Den Code erhältst Du, wenn Du den auf der Instagram-Seite von GigConnAct angepinnten Beitrag in Deiner Story teilst und GigConnAct markierst.
                     </p>
+                    <div style="margin-bottom: 0.8rem;">
+                        <a href="https://www.instagram.com/gigconnact/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm btn-instagram-link" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: 700; text-decoration: none; border-radius: 8px; background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); color: #ffffff; border: none; box-shadow: 0 2px 8px rgba(225, 48, 108, 0.25);">
+                            <i class="fa-brands fa-instagram" style="font-size: 1rem;"></i> Instagram
+                        </a>
+                    </div>
                     <div style="display: flex; gap: 0.6rem; align-items: center;">
                         <input type="text" id="expired-promo-code" class="input-field" placeholder="z. B. GCA-XXX-XXX oder GIGINSTA59" style="margin:0; text-transform: uppercase; font-weight: 600; flex: 1;">
                         <button type="button" class="btn btn-secondary btn-sm" id="btn-expired-apply-promo" style="margin:0; padding: 0.6rem 1.2rem; font-size:0.85rem; font-weight: 700; white-space:nowrap; background:var(--color-purple); border-color:var(--color-purple); color: #fff;">Code prüfen</button>

@@ -1391,6 +1391,27 @@ body {
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
 }
 
+.btn-instagram-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045) !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(225, 48, 108, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.btn-instagram-link:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(225, 48, 108, 0.35);
+    color: #ffffff !important;
+    opacity: 0.95;
+}
+
 /* Profile Form styling */
 .profile-section-card {
     background: var(--bg-card);
