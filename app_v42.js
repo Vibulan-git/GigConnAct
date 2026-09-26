@@ -3572,7 +3572,7 @@ class StateManager {
                                         return;
                                     }
                                     const currentHash = window.location.hash || '';
-                                    if (currentHash.includes('datenschutz') || currentHash.includes('impressum')) {
+                                    if (currentHash.includes('datenschutz') || currentHash.includes('impressum') || currentHash.includes('agb')) {
                                         console.log("Skipping auth modal popup on legal pages.");
                                         return;
                                     }
@@ -8069,6 +8069,8 @@ function renderLandingPage(container, onNavigate) {
                         <a href="#/impressum" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#c084fc';" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)';">Impressum</a>
                         <span style="color: rgba(255,255,255,0.2);">&bull;</span>
                         <a href="#/datenschutz" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#c084fc';" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)';">Datenschutz</a>
+                        <span style="color: rgba(255,255,255,0.2);">&bull;</span>
+                        <a href="#/agb" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#c084fc';" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)';">AGB</a>
                     </div>
                 </div>
             </div>
@@ -16557,8 +16559,8 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
 
                     <div id="reg-privacy-consent-container" style="margin-top: 1.2rem; margin-bottom: 1.2rem;">
                         <label class="form-checkbox" style="display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.8rem; line-height: 1.4; color: var(--text-muted); cursor: pointer;">
-                            <input type="checkbox" name="privacyConsent" required oninvalid="this.setCustomValidity('Bitte bestätige, dass du die Datenschutzerklärung gelesen hast.')" oninput="this.setCustomValidity('')" style="width: auto; margin-top: 0.2rem; cursor: pointer; transform: scale(1.2);">
-                            <span>Ich habe die <a href="#/datenschutz" target="_blank" onclick="window.open(this.href, '_blank'); return false;" style="color: var(--color-purple); text-decoration: underline;">Datenschutzerklärung</a> gelesen und willige in die Verarbeitung meiner personenbezogenen Daten zum Zweck der Vermittlung ein.</span>
+                            <input type="checkbox" name="privacyConsent" required oninvalid="this.setCustomValidity('Bitte bestätige, dass du die AGB und die Datenschutzerklärung gelesen hast und diesen zustimmst.')" oninput="this.setCustomValidity('')" style="width: auto; margin-top: 0.2rem; cursor: pointer; transform: scale(1.2);">
+                            <span>Ich habe die <a href="#/agb" target="_blank" onclick="window.open(this.href, '_blank'); return false;" style="color: var(--color-purple); text-decoration: underline;">AGB</a> und die <a href="#/datenschutz" target="_blank" onclick="window.open(this.href, '_blank'); return false;" style="color: var(--color-purple); text-decoration: underline;">Datenschutzerklärung</a> gelesen und stimme diesen sowie der Datenverarbeitung zu.</span>
                         </label>
                     </div>
 
@@ -17438,7 +17440,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
         
         const privacyConsent = registerForm.elements.privacyConsent?.checked;
         if (!privacyConsent) {
-            showValidationError(registerForm.elements.privacyConsent, '.form-checkbox', "Bitte bestätige, dass du die Datenschutzerklärung gelesen hast.");
+            showValidationError(registerForm.elements.privacyConsent, '.form-checkbox', "Bitte bestätige, dass du die AGB und die Datenschutzerklärung gelesen hast und diesen zustimmst.");
             return;
         }
 
@@ -18880,7 +18882,7 @@ function navigate(page) {
         window.updateBodyBackground(page);
     }
 
-    const noInitialLoadRequired = ['', '/', 'login', 'register', 'impressum', 'datenschutz'];
+    const noInitialLoadRequired = ['', '/', 'login', 'register', 'impressum', 'datenschutz', 'agb'];
     const needsLoad = !noInitialLoadRequired.includes(page);
 
     // Full-page blocking loading spinner removed to enable instant SPA routing and rendering from cache
@@ -18914,6 +18916,10 @@ function navigate(page) {
         }
         if (page === 'datenschutz') {
             renderDatenschutzPage(mainContainer);
+            return;
+        }
+        if (page === 'agb') {
+            renderAgbPage(mainContainer);
             return;
         }
         renderSubscriptionExpiredPage(mainContainer);
@@ -19174,6 +19180,9 @@ function navigate(page) {
             break;
         case 'datenschutz':
             renderDatenschutzPage(mainContainer);
+            break;
+        case 'agb':
+            renderAgbPage(mainContainer);
             break;
         case 'profile':
             if (!state.currentUser) {
@@ -21517,7 +21526,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                     <div style="display: flex; align-items: center; gap: 0.75rem; margin-top: 1.5rem; margin-bottom: 1rem;">
                         <input type="checkbox" id="chk-agency-publish-consent" style="width: 20px; height: 20px; min-width: 20px; cursor: pointer; accent-color: #2563eb;" required>
                         <label for="chk-agency-publish-consent" style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted); cursor: pointer; margin: 0; line-height: 1.4; text-align: left;">
-                            Ich stimme der <a href="#/datenschutz" target="_blank" onclick="window.open(this.href, '_blank'); return false;" style="color: #2563eb; text-decoration: underline; font-weight: 600;">Datenschutzerklärung</a> von GigConnAct zu.
+                            Ich stimme den <a href="#/agb" target="_blank" onclick="window.open(this.href, '_blank'); return false;" style="color: #2563eb; text-decoration: underline; font-weight: 600;">AGB</a> und der <a href="#/datenschutz" target="_blank" onclick="window.open(this.href, '_blank'); return false;" style="color: #2563eb; text-decoration: underline; font-weight: 600;">Datenschutzerklärung</a> von GigConnAct zu.
                         </label>
                     </div>
 
@@ -24177,6 +24186,204 @@ function renderDatenschutzPage(container) {
 }
 window.renderDatenschutzPage = renderDatenschutzPage;
 
+function renderAgbPage(container) {
+    container.innerHTML = `
+        <div class="legal-page-container" style="max-width: 800px; width: 100%; margin: 2rem auto 4rem; padding: 2.5rem 2rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color); box-shadow: var(--shadow-lg); box-sizing: border-box; overflow-wrap: break-word; word-break: break-word;">
+            <h1 style="font-family: var(--font-heading); color: var(--text-main); font-size: 2rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.75rem; overflow-wrap: break-word; word-break: break-word;">Allgemeine Geschäftsbedingungen (AGB)</h1>
+            
+            <div style="line-height: 1.8; color: var(--text-main); font-size: 0.95rem; overflow-wrap: break-word; word-break: break-word;">
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">
+                    Stand: September 2026
+                </p>
+
+                <h2 style="font-size: 1.3rem; margin-top: 1.5rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem; overflow-wrap: break-word; word-break: break-word;">§ 1 Geltungsbereich und Anbieter</h2>
+                <p>
+                    (1) Diese Allgemeinen Geschäftsbedingungen (nachfolgend „AGB“) gelten für alle Verträge, Nutzungen und Rechtsbeziehungen zwischen dem Plattformbetreiber<br>
+                    <strong>Vibulan Sivanathan</strong><br>
+                    Montanusstraße 49<br>
+                    51065 Köln<br>
+                    E-Mail: <a href="mailto:info@gigconnact.de" style="color: var(--color-purple); text-decoration: underline;">info@gigconnact.de</a><br>
+                    (nachfolgend „GigConnAct“ oder „wir/uns“)<br>
+                    und den Nutzern der Online-Plattform <a href="https://www.gigconnact.de" style="color: var(--color-purple); text-decoration: underline;">www.gigconnact.de</a> (nachfolgend „Nutzer“), bestehend aus Musikern, Bands, DJs, Solokünstlern (nachfolgend zusammenfassend „Musiker“) sowie privaten und gewerblichen Veranstaltern (nachfolgend „Veranstalter“).
+                </p>
+                <p>
+                    (2) Abweichende, entgegenstehende oder ergänzende Bedingungen des Nutzers werden nicht Vertragsbestandteil, es sei denn, ihrer Geltung wird ausdrücklich schriftlich zugestimmt.
+                </p>
+
+                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem; overflow-wrap: break-word; word-break: break-word;">§ 2 Vertragsgegenstand und Rolle von GigConnAct</h2>
+                <p>
+                    (1) GigConnAct stellt eine innovative digitale Vermittlungs- und Kontaktplattform bereit. Sie ermöglicht es Musikern, sich mit Profilen, Hörproben, Fotos und Videos zu präsentieren, und Veranstaltern, passende Live-Acts für private oder gewerbliche Anlässe (z. B. Hochzeiten, Geburtstage, Firmenfeiern, Festivals) zu suchen, zu filtern und zu kontaktieren.
+                </p>
+                <p>
+                    (2) <strong>Kein eigener Auftrittsvertrag:</strong> GigConnAct tritt ausdrücklich lediglich als Vermittler und Betreiber der Plattform auf. Der eigentliche Auftritts- bzw. Künstlervertrag (Gage, Spielzeit, technische Anforderungen, Stornobedingungen, Durchführung) kommt <strong>ausschließlich und direkt zwischen dem Musiker und dem jeweiligen Veranstalter</strong> zustande. GigConnAct wird zu keinem Zeitpunkt Vertragspartei des Auftrittsvertrags und übernimmt hierfür keinerlei Haftung oder Garantie.
+                </p>
+
+                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem; overflow-wrap: break-word; word-break: break-word;">§ 3 Registrierung, Benutzerkonto und Sorgfaltspflichten</h2>
+                <p>
+                    (1) Die Nutzung erweiterter Plattformfunktionen setzt die Registrierung eines Benutzerkontos voraus. Die Registrierung ist natürlichen Personen ab dem vollendeten 18. Lebensjahr sowie juristischen Personen gestattet.
+                </p>
+                <p>
+                    (2) Der Nutzer verpflichtet sich, bei der Registrierung vollständige und wahrheitsgemäße Angaben zu machen und diese bei Änderungen unverzüglich zu aktualisieren.
+                </p>
+                <p>
+                    (3) Der Nutzer ist verpflichtet, seine Zugangsdaten (Passwort) vertraulich zu behandeln und vor dem unbefugten Zugriff Dritter zu schützen. Bei Verdacht auf Missbrauch ist GigConnAct unverzüglich zu unterrichten.
+                </p>
+
+                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem; overflow-wrap: break-word; word-break: break-word;">§ 4 Kostenfreie Nutzung für Veranstalter</h2>
+                <p>
+                    (1) Für Veranstalter ist die Registrierung, das Erstellen von Veranstalterprofilen, das Inserieren von Event-Ausschreibungen sowie die Nutzung des Such- und Vermittlungsservices auf GigConnAct dauerhaft <strong>kostenlos</strong>.
+                </p>
+                <p>
+                    (2) Eventuelle Gagen oder Auslagen für den Auftritt vereinbart der Veranstalter direkt und eigenverantwortlich mit dem gebuchten Musiker.
+                </p>
+
+                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem; overflow-wrap: break-word; word-break: break-word;">§ 5 Musiker-Abonnements (Mitgliedschaften) & Zahlungsabwicklung</h2>
+                <p>
+                    (1) Musiker können auf GigConnAct kostenpflichtige Mitgliedschaften (Abonnements) in verschiedenen Tarifstufen (z. B. <em>Flex</em>, <em>Plus</em>, <em>Pro</em> oder <em>Premium</em>) abschließen, um ihre Profile zu veröffentlichen, im Marktplatz gelistet zu werden und Anfragen zu erhalten. Die jeweils aktuellen Leistungsmerkmale und Preise ergeben sich aus der Preisübersicht auf der Plattform.
+                </p>
+                <p>
+                    (2) <strong>Zahlungsdienstleister:</strong> Sämtliche Zahlungen für Abonnements werden sicher über unseren zertifizierten Zahlungsdienstleister <strong>Stripe Payments Europe, Ltd.</strong> abgewickelt. Es gelten die von Stripe angebotenen Zahlungsmethoden (z. B. Kreditkarte, SEPA-Lastschrift, PayPal, Apple Pay, Google Pay).
+                </p>
+                <p>
+                    (3) <strong>Laufzeit & Verlängerung:</strong> Abonnements werden, sofern im gewählten Tarif nicht abweichend vereinbart, für den jeweils gebuchten Abrechnungszeitraum (monatlich bzw. jährlich) geschlossen und verlängern sich automatisch um denselben Zeitraum, sofern sie nicht vor Ablauf des aktuellen Abrechnungszeitraums gekündigt werden.
+                </p>
+                <p>
+                    (4) <strong>Testphasen & Aktionscodes:</strong> Werden kostenlose Testphasen oder Promotion-Codes gewährt (z. B. 3 Monate kostenlos bei Aktionen), ist für die Aktivierung die Hinterlegung einer gültigen Zahlungsmethode bei Stripe erforderlich. Nach Ablauf des kostenlosen Testzeitraums wandelt sich das Abonnement automatisch in die reguläre kostenpflichtige Mitgliedschaft um, sofern der Nutzer nicht vor Ablauf der Testphase kündigt.
+                </p>
+
+                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem; overflow-wrap: break-word; word-break: break-word;">§ 6 Vermittlungsdienst und Vermittlungsgebühren (Provision)</h2>
+                <p>
+                    (1) Veranstalter können über das GigConnAct-Vermittlungsformular eine geführte Vermittlungsanfrage stellen. GigConnAct schlägt dem Veranstalter basierend auf den Kriterien passende Musiker vor und kontaktiert ausgewählte Wunsch-Acts.
+                </p>
+                <p>
+                    (2) <strong>Vermittlungsgebühr:</strong> Bestätigt ein vorgeschlagener Musiker das Interesse an einer Vermittlung und möchte er die Kontaktdaten des Veranstalters freischalten, fällt – abhängig von seinem gebuchten Mitgliedschafts-Tarif – eine einmalige Vermittlungsgebühr an:
+                </p>
+                <ul style="padding-left: 1.5rem; margin: 0.5rem 0 1rem;">
+                    <li>Tarif <strong>Flex:</strong> 35,00 € inkl. gesetzl. MwSt.</li>
+                    <li>Tarif <strong>Plus:</strong> 30,00 € inkl. gesetzl. MwSt.</li>
+                    <li>Tarif <strong>Pro:</strong> 25,00 € inkl. gesetzl. MwSt.</li>
+                    <li>Tarif <strong>Premium:</strong> 0,00 € (vollständig gebührenfrei enthalten)</li>
+                </ul>
+                <p>
+                    (3) <strong>Zahlung & Freischaltung:</strong> Die Vermittlungsgebühr wird vor Freischaltung der Kontaktdaten fällig und über Stripe entrichtet. Unmittelbar nach erfolgreicher Zahlung (bzw. bei Premium-Mitgliedern direkt mit Bestätigung) werden die Kontaktdaten (Name, Telefonnummer, E-Mail-Adresse) zwischen Musiker und Veranstalter freigeschaltet und per E-Mail übermittelt.
+                </p>
+                <p>
+                    (4) <strong>Geltung der AGB beim Bezahlvorgang:</strong> Der Musiker hat diesen AGB bereits im Rahmen seiner Registrierung zugestimmt. Vor der Bestätigung einer kostenpflichtigen Vermittlung wird er transparent auf die fällige Vermittlungsgebühr und diese AGB hingewiesen. Eine erneute gesonderte Checkbox ist nicht erforderlich; durch das Auslösen der Freischaltung bestätigt der Musiker den kostenpflichtigen Vermittlungsauftrag.
+                </p>
+
+                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem; overflow-wrap: break-word; word-break: break-word;">§ 7 Pflichten der Nutzer, Urheberrechte & Freistellung</h2>
+                <p>
+                    (1) Der Nutzer ist für sämtliche Inhalte (Fotos, Audioaufnahmen, Videos, Profiltexte, Links, Bandnamen), die er auf GigConnAct hochlädt oder veröffentlicht, vollumfänglich selbst verantwortlich.
+                </p>
+                <p>
+                    (2) <strong>Rechtegarantie:</strong> Der Nutzer garantiert ausdrücklich, dass er Inhaber aller erforderlichen Urheber-, Leistungsschutz-, Marken- und Persönlichkeitsrechte an den von ihm eingestellten Medien ist und keine Rechte Dritter (einschließlich Fotografen, GEMA oder sonstiger Verwertungsgesellschaften) verletzt werden.
+                </p>
+                <p>
+                    (3) <strong>Rechtswidrige Inhalte:</strong> Es ist streng untersagt, Inhalte einzustellen, die gegen geltendes Recht verstoßen, rassistisch, diskriminierend, verleumderisch, pornografisch oder sittenwidrig sind. GigConnAct behält sich vor, unzulässige Inhalte unverzüglich und ohne Vorankündigung zu sperren oder zu entfernen.
+                </p>
+                <p>
+                    (4) <strong>Freistellung:</strong> Der Nutzer stellt GigConnAct von allen Ansprüchen, Schäden, Kosten und Rechtsverfolgungskosten frei, die Dritte wegen einer Verletzung ihrer Rechte durch die vom Nutzer eingestellten Inhalte geltend machen, es sei denn, der Nutzer hat die Rechtsverletzung nicht zu vertreten.
+                </p>
+
+                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem; overflow-wrap: break-word; word-break: break-word;">§ 8 Haftungsbeschränkung von GigConnAct</h2>
+                <p>
+                    (1) GigConnAct haftet unbeschränkt bei Vorsatz, grober Fahrlässigkeit sowie bei Verletzung des Lebens, des Körpers oder der Gesundheit nach den gesetzlichen Bestimmungen.
+                </p>
+                <p>
+                    (2) Bei leicht fahrlässiger Verletzung wesentlicher Vertragspflichten (Kardinalpflichten) ist die Haftung von GigConnAct auf den vertragstypischen, vorhersehbaren Schaden begrenzt. Im Übrigen ist die Haftung für leichte Fahrlässigkeit ausgeschlossen.
+                </p>
+                <p>
+                    (3) <strong>Keine Haftung für Auftritte & Gagen:</strong> GigConnAct haftet ausdrücklich nicht für das Zustandekommen, das Gelingen, die ordnungsgemäße Durchführung oder die Bezahlung der zwischen Musiker und Veranstalter vereinbarten Auftritte, noch für Sach- oder Personenschäden im Rahmen des Events.
+                </p>
+                <p>
+                    (4) GigConnAct bemüht sich um eine kontinuierliche Verfügbarkeit der Plattform, gewährleistet jedoch keine unterbrechungsfreie Erreichbarkeit (z. B. infolge von Server-Wartungen oder technischen Störungen außerhalb unseres Einflussbereichs).
+                </p>
+
+                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem; overflow-wrap: break-word; word-break: break-word;">§ 9 Kündigung und Beendigung des Kontos</h2>
+                <p>
+                    (1) <strong>Ordentliche Kündigung des Abonnements:</strong> Musiker können ihr kostenpflichtiges Abonnement jederzeit zum Ende des laufenden Abrechnungszeitraums kündigen. Die Kündigung kann direkt im Nutzerprofil über das Stripe-Kundenportal oder per E-Mail an <a href="mailto:info@gigconnact.de" style="color: var(--color-purple); text-decoration: underline;">info@gigconnact.de</a> erfolgen.
+                </p>
+                <p>
+                    (2) Veranstalter können ihr kostenloses Konto jederzeit ohne Einhaltung einer Frist über die Kontoeinstellungen löschen.
+                </p>
+                <p>
+                    (3) Das Recht beider Parteien zur fristlosen außerordentlichen Kündigung aus wichtigem Grund bleibt unberührt. Ein wichtiger Grund für GigConnAct liegt insbesondere vor bei schwerwiegenden oder wiederholten Verstößen gegen diese AGB, Zahlungsverzug trotz Mahnung oder vorsätzlich falschen Profilangaben.
+                </p>
+
+                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem; overflow-wrap: break-word; word-break: break-word;">§ 10 Widerrufsbelehrung für Verbraucher</h2>
+                <p>
+                    Sofern Sie als Verbraucher (jede natürliche Person, die ein Rechtsgeschäft zu Zwecken abschließt, die überwiegend weder ihrer gewerblichen noch ihrer selbständigen beruflichen Tätigkeit zugerechnet werden können, § 13 BGB) einen kostenpflichtigen Vertrag mit uns abschließen, steht Ihnen das folgende gesetzliche Widerrufsrecht zu:
+                </p>
+
+                <div style="background: rgba(124, 58, 237, 0.04); border-left: 4px solid var(--color-purple); padding: 1rem 1.25rem; margin: 1.2rem 0; border-radius: 4px;">
+                    <h3 style="margin-top: 0; font-size: 1.05rem; color: var(--text-main);">Widerrufsrecht</h3>
+                    <p>
+                        Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.
+                    </p>
+                    <p>
+                        Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.
+                    </p>
+                    <p>
+                        Um Ihr Widerrufsrecht auszuüben, müssen Sie uns:<br>
+                        <strong>Vibulan Sivanathan – GigConnAct</strong><br>
+                        Montanusstraße 49, 51065 Köln<br>
+                        E-Mail: <a href="mailto:info@gigconnact.de" style="color: var(--color-purple); text-decoration: underline;">info@gigconnact.de</a><br>
+                        mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief oder eine E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren. Sie können dafür das untenstehende Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist.
+                    </p>
+                    <p>
+                        Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist absenden.
+                    </p>
+
+                    <h3 style="margin-top: 1.2rem; font-size: 1.05rem; color: var(--text-main);">Folgen des Widerrufs</h3>
+                    <p>
+                        Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, einschließlich der Lieferkosten (mit Ausnahme der zusätzlichen Kosten, die sich daraus ergeben, dass Sie eine andere Art der Lieferung als die von uns angebotene, günstigste Standardlieferung gewählt haben), unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf dieses Vertrags bei uns eingegangen ist. Für diese Rückzahlung verwenden wir dasselbe Zahlungsmittel, das Sie bei der ursprünglichen Transaktion eingesetzt haben, es sei denn, mit Ihnen wurde ausdrücklich etwas anderes vereinbart; in keinem Fall werden Ihnen wegen dieser Rückzahlung Entgelte berechnet.
+                    </p>
+                    <p>
+                        Haben Sie verlangt, dass die Dienstleistung während der Widerrufsfrist beginnen soll, so haben Sie uns einen angemessenen Betrag zu zahlen, der dem Anteil der bis zu dem Zeitpunkt, zu dem Sie uns von der Ausübung des Widerrufsrechts hinsichtlich dieses Vertrags unterrichten, bereits erbrachten Dienstleistungen im Vergleich zum Gesamtumfang der im Vertrag vorgesehenen Dienstleistungen entspricht.
+                    </p>
+
+                    <h3 style="margin-top: 1.2rem; font-size: 1.05rem; color: var(--text-main);">Vorzeitiges Erlöschen des Widerrufsrechts bei Vermittlungsleistungen</h3>
+                    <p>
+                        Das Widerrufsrecht erlischt bei einem Vertrag zur Erbringung von Dienstleistungen vorzeitig, wenn wir die Dienstleistung vollständig erbracht haben und mit der Ausführung der Dienstleistung erst begonnen haben, nachdem Sie dazu Ihre ausdrückliche Zustimmung gegeben haben und gleichzeitig Ihre Kenntnis davon bestätigt haben, dass Sie Ihr Widerrufsrecht bei vollständiger Vertragserfüllung durch uns verlieren (z. B. bei sofortiger Freischaltung der Kontaktdaten gegen Entrichtung der Vermittlungsgebühr).
+                    </p>
+                </div>
+
+                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem; overflow-wrap: break-word; word-break: break-word;">§ 11 Muster-Widerrufsformular</h2>
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.2rem; margin: 1rem 0; font-family: monospace; font-size: 0.88rem; line-height: 1.6;">
+                    (Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular aus und senden Sie es zurück.)<br><br>
+                    An:<br>
+                    Vibulan Sivanathan – GigConnAct<br>
+                    Montanusstraße 49, 51065 Köln<br>
+                    E-Mail: info@gigconnact.de<br><br>
+                    Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über die Erbringung der folgenden Dienstleistung (*):<br><br>
+                    Bestellt am (*) / erhalten am (*): ___________________________<br><br>
+                    Name des/der Verbraucher(s): ___________________________<br><br>
+                    Anschrift des/der Verbraucher(s): ___________________________<br><br>
+                    Unterschrift des/der Verbraucher(s) (nur bei Mitteilung auf Papier): ___________________________<br><br>
+                    Datum: ___________________________<br><br>
+                    (*) Unzutreffendes streichen.
+                </div>
+
+                <h2 style="font-size: 1.3rem; margin-top: 2rem; color: var(--text-main); border-left: 4px solid var(--color-purple); padding-left: 0.5rem; overflow-wrap: break-word; word-break: break-word;">§ 12 Schlussbestimmungen</h2>
+                <p>
+                    (1) Auf Verträge zwischen GigConnAct und den Nutzern findet das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts Anwendung. Bei Verbrauchern gilt diese Rechtswahl nur insoweit, als nicht der gewährte Schutz durch zwingende Bestimmungen des Rechts des Staates, in dem der Verbraucher seinen gewöhnlichen Aufenthalt hat, entzogen wird.
+                </p>
+                <p>
+                    (2) Sofern es sich beim Nutzer um einen Kaufmann, eine juristische Person des öffentlichen Rechts oder ein öffentlich-rechtliches Sondervermögen handelt, ist ausschließlicher Gerichtsstand für alle Streitigkeiten aus dem Vertragsverhältnis Köln.
+                </p>
+                <p>
+                    (3) Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" style="color: var(--color-purple); text-decoration: underline;">https://ec.europa.eu/consumers/odr/</a>. Wir sind weder bereit noch verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
+                </p>
+                <p>
+                    (4) Sollten einzelne Bestimmungen dieser AGB ganz oder teilweise unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen hiervon unberührt.
+                </p>
+            </div>
+        </div>
+    `;
+    window.scrollTo(0, 0);
+}
+window.renderAgbPage = renderAgbPage;
+
 // Global touch and mouse drag event delegation for card galleries
 (function() {
     let startX = 0;
@@ -25526,7 +25733,7 @@ window.renderMediationResponsePage = function(container, mediationId) {
                     `}
                     
                     <p style="font-size: 0.72rem; color: var(--text-muted); text-align: center; margin: 0.2rem 0 0; line-height: 1.35;">
-                        *Mit dem Klick auf den Button „Kontaktdaten erhalten“ können – abhängig vom gewählten Tarif – Vermittlungsgebühren entstehen: Flex = 35 €; Plus = 30 €; Pro = 25 €; Premium = 0 €.
+                        *Mit dem Klick auf den Button „Kontaktdaten erhalten“ können – abhängig vom gewählten Tarif – Vermittlungsgebühren gemäß unseren <a href="#/agb" target="_blank" onclick="window.open(this.href, '_blank'); return false;" style="color: #7c3aed; text-decoration: underline;">AGB</a> entstehen: Flex = 35 €; Plus = 30 €; Pro = 25 €; Premium = 0 €.
                     </p>
                 </div>
             </div>
