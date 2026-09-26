@@ -1964,15 +1964,15 @@ exports.onEventProfileCreated = functions
 
         // 1. Mail an den Veranstalter (NUR bei regulären Events, NICHT bei Vermittlungsanfragen und NICHT an Admin-Mailadresse)
         if (!isAgencyRequest && submitterEmail && !['info@gigconnact.de', 'gigconnact@gmail.com'].includes(submitterEmail.toLowerCase())) {
-            const eventSubject = `Deine Event-Ausschreibung bei GigConnAct ist online! 🎉`;
+            const eventSubject = `Dein Event bei GigConnAct ist online! 🎉`;
             const eventHtml = `
                 <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
                     <div style="text-align: center; margin-bottom: 20px;">
                         <img src="https://gigconnact.de/discoball.png" alt="GigConnAct Logo" style="width: 70px; height: 70px; object-fit: contain;">
                     </div>
-                    <h2 style="color: #0ea5e9; margin-top: 0; font-size: 1.5rem; text-align: center;">Event erfolgreich ausgeschrieben! 📅</h2>
+                    <h2 style="color: #0ea5e9; margin-top: 0; font-size: 1.5rem; text-align: center;">Event erfolgreich online! 📅</h2>
                     <p>Hallo ${submitterName},</p>
-                    <p>deine Ausschreibung für das Event <strong>"${event.name}"</strong> ist jetzt erfolgreich auf unserem Marktplatz online geschaltet.</p>
+                    <p>dein Event <strong>"${event.name}"</strong> ist jetzt erfolgreich auf unserem Marktplatz online geschaltet.</p>
                     <p>Interessierte Musiker können ab sofort ihr Interesse bekunden. Zudem analysiert unser System bereits die Datenbank, um dir passende Acts vorzuschlagen.</p>
                     <p style="margin-top: 25px; text-align: center;">
                         <a href="https://gigconnact.de/#/musicians?eventId=${eventId}" style="background: #0ea5e9; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Passende Acts finden</a>
@@ -1989,7 +1989,7 @@ exports.onEventProfileCreated = functions
         }
 
         // 2. Info-Mail an Admin (info@gigconnact.de)
-        const typeBadge = isAgencyRequest ? '⚡ VERMITTLUNGSANFRAGE' : '📅 EVENT-AUSSCHREIBUNG';
+        const typeBadge = isAgencyRequest ? '⚡ VERMITTLUNGSANFRAGE' : '📅 EVENT';
         const badgeBg = isAgencyRequest ? '#7c3aed' : '#0ea5e9';
         const adminSubject = isAgencyRequest
             ? `[Vermittlungsanfrage] Neues Event: "${event.name}" (${submitterName})`
@@ -2002,17 +2002,17 @@ exports.onEventProfileCreated = functions
                         ${typeBadge}
                     </span>
                     <h2 style="color: #0f172a; margin: 12px 0 6px 0; font-size: 20px;">
-                        ${isAgencyRequest ? 'Neue Vermittlungsanfrage eingegangen' : 'Neue Event-Ausschreibung erstellt'}
+                        ${isAgencyRequest ? 'Neue Vermittlungsanfrage eingegangen' : 'Neues Event erstellt'}
                     </h2>
                     <p style="color: #64748b; font-size: 14px; margin: 0;">
-                        Ein Veranstalter hat folgendes Event eingereicht. Hier sind alle Details & Kontaktdaten:
+                        Ein Veranstalter hat folgendes Event erstellt. Hier sind alle Details & Kontaktdaten:
                     </p>
                 </div>
 
                 <!-- Kontaktdaten Box -->
                 <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid ${badgeBg}; border-radius: 8px; padding: 16px; margin: 20px 0;">
                     <h3 style="margin-top: 0; margin-bottom: 12px; color: #0f172a; font-size: 15px;">
-                        👤 Kontaktdaten des Veranstalters / Einreichers
+                        👤 Kontaktdaten des Veranstalters
                     </h3>
                     <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
                         <tr style="border-bottom: 1px solid #e2e8f0;">
