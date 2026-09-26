@@ -8064,11 +8064,11 @@ function renderLandingPage(container, onNavigate) {
                 <!-- 5. Sleek Discreet Hero Footer / Legal Bar (Perfect Optical & Geometrical Centering) -->
                 <div style="position: relative; z-index: 3; margin-top: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem; margin-bottom: clamp(0.3rem, 1vh, 0.6rem); width: 100%; text-align: center;">
                     <div class="hero-legal-bar" style="display: flex; align-items: center; justify-content: center; gap: clamp(0.6rem, 2vw, 1.2rem); flex-wrap: wrap; font-size: clamp(0.74rem, 1.5vw, 0.84rem); color: rgba(255, 255, 255, 0.7); font-weight: 500; margin: 0 auto; padding: 0.1rem 0.5rem; user-select: none;">
-                        <a href="#/impressum" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#c084fc';" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)';">Impressum</a>
+                        <a href="#/agb" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#c084fc';" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)';">AGB</a>
                         <span style="color: rgba(255,255,255,0.25);">&bull;</span>
                         <a href="#/datenschutz" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#c084fc';" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)';">Datenschutz</a>
                         <span style="color: rgba(255,255,255,0.25);">&bull;</span>
-                        <a href="#/agb" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#c084fc';" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)';">AGB</a>
+                        <a href="#/impressum" style="color: rgba(255, 255, 255, 0.7); text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#c084fc';" onmouseout="this.style.color='rgba(255, 255, 255, 0.7)';">Impressum</a>
                     </div>
                     <div style="font-size: clamp(0.68rem, 1.3vw, 0.76rem); color: rgba(255, 255, 255, 0.45); font-weight: 500; user-select: none; letter-spacing: 0.2px;">
                         &copy; 2026 GigConnAct
