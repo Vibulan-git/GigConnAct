@@ -3752,31 +3752,32 @@ class StateManager {
                 let targetPlan = 'flex';
 
                 if (pendingReg && pendingReg.email && pendingReg.email.toLowerCase() === email.toLowerCase()) {
-                    const isPromo = pendingReg.subscriptionPlan === 'premium' && pendingReg.isPromoCodeApplied === true;
                     const isOrganizer = pendingReg.role === 'organizer';
-                    const isPaidMusician = !isOrganizer && pendingReg.role === 'musician' && !isPromo && ['flex', 'plus', 'pro', 'premium'].includes(pendingReg.subscriptionPlan || 'flex');
+                    const isMusician = pendingReg.role === 'musician' || !isOrganizer;
 
-                    if (isPaidMusician) {
-                        // DO NOT create user or musician docs in Firestore before payment!
-                        console.log("Paid musician registration: Keeping data in pendingRegistrations until Stripe payment is completed.");
+                    if (isMusician) {
+                        // All musicians must complete Stripe checkout (including 3-month trial) before account creation!
+                        console.log("Musician registration: Keeping data in pendingRegistrations until Stripe payment is completed.");
                         const pendingPayload = {
                             ...pendingReg,
                             uid: user.uid,
                             email: email,
+                            role: 'musician',
+                            subscriptionPlan: pendingReg.subscriptionPlan || (pendingReg.isPromoCodeApplied ? 'premium' : 'flex'),
                             updatedAt: new Date().toISOString()
                         };
                         await db.collection('pendingRegistrations').doc(email.toLowerCase()).set(pendingPayload, { merge: true });
                         localStorage.setItem('GigConnAct_pending_registration', JSON.stringify(pendingPayload));
                         
-                        targetPlan = pendingReg.subscriptionPlan || 'flex';
+                        targetPlan = pendingPayload.subscriptionPlan;
                         redirectToStripe = true;
                     } else {
-                        // Free Organizer or Musician with 3-Month Promo: Complete registration immediately
-                        console.log("Completing free/promo registration for user:", email);
-                        const profileId = isOrganizer ? 'evt_' + user.uid : 'mus_' + user.uid;
+                        // Free Organizer: Complete registration immediately
+                        console.log("Completing free organizer registration for user:", email);
+                        const profileId = 'evt_' + user.uid;
                         const newUser = {
                             id: user.uid,
-                            role: pendingReg.role,
+                            role: 'organizer',
                             firstName: pendingReg.firstName || "",
                             lastName: pendingReg.lastName || "",
                             company: pendingReg.company || "Privatperson",
@@ -3786,8 +3787,8 @@ class StateManager {
                             email: pendingReg.email || email,
                             profileId: profileId,
                             eventName: pendingReg.eventName || 'Mein Event',
-                            isPremium: isOrganizer ? true : isPromo,
-                            subscriptionPlan: isOrganizer ? 'free' : (pendingReg.subscriptionPlan || "free"),
+                            isPremium: true,
+                            subscriptionPlan: "free",
                             successfulGigs: 0,
                             contactRequests: 0,
                             favorites: [],
@@ -3798,95 +3799,51 @@ class StateManager {
 
                         await db.collection('users').doc(user.uid).set(newUser, { merge: true });
 
-                        if (pendingReg.role === 'musician') {
-                            const newMusician = {
-                                id: profileId,
-                                creatorId: user.uid,
-                                name: pendingReg.bandName,
-                                bluffName: `Anonyme/r ${pendingReg.musicianType} (${pendingReg.genres && pendingReg.genres[0] ? pendingReg.genres[0] : 'Musik'})`,
-                                type: pendingReg.musicianType,
-                                location: pendingReg.locations ? pendingReg.locations.join(', ') : (pendingReg.location || 'München'),
-                                locations: pendingReg.locations || [pendingReg.location || 'München'],
-                                radius: parseInt(pendingReg.radius) || 50,
-                                genres: pendingReg.genres || [],
-                                instruments: pendingReg.instruments || [],
-                                minDuration: parseFloat(pendingReg.minDuration) || 1,
-                                maxDuration: parseFloat(pendingReg.maxDuration) || 3,
-                                minBudget: parseFloat(pendingReg.minBudget) || 150,
-                                maxBudget: parseFloat(pendingReg.maxBudget) || 1000,
-                                eventTypes: pendingReg.eventTypes || [],
-                                availability: pendingReg.availability || {},
-                                minPublikum: parseInt(pendingReg.minPublikum) || 0,
-                                maxPublikum: parseInt(pendingReg.maxPublikum) || 500,
-                                description: pendingReg.description || "",
-                                technik: pendingReg.technik || ["Technik ist noch unklar"],
-                                company: newUser.company || "Privatperson",
-                                contactName: `${newUser.firstName} ${newUser.lastName}`.trim() || 'Musiker',
-                                phone: newUser.phone,
-                                hidePhone: pendingReg.hidePhone || false,
-                                email: newUser.email,
-                                isPremium: true,
-                                subscriptionPlan: pendingReg.subscriptionPlan || "premium",
-                                credits: 0,
-                                unlockedContacts: [],
-                                socialLinks: { spotify: "", youtube: "", instagram: "" },
-                                photos: pendingReg.photos || [],
-                                videos: pendingReg.videos || [],
-                                audio: pendingReg.audio || pendingReg.audios || [],
-                                isActive: true,
-                                createdAt: new Date().toISOString()
-                            };
-                            await db.collection('musicians').doc(profileId).set(newMusician, { merge: true });
-                            const idx = state.musicians.findIndex(m => m.id === profileId);
-                            if (idx > -1) state.musicians[idx] = newMusician; else state.musicians.push(newMusician);
-                            state.activeMusicianId = profileId;
-                        } else {
-                            const newEvent = {
-                                id: profileId,
-                                name: pendingReg.eventName || 'Mein Event',
-                                type: pendingReg.orgEventTypes ? pendingReg.orgEventTypes[0] : "",
-                                eventTypes: pendingReg.orgEventTypes || [],
-                                musicianTypes: pendingReg.orgMusicianTypes || [],
-                                date: pendingReg.eventDates ? pendingReg.eventDates[0] : "",
-                                dates: pendingReg.eventDates || [],
-                                eventStartTime: pendingReg.eventStartTime || "18:00",
-                                eventEndTime: pendingReg.eventEndTime || "22:00",
-                                location: pendingReg.orgLocations ? pendingReg.orgLocations.join(', ') : "",
-                                locations: pendingReg.orgLocations || [],
-                                genres: pendingReg.orgGenres || [],
-                                instruments: pendingReg.orgInstruments || [],
-                                minDuration: parseFloat(pendingReg.orgMinDuration) || 2.0,
-                                maxDuration: parseFloat(pendingReg.orgMaxDuration) || 4.0,
-                                duration: parseFloat(pendingReg.orgMinDuration) || 2.0,
-                                minPublikum: parseInt(pendingReg.orgMinPublikum) || 50,
-                                maxPublikum: parseInt(pendingReg.orgMaxPublikum) || 150,
-                                publikum: `${pendingReg.orgMinPublikum || 50} - ${pendingReg.orgMaxPublikum || 150}`,
-                                minBudget: parseFloat(pendingReg.orgMinBudget) || 300,
-                                maxBudget: parseFloat(pendingReg.orgMaxBudget) || 800,
-                                budget: parseFloat(pendingReg.orgMinBudget) || 300,
-                                description: pendingReg.orgDescription || "",
-                                technik: pendingReg.technik || ["Technik ist noch unklar"],
-                                company: newUser.company || "Privatperson",
-                                organizerType: newUser.organizerType || "Privater Veranstalter",
-                                contactName: `${newUser.firstName} ${newUser.lastName}`.trim() || 'Veranstalter',
-                                phone: newUser.phone,
-                                hidePhone: pendingReg.hidePhone || false,
-                                email: newUser.email,
-                                isOnline: true,
-                                isActive: true,
-                                createdAt: new Date().toISOString(),
-                                photos: pendingReg.photos || [],
-                                videos: pendingReg.videos || [],
-                                audio: pendingReg.audio || pendingReg.audios || [],
-                                creatorId: user.uid,
-                                isPremium: true,
-                                subscriptionPlan: "free"
-                            };
-                            await db.collection('events').doc(profileId).set(newEvent, { merge: true });
-                            const idx = state.events.findIndex(e => e.id === profileId);
-                            if (idx > -1) state.events[idx] = newEvent; else state.events.push(newEvent);
-                            state.activeEventId = profileId;
-                        }
+                        const newEvent = {
+                            id: profileId,
+                            name: pendingReg.eventName || 'Mein Event',
+                            type: pendingReg.orgEventTypes ? pendingReg.orgEventTypes[0] : "",
+                            eventTypes: pendingReg.orgEventTypes || [],
+                            musicianTypes: pendingReg.orgMusicianTypes || [],
+                            date: pendingReg.eventDates ? pendingReg.eventDates[0] : "",
+                            dates: pendingReg.eventDates || [],
+                            eventStartTime: pendingReg.eventStartTime || "18:00",
+                            eventEndTime: pendingReg.eventEndTime || "22:00",
+                            location: pendingReg.orgLocations ? pendingReg.orgLocations.join(', ') : "",
+                            locations: pendingReg.orgLocations || [],
+                            genres: pendingReg.orgGenres || [],
+                            instruments: pendingReg.orgInstruments || [],
+                            minDuration: parseFloat(pendingReg.orgMinDuration) || 2.0,
+                            maxDuration: parseFloat(pendingReg.orgMaxDuration) || 4.0,
+                            duration: parseFloat(pendingReg.orgMinDuration) || 2.0,
+                            minPublikum: parseInt(pendingReg.orgMinPublikum) || 50,
+                            maxPublikum: parseInt(pendingReg.orgMaxPublikum) || 150,
+                            publikum: `${pendingReg.orgMinPublikum || 50} - ${pendingReg.orgMaxPublikum || 150}`,
+                            minBudget: parseFloat(pendingReg.orgMinBudget) || 300,
+                            maxBudget: parseFloat(pendingReg.orgMaxBudget) || 800,
+                            budget: parseFloat(pendingReg.orgMinBudget) || 300,
+                            description: pendingReg.orgDescription || "",
+                            technik: pendingReg.technik || ["Technik ist noch unklar"],
+                            company: newUser.company || "Privatperson",
+                            organizerType: newUser.organizerType || "Privater Veranstalter",
+                            contactName: `${newUser.firstName} ${newUser.lastName}`.trim() || 'Veranstalter',
+                            phone: newUser.phone,
+                            hidePhone: pendingReg.hidePhone || false,
+                            email: newUser.email,
+                            isOnline: true,
+                            isActive: true,
+                            createdAt: new Date().toISOString(),
+                            photos: pendingReg.photos || [],
+                            videos: pendingReg.videos || [],
+                            audio: pendingReg.audio || pendingReg.audios || [],
+                            creatorId: user.uid,
+                            isPremium: true,
+                            subscriptionPlan: "free"
+                        };
+                        await db.collection('events').doc(profileId).set(newEvent, { merge: true });
+                        const idx = state.events.findIndex(e => e.id === profileId);
+                        if (idx > -1) state.events[idx] = newEvent; else state.events.push(newEvent);
+                        state.activeEventId = profileId;
 
                         state.currentUser = newUser;
                         localStorage.setItem('GigConnAct_current_user', JSON.stringify(newUser));
@@ -17287,7 +17244,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             submitBtn.innerHTML = 'Kostenlos registrieren';
         } else {
             if (plan === 'premium' && isPromoCodeApplied) {
-                submitBtn.innerHTML = 'Registrierung abschließen (3 Monate kostenlos)';
+                submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Weiter zur Bezahlung (3 Monate kostenlos)';
             } else {
                 submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Weiter zur Bezahlung';
             }
@@ -17699,14 +17656,12 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     activeAuthUser = freshResult.user;
                 }
                 const user = activeAuthUser;
-                const profileId = payload.role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
-                const isPromo = (payload.subscriptionPlan === 'premium' && isPromoCodeApplied === true);
                 const isOrg = payload.role === 'organizer';
-                const isPaidPlan = payload.role === 'musician' && !isPromo && ['flex', 'plus', 'pro'].includes(payload.subscriptionPlan);
+                const isMusician = payload.role === 'musician' || !isOrg;
 
-                if (isPaidPlan) {
-                    // DO NOT create user or musician docs in Firestore before Stripe payment succeeds!
-                    console.log("Paid musician registration (Auth): Keeping data in pendingRegistrations until Stripe payment is completed.");
+                if (isMusician) {
+                    // ALL musicians must complete Stripe checkout (even with 3-month promo trial) before account creation!
+                    console.log("Musician registration (Auth): Keeping data in pendingRegistrations until Stripe payment is completed.");
                     const pendingPayload = {
                         ...payload,
                         uid: user.uid,
@@ -17714,8 +17669,8 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         firstName: firstName || '',
                         lastName: lastName || '',
                         role: 'musician',
-                        subscriptionPlan: payload.subscriptionPlan,
-                        isPromoCodeApplied: false,
+                        subscriptionPlan: payload.subscriptionPlan || (isPromoCodeApplied ? 'premium' : 'flex'),
+                        isPromoCodeApplied: Boolean(isPromoCodeApplied),
                         updatedAt: new Date().toISOString()
                     };
                     const normEmail = (user.email || payload.email || '').toLowerCase().trim();
@@ -17737,7 +17692,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     try {
                         const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
                         const res = await createStripeSession({ 
-                            planKey: payload.subscriptionPlan,
+                            planKey: pendingPayload.subscriptionPlan,
                             baseUrl: window.location.origin
                         });
                         if (res.data && res.data.url) {
@@ -17762,10 +17717,11 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     }
                 }
 
-                // Free Organizer or Musician with 3-Month Promo Code: create accounts immediately
+                // Free Organizer: create account immediately
+                const profileId = 'evt_' + user.uid;
                 const newUser = {
                     id: user.uid,
-                    role: payload.role || 'musician',
+                    role: 'organizer',
                     firstName: firstName || '',
                     lastName: lastName || '',
                     company: payload.company || "Privatperson",
@@ -17775,8 +17731,8 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     email: user.email || payload.email || '',
                     profileId: profileId,
                     eventName: payload.eventName || 'Mein Event',
-                    isPremium: isOrg ? true : isPromo,
-                    subscriptionPlan: isOrg ? "free" : (payload.subscriptionPlan || "free"),
+                    isPremium: true,
+                    subscriptionPlan: "free",
                     successfulGigs: 0,
                     contactRequests: 0,
                     favorites: [],
@@ -17785,97 +17741,52 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     createdAt: new Date().toISOString()
                 };
 
-                if (payload.role === 'musician') {
-                    const newMusician = {
-                        id: profileId,
-                        creatorId: user.uid,
-                        name: payload.bandName || 'Musiker',
-                        bluffName: `Anonyme/r ${payload.musicianType || 'Künstler'} (${(payload.genres && payload.genres[0]) || 'Musik'})`,
-                        type: payload.musicianType || 'Band',
-                        location: (payload.locations && payload.locations.length > 0) ? payload.locations.join(', ') : 'München',
-                        locations: (payload.locations && payload.locations.length > 0) ? payload.locations : ['München'],
-                        radius: parseInt(payload.radius, 10) || 50,
-                        genres: payload.genres || [],
-                        instruments: payload.instruments || [],
-                        minDuration: parseFloat(payload.minDuration) || 1,
-                        maxDuration: parseFloat(payload.maxDuration) || 3,
-                        minBudget: parseFloat(payload.minBudget) || 150,
-                        maxBudget: parseFloat(payload.maxBudget) || 1000,
-                        eventTypes: payload.eventTypes || [],
-                        availability: payload.availability || {},
-                        minPublikum: parseInt(payload.minPublikum, 10) || 0,
-                        maxPublikum: parseInt(payload.maxPublikum, 10) || 500,
-                        description: payload.description || '',
-                        technik: (payload.technik && payload.technik.length > 0) ? payload.technik : ["Technik ist noch unklar"],
-                        company: newUser.company || "Privatperson",
-                        contactName: `${newUser.firstName} ${newUser.lastName}`.trim() || 'Musiker',
-                        phone: newUser.phone || '',
-                        hidePhone: !!payload.hidePhone,
-                        email: newUser.email || '',
-                        isPremium: newUser.isPremium,
-                        subscriptionPlan: payload.subscriptionPlan || "flex",
-                        credits: 0,
-                        unlockedContacts: [],
-                        socialLinks: { spotify: "", youtube: "", instagram: "" },
-                        photos: payload.photos || [],
-                        videos: payload.videos || [],
-                        audio: payload.audios || [],
-                        isActive: true,
-                        createdAt: new Date().toISOString()
-                    };
-                    await db.collection('users').doc(user.uid).set(newUser, { merge: true });
-                    await db.collection('musicians').doc(profileId).set(newMusician, { merge: true });
-                    const idx = state.musicians.findIndex(m => m.id === profileId);
-                    if (idx > -1) state.musicians[idx] = newMusician; else state.musicians.push(newMusician);
-                    state.activeMusicianId = profileId;
-                } else {
-                    const newEvent = {
-                        id: profileId,
-                        creatorId: user.uid,
-                        name: payload.eventName || 'Mein Event',
-                        type: (payload.orgEventTypes && payload.orgEventTypes[0]) ? payload.orgEventTypes[0] : "",
-                        eventTypes: payload.orgEventTypes || [],
-                        musicianTypes: payload.orgMusicianTypes || [],
-                        date: (payload.eventDates && payload.eventDates[0]) ? payload.eventDates[0] : "",
-                        dates: payload.eventDates || [],
-                        eventStartTime: payload.eventStartTime || "18:00",
-                        eventEndTime: payload.eventEndTime || "22:00",
-                        location: (payload.orgLocations && payload.orgLocations.length > 0) ? payload.orgLocations.join(', ') : "",
-                        locations: payload.orgLocations || [],
-                        genres: payload.orgGenres || [],
-                        instruments: payload.orgInstruments || [],
-                        minDuration: parseFloat(payload.orgMinDuration) || 2.0,
-                        maxDuration: parseFloat(payload.orgMaxDuration) || 4.0,
-                        duration: parseFloat(payload.orgMinDuration) || 2.0,
-                        minPublikum: parseInt(payload.orgMinPublikum, 10) || 50,
-                        maxPublikum: parseInt(payload.orgMaxPublikum, 10) || 150,
-                        publikum: `${payload.orgMinPublikum || 50} - ${payload.orgMaxPublikum || 150}`,
-                        minBudget: parseFloat(payload.orgMinBudget) || 300,
-                        maxBudget: parseFloat(payload.orgMaxBudget) || 800,
-                        budget: parseFloat(payload.orgMinBudget) || 300,
-                        description: payload.orgDescription || "",
-                        technik: (payload.technik && payload.technik.length > 0) ? payload.technik : ["Technik ist noch unklar"],
-                        company: newUser.company || "Privatperson",
-                        organizerType: newUser.organizerType || "Privater Veranstalter",
-                        contactName: `${newUser.firstName} ${newUser.lastName}`.trim() || 'Veranstalter',
-                        phone: newUser.phone || '',
-                        hidePhone: !!payload.hidePhone,
-                        email: newUser.email || '',
-                        isOnline: true,
-                        isActive: true,
-                        createdAt: new Date().toISOString(),
-                        photos: payload.photos || [],
-                        videos: payload.videos || [],
-                        audio: payload.audios || [],
-                        isPremium: true,
-                        subscriptionPlan: "free"
-                    };
-                    await db.collection('users').doc(user.uid).set(newUser, { merge: true });
-                    await db.collection('events').doc(profileId).set(newEvent, { merge: true });
-                    const idx = state.events.findIndex(e => e.id === profileId);
-                    if (idx > -1) state.events[idx] = newEvent; else state.events.push(newEvent);
-                    state.activeEventId = profileId;
-                }
+                const newEvent = {
+                    id: profileId,
+                    creatorId: user.uid,
+                    name: payload.eventName || 'Mein Event',
+                    type: (payload.orgEventTypes && payload.orgEventTypes[0]) ? payload.orgEventTypes[0] : "",
+                    eventTypes: payload.orgEventTypes || [],
+                    musicianTypes: payload.orgMusicianTypes || [],
+                    date: (payload.eventDates && payload.eventDates[0]) ? payload.eventDates[0] : "",
+                    dates: payload.eventDates || [],
+                    eventStartTime: payload.eventStartTime || "18:00",
+                    eventEndTime: payload.eventEndTime || "22:00",
+                    location: (payload.orgLocations && payload.orgLocations.length > 0) ? payload.orgLocations.join(', ') : "",
+                    locations: payload.orgLocations || [],
+                    genres: payload.orgGenres || [],
+                    instruments: payload.orgInstruments || [],
+                    minDuration: parseFloat(payload.orgMinDuration) || 2.0,
+                    maxDuration: parseFloat(payload.orgMaxDuration) || 4.0,
+                    duration: parseFloat(payload.orgMinDuration) || 2.0,
+                    minPublikum: parseInt(payload.orgMinPublikum, 10) || 50,
+                    maxPublikum: parseInt(payload.orgMaxPublikum, 10) || 150,
+                    publikum: `${payload.orgMinPublikum || 50} - ${payload.orgMaxPublikum || 150}`,
+                    minBudget: parseFloat(payload.orgMinBudget) || 300,
+                    maxBudget: parseFloat(payload.orgMaxBudget) || 800,
+                    budget: parseFloat(payload.orgMinBudget) || 300,
+                    description: payload.orgDescription || "",
+                    technik: (payload.technik && payload.technik.length > 0) ? payload.technik : ["Technik ist noch unklar"],
+                    company: newUser.company || "Privatperson",
+                    organizerType: newUser.organizerType || "Privater Veranstalter",
+                    contactName: `${newUser.firstName} ${newUser.lastName}`.trim() || 'Veranstalter',
+                    phone: newUser.phone || '',
+                    hidePhone: !!payload.hidePhone,
+                    email: newUser.email || '',
+                    isOnline: true,
+                    isActive: true,
+                    createdAt: new Date().toISOString(),
+                    photos: payload.photos || [],
+                    videos: payload.videos || [],
+                    audio: payload.audios || [],
+                    isPremium: true,
+                    subscriptionPlan: "free"
+                };
+                await db.collection('users').doc(user.uid).set(newUser, { merge: true });
+                await db.collection('events').doc(profileId).set(newEvent, { merge: true });
+                const idx = state.events.findIndex(e => e.id === profileId);
+                if (idx > -1) state.events[idx] = newEvent; else state.events.push(newEvent);
+                state.activeEventId = profileId;
 
                 state.currentUser = newUser;
                 localStorage.setItem('GigConnAct_current_user', JSON.stringify(newUser));
