@@ -20078,12 +20078,47 @@ function renderPostbox(container) {
             if (typeof unsubState === 'function') unsubState();
         };
 
+        const chatDrafts = {};
+        const escapeHtml = (str) => {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        };
+
+        const autoResizeTextarea = (el, maxHeight = 180) => {
+            if (!el) return;
+            el.style.height = 'auto';
+            const baseMin = el.classList.contains('chat-message-input-mobile') ? 36 : 42;
+            const newHeight = Math.min(Math.max(el.scrollHeight, baseMin), maxHeight);
+            el.style.height = newHeight + 'px';
+            el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden';
+        };
+
         const renderView = () => {
-            let savedDraft = '';
-            const activeInput = container.querySelector('#chat-message-input, .chat-message-input-mobile');
-            if (activeInput && activeInput.value) {
-                savedDraft = activeInput.value;
+            // Save draft for current active chat before re-rendering
+            const activeDesktopInput = container.querySelector('#chat-message-input');
+            if (activeDesktopInput && activeChatId) {
+                if (activeDesktopInput.value.trim()) {
+                    chatDrafts[activeChatId] = activeDesktopInput.value;
+                } else {
+                    delete chatDrafts[activeChatId];
+                }
             }
+            container.querySelectorAll('.chat-send-form-mobile').forEach(form => {
+                const cid = form.getAttribute('data-chat-id');
+                const mInput = form.querySelector('.chat-message-input-mobile');
+                if (cid && mInput) {
+                    if (mInput.value.trim()) {
+                        chatDrafts[cid] = mInput.value;
+                    } else {
+                        delete chatDrafts[cid];
+                    }
+                }
+            });
 
             if (window.postboxActiveChatId) {
                 activeChatId = window.postboxActiveChatId;
@@ -20286,7 +20321,7 @@ function renderPostbox(container) {
                                              return `
                                                  <div style="display: flex; justify-content: ${isMe ? 'flex-end' : 'flex-start'};">
                                                      <div style="max-width: 85%; padding: 0.55rem 0.75rem; border-radius: 12px; font-size: 0.78rem; line-height: 1.35; ${bubbleStyle} ${radiusStyle}">
-                                                         <div>${m.text}</div>
+                                                         <div style="white-space: pre-wrap; word-break: break-word;">${escapeHtml(m.text)}</div>
                                                          <div style="font-size: 0.6rem; opacity: 0.7; text-align: right; margin-top: 0.25rem;">
                                                              ${new Date(m.timestamp).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
                                                          </div>
@@ -20316,9 +20351,9 @@ function renderPostbox(container) {
                                                 </div>
                                             </div>
                                         ` : `
-                                            <form class="chat-send-form-mobile" data-chat-id="${c.id}" style="display: flex; gap: 0.4rem; margin-top: 0.2rem;">
-                                                <input type="text" class="input-field chat-message-input-mobile" placeholder="${isSys ? 'Nicht möglich' : 'Schreibe...'}" ${isSys ? 'disabled' : ''} required style="flex: 1; margin: 0; height: 36px; font-size: 0.8rem; padding: 0.5rem; border-radius: 8px;">
-                                                <button type="submit" class="btn btn-primary" ${isSys ? 'disabled' : ''} style="margin: 0; padding: 0 0.8rem; height: 36px; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; justify-content: center;">
+                                            <form class="chat-send-form-mobile" data-chat-id="${c.id}" style="display: flex; gap: 0.4rem; margin-top: 0.2rem; align-items: flex-end;">
+                                                <textarea class="input-field chat-message-input-mobile" rows="1" placeholder="${isSys ? 'Nicht möglich' : 'Schreibe...'}" ${isSys ? 'disabled' : ''} required style="flex: 1; margin: 0; min-height: 36px; max-height: 140px; resize: none; overflow-y: hidden; font-size: 0.82rem; padding: 0.45rem 0.6rem; border-radius: 8px; font-family: inherit; line-height: 1.4; box-sizing: border-box;"></textarea>
+                                                <button type="submit" class="btn btn-primary" ${isSys ? 'disabled' : ''} style="margin: 0; padding: 0 0.8rem; height: 36px; font-weight: 700; font-size: 0.8rem; display: inline-flex; min-height: 36px; flex-shrink: 0; border-radius: 8px; align-items: center; justify-content: center;">
                                                     <i class="fa-solid fa-paper-plane"></i>
                                                 </button>
                                             </form>
@@ -20424,7 +20459,7 @@ function renderPostbox(container) {
                                     return `
                                         <div style="display: flex; justify-content: ${isMe ? 'flex-end' : 'flex-start'};">
                                             <div style="max-width: 75%; padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.85rem; line-height: 1.4; ${bubbleStyle} ${radiusStyle}">
-                                                <div>${m.text}</div>
+                                                <div style="white-space: pre-wrap; word-break: break-word;">${escapeHtml(m.text)}</div>
                                                 <div style="font-size: 0.65rem; opacity: 0.7; text-align: right; margin-top: 0.3rem;">
                                                     ${new Date(m.timestamp).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
                                                 </div>
@@ -20454,9 +20489,9 @@ function renderPostbox(container) {
                                         </div>
                                     </div>
                                 ` : `
-                                    <form id="chat-send-form" style="display: flex; gap: 0.8rem;">
-                                        <input type="text" id="chat-message-input" class="input-field" placeholder="${isSys ? 'Antworten auf Systemnachrichten nicht mÖglich' : 'Schreibe eine Nachricht...'}" ${isSys ? 'disabled' : ''} required style="flex: 1; margin: 0; height: 42px;">
-                                        <button type="submit" class="btn btn-primary" ${isSys ? 'disabled' : ''} style="margin: 0; padding: 0 1.2rem; height: 42px; font-weight: 700; background: ${isMusician ? 'var(--color-purple)' : '#2563eb'}; border-color: ${isMusician ? 'var(--color-purple)' : '#2563eb'};">
+                                    <form id="chat-send-form" style="display: flex; gap: 0.8rem; align-items: flex-end;">
+                                        <textarea id="chat-message-input" class="input-field" rows="1" placeholder="${isSys ? 'Antworten auf Systemnachrichten nicht möglich' : 'Schreibe eine Nachricht...'}" ${isSys ? 'disabled' : ''} required style="flex: 1; margin: 0; min-height: 42px; max-height: 180px; resize: none; overflow-y: hidden; box-sizing: border-box; line-height: 1.45; padding: 0.65rem 0.9rem; border-radius: 12px; font-family: inherit; font-size: 0.92rem;"></textarea>
+                                        <button type="submit" class="btn btn-primary" ${isSys ? 'disabled' : ''} style="margin: 0; padding: 0 1.2rem; height: 42px; min-height: 42px; font-weight: 700; background: ${isMusician ? 'var(--color-purple)' : '#2563eb'}; border-color: ${isMusician ? 'var(--color-purple)' : '#2563eb'}; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 10px; font-weight: 700; background: ${isMusician ? 'var(--color-purple)' : '#2563eb'}; border-color: ${isMusician ? 'var(--color-purple)' : '#2563eb'};">
                                             <i class="fa-solid fa-paper-plane"></i> Senden
                                         </button>
                                     </form>
@@ -20520,26 +20555,73 @@ function renderPostbox(container) {
             });
         });
 
-        // Send message form handler (Desktop)
+        // Desktop input setup & handlers
         const sendForm = container.querySelector('#chat-send-form');
+        const desktopInput = container.querySelector('#chat-message-input');
+        if (desktopInput && activeChatId) {
+            desktopInput.value = chatDrafts[activeChatId] || '';
+            autoResizeTextarea(desktopInput, 180);
+
+            desktopInput.addEventListener('input', () => {
+                autoResizeTextarea(desktopInput, 180);
+                if (desktopInput.value.trim()) {
+                    chatDrafts[activeChatId] = desktopInput.value;
+                } else {
+                    delete chatDrafts[activeChatId];
+                }
+            });
+
+            desktopInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (sendForm) {
+                        if (sendForm.requestSubmit) {
+                            sendForm.requestSubmit();
+                        } else {
+                            sendForm.dispatchEvent(new Event('submit', { cancelable: true }));
+                        }
+                    }
+                }
+            });
+        }
+
         if (sendForm) {
             sendForm.addEventListener('submit', async (e) => {
                 try {
                     e.preventDefault();
                     const input = container.querySelector('#chat-message-input');
+                    if (!input) return;
                     const text = input.value.trim();
                     if (!text || !activeChat) return;
+
+                    const sendingChatId = activeChat.id;
+
+                    // Immediately clear input & draft so UI is instant and no stale text remains
+                    input.value = '';
+                    delete chatDrafts[sendingChatId];
+                    autoResizeTextarea(input, 180);
 
                     const participants = activeChat.participants || [];
                     const counterpartyId = participants.find(id => !myUserIds.includes(id)) || participants.find(id => id !== currentUserId) || participants[0];
                     const res = await state.sendMessage(counterpartyId, text, activeChat.eventId, activeChat.id);
                     if (res && !res.success) {
+                        chatDrafts[sendingChatId] = text;
+                        const curInput = container.querySelector('#chat-message-input');
+                        if (curInput) {
+                            curInput.value = text;
+                            autoResizeTextarea(curInput, 180);
+                        }
                         showToast({
                             title: "Fehler beim Senden ⚠️",
                             message: res.message || "Nachricht konnte nicht gespeichert werden."
                         });
                     } else {
-                        input.value = '';
+                        delete chatDrafts[sendingChatId];
+                        const curInput = container.querySelector('#chat-message-input');
+                        if (curInput) {
+                            curInput.value = '';
+                            autoResizeTextarea(curInput, 180);
+                        }
                         renderView();
                     }
                 } catch (sendErr) {
@@ -20548,29 +20630,72 @@ function renderPostbox(container) {
             });
         }
 
-        // Send message form handler (Mobile Accordion)
+        // Mobile Accordion inputs setup & submit handlers
         container.querySelectorAll('.chat-send-form-mobile').forEach(form => {
+            const chatId = form.getAttribute('data-chat-id');
+            const mInput = form.querySelector('.chat-message-input-mobile');
+            if (mInput && chatId) {
+                mInput.value = chatDrafts[chatId] || '';
+                autoResizeTextarea(mInput, 140);
+
+                mInput.addEventListener('input', () => {
+                    autoResizeTextarea(mInput, 140);
+                    if (mInput.value.trim()) {
+                        chatDrafts[chatId] = mInput.value;
+                    } else {
+                        delete chatDrafts[chatId];
+                    }
+                });
+
+                mInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) {
+                        e.preventDefault();
+                        if (form.requestSubmit) {
+                            form.requestSubmit();
+                        } else {
+                            form.dispatchEvent(new Event('submit', { cancelable: true }));
+                        }
+                    }
+                });
+            }
+
             form.addEventListener('submit', async (e) => {
                 try {
                     e.preventDefault();
-                    const chatId = form.getAttribute('data-chat-id');
                     const chat = (state.chats || []).find(c => c && c.id === chatId);
                     if (!chat) return;
 
                     const input = form.querySelector('.chat-message-input-mobile');
+                    if (!input) return;
                     const text = input.value.trim();
                     if (!text) return;
+
+                    // Immediately clear input & draft
+                    input.value = '';
+                    delete chatDrafts[chatId];
+                    autoResizeTextarea(input, 140);
 
                     const participants = chat.participants || [];
                     const counterpartyId = participants.find(id => !myUserIds.includes(id)) || participants.find(id => id !== currentUserId) || participants[0];
                     const res = await state.sendMessage(counterpartyId, text, chat.eventId, chat.id);
                     if (res && !res.success) {
+                        chatDrafts[chatId] = text;
+                        const curInput = form.querySelector('.chat-message-input-mobile');
+                        if (curInput) {
+                            curInput.value = text;
+                            autoResizeTextarea(curInput, 140);
+                        }
                         showToast({
                             title: "Fehler beim Senden ⚠️",
                             message: res.message || "Nachricht konnte nicht gespeichert werden."
                         });
                     } else {
-                        input.value = '';
+                        delete chatDrafts[chatId];
+                        const curInput = form.querySelector('.chat-message-input-mobile');
+                        if (curInput) {
+                            curInput.value = '';
+                            autoResizeTextarea(curInput, 140);
+                        }
                         renderView();
                     }
                 } catch (sendErr) {
@@ -20603,13 +20728,6 @@ function renderPostbox(container) {
                 el.scrollTop = el.scrollHeight;
             }, 50);
         });
-
-        if (savedDraft) {
-            const restoredInput = container.querySelector('#chat-message-input, .chat-message-input-mobile');
-            if (restoredInput && !restoredInput.value) {
-                restoredInput.value = savedDraft;
-            }
-        }
 
         const selectedThread = container.querySelector('.thread-item.selected');
         if (selectedThread) {

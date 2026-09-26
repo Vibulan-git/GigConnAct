@@ -211,7 +211,7 @@ module.exports = function getMessageEmailHtml({ senderName, messageText, role, s
             <h2 style="color: ${brandColor}; margin-top: 0; font-size: 1.5rem; text-align: center;">Neue Nachricht auf GigConnAct 💬</h2>
             <p>Hallo,</p>
             <p>Du hast eine neue Nachricht von <strong>${senderName}</strong> erhalten:</p>
-            <blockquote style="background: #edf2f7; border-left: 4px solid ${brandColor}; padding: 12px; margin: 15px 0; border-radius: 4px; font-style: italic; color: #4a5568;">
+            <blockquote style="background: #edf2f7; border-left: 4px solid ${brandColor}; padding: 12px; margin: 15px 0; border-radius: 4px; font-style: italic; color: #4a5568; white-space: pre-wrap; word-break: break-word;">
                 "${messageText}"
             </blockquote>
             
