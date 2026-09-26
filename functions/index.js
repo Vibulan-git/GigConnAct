@@ -45,6 +45,9 @@ async function getUserDetails(id) {
         let profileContactName = null;
         let profileName = null;
         let profileEmail = null;
+        let profilePhone = null;
+        let profileCompany = null;
+        let profileOrganizerType = null;
         let profileRole = null;
 
         if (id.startsWith('mus_')) {
@@ -55,6 +58,7 @@ async function getUserDetails(id) {
                 profileContactName = musData.contactName;
                 profileName = musData.name;
                 profileEmail = musData.email;
+                profilePhone = musData.phone;
                 profileRole = 'musician';
             } else {
                 userId = id.replace(/^mus_/, '');
@@ -64,9 +68,12 @@ async function getUserDetails(id) {
             if (eventDoc.exists) {
                 const evtData = eventDoc.data();
                 userId = evtData.creatorId || id.replace(/^(evt_|event_)/, '');
-                profileContactName = evtData.contactName;
+                profileContactName = evtData.clientName || evtData.contactName;
                 profileName = evtData.name;
-                profileEmail = evtData.email;
+                profileEmail = evtData.clientEmail || evtData.email;
+                profilePhone = evtData.clientPhone || evtData.phone;
+                profileCompany = evtData.company;
+                profileOrganizerType = evtData.organizerType;
                 profileRole = 'organizer';
             } else {
                 userId = id.replace(/^(evt_|event_)/, '');
@@ -77,11 +84,17 @@ async function getUserDetails(id) {
         let email = profileEmail || null;
         let displayName = null;
         let role = profileRole || 'musician';
+        let phone = profilePhone || null;
+        let company = profileCompany || null;
+        let organizerType = profileOrganizerType || null;
 
         if (userDoc.exists) {
             const data = userDoc.data();
             email = data.email || email;
             role = data.role || role;
+            phone = data.phone || phone;
+            company = data.company || company;
+            organizerType = data.organizerType || organizerType;
             displayName = data.name || data.contactName;
             if (!displayName && (data.firstName || data.lastName)) {
                 displayName = `${data.firstName || ''} ${data.lastName || ''}`.trim();
@@ -97,7 +110,10 @@ async function getUserDetails(id) {
         return {
             email: email,
             name: finalName,
-            role: role
+            role: role,
+            phone: phone,
+            company: company,
+            organizerType: organizerType
         };
     } catch (e) {
         console.error("Failed to fetch user details:", e);
@@ -1797,6 +1813,7 @@ exports.onMusicianProfileCreated = functions
 
         const userDetails = await getUserDetails(musician.id);
         const email = musician.email || (userDetails ? userDetails.email : null);
+        const phone = musician.phone || (userDetails ? userDetails.phone : null);
         const name = musician.contactName || musician.name || (userDetails ? userDetails.name : 'Nutzer');
 
         if (email && musician.isPremium === true) {
@@ -1833,7 +1850,7 @@ exports.onMusicianProfileCreated = functions
                     <tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 8px; font-weight: bold;">Instrumente:</td><td style="padding: 8px;">${Array.isArray(musician.instruments) ? musician.instruments.join(', ') : (musician.instruments || 'Keine')}</td></tr>
                     <tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 8px; font-weight: bold;">Genres:</td><td style="padding: 8px;">${Array.isArray(musician.genres) ? musician.genres.join(', ') : (musician.genres || 'Keine')}</td></tr>
                     <tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 8px; font-weight: bold;">Gage:</td><td style="padding: 8px;">${musician.minBudget || 0} - ${musician.maxBudget || 5000} €</td></tr>
-                    <tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 8px; font-weight: bold;">Kontakt:</td><td style="padding: 8px;">${name} (${email || 'Keine Mail'})</td></tr>
+                    <tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 8px; font-weight: bold;">Kontakt:</td><td style="padding: 8px;">${name} (${email || 'Keine Mail'}${phone ? ` | Tel: ${phone}` : ''})</td></tr>
                 </table>
             </div>
         `;
@@ -1853,13 +1870,78 @@ exports.onEventProfileCreated = functions
         const event = snapshot.data();
         if (!snapshot.exists || !event) return null;
 
-        const userDetails = await getUserDetails(event.creatorId);
-        const email = event.email || (userDetails ? userDetails.email : null);
         const eventId = (context && context.params && context.params.eventId) ? context.params.eventId : snapshot.id;
-        const name = event.contactName || (userDetails ? userDetails.name : 'Veranstalter');
+        const userDetails = await getUserDetails(event.creatorId);
 
-        if (email) {
-            // 1. Mail an den Veranstalter
+        // Determine true submitter / contact info (especially for agency requests / mediation inquiries where public event fields are masked with GigConnAct placeholder contacts)
+        const isAgencyRequest = Boolean(event.isAgencyRequest || event.isMediation || event.contactType === 'mediation');
+
+        // Submitter Name
+        let submitterName = event.clientName || null;
+        if (!submitterName && event.contactName && !event.contactName.includes('GigConnAct')) {
+            submitterName = event.contactName;
+        }
+        if (!submitterName && userDetails && userDetails.name && !userDetails.name.includes('GigConnAct')) {
+            submitterName = userDetails.name;
+        }
+        if (!submitterName) {
+            submitterName = event.contactName || 'Veranstalter';
+        }
+
+        // Submitter Email
+        let submitterEmail = null;
+        if (event.clientEmail && !event.clientEmail.includes('gigconnact')) {
+            submitterEmail = event.clientEmail;
+        } else if (userDetails && userDetails.email && !userDetails.email.includes('gigconnact')) {
+            submitterEmail = userDetails.email;
+        } else if (event.email && !event.email.includes('gigconnact')) {
+            submitterEmail = event.email;
+        } else {
+            submitterEmail = event.clientEmail || event.email || (userDetails ? userDetails.email : null);
+        }
+
+        // Submitter Phone
+        let submitterPhone = null;
+        const placeholderPhones = ['+49 170 1234567', '+49 89 9876540'];
+        if (event.clientPhone && !placeholderPhones.includes(event.clientPhone)) {
+            submitterPhone = event.clientPhone;
+        } else if (userDetails && userDetails.phone && !placeholderPhones.includes(userDetails.phone)) {
+            submitterPhone = userDetails.phone;
+        } else if (event.phone && !placeholderPhones.includes(event.phone)) {
+            submitterPhone = event.phone;
+        } else {
+            submitterPhone = event.clientPhone || event.phone || (userDetails ? userDetails.phone : null);
+        }
+
+        // Submitter Company & Organizer Type
+        const submitterCompany = event.company || (userDetails ? userDetails.company : null);
+        const submitterType = event.organizerType || (userDetails ? userDetails.organizerType : null);
+
+        // Referenced musician (if organizer sent inquiry directly from a musician profile)
+        const refMusician = event.referencedMusicianName ? `${event.referencedMusicianName}${event.referencedMusicianId ? ` (${event.referencedMusicianId})` : ''}` : null;
+
+        // Formatted Date & Time
+        let formattedDate = event.date || (Array.isArray(event.dates) ? event.dates.join(', ') : 'Keine Angabe');
+        if (event.eventStartTime || event.eventEndTime) {
+            formattedDate += ` (${event.eventStartTime || ''} - ${event.eventEndTime || ''} Uhr)`.replace(' -  Uhr', ' Uhr').replace('( - ', '(');
+        }
+
+        // Budget string
+        let budgetStr = 'Keine Angabe';
+        if (event.budget) {
+            budgetStr = `${event.budget} €`;
+        } else if (event.minBudget || event.maxBudget) {
+            budgetStr = `${event.minBudget || 0} - ${event.maxBudget || 0} €`;
+        }
+
+        // Genres & Instruments
+        const genresStr = Array.isArray(event.genres) ? event.genres.join(', ') : (event.genres || 'Keine Angabe');
+        const instrumentsStr = Array.isArray(event.instruments) ? event.instruments.join(', ') : (event.instruments || 'Keine Angabe');
+        const musicianTypesStr = Array.isArray(event.musicianTypes) ? event.musicianTypes.join(', ') : (event.musicianTypes || 'Keine Angabe');
+        const technikStr = Array.isArray(event.technik) ? event.technik.join(', ') : (event.technik || 'Keine Angabe');
+
+        // 1. Mail an den Veranstalter (NUR bei regulären Events, NICHT bei Vermittlungsanfragen und NICHT an Admin-Mailadresse)
+        if (!isAgencyRequest && submitterEmail && !['info@gigconnact.de', 'gigconnact@gmail.com'].includes(submitterEmail.toLowerCase())) {
             const eventSubject = `Deine Event-Ausschreibung bei GigConnAct ist online! 🎉`;
             const eventHtml = `
                 <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
@@ -1867,7 +1949,7 @@ exports.onEventProfileCreated = functions
                         <img src="https://gigconnact.de/discoball.png" alt="GigConnAct Logo" style="width: 70px; height: 70px; object-fit: contain;">
                     </div>
                     <h2 style="color: #0ea5e9; margin-top: 0; font-size: 1.5rem; text-align: center;">Event erfolgreich ausgeschrieben! 📅</h2>
-                    <p>Hallo ${name},</p>
+                    <p>Hallo ${submitterName},</p>
                     <p>deine Ausschreibung für das Event <strong>"${event.name}"</strong> ist jetzt erfolgreich auf unserem Marktplatz online geschaltet.</p>
                     <p>Interessierte Musiker können ab sofort ihr Interesse bekunden. Zudem analysiert unser System bereits die Datenbank, um dir passende Acts vorzuschlagen.</p>
                     <p style="margin-top: 25px; text-align: center;">
@@ -1877,24 +1959,140 @@ exports.onEventProfileCreated = functions
                     <p style="font-size: 0.8rem; color: #a0aec0; text-align: center;">GigConnAct — Dein Live-Musik Marktplatz</p>
                 </div>
             `;
-            await sendEmail({ to: email, subject: eventSubject, html: eventHtml });
+            try {
+                await sendEmail({ to: submitterEmail, subject: eventSubject, html: eventHtml });
+            } catch (err) {
+                console.error("Failed to send organizer event confirmation email:", err);
+            }
         }
 
         // 2. Info-Mail an Admin (info@gigconnact.de)
-        const adminSubject = `[Admin-Info] Neues Event erstellt: ${event.name}`;
+        const typeBadge = isAgencyRequest ? '⚡ VERMITTLUNGSANFRAGE' : '📅 EVENT-AUSSCHREIBUNG';
+        const badgeBg = isAgencyRequest ? '#7c3aed' : '#0ea5e9';
+        const adminSubject = isAgencyRequest
+            ? `[Vermittlungsanfrage] Neues Event: "${event.name}" (${submitterName})`
+            : `[Admin-Info] Neues Event erstellt: "${event.name}" (${submitterName})`;
+
         const adminHtml = `
-            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff;">
-                <h3 style="color: #0ea5e9; margin-top: 0;">Eine neue Event-Ausschreibung wurde erstellt</h3>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                    <tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 8px; font-weight: bold; width: 150px;">Eventname:</td><td style="padding: 8px;">${event.name}</td></tr>
-                    <tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 8px; font-weight: bold;">Datum:</td><td style="padding: 8px;">${event.date || (event.dates ? event.dates.join(', ') : 'Keine Angabe')}</td></tr>
-                    <tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 8px; font-weight: bold;">Ort:</td><td style="padding: 8px;">${event.location}</td></tr>
-                    <tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 8px; font-weight: bold;">Typ:</td><td style="padding: 8px;">${event.type || 'Keine Angabe'}</td></tr>
-                    <tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 8px; font-weight: bold;">Vermittlungsanfrage:</td><td style="padding: 8px;">${event.isAgencyRequest ? 'Ja ✅' : 'Nein ❌'}</td></tr>
-                    <tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 8px; font-weight: bold;">Kontakt:</td><td style="padding: 8px;">${name} (${email || 'Keine Mail'})</td></tr>
-                </table>
+            <div style="font-family: Arial, sans-serif; padding: 24px; color: #1e293b; max-width: 650px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+                <div style="margin-bottom: 16px;">
+                    <span style="display: inline-block; background: ${badgeBg}; color: #ffffff; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">
+                        ${typeBadge}
+                    </span>
+                    <h2 style="color: #0f172a; margin: 12px 0 6px 0; font-size: 20px;">
+                        ${isAgencyRequest ? 'Neue Vermittlungsanfrage eingegangen' : 'Neue Event-Ausschreibung erstellt'}
+                    </h2>
+                    <p style="color: #64748b; font-size: 14px; margin: 0;">
+                        Ein Veranstalter hat folgendes Event eingereicht. Hier sind alle Details & Kontaktdaten:
+                    </p>
+                </div>
+
+                <!-- Kontaktdaten Box -->
+                <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid ${badgeBg}; border-radius: 8px; padding: 16px; margin: 20px 0;">
+                    <h3 style="margin-top: 0; margin-bottom: 12px; color: #0f172a; font-size: 15px;">
+                        👤 Kontaktdaten des Veranstalters / Einreichers
+                    </h3>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 6px 0; font-weight: 600; width: 140px; color: #475569;">Name:</td>
+                            <td style="padding: 6px 0; color: #0f172a; font-weight: bold;">${submitterName}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 6px 0; font-weight: 600; color: #475569;">E-Mail:</td>
+                            <td style="padding: 6px 0;">
+                                ${submitterEmail ? `<a href="mailto:${submitterEmail}" style="color: #0284c7; text-decoration: underline; font-weight: 600;">${submitterEmail}</a>` : '<span style="color: #94a3b8;">Nicht angegeben</span>'}
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 6px 0; font-weight: 600; color: #475569;">Telefon / Mobil:</td>
+                            <td style="padding: 6px 0;">
+                                ${submitterPhone ? `<a href="tel:${String(submitterPhone).replace(/\\s+/g, '')}" style="color: #0284c7; text-decoration: underline; font-weight: 600;">${submitterPhone}</a>` : '<span style="color: #94a3b8;">Nicht angegeben</span>'}
+                            </td>
+                        </tr>
+                        ${submitterCompany ? `
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 6px 0; font-weight: 600; color: #475569;">Firma / Verein:</td>
+                            <td style="padding: 6px 0; color: #0f172a;">${submitterCompany}</td>
+                        </tr>` : ''}
+                        ${submitterType ? `
+                        <tr>
+                            <td style="padding: 6px 0; font-weight: 600; color: #475569;">Veranstalter-Typ:</td>
+                            <td style="padding: 6px 0; color: #0f172a;">${submitterType}</td>
+                        </tr>` : ''}
+                    </table>
+                </div>
+
+                <!-- Event Details Box -->
+                <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                    <h3 style="margin-top: 0; margin-bottom: 12px; color: #0f172a; font-size: 15px;">
+                        📋 Event-Details
+                    </h3>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 6px 0; font-weight: 600; width: 140px; color: #475569;">Eventname:</td>
+                            <td style="padding: 6px 0; color: #0f172a; font-weight: bold;">${event.name || 'Unbenanntes Event'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 6px 0; font-weight: 600; color: #475569;">Art des Events:</td>
+                            <td style="padding: 6px 0; color: #0f172a;">${event.type || 'Keine Angabe'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 6px 0; font-weight: 600; color: #475569;">Datum & Zeit:</td>
+                            <td style="padding: 6px 0; color: #0f172a;">${formattedDate}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 6px 0; font-weight: 600; color: #475569;">Ort:</td>
+                            <td style="padding: 6px 0; color: #0f172a;">${event.location || 'Keine Angabe'}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 6px 0; font-weight: 600; color: #475569;">Budget / Gage:</td>
+                            <td style="padding: 6px 0; color: #0f172a; font-weight: bold;">${budgetStr}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 6px 0; font-weight: 600; color: #475569;">Musikrichtung:</td>
+                            <td style="padding: 6px 0; color: #0f172a;">${genresStr}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 6px 0; font-weight: 600; color: #475569;">Gesuchte Besetzung:</td>
+                            <td style="padding: 6px 0; color: #0f172a;">${musicianTypesStr}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 6px 0; font-weight: 600; color: #475569;">Instrumente:</td>
+                            <td style="padding: 6px 0; color: #0f172a;">${instrumentsStr}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 6px 0; font-weight: 600; color: #475569;">Technik vor Ort:</td>
+                            <td style="padding: 6px 0; color: #0f172a;">${technikStr}</td>
+                        </tr>
+                        ${refMusician ? `
+                        <tr style="border-bottom: 1px solid #f1f5f9; background: #faf5ff;">
+                            <td style="padding: 6px 4px; font-weight: 600; color: #6b21a8;">Direktanfrage für:</td>
+                            <td style="padding: 6px 4px; color: #6b21a8; font-weight: bold;">${refMusician}</td>
+                        </tr>` : ''}
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 6px 0; font-weight: 600; color: #475569;">Publikum:</td>
+                            <td style="padding: 6px 0; color: #0f172a;">${event.publikum || (event.minPublikum ? `${event.minPublikum} - ${event.maxPublikum}` : 'Keine Angabe')}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; font-weight: 600; color: #475569; vertical-align: top;">Beschreibung / Notiz:</td>
+                            <td style="padding: 6px 0; color: #334155; line-height: 1.5; white-space: pre-wrap;">${event.description || 'Keine Beschreibung angegeben'}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div style="text-align: center; margin-top: 24px;">
+                    <a href="https://gigconnact.de/#/event-details?id=${eventId}" style="background: ${badgeBg}; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; display: inline-block;">
+                        Event im Dashboard öffnen
+                    </a>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-top: 30px; margin-bottom: 12px;">
+                <p style="font-size: 11px; color: #94a3b8; text-align: center; margin: 0;">
+                    GigConnAct System-Benachrichtigung &bull; Event-ID: ${eventId}
+                </p>
             </div>
         `;
+
         await sendEmail({ to: 'info@gigconnact.de', subject: adminSubject, html: adminHtml });
 
         return null;
