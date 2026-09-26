@@ -3442,7 +3442,7 @@ exports.triggerMediationFeedback = functions
     .https.onCall(async (data, context) => {
         let isAdmin = false;
         if (context.auth && context.auth.token && context.auth.token.email) {
-            const adminEmails = ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'];
+            const adminEmails = ['info@gigconnact.de', 'gigconnact@gmail.com'];
             if (adminEmails.includes(context.auth.token.email)) isAdmin = true;
         }
         const force = Boolean(data && data.force && isAdmin);
@@ -3465,7 +3465,7 @@ exports.deleteMarketItemPermanently = functions
             throw new functions.https.HttpsError('invalid-argument', 'Gültiger Typ (events/musicians) und ID sind erforderlich.');
         }
 
-        const adminEmails = ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'];
+        const adminEmails = ['info@gigconnact.de', 'gigconnact@gmail.com'];
         const userEmail = (context.auth.token?.email || '').toLowerCase();
         const userId = context.auth.uid;
         const isAdmin = adminEmails.includes(userEmail);

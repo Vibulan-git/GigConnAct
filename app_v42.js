@@ -2909,7 +2909,7 @@ class StateManager {
                 if (e.isDeleted || e.deleted || e.status === 'deleted') return false;
                 const isDemo = Boolean(e.isDemo || (e.id && (e.id.startsWith('evt_gen_') || (typeof initialEvents !== 'undefined' && initialEvents.some(init => init && init.id === e.id)))));
                 if (!isDemo && !liveDocIds.has(e.id)) {
-                    const isAdminUser = this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'].includes(this.currentUser.email);
+                    const isAdminUser = this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
                     if (isAdminUser && (e.creatorId === 'info-gigconnact-admin' || e.isAgencyRequest || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de')) {
                         return true;
                     }
@@ -2943,7 +2943,7 @@ class StateManager {
             const medSnapshot = await db.collection('mediations').get();
             if (!medSnapshot.empty) {
                 let anyChanged = false;
-                const isAdmin = this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'].includes(this.currentUser.email);
+                const isAdmin = this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
                 this.mediations = [];
                 medSnapshot.forEach(mDoc => {
                     const mData = mDoc.data();
@@ -3129,7 +3129,7 @@ class StateManager {
             }
 
             // ADMIN: Automatically load all agency requests & mediation events into admin profile
-            const isAdminForData = this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'].includes(this.currentUser.email);
+            const isAdminForData = this.currentUser && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
             if (isAdminForData) {
                 try {
                     const adminQueries = [
@@ -3255,7 +3255,7 @@ class StateManager {
         if (this.activeMusicianId) ids.push(this.activeMusicianId);
         if (this.currentUser.email) ids.push(this.currentUser.email);
         
-        const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'].includes(this.currentUser.email);
+        const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
         if (isAdmin) {
             ids.push('info-gigconnact-admin');
             ids.push('info@gigconnact.de');
@@ -3416,13 +3416,19 @@ class StateManager {
                         await this.fetchUserOwnData();
 
                         if (this.currentUser.role === 'musician') {
-                            this.activeMusicianId = this.activeMusicianId && this.musicians.some(m => m.id === this.activeMusicianId)
+                            this.activeMusicianId = (this.activeMusicianId && this.musicians.some(m => m.id === this.activeMusicianId && m.creatorId === this.currentUser.id))
                                 ? this.activeMusicianId
                                 : (this.musicians.find(m => m.creatorId === this.currentUser.id)?.id || this.currentUser.profileId || null);
                         } else if (this.currentUser.role === 'organizer') {
-                            this.activeEventId = this.activeEventId && this.events.some(e => e.id === this.activeEventId)
+                            const isAgencyAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
+                            const isUserEvent = (e) => e && (
+                                e.creatorId === this.currentUser.id ||
+                                (this.currentUser.email && (e.email === this.currentUser.email || e.clientEmail === this.currentUser.email)) ||
+                                (isAgencyAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.clientEmail === 'gigconnact@gmail.com' || e.isAgencyRequest === true || e.isMediation === true))
+                            );
+                            this.activeEventId = (this.activeEventId && this.events.some(e => e.id === this.activeEventId && isUserEvent(e)))
                                 ? this.activeEventId
-                                : (this.events.find(e => e.creatorId === this.currentUser.id || (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email) && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.clientEmail === 'gigconnact@gmail.com')))?.id || null);
+                                : (this.events.find(isUserEvent)?.id || (isUserEvent({ id: this.currentUser.profileId, creatorId: this.currentUser.id }) ? this.currentUser.profileId : null));
                         }
                         this.authInitialized = true;
                         this.notify();
@@ -4449,14 +4455,20 @@ class StateManager {
         });
 
         if (this.currentUser) {
+            const isAgencyAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
+            const isUserEvent = (e) => e && (
+                e.creatorId === this.currentUser.id ||
+                (this.currentUser.email && (e.email === this.currentUser.email || e.clientEmail === this.currentUser.email)) ||
+                (isAgencyAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.clientEmail === 'gigconnact@gmail.com' || e.isAgencyRequest === true || e.isMediation === true))
+            );
             if (this.currentUser.role === 'musician') {
-                this.activeMusicianId = this.activeMusicianId && this.musicians.some(m => m.id === this.activeMusicianId)
+                this.activeMusicianId = (this.activeMusicianId && this.musicians.some(m => m.id === this.activeMusicianId && m.creatorId === this.currentUser.id))
                     ? this.activeMusicianId
                     : (this.musicians.find(m => m.creatorId === this.currentUser.id)?.id || this.currentUser.profileId || null);
             } else if (this.currentUser.role === 'organizer') {
-                this.activeEventId = this.activeEventId && this.events.some(e => e.id === this.activeEventId)
+                this.activeEventId = (this.activeEventId && this.events.some(e => e.id === this.activeEventId && isUserEvent(e)))
                     ? this.activeEventId
-                    : (this.events.find(e => e.creatorId === this.currentUser.id)?.id || null);
+                    : (this.events.find(isUserEvent)?.id || null);
             }
             this.runDailyMatchCheck();
         }
@@ -4501,7 +4513,7 @@ class StateManager {
             if (this.currentUser.role === 'musician') {
                 myProfiles = this.musicians.filter(m => m.creatorId === this.currentUser.id && m.isActive !== false && !m.isDeleted && m.status !== 'inactive');
             } else {
-                myProfiles = this.events.filter(e => (e.creatorId === this.currentUser.id || (['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'].includes(this.currentUser.email) && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.isAgencyRequest === true || e.isMediation === true))) && (typeof isEventActive === 'function' ? isEventActive(e) : (e.isActive !== false && !e.isCanceled)));
+                myProfiles = this.events.filter(e => (e.creatorId === this.currentUser.id || (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email) && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.isAgencyRequest === true || e.isMediation === true))) && (typeof isEventActive === 'function' ? isEventActive(e) : (e.isActive !== false && !e.isCanceled)));
             }
             const candidates = this.currentUser.role === 'musician' 
                 ? this.events.filter(e => typeof isEventActive === 'function' ? isEventActive(e) : (e.isActive !== false && !e.isCanceled))
@@ -4814,7 +4826,7 @@ class StateManager {
 
         // 2. Clean up active profile and user profileId
         if (this.activeEventId === eventId || (basePrefix && String(this.activeEventId).startsWith(basePrefix))) {
-            const remainingUserEvents = (this.events || []).filter(e => e && (e.creatorId === this.currentUser?.id || (['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'].includes(this.currentUser?.email) && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.isAgencyRequest === true || e.isMediation === true))));
+            const remainingUserEvents = (this.events || []).filter(e => e && (e.creatorId === this.currentUser?.id || (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser?.email) && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.isAgencyRequest === true || e.isMediation === true))));
             this.activeEventId = remainingUserEvents.length > 0 ? remainingUserEvents[0].id : null;
             if (this.currentUser) {
                 this.currentUser.profileId = this.activeEventId;
@@ -5220,8 +5232,12 @@ class StateManager {
     logout() {
         auth.signOut().catch(err => console.error("Firebase signOut failed:", err));
         this.currentUser = null;
+        this.activeEventId = null;
+        this.activeMusicianId = null;
         try {
             localStorage.removeItem('GigConnAct_current_user');
+            localStorage.removeItem('GigConnAct_active_event_id');
+            localStorage.removeItem('GigConnAct_active_musician_id');
         } catch (e) {}
         this.saveState();
         this.notify();
@@ -6036,17 +6052,17 @@ class StateManager {
 
                     if (!musSnap.empty && musSnap.docs && musSnap.docs.length > 0) {
                         const musDoc = musSnap.docs[0].data();
-                        if (musDoc.creatorId) {
+                        if (musDoc.creatorId && musDoc.creatorId !== 'info-gigconnact-admin') {
                             const uDoc = await db.collection('users').doc(musDoc.creatorId).get().catch(() => null);
-                            if (uDoc && uDoc.exists) {
+                            if (uDoc && uDoc.exists && uDoc.data().email && uDoc.data().email.toLowerCase().trim() === emailLower) {
                                 matchedUser = { id: uDoc.id, ...uDoc.data() };
                             }
                         }
                     } else if (!evtSnap.empty && evtSnap.docs && evtSnap.docs.length > 0) {
                         const evtDoc = evtSnap.docs[0].data();
-                        if (evtDoc.creatorId) {
+                        if (evtDoc.creatorId && evtDoc.creatorId !== 'info-gigconnact-admin') {
                             const uDoc = await db.collection('users').doc(evtDoc.creatorId).get().catch(() => null);
-                            if (uDoc && uDoc.exists) {
+                            if (uDoc && uDoc.exists && uDoc.data().email && uDoc.data().email.toLowerCase().trim() === emailLower) {
                                 matchedUser = { id: uDoc.id, ...uDoc.data() };
                             }
                         }
@@ -6067,9 +6083,10 @@ class StateManager {
             }
 
             if (this.currentUser.role === 'musician') {
-                this.activeMusicianId = this.currentUser.profileId || ((this.musicians || []).find(m => m.creatorId === this.currentUser.id)?.id || null);
+                this.activeMusicianId = (this.musicians || []).find(m => m.creatorId === this.currentUser.id || m.id === this.currentUser.profileId)?.id || null;
             } else {
-                this.activeEventId = this.currentUser.profileId || ((this.events || []).find(e => e.creatorId === this.currentUser.id || e.email === this.currentUser.email)?.id || null);
+                const isAgencyAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
+                this.activeEventId = (this.events || []).find(e => e.creatorId === this.currentUser.id || (this.currentUser.email && (e.email === this.currentUser.email || e.clientEmail === this.currentUser.email)) || (isAgencyAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.clientEmail === 'gigconnact@gmail.com' || e.isAgencyRequest === true || e.isMediation === true)))?.id || null;
             }
 
             localStorage.setItem('GigConnAct_current_user', JSON.stringify(this.currentUser));
@@ -6603,7 +6620,7 @@ function checkAndNotifyMatches(stateManager, showToastCallback) {
             }
         });
     } else if (userRole === "organizer") {
-        const myEvents = stateManager.events.filter(e => (e.creatorId === userId || (['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'].includes(stateManager.currentUser?.email) && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.isAgencyRequest === true || e.isMediation === true))) && (typeof isEventActive === 'function' ? isEventActive(e) : (e.isActive !== false && !e.isCanceled)));
+        const myEvents = stateManager.events.filter(e => (e.creatorId === userId || (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(stateManager.currentUser?.email) && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.isAgencyRequest === true || e.isMediation === true))) && (typeof isEventActive === 'function' ? isEventActive(e) : (e.isActive !== false && !e.isCanceled)));
         const activeMusicians = stateManager.musicians.filter(m => m.isActive !== false && !m.isDeleted && m.status !== 'inactive');
         myEvents.forEach(event => {
             activeMusicians.forEach(musician => {
@@ -11913,7 +11930,7 @@ function renderProfilePage(container) {
         activeProfileId = state.activeMusicianId || (userProfiles[0]?.id || u.profileId || '');
         if (activeProfileId) state.activeMusicianId = activeProfileId;
     } else {
-        const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'].includes(u.email);
+        const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
         userProfiles = (state.events || []).filter(e => e && 
             !e.isDeleted && !e.deleted && e.status !== 'deleted' &&
             (!state.deletedEventIds || !state.deletedEventIds.has(e.id)) &&
@@ -12759,7 +12776,7 @@ function renderMatchesPage(container) {
         }
         
         let profiles = [];
-        const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'].includes(u.email);
+        const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
         if (isMusician) {
             profiles = (state.musicians || []).filter(m => m && m.creatorId === u.id);
         } else {
@@ -13274,7 +13291,7 @@ function renderMyEventsContent(container) {
         state.syncEventsWithMediations();
     }
     const u = state.currentUser;
-    const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'].includes(u.email);
+    const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
     const allMyEvents = (state.events || []).filter(e => 
         e && 
         !e.isDeleted && !e.deleted && e.status !== 'deleted' &&
