@@ -6727,7 +6727,7 @@ function renderHeroTabContent(isMusician) {
                         <i class="fa-solid fa-circle-check" style="color: #a855f7; font-size: 1.2rem;"></i>
                         <h4 style="color: #a855f7; font-weight: 900; margin: 0; font-size: 1rem;">Keine Provisionskosten</h4>
                     </div>
-                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Preiswertes Abo-Modell (jederzeit kÜndbar)</p>
+                    <p style="margin: 0; font-size: 0.84rem; color: #000000; font-weight: 600; line-height: 1.45; padding-left: 1.8rem;">Preiswertes Abo-Modell mit kostenloser Testphase</p>
                 </div>
 
             </div>
@@ -12099,7 +12099,6 @@ function renderProfilePage(container) {
                                 <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
-                                <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                 <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "flex" ? "Ausgewählt" : "Auswählen"}</button>
@@ -12112,7 +12111,6 @@ function renderProfilePage(container) {
                                 <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
-                                <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                 <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "plus" ? "Ausgewählt" : "Auswählen"}</button>
@@ -12125,7 +12123,6 @@ function renderProfilePage(container) {
                                 <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
-                                <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                 <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "pro" ? "Ausgewählt" : "Auswählen"}</button>
@@ -12138,7 +12135,6 @@ function renderProfilePage(container) {
                                 <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
                                 <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
                                 <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
-                                <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                             </ul>
                             <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                 <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">${activePlan === "premium" ? "Ausgewählt" : "Auswählen"}</button>
@@ -12406,7 +12402,11 @@ function renderProfilePage(container) {
 
         if (cancelBtn) {
             cancelBtn.addEventListener('click', async () => {
-                const confirmMsg = "Möchtest du dein Abonnement wirklich zum nächstmöglichen Zeitpunkt kündigen? Du verlierst damit nach Ablauf des Zeitraums den direkten Zugang.\n\nHinweis: Dein Profil bleibt nach Ablauf inaktiv gespeichert, damit du es später einfach reaktivieren kannst. Du kannst dein Konto und alle Daten jederzeit dauerhaft über die Funktion 'Konto unwiderruflich löschen' entfernen.";
+                const isTrialActive = !!(u.subscriptionTrialEnd && new Date(u.subscriptionTrialEnd) > new Date());
+                const confirmMsg = isTrialActive
+                    ? `Möchtest du dein Abonnement noch innerhalb der kostenlosen Testphase kündigen?\n\nEs fallen keine Kosten für dich an. Du behältst deinen vollen Zugang bis zum Ende der Testphase (${formatDate(u.subscriptionTrialEnd)}).\n\nHinweis: Dein Profil bleibt nach Ablauf inaktiv gespeichert, damit du es später bei Bedarf einfach reaktivieren kannst.`
+                    : `Möchtest du dein Abonnement kündigen?\n\nDa die kostenlose Testphase abgelaufen ist, gilt die vereinbarte Vertragslaufzeit. Dein Abonnement wird zum Ende der aktuellen Vertragslaufzeit bzw. des Abrechnungszeitraums (${u.subscriptionEndDate || (u.subscriptionPeriodEnd ? formatDate(u.subscriptionPeriodEnd) : 'Ende der Laufzeit')}) beendet und verlängert sich danach nicht mehr.\n\nHinweis: Dein Profil bleibt danach inaktiv gespeichert, damit du es später einfach wieder aktivieren kannst.`;
+
                 if (confirm(confirmMsg)) {
                     cancelBtn.disabled = true;
                     cancelBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Kündigung läuft...`;
@@ -12433,27 +12433,45 @@ function renderProfilePage(container) {
                             state.saveState();
                             showToast({
                                 title: "Abo gekündigt ℹ",
-                                message: `Dein Abonnement wurde gekündigt. Du hast bis zum ${endStr || 'Ablauf des Abrechnungszeitraums'} vollen Zugriff.`
+                                message: isTrialActive
+                                    ? `Dein Abonnement wurde in der Testphase gekündigt. Es fallen keine Kosten an. Du hast bis zum ${endStr || formatDate(u.subscriptionTrialEnd)} Zugriff.`
+                                    : `Dein Abonnement wurde zum Ende der Vertragslaufzeit gekündigt. Du hast bis zum ${endStr || 'Ablauf der Vertragslaufzeit'} vollen Zugriff.`
                             });
                         }
                     } catch (err) {
                         console.warn("Subscription cancellation Stripe error, applying direct fallback:", err);
                         u.subscriptionCancelled = true;
+                        let fallbackEndStr = '';
+                        if (isTrialActive && u.subscriptionTrialEnd) {
+                            fallbackEndStr = formatDate(u.subscriptionTrialEnd);
+                        } else if (u.subscriptionPeriodEnd) {
+                            fallbackEndStr = formatDate(u.subscriptionPeriodEnd);
+                        } else {
+                            const months = u.subscriptionPlan === 'plus' ? 6 : ((u.subscriptionPlan === 'pro' || u.subscriptionPlan === 'premium') ? 12 : 1);
+                            const d = new Date();
+                            d.setMonth(d.getMonth() + months);
+                            fallbackEndStr = formatDate(d.toISOString());
+                        }
+                        u.subscriptionEndDate = fallbackEndStr;
+
                         const registeredUsers = JSON.parse(localStorage.getItem('GigConnAct_registered_users') || '[]');
                         const idx = registeredUsers.findIndex(usr => usr.id === u.id);
                         if (idx !== -1) {
                             registeredUsers[idx].subscriptionCancelled = true;
+                            registeredUsers[idx].subscriptionEndDate = fallbackEndStr;
                             localStorage.setItem('GigConnAct_registered_users', JSON.stringify(registeredUsers));
                         }
                         if (typeof db !== 'undefined' && db && u.id) {
                             try {
-                                await db.collection('users').doc(u.id).set({ subscriptionCancelled: true, updatedAt: new Date().toISOString() }, { merge: true });
+                                await db.collection('users').doc(u.id).set({ subscriptionCancelled: true, subscriptionEndDate: fallbackEndStr, updatedAt: new Date().toISOString() }, { merge: true });
                             } catch (e) {}
                         }
                         state.saveState();
                         showToast({
                             title: "Abo gekündigt ℹ",
-                            message: "Dein Abonnement wurde zum Ende des Abrechnungszeitraums gekündigt."
+                            message: isTrialActive
+                                ? `Dein Abonnement wurde in der Testphase gekündigt (Zugang bis ${fallbackEndStr}).`
+                                : `Dein Abonnement wurde zum Ende der Vertragslaufzeit gekündigt (Zugang bis ${fallbackEndStr}).`
                         });
                     } finally {
                         cancelBtn.disabled = false;
@@ -16342,7 +16360,6 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                     <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
                                     <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 1 Monat Vertragslaufzeit</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                                 </ul>
                                 <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                     <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Ausgewählt</button>
@@ -16360,7 +16377,6 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                     <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
                                     <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 6 Monate Vertragslaufzeit</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                                 </ul>
                                 <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                     <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Auswählen</button>
@@ -16378,7 +16394,6 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                     <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
                                     <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                                 </ul>
                                 <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                     <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Auswählen</button>
@@ -16396,7 +16411,6 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                     <li><i class="fa-solid fa-circle-check"></i> Direktkontakt zu Veranstaltern</li>
                                     <li><i class="fa-solid fa-circle-check"></i> Vermittlungen erhalten/anfragen</li>
                                     <li><i class="fa-solid fa-circle-check"></i> 12 Monate Vertragslaufzeit</li>
-                                    <li><i class="fa-solid fa-circle-check"></i> <span>Jederzeit kündbar</span></li>
                                 </ul>
                                 <div style="display: flex; justify-content: center; margin-top: 0.8rem; width: 100%;">
                                     <button type="button" class="btn btn-primary btn-sub-select" style="margin: 0; padding: 0.45rem 1.25rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">Auswählen</button>

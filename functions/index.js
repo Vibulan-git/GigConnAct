@@ -1142,15 +1142,37 @@ exports.updateSubscriptionCancelState = functions
                         });
                     }
                     
-                    const endDate = new Date();
-                    endDate.setMonth(endDate.getMonth() + 1);
-                    endStr = endDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    const calculateFallbackEndStr = (uData) => {
+                        if (uData.subscriptionTrialEnd && new Date(uData.subscriptionTrialEnd) > new Date()) {
+                            return new Date(uData.subscriptionTrialEnd).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        }
+                        if (uData.subscriptionPeriodEnd && new Date(uData.subscriptionPeriodEnd) > new Date()) {
+                            return new Date(uData.subscriptionPeriodEnd).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        }
+                        const target = new Date();
+                        const plan = (uData.subscriptionPlan || '').toLowerCase();
+                        const months = plan === 'plus' ? 6 : ((plan === 'pro' || plan === 'premium') ? 12 : 1);
+                        target.setMonth(target.getMonth() + months);
+                        return target.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    };
+                    endStr = calculateFallbackEndStr(userData);
                 }
             } else {
                 mocked = true;
-                const endDate = new Date();
-                endDate.setMonth(endDate.getMonth() + 1);
-                endStr = endDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const calculateFallbackEndStr = (uData) => {
+                    if (uData.subscriptionTrialEnd && new Date(uData.subscriptionTrialEnd) > new Date()) {
+                        return new Date(uData.subscriptionTrialEnd).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    }
+                    if (uData.subscriptionPeriodEnd && new Date(uData.subscriptionPeriodEnd) > new Date()) {
+                        return new Date(uData.subscriptionPeriodEnd).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    }
+                    const target = new Date();
+                    const plan = (uData.subscriptionPlan || '').toLowerCase();
+                    const months = plan === 'plus' ? 6 : ((plan === 'pro' || plan === 'premium') ? 12 : 1);
+                    target.setMonth(target.getMonth() + months);
+                    return target.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                };
+                endStr = calculateFallbackEndStr(userData);
             }
 
             const updateData = {
