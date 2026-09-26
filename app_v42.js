@@ -3338,6 +3338,13 @@ class StateManager {
                             this.currentUser.role = 'organizer';
                             this.syncDemosToFirestore().catch(e => console.warn(e));
                         }
+                        if (this.currentUser && this.currentUser.role === 'organizer') {
+                            this.currentUser.isPremium = true;
+                            if (this.currentUser.subscriptionPlan !== 'free') {
+                                this.currentUser.subscriptionPlan = 'free';
+                                userDocRef.update({ subscriptionPlan: 'free', isPremium: true }).catch(() => {});
+                            }
+                        }
                         
                         await this.fetchUserOwnData();
 
@@ -3675,6 +3682,7 @@ class StateManager {
                     console.log("Completing registration for user:", email);
                     const profileId = pendingReg.role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
                     const isPromo = pendingReg.subscriptionPlan === 'premium' && pendingReg.isPromoCodeApplied === true;
+                    const isOrganizer = pendingReg.role === 'organizer';
 
                     const newUser = {
                         id: user.uid,
@@ -3688,8 +3696,8 @@ class StateManager {
                         email: pendingReg.email || email,
                         profileId: profileId,
                         eventName: pendingReg.eventName || 'Mein Event',
-                        isPremium: isPromo,
-                        subscriptionPlan: pendingReg.subscriptionPlan || "flex",
+                        isPremium: isOrganizer ? true : isPromo,
+                        subscriptionPlan: isOrganizer ? 'free' : (pendingReg.subscriptionPlan || "flex"),
                         successfulGigs: 0,
                         contactRequests: 0,
                         favorites: [],
@@ -3780,8 +3788,8 @@ class StateManager {
                             videos: pendingReg.videos || [],
                             audio: pendingReg.audio || pendingReg.audios || [],
                             creatorId: user.uid,
-                            isPremium: newUser.isPremium,
-                            subscriptionPlan: pendingReg.subscriptionPlan || "flex"
+                            isPremium: true,
+                            subscriptionPlan: "free"
                         };
                         await db.collection('events').doc(profileId).set(newEvent, { merge: true });
                         const idx = state.events.findIndex(e => e.id === profileId);
@@ -3798,10 +3806,11 @@ class StateManager {
                     window.localStorage.removeItem('GigConnAct_pending_registration');
                     db.collection('pendingRegistrations').doc(email.toLowerCase()).delete().catch(()=>{});
 
-                    targetPlan = pendingReg.subscriptionPlan || 'flex';
-                    if (targetPlan === 'flex' || targetPlan === 'plus' || targetPlan === 'pro' || targetPlan === 'premium') {
+                    targetPlan = isOrganizer ? 'free' : (pendingReg.subscriptionPlan || 'flex');
+                    if (!isOrganizer && pendingReg.role === 'musician' && (targetPlan === 'flex' || targetPlan === 'plus' || targetPlan === 'pro' || targetPlan === 'premium')) {
                         redirectToStripe = true;
                     } else {
+                        redirectToStripe = false;
                         showToast({
                             title: "Registrierung abgeschlossen! 🎉",
                             message: "Dein Profil wurde erfolgreich erstellt."
@@ -3834,7 +3843,7 @@ class StateManager {
                         profileId: profileId,
                         eventName: role === 'organizer' ? 'Demo Veranstaltung' : '',
                         isPremium: true,
-                        subscriptionPlan: 'flex',
+                        subscriptionPlan: role === 'organizer' ? 'free' : 'flex',
                         credits: 0,
                         unlockedContacts: [],
                         successfulGigs: 0,
@@ -3933,7 +3942,7 @@ class StateManager {
                 
                 window.history.replaceState({}, document.title, window.location.origin + window.location.pathname + window.location.hash);
                 
-                if (redirectToStripe) {
+                if (redirectToStripe && pendingReg?.role !== 'organizer' && state.currentUser?.role !== 'organizer') {
                     window.isRegisteringRedirecting = true;
                     showToast({
                         title: "Weiterleitung zur Zahlung... 💳",
@@ -11952,7 +11961,7 @@ function renderProfilePage(container) {
                 </form>
             </div>
 
-            ${((u.role === 'musician' || u.role === 'organizer') && !isAdmin) ? `
+            ${(u.role === 'musician' && !isAdmin) ? `
             <div class="profile-section-card subscription-manage">
                 <div class="profile-section-header">
                     <div style="display: flex; align-items: center; gap: 0.85rem;">
@@ -17438,7 +17447,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     url: typeof a === 'string' ? a : String(a.url || ''),
                     title: typeof a === 'string' ? '' : String(a.title || '')
                 }));
-            payload.subscriptionPlan = "flex";
+            payload.subscriptionPlan = "free";
         }
 
         payload.isPromoCodeApplied = (payload.subscriptionPlan === 'premium' && isPromoCodeApplied);
@@ -17482,6 +17491,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 const user = activeAuthUser;
                 const profileId = payload.role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
                 const isPromo = (payload.subscriptionPlan === 'premium' && isPromoCodeApplied === true);
+                const isOrg = payload.role === 'organizer';
 
                 const newUser = {
                     id: user.uid,
@@ -17495,8 +17505,8 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     email: user.email || payload.email || '',
                     profileId: profileId,
                     eventName: payload.eventName || 'Mein Event',
-                    isPremium: isPromo,
-                    subscriptionPlan: payload.subscriptionPlan || "free",
+                    isPremium: isOrg ? true : isPromo,
+                    subscriptionPlan: isOrg ? "free" : (payload.subscriptionPlan || "free"),
                     successfulGigs: 0,
                     contactRequests: 0,
                     favorites: [],
@@ -17587,8 +17597,8 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         photos: payload.photos || [],
                         videos: payload.videos || [],
                         audio: payload.audios || [],
-                        isPremium: newUser.isPremium,
-                        subscriptionPlan: payload.subscriptionPlan || "flex"
+                        isPremium: true,
+                        subscriptionPlan: "free"
                     };
                     await db.collection('users').doc(user.uid).set(newUser, { merge: true });
                     await db.collection('events').doc(profileId).set(newEvent, { merge: true });
@@ -21730,9 +21740,11 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
 
     return items.map(item => {
         const isLoggedIn = Boolean(state && state.currentUser);
+        const isOrganizerUser = state && state.currentUser && state.currentUser.role === 'organizer';
         const isUnlocked = state ? (
             isLoggedIn && (
                 isEvents || // In logged-in state, direct contact events allow showing contact details
+                isOrganizerUser || // Organizers NEVER pay and can always view musician contact details directly
                 ((typeof state.isUnlocked === 'function') ? state.isUnlocked(item.id) : (state.unlockedContacts && state.unlockedContacts.includes(item.id)))
             )
         ) : false;

@@ -979,6 +979,9 @@ exports.createStripeCheckoutSession = functions
             const subscriptionStatus = userData.subscriptionStatus || null;
 
             const isOrganizer = userData.role === 'organizer';
+            if (isOrganizer) {
+                throw new functions.https.HttpsError('failed-precondition', 'Veranstalter nutzen GigConnAct dauerhaft kostenlos und benötigen kein Abonnement.');
+            }
             let targetPath = (data.returnUrl || '').replace(/^#\/?/, '').replace(/^\//, '');
             if (!targetPath) {
                 targetPath = isOrganizer ? 'musicians' : 'events';
