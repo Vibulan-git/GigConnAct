@@ -3251,12 +3251,21 @@ class StateManager {
         const uid = this.currentUser.id;
         const ids = [uid];
         if (this.currentUser.profileId) ids.push(this.currentUser.profileId);
+        if (this.activeEventId) ids.push(this.activeEventId);
+        if (this.activeMusicianId) ids.push(this.activeMusicianId);
+        if (this.currentUser.email) ids.push(this.currentUser.email);
         
         const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com', 'vibulan22@gmail.com', 'vibu.music22@gmail.com'].includes(this.currentUser.email);
+        if (isAdmin) {
+            ids.push('info-gigconnact-admin');
+            ids.push('info@gigconnact.de');
+            ids.push('gigconnact@gmail.com');
+        }
         
-        (this.musicians || []).filter(m => m && m.creatorId === uid).forEach(m => { if (m && m.id) ids.push(m.id); });
+        (this.musicians || []).filter(m => m && (m.creatorId === uid || m.id === this.currentUser.profileId)).forEach(m => { if (m && m.id) ids.push(m.id); });
         (this.events || []).filter(e => e && (
             e.creatorId === uid ||
+            (this.currentUser.email && (e.email === this.currentUser.email || e.clientEmail === this.currentUser.email)) ||
             (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.isAgencyRequest === true || e.isMediation === true))
         )).forEach(e => { if (e && e.id) ids.push(e.id); });
         
@@ -5555,22 +5564,32 @@ class StateManager {
 
     async sendMessage(recipientId, text, eventId, chatId = null) {
         if (!this.currentUser) return { success: false, message: "Bitte melde dich an." };
-        const senderId = this.currentUser.role === 'musician' 
-            ? (this.activeMusicianId || (this.musicians && this.musicians.find(m => m && m.creatorId === this.currentUser.id)?.id) || this.currentUser.profileId) 
-            : (this.activeEventId || (this.events && this.events.find(e => e && e.creatorId === this.currentUser.id)?.id) || this.currentUser.id);
-        
-        if (!senderId) {
-            return { success: false, message: "Kein aktives Absender-Profil gefunden. Bitte wähle ein Profil aus." };
-        }
-        if (!recipientId && !chatId) {
-            return { success: false, message: "Kein Empfänger für diesen Chat definiert." };
-        }
+        const myIds = (typeof this.getUserProfileAndEventIds === 'function') 
+            ? this.getUserProfileAndEventIds() 
+            : [this.currentUser.id];
 
         if (!this.chats) this.chats = [];
 
         let chat = (chatId && this.chats.find(c => c && c.id === chatId)) || this.chats.find(c => 
-            c && c.participants && c.participants.includes(senderId) && c.participants.includes(recipientId)
+            c && c.participants && c.participants.some(p => myIds.includes(p)) && c.participants.includes(recipientId)
         );
+
+        let senderId = '';
+        if (chat && Array.isArray(chat.participants)) {
+            senderId = chat.participants.find(p => p !== recipientId && myIds.includes(p));
+        }
+        if (!senderId) {
+            senderId = this.currentUser.role === 'musician' 
+                ? (this.activeMusicianId || (this.musicians && this.musicians.find(m => m && m.creatorId === this.currentUser.id)?.id) || this.currentUser.profileId) 
+                : (this.activeEventId || (this.events && this.events.find(e => e && (e.creatorId === this.currentUser.id || e.id === eventId))?.id) || this.currentUser.id);
+        }
+        if (!senderId) {
+            senderId = this.currentUser.id;
+        }
+        
+        if (!recipientId && !chatId) {
+            return { success: false, message: "Kein Empfänger für diesen Chat definiert." };
+        }
 
         const newId = chat ? chat.id : (chatId || ("chat_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5)));
         
@@ -20252,6 +20271,16 @@ function renderPostbox(container) {
             const myUserIds = (typeof state.getUserProfileAndEventIds === 'function')
                 ? state.getUserProfileAndEventIds()
                 : [u.id];
+            if (currentUserId && !myUserIds.includes(currentUserId)) myUserIds.push(currentUserId);
+            if (activeProfileId && !myUserIds.includes(activeProfileId)) myUserIds.push(activeProfileId);
+            if (u && u.id && !myUserIds.includes(u.id)) myUserIds.push(u.id);
+            if (u && u.profileId && !myUserIds.includes(u.profileId)) myUserIds.push(u.profileId);
+            if (u && u.email && !myUserIds.includes(u.email)) myUserIds.push(u.email);
+            if (isAdmin) {
+                if (!myUserIds.includes('info-gigconnact-admin')) myUserIds.push('info-gigconnact-admin');
+                if (!myUserIds.includes('info@gigconnact.de')) myUserIds.push('info@gigconnact.de');
+                if (!myUserIds.includes('gigconnact@gmail.com')) myUserIds.push('gigconnact@gmail.com');
+            }
 
             let chats = (state.chats || []).filter(c => 
                 c && c.participants && Array.isArray(c.participants) && c.participants.some(pid => myUserIds.includes(pid))
@@ -20411,7 +20440,7 @@ function renderPostbox(container) {
                                 const isPerfect = interest && interest.musicianInterested && interest.organizerInterested;
                                 const isDeclined = interest && interest.organizerNoInterest;
                                 const firstMsg = threadMsgs[0];
-                                const isFirstMsgFromMe = firstMsg ? (firstMsg.senderId === currentUserId) : (c.initiatorId === currentUserId);
+                                const isFirstMsgFromMe = firstMsg ? myUserIds.includes(firstMsg.senderId) : myUserIds.includes(c.initiatorId);
                                 if (!isPerfect && !isDeclined && !isFirstMsgFromMe) {
                                     isAccordionLock = false;
                                 }
@@ -20427,8 +20456,9 @@ function renderPostbox(container) {
                                                 <p style="font-size: 0.78rem; margin: 0; line-height: 1.3;">Keine Nachrichten vorhanden. Schreibe eine Nachricht, um das Gespräch zu beginnen!</p>
                                             </div>
                                         ` : threadMsgs.map(m => {
-                                             const isMe = m.senderId === currentUserId;
                                              const isSysMsg = m.senderId === 'system';
+                                             const isCounterparty = !isSysMsg && counterpartyId && (m.senderId === counterpartyId);
+                                             const isMe = !isSysMsg && (myUserIds.includes(m.senderId) || m.senderId === currentUserId || (!isCounterparty && Boolean(counterpartyId)));
                                              const senderRole = isMe
                                                  ? (state.currentUser ? state.currentUser.role : 'musician')
                                                  : ((state.currentUser && state.currentUser.role === 'musician') ? 'organizer' : 'musician');
@@ -20565,8 +20595,9 @@ function renderPostbox(container) {
                                         <p style="font-size: 0.85rem; margin: 0;">Keine Nachrichten vorhanden. Schreibe eine Nachricht, um das Gespräch zu beginnen!</p>
                                     </div>
                                 ` : (activeChat.messages || []).map(m => {
-                                    const isMe = m.senderId === currentUserId;
                                     const isSysMsg = m.senderId === 'system';
+                                    const isCounterparty = !isSysMsg && counterpartyId && (m.senderId === counterpartyId);
+                                    const isMe = !isSysMsg && (myUserIds.includes(m.senderId) || m.senderId === currentUserId || (!isCounterparty && Boolean(counterpartyId)));
                                     const senderRole = isMe
                                         ? (state.currentUser ? state.currentUser.role : 'musician')
                                         : ((state.currentUser && state.currentUser.role === 'musician') ? 'organizer' : 'musician');
