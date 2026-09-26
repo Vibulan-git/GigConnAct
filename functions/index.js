@@ -1086,7 +1086,14 @@ exports.createStripeCheckoutSession = functions
             // Get user email, current plan, and customer ID
             const userDoc = await admin.firestore().collection('users').doc(context.auth.uid).get();
             const userData = userDoc.exists ? userDoc.data() : {};
-            const email = userData.email || null;
+            let email = (data && data.email) || userData.email || (context.auth.token && context.auth.token.email) || null;
+            if (!email && context.auth.uid) {
+                try {
+                    const authUser = await admin.auth().getUser(context.auth.uid);
+                    email = authUser.email;
+                } catch (e) {}
+            }
+
             const stripeCustomerId = userData.stripeCustomerId || null;
             const currentPlan = userData.subscriptionPlan || null;
             const subscriptionId = userData.subscriptionId || null;
@@ -1101,6 +1108,8 @@ exports.createStripeCheckoutSession = functions
                 targetPath = isOrganizer ? 'musicians' : 'events';
             }
             const cleanReturnBase = `${cleanBaseUrl}/?redirect=${encodeURIComponent(targetPath)}`;
+
+            const isNewRegistration = !userDoc.exists || userData.isPremium !== true;
 
             // Check if email or user has already had a trial by hashing the email and checking in Firestore 'used_trials'
             let hasHadTrial = false;
@@ -1128,10 +1137,14 @@ exports.createStripeCheckoutSession = functions
                     quantity: 1,
                 }],
                 success_url: `${cleanReturnBase}&payment=success`,
-                cancel_url: `${cleanReturnBase}&payment=cancel`,
+                cancel_url: isNewRegistration 
+                    ? `${cleanBaseUrl}/?payment=cancel&plan=${encodeURIComponent(planKey)}`
+                    : `${cleanReturnBase}&payment=cancel`,
                 metadata: {
                     userId: context.auth.uid,
                     planKey: planKey,
+                    email: email || '',
+                    isRegistration: isNewRegistration ? 'true' : 'false',
                     isTariffChange: isPlanChange ? 'true' : 'false',
                     oldSubscriptionId: subscriptionId || ''
                 }
@@ -1158,6 +1171,8 @@ exports.createStripeCheckoutSession = functions
                 metadata: {
                     userId: context.auth.uid,
                     planKey: planKey,
+                    email: email || '',
+                    isRegistration: isNewRegistration ? 'true' : 'false',
                     isTariffChange: isPlanChange ? 'true' : 'false',
                     oldSubscriptionId: subscriptionId || ''
                 }
@@ -1670,34 +1685,151 @@ exports.stripeWebhook = functions
                         }
                     }
                     
-                    // Update user doc in Firestore
+                    // Update or create user doc in Firestore
                     const userRef = admin.firestore().collection('users').doc(userId);
-                    
-                    // Fetch current user data before updating to retrieve the old subscription ID
                     const userDocBefore = await userRef.get();
-                    const oldSubscriptionId = metadata.oldSubscriptionId || (userDocBefore.exists ? (userDocBefore.data().subscriptionId || null) : null);
+                    
+                    if (userDocBefore.exists) {
+                        const oldSubscriptionId = metadata.oldSubscriptionId || (userDocBefore.data().subscriptionId || null);
+                        await userRef.set(updateData, { merge: true });
 
-                    await userRef.update(updateData);
+                        // Cancel old subscription if it exists and is different from the new one to prevent double billing
+                        if (oldSubscriptionId && oldSubscriptionId !== session.subscription) {
+                            try {
+                                await stripe.subscriptions.cancel(oldSubscriptionId);
+                                console.log(`Cancelled old subscription ${oldSubscriptionId} for user ${userId} due to plan change.`);
+                            } catch (cancelErr) {
+                                console.error(`Failed to cancel old subscription ${oldSubscriptionId}:`, cancelErr);
+                            }
+                        }
 
-                    // Cancel old subscription if it exists and is different from the new one to prevent double billing
-                    if (oldSubscriptionId && oldSubscriptionId !== session.subscription) {
-                        try {
-                            await stripe.subscriptions.cancel(oldSubscriptionId);
-                            console.log(`Cancelled old subscription ${oldSubscriptionId} for user ${userId} due to plan change.`);
-                        } catch (cancelErr) {
-                            console.error(`Failed to cancel old subscription ${oldSubscriptionId}:`, cancelErr);
+                        // Also check if there's a musician profile and update it too
+                        const userData = userDocBefore.data();
+                        if (userData.profileId && userData.role === 'musician') {
+                            await admin.firestore().collection('musicians').doc(userData.profileId).set({
+                                isPremium: true,
+                                subscriptionPlan: planKey
+                            }, { merge: true });
+                        }
+                    } else {
+                        // NEW USER REGISTRATION: Create user and musician profile from pendingRegistrations!
+                        console.log(`User ${userId} not yet created. Fetching from pendingRegistrations...`);
+                        const customerEmail = (metadata.email || session.customer_email || session.customer_details?.email || '').trim().toLowerCase();
+                        let pendingData = null;
+                        let pendingDocRef = null;
+
+                        if (customerEmail) {
+                            const pDoc = await admin.firestore().collection('pendingRegistrations').doc(customerEmail).get();
+                            if (pDoc.exists) {
+                                pendingData = pDoc.data();
+                                pendingDocRef = pDoc.ref;
+                            }
+                        }
+
+                        if (!pendingData) {
+                            const pSnap = await admin.firestore().collection('pendingRegistrations').where('uid', '==', userId).limit(1).get();
+                            if (!pSnap.empty) {
+                                pendingData = pSnap.docs[0].data();
+                                pendingDocRef = pSnap.docs[0].ref;
+                            }
+                        }
+
+                        if (pendingData) {
+                            const profileId = 'mus_' + userId;
+                            const userEmail = pendingData.email || customerEmail;
+
+                            const newUser = {
+                                id: userId,
+                                role: 'musician',
+                                firstName: pendingData.firstName || "",
+                                lastName: pendingData.lastName || "",
+                                company: pendingData.company || "Privatperson",
+                                organizerType: "",
+                                phone: pendingData.phone || "",
+                                hidePhone: pendingData.hidePhone || false,
+                                email: userEmail,
+                                profileId: profileId,
+                                eventName: '',
+                                isPremium: true,
+                                subscriptionPlan: planKey,
+                                stripeCustomerId: session.customer || null,
+                                subscriptionId: session.subscription || null,
+                                successfulGigs: 0,
+                                contactRequests: 0,
+                                favorites: [],
+                                interests: [],
+                                credits: 0,
+                                createdAt: new Date().toISOString(),
+                                ...updateData
+                            };
+
+                            const newMusician = {
+                                id: profileId,
+                                creatorId: userId,
+                                name: pendingData.bandName || 'Musiker',
+                                bluffName: `Anonyme/r ${pendingData.musicianType || 'Künstler'} (${(pendingData.genres && pendingData.genres[0]) || 'Musik'})`,
+                                type: pendingData.musicianType || 'Band',
+                                location: (pendingData.locations && pendingData.locations.length > 0) ? pendingData.locations.join(', ') : (pendingData.location || 'München'),
+                                locations: (pendingData.locations && pendingData.locations.length > 0) ? pendingData.locations : [pendingData.location || 'München'],
+                                radius: parseInt(pendingData.radius) || 50,
+                                genres: pendingData.genres || [],
+                                instruments: pendingData.instruments || [],
+                                minDuration: parseFloat(pendingData.minDuration) || 1,
+                                maxDuration: parseFloat(pendingData.maxDuration) || 3,
+                                minBudget: parseFloat(pendingData.minBudget) || 150,
+                                maxBudget: parseFloat(pendingData.maxBudget) || 1000,
+                                eventTypes: pendingData.eventTypes || [],
+                                availability: pendingData.availability || {},
+                                minPublikum: parseInt(pendingData.minPublikum) || 0,
+                                maxPublikum: parseInt(pendingData.maxPublikum) || 500,
+                                description: pendingData.description || "",
+                                technik: pendingData.technik || ["Technik ist noch unklar"],
+                                company: newUser.company || "Privatperson",
+                                contactName: `${newUser.firstName} ${newUser.lastName}`.trim() || 'Musiker',
+                                phone: newUser.phone,
+                                hidePhone: pendingData.hidePhone || false,
+                                email: userEmail,
+                                isPremium: true,
+                                subscriptionPlan: planKey,
+                                credits: 0,
+                                unlockedContacts: [],
+                                socialLinks: { spotify: "", youtube: "", instagram: "" },
+                                photos: pendingData.photos || [],
+                                videos: pendingData.videos || [],
+                                audio: pendingData.audio || pendingData.audios || [],
+                                isActive: true,
+                                createdAt: new Date().toISOString()
+                            };
+
+                            await userRef.set(newUser, { merge: true });
+                            await admin.firestore().collection('musicians').doc(profileId).set(newMusician, { merge: true });
+                            console.log(`Created new paid user ${userId} and musician profile ${profileId}`);
+
+                            if (pendingDocRef) {
+                                await pendingDocRef.delete().catch(() => {});
+                            }
+                        } else {
+                            await userRef.set({
+                                id: userId,
+                                role: 'musician',
+                                email: customerEmail,
+                                profileId: 'mus_' + userId,
+                                isPremium: true,
+                                subscriptionPlan: planKey,
+                                ...updateData
+                            }, { merge: true });
                         }
                     }
 
-                    // Also check if there's a musician profile and update it too
-                    const userDoc = await userRef.get();
-                    if (userDoc.exists) {
-                        const userData = userDoc.data();
+                    // Check if there's a musician profile and update welcome email & trial abuse hash
+                    const finalUserDoc = await userRef.get();
+                    if (finalUserDoc.exists) {
+                        const userData = finalUserDoc.data();
                         if (userData.profileId && userData.role === 'musician') {
-                            await admin.firestore().collection('musicians').doc(userData.profileId).update({
+                            await admin.firestore().collection('musicians').doc(userData.profileId).set({
                                 isPremium: true,
                                 subscriptionPlan: planKey
-                            });
+                            }, { merge: true });
 
                             try {
                                 const musicianDoc = await admin.firestore().collection('musicians').doc(userData.profileId).get();

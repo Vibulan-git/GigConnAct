@@ -1144,21 +1144,6 @@ window.unlockListing = function(targetId, targetName) {
         return;
     }
     if (state.currentUser.role !== 'musician') return;
-
-    // Check if they selected a paid plan but payment is pending (isPremium !== true)
-    const paidPlans = ['flex', 'plus', 'pro'];
-    if (paidPlans.includes(state.currentUser.subscriptionPlan) && state.currentUser.isPremium !== true) {
-        const mainContainer = document.getElementById('app-main');
-        if (mainContainer) {
-            // Close any open detail modal first
-            const detailModal = document.getElementById('modal-item-detail');
-            if (detailModal) detailModal.remove();
-            
-            renderPaymentPendingScreen(mainContainer);
-            return;
-        }
-    }
-
     if (state.currentUser.isPremium) return; // already premium
 
     // Create a beautiful, custom in-place modal overlay for selecting subscription plans
@@ -3474,6 +3459,12 @@ class StateManager {
                             this.authInitialized = true;
                             this.notify();
                         } else {
+                            if (window.isPaymentSuccessPending || window.location.hash.includes('payment=success') || window.location.search.includes('payment=success')) {
+                                console.log("Payment success pending: waiting for webhook to finalize user document.");
+                                this.authInitialized = true;
+                                this.notify();
+                                return;
+                            }
                             window.googleRegistrationUser = firebaseUser;
                             const registerForm = document.getElementById('auth-register-form');
                             const modalWrapper = document.getElementById('modal-container');
@@ -3482,6 +3473,9 @@ class StateManager {
                             if (isModalOpen) {
                                 const registerTabBtn = document.getElementById('tab-register-btn');
                                 if (registerTabBtn) registerTabBtn.click();
+                                if (typeof window.prefillRegistrationFormFromPending === 'function') {
+                                    window.prefillRegistrationFormFromPending();
+                                }
                                 if (registerForm.elements.email) {
                                     registerForm.elements.email.value = firebaseUser.email || '';
                                     registerForm.elements.email.disabled = true;
@@ -3495,6 +3489,9 @@ class StateManager {
                             } else {
                                 setTimeout(() => {
                                     if (typeof auth !== 'undefined' && !auth.currentUser) return;
+                                    if (window.isPaymentSuccessPending || window.location.hash.includes('payment=success') || window.location.search.includes('payment=success')) {
+                                        return;
+                                    }
                                     const currentHash = window.location.hash || '';
                                     if (currentHash.includes('datenschutz') || currentHash.includes('impressum')) {
                                         console.log("Skipping auth modal popup on legal pages.");
@@ -3516,6 +3513,9 @@ class StateManager {
                                     }
                                     const registerTabBtn = document.getElementById('tab-register-btn');
                                     if (registerTabBtn) registerTabBtn.click();
+                                    if (typeof window.prefillRegistrationFormFromPending === 'function') {
+                                        window.prefillRegistrationFormFromPending();
+                                    }
                                 }, 300);
                             }
                             this.authInitialized = true;
@@ -3752,137 +3752,151 @@ class StateManager {
                 let targetPlan = 'flex';
 
                 if (pendingReg && pendingReg.email && pendingReg.email.toLowerCase() === email.toLowerCase()) {
-                    console.log("Completing registration for user:", email);
-                    const profileId = pendingReg.role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
                     const isPromo = pendingReg.subscriptionPlan === 'premium' && pendingReg.isPromoCodeApplied === true;
                     const isOrganizer = pendingReg.role === 'organizer';
+                    const isPaidMusician = !isOrganizer && pendingReg.role === 'musician' && !isPromo && ['flex', 'plus', 'pro', 'premium'].includes(pendingReg.subscriptionPlan || 'flex');
 
-                    const newUser = {
-                        id: user.uid,
-                        role: pendingReg.role,
-                        firstName: pendingReg.firstName || "",
-                        lastName: pendingReg.lastName || "",
-                        company: pendingReg.company || "Privatperson",
-                        organizerType: pendingReg.organizerType || "",
-                        phone: pendingReg.phone || "",
-                        hidePhone: pendingReg.hidePhone || false,
-                        email: pendingReg.email || email,
-                        profileId: profileId,
-                        eventName: pendingReg.eventName || 'Mein Event',
-                        isPremium: isOrganizer ? true : isPromo,
-                        subscriptionPlan: isOrganizer ? 'free' : (pendingReg.subscriptionPlan || "flex"),
-                        successfulGigs: 0,
-                        contactRequests: 0,
-                        favorites: [],
-                        interests: [],
-                        createdAt: new Date().toISOString()
-                    };
-
-                    await db.collection('users').doc(user.uid).set(newUser, { merge: true });
-
-                    if (pendingReg.role === 'musician') {
-                        const newMusician = {
-                            id: profileId,
-                            name: pendingReg.bandName,
-                            bluffName: `Anonyme/r ${pendingReg.musicianType} (${pendingReg.genres && pendingReg.genres[0] ? pendingReg.genres[0] : 'Musik'})`,
-                            type: pendingReg.musicianType,
-                            location: pendingReg.locations ? pendingReg.locations.join(', ') : (pendingReg.location || 'München'),
-                            locations: pendingReg.locations || [pendingReg.location || 'München'],
-                            radius: parseInt(pendingReg.radius) || 50,
-                            genres: pendingReg.genres || [],
-                            instruments: pendingReg.instruments || [],
-                            minDuration: parseFloat(pendingReg.minDuration) || 1,
-                            maxDuration: parseFloat(pendingReg.maxDuration) || 3,
-                            minBudget: parseFloat(pendingReg.minBudget) || 150,
-                            maxBudget: parseFloat(pendingReg.maxBudget) || 1000,
-                            eventTypes: pendingReg.eventTypes || [],
-                            availability: pendingReg.availability || {},
-                            minPublikum: parseInt(pendingReg.minPublikum) || 0,
-                            maxPublikum: parseInt(pendingReg.maxPublikum) || 500,
-                            description: pendingReg.description || "",
-                            technik: pendingReg.technik || ["Technik ist noch unklar"],
-                            company: newUser.company || "Privatperson",
-                            contactName: `${newUser.firstName} ${newUser.lastName}`.trim() || 'Musiker',
-                            phone: newUser.phone,
-                            hidePhone: pendingReg.hidePhone || false,
-                            email: newUser.email,
-                            isPremium: newUser.isPremium,
-                            subscriptionPlan: pendingReg.subscriptionPlan || "flex",
-                            credits: 0,
-                            unlockedContacts: [],
-                            socialLinks: { spotify: "", youtube: "", instagram: "" },
-                            photos: pendingReg.photos || [],
-                            videos: pendingReg.videos || [],
-                            audio: pendingReg.audio || pendingReg.audios || [],
-                            isActive: true,
-                            createdAt: new Date().toISOString(),
-                            creatorId: user.uid
+                    if (isPaidMusician) {
+                        // DO NOT create user or musician docs in Firestore before payment!
+                        console.log("Paid musician registration: Keeping data in pendingRegistrations until Stripe payment is completed.");
+                        const pendingPayload = {
+                            ...pendingReg,
+                            uid: user.uid,
+                            email: email,
+                            updatedAt: new Date().toISOString()
                         };
-                        await db.collection('musicians').doc(profileId).set(newMusician, { merge: true });
-                        const idx = state.musicians.findIndex(m => m.id === profileId);
-                        if (idx > -1) state.musicians[idx] = newMusician; else state.musicians.push(newMusician);
-                        state.activeMusicianId = profileId;
-                    } else {
-                        const newEvent = {
-                            id: profileId,
-                            name: pendingReg.eventName || 'Mein Event',
-                            type: pendingReg.orgEventTypes ? pendingReg.orgEventTypes[0] : "",
-                            eventTypes: pendingReg.orgEventTypes || [],
-                            musicianTypes: pendingReg.orgMusicianTypes || [],
-                            date: pendingReg.eventDates ? pendingReg.eventDates[0] : "",
-                            dates: pendingReg.eventDates || [],
-                            eventStartTime: pendingReg.eventStartTime || "18:00",
-                            eventEndTime: pendingReg.eventEndTime || "22:00",
-                            location: pendingReg.orgLocations ? pendingReg.orgLocations.join(', ') : "",
-                            locations: pendingReg.orgLocations || [],
-                            genres: pendingReg.orgGenres || [],
-                            instruments: pendingReg.orgInstruments || [],
-                            minDuration: parseFloat(pendingReg.orgMinDuration) || 2.0,
-                            maxDuration: parseFloat(pendingReg.orgMaxDuration) || 4.0,
-                            duration: parseFloat(pendingReg.orgMinDuration) || 2.0,
-                            minPublikum: parseInt(pendingReg.orgMinPublikum) || 50,
-                            maxPublikum: parseInt(pendingReg.orgMaxPublikum) || 150,
-                            publikum: `${pendingReg.orgMinPublikum || 50} - ${pendingReg.orgMaxPublikum || 150}`,
-                            minBudget: parseFloat(pendingReg.orgMinBudget) || 300,
-                            maxBudget: parseFloat(pendingReg.orgMaxBudget) || 800,
-                            budget: parseFloat(pendingReg.orgMinBudget) || 300,
-                            description: pendingReg.orgDescription || "",
-                            technik: pendingReg.technik || ["Technik ist noch unklar"],
-                            company: newUser.company || "Privatperson",
-                            organizerType: newUser.organizerType || "Privater Veranstalter",
-                            contactName: `${newUser.firstName} ${newUser.lastName}`.trim() || 'Veranstalter',
-                            phone: newUser.phone,
-                            hidePhone: pendingReg.hidePhone || false,
-                            email: newUser.email,
-                            isOnline: true,
-                            isActive: true,
-                            createdAt: new Date().toISOString(),
-                            photos: pendingReg.photos || [],
-                            videos: pendingReg.videos || [],
-                            audio: pendingReg.audio || pendingReg.audios || [],
-                            creatorId: user.uid,
-                            isPremium: true,
-                            subscriptionPlan: "free"
-                        };
-                        await db.collection('events').doc(profileId).set(newEvent, { merge: true });
-                        const idx = state.events.findIndex(e => e.id === profileId);
-                        if (idx > -1) state.events[idx] = newEvent; else state.events.push(newEvent);
-                        state.activeEventId = profileId;
-                    }
-
-                    state.currentUser = newUser;
-                    localStorage.setItem('GigConnAct_current_user', JSON.stringify(newUser));
-                    state.saveState();
-                    await state.fetchUserOwnData().catch(e => console.warn(e));
-                    state.notify();
-
-                    window.localStorage.removeItem('GigConnAct_pending_registration');
-                    db.collection('pendingRegistrations').doc(email.toLowerCase()).delete().catch(()=>{});
-
-                    targetPlan = isOrganizer ? 'free' : (pendingReg.subscriptionPlan || 'flex');
-                    if (!isOrganizer && pendingReg.role === 'musician' && (targetPlan === 'flex' || targetPlan === 'plus' || targetPlan === 'pro' || targetPlan === 'premium')) {
+                        await db.collection('pendingRegistrations').doc(email.toLowerCase()).set(pendingPayload, { merge: true });
+                        localStorage.setItem('GigConnAct_pending_registration', JSON.stringify(pendingPayload));
+                        
+                        targetPlan = pendingReg.subscriptionPlan || 'flex';
                         redirectToStripe = true;
                     } else {
+                        // Free Organizer or Musician with 3-Month Promo: Complete registration immediately
+                        console.log("Completing free/promo registration for user:", email);
+                        const profileId = isOrganizer ? 'evt_' + user.uid : 'mus_' + user.uid;
+                        const newUser = {
+                            id: user.uid,
+                            role: pendingReg.role,
+                            firstName: pendingReg.firstName || "",
+                            lastName: pendingReg.lastName || "",
+                            company: pendingReg.company || "Privatperson",
+                            organizerType: pendingReg.organizerType || "",
+                            phone: pendingReg.phone || "",
+                            hidePhone: pendingReg.hidePhone || false,
+                            email: pendingReg.email || email,
+                            profileId: profileId,
+                            eventName: pendingReg.eventName || 'Mein Event',
+                            isPremium: isOrganizer ? true : isPromo,
+                            subscriptionPlan: isOrganizer ? 'free' : (pendingReg.subscriptionPlan || "free"),
+                            successfulGigs: 0,
+                            contactRequests: 0,
+                            favorites: [],
+                            interests: [],
+                            credits: 0,
+                            createdAt: new Date().toISOString()
+                        };
+
+                        await db.collection('users').doc(user.uid).set(newUser, { merge: true });
+
+                        if (pendingReg.role === 'musician') {
+                            const newMusician = {
+                                id: profileId,
+                                creatorId: user.uid,
+                                name: pendingReg.bandName,
+                                bluffName: `Anonyme/r ${pendingReg.musicianType} (${pendingReg.genres && pendingReg.genres[0] ? pendingReg.genres[0] : 'Musik'})`,
+                                type: pendingReg.musicianType,
+                                location: pendingReg.locations ? pendingReg.locations.join(', ') : (pendingReg.location || 'München'),
+                                locations: pendingReg.locations || [pendingReg.location || 'München'],
+                                radius: parseInt(pendingReg.radius) || 50,
+                                genres: pendingReg.genres || [],
+                                instruments: pendingReg.instruments || [],
+                                minDuration: parseFloat(pendingReg.minDuration) || 1,
+                                maxDuration: parseFloat(pendingReg.maxDuration) || 3,
+                                minBudget: parseFloat(pendingReg.minBudget) || 150,
+                                maxBudget: parseFloat(pendingReg.maxBudget) || 1000,
+                                eventTypes: pendingReg.eventTypes || [],
+                                availability: pendingReg.availability || {},
+                                minPublikum: parseInt(pendingReg.minPublikum) || 0,
+                                maxPublikum: parseInt(pendingReg.maxPublikum) || 500,
+                                description: pendingReg.description || "",
+                                technik: pendingReg.technik || ["Technik ist noch unklar"],
+                                company: newUser.company || "Privatperson",
+                                contactName: `${newUser.firstName} ${newUser.lastName}`.trim() || 'Musiker',
+                                phone: newUser.phone,
+                                hidePhone: pendingReg.hidePhone || false,
+                                email: newUser.email,
+                                isPremium: true,
+                                subscriptionPlan: pendingReg.subscriptionPlan || "premium",
+                                credits: 0,
+                                unlockedContacts: [],
+                                socialLinks: { spotify: "", youtube: "", instagram: "" },
+                                photos: pendingReg.photos || [],
+                                videos: pendingReg.videos || [],
+                                audio: pendingReg.audio || pendingReg.audios || [],
+                                isActive: true,
+                                createdAt: new Date().toISOString()
+                            };
+                            await db.collection('musicians').doc(profileId).set(newMusician, { merge: true });
+                            const idx = state.musicians.findIndex(m => m.id === profileId);
+                            if (idx > -1) state.musicians[idx] = newMusician; else state.musicians.push(newMusician);
+                            state.activeMusicianId = profileId;
+                        } else {
+                            const newEvent = {
+                                id: profileId,
+                                name: pendingReg.eventName || 'Mein Event',
+                                type: pendingReg.orgEventTypes ? pendingReg.orgEventTypes[0] : "",
+                                eventTypes: pendingReg.orgEventTypes || [],
+                                musicianTypes: pendingReg.orgMusicianTypes || [],
+                                date: pendingReg.eventDates ? pendingReg.eventDates[0] : "",
+                                dates: pendingReg.eventDates || [],
+                                eventStartTime: pendingReg.eventStartTime || "18:00",
+                                eventEndTime: pendingReg.eventEndTime || "22:00",
+                                location: pendingReg.orgLocations ? pendingReg.orgLocations.join(', ') : "",
+                                locations: pendingReg.orgLocations || [],
+                                genres: pendingReg.orgGenres || [],
+                                instruments: pendingReg.orgInstruments || [],
+                                minDuration: parseFloat(pendingReg.orgMinDuration) || 2.0,
+                                maxDuration: parseFloat(pendingReg.orgMaxDuration) || 4.0,
+                                duration: parseFloat(pendingReg.orgMinDuration) || 2.0,
+                                minPublikum: parseInt(pendingReg.orgMinPublikum) || 50,
+                                maxPublikum: parseInt(pendingReg.orgMaxPublikum) || 150,
+                                publikum: `${pendingReg.orgMinPublikum || 50} - ${pendingReg.orgMaxPublikum || 150}`,
+                                minBudget: parseFloat(pendingReg.orgMinBudget) || 300,
+                                maxBudget: parseFloat(pendingReg.orgMaxBudget) || 800,
+                                budget: parseFloat(pendingReg.orgMinBudget) || 300,
+                                description: pendingReg.orgDescription || "",
+                                technik: pendingReg.technik || ["Technik ist noch unklar"],
+                                company: newUser.company || "Privatperson",
+                                organizerType: newUser.organizerType || "Privater Veranstalter",
+                                contactName: `${newUser.firstName} ${newUser.lastName}`.trim() || 'Veranstalter',
+                                phone: newUser.phone,
+                                hidePhone: pendingReg.hidePhone || false,
+                                email: newUser.email,
+                                isOnline: true,
+                                isActive: true,
+                                createdAt: new Date().toISOString(),
+                                photos: pendingReg.photos || [],
+                                videos: pendingReg.videos || [],
+                                audio: pendingReg.audio || pendingReg.audios || [],
+                                creatorId: user.uid,
+                                isPremium: true,
+                                subscriptionPlan: "free"
+                            };
+                            await db.collection('events').doc(profileId).set(newEvent, { merge: true });
+                            const idx = state.events.findIndex(e => e.id === profileId);
+                            if (idx > -1) state.events[idx] = newEvent; else state.events.push(newEvent);
+                            state.activeEventId = profileId;
+                        }
+
+                        state.currentUser = newUser;
+                        localStorage.setItem('GigConnAct_current_user', JSON.stringify(newUser));
+                        state.saveState();
+                        await state.fetchUserOwnData().catch(e => console.warn(e));
+                        state.notify();
+
+                        window.localStorage.removeItem('GigConnAct_pending_registration');
+                        db.collection('pendingRegistrations').doc(email.toLowerCase()).delete().catch(()=>{});
+
                         redirectToStripe = false;
                         showToast({
                             title: "Registrierung abgeschlossen! 🎉",
@@ -3900,117 +3914,18 @@ class StateManager {
                     state.saveState();
                     state.notify();
                 } else {
-                    console.log("Creating default user profile on the fly...");
-                    const role = urlParams.get('role') || 'musician';
-                    const profileId = role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
-                    
-                    const newUser = {
-                        id: user.uid,
-                        role: role,
-                        firstName: role === 'musician' ? 'Demo-Musiker' : 'Demo-Veranstalter',
-                        lastName: 'Gast',
-                        company: 'Privatperson',
-                        organizerType: role === 'organizer' ? 'Privater Veranstalter' : '',
-                        phone: '+49 170 1234567',
-                        email: email,
-                        profileId: profileId,
-                        eventName: role === 'organizer' ? 'Demo Veranstaltung' : '',
-                        isPremium: true,
-                        subscriptionPlan: role === 'organizer' ? 'free' : 'flex',
-                        credits: 0,
-                        unlockedContacts: [],
-                        successfulGigs: 0,
-                        contactRequests: 0,
-                        favorites: [],
-                        interests: [],
-                        createdAt: new Date().toISOString()
-                    };
-
-                    await db.collection('users').doc(user.uid).set(newUser);
-                    
-                    if (role === 'musician') {
-                        const newMusician = {
-                            id: profileId,
-                            name: "Demo Musiker",
-                            bluffName: "Akustik-Solo-Künstler",
-                            type: "Solo",
-                            location: "München",
-                            locations: ["München"],
-                            radius: 100,
-                            genres: ["Pop", "Rock"],
-                            instruments: ["Gesang", "Akustikgitarre"],
-                            minDuration: 1,
-                            maxDuration: 3,
-                            minBudget: 150,
-                            maxBudget: 1000,
-                            eventTypes: ["Geburtstag", "Sommerfest"],
-                            availability: {
-                                friday: { available: true, startTime: '18:00', endTime: '23:59' },
-                                saturday: { available: true, startTime: '00:01', endTime: '23:59' }
-                            },
-                            minPublikum: 0,
-                            maxPublikum: 500,
-                            description: "Professioneller Solo-Künstler für Events aller Art.",
-                            technik: ["Technik vorhanden"],
-                            company: "Privatperson",
-                            contactName: "Demo-Musiker Gast",
-                            phone: "+49 170 1234567",
-                            email: email,
-                            isPremium: false,
-                            isActive: true,
-                            subscriptionPlan: "flex",
-                            credits: 0,
-                            unlockedContacts: [],
-                            socialLinks: { spotify: "", youtube: "", instagram: "" },
-                            photos: [],
-                            videos: [],
-                            audio: [],
-                            creatorId: user.uid,
-                            createdAt: new Date().toISOString()
-                        };
-                        await db.collection('musicians').doc(profileId).set(newMusician);
-                        state.musicians.push(newMusician);
-                        state.activeMusicianId = profileId;
-                    } else {
-                        const newEvent = {
-                            id: profileId,
-                            name: "Demo Veranstaltung",
-                            type: "Geburtstag",
-                            eventTypes: ["Geburtstag"],
-                            date: "2026-08-15",
-                            dates: ["2026-08-15"],
-                            location: "München",
-                            locations: ["München"],
-                            genres: ["Pop", "Rock"],
-                            instruments: ["Gesang", "Akustikgitarre"],
-                            minDuration: 2.0,
-                            maxDuration: 4.0,
-                            duration: 4.0,
-                            minPublikum: 50,
-                            maxPublikum: 150,
-                            publikum: "50 - 150",
-                            minBudget: 300,
-                            maxBudget: 800,
-                            description: "Private Feier in München. Wir suchen einen netten Live-Act.",
-                            technik: ["Technik ist noch unklar"],
-                            company: "Privatperson",
-                            organizerType: "Privater Veranstalter",
-                            contactName: "Demo-Veranstalter Gast",
-                            phone: "+49 170 1234567",
-                            email: email,
-                            isOnline: true,
-                            isActive: true,
-                            creatorId: user.uid,
-                            createdAt: new Date().toISOString()
-                        };
-                        await db.collection('events').doc(profileId).set(newEvent);
-                        state.events.push(newEvent);
-                        state.activeEventId = profileId;
-                    }
-                    state.currentUser = newUser;
-                    localStorage.setItem('GigConnAct_current_user', JSON.stringify(newUser));
-                    state.saveState();
-                    state.notify();
+                    console.log("No existing user and no pending registration found for link sign-in. Opening registration modal.");
+                    window.googleRegistrationUser = user;
+                    showModal('auth');
+                    setTimeout(() => {
+                        const regTab = document.getElementById('tab-register-btn');
+                        if (regTab) regTab.click();
+                        const regForm = document.getElementById('auth-register-form');
+                        if (regForm && regForm.elements.email) {
+                            regForm.elements.email.value = email;
+                            regForm.elements.email.disabled = true;
+                        }
+                    }, 150);
                 }
                 
                 window.history.replaceState({}, document.title, window.location.origin + window.location.pathname + window.location.hash);
@@ -4030,6 +3945,8 @@ class StateManager {
                         if (res.data && res.data.url) {
                             window.location.href = res.data.url;
                             return;
+                        } else {
+                            throw new Error(res.data?.message || "Fehler beim Erstellen der Zahlung.");
                         }
                     } catch (stripeErr) {
                         window.isRegisteringRedirecting = false;
@@ -4039,6 +3956,15 @@ class StateManager {
                             message: stripeErr.message || "Es gab ein Problem bei der Weiterleitung zur Bezahlseite.",
                             type: "error"
                         });
+                        showModal('auth');
+                        setTimeout(() => {
+                            const regTab = document.getElementById('tab-register-btn');
+                            if (regTab) regTab.click();
+                            if (typeof window.prefillRegistrationFormFromPending === 'function') {
+                                window.prefillRegistrationFormFromPending(targetPlan);
+                            }
+                        }, 150);
+                        return;
                     }
                 }
                 navigateAfterLogin();
@@ -11681,14 +11607,19 @@ try {
     const urlParams = new URLSearchParams(window.location.search);
     const hasPaymentSuccess = window.location.hash.includes('payment=success') || urlParams.get('payment') === 'success';
     const hasPaymentCancel = window.location.hash.includes('payment=cancel') || urlParams.get('payment') === 'cancel';
+    const cancelledPlan = urlParams.get('plan') || '';
     const redirectToParam = urlParams.get('redirect');
 
     if (hasPaymentSuccess) {
         window.isPaymentSuccessPending = true;
         window.showSubscriptionSuccessModal = true;
+        showToast({
+            title: "Zahlung erfolgreich! 🎉",
+            message: "Dein Profil wird eingerichtet. Einen Moment bitte..."
+        });
         setTimeout(() => {
             window.isPaymentSuccessPending = false;
-        }, 10000);
+        }, 12000);
         
         // Remove query parameters from URL without reload
         if (window.location.search) {
@@ -11705,7 +11636,7 @@ try {
     } else if (hasPaymentCancel) {
         showToast({
             title: "Zahlung abgebrochen ℹ",
-            message: "Der Zahlungsvorgang wurde abgebrochen. Du kannst es jederzeit erneut versuchen.",
+            message: "Der Bezahlvorgang wurde abgebrochen. Du kannst deinen Tarif anpassen oder es erneut versuchen.",
             type: "warning"
         });
         if (window.location.search) {
@@ -11713,11 +11644,18 @@ try {
             window.history.replaceState({}, document.title, cleanUrl);
         }
 
-        if (redirectToParam === 'profile') {
+        if (redirectToParam === 'profile' || (state && state.currentUser)) {
             window.location.hash = '#/profile';
         } else {
-            const isOrganizer = (state && state.currentUser && state.currentUser.role === 'organizer') || window.location.hash.includes('/musicians');
-            window.location.hash = isOrganizer ? '#/musicians' : '#/events';
+            // Unregistered user returned from cancelled registration payment
+            setTimeout(() => {
+                showModal('auth');
+                const regTab = document.getElementById('tab-register-btn');
+                if (regTab) regTab.click();
+                if (typeof window.prefillRegistrationFormFromPending === 'function') {
+                    window.prefillRegistrationFormFromPending(cancelledPlan);
+                }
+            }, 300);
         }
     }
 } catch (e) {
@@ -15819,6 +15757,95 @@ function closeModal() {
     }
 }
 
+window.prefillRegistrationFormFromPending = function(preferredPlan) {
+    try {
+        const pendingStr = localStorage.getItem('GigConnAct_pending_registration');
+        if (!pendingStr) return;
+        const pending = JSON.parse(pendingStr);
+        if (!pending) return;
+
+        const regForm = document.getElementById('auth-register-form');
+        if (!regForm) return;
+
+        if (pending.role === 'organizer') {
+            const orgBtn = document.getElementById('role-picker-org');
+            if (orgBtn) orgBtn.click();
+        } else {
+            const musBtn = document.getElementById('role-picker-mus');
+            if (musBtn) musBtn.click();
+        }
+
+        if (regForm.elements.fullName && pending.firstName) {
+            regForm.elements.fullName.value = `${pending.firstName || ''} ${pending.lastName || ''}`.trim();
+        }
+        if (regForm.elements.email && pending.email) {
+            regForm.elements.email.value = pending.email;
+        }
+        if (regForm.elements.phone && pending.phone) {
+            regForm.elements.phone.value = pending.phone;
+        }
+        if (regForm.elements.hidePhone && pending.hidePhone) {
+            regForm.elements.hidePhone.checked = true;
+        }
+        if (regForm.elements.company && pending.company) {
+            regForm.elements.company.value = pending.company;
+        }
+
+        if (pending.role !== 'organizer') {
+            if (regForm.elements.bandName && pending.bandName) {
+                regForm.elements.bandName.value = pending.bandName;
+            }
+            if (regForm.elements.musDescription && pending.description) {
+                regForm.elements.musDescription.value = pending.description;
+            }
+            if (regForm.elements.radius && pending.radius) {
+                regForm.elements.radius.value = pending.radius;
+            }
+            if (regForm.elements.minDuration && pending.minDuration) {
+                regForm.elements.minDuration.value = pending.minDuration;
+            }
+            if (regForm.elements.maxDuration && pending.maxDuration) {
+                regForm.elements.maxDuration.value = pending.maxDuration;
+            }
+            if (regForm.elements.minBudget && pending.minBudget) {
+                regForm.elements.minBudget.value = pending.minBudget;
+            }
+            if (regForm.elements.maxBudget && pending.maxBudget) {
+                regForm.elements.maxBudget.value = pending.maxBudget;
+            }
+            const musLocInput = document.getElementById('input-mus-location-search');
+            if (musLocInput && (pending.location || (pending.locations && pending.locations[0]))) {
+                musLocInput.value = pending.location || pending.locations[0];
+            }
+
+            if (Array.isArray(pending.genres)) {
+                regForm.querySelectorAll('input[name="genres"]').forEach(chk => {
+                    chk.checked = pending.genres.includes(chk.value);
+                });
+            }
+            if (Array.isArray(pending.instruments)) {
+                regForm.querySelectorAll('input[name="instruments"]').forEach(chk => {
+                    chk.checked = pending.instruments.includes(chk.value);
+                });
+            }
+            if (pending.musicianType) {
+                const types = String(pending.musicianType).split(',').map(s => s.trim());
+                regForm.querySelectorAll('input[name="musicianTypes"]').forEach(chk => {
+                    chk.checked = types.includes(chk.value);
+                });
+            }
+
+            const targetPlan = preferredPlan || pending.subscriptionPlan || 'flex';
+            const planCard = document.querySelector(`.subscription-card[data-plan="${targetPlan}"]`);
+            if (planCard) {
+                planCard.click();
+            }
+        }
+    } catch (err) {
+        console.warn("Could not prefill registration form:", err);
+    }
+};
+
 function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
     if (!window.registrationMedia) {
         window.registrationMedia = {
@@ -16587,6 +16614,9 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                         audios: []
                     }
                 };
+            }
+            if (typeof window.prefillRegistrationFormFromPending === 'function') {
+                window.prefillRegistrationFormFromPending();
             }
             window.updateRegMediaPreview('musician');
             window.updateRegMediaPreview('organizer');
@@ -17672,7 +17702,67 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 const profileId = payload.role === 'musician' ? 'mus_' + user.uid : 'evt_' + user.uid;
                 const isPromo = (payload.subscriptionPlan === 'premium' && isPromoCodeApplied === true);
                 const isOrg = payload.role === 'organizer';
+                const isPaidPlan = payload.role === 'musician' && !isPromo && ['flex', 'plus', 'pro'].includes(payload.subscriptionPlan);
 
+                if (isPaidPlan) {
+                    // DO NOT create user or musician docs in Firestore before Stripe payment succeeds!
+                    console.log("Paid musician registration (Auth): Keeping data in pendingRegistrations until Stripe payment is completed.");
+                    const pendingPayload = {
+                        ...payload,
+                        uid: user.uid,
+                        email: user.email || payload.email || '',
+                        firstName: firstName || '',
+                        lastName: lastName || '',
+                        role: 'musician',
+                        subscriptionPlan: payload.subscriptionPlan,
+                        isPromoCodeApplied: false,
+                        updatedAt: new Date().toISOString()
+                    };
+                    const normEmail = (user.email || payload.email || '').toLowerCase().trim();
+                    if (normEmail) {
+                        await db.collection('pendingRegistrations').doc(normEmail).set(pendingPayload, { merge: true });
+                    }
+                    localStorage.setItem('GigConnAct_pending_registration', JSON.stringify(pendingPayload));
+
+                    window.isRegisteringRedirecting = true;
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
+                    }
+                    showToast({
+                        title: "Weiterleitung zur Zahlung... 💳",
+                        message: "Du wirst jetzt zur sicheren Zahlungsseite weitergeleitet..."
+                    });
+
+                    try {
+                        const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
+                        const res = await createStripeSession({ 
+                            planKey: payload.subscriptionPlan,
+                            baseUrl: window.location.origin
+                        });
+                        if (res.data && res.data.url) {
+                            window.location.href = res.data.url;
+                            return;
+                        } else {
+                            throw new Error(res.data?.message || "Fehler beim Erstellen der Zahlung.");
+                        }
+                    } catch (stripeErr) {
+                        window.isRegisteringRedirecting = false;
+                        console.error("Stripe Checkout Redirect failed during registration:", stripeErr);
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnHtml;
+                        }
+                        showToast({
+                            title: "Weiterleitung fehlgeschlagen ⚠️",
+                            message: stripeErr.message || "Es gab ein Problem bei der Weiterleitung zur Bezahlseite.",
+                            type: "error"
+                        });
+                        return;
+                    }
+                }
+
+                // Free Organizer or Musician with 3-Month Promo Code: create accounts immediately
                 const newUser = {
                     id: user.uid,
                     role: payload.role || 'musician',
@@ -17797,45 +17887,13 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                 sessionStorage.removeItem('gigconnact_google_user');
                 
                 // Set registration redirecting flag to prevent early paywall blocker
-                window.isRegisteringRedirecting = true;
+                window.isRegisteringRedirecting = false;
 
                 // Re-enable email in case modal is re-opened later
                 if (registerForm && registerForm.elements.email) {
                     registerForm.elements.email.disabled = false;
                     registerForm.elements.email.style.background = '';
                     registerForm.elements.email.style.cursor = '';
-                }
-
-                const isPaidPlan = payload.role === 'musician' && !newUser.isPremium && ['flex', 'plus', 'pro'].includes(payload.subscriptionPlan);
-
-                if (isPaidPlan) {
-                    if (submitBtn) {
-                        submitBtn.disabled = true;
-                        submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
-                    }
-                    showToast({
-                        title: "Weiterleitung zur Zahlung... 💳",
-                        message: "Du wirst jetzt zur sicheren Zahlungsseite weitergeleitet..."
-                    });
-                    try {
-                        const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
-                        const res = await createStripeSession({ 
-                            planKey: payload.subscriptionPlan,
-                            baseUrl: window.location.origin
-                        });
-                        if (res.data && res.data.url) {
-                            window.location.href = res.data.url;
-                            return;
-                        }
-                    } catch (stripeErr) {
-                        window.isRegisteringRedirecting = false;
-                        console.error("Stripe Checkout Redirect failed during registration:", stripeErr);
-                        showToast({
-                            title: "Weiterleitung fehlgeschlagen ⚠️",
-                            message: stripeErr.message || "Es gab ein Problem bei der Weiterleitung zur Bezahlseite.",
-                            type: "error"
-                        });
-                    }
                 }
 
                 window.isRegisteringRedirecting = false;
@@ -19537,80 +19595,6 @@ function showValidationError(element, parentSelector, message) {
     }
 }
 
-function renderPaymentPendingScreen(container) {
-    const themeColor = state.currentUser.role === 'musician' ? '#a78bfa' : '#60a5fa';
-    const btnColor = state.currentUser.role === 'musician' 
-        ? 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' 
-        : 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)';
-    
-    container.innerHTML = `
-        <div class="payment-pending-container" style="max-width: 500px; margin: 4rem auto; padding: 2.5rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
-            <div style="font-size: 4.5rem; color: var(--color-purple); margin-bottom: 1.5rem; filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.4));">
-                <i class="fa-solid fa-credit-card"></i>
-            </div>
-            <h2 style="font-family: var(--font-heading); color: var(--text-main); margin-bottom: 1rem; font-size: 1.8rem;">Zahlung ausstehend 💳</h2>
-            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 2rem;">
-                Um GigConnAct nutzen zu können, ist der Abschluss deiner Zahlung für den gewählten Tarif <strong>${(state.currentUser.subscriptionPlan || 'flex').toUpperCase()}</strong> erforderlich.<br><br>
-                Bitte klicke auf den Button unten, um den Zahlungsvorgang abzuschließen, oder melde dich ab.
-            </p>
-            
-            <button id="btn-pending-pay" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.05rem; font-weight: 800; border-radius: 12px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; background: ${btnColor} !important;">
-                <i class="fa-solid fa-wallet"></i> Jetzt sicher bezahlen
-            </button>
-            
-            <button id="btn-pending-logout" class="btn" style="width: 100%; padding: 0.85rem; font-size: 0.95rem; font-weight: 700; border-radius: 12px; background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid #000; margin-bottom: 1rem;">
-                <i class="fa-solid fa-sign-out-alt"></i> Abmelden
-            </button>
-
-            <button id="btn-pending-delete" class="btn btn-outline" style="width: 100%; padding: 0.85rem; font-size: 0.95rem; font-weight: 700; border-radius: 12px; background: transparent; color: var(--color-red); border: 1px solid var(--color-red); transition: all 0.2s;">
-                <i class="fa-solid fa-trash-can"></i> Konto unwiderruflich löschen
-            </button>
-        </div>
-    `;
-    
-    // Add event listeners
-    const payBtn = document.getElementById('btn-pending-pay');
-    if (payBtn) {
-        payBtn.addEventListener('click', async () => {
-            payBtn.disabled = true;
-            payBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Weiterleitung zur Zahlungsseite...`;
-            try {
-                const createStripeSession = firebase.app().functions('europe-west3').httpsCallable('createStripeCheckoutSession');
-                const res = await createStripeSession({ 
-                    planKey: state.currentUser.subscriptionPlan || "flex",
-                    baseUrl: window.location.origin
-                });
-                if (res.data && res.data.url) {
-                    window.location.href = res.data.url;
-                } else {
-                    throw new Error("Keine URL erhalten.");
-                }
-            } catch (err) {
-                console.error("Pending payment checkout creation failed:", err);
-                showToast({
-                    title: "Weiterleitung fehlgeschlagen ⚠️",
-                    message: err.message || "Es gab ein Problem bei der Weiterleitung zur Bezahlseite.",
-                    type: "error"
-                });
-                payBtn.disabled = false;
-                payBtn.innerHTML = `<i class="fa-solid fa-wallet"></i> Jetzt sicher bezahlen`;
-            }
-        });
-    }
-    
-    const logoutBtn = document.getElementById('btn-pending-logout');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            window.handleLogoutRedirect();
-        });
-    }
-
-    const deletePendingBtn = document.getElementById('btn-pending-delete');
-    if (deletePendingBtn) {
-        deletePendingBtn.addEventListener('click', window.deleteCurrentUserAccount);
-    }
-}
-
 function handleRouting() {
     const mainContainer = document.getElementById('app-main');
     if (!mainContainer) return;
@@ -19809,15 +19793,6 @@ function handleRouting() {
         if (!isRegistering && (page === '' || page === '/')) {
             console.log("Half-logged-in user on landing page. Signing out to prevent auth loop.");
             auth.signOut();
-            return;
-        }
-    }
-    
-    // Check if user is logged in but hasn't paid for their subscription
-    const paidPlans = ['flex', 'plus', 'pro'];
-    if (state && state.currentUser && state.currentUser.role === 'musician' && paidPlans.includes(state.currentUser.subscriptionPlan) && state.currentUser.isPremium !== true) {
-        if (!window.isRegisteringRedirecting && !window.isPaymentSuccessPending) {
-            renderPaymentPendingScreen(mainContainer);
             return;
         }
     }
