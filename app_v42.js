@@ -13041,6 +13041,29 @@ function renderOrganizerEventItem(e, isActive) {
     }
     const eventTypeDisplay = singleEvtType || 'Event';
 
+    const isAgencyOrAdminEvt = Boolean(
+        e.isAgencyRequest || 
+        e.isMediation || 
+        e.creatorId === 'info-gigconnact-admin' || 
+        (e.email && e.email.toLowerCase() === 'info@gigconnact.de')
+    );
+    const clientNameDisplay = e.clientName || (e.contactName && !e.contactName.includes('GigConnAct') ? e.contactName : '');
+    const clientPhoneDisplay = e.clientPhone || (e.phone && !e.phone.includes('170 1234567') ? e.phone : '');
+    const clientEmailDisplay = e.clientEmail || (e.email && !e.email.toLowerCase().includes('info@gigconnact.de') ? e.email : '');
+    
+    let organizerTypeVal = e.organizerType || '';
+    if (!organizerTypeVal && e.company && e.company !== 'Privatperson') {
+        organizerTypeVal = e.company;
+    }
+    if (!organizerTypeVal && isAgencyOrAdminEvt) {
+        organizerTypeVal = 'Privater Veranstalter';
+    }
+    if (e.company && e.company !== 'Privatperson' && e.company !== organizerTypeVal) {
+        organizerTypeVal = `${organizerTypeVal} (${e.company})`;
+    }
+    
+    const showClientBox = isAgencyOrAdminEvt && (clientNameDisplay || clientEmailDisplay || clientPhoneDisplay || organizerTypeVal);
+
     return `
         <div class="market-tile-card event-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0);">
             
@@ -13090,23 +13113,31 @@ function renderOrganizerEventItem(e, isActive) {
                 <div>
                     <h3 id="tile-title-${e.id}" style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.3rem; line-height: 1.25;">
                         ${e.name}
-                        ${(e.isAgencyRequest || e.isMediation) ? ' <span style="background:rgba(124,58,237,0.12); color:#7c3aed; font-size:0.65rem; padding:0.12rem 0.45rem; border-radius:6px; font-weight:800; border: 1px solid rgba(124,58,237,0.25); vertical-align: middle;"><i class="fa-solid fa-handshake"></i> Vermittlung</span>' : ''}
                         ${e.isCanceled ? ' <span style="background:rgba(255,75,75,0.1); color:var(--color-red); font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;"><i class="fa-solid fa-ban"></i> Abgesagt</span>' : ''}
                         ${!isActive ? ' <span style="background:rgba(249,115,22,0.1); color:var(--color-orange); font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;"><i class="fa-solid fa-pause"></i> Pausiert</span>' : ''}
                     </h3>
 
                     <!-- Single column list (felder 1-4 standardmäßig sichtbar wie auf dem Markt) -->
                     <div class="tile-info-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.84rem; color: var(--text-main); margin-bottom: 0.6rem;">
-                        ${(e.isAgencyRequest || e.isMediation) && (e.clientName || e.clientEmail || e.clientPhone) ? `
-                        <div style="background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 0.35rem 0.6rem; font-size: 0.78rem; color: #5b21b6; line-height: 1.35; margin-bottom: 0.2rem;">
-                            <div style="font-weight: 700; display: flex; align-items: center; gap: 0.35rem;">
-                                <i class="fa-solid fa-user-check" style="color: #7c3aed;"></i> Einreicher: ${e.clientName || 'Veranstalter'}
+                        ${showClientBox ? `
+                        <div style="background: rgba(37, 99, 235, 0.06); border: 1px solid rgba(37, 99, 235, 0.22); border-radius: 8px; padding: 0.45rem 0.65rem; font-size: 0.78rem; color: #1e40af; line-height: 1.4; margin-bottom: 0.35rem;">
+                            ${clientNameDisplay ? `
+                            <div style="font-weight: 700; color: #1e40af; display: flex; align-items: center; gap: 0.35rem;">
+                                <i class="fa-solid fa-user" style="color: #2563eb; font-size: 0.75rem;"></i> <span>${clientNameDisplay}</span>
                             </div>
-                            <div style="font-size: 0.73rem; color: #6d28d9; margin-top: 0.15rem;">
-                                ${e.clientPhone ? `<a href="tel:${e.clientPhone.replace(/\s+/g, '')}" style="color:#6d28d9; text-decoration:underline; font-weight:600;"><i class="fa-solid fa-phone" style="font-size:0.68rem;"></i> ${e.clientPhone}</a>` : ''}
-                                ${e.clientPhone && e.clientEmail ? ' &bull; ' : ''}
-                                ${e.clientEmail ? `<a href="mailto:${e.clientEmail}" style="color:#6d28d9; text-decoration:underline;"><i class="fa-solid fa-envelope" style="font-size:0.68rem;"></i> ${e.clientEmail}</a>` : ''}
+                            ` : ''}
+                            ${organizerTypeVal ? `
+                            <div style="font-size: 0.74rem; color: #1e40af; margin-top: 0.15rem; display: flex; align-items: center; gap: 0.35rem;">
+                                <i class="fa-solid fa-tag" style="color: #2563eb; font-size: 0.7rem;"></i> <span><strong>Veranstalter-Typ:</strong> ${organizerTypeVal}</span>
                             </div>
+                            ` : ''}
+                            ${(clientPhoneDisplay || clientEmailDisplay) ? `
+                            <div style="font-size: 0.74rem; color: #1e40af; margin-top: 0.15rem; display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
+                                ${clientPhoneDisplay ? `<a href="tel:${clientPhoneDisplay.replace(/\s+/g, '')}" style="color:#2563eb; text-decoration:underline; font-weight:600;"><i class="fa-solid fa-phone" style="font-size:0.68rem;"></i> ${clientPhoneDisplay}</a>` : ''}
+                                ${clientPhoneDisplay && clientEmailDisplay ? '<span style="color: #93c5fd;">&bull;</span>' : ''}
+                                ${clientEmailDisplay ? `<a href="mailto:${clientEmailDisplay}" style="color:#2563eb; text-decoration:underline;"><i class="fa-solid fa-envelope" style="font-size:0.68rem;"></i> ${clientEmailDisplay}</a>` : ''}
+                            </div>
+                            ` : ''}
                         </div>
                         ` : ''}
                         <!-- 1. Event-Typ als Tag -->
