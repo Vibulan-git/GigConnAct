@@ -165,6 +165,11 @@
       "region": [
         "europe-west3"
       ],
+      "secretEnvironmentVariables": [
+        {
+          "key": "RESEND_API_KEY"
+        }
+      ],
       "callableTrigger": {},
       "entryPoint": "deleteUserAccountPermanently"
     },

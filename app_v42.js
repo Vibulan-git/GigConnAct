@@ -11739,6 +11739,14 @@ window.deleteCurrentUserAccount = async function() {
     const u = state.currentUser;
     if (!u) return;
 
+    if (['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email)) {
+        showToast({
+            title: "Aktion nicht möglich",
+            message: "Das Admin-Konto kann nicht gelöscht werden."
+        });
+        return;
+    }
+
     const firstConfirm = confirm("ACHTUNG: Möchtest du dein GigConnAct-Konto wirklich unwiderruflich löschen?\n\nDies löscht alle deine Profildaten, Musiker- und Event-Angebote sowie deine Verknüpfungen. Dieser Schritt kann NICHT rückgängig gemacht werden.");
     if (!firstConfirm) return;
 
@@ -12198,7 +12206,7 @@ function renderProfilePage(container) {
                     </div>
                 </div>
                 <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.2rem;">
-                    Hier kannst du deine Betroffenenrechte gemäß DSGVO ausüben. Du kannst deine Cookie-Einstellungen anpassen, dein Benutzerkonto unwiderruflich löschen oder einen manuellen Datenexport anfordern.
+                    Hier kannst du deine Betroffenenrechte gemäß DSGVO ausüben. Du kannst deine Cookie-Einstellungen anpassen${!isAdmin ? ', dein Benutzerkonto unwiderruflich löschen' : ''} oder einen manuellen Datenexport anfordern.
                 </p>
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                     <button class="btn btn-secondary btn-sm" id="btn-cookie-settings-profile" onclick="window.showCookieSettings()" style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
@@ -12209,9 +12217,11 @@ function renderProfilePage(container) {
                         <i class="fa-solid fa-credit-card"></i> Zahlungsdaten
                     </button>
                     ` : ''}
+                    ${!isAdmin ? `
                     <button class="btn btn-glass btn-sm" id="btn-delete-useraccount" style="margin: 0; color: var(--color-red); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); display: flex; align-items: center; gap: 0.5rem;">
                         <i class="fa-solid fa-trash-can"></i> Konto löschen
                     </button>
+                    ` : ''}
                 </div>
                 <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; margin-bottom: 0;">
                     Für eine Auskunft oder einen Export deiner Daten sende bitte eine formlose E-Mail an <a href="mailto:info@gigconnact.de" style="color: #2563eb; text-decoration: underline;">info@gigconnact.de</a>.

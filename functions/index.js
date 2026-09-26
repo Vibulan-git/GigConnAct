@@ -832,6 +832,7 @@ exports.sendCustomSignInEmail = functions
 // ==========================================
 exports.deleteUserAccountPermanently = functions
     .region('europe-west3')
+    .runWith({ secrets: ['RESEND_API_KEY'] })
     .https.onCall(async (data, context) => {
         const uid = context.auth ? context.auth.uid : (data && data.uid);
         let email = context.auth && context.auth.token && context.auth.token.email 
@@ -858,7 +859,59 @@ exports.deleteUserAccountPermanently = functions
                 }
             }
 
-            const emailLower = email ? String(email).trim().toLowerCase() : null;
+            let emailLower = email ? String(email).trim().toLowerCase() : null;
+
+            // Admin-Konto Schutz: Darf niemals gelöscht werden
+            const ADMIN_EMAILS = ['info@gigconnact.de', 'gigconnact@gmail.com'];
+            if (emailLower && ADMIN_EMAILS.includes(emailLower)) {
+                throw new functions.https.HttpsError('permission-denied', 'Das Admin-Konto kann nicht gelöscht werden.');
+            }
+
+            // Vor der Löschung: Benutzer-Informationen für Benachrichtigungs-Mails auslesen
+            let userName = 'Nutzer';
+            let userRole = 'Konto';
+
+            if (uid) {
+                const userDoc = await db.collection('users').doc(uid).get().catch(() => null);
+                if (userDoc && userDoc.exists) {
+                    const ud = userDoc.data();
+                    if (ud.name || ud.displayName) userName = ud.name || ud.displayName;
+                    if (ud.firstName) userName = ud.firstName + (ud.lastName ? ' ' + ud.lastName : '');
+                    if (ud.role) userRole = ud.role === 'musician' ? 'Musiker' : (ud.role === 'organizer' ? 'Veranstalter' : ud.role);
+                    if (!emailLower && ud.email) {
+                        emailLower = String(ud.email).trim().toLowerCase();
+                    }
+                }
+            }
+
+            if (emailLower && ADMIN_EMAILS.includes(emailLower)) {
+                throw new functions.https.HttpsError('permission-denied', 'Das Admin-Konto kann nicht gelöscht werden.');
+            }
+
+            if (userName === 'Nutzer' && uid) {
+                const musDoc = await db.collection('musicians').doc('mus_' + uid).get().catch(() => null);
+                if (musDoc && musDoc.exists) {
+                    const md = musDoc.data();
+                    userName = md.name || md.contactName || userName;
+                    userRole = 'Musiker';
+                } else {
+                    const evtDoc = await db.collection('events').doc('evt_' + uid).get().catch(() => null);
+                    if (evtDoc && evtDoc.exists) {
+                        const ed = evtDoc.data();
+                        userName = ed.clientName || ed.name || userName;
+                        userRole = 'Veranstalter';
+                    }
+                }
+            }
+
+            if (userName === 'Nutzer' && emailLower) {
+                const musSnap = await db.collection('musicians').where('email', '==', emailLower).limit(1).get().catch(() => null);
+                if (musSnap && !musSnap.empty) {
+                    const md = musSnap.docs[0].data();
+                    userName = md.name || md.contactName || userName;
+                    userRole = 'Musiker';
+                }
+            }
 
             // 1. Write email hash to used_trials to prevent trial abuse
             if (emailLower) {
@@ -940,6 +993,51 @@ exports.deleteUserAccountPermanently = functions
                     console.log("[deleteUserAccountPermanently] getUserByEmail info:", authErr.message);
                 }
             }
+
+            // 7. E-Mail-Benachrichtigungen versenden
+            // a) Bestätigungs-Mail an den gelöschten Nutzer
+            if (emailLower) {
+                const userSubject = 'Dein GigConnAct-Konto wurde gelöscht ℹ️';
+                const userHtml = `
+                    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 28px 24px; color: #1e293b; line-height: 1.6; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+                        <div style="text-align: center; margin-bottom: 24px;">
+                            <h2 style="color: #7c3aed; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">GigConnAct</h2>
+                            <p style="color: #64748b; margin-top: 6px; font-size: 14px;">Bestätigung deiner Kontolöschung</p>
+                        </div>
+                        <p>Hallo ${userName || 'liebe(r) Nutzer(in)'},</p>
+                        <p>wir bestätigen hiermit, dass dein GigConnAct-Konto und alle damit verbundenen persönlichen Daten sowie Profile auf deinen Wunsch hin erfolgreich und vollständig gelöscht wurden.</p>
+                        <p>Wir bedauern es sehr, dich als Teil unserer Community zu verlieren. Falls du in Zukunft wieder auf der Suche nach passenden Gigs oder Musikerinnen &amp; Musikern bist, bist du bei uns jederzeit herzlich wieder willkommen!</p>
+                        <p style="margin-top: 24px;">Alles Gute für deinen weiteren Weg,<br><strong>Dein GigConnAct Team</strong></p>
+                        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 28px 0 16px 0;">
+                        <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">GigConnAct — Dein Live-Musik Marktplatz | <a href="https://gigconnact.de" style="color: #7c3aed; text-decoration: none;">gigconnact.de</a></p>
+                    </div>
+                `;
+                await sendEmail({
+                    to: emailLower,
+                    subject: userSubject,
+                    html: userHtml
+                });
+            }
+
+            // b) Info-Mail an Admin (info@gigconnact.de)
+            const adminSubject = `[Admin-Info] Benutzerkonto gelöscht: ${emailLower || uid}`;
+            const adminHtml = `
+                <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #1e293b; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+                    <h3 style="color: #dc2626; margin-top: 0; margin-bottom: 16px; font-size: 18px;">Ein Benutzerkonto wurde gelöscht</h3>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px 8px; font-weight: bold; width: 140px; color: #64748b;">E-Mail:</td><td style="padding: 10px 8px; color: #0f172a;">${emailLower || 'Nicht angegeben'}</td></tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px 8px; font-weight: bold; color: #64748b;">Name:</td><td style="padding: 10px 8px; color: #0f172a;">${userName}</td></tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px 8px; font-weight: bold; color: #64748b;">Rolle:</td><td style="padding: 10px 8px; color: #0f172a;">${userRole}</td></tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px 8px; font-weight: bold; color: #64748b;">UID:</td><td style="padding: 10px 8px; color: #0f172a; font-family: monospace; font-size: 12px;">${uid || 'Keine'}</td></tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 10px 8px; font-weight: bold; color: #64748b;">Zeitpunkt:</td><td style="padding: 10px 8px; color: #0f172a;">${new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' })}</td></tr>
+                    </table>
+                </div>
+            `;
+            await sendEmail({
+                to: 'info@gigconnact.de',
+                subject: adminSubject,
+                html: adminHtml
+            });
 
             return { success: true };
         } catch (error) {
