@@ -14876,7 +14876,9 @@ function showEventModal(eventObj = null, isDuplication = false) {
     const isInactiveEvent = isEdit && !isEventActive(eventObj);
     const title = isEdit ? 'Event bearbeiten' : (isDuplication ? 'Event duplizieren' : 'Neues Event erstellen');
     const localMedia = {
-        photos: eventObj?.photos ? [...eventObj.photos] : [],
+        photos: (eventObj?.photos && Array.isArray(eventObj.photos) && eventObj.photos.length > 0)
+            ? [...eventObj.photos]
+            : (eventObj?.profilePic ? [eventObj.profilePic] : (eventObj?.image ? [eventObj.image] : [])),
         videos: eventObj?.videos ? [...eventObj.videos] : [],
         audios: eventObj?.audio ? [...eventObj.audio] : []
     };
@@ -15336,29 +15338,35 @@ function showEventModal(eventObj = null, isDuplication = false) {
     // Modal local media previews and actions for event
     const updateLocalEventMediaPreview = () => {
         const photosContainer = document.getElementById('event-modal-photos-preview');
-        const videosContainer = document.getElementById('event-modal-videos-preview');
-        const audiosContainer = document.getElementById('event-modal-audios-preview');
-        if (!photosContainer || !videosContainer) return;
+        if (!photosContainer) return;
 
         photosContainer.innerHTML = localMedia.photos.length === 0
             ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Bilder hinzugefügt</span>`
             : localMedia.photos.map((p, idx) => `
-                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
-                    <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
-                    <button type="button" class="btn-crop-event-modal-photo" data-idx="${idx}" title="Foto-Ausschnitt anpassen" style="position: absolute; top: 1px; left: 1px; background: rgba(37, 99, 235, 0.9); border: none; color: #fff; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.55rem; z-index: 2;"><i class="fa-solid fa-crop-simple"></i></button>
+                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;">
+                    ${p === 'loading' ? `
+                        <i class="fa-solid fa-spinner fa-spin" style="color: #2563eb; font-size: 1.1rem;"></i>
+                    ` : `
+                        <img src="${p}" style="width:100%; height:100%; object-fit:cover;">
+                        <button type="button" class="btn-crop-event-modal-photo" data-idx="${idx}" title="Foto-Ausschnitt anpassen" style="position: absolute; top: 1px; left: 1px; background: rgba(37, 99, 235, 0.9); border: none; color: #fff; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.55rem; z-index: 2;"><i class="fa-solid fa-crop-simple"></i></button>
+                    `}
                     <button type="button" class="btn-delete-event-modal-photo" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
                 </div>
             `).join('');
 
-        videosContainer.innerHTML = localMedia.videos.length === 0
-            ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Videos hinzugefügt</span>`
-            : localMedia.videos.map((v, idx) => `
-                <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;" title="${v.title || (typeof v === 'string' ? v : 'Video')}">
-                    <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.1rem;"></i>
-                    <button type="button" class="btn-delete-event-modal-video" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
-                </div>
-            `).join('');
+        const videosContainer = document.getElementById('event-modal-videos-preview');
+        if (videosContainer) {
+            videosContainer.innerHTML = localMedia.videos.length === 0
+                ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Videos hinzugefügt</span>`
+                : localMedia.videos.map((v, idx) => `
+                    <div style="position: relative; width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; display:flex; align-items:center; justify-content:center;" title="${v.title || (typeof v === 'string' ? v : 'Video')}">
+                        <i class="fa-solid fa-file-video" style="color: #a855f7; font-size: 1.1rem;"></i>
+                        <button type="button" class="btn-delete-event-modal-video" data-idx="${idx}" style="position: absolute; top: 1px; right: 1px; background: rgba(239, 68, 68, 0.85); border: none; color: #fff; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.5rem;"><i class="fa-solid fa-times"></i></button>
+                    </div>
+                `).join('');
+        }
 
+        const audiosContainer = document.getElementById('event-modal-audios-preview');
         if (audiosContainer) {
             audiosContainer.innerHTML = (localMedia.audios || []).length === 0
                 ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">Keine Audios hinzugefügt</span>`
@@ -15393,14 +15401,16 @@ function showEventModal(eventObj = null, isDuplication = false) {
             });
         });
 
-        videosContainer.querySelectorAll('.btn-delete-event-modal-video').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const idx = parseInt(btn.getAttribute('data-idx'));
-                localMedia.videos.splice(idx, 1);
-                updateLocalEventMediaPreview();
+        if (videosContainer) {
+            videosContainer.querySelectorAll('.btn-delete-event-modal-video').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const idx = parseInt(btn.getAttribute('data-idx'));
+                    localMedia.videos.splice(idx, 1);
+                    updateLocalEventMediaPreview();
+                });
             });
-        });
+        }
 
         if (audiosContainer) {
             audiosContainer.querySelectorAll('.btn-delete-event-modal-audio').forEach(btn => {
@@ -15418,7 +15428,8 @@ function showEventModal(eventObj = null, isDuplication = false) {
     if (addEventPhotoBtn) {
         addEventPhotoBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (localMedia.photos.length >= 5) {
+            const remainingSlots = 5 - localMedia.photos.length;
+            if (remainingSlots <= 0) {
                 showToast({
                     title: "Bilder-Limit erreicht 📷",
                     message: "Es sind maximal 5 Bilder erlaubt."
@@ -15427,22 +15438,68 @@ function showEventModal(eventObj = null, isDuplication = false) {
             }
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
+            fileInput.multiple = true;
             fileInput.accept = 'image/png, image/jpeg, image/gif, image/webp';
             fileInput.style.display = 'none';
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
-                    const file = fileInput.files[0];
-                    if (file.size > 10 * 1024 * 1024) {
-                        showToast({
-                            title: "Foto zu groß ⚠️",
-                            message: `Das Foto "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 10 MB.`
-                        });
+                    const validFiles = [];
+                    for (const file of Array.from(fileInput.files)) {
+                        if (file.size > 10 * 1024 * 1024) {
+                            showToast({
+                                title: "Foto zu groß ⚠️",
+                                message: `Das Foto "${file.name}" ist zu groß (${(file.size / (1024*1024)).toFixed(1)} MB). Erlaubt sind maximal 10 MB.`
+                            });
+                        } else {
+                            validFiles.push(file);
+                        }
+                    }
+                    if (validFiles.length === 0) {
                         fileInput.value = '';
                         return;
                     }
-                    validateAndProcessPhoto(file, (dataUrl) => {
-                        localMedia.photos.push(dataUrl);
+                    const filesToProcess = validFiles.slice(0, remainingSlots);
+                    if (validFiles.length > remainingSlots) {
+                        showToast({
+                            title: "Bilder-Limit 📷",
+                            message: `Es wurden nur die ersten ${remainingSlots} Bilder ausgewählt (maximal 5 erlaubt).`
+                        });
+                    }
+                    filesToProcess.forEach(file => {
+                        const placeholderVal = 'loading';
+                        localMedia.photos.push(placeholderVal);
                         updateLocalEventMediaPreview();
+
+                        validateAndProcessPhoto(file, (dataUrl) => {
+                            if (!dataUrl) {
+                                const pIdx = localMedia.photos.indexOf(placeholderVal);
+                                if (pIdx !== -1) localMedia.photos.splice(pIdx, 1);
+                                updateLocalEventMediaPreview();
+                                return;
+                            }
+                            const alreadyExists = localMedia.photos.some((p, pIdx) => p === dataUrl && pIdx !== localMedia.photos.indexOf(placeholderVal));
+                            if (alreadyExists) {
+                                showToast({
+                                    title: "Bild existiert bereits",
+                                    message: "Dieses Bild wurde bereits hinzugefügt."
+                                });
+                                const pIdx = localMedia.photos.indexOf(placeholderVal);
+                                if (pIdx !== -1) localMedia.photos.splice(pIdx, 1);
+                                updateLocalEventMediaPreview();
+                                return;
+                            }
+                            const pIdx = localMedia.photos.indexOf(placeholderVal);
+                            if (pIdx !== -1) {
+                                localMedia.photos[pIdx] = dataUrl;
+                            } else {
+                                localMedia.photos.push(dataUrl);
+                            }
+                            updateLocalEventMediaPreview();
+                        }, () => {
+                            const pIdx = localMedia.photos.indexOf(placeholderVal);
+                            if (pIdx !== -1) localMedia.photos.splice(pIdx, 1);
+                            updateLocalEventMediaPreview();
+                        });
                     });
                 }
             });
@@ -15602,9 +15659,11 @@ function showEventModal(eventObj = null, isDuplication = false) {
                 ? Array.from(form.querySelectorAll('input[name="orgTechnik"]:checked')).map(el => el.value)
                 : ["Technik ist noch unklar"],
             description: formData.get('orgDescription'),
-            photos: localMedia.photos.filter(p => p !== 'loading'),
-            videos: localMedia.videos.filter(v => v.url !== 'loading'),
-            audio: (localMedia.audios || []).filter(a => a.url !== 'loading'),
+            photos: localMedia.photos.filter(p => p && p !== 'loading'),
+            image: (localMedia.photos || []).filter(p => p && p !== 'loading')[0] || '',
+            profilePic: (localMedia.photos || []).filter(p => p && p !== 'loading')[0] || '',
+            videos: localMedia.videos.filter(v => v && v.url !== 'loading'),
+            audio: (localMedia.audios || []).filter(a => a && a.url !== 'loading'),
             contactName: state.currentUser ? `${state.currentUser.firstName || ''} ${state.currentUser.lastName || ''}`.trim() : '',
             phone: state.currentUser?.phone || '',
             email: state.currentUser?.email || ''
