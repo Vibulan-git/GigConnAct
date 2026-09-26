@@ -602,18 +602,97 @@ window.cropProfileGalleryPhoto = function(itemId, isMusician) {
         }
     });
 };
+window.handleSelectAllPill = function(pillInput) {
+    if (!pillInput) return;
+    const grid = pillInput.closest('.checkbox-tag-grid');
+    if (!grid) return;
+    const isChecked = pillInput.checked;
+    const pill = pillInput.closest('.tag-pill-checkbox') || pillInput.parentElement;
+    if (pill) pill.classList.toggle('active', isChecked);
+
+    const normalCbs = grid.querySelectorAll('input[type="checkbox"]:not([data-select-all="true"])');
+    normalCbs.forEach(cb => {
+        cb.checked = isChecked;
+        const tag = cb.closest('.tag-pill-checkbox') || cb.parentElement;
+        if (tag) tag.classList.toggle('active', isChecked);
+        cb.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    let section = grid.parentElement;
+    while (section && !section.querySelector('[onclick*="toggleSelectAll"], [onclick*="toggleAllFilterCheckboxes"]')) {
+        section = section.parentElement;
+        if (!section || section.classList.contains('market-filter-card') || section.id === 'market-filters-wrapper' || section.tagName === 'FORM') break;
+    }
+    if (section) {
+        const linkEl = section.querySelector('[onclick*="toggleSelectAll"], [onclick*="toggleAllFilterCheckboxes"]');
+        if (linkEl) {
+            linkEl.textContent = isChecked ? (linkEl.textContent.includes('alle') ? 'alle abwählen' : 'Alle abwählen') : (linkEl.textContent.includes('alle') ? 'alle auswählen' : 'Alle auswählen');
+        }
+    }
+
+    if (isChecked) {
+        const fg = grid.closest('.form-group') || grid.parentElement;
+        if (fg) {
+            fg.querySelectorAll('.field-error-message').forEach(el => el.remove());
+            grid.classList.remove('checkbox-group-error');
+        }
+    }
+
+    if (typeof window.marketApplyFilters === 'function' && grid.id && grid.id.startsWith('filter-')) {
+        grid.dataset.interacted = 'true';
+        setTimeout(() => {
+            window.marketApplyFilters();
+        }, 10);
+    }
+};
+
+window.syncSelectAllPill = function(grid) {
+    if (!grid) return;
+    const selectAllCb = grid.querySelector('input[data-select-all="true"]');
+    if (!selectAllCb) return;
+    const normalCbs = grid.querySelectorAll('input[type="checkbox"]:not([data-select-all="true"])');
+    if (normalCbs.length === 0) return;
+    const allChecked = Array.from(normalCbs).every(cb => cb.checked);
+    selectAllCb.checked = allChecked;
+    const pill = selectAllCb.closest('.tag-pill-checkbox') || selectAllCb.parentElement;
+    if (pill) pill.classList.toggle('active', allChecked);
+
+    let section = grid.parentElement;
+    while (section && !section.querySelector('[onclick*="toggleSelectAll"], [onclick*="toggleAllFilterCheckboxes"]')) {
+        section = section.parentElement;
+        if (!section || section.classList.contains('market-filter-card') || section.id === 'market-filters-wrapper' || section.tagName === 'FORM') break;
+    }
+    if (section) {
+        const linkEl = section.querySelector('[onclick*="toggleSelectAll"], [onclick*="toggleAllFilterCheckboxes"]');
+        if (linkEl) {
+            linkEl.textContent = allChecked ? (linkEl.textContent.includes('alle') ? 'alle abwählen' : 'Alle abwählen') : (linkEl.textContent.includes('alle') ? 'alle auswählen' : 'Alle auswählen');
+        }
+    }
+};
+
 window.toggleSelectAll = function(gridId, linkEl) {
     const grid = document.getElementById(gridId);
     if (!grid) return;
-    const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
+    const checkboxes = grid.querySelectorAll('input[type="checkbox"]:not([data-select-all="true"])');
     const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
     const allSelected = checkedCount === checkboxes.length;
+    const nextState = !allSelected;
     checkboxes.forEach(cb => {
-        cb.checked = !allSelected;
+        cb.checked = nextState;
+        const tag = cb.closest('.tag-pill-checkbox') || cb.parentElement;
+        if (tag) tag.classList.toggle('active', nextState);
         cb.dispatchEvent(new Event('change', { bubbles: true }));
     });
-    linkEl.textContent = allSelected ? 'Alle auswählen' : 'Alle abwählen';
-    if (!allSelected) {
+    const selectAllCb = grid.querySelector('input[data-select-all="true"]');
+    if (selectAllCb) {
+        selectAllCb.checked = nextState;
+        const pill = selectAllCb.closest('.tag-pill-checkbox') || selectAllCb.parentElement;
+        if (pill) pill.classList.toggle('active', nextState);
+    }
+    if (linkEl) {
+        linkEl.textContent = nextState ? (linkEl.textContent.includes('alle') ? 'alle abwählen' : 'Alle abwählen') : (linkEl.textContent.includes('alle') ? 'alle auswählen' : 'Alle auswählen');
+    }
+    if (nextState) {
         const fg = grid.closest('.form-group') || grid.parentElement;
         if (fg) {
             fg.querySelectorAll('.field-error-message').forEach(el => el.remove());
@@ -8981,6 +9060,10 @@ function renderMarket(container, type, onNavigate) {
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-genres-grid">
+                                    <label class="tag-pill-checkbox tag-pill-select-all ${prefillGenres.length === ALL_FILTER_GENRES.length ? 'active' : ''}" data-role="select-all">
+                                        <input type="checkbox" data-select-all="true" ${prefillGenres.length === ALL_FILTER_GENRES.length ? 'checked' : ''} onchange="window.handleSelectAllPill(this)">
+                                        <span>Beliebig</span>
+                                    </label>
                                     ${ALL_FILTER_GENRES.map(g => `
                                         <label class="tag-pill-checkbox ${prefillGenres.includes(g) ? 'active' : ''}">
                                             <input type="checkbox" name="filterGenres" value="${g}" ${prefillGenres.includes(g) ? 'checked' : ''}>
@@ -8999,6 +9082,10 @@ function renderMarket(container, type, onNavigate) {
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid">
+                                    <label class="tag-pill-checkbox tag-pill-select-all ${prefillInstruments.length === ALL_FILTER_INSTRUMENTS.length ? 'active' : ''}" data-role="select-all">
+                                        <input type="checkbox" data-select-all="true" ${prefillInstruments.length === ALL_FILTER_INSTRUMENTS.length ? 'checked' : ''} onchange="window.handleSelectAllPill(this)">
+                                        <span>Beliebig</span>
+                                    </label>
                                     ${ALL_FILTER_INSTRUMENTS.map(ins => {
                                         const isChecked = prefillInstruments.some(pi => pi === ins || (ins === 'Sonstiges' && (pi === 'Sonstige' || pi === 'Sonstiges')) || (ins === 'Sonstige' && (pi === 'Sonstige' || pi === 'Sonstiges')));
                                         return `
@@ -9172,6 +9259,10 @@ function renderMarket(container, type, onNavigate) {
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-genres-grid-m">
+                                    <label class="tag-pill-checkbox tag-pill-select-all ${prefillGenres.length === ALL_FILTER_GENRES.length ? 'active' : ''}" data-role="select-all">
+                                        <input type="checkbox" data-select-all="true" ${prefillGenres.length === ALL_FILTER_GENRES.length ? 'checked' : ''} onchange="window.handleSelectAllPill(this)">
+                                        <span>Beliebig</span>
+                                    </label>
                                     ${ALL_FILTER_GENRES.map(g => `
                                         <label class="tag-pill-checkbox ${prefillGenres.includes(g) ? 'active' : ''}">
                                             <input type="checkbox" name="filterGenresM" value="${g}" ${prefillGenres.includes(g) ? 'checked' : ''}>
@@ -9190,6 +9281,10 @@ function renderMarket(container, type, onNavigate) {
                                     </div>
                                 </div>
                                 <div class="checkbox-tag-grid" id="filter-instruments-grid-m">
+                                    <label class="tag-pill-checkbox tag-pill-select-all ${prefillInstruments.length === ALL_FILTER_INSTRUMENTS.length ? 'active' : ''}" data-role="select-all">
+                                        <input type="checkbox" data-select-all="true" ${prefillInstruments.length === ALL_FILTER_INSTRUMENTS.length ? 'checked' : ''} onchange="window.handleSelectAllPill(this)">
+                                        <span>Beliebig</span>
+                                    </label>
                                     ${ALL_FILTER_INSTRUMENTS.map(ins => {
                                         const isChecked = prefillInstruments.some(pi => pi === ins || (ins === 'Sonstiges' && (pi === 'Sonstige' || pi === 'Sonstiges')) || (ins === 'Sonstige' && (pi === 'Sonstige' || pi === 'Sonstiges')));
                                         return `
@@ -9375,15 +9470,15 @@ function renderMarket(container, type, onNavigate) {
     function getCheckedValues(id) {
         const grid = container.querySelector('#' + id);
         if (!grid) return [];
-        return Array.from(grid.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+        return Array.from(grid.querySelectorAll('input[type="checkbox"]:checked:not([data-select-all="true"])')).map(cb => cb.value);
     }
 
     function isGridRestricting(id) {
         const grid = container.querySelector('#' + id);
         if (!grid) return false;
-        const allCbs = grid.querySelectorAll('input[type="checkbox"]');
+        const allCbs = grid.querySelectorAll('input[type="checkbox"]:not([data-select-all="true"])');
         if (allCbs.length === 0) return false;
-        const checkedCount = grid.querySelectorAll('input[type="checkbox"]:checked').length;
+        const checkedCount = grid.querySelectorAll('input[type="checkbox"]:checked:not([data-select-all="true"])').length;
         return checkedCount < allCbs.length;
     }
 
@@ -10467,21 +10562,8 @@ function renderMarket(container, type, onNavigate) {
                 const grid = e.target.closest('.checkbox-tag-grid');
                 if (grid) {
                     grid.dataset.interacted = "true";
-                    let section = grid.parentElement;
-                    while (section && !section.querySelector('[onclick*="toggleAllFilterCheckboxes"]')) {
-                        section = section.parentElement;
-                        if (section && (section.classList.contains('market-filter-card') || section.id === 'market-filters-wrapper')) {
-                            section = null;
-                            break;
-                        }
-                    }
-                    if (section) {
-                        const linkEl = section.querySelector('[onclick*="toggleAllFilterCheckboxes"]');
-                        const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
-                        if (linkEl && checkboxes.length > 0) {
-                            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-                            linkEl.textContent = allChecked ? 'alle abwählen' : 'alle auswählen';
-                        }
+                    if (!e.target.hasAttribute('data-select-all')) {
+                        window.syncSelectAllPill(grid);
                     }
                 }
             }
@@ -10499,28 +10581,9 @@ function renderMarket(container, type, onNavigate) {
         });
     });
 
-    // Update initial text of "alle auswählen / abwählen" toggle links
-    container.querySelectorAll('[onclick*="toggleAllFilterCheckboxes"]').forEach(linkEl => {
-        let section = linkEl.parentElement;
-        while (section && !section.querySelector('.checkbox-tag-grid')) {
-            section = section.parentElement;
-            if (section && (section.classList.contains('market-filter-card') || section.id === 'market-filters-wrapper')) {
-                section = null;
-                break;
-            }
-        }
-        if (section) {
-            const grid = section.querySelector('.checkbox-tag-grid');
-            if (grid) {
-                const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
-                const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-                if (checkboxes.length > 0 && checkedCount === checkboxes.length) {
-                    linkEl.textContent = 'alle abwählen';
-                } else {
-                    linkEl.textContent = 'alle auswählen';
-                }
-            }
-        }
+    // Update initial state of toggle links and "Beliebig" pills
+    container.querySelectorAll('.checkbox-tag-grid').forEach(grid => {
+        window.syncSelectAllPill(grid);
     });
 
     if (isEvents) {
@@ -14055,6 +14118,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                             <span onclick="window.toggleSelectAll('grid-genres', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-genres">
+                            <label class="tag-pill-checkbox tag-pill-select-all" data-role="select-all">
+                                <input type="checkbox" data-select-all="true" onchange="window.handleSelectAllPill(this)">
+                                <span>Beliebig</span>
+                            </label>
                             ${['Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Techno', 'House', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
                                 const isChecked = musicianObj?.genres?.includes(g);
                                 return `
@@ -14074,6 +14141,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                             <span onclick="window.toggleSelectAll('grid-instruments', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-instruments">
+                            <label class="tag-pill-checkbox tag-pill-select-all" data-role="select-all">
+                                <input type="checkbox" data-select-all="true" onchange="window.handleSelectAllPill(this)">
+                                <span>Beliebig</span>
+                            </label>
                             ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstiges'].map(ins => {
                                 const isChecked = (musicianObj?.instruments || []).some(i => i === ins || (ins === 'Sonstiges' && (i === 'Sonstige' || i === 'Sonstiges')) || (ins === 'Sonstige' && (i === 'Sonstige' || i === 'Sonstiges')));
                                 return `
@@ -14283,6 +14354,10 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             } else {
                 e.target.parentElement.classList.remove('active');
             }
+            const grid = e.target.closest('.checkbox-tag-grid');
+            if (grid && !e.target.hasAttribute('data-select-all')) {
+                window.syncSelectAllPill(grid);
+            }
             const fg = e.target.closest('.form-group');
             if (fg) {
                 fg.querySelectorAll('.field-error-message').forEach(el => el.remove());
@@ -14290,6 +14365,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             }
         });
     });
+    modalWrapper.querySelectorAll('.checkbox-tag-grid').forEach(g => window.syncSelectAllPill(g));
 
     // Modal local media previews and actions
     const updateLocalMediaPreview = () => {
@@ -14928,6 +15004,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
                             <span onclick="window.toggleSelectAll('grid-org-genres', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-genres">
+                            <label class="tag-pill-checkbox tag-pill-select-all" data-role="select-all">
+                                <input type="checkbox" data-select-all="true" onchange="window.handleSelectAllPill(this)">
+                                <span>Beliebig</span>
+                            </label>
                             ${['Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Techno', 'House', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => {
                                 const isChecked = eventObj?.genres?.includes(g);
                                 return `
@@ -14947,6 +15027,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
                             <span onclick="window.toggleSelectAll('grid-org-instruments', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-instruments">
+                            <label class="tag-pill-checkbox tag-pill-select-all" data-role="select-all">
+                                <input type="checkbox" data-select-all="true" onchange="window.handleSelectAllPill(this)">
+                                <span>Beliebig</span>
+                            </label>
                             ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstiges'].map(ins => {
                                 const isChecked = (eventObj?.instruments || []).some(i => i === ins || (ins === 'Sonstiges' && (i === 'Sonstige' || i === 'Sonstiges')) || (ins === 'Sonstige' && (i === 'Sonstige' || i === 'Sonstiges')));
                                 return `
@@ -15233,6 +15317,10 @@ function showEventModal(eventObj = null, isDuplication = false) {
             } else {
                 e.target.parentElement.classList.remove('active');
             }
+            const grid = e.target.closest('.checkbox-tag-grid');
+            if (grid && !e.target.hasAttribute('data-select-all')) {
+                window.syncSelectAllPill(grid);
+            }
             const fg = e.target.closest('.form-group');
             if (fg) {
                 fg.querySelectorAll('.field-error-message').forEach(el => el.remove());
@@ -15240,6 +15328,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
             }
         });
     });
+    modalWrapper.querySelectorAll('.checkbox-tag-grid').forEach(g => window.syncSelectAllPill(g));
 
     // Modal local media previews and actions for event
     const updateLocalEventMediaPreview = () => {
@@ -15792,6 +15881,8 @@ window.prefillRegistrationFormFromPending = function(preferredPlan) {
                 });
             }
 
+            regForm.querySelectorAll('.checkbox-tag-grid').forEach(g => window.syncSelectAllPill(g));
+
             const targetPlan = preferredPlan || pending.subscriptionPlan || 'flex';
             const planCard = document.querySelector(`.subscription-card[data-plan="${targetPlan}"]`);
             if (planCard) {
@@ -15974,6 +16065,10 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 <span onclick="window.toggleSelectAll('grid-genres', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                             </div>
                             <div class="checkbox-tag-grid" id="grid-genres">
+                                <label class="tag-pill-checkbox tag-pill-select-all" data-role="select-all">
+                                    <input type="checkbox" data-select-all="true" onchange="window.handleSelectAllPill(this)">
+                                    <span>Beliebig</span>
+                                </label>
                                 ${['Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Techno', 'House', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="genres" value="${g}">
@@ -15990,6 +16085,10 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 <span onclick="window.toggleSelectAll('grid-instruments', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                             </div>
                             <div class="checkbox-tag-grid" id="grid-instruments">
+                                <label class="tag-pill-checkbox tag-pill-select-all" data-role="select-all">
+                                    <input type="checkbox" data-select-all="true" onchange="window.handleSelectAllPill(this)">
+                                    <span>Beliebig</span>
+                                </label>
                                 ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstiges'].map(ins => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="instruments" value="${ins}">
@@ -16194,6 +16293,10 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 <span onclick="window.toggleSelectAll('grid-org-genres', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                             </div>
                             <div class="checkbox-tag-grid" id="grid-org-genres">
+                                <label class="tag-pill-checkbox tag-pill-select-all" data-role="select-all">
+                                    <input type="checkbox" data-select-all="true" onchange="window.handleSelectAllPill(this)">
+                                    <span>Beliebig</span>
+                                </label>
                                 ${['Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Techno', 'House', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgGenres" value="${g}">
@@ -16210,6 +16313,10 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 <span onclick="window.toggleSelectAll('grid-org-instruments', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                             </div>
                             <div class="checkbox-tag-grid" id="grid-org-instruments">
+                                <label class="tag-pill-checkbox tag-pill-select-all" data-role="select-all">
+                                    <input type="checkbox" data-select-all="true" onchange="window.handleSelectAllPill(this)">
+                                    <span>Beliebig</span>
+                                </label>
                                 ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstiges'].map(ins => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgInstruments" value="${ins}">
@@ -16863,6 +16970,10 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             if (e.target.type === 'checkbox') {
                 e.target.parentElement.classList.toggle('active', e.target.checked);
             }
+            const grid = e.target.closest('.checkbox-tag-grid');
+            if (grid && !e.target.hasAttribute('data-select-all')) {
+                window.syncSelectAllPill(grid);
+            }
             const fg = e.target.closest('.form-group');
             if (fg) {
                 fg.querySelectorAll('.field-error-message').forEach(el => el.remove());
@@ -16870,6 +16981,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
             }
         });
     });
+    document.querySelectorAll('.checkbox-tag-grid').forEach(g => window.syncSelectAllPill(g));
 
     // Distance Radius Slider
     const radiusInput = registerForm.querySelector('input[name="radius"]');
@@ -21235,6 +21347,10 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                             <span onclick="window.toggleSelectAll('grid-org-genres', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-genres">
+                            <label class="tag-pill-checkbox tag-pill-select-all" data-role="select-all">
+                                <input type="checkbox" data-select-all="true" onchange="window.handleSelectAllPill(this)">
+                                <span>Beliebig</span>
+                            </label>
                             ${['Pop', 'Rock', 'Schlager', 'Karneval', 'Funk', 'Charts', 'Evergreens', 'Dance', 'Elektronisch', 'Techno', 'House', 'Jazz', 'Latin', 'R&B', 'Soul', 'Hip Hop', 'Rap', 'Punk', 'Metal', 'Alternative', 'Indie', '60er', '70er', '80er', '90er', '2000er', '2010er', 'Afrobeat', 'Blues', 'Gospel', 'Country', 'Folk', 'K-Pop', 'Klassisch', 'Sonstige'].map(g => `
                                 <label class="tag-pill-checkbox">
                                     <input type="checkbox" name="orgGenres" value="${g}" ${filterGenres.includes(g) ? 'checked' : ''}>
@@ -21251,6 +21367,10 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                             <span onclick="window.toggleSelectAll('grid-org-instruments', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-instruments">
+                            <label class="tag-pill-checkbox tag-pill-select-all" data-role="select-all">
+                                <input type="checkbox" data-select-all="true" onchange="window.handleSelectAllPill(this)">
+                                <span>Beliebig</span>
+                            </label>
                             ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstiges'].map(ins => {
                                 const isChecked = (filterInstruments || []).some(fi => fi === ins || (ins === 'Sonstiges' && (fi === 'Sonstige' || fi === 'Sonstiges')) || (ins === 'Sonstige' && (fi === 'Sonstige' || fi === 'Sonstiges')));
                                 return `
@@ -21550,6 +21670,10 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
             } else {
                 this.parentElement.classList.remove('active');
             }
+            const grid = this.closest('.checkbox-tag-grid');
+            if (grid && !this.hasAttribute('data-select-all')) {
+                window.syncSelectAllPill(grid);
+            }
             const fg = this.closest('.form-group');
             if (fg) {
                 fg.querySelectorAll('.field-error-message').forEach(el => el.remove());
@@ -21557,6 +21681,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
             }
         });
     });
+    modalWrapper.querySelectorAll('.checkbox-tag-grid').forEach(g => window.syncSelectAllPill(g));
 
     // 6. Description Counter
     const orgDescTextarea = modalWrapper.querySelector('#textarea-org-desc');
@@ -22636,7 +22761,7 @@ window.toggleAllFilterCheckboxes = function(element) {
     const grid = section.querySelector('.checkbox-tag-grid');
     if (!grid) return;
     
-    const checkboxes = grid.querySelectorAll('input[type="checkbox"]');
+    const checkboxes = grid.querySelectorAll('input[type="checkbox"]:not([data-select-all="true"])');
     const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
     const allSelected = checkboxes.length > 0 && checkedCount === checkboxes.length;
     const nextState = !allSelected;
@@ -22648,6 +22773,13 @@ window.toggleAllFilterCheckboxes = function(element) {
             tag.classList.toggle('active', nextState);
         }
     });
+
+    const selectAllCb = grid.querySelector('input[data-select-all="true"]');
+    if (selectAllCb) {
+        selectAllCb.checked = nextState;
+        const pill = selectAllCb.closest('.tag-pill-checkbox') || selectAllCb.parentElement;
+        if (pill) pill.classList.toggle('active', nextState);
+    }
     
     element.textContent = nextState ? 'alle abwählen' : 'alle auswählen';
     

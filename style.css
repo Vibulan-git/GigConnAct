@@ -3382,6 +3382,10 @@ body.page-recommendation.landing-page-active #app-main {
     box-shadow: 0 0 10px rgba(var(--market-primary-rgb), 0.15);
 }
 
+.tag-pill-checkbox.tag-pill-select-all {
+    font-weight: 600;
+}
+
 /* Dual Range Slider styling */
 .slider-value-display {
     display: flex;
