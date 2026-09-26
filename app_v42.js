@@ -1484,7 +1484,7 @@ const initialMusicians = [
         location: "Köln",
         radius: 350,
         genres: ["Electro", "HipHop", "Charts", "Pop"],
-        instruments: ["Turntables", "Mischpult"],
+        instruments: ["Turntables", "Mischpult", "DJ Controller"],
         minDuration: 4,
         maxDuration: 8,
         minBudget: 850,
@@ -1844,7 +1844,7 @@ const initialMusicians = [
         location: "Hamburg",
         radius: 200,
         genres: ["Charts", "House", "Retro", "HipHop"],
-        instruments: ["Turntables", "Mischpult"],
+        instruments: ["Turntables", "Mischpult", "DJ Controller"],
         minDuration: 4,
         maxDuration: 10,
         minBudget: 800,
@@ -2328,7 +2328,7 @@ const initialEvents = [
 ];
 
 const genresList = ["Pop", "Rock", "Electro", "Techno", "House", "Jazz", "Klassik", "Folk", "HipHop", "Metal", "Schlager", "Karneval", "Country", "Blues"];
-const instrumentsList = ["Gesang", "Klavier", "Keyboard", "Synthesizer", "Turntables", "Akustikgitarre", "E-Gitarre", "Bass", "Schlagzeug", "Cajon", "Saxophon", "Violine", "Flöte"];
+const instrumentsList = ["Gesang", "Klavier", "Keyboard", "Synthesizer", "Turntables", "DJ Controller", "Akustikgitarre", "E-Gitarre", "Bass", "Schlagzeug", "Cajon", "Saxophon", "Violine", "Flöte"];
 const eventTypesList = ['Geburtstag', 'Hochzeit – Trauung', 'Hochzeit - Sektempfang', 'Hochzeit – Party', 'Polterabend', 'Firmenfeier', 'Sommerfest', 'Öffentliches Event', 'Stadtfest', 'Kirmes', 'Karnevalsparty', 'Oktoberfest', 'Schützenfest', 'Vereinsfest', 'Sportveranstaltung', 'Jubiläum', 'Festival', 'Konzert', 'Bar/Kneipe/Club', 'Sonstige'];
 const musicianTypesList = ["Band", "Solo", "DJ", "Duo", "Orchestre", "Trio"];
 
@@ -6261,6 +6261,11 @@ function expandList(arr) {
         } else if (sLower === 'elektronisch') {
             result.push('elektronisch');
             result.push('electro');
+        } else if (sLower === 'dj-controller' || sLower === 'dj controller' || sLower === 'controller' || sLower === 'turntables' || sLower === 'mischpult') {
+            result.push('dj controller');
+            result.push('dj-controller');
+            result.push('turntables');
+            result.push('mischpult');
         } else {
             result.push(sLower);
         }
@@ -8666,7 +8671,7 @@ function renderMarket(container, type, onNavigate) {
     ];
     const ALL_FILTER_INSTRUMENTS = [
         'Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 
-        'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'
+        'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstige'
     ];
     const ALL_FILTER_TECHNIK = [
         'Technik vorhanden', 'Technik ist noch unklar', 'Technik nicht vorhanden'
@@ -13413,7 +13418,7 @@ function renderMyMusicianItem(m, isActive) {
     const audios = (m.audio && m.audio.length > 0) ? m.audio.slice(0, 3) : [];
 
     const genresArr = m.genres && m.genres.length > 0 ? m.genres : ['Pop', 'Rock'];
-    const instrumentsList = (m.instruments || []).join(', ') || (m.type === 'DJ' ? 'DJ-Controller' : 'Gesang, Gitarre');
+    const instrumentsList = (m.instruments || []).join(', ') || (m.type === 'DJ' ? 'DJ Controller' : 'Gesang, Gitarre');
     const eventTypesList = (m.eventTypes || []).join(', ') || 'Hochzeit, Geburtstag, Firmenfeier';
 
     let durationDisplay = '';
@@ -13978,7 +13983,7 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                             <span onclick="window.toggleSelectAll('grid-instruments', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-instruments">
-                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
+                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstige'].map(ins => {
                                 const isChecked = musicianObj?.instruments?.includes(ins);
                                 return `
                                     <label class="tag-pill-checkbox">
@@ -14846,7 +14851,7 @@ function showEventModal(eventObj = null, isDuplication = false) {
                             <span onclick="window.toggleSelectAll('grid-org-instruments', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-instruments">
-                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => {
+                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstige'].map(ins => {
                                 const isChecked = eventObj?.instruments?.includes(ins);
                                 return `
                                     <label class="tag-pill-checkbox">
@@ -15795,7 +15800,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 <span onclick="window.toggleSelectAll('grid-instruments', this)" style="font-size: 0.72rem; color: var(--color-purple); cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                             </div>
                             <div class="checkbox-tag-grid" id="grid-instruments">
-                                ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstige'].map(ins => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="instruments" value="${ins}">
                                         <span>${ins}</span>
@@ -16015,7 +16020,7 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 <span onclick="window.toggleSelectAll('grid-org-instruments', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                             </div>
                             <div class="checkbox-tag-grid" id="grid-org-instruments">
-                                ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                                ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstige'].map(ins => `
                                     <label class="tag-pill-checkbox">
                                         <input type="checkbox" name="orgInstruments" value="${ins}">
                                         <span>${ins}</span>
@@ -20943,7 +20948,7 @@ window.showAgencyBookingForm = function(musicianId, bandName) {
                             <span onclick="window.toggleSelectAll('grid-org-instruments', this)" style="font-size: 0.72rem; color: #2563eb; cursor: pointer; font-weight: 600; text-decoration: underline;">Alle auswählen</span>
                         </div>
                         <div class="checkbox-tag-grid" id="grid-org-instruments">
-                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'Sonstige'].map(ins => `
+                            ${['Akustik', 'Gesang', 'Gitarre', 'Klavier', 'Bass', 'Schlagzeug', 'Percussion', 'Saxophon', 'Trompete', 'Geige', 'Cello', 'Harfe', 'DJ Controller', 'Sonstige'].map(ins => `
                                 <label class="tag-pill-checkbox">
                                     <input type="checkbox" name="orgInstruments" value="${ins}" ${filterInstruments.includes(ins) ? 'checked' : ''}>
                                     <span>${ins}</span>
