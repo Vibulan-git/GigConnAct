@@ -19600,7 +19600,6 @@ window.updateHeaderActionPills = function() {
         authArea.innerHTML = `
             <div class="header-action-pills ${themeClass}">
                 <div class="header-action-pill header-profile-pill ${themeClass}" id="header-profile-picker-wrapper" title="Profil auswählen">
-                    <i class="fa-solid ${isMusicianRole ? 'fa-user' : 'fa-calendar-day'}"></i>
                     <span class="header-profile-name-text" id="header-profile-label">${shortActiveProfileName}</span>
                     <i class="fa-solid fa-chevron-down header-profile-caret"></i>
                     <select id="header-profile-select" class="header-profile-native-select" aria-label="Profil auswählen">
@@ -19650,7 +19649,6 @@ window.updateHeaderActionPills = function() {
         authArea.innerHTML = `
             <div class="header-action-pills ${themeClass}">
                 <button class="header-action-pill ${themeClass}" id="btn-header-favorites" title="Favoriten">
-                    <i class="fa-solid fa-heart"></i>
                     <span class="header-pill-count" id="header-favs-count">${favCount}</span>
                     <span class="header-pill-label">${favCount === 1 ? 'Favorit' : 'Favoriten'}</span>
                 </button>
@@ -19687,7 +19685,6 @@ window.updateHeaderActionPills = function() {
         authArea.innerHTML = `
             <div class="header-action-pills ${themeClass}">
                 <button class="header-action-pill ${themeClass}" id="btn-header-matches" title="Top-Matches">
-                    <i class="fa-solid fa-star"></i>
                     <span class="header-pill-count" id="header-matches-count">${matchesCount}</span>
                     <span class="header-pill-label">Top-Matches</span>
                 </button>
@@ -19730,7 +19727,6 @@ window.updateHeaderActionPills = function() {
         authArea.innerHTML = `
             <div class="header-action-pills ${themeClass}">
                 <button class="header-action-pill ${themeClass}" id="btn-header-messages" title="Postfach">
-                    <i class="fa-solid fa-comments"></i>
                     <span class="header-pill-count" id="header-msgs-count">${msgCount}</span>
                     <span class="header-pill-label">${msgCount === 1 ? 'Nachricht' : 'Nachrichten'}</span>
                 </button>
@@ -19772,12 +19768,10 @@ window.updateHeaderActionPills = function() {
             marketLabel = text;
         }
     }
-    const marketIcon = marketLabel === 'Musiker' ? 'fa-user-group' : 'fa-calendar-days';
 
     authArea.innerHTML = `
         <div class="header-action-pills ${themeClass}">
             <button class="header-action-pill ${themeClass}" id="btn-header-results" title="${marketLabel} anzeigen">
-                <i class="fa-solid ${marketIcon}"></i>
                 <span class="header-pill-count" id="header-results-count">${resultsCount}</span>
                 <span class="header-pill-label">${marketLabel}</span>
             </button>
