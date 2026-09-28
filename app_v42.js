@@ -12907,6 +12907,10 @@ function renderMatchesPage(container) {
                 if (countEl) {
                     countEl.textContent = topMatches.length;
                 }
+                window.lastTopMatchesCount = topMatches.length;
+                if (typeof window.updateHeaderActionPills === 'function') {
+                    window.updateHeaderActionPills();
+                }
 
                 if (topGrid) {
                     if (topMatches.length === 0) {
@@ -19547,6 +19551,7 @@ window.updateHeaderActionPills = function() {
     if (!authArea) return;
 
     const hash = window.location.hash || '';
+    const cleanHash = hash.replace('#', '').split('?')[0].replace(/^\//, '');
     const isLanding = (!hash || hash === '#/' || hash === '#') && !document.body.classList.contains('landing-inactive');
     const isStandalonePage = hash.includes('recommendation/') || 
                              hash.includes('mediation-response/') || 
@@ -19560,7 +19565,213 @@ window.updateHeaderActionPills = function() {
     const isOrganizer = (u && u.role === 'organizer') || hash.includes('musicians') || (!isEventsPage && u && u.role !== 'musician');
     const themeClass = isOrganizer ? 'theme-organizer' : 'theme-musician';
 
-    // 1. Trefferanzahl berechnen
+    // 1. Determine current view mode:
+    const isFavoritesView = hash.includes('fav=true') || 
+                            hash.includes('showOnlyFavorites=true') || 
+                            cleanHash === 'favorites' || 
+                            Boolean(window.currentMarketShowFavorites) ||
+                            Boolean(document.querySelector('.market-page')?.classList.contains('favorites-mode'));
+
+    const isMatchesView = cleanHash === 'matches';
+    const isPostboxView = cleanHash === 'postbox';
+    const isProfileView = cleanHash === 'profile' || cleanHash === 'dashboard';
+
+    // --- CASE 1: PROFIL-REITER (Profil-auswählen Button) ---
+    if (isProfileView) {
+        let userProfiles = [];
+        let activeProfileId = '';
+        if (isMusicianRole) {
+            userProfiles = (state && Array.isArray(state.musicians)) ? state.musicians.filter(m => m && 
+                !m.isDeleted && !m.deleted && m.status !== 'deleted' &&
+                ((u && m.creatorId === u.id) || (u && u.profileId && m.id === u.profileId) || (u && u.email && m.email === u.email))
+            ) : [];
+            activeProfileId = (state ? state.activeMusicianId : null) || (userProfiles[0]?.id || (u ? u.profileId : '') || '');
+            if (activeProfileId && state) state.activeMusicianId = activeProfileId;
+        } else {
+            const isAdmin = u && ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(u.email);
+            userProfiles = (state && Array.isArray(state.events)) ? state.events.filter(e => e && 
+                !e.isDeleted && !e.deleted && e.status !== 'deleted' &&
+                (!state.deletedEventIds || !state.deletedEventIds.has(e.id)) &&
+                (
+                    (u && e.creatorId === u.id) || 
+                    (u && u.profileId && e.id === u.profileId) || 
+                    (u && u.email && (e.email === u.email || e.clientEmail === u.email)) ||
+                    (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.isAgencyRequest === true || e.isMediation === true))
+                )
+            ) : [];
+            activeProfileId = (state ? state.activeEventId : null) || (userProfiles[0]?.id || (u ? u.profileId : '') || '');
+            if (activeProfileId && state) state.activeEventId = activeProfileId;
+        }
+
+        const truncateProfileLabel = (name, maxLen = 18) => {
+            if (!name) return '';
+            const trimmed = String(name).trim();
+            return trimmed.length > maxLen ? trimmed.substring(0, maxLen - 2).trim() + '...' : trimmed;
+        };
+
+        const organizerEventFallback = (u && u.eventName) || (state && state.events && state.events.find(e => e && (e.creatorId === (u ? u.id : null) || e.id === (u ? u.profileId : null)))?.name) || 'Mein Event';
+        const fallbackProfileTitle = isMusicianRole ? ((u && u.bandName) || 'Mein Profil') : organizerEventFallback;
+        const currentActiveProfile = userProfiles.find(p => p.id === activeProfileId);
+        const activeProfileName = currentActiveProfile ? (currentActiveProfile.name || currentActiveProfile.title || currentActiveProfile.contactName || fallbackProfileTitle) : fallbackProfileTitle;
+        const shortActiveProfileName = truncateProfileLabel(activeProfileName, 18);
+
+        const profileOptions = userProfiles.map(p => {
+            const rawName = p.name || p.title || p.contactName || (isMusicianRole ? 'Mein Profil' : 'Mein Event');
+            const shortName = truncateProfileLabel(rawName, 22);
+            return `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''} style="background: #ffffff; color: #0f172a;">${shortName}</option>`;
+        }).join('');
+        const defaultProfileOption = (userProfiles.length === 0)
+            ? `<option value="none" selected style="background: #ffffff; color: #0f172a;">${fallbackProfileTitle}</option>`
+            : '';
+
+        authArea.innerHTML = `
+            <div class="header-action-pills ${themeClass}">
+                <div class="header-action-pill header-profile-pill ${themeClass}" id="header-profile-picker-wrapper" title="Profil auswählen">
+                    <i class="fa-solid ${isMusicianRole ? 'fa-user' : 'fa-calendar-day'}"></i>
+                    <span class="header-profile-name-text" id="header-profile-label">${shortActiveProfileName}</span>
+                    <i class="fa-solid fa-chevron-down header-profile-caret"></i>
+                    <select id="header-profile-select" class="header-profile-native-select" aria-label="Profil auswählen">
+                        ${defaultProfileOption}
+                        ${profileOptions}
+                    </select>
+                </div>
+            </div>
+        `;
+
+        const headerProfSelect = document.getElementById('header-profile-select');
+        if (headerProfSelect) {
+            headerProfSelect.addEventListener('change', function(e) {
+                const val = this.value;
+                if (val && val !== 'none') {
+                    if (isMusicianRole) {
+                        state.activeMusicianId = val;
+                    } else {
+                        state.activeEventId = val;
+                    }
+                    if (state && typeof state.saveState === 'function') state.saveState();
+                    if (state && typeof state.notify === 'function') state.notify();
+                    const appMain = document.getElementById('app-main');
+                    if (appMain && typeof renderProfilePage === 'function') {
+                        renderProfilePage(appMain);
+                    }
+                }
+            });
+        }
+        return;
+    }
+
+    // --- CASE 2: FAVORITEN (Nur Favoriten-Button) ---
+    if (isFavoritesView) {
+        let favCount = 0;
+        if (state && typeof state.isFavorite === 'function') {
+            if (isOrganizer) {
+                favCount = (state.musicians || []).filter(m => state.isFavorite(m.id)).length;
+            } else {
+                favCount = (state.events || []).filter(e => state.isFavorite(e.id)).length;
+            }
+        }
+
+        authArea.innerHTML = `
+            <div class="header-action-pills ${themeClass}">
+                <button class="header-action-pill ${themeClass}" id="btn-header-favorites" title="Favoriten">
+                    <i class="fa-solid fa-heart"></i>
+                    <span class="header-pill-count" id="header-favs-count">${favCount}</span>
+                    <span class="header-pill-label">${favCount === 1 ? 'Favorit' : 'Favoriten'}</span>
+                </button>
+            </div>
+        `;
+
+        const btnFavs = document.getElementById('btn-header-favorites');
+        if (btnFavs) {
+            btnFavs.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+        return;
+    }
+
+    // --- CASE 3: TOP-MATCHES (Nur Matches-Button) ---
+    if (isMatchesView) {
+        let matchesCount = 0;
+        const matchesCountEl = document.getElementById('top-matches-count');
+        if (matchesCountEl && matchesCountEl.textContent !== undefined && matchesCountEl.textContent.trim() !== '') {
+            const parsed = parseInt(matchesCountEl.textContent, 10);
+            if (!isNaN(parsed)) matchesCount = parsed;
+        } else if (typeof window.lastTopMatchesCount === 'number') {
+            matchesCount = window.lastTopMatchesCount;
+        } else {
+            if (isOrganizer) {
+                matchesCount = (state && Array.isArray(state.musicians)) ? state.musicians.filter(m => (m.matchScore === undefined || m.matchScore >= 70)).length : 0;
+            } else {
+                matchesCount = (state && Array.isArray(state.events)) ? state.events.filter(e => (e.matchScore === undefined || e.matchScore >= 70)).length : 0;
+            }
+        }
+
+        authArea.innerHTML = `
+            <div class="header-action-pills ${themeClass}">
+                <button class="header-action-pill ${themeClass}" id="btn-header-matches" title="Top-Matches">
+                    <i class="fa-solid fa-star"></i>
+                    <span class="header-pill-count" id="header-matches-count">${matchesCount}</span>
+                    <span class="header-pill-label">Matches</span>
+                </button>
+            </div>
+        `;
+
+        const btnMatches = document.getElementById('btn-header-matches');
+        if (btnMatches) {
+            btnMatches.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+        return;
+    }
+
+    // --- CASE 4: POSTFACH (Nur Nachrichten-Button) ---
+    if (isPostboxView) {
+        let msgCount = 0;
+        const postboxCountEl = document.getElementById('postbox-count');
+        if (postboxCountEl && postboxCountEl.textContent !== undefined && postboxCountEl.textContent.trim() !== '') {
+            const parsed = parseInt(postboxCountEl.textContent, 10);
+            if (!isNaN(parsed)) msgCount = parsed;
+        } else if (u && state) {
+            try {
+                if (typeof state.getUnreadCount === 'function') {
+                    msgCount = state.getUnreadCount() || 0;
+                } else if (typeof state.getUnreadMessageCount === 'function') {
+                    msgCount = state.getUnreadMessageCount() || 0;
+                } else if (state.chats && Array.isArray(state.chats)) {
+                    state.chats.forEach(c => {
+                        if (c && c.unreadBy && Array.isArray(c.unreadBy) && c.unreadBy.includes(u.id)) msgCount++;
+                    });
+                }
+            } catch (e) {
+                msgCount = 0;
+            }
+        }
+
+        authArea.innerHTML = `
+            <div class="header-action-pills ${themeClass}">
+                <button class="header-action-pill ${themeClass}" id="btn-header-messages" title="Postfach">
+                    <i class="fa-solid fa-comments"></i>
+                    <span class="header-pill-count" id="header-msgs-count">${msgCount}</span>
+                    <span class="header-pill-label">${msgCount === 1 ? 'Nachricht' : 'Nachrichten'}</span>
+                </button>
+            </div>
+        `;
+
+        const btnMsgs = document.getElementById('btn-header-messages');
+        if (btnMsgs) {
+            btnMsgs.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+        return;
+    }
+
+    // --- CASE 5: GIG-MARKT / ACT-MARKT (Nur Trefferzahl-Button) ---
     let resultsCount = 0;
     const marketCountEl = document.getElementById('market-results-count');
     if (marketCountEl && marketCountEl.textContent !== undefined && marketCountEl.textContent.trim() !== '') {
@@ -19576,150 +19787,22 @@ window.updateHeaderActionPills = function() {
         }
     }
 
-    // 2. Favoriten-Anzahl berechnen
-    let favCount = 0;
-    if (state && typeof state.isFavorite === 'function') {
-        if (isOrganizer) {
-            favCount = (state.musicians || []).filter(m => state.isFavorite(m.id)).length;
-        } else {
-            favCount = (state.events || []).filter(e => state.isFavorite(e.id)).length;
-        }
-    }
+    authArea.innerHTML = `
+        <div class="header-action-pills ${themeClass}">
+            <button class="header-action-pill ${themeClass}" id="btn-header-results" title="Treffer anzeigen">
+                <i class="fa-solid fa-layer-group"></i>
+                <span class="header-pill-count" id="header-results-count">${resultsCount}</span>
+                <span class="header-pill-label">Treffer</span>
+            </button>
+        </div>
+    `;
 
-    // 3. Nachrichten-Anzahl berechnen
-    let msgCount = 0;
-    if (u && state) {
-        try {
-            if (typeof state.getUnreadCount === 'function') {
-                msgCount = state.getUnreadCount() || 0;
-            } else if (typeof state.getUnreadMessageCount === 'function') {
-                msgCount = state.getUnreadMessageCount() || 0;
-            } else if (state.chats && Array.isArray(state.chats)) {
-                state.chats.forEach(c => {
-                    if (c && c.unreadBy && Array.isArray(c.unreadBy) && c.unreadBy.includes(u.id)) msgCount++;
-                });
-            }
-        } catch (e) {
-            msgCount = 0;
-        }
-    }
-
-    const isFavActive = hash.includes('fav=true') || hash.includes('favorites') || Boolean(document.getElementById('btn-toggle-market-favorites')?.classList.contains('active'));
-    const isPostboxActive = hash.includes('postbox');
-    const isResultsActive = (hash.includes('events') || hash.includes('musicians')) && !isFavActive;
-
-    const existingContainer = authArea.querySelector('.header-action-pills');
-    if (!existingContainer) {
-        authArea.innerHTML = `
-            <div class="header-action-pills ${themeClass}">
-                <button class="header-action-pill ${themeClass} ${isResultsActive ? 'active' : ''}" id="btn-header-results" title="Treffer anzeigen">
-                    <i class="fa-solid fa-layer-group"></i>
-                    <span class="header-pill-count" id="header-results-count">${resultsCount}</span>
-                    <span class="header-pill-label">Treffer</span>
-                </button>
-                <button class="header-action-pill ${themeClass} ${isFavActive ? 'active' : ''}" id="btn-header-favorites" title="Favoriten anzeigen">
-                    <i class="fa-solid fa-heart"></i>
-                    <span class="header-pill-count" id="header-favs-count">${favCount}</span>
-                    <span class="header-pill-label">${favCount === 1 ? 'Favorit' : 'Favoriten'}</span>
-                </button>
-                <button class="header-action-pill ${themeClass} ${isPostboxActive ? 'active' : ''}" id="btn-header-messages" title="Nachrichten anzeigen">
-                    <i class="fa-solid fa-comments"></i>
-                    <span class="header-pill-count" id="header-msgs-count">${msgCount}</span>
-                    <span class="header-pill-label">${msgCount === 1 ? 'Nachricht' : 'Nachrichten'}</span>
-                </button>
-            </div>
-        `;
-
-        const btnResults = document.getElementById('btn-header-results');
-        if (btnResults) {
-            btnResults.addEventListener('click', (e) => {
-                e.preventDefault();
-                const curHash = window.location.hash || '';
-                const onMarket = curHash.includes('events') || curHash.includes('musicians');
-                if (onMarket) {
-                    window.currentMarketShowFavorites = false;
-                    const toggleFavBtn = document.getElementById('btn-toggle-market-favorites');
-                    if (toggleFavBtn && toggleFavBtn.classList.contains('active')) {
-                        toggleFavBtn.click();
-                    } else if (curHash.includes('fav=true') || curHash.includes('favorites')) {
-                        window.location.hash = isOrganizer ? '#/musicians' : '#/events';
-                    } else {
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                } else {
-                    window.location.hash = isOrganizer ? '#/musicians' : '#/events';
-                }
-            });
-        }
-
-        const btnFavs = document.getElementById('btn-header-favorites');
-        if (btnFavs) {
-            btnFavs.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (!u) {
-                    if (typeof showModal === 'function') showModal('auth');
-                    return;
-                }
-                const curHash = window.location.hash || '';
-                const onMarket = curHash.includes('events') || curHash.includes('musicians');
-                if (onMarket) {
-                    const toggleFavBtn = document.getElementById('btn-toggle-market-favorites');
-                    if (toggleFavBtn) {
-                        toggleFavBtn.click();
-                    } else {
-                        window.location.hash = isOrganizer ? '#/musicians?fav=true' : '#/events?fav=true';
-                    }
-                } else {
-                    window.location.hash = isOrganizer ? '#/musicians?fav=true' : '#/events?fav=true';
-                }
-            });
-        }
-
-        const btnMsgs = document.getElementById('btn-header-messages');
-        if (btnMsgs) {
-            btnMsgs.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (!u) {
-                    if (typeof showModal === 'function') showModal('auth');
-                    return;
-                }
-                window.postboxActiveChatId = null;
-                if (window.location.hash !== '#/postbox') {
-                    window.location.hash = '#/postbox';
-                } else if (typeof handleRouting === 'function') {
-                    handleRouting();
-                }
-            });
-        }
-    } else {
-        existingContainer.className = `header-action-pills ${themeClass}`;
-
-        const rBtn = document.getElementById('btn-header-results');
-        if (rBtn) {
-            rBtn.className = `header-action-pill ${themeClass} ${isResultsActive ? 'active' : ''}`;
-            const rCount = rBtn.querySelector('.header-pill-count');
-            const rLabel = rBtn.querySelector('.header-pill-label');
-            if (rCount) rCount.textContent = resultsCount;
-            if (rLabel) rLabel.textContent = resultsCount === 1 ? 'Treffer' : 'Treffer';
-        }
-
-        const fBtn = document.getElementById('btn-header-favorites');
-        if (fBtn) {
-            fBtn.className = `header-action-pill ${themeClass} ${isFavActive ? 'active' : ''}`;
-            const fCount = fBtn.querySelector('.header-pill-count');
-            const fLabel = fBtn.querySelector('.header-pill-label');
-            if (fCount) fCount.textContent = favCount;
-            if (fLabel) fLabel.textContent = favCount === 1 ? 'Favorit' : 'Favoriten';
-        }
-
-        const mBtn = document.getElementById('btn-header-messages');
-        if (mBtn) {
-            mBtn.className = `header-action-pill ${themeClass} ${isPostboxActive ? 'active' : ''}`;
-            const mCount = mBtn.querySelector('.header-pill-count');
-            const mLabel = mBtn.querySelector('.header-pill-label');
-            if (mCount) mCount.textContent = msgCount;
-            if (mLabel) mLabel.textContent = msgCount === 1 ? 'Nachricht' : 'Nachrichten';
-        }
+    const btnResults = document.getElementById('btn-header-results');
+    if (btnResults) {
+        btnResults.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
     }
 };
 

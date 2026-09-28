@@ -222,39 +222,70 @@ body {
     opacity: 0.95 !important;
 }
 
-@media (max-width: 900px) {
-    .header-action-pill .header-pill-label {
-        display: none !important;
-    }
-    .header-action-pill {
-        height: 33px !important;
-        padding: 0 0.65rem !important;
-        gap: 0.35rem !important;
-        font-size: 0.82rem !important;
-    }
-    .header-action-pill i {
-        font-size: 0.82rem !important;
-    }
-    .header-action-pills {
-        gap: 0.35rem !important;
-    }
+/* Header Profile Switcher Pill */
+.header-action-pill.header-profile-pill {
+    padding: 0 0.85rem !important;
+    max-width: 220px !important;
+    cursor: pointer !important;
+}
+
+.header-profile-name-text {
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
+    color: #ffffff !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    max-width: 140px !important;
+}
+
+.header-profile-caret {
+    font-size: 0.7rem !important;
+    color: #ffffff !important;
+    opacity: 0.85 !important;
+    margin-left: 0.15rem !important;
+    flex-shrink: 0 !important;
+    pointer-events: none !important;
+}
+
+.header-profile-native-select {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    opacity: 0 !important;
+    cursor: pointer !important;
+    z-index: 5 !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    margin: 0 !important;
+    border: none !important;
+    background: transparent !important;
 }
 
 @media (max-width: 480px) {
     .header-container {
-        padding: 0.2rem 0.6rem !important;
+        padding: 0.2rem 0.65rem !important;
     }
     .header-action-pill {
-        height: 31px !important;
-        padding: 0 0.5rem !important;
-        min-width: 40px !important;
+        height: 33px !important;
+        padding: 0 0.75rem !important;
+        gap: 0.35rem !important;
+        font-size: 0.82rem !important;
+    }
+    .header-profile-name-text {
+        max-width: 105px !important;
+        font-size: 0.8rem !important;
     }
     .logo-title-nav {
-        font-size: 1.22rem !important;
+        font-size: 1.25rem !important;
     }
 }
 
 @media (max-width: 360px) {
+    .header-action-pill .header-pill-label {
+        display: none !important;
+    }
     .logo-title-nav {
         display: none !important;
     }
