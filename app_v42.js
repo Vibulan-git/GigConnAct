@@ -3314,24 +3314,34 @@ class StateManager {
         if (!this.currentUser) return [];
         const uid = this.currentUser.id;
         const ids = [uid];
-        if (this.currentUser.profileId) ids.push(this.currentUser.profileId);
-        if (this.activeEventId) ids.push(this.activeEventId);
-        if (this.activeMusicianId) ids.push(this.activeMusicianId);
+        const isMusician = this.currentUser.role === 'musician';
+        const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
+
         if (this.currentUser.email) ids.push(this.currentUser.email);
         
-        const isAdmin = ['info@gigconnact.de', 'gigconnact@gmail.com'].includes(this.currentUser.email);
         if (isAdmin) {
             ids.push('info-gigconnact-admin');
             ids.push('info@gigconnact.de');
             ids.push('gigconnact@gmail.com');
         }
-        
-        (this.musicians || []).filter(m => m && (m.creatorId === uid || m.id === this.currentUser.profileId)).forEach(m => { if (m && m.id) ids.push(m.id); });
-        (this.events || []).filter(e => e && (
-            e.creatorId === uid ||
-            (this.currentUser.email && (e.email === this.currentUser.email || e.clientEmail === this.currentUser.email)) ||
-            (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.isAgencyRequest === true || e.isMediation === true))
-        )).forEach(e => { if (e && e.id) ids.push(e.id); });
+
+        if (isMusician) {
+            if (this.currentUser.profileId) ids.push(this.currentUser.profileId);
+            (this.musicians || []).filter(m => m && (m.creatorId === uid || m.id === this.currentUser.profileId)).forEach(m => { if (m && m.id) ids.push(m.id); });
+            if (this.activeMusicianId && (ids.includes(this.activeMusicianId) || (this.musicians || []).some(m => m && m.id === this.activeMusicianId && m.creatorId === uid))) {
+                ids.push(this.activeMusicianId);
+            }
+        } else {
+            if (this.currentUser.profileId) ids.push(this.currentUser.profileId);
+            (this.events || []).filter(e => e && (
+                e.creatorId === uid ||
+                (this.currentUser.email && (e.email === this.currentUser.email || e.clientEmail === this.currentUser.email)) ||
+                (isAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.isAgencyRequest === true || e.isMediation === true))
+            )).forEach(e => { if (e && e.id) ids.push(e.id); });
+            if (this.activeEventId && (ids.includes(this.activeEventId) || (this.events || []).some(e => e && e.id === this.activeEventId && (e.creatorId === uid || isAdmin)))) {
+                ids.push(this.activeEventId);
+            }
+        }
         
         return [...new Set(ids)].sort();
     }
@@ -4424,10 +4434,12 @@ class StateManager {
                 (isAgencyAdmin && (e.creatorId === 'info-gigconnact-admin' || e.email === 'info@gigconnact.de' || e.clientEmail === 'info@gigconnact.de' || e.clientEmail === 'gigconnact@gmail.com' || e.isAgencyRequest === true || e.isMediation === true))
             );
             if (this.currentUser.role === 'musician') {
+                this.activeEventId = null;
                 this.activeMusicianId = (this.activeMusicianId && this.musicians.some(m => m.id === this.activeMusicianId && m.creatorId === this.currentUser.id))
                     ? this.activeMusicianId
                     : (this.musicians.find(m => m.creatorId === this.currentUser.id)?.id || this.currentUser.profileId || null);
             } else if (this.currentUser.role === 'organizer') {
+                this.activeMusicianId = null;
                 this.activeEventId = (this.activeEventId && this.events.some(e => e.id === this.activeEventId && isUserEvent(e)))
                     ? this.activeEventId
                     : (this.events.find(isUserEvent)?.id || null);
@@ -5306,6 +5318,10 @@ class StateManager {
             if (isAdmin) {
                 // Skip auto-correction for admins to preserve selected profile context
             } else if (this.currentUser.role === 'musician' && this.musicians && this.musicians.length > 0) {
+                if (this.activeEventId) {
+                    this.activeEventId = null;
+                    this.saveState();
+                }
                 const userProfiles = this.musicians.filter(m => m.creatorId === this.currentUser.id);
                 if (userProfiles.length > 0) {
                     const isValid = userProfiles.some(m => m.id === this.activeMusicianId);
@@ -5316,6 +5332,10 @@ class StateManager {
                     }
                 }
             } else if (this.currentUser.role === 'organizer' && this.events && this.events.length > 0) {
+                if (this.activeMusicianId) {
+                    this.activeMusicianId = null;
+                    this.saveState();
+                }
                 const userEvents = this.events.filter(e => e.creatorId === this.currentUser.id);
                 if (userEvents.length > 0) {
                     const isValid = userEvents.some(e => e.id === this.activeEventId);
@@ -14803,7 +14823,8 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             eventTypes: Array.from(form.querySelectorAll('input[name="eventTypes"]:checked')).map(el => el.value),
             description: formData.get('description'),
             technik: Array.from(form.querySelectorAll('input[name="musTechnik"]:checked')).map(el => el.value),
-            profilePic: selectedBase64,
+            profilePic: (localMedia.photos.filter(p => p && p !== 'loading')[0]) || selectedBase64 || '',
+            image: (localMedia.photos.filter(p => p && p !== 'loading')[0]) || selectedBase64 || '',
             photos: localMedia.photos.filter(p => p !== 'loading'),
             videos: localMedia.videos.filter(v => v.url !== 'loading'),
             audio: (localMedia.audios || []).filter(a => a.url !== 'loading'),
@@ -19838,19 +19859,23 @@ function handleRouting() {
                         state.fetchSingleItem('events', rawId);
                     }
                 } else {
-                    console.log("[DEBUG] Storing activeMusicianId (target) from URL parameter:", rawId);
-                    state.activeMusicianId = rawId;
-                    state.saveState();
+                    // Viewing a musician profile on musicians page:
+                    // Only set activeMusicianId IF the current user is a musician and owns this profile!
+                    if (state.currentUser && state.currentUser.role === 'musician' && (state.musicians || []).some(m => m && m.id === rawId && m.creatorId === state.currentUser.id)) {
+                        console.log("[DEBUG] Switching own activeMusicianId from URL parameter:", rawId);
+                        state.activeMusicianId = rawId;
+                        state.saveState();
+                    }
                 }
             }
         } else {
             // Target is an event profile, active profile is a musician (for musicians)
             const musicianId = urlParams.get('musicianId');
-            if (musicianId) {
+            if (musicianId && state.currentUser && state.currentUser.role === 'musician' && (state.musicians || []).some(m => m && m.id === musicianId && m.creatorId === state.currentUser.id)) {
                 console.log("[DEBUG] Storing activeMusicianId from URL parameter:", musicianId);
                 state.activeMusicianId = musicianId;
             }
-            if (rawId) {
+            if (rawId && state.currentUser && state.currentUser.role === 'organizer' && (state.events || []).some(e => e && e.id === rawId && (e.creatorId === state.currentUser.id || e.email === state.currentUser.email))) {
                 console.log("[DEBUG] Storing activeEventId (target) from URL parameter:", rawId);
                 state.activeEventId = rawId;
             }
@@ -20261,6 +20286,12 @@ function renderPostbox(container) {
                 db.collection('chats').doc(window.postboxActiveChatId).get().then(doc => {
                     if (doc.exists) {
                         const fetchedChat = { id: doc.id, ...doc.data() };
+                        const myIds = (typeof state.getUserProfileAndEventIds === 'function') ? state.getUserProfileAndEventIds() : [u.id];
+                        const isUserParticipant = Array.isArray(fetchedChat.participants) && fetchedChat.participants.some(pid => myIds.includes(pid));
+                        if (!isUserParticipant) {
+                            console.warn("[Postbox] User is not a participant in requested chat:", fetchedChat.id);
+                            return;
+                        }
                         if (!state.chats) state.chats = [];
                         if (!state.chats.some(c => c && c.id === fetchedChat.id)) {
                             state.chats.unshift(fetchedChat);
@@ -20396,7 +20427,7 @@ function renderPostbox(container) {
 
             if (activeChatId && !chats.some(c => c && c.id === activeChatId)) {
                 const fallbackChat = (state.chats || []).find(c => c && c.id === activeChatId);
-                if (fallbackChat) {
+                if (fallbackChat && Array.isArray(fallbackChat.participants) && fallbackChat.participants.some(pid => myUserIds.includes(pid))) {
                     chats.unshift(fallbackChat);
                 }
             }
@@ -20498,10 +20529,16 @@ function renderPostbox(container) {
                                 const counterOrg = (state.events || []).find(e => e && (e.id === counterpartyId || e.creatorId === counterpartyId));
                                 if (counterMus) {
                                     name = counterMus.name;
-                                    avatar = counterMus.profilePic || "https://picsum.photos/id/453/100/100";
+                                    avatar = (counterMus.photos && counterMus.photos.length > 0 && counterMus.photos[0])
+                                        || counterMus.profilePic
+                                        || counterMus.image
+                                        || "https://picsum.photos/id/453/100/100";
                                 } else if (counterOrg) {
                                     name = counterOrg.name || counterOrg.contactName || "Veranstalter";
-                                    avatar = "https://picsum.photos/id/111/100/100";
+                                    avatar = (counterOrg.photos && counterOrg.photos.length > 0 && counterOrg.photos[0])
+                                        || counterOrg.profilePic
+                                        || counterOrg.image
+                                        || "https://picsum.photos/id/111/100/100";
                                 } else {
                                     name = "Gelöschter Nutzer";
                                     avatar = "https://picsum.photos/id/1025/100/100";
@@ -20661,10 +20698,16 @@ function renderPostbox(container) {
                             const counterOrg = (state.events || []).find(e => e && (e.id === counterpartyId || e.creatorId === counterpartyId));
                             if (counterMus) {
                                 name = counterMus.name;
-                                avatar = counterMus.profilePic || "https://picsum.photos/id/453/100/100";
+                                avatar = (counterMus.photos && counterMus.photos.length > 0 && counterMus.photos[0])
+                                    || counterMus.profilePic
+                                    || counterMus.image
+                                    || "https://picsum.photos/id/453/100/100";
                             } else if (counterOrg) {
                                 name = counterOrg.name || counterOrg.contactName || "Veranstalter";
-                                avatar = "https://picsum.photos/id/111/100/100";
+                                avatar = (counterOrg.photos && counterOrg.photos.length > 0 && counterOrg.photos[0])
+                                    || counterOrg.profilePic
+                                    || counterOrg.image
+                                    || "https://picsum.photos/id/111/100/100";
                             } else {
                                 name = "Gelöschter Nutzer";
                                 avatar = "https://picsum.photos/id/1025/100/100";

@@ -15,6 +15,14 @@ const getPlatformFeedbackEmailHtml = require('./templates/platformFeedbackTempla
 
 admin.initializeApp();
 
+// Admin Email Configuration & Helper
+const ADMIN_EMAILS = ['info@gigconnact.de', 'gigconnact@gmail.com'];
+
+function isAdminEmail(email) {
+    if (!email || typeof email !== 'string') return false;
+    return ADMIN_EMAILS.includes(email.trim().toLowerCase());
+}
+
 // Helper to send email via Resend
 async function sendEmail({ to, subject, html, headers = {} }) {
     try {
@@ -506,6 +514,10 @@ exports.dailyRadiusAlertsCheck = functions
 
         const mailPromises = musicians.map(async (musician) => {
             if (!isMusicianActive(musician)) return null;
+            // Keine Umkreis-Alerts an Admin-Profile
+            if (isAdminEmail(musician.email) || musician.creatorId === 'info-gigconnact-admin') {
+                return null;
+            }
             const matchedEvents = [];
             
             newEvents.forEach(event => {
@@ -520,6 +532,10 @@ exports.dailyRadiusAlertsCheck = functions
             if (matchedEvents.length > 0) {
                 const userDetails = await getUserDetails(musician.id); // musician.id entspricht user.uid
                 if (userDetails && userDetails.email) {
+                    if (isAdminEmail(userDetails.email)) {
+                        console.log(`Skipping radius alert email for admin musician: ${userDetails.email}`);
+                        return null;
+                    }
                     const subject = `Neues Event in deiner Umgebung! 📍`;
                     const html = getRadiusEventEmailHtml({
                         userName: userDetails.name,
@@ -574,6 +590,10 @@ exports.dailyTopMatchesCheck = functions
         // A. Neue Top-Matches für Musiker ermitteln (neue Events der letzten 24h mit Score >= 70)
         const musicianPromises = musicians.map(async (musician) => {
             if (!isMusicianActive(musician)) return;
+            // Keine Top-Matches an Admin-Musiker
+            if (isAdminEmail(musician.email) || musician.creatorId === 'info-gigconnact-admin') {
+                return;
+            }
             const topMatches = [];
             newEvents.forEach(event => {
                 if (!isEventActive(event)) return;
@@ -586,6 +606,10 @@ exports.dailyTopMatchesCheck = functions
             if (topMatches.length > 0) {
                 const userDetails = await getUserDetails(musician.id);
                 if (userDetails && userDetails.email) {
+                    if (isAdminEmail(userDetails.email)) {
+                        console.log(`Skipping daily top-matches email for admin musician: ${userDetails.email}`);
+                        return;
+                    }
                     const subject = `Neue Top-Matches auf GigConnAct (${topMatches.length} Vorschlag${topMatches.length > 1 ? 'e' : ''})`;
                     const html = getTopMatchEmailHtml({
                         userName: userDetails.name,
@@ -609,6 +633,11 @@ exports.dailyTopMatchesCheck = functions
         // B. Neue Top-Matches für Veranstalter ermitteln (neue Musiker der letzten 24h mit Score >= 70)
         const organizerPromises = events.map(async (event) => {
             if (!isEventActive(event)) return;
+            // Keine Top-Matches / Mails an Admin-Events, Vermittlungsanfragen oder Admin-Konten
+            if (event.isAgencyRequest || event.isMediation || event.contactType === 'mediation') return;
+            if (event.creatorId === 'info-gigconnact-admin') return;
+            if (isAdminEmail(event.clientEmail) || isAdminEmail(event.email)) return;
+
             const topMatches = [];
             newMusicians.forEach(musician => {
                 if (!isMusicianActive(musician)) return;
@@ -624,6 +653,10 @@ exports.dailyTopMatchesCheck = functions
                 if (creatorId) {
                     const userDetails = await getUserDetails(creatorId);
                     if (userDetails && userDetails.email) {
+                        if (isAdminEmail(userDetails.email)) {
+                            console.log(`Skipping daily top-matches email for admin organizer: ${userDetails.email}`);
+                            return;
+                        }
                         const subject = `Neue Top-Matches für dein Event (${topMatches.length} Profil${topMatches.length > 1 ? 'e' : ''})`;
                         const html = getTopMatchEmailHtml({
                             userName: userDetails.name,
@@ -862,8 +895,7 @@ exports.deleteUserAccountPermanently = functions
             let emailLower = email ? String(email).trim().toLowerCase() : null;
 
             // Admin-Konto Schutz: Darf niemals gelöscht werden
-            const ADMIN_EMAILS = ['info@gigconnact.de', 'gigconnact@gmail.com'];
-            if (emailLower && ADMIN_EMAILS.includes(emailLower)) {
+            if (emailLower && isAdminEmail(emailLower)) {
                 throw new functions.https.HttpsError('permission-denied', 'Das Admin-Konto kann nicht gelöscht werden.');
             }
 
@@ -884,7 +916,7 @@ exports.deleteUserAccountPermanently = functions
                 }
             }
 
-            if (emailLower && ADMIN_EMAILS.includes(emailLower)) {
+            if (emailLower && isAdminEmail(emailLower)) {
                 throw new functions.https.HttpsError('permission-denied', 'Das Admin-Konto kann nicht gelöscht werden.');
             }
 
@@ -2193,7 +2225,7 @@ exports.onEventProfileCreated = functions
         const technikStr = Array.isArray(event.technik) ? event.technik.join(', ') : (event.technik || 'Keine Angabe');
 
         // 1. Mail an den Veranstalter (NUR bei regulären Events, NICHT bei Vermittlungsanfragen und NICHT an Admin-Mailadresse)
-        if (!isAgencyRequest && submitterEmail && !['info@gigconnact.de', 'gigconnact@gmail.com'].includes(submitterEmail.toLowerCase())) {
+        if (!isAgencyRequest && submitterEmail && !isAdminEmail(submitterEmail)) {
             const eventSubject = `Dein Event bei GigConnAct ist online! 🎉`;
             const eventHtml = `
                 <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
