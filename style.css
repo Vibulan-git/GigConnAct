@@ -113,17 +113,151 @@ body {
     box-sizing: border-box !important;
 }
 
-/* Internal pages: Centered GigConnAct Logo */
+/* Internal pages: Left-aligned GigConnAct Logo & Right-aligned Action Pills */
 .app-header:not(.transparent-header) .header-container {
-    justify-content: center !important;
+    justify-content: space-between !important;
     position: relative !important;
 }
 .app-header:not(.transparent-header) .logo-area {
-    margin: 0 auto !important;
+    margin: 0 !important;
 }
-.app-header:not(.transparent-header) .main-nav,
-.app-header:not(.transparent-header) .auth-area {
+.app-header:not(.transparent-header) .main-nav {
     display: none !important;
+}
+.app-header:not(.transparent-header) .auth-area {
+    display: flex !important;
+    align-items: center !important;
+    margin-left: auto !important;
+}
+
+/* Header Action Pills (Top Right on Internal Pages) */
+.header-action-pills {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.header-action-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.45rem !important;
+    height: 35px !important;
+    padding: 0 0.85rem !important;
+    border-radius: 9999px !important;
+    font-family: var(--font-heading) !important;
+    font-size: 0.88rem !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    user-select: none !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-sizing: border-box !important;
+    outline: none !important;
+}
+
+/* Musician Theme: Lila / Purple */
+.header-action-pills.theme-musician .header-action-pill,
+.header-action-pill.theme-musician {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.32) !important;
+}
+.header-action-pills.theme-musician .header-action-pill:hover,
+.header-action-pill.theme-musician:hover {
+    background: linear-gradient(135deg, #9333ea 0%, #6d28d9 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.45) !important;
+}
+.header-action-pills.theme-musician .header-action-pill:active,
+.header-action-pill.theme-musician:active {
+    transform: translateY(0) scale(0.96) !important;
+}
+
+/* Organizer Theme: Blau / Blue */
+.header-action-pills.theme-organizer .header-action-pill,
+.header-action-pill.theme-organizer {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.32) !important;
+}
+.header-action-pills.theme-organizer .header-action-pill:hover,
+.header-action-pill.theme-organizer:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45) !important;
+}
+.header-action-pills.theme-organizer .header-action-pill:active,
+.header-action-pill.theme-organizer:active {
+    transform: translateY(0) scale(0.96) !important;
+}
+
+/* Active Highlight */
+.header-action-pill.active {
+    box-shadow: 0 0 0 2px #ffffff, 0 3px 12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.header-action-pill i {
+    font-size: 0.9rem !important;
+    color: #ffffff !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+}
+
+.header-action-pill .header-pill-count {
+    font-weight: 800 !important;
+    font-size: 0.9rem !important;
+    color: #ffffff !important;
+    line-height: 1 !important;
+}
+
+.header-action-pill .header-pill-label {
+    font-weight: 600 !important;
+    font-size: 0.82rem !important;
+    color: #ffffff !important;
+    line-height: 1 !important;
+    opacity: 0.95 !important;
+}
+
+@media (max-width: 900px) {
+    .header-action-pill .header-pill-label {
+        display: none !important;
+    }
+    .header-action-pill {
+        height: 33px !important;
+        padding: 0 0.65rem !important;
+        gap: 0.35rem !important;
+        font-size: 0.82rem !important;
+    }
+    .header-action-pill i {
+        font-size: 0.82rem !important;
+    }
+    .header-action-pills {
+        gap: 0.35rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-container {
+        padding: 0.2rem 0.6rem !important;
+    }
+    .header-action-pill {
+        height: 31px !important;
+        padding: 0 0.5rem !important;
+        min-width: 40px !important;
+    }
+    .logo-title-nav {
+        font-size: 1.22rem !important;
+    }
+}
+
+@media (max-width: 360px) {
+    .logo-title-nav {
+        display: none !important;
+    }
 }
 
 .logo-area {
@@ -5692,7 +5826,7 @@ input[type="range"].input-field {
 
 .market-floating-filter-pill {
     position: fixed;
-    bottom: calc(92px + 18px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(64px + 16px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
     z-index: 990;

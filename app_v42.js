@@ -8721,12 +8721,15 @@ function renderMarket(container, type, onNavigate) {
             `;
         }
 
-        const inlineFilterBtn = container.querySelector('#btn-market-inline-filter');
-        if (inlineFilterBtn) {
+        const floatingToggleBtn = container.querySelector('#btn-floating-market-filter');
+        const floatingDot = container.querySelector('#floating-filter-active-dot');
+        if (floatingToggleBtn) {
             if (isActive) {
-                inlineFilterBtn.classList.add('has-active-filters');
+                floatingToggleBtn.classList.add('has-active-filters');
+                if (floatingDot) floatingDot.style.display = 'inline-block';
             } else {
-                inlineFilterBtn.classList.remove('has-active-filters');
+                floatingToggleBtn.classList.remove('has-active-filters');
+                if (floatingDot) floatingDot.style.display = 'none';
             }
         }
     }
@@ -8917,7 +8920,7 @@ function renderMarket(container, type, onNavigate) {
     container.innerHTML = `
         <div class="market-page ${isOrganizerTheme ? 'theme-organizer' : 'theme-musician'} ${showOnlyFavorites ? 'favorites-mode' : ''}" style="width: 100%; margin: 0; padding: 0 0 5rem; box-sizing: border-box;">
             
-            <!-- Market Sub-Header: Center = Count & Label with Filter Button on right edge aligned with tiles -->
+            <!-- Market Sub-Header: Center = Count & Label -->
             <div class="market-sub-header-bar">
                 <div class="market-sub-header-group">
                     <div id="market-results-header" style="display: flex; align-items: baseline; justify-content: center; gap: 0.65rem; text-align: center;">
@@ -8927,15 +8930,6 @@ function renderMarket(container, type, onNavigate) {
                         </h1>
                     </div>
                 </div>
-
-                ${!showOnlyFavorites ? `
-                <div class="market-filter-action-area">
-                    <button id="btn-market-inline-filter" class="market-inline-filter-btn" title="Filter öffnen">
-                        <i class="fa-solid fa-sliders" style="font-size: 0.95rem;"></i>
-                        <span>Filter</span>
-                    </button>
-                </div>
-                ` : ''}
 
                 <!-- Hidden trigger buttons kept for programmatic compatibility -->
                 <button id="btn-toggle-mobile-filters" style="display: none !important;" aria-hidden="true"></button>
@@ -9399,6 +9393,15 @@ function renderMarket(container, type, onNavigate) {
             </div>
             </div>
             <div id="market-filters-overlay" class="market-filters-overlay"></div>
+
+            <!-- Floating Filter Pill Button (Airbnb Style) -->
+            ${!showOnlyFavorites ? `
+            <button class="market-floating-filter-pill ${isOrganizerTheme ? 'theme-organizer' : 'theme-musician'}" id="btn-floating-market-filter" title="Filter & Suche öffnen">
+                <i class="fa-solid fa-sliders floating-filter-icon"></i>
+                <span class="floating-filter-text">Filter</span>
+                <span class="floating-filter-dot" id="floating-filter-active-dot" style="display: none;"></span>
+            </button>
+            ` : ''}
         </div>
     `;
 
@@ -9406,10 +9409,10 @@ function renderMarket(container, type, onNavigate) {
     const toggleBtn = container.querySelector('#btn-toggle-mobile-filters');
     const filterWrapper = container.querySelector('#market-filters-wrapper');
     const overlay = container.querySelector('#market-filters-overlay');
+    const floatingFilterBtn = container.querySelector('#btn-floating-market-filter');
 
-    const inlineFilterBtn = container.querySelector('#btn-market-inline-filter');
-    if (inlineFilterBtn) {
-        inlineFilterBtn.addEventListener('click', function(e) {
+    if (floatingFilterBtn) {
+        floatingFilterBtn.addEventListener('click', function(e) {
             e.preventDefault();
             window.lastMarketScrollBeforeFilter = window.scrollY || document.documentElement.scrollTop;
             if (window.innerWidth > 900) {
@@ -9438,8 +9441,8 @@ function renderMarket(container, type, onNavigate) {
         this.classList.toggle('active');
         const isOpen = filterWrapper.classList.contains('open');
         overlay?.classList.toggle('open', isOpen);
-        if (inlineFilterBtn) {
-            inlineFilterBtn.classList.toggle('drawer-open', isOpen);
+        if (floatingFilterBtn) {
+            floatingFilterBtn.classList.toggle('drawer-open', isOpen);
         }
         updateFilterIconGlow(isFilterActiveCurrently);
     });
@@ -9450,8 +9453,8 @@ function renderMarket(container, type, onNavigate) {
         filterWrapper.classList.remove('open');
         overlay?.classList.remove('open');
         toggleBtn?.classList.remove('active');
-        if (inlineFilterBtn) {
-            inlineFilterBtn.classList.remove('drawer-open');
+        if (floatingFilterBtn) {
+            floatingFilterBtn.classList.remove('drawer-open');
         }
         updateFilterIconGlow(isFilterActiveCurrently);
         if (window.innerWidth <= 900) {
@@ -10355,6 +10358,11 @@ function renderMarket(container, type, onNavigate) {
         const countEl = container.querySelector('#market-results-count');
         if (countEl) countEl.textContent = displayList.length;
         
+        window.lastMarketResultsCount = displayList.length;
+        if (typeof window.updateHeaderActionPills === 'function') {
+            window.updateHeaderActionPills();
+        }
+        
         const labelEl = container.querySelector('#market-title-label');
         if (labelEl) {
             if (showOnlyTopMatches) {
@@ -10378,8 +10386,8 @@ function renderMarket(container, type, onNavigate) {
         const layoutContainer = container.querySelector('.market-layout-container');
         const filterSidebar = container.querySelector('#market-filters-wrapper');
         const actionsContainer = container.querySelector('.market-controls-actions');
+        const floatingFilterBtn = container.querySelector('#btn-floating-market-filter');
 
-        const filterActionArea = container.querySelector('.market-filter-action-area');
         if (showOnlyFavorites) {
             container.querySelector('.market-page')?.classList.add('favorites-mode');
             if (layoutContainer) layoutContainer.classList.add('no-filters');
@@ -10391,8 +10399,8 @@ function renderMarket(container, type, onNavigate) {
                 actionsContainer.style.setProperty('display', 'none', 'important');
                 actionsContainer.classList.add('hidden');
             }
-            if (filterActionArea) {
-                filterActionArea.style.setProperty('display', 'none', 'important');
+            if (floatingFilterBtn) {
+                floatingFilterBtn.style.setProperty('display', 'none', 'important');
             }
             container.querySelector('.market-filter-overlay')?.classList.remove('open');
         } else {
@@ -10403,8 +10411,8 @@ function renderMarket(container, type, onNavigate) {
                 actionsContainer.style.setProperty('display', 'flex', 'important');
                 actionsContainer.classList.remove('hidden');
             }
-            if (filterActionArea) {
-                filterActionArea.style.removeProperty('display');
+            if (floatingFilterBtn) {
+                floatingFilterBtn.style.removeProperty('display');
             }
         }
 
@@ -19526,8 +19534,192 @@ window.updateBottomBar = function() {
                 }
             });
         }
+        if (typeof window.updateHeaderActionPills === 'function') {
+            window.updateHeaderActionPills();
+        }
     } catch (bottomBarErr) {
         console.error("Error in updateBottomBar:", bottomBarErr);
+    }
+};
+
+window.updateHeaderActionPills = function() {
+    const authArea = document.getElementById('auth-area');
+    if (!authArea) return;
+
+    const hash = window.location.hash || '';
+    const isLanding = (!hash || hash === '#/' || hash === '#') && !document.body.classList.contains('landing-inactive');
+    const isStandalonePage = hash.includes('recommendation/') || 
+                             hash.includes('mediation-response/') || 
+                             hash.includes('feedback') ||
+                             (window.location.pathname && (window.location.pathname.includes('/recommendation/') || window.location.pathname.includes('/mediation-response/')));
+    if (isLanding || isStandalonePage) return;
+
+    const u = (state && state.currentUser && state.currentUser.id) ? state.currentUser : null;
+    const isMusicianRole = u ? (u.role === 'musician') : !hash.includes('musicians');
+    const isEventsPage = hash.includes('events') || (!hash.includes('musicians') && isMusicianRole);
+    const isOrganizer = (u && u.role === 'organizer') || hash.includes('musicians') || (!isEventsPage && u && u.role !== 'musician');
+    const themeClass = isOrganizer ? 'theme-organizer' : 'theme-musician';
+
+    // 1. Trefferanzahl berechnen
+    let resultsCount = 0;
+    const marketCountEl = document.getElementById('market-results-count');
+    if (marketCountEl && marketCountEl.textContent !== undefined && marketCountEl.textContent.trim() !== '') {
+        const parsed = parseInt(marketCountEl.textContent, 10);
+        if (!isNaN(parsed)) resultsCount = parsed;
+    } else if (typeof window.lastMarketResultsCount === 'number') {
+        resultsCount = window.lastMarketResultsCount;
+    } else {
+        if (isOrganizer) {
+            resultsCount = (state && Array.isArray(state.musicians)) ? state.musicians.length : 0;
+        } else {
+            resultsCount = (state && Array.isArray(state.events)) ? state.events.length : 0;
+        }
+    }
+
+    // 2. Favoriten-Anzahl berechnen
+    let favCount = 0;
+    if (state && typeof state.isFavorite === 'function') {
+        if (isOrganizer) {
+            favCount = (state.musicians || []).filter(m => state.isFavorite(m.id)).length;
+        } else {
+            favCount = (state.events || []).filter(e => state.isFavorite(e.id)).length;
+        }
+    }
+
+    // 3. Nachrichten-Anzahl berechnen
+    let msgCount = 0;
+    if (u && state) {
+        try {
+            if (typeof state.getUnreadCount === 'function') {
+                msgCount = state.getUnreadCount() || 0;
+            } else if (typeof state.getUnreadMessageCount === 'function') {
+                msgCount = state.getUnreadMessageCount() || 0;
+            } else if (state.chats && Array.isArray(state.chats)) {
+                state.chats.forEach(c => {
+                    if (c && c.unreadBy && Array.isArray(c.unreadBy) && c.unreadBy.includes(u.id)) msgCount++;
+                });
+            }
+        } catch (e) {
+            msgCount = 0;
+        }
+    }
+
+    const isFavActive = hash.includes('fav=true') || hash.includes('favorites') || Boolean(document.getElementById('btn-toggle-market-favorites')?.classList.contains('active'));
+    const isPostboxActive = hash.includes('postbox');
+    const isResultsActive = (hash.includes('events') || hash.includes('musicians')) && !isFavActive;
+
+    const existingContainer = authArea.querySelector('.header-action-pills');
+    if (!existingContainer) {
+        authArea.innerHTML = `
+            <div class="header-action-pills ${themeClass}">
+                <button class="header-action-pill ${themeClass} ${isResultsActive ? 'active' : ''}" id="btn-header-results" title="Treffer anzeigen">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span class="header-pill-count" id="header-results-count">${resultsCount}</span>
+                    <span class="header-pill-label">Treffer</span>
+                </button>
+                <button class="header-action-pill ${themeClass} ${isFavActive ? 'active' : ''}" id="btn-header-favorites" title="Favoriten anzeigen">
+                    <i class="fa-solid fa-heart"></i>
+                    <span class="header-pill-count" id="header-favs-count">${favCount}</span>
+                    <span class="header-pill-label">${favCount === 1 ? 'Favorit' : 'Favoriten'}</span>
+                </button>
+                <button class="header-action-pill ${themeClass} ${isPostboxActive ? 'active' : ''}" id="btn-header-messages" title="Nachrichten anzeigen">
+                    <i class="fa-solid fa-comments"></i>
+                    <span class="header-pill-count" id="header-msgs-count">${msgCount}</span>
+                    <span class="header-pill-label">${msgCount === 1 ? 'Nachricht' : 'Nachrichten'}</span>
+                </button>
+            </div>
+        `;
+
+        const btnResults = document.getElementById('btn-header-results');
+        if (btnResults) {
+            btnResults.addEventListener('click', (e) => {
+                e.preventDefault();
+                const curHash = window.location.hash || '';
+                const onMarket = curHash.includes('events') || curHash.includes('musicians');
+                if (onMarket) {
+                    window.currentMarketShowFavorites = false;
+                    const toggleFavBtn = document.getElementById('btn-toggle-market-favorites');
+                    if (toggleFavBtn && toggleFavBtn.classList.contains('active')) {
+                        toggleFavBtn.click();
+                    } else if (curHash.includes('fav=true') || curHash.includes('favorites')) {
+                        window.location.hash = isOrganizer ? '#/musicians' : '#/events';
+                    } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                } else {
+                    window.location.hash = isOrganizer ? '#/musicians' : '#/events';
+                }
+            });
+        }
+
+        const btnFavs = document.getElementById('btn-header-favorites');
+        if (btnFavs) {
+            btnFavs.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (!u) {
+                    if (typeof showModal === 'function') showModal('auth');
+                    return;
+                }
+                const curHash = window.location.hash || '';
+                const onMarket = curHash.includes('events') || curHash.includes('musicians');
+                if (onMarket) {
+                    const toggleFavBtn = document.getElementById('btn-toggle-market-favorites');
+                    if (toggleFavBtn) {
+                        toggleFavBtn.click();
+                    } else {
+                        window.location.hash = isOrganizer ? '#/musicians?fav=true' : '#/events?fav=true';
+                    }
+                } else {
+                    window.location.hash = isOrganizer ? '#/musicians?fav=true' : '#/events?fav=true';
+                }
+            });
+        }
+
+        const btnMsgs = document.getElementById('btn-header-messages');
+        if (btnMsgs) {
+            btnMsgs.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (!u) {
+                    if (typeof showModal === 'function') showModal('auth');
+                    return;
+                }
+                window.postboxActiveChatId = null;
+                if (window.location.hash !== '#/postbox') {
+                    window.location.hash = '#/postbox';
+                } else if (typeof handleRouting === 'function') {
+                    handleRouting();
+                }
+            });
+        }
+    } else {
+        existingContainer.className = `header-action-pills ${themeClass}`;
+
+        const rBtn = document.getElementById('btn-header-results');
+        if (rBtn) {
+            rBtn.className = `header-action-pill ${themeClass} ${isResultsActive ? 'active' : ''}`;
+            const rCount = rBtn.querySelector('.header-pill-count');
+            const rLabel = rBtn.querySelector('.header-pill-label');
+            if (rCount) rCount.textContent = resultsCount;
+            if (rLabel) rLabel.textContent = resultsCount === 1 ? 'Treffer' : 'Treffer';
+        }
+
+        const fBtn = document.getElementById('btn-header-favorites');
+        if (fBtn) {
+            fBtn.className = `header-action-pill ${themeClass} ${isFavActive ? 'active' : ''}`;
+            const fCount = fBtn.querySelector('.header-pill-count');
+            const fLabel = fBtn.querySelector('.header-pill-label');
+            if (fCount) fCount.textContent = favCount;
+            if (fLabel) fLabel.textContent = favCount === 1 ? 'Favorit' : 'Favoriten';
+        }
+
+        const mBtn = document.getElementById('btn-header-messages');
+        if (mBtn) {
+            mBtn.className = `header-action-pill ${themeClass} ${isPostboxActive ? 'active' : ''}`;
+            const mCount = mBtn.querySelector('.header-pill-count');
+            const mLabel = mBtn.querySelector('.header-pill-label');
+            if (mCount) mCount.textContent = msgCount;
+            if (mLabel) mLabel.textContent = msgCount === 1 ? 'Nachricht' : 'Nachrichten';
+        }
     }
 };
 
@@ -19620,7 +19812,9 @@ function updateNavbar(forceLanding, activePage) {
             });
         }
     } else {
-        authArea.innerHTML = '';
+        if (typeof window.updateHeaderActionPills === 'function') {
+            window.updateHeaderActionPills();
+        }
     }
 
     if (typeof window.updateBottomBar === 'function') {
