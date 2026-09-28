@@ -11967,23 +11967,6 @@ function renderProfilePage(container) {
             <div class="profile-content-wrapper" style="width: 100%; max-width: 1520px; margin: 1.0rem auto 0; padding: 0 1.2rem; box-sizing: border-box;">
                 <div class="portal-layout" style="display:flex; flex-direction:column; gap: 0.85rem; max-width: 800px; margin: 0 auto; padding: 0;">
 
-                    <!-- Zeile über der Kachel 'Meine Musiker/Events': Links Auswahl der Profile, Rechts Ausloggebutton in rot -->
-                    <div class="profile-top-actions-bar" style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; width: 100%; margin: 0.25rem 0 1rem 0; flex-wrap: nowrap !important; box-sizing: border-box;">
-                        <!-- Links: Auswahl der Profile (Lila/Blau Button je nach Rolle, kein Icon, kein 'Profil auswählen') -->
-                        <div class="profile-switcher-action-box" style="flex: 1 1 auto; min-width: 0; max-width: calc(100% - 135px); display: inline-flex; align-items: center; background: ${themeBtnBg} !important; border: 1.5px solid rgba(255, 255, 255, 0.25) !important; border-radius: 12px; height: 42px; padding: 0 0.85rem; position: relative; box-sizing: border-box; box-shadow: 0 3px 10px ${isMusician ? 'rgba(124, 58, 237, 0.35)' : 'rgba(37, 99, 235, 0.35)'};">
-                            <select id="profile-page-select" style="width: 100%; min-width: 0; max-width: 100%; border: none; background: transparent; font-family: var(--font-heading); font-size: 0.92rem; font-weight: 800; color: #ffffff !important; cursor: pointer; outline: none; margin: 0; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; appearance: none; -webkit-appearance: none; padding-right: 1.25rem; background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23ffffff'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E&quot;); background-repeat: no-repeat; background-position: right center; background-size: 1rem;">
-                                ${defaultProfileOption}
-                                ${profileOptions}
-                            </select>
-                        </div>
-
-                        <!-- Rechts: Ausloggebutton in rot -->
-                        <button id="btn-profile-logout" class="btn btn-sm" style="flex-shrink: 0; white-space: nowrap; background: rgba(239, 68, 68, 0.95) !important; border: 1.5px solid rgba(239, 68, 68, 0.35) !important; color: #ffffff !important; border-radius: 12px !important; height: 42px !important; padding: 0 1.15rem !important; display: inline-flex !important; align-items: center !important; gap: 0.45rem !important; font-size: 0.88rem !important; font-weight: 700 !important; cursor: pointer !important; transition: all 0.2s !important; box-shadow: 0 3px 10px rgba(239, 68, 68, 0.25) !important; margin: 0;" title="Abmelden">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                            <span>Abmelden</span>
-                        </button>
-                    </div>
-
                     <div id="profile-my-items-container"></div>
             <div class="profile-section-card contact-details">
                 <div class="profile-section-header">
@@ -12215,6 +12198,14 @@ function renderProfilePage(container) {
                 <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; margin-bottom: 0;">
                     Für eine Auskunft oder einen Export deiner Daten sende bitte eine formlose E-Mail an <a href="mailto:info@gigconnact.de" style="color: #2563eb; text-decoration: underline;">info@gigconnact.de</a>.
                 </p>
+            </div>
+
+            <!-- Abmelden Button ganz unten auf der Seite -->
+            <div style="display: flex; justify-content: center; margin: 2.2rem 0 1rem; width: 100%;">
+                <button id="btn-profile-logout" class="btn btn-sm" style="background: rgba(239, 68, 68, 0.95) !important; border: 1.5px solid rgba(239, 68, 68, 0.35) !important; color: #ffffff !important; border-radius: 12px !important; height: 44px !important; padding: 0 2rem !important; display: inline-flex !important; align-items: center !important; gap: 0.55rem !important; font-size: 0.96rem !important; font-weight: 700 !important; cursor: pointer !important; transition: all 0.2s !important; box-shadow: 0 3px 12px rgba(239, 68, 68, 0.25) !important;" title="Abmelden">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Abmelden</span>
+                </button>
             </div>
 
             </div>
@@ -12725,24 +12716,6 @@ function renderProfilePage(container) {
         } else {
             renderMyEventsContent(myItemsContainer);
         }
-    }
-
-    const profileSelectEl = container.querySelector('#profile-page-select');
-    if (profileSelectEl) {
-        profileSelectEl.addEventListener('change', function() {
-            const val = this.value;
-            if (val === 'logout') {
-                window.handleLogoutRedirect();
-                return;
-            }
-            if (isMusician) {
-                state.activeMusicianId = val;
-            } else {
-                state.activeEventId = val;
-            }
-            state.saveState();
-            renderProfilePage(container);
-        });
     }
 
     const profileLogoutBtn = container.querySelector('#btn-profile-logout');
@@ -19650,6 +19623,9 @@ window.updateHeaderActionPills = function() {
                     }
                     if (state && typeof state.saveState === 'function') state.saveState();
                     if (state && typeof state.notify === 'function') state.notify();
+                    if (typeof window.updateHeaderActionPills === 'function') {
+                        window.updateHeaderActionPills();
+                    }
                     const appMain = document.getElementById('app-main');
                     if (appMain && typeof renderProfilePage === 'function') {
                         renderProfilePage(appMain);
@@ -19713,7 +19689,7 @@ window.updateHeaderActionPills = function() {
                 <button class="header-action-pill ${themeClass}" id="btn-header-matches" title="Top-Matches">
                     <i class="fa-solid fa-star"></i>
                     <span class="header-pill-count" id="header-matches-count">${matchesCount}</span>
-                    <span class="header-pill-label">Matches</span>
+                    <span class="header-pill-label">Top-Matches</span>
                 </button>
             </div>
         `;
@@ -19771,7 +19747,7 @@ window.updateHeaderActionPills = function() {
         return;
     }
 
-    // --- CASE 5: GIG-MARKT / ACT-MARKT (Nur Trefferzahl-Button) ---
+    // --- CASE 5: GIG-MARKT / ACT-MARKT (Nur Events/Musiker-Button) ---
     let resultsCount = 0;
     const marketCountEl = document.getElementById('market-results-count');
     if (marketCountEl && marketCountEl.textContent !== undefined && marketCountEl.textContent.trim() !== '') {
@@ -19787,12 +19763,23 @@ window.updateHeaderActionPills = function() {
         }
     }
 
+    const isBrowsingMusicians = hash.includes('musicians') || (isOrganizer && !hash.includes('events'));
+    let marketLabel = isBrowsingMusicians ? 'Musiker' : 'Events';
+    const marketTitleLabelEl = document.getElementById('market-title-label');
+    if (marketTitleLabelEl && marketTitleLabelEl.textContent.trim()) {
+        const text = marketTitleLabelEl.textContent.trim();
+        if (text === 'Events' || text === 'Musiker') {
+            marketLabel = text;
+        }
+    }
+    const marketIcon = marketLabel === 'Musiker' ? 'fa-user-group' : 'fa-calendar-days';
+
     authArea.innerHTML = `
         <div class="header-action-pills ${themeClass}">
-            <button class="header-action-pill ${themeClass}" id="btn-header-results" title="Treffer anzeigen">
-                <i class="fa-solid fa-layer-group"></i>
+            <button class="header-action-pill ${themeClass}" id="btn-header-results" title="${marketLabel} anzeigen">
+                <i class="fa-solid ${marketIcon}"></i>
                 <span class="header-pill-count" id="header-results-count">${resultsCount}</span>
-                <span class="header-pill-label">Treffer</span>
+                <span class="header-pill-label">${marketLabel}</span>
             </button>
         </div>
     `;

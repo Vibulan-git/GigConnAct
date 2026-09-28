@@ -143,12 +143,12 @@ body {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.45rem !important;
-    height: 35px !important;
-    padding: 0 0.85rem !important;
+    gap: 0.55rem !important;
+    height: 38px !important;
+    padding: 0 1.05rem !important;
     border-radius: 9999px !important;
     font-family: var(--font-heading) !important;
-    font-size: 0.88rem !important;
+    font-size: 0.96rem !important;
     font-weight: 700 !important;
     color: #ffffff !important;
     border: 1px solid rgba(255, 255, 255, 0.25) !important;
@@ -201,7 +201,7 @@ body {
 }
 
 .header-action-pill i {
-    font-size: 0.9rem !important;
+    font-size: 1.02rem !important;
     color: #ffffff !important;
     line-height: 1 !important;
     flex-shrink: 0 !important;
@@ -209,41 +209,41 @@ body {
 
 .header-action-pill .header-pill-count {
     font-weight: 800 !important;
-    font-size: 0.9rem !important;
+    font-size: 1.05rem !important;
     color: #ffffff !important;
     line-height: 1 !important;
 }
 
 .header-action-pill .header-pill-label {
-    font-weight: 600 !important;
-    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
     color: #ffffff !important;
     line-height: 1 !important;
-    opacity: 0.95 !important;
+    opacity: 0.98 !important;
 }
 
 /* Header Profile Switcher Pill */
 .header-action-pill.header-profile-pill {
-    padding: 0 0.85rem !important;
-    max-width: 220px !important;
+    padding: 0 1.05rem !important;
+    max-width: 250px !important;
     cursor: pointer !important;
 }
 
 .header-profile-name-text {
     font-weight: 700 !important;
-    font-size: 0.85rem !important;
+    font-size: 0.95rem !important;
     color: #ffffff !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
-    max-width: 140px !important;
+    max-width: 165px !important;
 }
 
 .header-profile-caret {
-    font-size: 0.7rem !important;
+    font-size: 0.78rem !important;
     color: #ffffff !important;
     opacity: 0.85 !important;
-    margin-left: 0.15rem !important;
+    margin-left: 0.2rem !important;
     flex-shrink: 0 !important;
     pointer-events: none !important;
 }
@@ -268,14 +268,26 @@ body {
         padding: 0.2rem 0.65rem !important;
     }
     .header-action-pill {
-        height: 33px !important;
-        padding: 0 0.75rem !important;
-        gap: 0.35rem !important;
-        font-size: 0.82rem !important;
+        height: 36px !important;
+        padding: 0 0.85rem !important;
+        gap: 0.45rem !important;
+        font-size: 0.88rem !important;
+    }
+    .header-action-pill i {
+        font-size: 0.94rem !important;
+    }
+    .header-action-pill .header-pill-count {
+        font-size: 0.96rem !important;
+    }
+    .header-action-pill .header-pill-label {
+        font-size: 0.88rem !important;
     }
     .header-profile-name-text {
-        max-width: 105px !important;
-        font-size: 0.8rem !important;
+        max-width: 120px !important;
+        font-size: 0.88rem !important;
+    }
+    .header-profile-caret {
+        font-size: 0.72rem !important;
     }
     .logo-title-nav {
         font-size: 1.25rem !important;
