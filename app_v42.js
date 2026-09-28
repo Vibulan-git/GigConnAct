@@ -12201,8 +12201,8 @@ function renderProfilePage(container) {
             </div>
 
             <!-- Abmelden Button ganz unten auf der Seite -->
-            <div style="display: flex; justify-content: center; margin: 2.2rem 0 1rem; width: 100%;">
-                <button id="btn-profile-logout" class="btn btn-sm" style="background: rgba(239, 68, 68, 0.95) !important; border: 1.5px solid rgba(239, 68, 68, 0.35) !important; color: #ffffff !important; border-radius: 12px !important; height: 44px !important; padding: 0 2rem !important; display: inline-flex !important; align-items: center !important; gap: 0.55rem !important; font-size: 0.96rem !important; font-weight: 700 !important; cursor: pointer !important; transition: all 0.2s !important; box-shadow: 0 3px 12px rgba(239, 68, 68, 0.25) !important;" title="Abmelden">
+            <div style="display: flex; justify-content: center; margin: 2.5rem 0 1rem; width: 100%;">
+                <button id="btn-profile-logout" class="btn" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important; border: 1px solid rgba(255, 255, 255, 0.25) !important; color: #ffffff !important; border-radius: 9999px !important; height: 50px !important; padding: 0 2.2rem !important; min-width: 160px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 0.65rem !important; font-family: var(--font-heading) !important; font-size: 1.18rem !important; font-weight: 700 !important; cursor: pointer !important; transition: all 0.2s !important; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35) !important;" title="Abmelden">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Abmelden</span>
                 </button>
@@ -19599,14 +19599,13 @@ window.updateHeaderActionPills = function() {
 
         authArea.innerHTML = `
             <div class="header-action-pills ${themeClass}">
-                <div class="header-action-pill header-profile-pill ${themeClass}" id="header-profile-picker-wrapper" title="Profil auswählen">
+                <button class="header-action-pill header-profile-pill ${themeClass}" id="header-profile-picker-wrapper" type="button" title="Profil auswählen">
                     <span class="header-profile-name-text" id="header-profile-label">${shortActiveProfileName}</span>
-                    <i class="fa-solid fa-chevron-down header-profile-caret"></i>
                     <select id="header-profile-select" class="header-profile-native-select" aria-label="Profil auswählen">
                         ${defaultProfileOption}
                         ${profileOptions}
                     </select>
-                </div>
+                </button>
             </div>
         `;
 
