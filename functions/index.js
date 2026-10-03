@@ -1825,7 +1825,14 @@ exports.stripeWebhook = functions
                                 subscriptionPlan: planKey,
                                 credits: 0,
                                 unlockedContacts: [],
-                                socialLinks: { spotify: "", youtube: "", instagram: "" },
+                                socialLinks: {
+                                    youtube: pendingData.youtube || (pendingData.socialLinks && pendingData.socialLinks.youtube) || "",
+                                    spotify: pendingData.spotify || (pendingData.socialLinks && pendingData.socialLinks.spotify) || "",
+                                    soundcloud: pendingData.soundcloud || (pendingData.socialLinks && pendingData.socialLinks.soundcloud) || ""
+                                },
+                                youtube: pendingData.youtube || (pendingData.socialLinks && pendingData.socialLinks.youtube) || "",
+                                spotify: pendingData.spotify || (pendingData.socialLinks && pendingData.socialLinks.spotify) || "",
+                                soundcloud: pendingData.soundcloud || (pendingData.socialLinks && pendingData.socialLinks.soundcloud) || "",
                                 photos: pendingData.photos || [],
                                 videos: pendingData.videos || [],
                                 audio: pendingData.audio || pendingData.audios || [],

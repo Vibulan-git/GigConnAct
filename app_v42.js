@@ -1483,6 +1483,7 @@ const initialMusicians = [
         socialLinks: {
             spotify: "https://spotify.com/artist/neonbeats",
             youtube: "https://youtube.com/c/neonbeats",
+            soundcloud: "https://soundcloud.com/neonbeats",
             instagram: "https://instagram.com/neonbeats"
         },
         photos: [
@@ -1572,6 +1573,7 @@ const initialMusicians = [
         socialLinks: {
             spotify: "https://spotify.com/artist/djsoundwave",
             youtube: "",
+            soundcloud: "https://soundcloud.com/djsoundwave",
             instagram: "https://instagram.com/dj_soundwave"
         },
         photos: [
@@ -4959,7 +4961,7 @@ class StateManager {
             photos: [],
             videos: [],
             audio: [],
-            socialLinks: { spotify: "", youtube: "", instagram: "" },
+            socialLinks: { spotify: "", youtube: "", soundcloud: "" },
             isActive: true,
             favorites: [],
             ...cleanMusicianData
@@ -12200,14 +12202,6 @@ function renderProfilePage(container) {
                 </p>
             </div>
 
-            <!-- Abmelden Button ganz unten auf der Seite -->
-            <div style="display: flex; justify-content: center; margin: 2.5rem 0 1rem; width: 100%;">
-                <button id="btn-profile-logout" class="btn" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important; border: 1px solid rgba(255, 255, 255, 0.25) !important; color: #ffffff !important; border-radius: 9999px !important; height: 50px !important; padding: 0 2.2rem !important; min-width: 160px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 0.65rem !important; font-family: var(--font-heading) !important; font-size: 1.18rem !important; font-weight: 700 !important; cursor: pointer !important; transition: all 0.2s !important; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35) !important;" title="Abmelden">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>Abmelden</span>
-                </button>
-            </div>
-
             </div>
             </div>
         </div>
@@ -12717,14 +12711,6 @@ function renderProfilePage(container) {
             renderMyEventsContent(myItemsContainer);
         }
     }
-
-    const profileLogoutBtn = container.querySelector('#btn-profile-logout');
-    if (profileLogoutBtn) {
-        profileLogoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.handleLogoutRedirect();
-        });
-    }
 }
 
 
@@ -13093,9 +13079,10 @@ function renderOrganizerEventItem(e, isActive) {
     }
     
     const showClientBox = isAgencyOrAdminEvt && (clientNameDisplay || clientEmailDisplay || clientPhoneDisplay || organizerTypeVal);
+    const isCurrentActive = Boolean(state && state.activeEventId === e.id);
 
     return `
-        <div class="market-tile-card event-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0);">
+        <div class="market-tile-card event-card ${isCurrentActive ? 'active-profile-tile' : ''}" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0);">
             
             <!-- 1. Combined Galerie: Photos (FÜLLT DIE KACHEL IN DER BREITE 100% AUS) -->
             <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 180px; background: #0f172a; overflow: hidden;">
@@ -13568,6 +13555,75 @@ function renderMusicianInsightsPanel(m) {
     `;
 }
 
+window.showSocialLinkOrganizerNotice = function() {
+    if (typeof showToast === 'function') {
+        showToast({
+            title: "Veranstalter-Berechtigung erforderlich 🔒",
+            message: "Social-Media-Links (YouTube, Spotify, SoundCloud) sind nur für eingeloggte Veranstalter aufrufbar.",
+            type: "info"
+        });
+    }
+};
+
+function renderTileMusicianSocialIcons(item, isOrganizerLoggedIn) {
+    if (!item) return '';
+    const sl = item.socialLinks || {};
+    const yt = (item.youtube || sl.youtube || '').trim();
+    const sp = (item.spotify || sl.spotify || '').trim();
+    const sc = (item.soundcloud || sl.soundcloud || '').trim();
+
+    if (!yt && !sp && !sc) return '';
+
+    const socialItems = [];
+    if (yt) {
+        const url = /^https?:\/\//i.test(yt) ? yt : `https://${yt}`;
+        socialItems.push({
+            type: 'youtube',
+            title: 'YouTube Profil / Kanal öffnen',
+            icon: 'fa-brands fa-youtube',
+            url: url
+        });
+    }
+    if (sp) {
+        const url = /^https?:\/\//i.test(sp) ? sp : `https://${sp}`;
+        socialItems.push({
+            type: 'spotify',
+            title: 'Spotify Profil öffnen',
+            icon: 'fa-brands fa-spotify',
+            url: url
+        });
+    }
+    if (sc) {
+        const url = /^https?:\/\//i.test(sc) ? sc : `https://${sc}`;
+        socialItems.push({
+            type: 'soundcloud',
+            title: 'SoundCloud Profil öffnen',
+            icon: 'fa-brands fa-soundcloud',
+            url: url
+        });
+    }
+
+    if (socialItems.length === 0) return '';
+
+    const badgesHtml = socialItems.map(s => {
+        if (isOrganizerLoggedIn) {
+            return `<a href="${s.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="tile-social-badge-link tile-social-${s.type}" title="${s.title}">
+                <i class="${s.icon}"></i>
+            </a>`;
+        } else {
+            return `<span onclick="event.stopPropagation(); window.showSocialLinkOrganizerNotice();" class="tile-social-badge-link tile-social-${s.type} disabled" title="Nur für eingeloggte Veranstalter anklickbar">
+                <i class="${s.icon}"></i>
+            </span>`;
+        }
+    }).join('');
+
+    return `
+        <div class="tile-social-links-col">
+            ${badgesHtml}
+        </div>
+    `;
+}
+
 function renderMyMusicianItem(m, isActive) {
     const photos = (m.photos && m.photos.length > 0)
         ? m.photos.slice(0, 5)
@@ -13623,9 +13679,10 @@ function renderMyMusicianItem(m, isActive) {
         : 'Nicht angegeben';
 
     const dotActiveColor = '#7c3aed';
+    const isCurrentActive = Boolean(state && state.activeMusicianId === m.id);
 
     return `
-        <div class="market-tile-card musician-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0);">
+        <div class="market-tile-card musician-card ${isCurrentActive ? 'active-profile-tile' : ''}" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); opacity: ${isActive ? '1' : '0.75'}; will-change: transform; transform: translateZ(0);">
             
             <!-- 1. Combined Galerie: Photos + Videos + Audios direkt folgend -->
             <div class="tile-fullwidth-photo-slider" style="position: relative; width: 100%; height: 180px; background: #0f172a; overflow: hidden;">
@@ -13750,20 +13807,26 @@ function renderMyMusicianItem(m, isActive) {
                             <i class="fa-solid fa-clock" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
                             <span>${durationDisplay}</span>
                         </div>
-                        <!-- 8. Publikum -->
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${formatPublikumHelper(m.minPublikum, m.maxPublikum, '0 - 500+')} Personen</span>
-                        </div>
-                        <!-- 9. Technik -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
-                            <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, m.id, 'tech') : 'nach Vereinbarung'}</span>
-                        </div>
-                        <!-- 10. Gage/Budget -->
-                        <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <i class="fa-solid fa-coins" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
-                            <span>${budgetDisplay}</span>
+                        <!-- 8. Publikum, 9. Technik, 10. Gage + Social Links rechts daneben -->
+                        <div style="display: flex; align-items: stretch; justify-content: space-between; gap: 0.5rem;">
+                            <div style="display: flex; flex-direction: column; gap: 0.45rem; flex: 1; min-width: 0;">
+                                <!-- 8. Publikum -->
+                                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                    <i class="fa-solid fa-users" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                                    <span>${formatPublikumHelper(m.minPublikum, m.maxPublikum, '0 - 500+')} Personen</span>
+                                </div>
+                                <!-- 9. Technik -->
+                                <div style="display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.35;">
+                                    <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 16px; text-align: center; margin-top: 0.15rem;"></i>
+                                    <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, m.id, 'tech') : 'nach Vereinbarung'}</span>
+                                </div>
+                                <!-- 10. Gage/Budget -->
+                                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                    <i class="fa-solid fa-coins" style="color: ${themeColor}; width: 16px; text-align: center;"></i>
+                                    <span>${budgetDisplay}</span>
+                                </div>
+                            </div>
+                            ${renderTileMusicianSocialIcons(m, Boolean(state && state.currentUser && state.currentUser.role === 'organizer'))}
                         </div>
                     </div>
                 </div>
@@ -14234,11 +14297,11 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                         <textarea name="description" class="input-field" rows="3" style="resize:vertical;" maxlength="500" required>${musicianObj?.description || ''}</textarea>
                     </div>
 
-                    <!-- Media Section -->
+                    <!-- Media & Links Section -->
                     <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
-                    <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien</h4>
+                    <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien & Links</h4>
                     <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
-                        Füge Fotos, Videos und Hörproben für dein Profil hinzu, um es attraktiver zu gestalten.
+                        Füge Fotos, Videos, Hörproben und Links für dein Profil hinzu, um es attraktiver zu gestalten.
                     </p>
                     <div class="form-group" style="margin-bottom: 1.2rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
@@ -14266,6 +14329,26 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
                             </button>
                         </div>
                         <div id="modal-audios-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                    </div>
+
+                    <!-- Social Media Links (YouTube, Spotify, SoundCloud) -->
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
+                            <i class="fa-brands fa-youtube" style="color: #ff0000; font-size: 1.05rem;"></i> YouTube-Link
+                        </label>
+                        <input type="url" name="youtube" class="input-field" placeholder="https://www.youtube.com/..." value="${musicianObj?.youtube || musicianObj?.socialLinks?.youtube || ''}">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
+                            <i class="fa-brands fa-spotify" style="color: #1db954; font-size: 1.05rem;"></i> Spotify-Link
+                        </label>
+                        <input type="url" name="spotify" class="input-field" placeholder="https://open.spotify.com/..." value="${musicianObj?.spotify || musicianObj?.socialLinks?.spotify || ''}">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.2rem;">
+                        <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
+                            <i class="fa-brands fa-soundcloud" style="color: #ff5500; font-size: 1.05rem;"></i> SoundCloud-Link
+                        </label>
+                        <input type="url" name="soundcloud" class="input-field" placeholder="https://soundcloud.com/..." value="${musicianObj?.soundcloud || musicianObj?.socialLinks?.soundcloud || ''}">
                     </div>
 
                     <div style="display: flex; justify-content: ${isInactiveMusician ? 'space-between' : 'center'}; align-items: center; margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap; width: 100%;">
@@ -14818,7 +14901,15 @@ function showMusicianModal(musicianObj = null, isDuplication = false) {
             email: state.currentUser.email,
             availability: availability,
             minPublikum: parseInt(form.querySelector('#edit-input-publikum-min')?.value) || 0,
-            maxPublikum: parseInt(form.querySelector('#edit-input-publikum-max')?.value) || 500
+            maxPublikum: parseInt(form.querySelector('#edit-input-publikum-max')?.value) || 500,
+            youtube: (formData.get('youtube') || '').trim(),
+            spotify: (formData.get('spotify') || '').trim(),
+            soundcloud: (formData.get('soundcloud') || '').trim(),
+            socialLinks: {
+                youtube: (formData.get('youtube') || '').trim(),
+                spotify: (formData.get('spotify') || '').trim(),
+                soundcloud: (formData.get('soundcloud') || '').trim()
+            }
         };
 
         const bioText = (data.description || '').toLowerCase();
@@ -16233,11 +16324,11 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                             <textarea name="musDescription" id="textarea-mus-desc" class="input-field" rows="3" maxlength="500" placeholder="Erzähle etwas über dich/eure Band..."></textarea>
                         </div>
 
-                        <!-- Media Section -->
+                        <!-- Media & Links Section -->
                         <div style="border-top:1px solid rgba(15,23,42,0.08); margin: 1.5rem 0; padding-top:1rem;"></div>
-                        <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien</h4>
+                        <h4 style="font-family: var(--font-heading); font-size:1.1rem; margin-bottom:0.3rem; color:var(--text-main);"><i class="fa-solid fa-photo-film"></i> Medien & Links</h4>
                         <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.3;">
-                            Füge Fotos, Videos und Hörproben für dein Profil hinzu, um es attraktiver zu gestalten.
+                            Füge Fotos, Videos, Hörproben und deine Links für dein Profil hinzu, um es attraktiver zu gestalten.
                         </p>
                         <div class="form-group" style="margin-bottom: 1.2rem;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
@@ -16265,6 +16356,26 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                                 </button>
                             </div>
                             <div id="reg-musician-audios-preview" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+                        </div>
+
+                        <!-- Social Media Links (YouTube, Spotify, SoundCloud) -->
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
+                                <i class="fa-brands fa-youtube" style="color: #ff0000; font-size: 1.05rem;"></i> YouTube-Link
+                            </label>
+                            <input type="url" name="musYoutube" class="input-field" placeholder="https://www.youtube.com/...">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
+                                <i class="fa-brands fa-spotify" style="color: #1db954; font-size: 1.05rem;"></i> Spotify-Link
+                            </label>
+                            <input type="url" name="musSpotify" class="input-field" placeholder="https://open.spotify.com/...">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.2rem;">
+                            <label style="font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
+                                <i class="fa-brands fa-soundcloud" style="color: #ff5500; font-size: 1.05rem;"></i> SoundCloud-Link
+                            </label>
+                            <input type="url" name="musSoundcloud" class="input-field" placeholder="https://soundcloud.com/...">
                         </div>
                     </div>
 
@@ -17760,6 +17871,17 @@ function renderAuthModal(wrapper, onSuccessCallback, defaultRole) {
                     url: typeof a === 'string' ? a : String(a.url || ''),
                     title: typeof a === 'string' ? '' : String(a.title || '')
                 }));
+            const musYoutube = (registerForm.elements.musYoutube?.value || '').trim();
+            const musSpotify = (registerForm.elements.musSpotify?.value || '').trim();
+            const musSoundcloud = (registerForm.elements.musSoundcloud?.value || '').trim();
+            payload.youtube = musYoutube;
+            payload.spotify = musSpotify;
+            payload.soundcloud = musSoundcloud;
+            payload.socialLinks = {
+                youtube: musYoutube,
+                spotify: musSpotify,
+                soundcloud: musSoundcloud
+            };
         } else {
             payload.eventName = registerForm.elements.eventName.value.trim();
             payload.orgEventTypes = Array.from(registerForm.querySelectorAll('input[name="orgEventTypes"]:checked')).map(el => el.value);
@@ -19588,48 +19710,96 @@ window.updateHeaderActionPills = function() {
         const activeProfileName = currentActiveProfile ? (currentActiveProfile.name || currentActiveProfile.title || currentActiveProfile.contactName || fallbackProfileTitle) : fallbackProfileTitle;
         const shortActiveProfileName = truncateProfileLabel(activeProfileName, 18);
 
-        const profileOptions = userProfiles.map(p => {
-            const rawName = p.name || p.title || p.contactName || (isMusicianRole ? 'Mein Profil' : 'Mein Event');
-            const shortName = truncateProfileLabel(rawName, 22);
-            return `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''} style="background: #ffffff; color: #0f172a;">${shortName}</option>`;
-        }).join('');
-        const defaultProfileOption = (userProfiles.length === 0)
-            ? `<option value="none" selected style="background: #ffffff; color: #0f172a;">${fallbackProfileTitle}</option>`
-            : '';
+        const themeColor = isMusicianRole ? '#7c3aed' : '#2563eb';
+        const profileItemsHtml = (userProfiles.length === 0)
+            ? `
+                <button type="button" class="header-profile-dropdown-item active" data-profile-id="none">
+                    <span class="header-profile-item-name">${fallbackProfileTitle}</span>
+                    <i class="fa-solid fa-check" style="color: ${themeColor}; font-size: 0.85rem;"></i>
+                </button>
+            `
+            : userProfiles.map(p => {
+                const rawName = p.name || p.title || p.contactName || (isMusicianRole ? 'Mein Profil' : 'Mein Event');
+                const shortName = truncateProfileLabel(rawName, 22);
+                const isActive = p.id === activeProfileId;
+                return `
+                    <button type="button" class="header-profile-dropdown-item ${isActive ? 'active' : ''}" data-profile-id="${p.id}">
+                        <span class="header-profile-item-name">${shortName}</span>
+                        ${isActive ? `<i class="fa-solid fa-check" style="color: ${themeColor}; font-size: 0.85rem;"></i>` : ''}
+                    </button>
+                `;
+            }).join('');
 
         authArea.innerHTML = `
-            <div class="header-action-pills ${themeClass}">
+            <div class="header-action-pills ${themeClass}" style="position: relative;">
                 <button class="header-action-pill header-profile-pill ${themeClass}" id="header-profile-picker-wrapper" type="button" title="Profil auswählen">
                     <span class="header-profile-name-text" id="header-profile-label">${shortActiveProfileName}</span>
-                    <select id="header-profile-select" class="header-profile-native-select" aria-label="Profil auswählen">
-                        ${defaultProfileOption}
-                        ${profileOptions}
-                    </select>
                 </button>
+                <div id="header-profile-dropdown-menu" class="header-profile-dropdown-menu" style="display: none;">
+                    <div class="header-profile-dropdown-list">
+                        ${profileItemsHtml}
+                    </div>
+                    <div class="header-profile-dropdown-divider"></div>
+                    <button type="button" id="header-profile-logout-btn" class="header-profile-logout-btn" title="Abmelden">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Abmelden</span>
+                    </button>
+                </div>
             </div>
         `;
 
-        const headerProfSelect = document.getElementById('header-profile-select');
-        if (headerProfSelect) {
-            headerProfSelect.addEventListener('change', function(e) {
-                const val = this.value;
-                if (val && val !== 'none') {
-                    if (isMusicianRole) {
-                        state.activeMusicianId = val;
-                    } else {
-                        state.activeEventId = val;
-                    }
-                    if (state && typeof state.saveState === 'function') state.saveState();
-                    if (state && typeof state.notify === 'function') state.notify();
-                    if (typeof window.updateHeaderActionPills === 'function') {
-                        window.updateHeaderActionPills();
-                    }
-                    const appMain = document.getElementById('app-main');
-                    if (appMain && typeof renderProfilePage === 'function') {
-                        renderProfilePage(appMain);
-                    }
-                }
+        const pickerWrapper = document.getElementById('header-profile-picker-wrapper');
+        const dropdownMenu = document.getElementById('header-profile-dropdown-menu');
+        const logoutBtn = document.getElementById('header-profile-logout-btn');
+
+        if (pickerWrapper && dropdownMenu) {
+            pickerWrapper.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isCurrentlyOpen = dropdownMenu.style.display === 'block';
+                dropdownMenu.style.display = isCurrentlyOpen ? 'none' : 'block';
             });
+
+            dropdownMenu.querySelectorAll('.header-profile-dropdown-item').forEach(itemBtn => {
+                itemBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const val = this.getAttribute('data-profile-id');
+                    dropdownMenu.style.display = 'none';
+                    if (val && val !== 'none') {
+                        if (isMusicianRole) {
+                            state.activeMusicianId = val;
+                        } else {
+                            state.activeEventId = val;
+                        }
+                        if (state && typeof state.saveState === 'function') state.saveState();
+                        if (state && typeof state.notify === 'function') state.notify();
+                        if (typeof window.updateHeaderActionPills === 'function') {
+                            window.updateHeaderActionPills();
+                        }
+                        const appMain = document.getElementById('app-main');
+                        if (appMain && typeof renderProfilePage === 'function') {
+                            renderProfilePage(appMain);
+                        }
+                    }
+                });
+            });
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.style.display = 'none';
+                    window.handleLogoutRedirect();
+                });
+            }
+
+            if (window._headerProfileDropdownListener) {
+                document.removeEventListener('click', window._headerProfileDropdownListener);
+            }
+            window._headerProfileDropdownListener = function(e) {
+                if (dropdownMenu && !authArea.contains(e.target)) {
+                    dropdownMenu.style.display = 'none';
+                }
+            };
+            document.addEventListener('click', window._headerProfileDropdownListener);
         }
         return;
     }
@@ -22862,22 +23032,28 @@ function renderMarketGridHTML(items, isEvents, isLandingPage = false, isFavorite
                             <span style="flex: 1;">${formatTruncatedValue(durationDisplay, themeColor, item.id, 'duration')}</span>
                         </div>
 
-                        <!-- 8. Publikum -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
-                            <i class="fa-solid fa-users" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${formatPublikumHelper(item.minPublikum, item.maxPublikum, '0 - 500+')} Personen</span>
-                        </div>
+                        <!-- 8. Publikum, 9. Technik, 10. Gage + Social Links rechts daneben -->
+                        <div style="display: flex; align-items: stretch; justify-content: space-between; gap: 0.5rem;">
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem; flex: 1; min-width: 0;">
+                                <!-- 8. Publikum -->
+                                <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                                    <i class="fa-solid fa-users" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                    <span style="flex: 1;">${formatPublikumHelper(item.minPublikum, item.maxPublikum, '0 - 500+')} Personen</span>
+                                </div>
 
-                        <!-- 9. Technik -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
-                            <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, item.id, 'tech') : 'nach Vereinbarung'}</span>
-                        </div>
+                                <!-- 9. Technik -->
+                                <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                                    <i class="fa-solid fa-sliders" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                    <span style="flex: 1;">${techArr.length > 0 ? formatTruncatedValue(techArr, themeColor, item.id, 'tech') : 'nach Vereinbarung'}</span>
+                                </div>
 
-                        <!-- 10. Gage -->
-                        <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
-                            <i class="fa-solid fa-coins" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
-                            <span style="flex: 1;">${budgetDisplay}</span>
+                                <!-- 10. Gage -->
+                                <div style="display: flex; align-items: flex-start; gap: 0.75rem; line-height: 1.35; font-size: 0.88rem; color: var(--text-main);">
+                                    <i class="fa-solid fa-coins" style="color: ${themeColor}; width: 18px; text-align: center; font-size: 0.95rem; margin-top: 0.15rem;"></i>
+                                    <span style="flex: 1;">${budgetDisplay}</span>
+                                </div>
+                            </div>
+                            ${renderTileMusicianSocialIcons(item, isOrganizerUser)}
                         </div>
                     </div>
                     `}
